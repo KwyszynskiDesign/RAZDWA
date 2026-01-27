@@ -1,34 +1,49 @@
 import { calculateSolwentPlakaty } from "./categories/solwent-plakaty";
 import { formatPLN } from "./core/money";
 
-function main() {
-  const inputs = [
+function getSampleData() {
+  return [
     { areaM2: 0.5, material: "Papier 200g połysk", express: false },
     { areaM2: 5, material: "Papier 200g połysk", express: true },
     { areaM2: 50, material: "Blockout 200g satyna", express: false }
   ];
+}
 
-  console.log("--- Kalkulator Cen ---");
+function renderResults() {
+  const resultsElement = document.getElementById("results");
+  if (!resultsElement) return;
+
+  const inputs = getSampleData();
+  let html = "";
+
   for (const input of inputs) {
     try {
       const result = calculateSolwentPlakaty(input);
-      console.log(`\nInput: ${input.areaM2}m2, ${input.material}${input.express ? " (EXPRESS)" : ""}`);
-      console.log(`Cena jednostkowa: ${result.tierPrice} zł/m2`);
-      console.log(`Ilość (efektywna): ${result.effectiveQuantity} m2`);
-      console.log(`Cena bazowa: ${formatPLN(result.basePrice)}`);
-      if (result.modifiersTotal > 0) {
-        console.log(`Dopłaty: ${formatPLN(result.modifiersTotal)} (${result.appliedModifiers.join(", ")})`);
-      }
-      console.log(`SUMA BRUTTO: ${formatPLN(result.totalPrice)}`);
+      html += `
+        <div class="result-item">
+          <strong>${input.areaM2}m2, ${input.material}${input.express ? " (EXPRESS)" : ""}</strong><br>
+          Cena jednostkowa: ${result.tierPrice} zł/m2<br>
+          Ilość (efektywna): ${result.effectiveQuantity} m2<br>
+          Cena bazowa: ${formatPLN(result.basePrice)}<br>
+          ${result.modifiersTotal > 0 ? `Dopłaty: ${formatPLN(result.modifiersTotal)} (${result.appliedModifiers.join(", ")})<br>` : ""}
+          <span class="price-total">SUMA BRUTTO: ${formatPLN(result.totalPrice)}</span>
+        </div>
+      `;
     } catch (error: any) {
-      console.error(`Błąd: ${error.message}`);
+      html += `<div class="result-item" style="color: red;">Błąd: ${error.message}</div>`;
     }
   }
+
+  resultsElement.innerHTML = html;
 }
 
-// Check if running directly (node) or via ts-node
-if (require.main === module) {
-  main();
+// Browser entry point
+if (typeof document !== "undefined") {
+  if (document.readyState === 'loading') {
+    document.addEventListener("DOMContentLoaded", renderResults);
+  } else {
+    renderResults();
+  }
 }
 
 export { calculateSolwentPlakaty };
