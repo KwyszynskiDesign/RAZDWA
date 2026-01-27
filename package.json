@@ -6,7 +6,8 @@
   "scripts": {
     "test": "vitest run",
     "calculate": "ts-node src/index.ts",
-    "build": "esbuild src/index.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm"
+    "build": "esbuild src/ui/main.ts --bundle --sourcemap --outfile=public/assets/app.js --platform=browser --format=esm",
+    "dev": "esbuild src/ui/main.ts --bundle --sourcemap --outfile=public/assets/app.js --platform=browser --format=esm --watch"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
