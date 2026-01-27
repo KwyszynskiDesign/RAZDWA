@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/ui/main.ts"],
-  "sourcesContent": ["console.log(\"Kalkulator UI initialized\");\n\n// Initial placeholder for UI logic migration\ndocument.addEventListener(\"DOMContentLoaded\", () => {\n    const appHeader = document.querySelector(\"h1\");\n    if (appHeader) {\n        console.log(\"App header found:\", appHeader.textContent);\n    }\n});\n"],
-  "mappings": ";AAAA,QAAQ,IAAI,2BAA2B;AAGvC,SAAS,iBAAiB,oBAAoB,MAAM;AAChD,QAAM,YAAY,SAAS,cAAc,IAAI;AAC7C,MAAI,WAAW;AACX,YAAQ,IAAI,qBAAqB,UAAU,WAAW;AAAA,EAC1D;AACJ,CAAC;",
-  "names": []
-}
