@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator – Studio Raz Druku Dwa</title>
+  <link rel="stylesheet" href="assets/styles.css" />
+</head>
+
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+      <p class="small">Oblicz → Dodaj do listy → Wyślij listę do arkusza.</p>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- LEFT: MENU -->
+    <div class="card">
+      <h2>Kategorie</h2>
+      <div id="menu" class="menu-list">
+        <!-- Dynamic Category Menu -->
+      </div>
+    </div>
+
+    <!-- CENTER: VIEW -->
+    <div id="view" class="card">
+      <p>Wybierz kategorię z menu...</p>
+    </div>
+
+    <!-- RIGHT: CART SUMMARY -->
+    <div class="card">
+      <h2>Podsumowanie</h2>
+
+      <div class="summary">
+        <div class="sumRow">
+          <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
+          <div class="v"><span id="currentPrice">0.00</span> zł</div>
+        </div>
+        <div class="sumRow total">
+          <div class="k">Suma listy</div>
+          <div class="v"><span id="basketTotal">0.00</span> zł</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="basket">
+        <div class="basketList" id="basketList"></div>
+
+        <div class="actions">
+          <button id="clearBtn" class="danger">Wyczyść listę</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <details>
+          <summary>Ustawienia wysyłki</summary>
+          <div class="hint" style="margin-top:8px;">Wklej URL z wdrożenia Apps Script (Web App).</div>
+          <input id="webAppUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
+        </details>
+
+        <div class="actions">
+          <button id="sendBtn" class="success">Wyślij listę do arkusza</button>
+          <button id="copyBtn">Kopiuj JSON listy</button>
+          <span id="sendStatus" class="status"></span>
+        </div>
+
+        <details style="margin-top:10px;">
+          <summary>Szczegóły listy (JSON)</summary>
+          <pre id="basketDebug">[]</pre>
+        </details>
+      </div>
+    </div>
+  </div>
+</div>
+<script type="module" src="assets/app.js"></script>
+</body>
+</html>
