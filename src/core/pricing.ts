@@ -46,6 +46,8 @@ export function calculatePrice(
         appliedModifiers.push(modifier.name);
         if (modifier.type === "percent") {
           modifiersTotal += basePrice * modifier.value;
+        } else if (modifier.type === "fixed_per_unit") {
+          modifiersTotal += modifier.value * effectiveQuantity;
         } else {
           modifiersTotal += modifier.value;
         }

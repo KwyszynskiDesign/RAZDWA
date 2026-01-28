@@ -10,7 +10,7 @@ export interface Tier {
 export interface Modifier {
   id: string;
   name: string;
-  type: "percent" | "fixed";
+  type: "percent" | "fixed" | "fixed_per_unit";
   value: number; // e.g., 0.20 for 20%
 }
 
