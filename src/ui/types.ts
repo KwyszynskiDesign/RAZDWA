@@ -1,17 +1,16 @@
-export interface CartItem {
-  id: string;
-  title: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-}
+import { CartItem } from "../core/types";
 
 export interface ViewContext {
-  addToCart: (item: CartItem) => void;
-  updateLastCalculated: (price: number) => void;
+  cart: {
+    addItem: (item: CartItem) => void;
+  };
+  expressMode: boolean;
+  updateLastCalculated: (price: number, hint?: string) => void;
 }
 
 export interface View {
-  mount(el: HTMLElement, ctx: ViewContext): void;
+  id: string;
+  name: string;
+  mount: (container: HTMLElement, ctx: ViewContext) => void;
+  unmount?: () => void;
 }

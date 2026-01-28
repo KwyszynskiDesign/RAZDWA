@@ -4,7 +4,31 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kalkulator – Studio Raz Druku Dwa</title>
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ff3c00" />
   <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <style>
+    /* Additional styles for category search */
+    .search-wrap {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .search-select {
+      flex-grow: 1;
+    }
+    .express-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ok);
+      cursor: pointer;
+    }
+  </style>
 </head>
 
 <body>
@@ -14,23 +38,28 @@
       <h1>Kalkulator – Studio Raz Druku Dwa</h1>
       <p class="small">Oblicz → Dodaj do listy → Wyślij listę do arkusza.</p>
     </div>
+    <div class="express-toggle">
+      <input type="checkbox" id="globalExpress" style="width: auto;">
+      <label for="globalExpress">TRYB EXPRESS (+20%)</label>
+    </div>
   </header>
 
+  <div class="search-wrap card">
+    <div class="search-select">
+      <input type="text" id="categorySearch" placeholder="Szukaj kategorii..." style="margin-bottom: 8px;">
+      <select id="categorySelector">
+        <option value="">Wybierz kategorię...</option>
+      </select>
+    </div>
+  </div>
+
   <div class="grid">
-    <!-- LEFT: MENU -->
-    <div class="card">
-      <h2>Kategorie</h2>
-      <div id="menu" class="menu-list">
-        <!-- Dynamic Category Menu -->
-      </div>
-    </div>
+    <!-- LEFT: VIEW CONTAINER -->
+    <main id="viewContainer" class="card">
+      <p>Proszę wybrać kategorię powyżej...</p>
+    </main>
 
-    <!-- CENTER: VIEW -->
-    <div id="view" class="card">
-      <p>Wybierz kategorię z menu...</p>
-    </div>
-
-    <!-- RIGHT: CART SUMMARY -->
+    <!-- RIGHT: PERSISTENT CART/SUMMARY -->
     <div class="card">
       <h2>Podsumowanie</h2>
 
@@ -48,7 +77,15 @@
       <div class="divider"></div>
 
       <div class="basket">
-        <div class="basketList" id="basketList"></div>
+        <div class="basketList" id="basketList">
+          <div class="basketItem">
+            <div>
+              <div class="basketTitle">Brak pozycji</div>
+              <div class="basketMeta">Kliknij „Dodaj”, aby zbudować listę.</div>
+            </div>
+            <div class="basketPrice">—</div>
+          </div>
+        </div>
 
         <div class="actions">
           <button id="clearBtn" class="danger">Wyczyść listę</button>
@@ -56,9 +93,18 @@
 
         <div class="divider"></div>
 
-        <details>
-          <summary>Ustawienia wysyłki</summary>
-          <div class="hint" style="margin-top:8px;">Wklej URL z wdrożenia Apps Script (Web App).</div>
+        <details open>
+          <summary>Dane klienta / Wysyłka</summary>
+          <div class="hint" style="margin-top:8px;">Podaj dane do arkusza Excel.</div>
+          <input id="custName" type="text" placeholder="Imię i Nazwisko / Firma" />
+          <input id="custPhone" type="text" placeholder="Telefon" />
+          <input id="custEmail" type="text" placeholder="Email" />
+          <select id="custPriority">
+            <option value="Normalny">Priorytet: Normalny</option>
+            <option value="Wysoki">Priorytet: Wysoki</option>
+            <option value="Krytyczny">Priorytet: Krytyczny</option>
+          </select>
+          <div class="hint" style="margin-top:8px;">Opcjonalnie: URL Apps Script</div>
           <input id="webAppUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
         </details>
 

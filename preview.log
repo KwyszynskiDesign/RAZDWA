@@ -1,0 +1,50 @@
+
+> pricing-calculator@1.0.0 preview
+> npx http-server public
+
+npm warn exec The following package was not found and will be installed: http-server@14.1.1
+npm warn deprecated whatwg-encoding@2.0.0: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+Starting up http-server, serving public
+
+http-server version: 14.1.1
+
+http-server settings:
+CORS: disabled
+Cache: 3600 seconds
+Connection Timeout: 120 seconds
+Directory Listings: visible
+AutoIndex: visible
+Serve GZIP Files: false
+Serve Brotli Files: false
+Default File Extension: none
+
+Available on:
+  http://127.0.0.1:8080
+  http://192.168.0.2:8080
+Hit CTRL-C to stop the server
+
+[2026-01-28T18:22:49.901Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+(node:48706) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[2026-01-28T18:22:49.934Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:22:49.940Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:22:50.529Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:22:50.580Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:22:50.589Z]  "GET /assets/icons/favicon.ico" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:22:50.596Z]  "GET /assets/icons/favicon.ico" Error (404): "Not found"
+[2026-01-28T18:50:32.264Z]  "HEAD /" "curl/8.5.0"
+[2026-01-28T18:51:49.611Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:49.646Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:49.657Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:50.276Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:50.346Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:50.350Z]  "GET /assets/icons/favicon.ico" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:51:50.433Z]  "GET /assets/icons/favicon.ico" Error (404): "Not found"
+[2026-01-28T18:53:00.728Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:00.739Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:00.744Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:00.995Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:01.019Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:01.042Z]  "GET /assets/icons/favicon.ico" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-01-28T18:53:01.043Z]  "GET /assets/icons/favicon.ico" Error (404): "Not found"
+http-server stopped.

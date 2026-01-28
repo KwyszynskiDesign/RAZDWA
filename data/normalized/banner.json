@@ -1,0 +1,30 @@
+{
+  "id": "banner",
+  "title": "Bannery",
+  "unit": "m2",
+  "pricing": "per_unit",
+  "materials": [
+    {
+      "id": "powlekany",
+      "name": "Banner powlekany",
+      "tiers": [
+        { "min": 1, "max": 25, "price": 53.0 },
+        { "min": 26, "max": 50, "price": 49.0 },
+        { "min": 51, "max": null, "price": 45.0 }
+      ]
+    },
+    {
+      "id": "blockout",
+      "name": "Banner Blockout",
+      "tiers": [
+        { "min": 1, "max": 25, "price": 64.0 },
+        { "min": 26, "max": 50, "price": 59.0 },
+        { "min": 51, "max": null, "price": 55.0 }
+      ]
+    }
+  ],
+  "modifiers": [
+    { "id": "oczkowanie", "name": "Oczkowanie (+2.50 zł/m2)", "type": "fixed_per_unit", "value": 2.50 },
+    { "id": "express", "name": "TRYB EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+  ]
+}

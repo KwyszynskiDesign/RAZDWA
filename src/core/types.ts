@@ -10,7 +10,7 @@ export interface Tier {
 export interface Modifier {
   id: string;
   name: string;
-  type: "percent" | "fixed";
+  type: "percent" | "fixed" | "fixed_per_unit";
   value: number; // e.g., 0.20 for 20%
 }
 
@@ -38,4 +38,24 @@ export interface CalculationResult {
   modifiersTotal: number;
   totalPrice: number;
   appliedModifiers: string[];
+}
+
+export interface CartItem {
+  id: string;
+  category: string;
+  name: string;
+  quantity: number;
+  unit: Unit;
+  unitPrice: number;
+  isExpress: boolean;
+  totalPrice: number;
+  optionsHint: string;
+  payload: any;
+}
+
+export interface CustomerData {
+  name: string;
+  phone: string;
+  email: string;
+  priority: string;
 }
