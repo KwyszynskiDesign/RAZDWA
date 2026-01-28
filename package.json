@@ -2,12 +2,12 @@
   "name": "pricing-calculator",
   "version": "1.0.0",
   "description": "Price calculator foundation",
-  "main": "src/index.ts",
+  "main": "src/ui/main.ts",
   "scripts": {
     "test": "vitest run",
-    "calculate": "ts-node src/index.ts",
-    "build": "esbuild src/ui/main.ts --bundle --sourcemap --outfile=public/assets/app.js --platform=browser --format=esm",
-    "dev": "esbuild src/ui/main.ts --bundle --sourcemap --outfile=public/assets/app.js --platform=browser --format=esm --watch"
+    "calculate": "ts-node src/ui/main.ts",
+    "build": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --watch"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
