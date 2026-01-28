@@ -2,6 +2,7 @@ import { Router } from "./router";
 import { ViewContext } from "./types";
 import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
+import { VoucheryView } from "./views/vouchery";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -81,6 +82,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const router = new Router(viewContainer, getCtx);
   router.addRoute(SampleCategory);
   router.addRoute(SolwentPlakatyView);
+  router.addRoute(VoucheryView);
 
   categorySelector.addEventListener("change", () => {
     const val = categorySelector.value;

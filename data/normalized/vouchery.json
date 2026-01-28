@@ -1,0 +1,16 @@
+[
+  { "qty": 1, "single": 20, "double": 25 },
+  { "qty": 2, "single": 29, "double": 32 },
+  { "qty": 3, "single": 30, "double": 37 },
+  { "qty": 4, "single": 32, "double": 39 },
+  { "qty": 5, "single": 35, "double": 43 },
+  { "qty": 6, "single": 39, "double": 45 },
+  { "qty": 7, "single": 41, "double": 48 },
+  { "qty": 8, "single": 45, "double": 50 },
+  { "qty": 9, "single": 48, "double": 52 },
+  { "qty": 10, "single": 52, "double": 58 },
+  { "qty": 15, "single": 60, "double": 70 },
+  { "qty": 20, "single": 67, "double": 82 },
+  { "qty": 25, "single": 74, "double": 100 },
+  { "qty": 30, "single": 84, "double": 120 }
+]
