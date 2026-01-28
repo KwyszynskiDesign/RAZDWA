@@ -7,6 +7,7 @@ import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
 import { CustomerData } from "../core/types";
+import categories from "../../data/categories.json";
 
 const cart = new Cart();
 
@@ -80,9 +81,21 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const router = new Router(viewContainer, getCtx);
-  router.addRoute(SampleCategory);
+  router.setCategories(categories);
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
+
+  // Populate category selector
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat.id;
+    opt.innerText = `${cat.icon} ${cat.name}`;
+    if (!cat.implemented) {
+      opt.disabled = true;
+      opt.innerText += " (wkrótce)";
+    }
+    categorySelector.appendChild(opt);
+  });
 
   categorySelector.addEventListener("change", () => {
     const val = categorySelector.value;
@@ -95,11 +108,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   categorySearch.addEventListener("input", () => {
     const filter = categorySearch.value.toLowerCase();
-    const options = categorySelector.options;
-    for (let i = 1; i < options.length; i++) {
-      const option = options[i];
-      const text = option.text.toLowerCase();
-      (option as any).hidden = !text.includes(filter);
+    const options = Array.from(categorySelector.options);
+    options.forEach((opt, idx) => {
+      if (idx === 0) return; // Skip "Wybierz kategorię..."
+      const text = opt.text.toLowerCase();
+      (opt as any).hidden = !text.includes(filter);
+    });
+  });
+
+  categorySearch.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const filter = categorySearch.value.toLowerCase();
+      const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
+        return idx > 0 && !(opt as any).hidden && !(opt as any).disabled;
+      });
+      if (firstVisible) {
+        categorySelector.value = firstVisible.value;
+        window.location.hash = `#/${firstVisible.value}`;
+        categorySearch.value = "";
+      }
     }
   });
 
