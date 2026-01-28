@@ -6,6 +6,7 @@ import { VoucheryView } from "./views/vouchery";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
 import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { BannerView } from "./views/banner";
+import { WlepkiView } from "./views/wlepki-naklejki";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -90,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(WizytowkiView);
   router.addRoute(UlotkiDwustronneView);
   router.addRoute(BannerView);
+  router.addRoute(WlepkiView);
 
   // Populate category selector
   categories.forEach(cat => {
