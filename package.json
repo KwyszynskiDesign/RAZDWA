@@ -5,12 +5,17 @@
   "main": "src/ui/main.ts",
   "scripts": {
     "test": "vitest run",
-    "build": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm",
-    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --watch"
+    "build": "npm run build:js && npm run build:css",
+    "build:js": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --minify",
+    "build:css": "esbuild src/assets/styles.css --minify --outfile=public/assets/styles.css --allow-overwrite",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --watch",
+    "preview": "npx http-server public",
+    "deploy": "npm run build && gh-pages -d public"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "esbuild": "^0.27.2",
+    "gh-pages": "^6.3.0",
     "ts-node": "^10.9.1",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"
