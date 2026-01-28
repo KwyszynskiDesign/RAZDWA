@@ -1,20 +1,22 @@
 import { View, ViewContext } from "../types";
 import { calculateSolwentPlakaty } from "../../categories/solwent-plakaty";
 import { formatPLN } from "../../core/money";
+import * as data from "../../../data/normalized/solwent-plakaty.json";
 
 export const SolwentPlakatyView: View = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
   mount(container, ctx) {
+    const tableData = data as any;
+    const materials = tableData.materials;
+
     container.innerHTML = `
       <h2>Solwent - Plakaty</h2>
       <div class="form">
         <div class="row">
           <label for="material">Materiał:</label>
           <select id="material">
-            <option value="Papier 200g połysk">Papier 200g połysk</option>
-            <option value="Papier 115g matowy">Papier 115g matowy</option>
-            <option value="Blockout 200g satyna">Blockout 200g satyna</option>
+            ${materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("")}
           </select>
         </div>
 

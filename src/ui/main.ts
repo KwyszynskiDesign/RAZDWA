@@ -1,7 +1,7 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
 import { SampleCategory } from "./categories/sample";
-import { SolwentPlakatyView } from "./categories/solwent-plakaty";
+import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";

@@ -11,8 +11,10 @@ export interface SolwentPlakatyInput {
 export function calculateSolwentPlakaty(input: SolwentPlakatyInput): CalculationResult {
   const tableData = data as any;
 
-  const tiers = tableData.materials[input.material];
-  if (!tiers) {
+  // Find material by name in the list
+  const materialData = tableData.materials.find((m: any) => m.name === input.material);
+
+  if (!materialData) {
     throw new Error(`Unknown material: ${input.material}`);
   }
 
@@ -21,7 +23,7 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
     title: tableData.title,
     unit: tableData.unit,
     pricing: tableData.pricing,
-    tiers: tiers,
+    tiers: materialData.tiers,
     rules: tableData.rules,
     modifiers: tableData.modifiers
   };
