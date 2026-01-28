@@ -3,6 +3,7 @@ import { ViewContext } from "./types";
 import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { VoucheryView } from "./views/vouchery";
+import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -84,6 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.setCategories(categories);
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
+  router.addRoute(WizytowkiView);
 
   // Populate category selector
   categories.forEach(cat => {

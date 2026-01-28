@@ -1,0 +1,50 @@
+{
+  "85x55": {
+    "none": [
+      { "qty": 50, "price": 65 },
+      { "qty": 100, "price": 75 },
+      { "qty": 150, "price": 85 },
+      { "qty": 200, "price": 96 },
+      { "qty": 250, "price": 110 },
+      { "qty": 300, "price": 126 },
+      { "qty": 400, "price": 146 },
+      { "qty": 500, "price": 170 },
+      { "qty": 1000, "price": 290 }
+    ],
+    "matt_gloss": [
+      { "qty": 50, "price": 160 },
+      { "qty": 100, "price": 170 },
+      { "qty": 150, "price": 180 },
+      { "qty": 200, "price": 190 },
+      { "qty": 250, "price": 200 },
+      { "qty": 300, "price": 220 },
+      { "qty": 400, "price": 240 },
+      { "qty": 500, "price": 250 },
+      { "qty": 1000, "price": 335 }
+    ]
+  },
+  "90x50": {
+    "none": [
+      { "qty": 50, "price": 70 },
+      { "qty": 100, "price": 79 },
+      { "qty": 150, "price": 89 },
+      { "qty": 200, "price": 99 },
+      { "qty": 250, "price": 120 },
+      { "qty": 300, "price": 129 },
+      { "qty": 400, "price": 149 },
+      { "qty": 500, "price": 175 },
+      { "qty": 1000, "price": 300 }
+    ],
+    "matt_gloss": [
+      { "qty": 50, "price": 170 },
+      { "qty": 100, "price": 180 },
+      { "qty": 150, "price": 190 },
+      { "qty": 200, "price": 200 },
+      { "qty": 250, "price": 210 },
+      { "qty": 300, "price": 230 },
+      { "qty": 400, "price": 250 },
+      { "qty": 500, "price": 260 },
+      { "qty": 1000, "price": 345 }
+    ]
+  }
+}
