@@ -4,7 +4,7 @@
   { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": false },
   { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
   { "id": "zaproszenia", "name": "Zaproszenia", "icon": "✉️", "implemented": false },
-  { "id": "ulotki", "name": "Ulotki", "icon": "📄", "implemented": false },
+  { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": false },
   { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": false }
 ]

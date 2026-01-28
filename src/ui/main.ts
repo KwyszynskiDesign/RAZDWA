@@ -4,6 +4,7 @@ import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { VoucheryView } from "./views/vouchery";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
+import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -86,6 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
   router.addRoute(WizytowkiView);
+  router.addRoute(UlotkiDwustronneView);
 
   // Populate category selector
   categories.forEach(cat => {
