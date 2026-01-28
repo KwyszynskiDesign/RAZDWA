@@ -23,11 +23,14 @@ export const SampleCategory: View = {
       const price = parseFloat(priceInput.value);
       ctx.cart.addItem({
         id: `sample-${Date.now()}`,
-        title: "Przedmiot testowy",
-        description: `Cena: ${price}, Express: ${ctx.expressMode}`,
+        category: "Sample",
+        name: "Przedmiot testowy",
         quantity: 1,
+        unit: "szt",
         unitPrice: price,
+        isExpress: ctx.expressMode,
         totalPrice: price,
+        optionsHint: `Cena: ${price}, Express: ${ctx.expressMode}`,
         payload: { type: 'sample', price, express: ctx.expressMode }
       });
     };

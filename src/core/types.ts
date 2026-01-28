@@ -39,3 +39,23 @@ export interface CalculationResult {
   totalPrice: number;
   appliedModifiers: string[];
 }
+
+export interface CartItem {
+  id: string;
+  category: string;
+  name: string;
+  quantity: number;
+  unit: Unit;
+  unitPrice: number;
+  isExpress: boolean;
+  totalPrice: number;
+  optionsHint: string;
+  payload: any;
+}
+
+export interface CustomerData {
+  name: string;
+  phone: string;
+  email: string;
+  priority: string;
+}

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Kalkulator – Studio Raz Druku Dwa</title>
   <link rel="stylesheet" href="assets/styles.css" />
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <style>
     /* Additional styles for category search */
     .search-wrap {
@@ -92,9 +93,18 @@
 
         <div class="divider"></div>
 
-        <details>
-          <summary>Ustawienia wysyłki</summary>
-          <div class="hint" style="margin-top:8px;">Wklej URL z wdrożenia Apps Script (Web App).</div>
+        <details open>
+          <summary>Dane klienta / Wysyłka</summary>
+          <div class="hint" style="margin-top:8px;">Podaj dane do arkusza Excel.</div>
+          <input id="custName" type="text" placeholder="Imię i Nazwisko / Firma" />
+          <input id="custPhone" type="text" placeholder="Telefon" />
+          <input id="custEmail" type="text" placeholder="Email" />
+          <select id="custPriority">
+            <option value="Normalny">Priorytet: Normalny</option>
+            <option value="Wysoki">Priorytet: Wysoki</option>
+            <option value="Krytyczny">Priorytet: Krytyczny</option>
+          </select>
+          <div class="hint" style="margin-top:8px;">Opcjonalnie: URL Apps Script</div>
           <input id="webAppUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
         </details>
 

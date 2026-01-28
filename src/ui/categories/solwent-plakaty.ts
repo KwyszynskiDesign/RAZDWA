@@ -78,11 +78,14 @@ export const SolwentPlakatyView: View = {
       if (currentResult) {
         ctx.cart.addItem({
           id: `solwent-${Date.now()}`,
-          title: "Solwent - Plakaty",
-          description: `${materialSelect.value}, ${areaInput.value}m2${ctx.expressMode ? " [EXPRESS]" : ""}`,
-          quantity: 1,
-          unitPrice: currentResult.totalPrice,
+          category: "Solwent - Plakaty",
+          name: materialSelect.value,
+          quantity: parseFloat(areaInput.value),
+          unit: "m2",
+          unitPrice: currentResult.tierPrice,
+          isExpress: ctx.expressMode,
           totalPrice: currentResult.totalPrice,
+          optionsHint: `${areaInput.value}m2${ctx.expressMode ? ", EXPRESS" : ""}`,
           payload: currentResult
         });
       }

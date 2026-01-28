@@ -1,12 +1,4 @@
-export interface CartItem {
-  id: string;
-  title: string;
-  description: string;
-  quantity: number;
-  unitPrice: number;
-  totalPrice: number;
-  payload: any;
-}
+import { CartItem } from "../core/types";
 
 export interface ViewContext {
   cart: {

@@ -1,10 +1,13 @@
 import { Router } from "./router";
-import { ViewContext, CartItem } from "./types";
+import { ViewContext } from "./types";
 import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./categories/solwent-plakaty";
 import { formatPLN } from "../core/money";
+import { Cart } from "../core/cart";
+import { downloadExcel } from "./excel";
+import { CustomerData } from "../core/types";
 
-const basket: CartItem[] = [];
+const cart = new Cart();
 
 function updateCartUI() {
   const listEl = document.getElementById("basketList");
@@ -13,7 +16,9 @@ function updateCartUI() {
 
   if (!listEl || !totalEl || !debugEl) return;
 
-  if (basket.length === 0) {
+  const items = cart.getItems();
+
+  if (items.length === 0) {
     listEl.innerHTML = `
       <div class="basketItem">
         <div>
@@ -24,11 +29,11 @@ function updateCartUI() {
       </div>
     `;
   } else {
-    listEl.innerHTML = basket.map((item, idx) => `
+    listEl.innerHTML = items.map((item, idx) => `
       <div class="basketItem">
         <div style="min-width:0;">
-          <div class="basketTitle">${item.title}</div>
-          <div class="basketMeta">${item.description}</div>
+          <div class="basketTitle">${item.category}: ${item.name}</div>
+          <div class="basketMeta">${item.optionsHint} (${item.quantity} ${item.unit})</div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
@@ -38,14 +43,14 @@ function updateCartUI() {
     `).join("");
   }
 
-  const total = basket.reduce((sum, item) => sum + item.totalPrice, 0);
+  const total = cart.getGrandTotal();
   totalEl.innerText = formatPLN(total).replace(" zł", "");
-  debugEl.innerText = JSON.stringify(basket.map(i => i.payload), null, 2);
+  debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
 }
 
 // Global exposure for the 'onclick' in generated HTML
 (window as any).removeItem = (idx: number) => {
-  basket.splice(idx, 1);
+  cart.removeItem(idx);
   updateCartUI();
 };
 
@@ -60,7 +65,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const getCtx = (): ViewContext => ({
     cart: {
       addItem: (item) => {
-        basket.push(item);
+        cart.addItem(item);
         updateCartUI();
       }
     },
@@ -113,9 +118,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Clear basket
   document.getElementById("clearBtn")?.addEventListener("click", () => {
-    basket.length = 0;
+    cart.clear();
     updateCartUI();
   });
 
+  // Excel download
+  document.getElementById("sendBtn")?.addEventListener("click", () => {
+    const customer: CustomerData = {
+      name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
+      phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
+      email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
+      priority: (document.getElementById("custPriority") as HTMLSelectElement).value
+    };
+
+    if (cart.isEmpty()) {
+      alert("Lista jest pusta!");
+      return;
+    }
+
+    downloadExcel(cart.getItems(), customer);
+  });
+
+  updateCartUI();
   router.start();
 });
