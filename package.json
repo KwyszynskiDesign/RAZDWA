@@ -1,0 +1,17 @@
+{
+  "name": "razdwa-calculator",
+  "version": "1.0.0",
+  "description": "Price calculator for RazDwa",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "vitest run",
+    "build": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --sourcemap --format=esm",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --sourcemap --format=esm --watch"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3",
+    "vitest": "^1.6.1"
+  }
+}

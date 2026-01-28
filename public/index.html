@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Kalkulator – Studio Raz Druku Dwa (SPA)</title>
+  <style>
+    :root{
+      --bg:#07070b;
+      --txt:#ffffff;
+      --muted:#cfcfe3;
+      --line:rgba(255,255,255,.14);
+      --accent:#1a64b9;
+      --accent2:#02a6b6;
+      --ok:#22c55e;
+      --err:#ef4444;
+      --primary-gradient: linear-gradient(180deg, rgba(255,77,166,.32), rgba(255,77,166,.14));
+      --primary-border: rgba(255,77,166,.55);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(900px 520px at 15% -10%, rgba(255,77,166,.30) 0%, transparent 60%),
+        radial-gradient(900px 520px at 90% 0%, rgba(255,138,200,.18) 0%, transparent 55%),
+        var(--bg);
+      color:var(--txt);
+      min-height: 100vh;
+    }
+
+    .wrap{max-width:1250px; margin:0 auto; padding:24px;}
+    header{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:24px;}
+    h1{margin:0; font-size:18px; letter-spacing:.2px;}
+    .small{color:var(--muted); font-size:12px; margin:0;}
+
+    .menu-container {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: rgba(255,255,255,.05);
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+    }
+    .menu-container input, .menu-container select {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,.3);
+      color: white;
+    }
+    .menu-container input { flex-grow: 1; }
+
+    .grid{display:grid; grid-template-columns: 1.05fr .95fr; gap:14px;}
+    @media (max-width: 980px){ .grid{grid-template-columns: 1fr;} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+      overflow:hidden;
+    }
+    .card h2{margin:0 0 10px; font-size:14px; color:#dbe6ff; letter-spacing:.2px;}
+
+    /* Existing Summary Styles */
+    .summary{display:grid; gap:10px;}
+    .sumRow{
+      display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+      padding:10px 12px; background: rgba(0,0,0,.18);
+      border:1px solid var(--line); border-radius:12px;
+    }
+    .sumRow .k{color:#dbe6ff; font-size:13px;}
+    .sumRow .v{font-variant-numeric: tabular-nums; font-size:13px; font-weight:900;}
+    .sumRow.total{background: rgba(34,197,94,.10); border-color: rgba(34,197,94,.30);}
+    .sumRow.total .v{font-size:18px;}
+
+    .basketList{border:1px solid var(--line); border-radius:12px; overflow:hidden; margin-top: 10px;}
+    .basketItem{
+      display:grid; grid-template-columns: 1fr auto;
+      gap:10px; padding:10px 12px;
+      background: rgba(0,0,0,.18);
+      border-top:1px solid var(--line);
+      align-items:center;
+    }
+    .basketItem:first-child{border-top:0;}
+    .basketTitle{font-size:13px; color:#dbe6ff;}
+    .basketMeta{font-size:12px; color:var(--muted); margin-top:2px;}
+    .basketPrice{font-variant-numeric: tabular-nums; font-weight:950;}
+
+    .divider{height:1px; background:var(--line); margin:12px 0;}
+
+    button{
+      padding:10px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background: rgba(255,255,255,.06);
+      color: var(--txt);
+      cursor:pointer;
+      font-weight:800;
+    }
+    button.primary{
+      background: var(--primary-gradient);
+      border-color: var(--primary-border);
+    }
+    button.success{
+      background: linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.18));
+      border-color: rgba(34,197,94,.45);
+    }
+    button.danger{
+      background: linear-gradient(180deg, rgba(239,68,68,.25), rgba(239,68,68,.12));
+      border-color: rgba(239,68,68,.45);
+    }
+
+    input[type="number"], input[type="text"], select{
+      width:100%;
+      padding:10px 11px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background: rgba(0,0,0,.20);
+      color: var(--txt);
+      outline:none;
+    }
+
+    .status{color:var(--muted); font-size:12px;}
+    .status.err{color:#ffb4b4;}
+    .status.ok{color:#bff7d1;}
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+      <p class="small">SPA: Wybierz kategorię → Oblicz → Zamów.</p>
+    </div>
+  </header>
+
+  <!-- Category Menu -->
+  <nav class="menu-container">
+    <input type="text" id="categorySearch" placeholder="Szukaj kategorii (np. plakaty, wizytówki)..." />
+    <select id="categorySelect">
+      <option value="">-- Wybierz kategorię --</option>
+      <!-- Options will be populated dynamically -->
+    </select>
+  </nav>
+
+  <div class="grid">
+    <!-- LEFT: Dynamic View Container -->
+    <main id="viewContainer" class="card">
+      <div style="padding: 40px; text-align: center; color: var(--muted);">
+        Wybierz kategorię z menu powyżej, aby rozpocząć.
+      </div>
+    </main>
+
+    <!-- RIGHT: Cart / Summary (Persistent) -->
+    <aside class="card">
+      <h2>Podsumowanie</h2>
+      <div class="summary">
+        <div class="sumRow total">
+          <div class="k">Suma koszyka</div>
+          <div class="v"><span id="cartTotal">0.00</span> zł</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="basket">
+        <div class="basketList" id="cartList">
+          <!-- Cart items will appear here -->
+        </div>
+
+        <div class="actions" style="margin-top: 15px;">
+          <button id="clearCartBtn" class="danger">Wyczyść koszyk</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <details>
+          <summary style="cursor:pointer; font-size:13px; font-weight:800; color:#dbe6ff;">Ustawienia wysyłki</summary>
+          <div style="margin-top: 8px;">
+            <input id="webAppUrl" type="text" placeholder="URL do Google Sheets Apps Script" />
+          </div>
+        </details>
+
+        <div class="actions" style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+          <button id="sendCartBtn" class="success">Wyślij zamówienie</button>
+          <button id="copyCartBtn">Kopiuj JSON</button>
+        </div>
+        <div id="sendStatus" class="status" style="margin-top: 8px;"></div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script src="assets/app.js" type="module"></script>
+</body>
+</html>
