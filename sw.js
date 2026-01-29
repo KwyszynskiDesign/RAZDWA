@@ -4,6 +4,13 @@ const ASSETS = [
   './index.html',
   './assets/styles.css',
   './assets/app.js',
+  './data/categories.json',
+  './categories/banner.html',
+  './categories/wlepki-naklejki.html',
+  './categories/ulotki-cyfrowe-dwustronne.html',
+  './categories/ulotki-cyfrowe-jednostronne.html',
+  './categories/roll-up.html',
+  './categories/wizytowki-druk-cyfrowy.html',
   'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js'
 ];
 

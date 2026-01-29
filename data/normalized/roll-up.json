@@ -1,0 +1,41 @@
+{
+  "name": "Roll-up Jednostronny",
+  "formats": {
+    "85x200": {
+      "width": 0.85,
+      "height": 2.0,
+      "tiers": [
+        { "min": 1, "max": 5, "price": 290 },
+        { "min": 6, "max": 10, "price": 275 }
+      ]
+    },
+    "100x200": {
+      "width": 1.0,
+      "height": 2.0,
+      "tiers": [
+        { "min": 1, "max": 5, "price": 305 },
+        { "min": 6, "max": 10, "price": 285 }
+      ]
+    },
+    "120x200": {
+      "width": 1.2,
+      "height": 2.0,
+      "tiers": [
+        { "min": 1, "max": 5, "price": 330 },
+        { "min": 6, "max": 10, "price": 310 }
+      ]
+    },
+    "150x200": {
+      "width": 1.5,
+      "height": 2.0,
+      "tiers": [
+        { "min": 1, "max": 5, "price": 440 },
+        { "min": 6, "max": 10, "price": 425 }
+      ]
+    }
+  },
+  "replacement": {
+    "labor": 50,
+    "print_per_m2": 80
+  }
+}
