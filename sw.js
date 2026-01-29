@@ -4,7 +4,6 @@ const ASSETS = [
   './index.html',
   './assets/styles.css',
   './assets/app.js',
-  './assets/icons/favicon.ico',
   'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js'
 ];
 

@@ -6,11 +6,11 @@
   "scripts": {
     "test": "vitest run",
     "build": "npm run build:js && npm run build:css",
-    "build:js": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --minify",
-    "build:css": "esbuild src/assets/styles.css --minify --outfile=public/assets/styles.css --allow-overwrite",
-    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --platform=browser --format=esm --watch",
-    "preview": "npx http-server public",
-    "deploy": "npm run build && gh-pages -d public"
+    "build:js": "esbuild src/ui/main.ts --bundle --outfile=assets/app.js --platform=browser --format=esm --minify",
+    "build:css": "esbuild src/assets/styles.css --minify --outfile=assets/styles.css --allow-overwrite",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=assets/app.js --platform=browser --format=esm --watch",
+    "preview": "npx http-server .",
+    "deploy": "npm run build && gh-pages -d ."
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
