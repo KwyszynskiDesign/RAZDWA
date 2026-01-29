@@ -1,3 +1,1 @@
-export function formatPLN(amount: number): string {
-  return amount.toFixed(2).replace(".", ",") + " zł";
-}
+export function formatPLN(amount: number): string { return new Intl.NumberFormat("pl-PL", { style: "currency", currency: "PLN" }).format(amount); }

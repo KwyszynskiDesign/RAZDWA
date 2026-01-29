@@ -1,42 +1,35 @@
-import prices from "../../data/normalized/vouchery.json";
-import { calculatePrice } from "../core/pricing";
-import { PriceTable, CalculationResult } from "../core/types";
+import { CategoryModule, CategoryContext } from "../ui/router";
 
-export interface VoucheryOptions {
-  qty: number;
-  sides: 'single' | 'double';
-  satin: boolean;
-  express: boolean;
-}
+export const voucheryCategory: CategoryModule = {
+  id: "vouchery",
+  name: "Vouchery",
+  mount: (container: HTMLElement, ctx: CategoryContext) => {
+    container.innerHTML = `
+      <div class="category-view">
+        <h2>Vouchery</h2>
+        <div class="form">
+          <p>Kreda 200-350g, A4/DL</p>
+          <div class="row">
+            <label>Ilość (szt)</label>
+            <input type="number" id="voucheryQty" value="1" min="1">
+          </div>
+          <div class="divider"></div>
+          <p>Dla demonstracji: stała cena 25 zł/szt</p>
+          <div class="actions">
+            <button id="addVoucheryBtn" class="primary">Dodaj do koszyka</button>
+          </div>
+        </div>
+      </div>
+    `;
 
-export function getVoucheryTable(sides: 'single' | 'double'): PriceTable {
-  const tiers = prices.map((p, index) => {
-    const prevQty = index === 0 ? 0 : prices[index - 1].qty;
-    return {
-      min: prevQty + 1,
-      max: p.qty,
-      price: sides === 'single' ? p.single : p.double
-    };
-  });
-
-  return {
-    id: `vouchery-${sides}`,
-    title: `Vouchery A4 ${sides === 'single' ? 'jednostronne' : 'dwustronne'}`,
-    unit: "szt",
-    pricing: "flat",
-    tiers,
-    modifiers: [
-      { id: "satin", name: "Papier satynowy", type: "percent", value: 0.12 },
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
-    ]
-  };
-}
-
-export function quoteVouchery(options: VoucheryOptions): CalculationResult {
-  const table = getVoucheryTable(options.sides);
-  const activeModifiers = [];
-  if (options.satin) activeModifiers.push("satin");
-  if (options.express) activeModifiers.push("express");
-
-  return calculatePrice(table, options.qty, activeModifiers);
-}
+    container.querySelector("#addVoucheryBtn")?.addEventListener("click", () => {
+      const qty = parseInt((container.querySelector("#voucheryQty") as HTMLInputElement).value) || 1;
+      ctx.cart.addItem({
+        categoryId: "vouchery",
+        categoryName: "Vouchery",
+        details: { qty },
+        price: qty * 25
+      });
+    });
+  }
+};

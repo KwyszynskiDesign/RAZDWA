@@ -1,4 +1,13 @@
 node_modules/
 dist/
 .vitest-result.json
-/public/assets/app.js
+public/assets/*.js
+public/assets/*.map
+verification/
+recreate_files.sh
+head_output.txt
+test_output.txt
+final_test_output.txt
+build_check.txt
+server_output.log
+script_output*.txt
