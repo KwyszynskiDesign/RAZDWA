@@ -3,7 +3,7 @@
   { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
   { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": false },
   { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
-  { "id": "zaproszenia", "name": "Zaproszenia", "icon": "✉️", "implemented": false },
+  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
   { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
   { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },

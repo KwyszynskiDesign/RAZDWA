@@ -11,6 +11,7 @@ const ASSETS = [
   './categories/ulotki-cyfrowe-jednostronne.html',
   './categories/roll-up.html',
   './categories/wizytowki-druk-cyfrowy.html',
+  './categories/zaproszenia-kreda.html',
   'https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js'
 ];
 
