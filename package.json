@@ -5,12 +5,13 @@
   "main": "src/ui/main.ts",
   "scripts": {
     "test": "vitest run",
-    "build": "npm run build:js && npm run build:css",
-    "build:js": "esbuild src/ui/main.ts --bundle --outfile=assets/app.js --platform=browser --format=esm --minify",
-    "build:css": "esbuild src/assets/styles.css --minify --outfile=assets/styles.css --allow-overwrite",
-    "dev": "esbuild src/ui/main.ts --bundle --outfile=assets/app.js --platform=browser --format=esm --watch",
-    "preview": "npx http-server .",
-    "deploy": "npm run build && gh-pages -d ."
+    "copy": "cp index.html manifest.json sw.js docs/ && cp -r categories data docs/",
+    "build": "npm run build:js && npm run build:css && npm run copy",
+    "build:js": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --format=esm --minify",
+    "build:css": "esbuild src/assets/styles.css --minify --outfile=docs/assets/styles.css --allow-overwrite",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --format=esm --watch",
+    "preview": "npx http-server docs",
+    "deploy": "npm run build && gh-pages -d docs"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
