@@ -1,8 +1,8 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
-import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { VoucheryView } from "./views/vouchery";
+import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
 import { RollUpView } from "./views/roll-up";
 import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
@@ -91,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.setCategories(categories);
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
+  router.addRoute(DyplomyView);
   router.addRoute(WizytowkiView);
   router.addRoute(RollUpView);
   router.addRoute(ZaproszeniaKredaView);

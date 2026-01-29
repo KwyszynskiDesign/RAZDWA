@@ -1,4 +1,4 @@
-const CACHE_NAME = 'razdwa-v1';
+const CACHE_NAME = 'razdwa-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -6,6 +6,7 @@ const ASSETS = [
   './assets/app.js',
   './data/categories.json',
   './categories/banner.html',
+  './categories/dyplomy.html',
   './categories/wlepki-naklejki.html',
   './categories/ulotki-cyfrowe-dwustronne.html',
   './categories/ulotki-cyfrowe-jednostronne.html',

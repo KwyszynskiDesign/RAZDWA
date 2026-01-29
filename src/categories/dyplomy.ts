@@ -1,26 +1,19 @@
 import { CalculationResult, Modifier } from "../core/types";
-import data from "../../data/normalized/zaproszenia-kreda.json";
+import data from "../../data/normalized/dyplomy.json";
 
-export interface ZaproszeniaKredaOptions {
-  format: string; // "A6", "A5", "DL"
+export interface DyplomyOptions {
   qty: number;
   sides: number; // 1 or 2
-  isFolded: boolean;
   isSatin: boolean;
   express: boolean;
 }
 
-export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): CalculationResult {
-  const { format, qty, sides, isFolded, isSatin, express } = options;
+export function calculateDyplomy(options: DyplomyOptions): CalculationResult {
+  const { qty, sides, isSatin, express } = options;
 
-  const formatData = (data.formats as any)[format];
-  if (!formatData) {
-    throw new Error(`Invalid format: ${format}`);
-  }
-
+  const formatData = data.formats.DL;
   const sidesKey = sides === 1 ? "single" : "double";
-  const typeKey = isFolded ? "folded" : "normal";
-  const priceTable = formatData[sidesKey][typeKey];
+  const priceTable = (formatData as any)[sidesKey];
 
   // Tier selection
   const sortedTiers = Object.keys(priceTable)
@@ -37,6 +30,17 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
   const basePrice = priceTable[selectedTier.toString()];
 
   const modifiers: Modifier[] = [];
+
+  // Bulk discount for qty >= 6
+  if (qty >= data.modifiers.bulkDiscountThreshold) {
+    modifiers.push({
+      id: "bulk-discount",
+      name: `Rabat -${data.modifiers.bulkDiscount * 100}% (od ${data.modifiers.bulkDiscountThreshold} szt)`,
+      type: "percentage",
+      value: -data.modifiers.bulkDiscount
+    });
+  }
+
   if (isSatin) {
     modifiers.push({
       id: "satin",

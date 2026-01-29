@@ -1,13 +1,20 @@
 import { PriceTable, Tier, Rule, Modifier, CalculationResult } from "./types";
 
 export function findTier(tiers: Tier[], quantity: number): Tier {
-  const tier = tiers.find(
+  const sorted = [...tiers].sort((a, b) => a.min - b.min);
+
+  // 1. Exact range match
+  const tier = sorted.find(
     (t) => quantity >= t.min && (t.max === null || quantity <= t.max)
   );
-  if (!tier) {
-    return tiers[tiers.length - 1];
-  }
-  return tier;
+  if (tier) return tier;
+
+  // 2. "Point-based" tiers fallback: find first tier where min >= quantity
+  const nextTier = sorted.find((t) => t.min >= quantity);
+  if (nextTier) return nextTier;
+
+  // 3. Last tier fallback
+  return sorted[sorted.length - 1];
 }
 
 export function applyMinimumRule(quantity: number, rules?: Rule[]): number {
