@@ -39,12 +39,12 @@ describe("Ulotki - Cyfrowe Dwustronne", () => {
     expect(result.totalPrice).toBe(40.00);
   });
 
-  it("handles DL 500szt (350 PLN)", () => {
+  it("handles DL 50szt (70 PLN)", () => {
     const result = quoteUlotkiDwustronne({
       format: "DL",
-      qty: 500,
+      qty: 50,
       express: false
     });
-    expect(result.totalPrice).toBe(350.00);
+    expect(result.totalPrice).toBe(70.00);
   });
 });

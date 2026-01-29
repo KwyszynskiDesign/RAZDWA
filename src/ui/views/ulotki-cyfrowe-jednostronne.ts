@@ -1,13 +1,13 @@
 import { View, ViewContext } from "../types";
-import { quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
+import { quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
 
-export const UlotkiDwustronneView: View = {
-  id: "ulotki-cyfrowe-dwustronne",
-  name: "Ulotki - Cyfrowe Dwustronne",
+export const UlotkiJednostronneView: View = {
+  id: "ulotki-cyfrowe-jednostronne",
+  name: "Ulotki - Cyfrowe Jednostronne",
   async mount(container, ctx) {
     try {
-      const response = await fetch("categories/ulotki-cyfrowe-dwustronne.html");
+      const response = await fetch("categories/ulotki-cyfrowe-jednostronne.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
 
@@ -18,13 +18,13 @@ export const UlotkiDwustronneView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const formatSelect = container.querySelector("#u-format") as HTMLSelectElement;
-    const qtySelect = container.querySelector("#u-qty") as HTMLSelectElement;
-    const calculateBtn = container.querySelector("#u-calculate") as HTMLButtonElement;
-    const addToCartBtn = container.querySelector("#u-add-to-cart") as HTMLButtonElement;
-    const resultDisplay = container.querySelector("#u-result-display") as HTMLElement;
-    const totalPriceSpan = container.querySelector("#u-total-price") as HTMLElement;
-    const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
+    const formatSelect = container.querySelector("#uj-format") as HTMLSelectElement;
+    const qtySelect = container.querySelector("#uj-qty") as HTMLSelectElement;
+    const calculateBtn = container.querySelector("#uj-calculate") as HTMLButtonElement;
+    const addToCartBtn = container.querySelector("#uj-add-to-cart") as HTMLButtonElement;
+    const resultDisplay = container.querySelector("#uj-result-display") as HTMLElement;
+    const totalPriceSpan = container.querySelector("#uj-total-price") as HTMLElement;
+    const expressHint = container.querySelector("#uj-express-hint") as HTMLElement;
 
     let currentResult: any = null;
     let currentOptions: any = null;
@@ -37,7 +37,7 @@ export const UlotkiDwustronneView: View = {
       };
 
       try {
-        const result = quoteUlotkiDwustronne(currentOptions);
+        const result = quoteJednostronne(currentOptions);
         currentResult = result;
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
@@ -56,15 +56,15 @@ export const UlotkiDwustronneView: View = {
         const expressLabel = currentOptions.express ? ', EXPRESS' : '';
 
         ctx.cart.addItem({
-          id: `ulotki-dwustronne-${Date.now()}`,
+          id: `ulotki-jednostronne-${Date.now()}`,
           category: "Ulotki",
-          name: `Ulotki Dwustronne ${currentOptions.format}`,
+          name: `Ulotki Jednostronne ${currentOptions.format}`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt, Dwustronne${expressLabel}`,
+          optionsHint: `${currentOptions.qty} szt, Jednostronne${expressLabel}`,
           payload: currentResult
         });
       }
