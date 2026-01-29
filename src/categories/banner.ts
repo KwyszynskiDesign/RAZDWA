@@ -1,20 +1,20 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import * as data from "../../data/normalized/banner.json";
+import data from "../../data/normalized/banner.json";
 
-export interface BannerInput {
-  areaM2: number;
+export interface BannerOptions {
   material: string;
+  areaM2: number;
   oczkowanie: boolean;
   express?: boolean;
 }
 
-export function calculateBanner(input: BannerInput): CalculationResult {
+export function calculateBanner(options: BannerOptions): CalculationResult {
   const tableData = data as any;
-  const materialData = tableData.materials.find((m: any) => m.id === input.material);
+  const materialData = tableData.materials.find((m: any) => m.id === options.material);
 
   if (!materialData) {
-    throw new Error(`Unknown material: ${input.material}`);
+    throw new Error(`Unknown material: ${options.material}`);
   }
 
   const priceTable: PriceTable = {
@@ -27,12 +27,12 @@ export function calculateBanner(input: BannerInput): CalculationResult {
   };
 
   const activeModifiers: string[] = [];
-  if (input.oczkowanie) {
+  if (options.oczkowanie) {
     activeModifiers.push("oczkowanie");
   }
-  if (input.express) {
+  if (options.express) {
     activeModifiers.push("express");
   }
 
-  return calculatePrice(priceTable, input.areaM2, activeModifiers);
+  return calculatePrice(priceTable, options.areaM2, activeModifiers);
 }
