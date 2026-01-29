@@ -1,0 +1,71 @@
+{
+  "name": "Ulotki - Cyfrowe Dwustronne",
+  "formats": {
+    "A6": {
+      "name": "A6 (105x148)",
+      "tiers": [
+        { "min": 10, "max": 10, "price": 40.0 },
+        { "min": 20, "max": 20, "price": 47.0 },
+        { "min": 30, "max": 30, "price": 49.0 },
+        { "min": 40, "max": 40, "price": 55.0 },
+        { "min": 50, "max": 50, "price": 60.0 },
+        { "min": 60, "max": 60, "price": 65.0 },
+        { "min": 70, "max": 70, "price": 70.0 },
+        { "min": 80, "max": 80, "price": 75.0 },
+        { "min": 90, "max": 90, "price": 90.0 },
+        { "min": 100, "max": 100, "price": 95.0 },
+        { "min": 150, "max": 150, "price": 120.0 },
+        { "min": 200, "max": 200, "price": 140.0 },
+        { "min": 300, "max": 300, "price": 190.0 },
+        { "min": 400, "max": 400, "price": 230.0 },
+        { "min": 500, "max": 500, "price": 270.0 },
+        { "min": 700, "max": 700, "price": 355.0 },
+        { "min": 1000, "max": 1000, "price": 476.0 }
+      ]
+    },
+    "A5": {
+      "name": "A5 (148 x 210)",
+      "tiers": [
+        { "min": 10, "max": 10, "price": 45.0 },
+        { "min": 20, "max": 20, "price": 55.0 },
+        { "min": 30, "max": 30, "price": 60.0 },
+        { "min": 40, "max": 40, "price": 72.0 },
+        { "min": 50, "max": 50, "price": 90.0 },
+        { "min": 60, "max": 60, "price": 99.0 },
+        { "min": 70, "max": 70, "price": 112.0 },
+        { "min": 80, "max": 80, "price": 122.0 },
+        { "min": 90, "max": 90, "price": 130.0 },
+        { "min": 100, "max": 100, "price": 140.0 },
+        { "min": 150, "max": 150, "price": 180.0 },
+        { "min": 200, "max": 200, "price": 220.0 },
+        { "min": 300, "max": 300, "price": 310.0 },
+        { "min": 400, "max": 400, "price": 390.0 },
+        { "min": 500, "max": 500, "price": 460.0 },
+        { "min": 700, "max": 700, "price": 620.0 },
+        { "min": 1000, "max": 1000, "price": 790.0 }
+      ]
+    },
+    "DL": {
+      "name": "DL (99 x 210)",
+      "tiers": [
+        { "min": 10, "max": 10, "price": 40.0 },
+        { "min": 20, "max": 20, "price": 50.0 },
+        { "min": 30, "max": 30, "price": 55.0 },
+        { "min": 40, "max": 40, "price": 65.0 },
+        { "min": 50, "max": 50, "price": 70.0 },
+        { "min": 60, "max": 60, "price": 78.0 },
+        { "min": 70, "max": 70, "price": 88.0 },
+        { "min": 80, "max": 80, "price": 99.0 },
+        { "min": 90, "max": 90, "price": 109.0 },
+        { "min": 100, "max": 100, "price": 119.0 },
+        { "min": 150, "max": 150, "price": 150.0 },
+        { "min": 200, "max": 200, "price": 179.0 },
+        { "min": 300, "max": 300, "price": 235.0 },
+        { "min": 400, "max": 400, "price": 290.0 },
+        { "min": 500, "max": 500, "price": 350.0 },
+        { "min": 700, "max": 700, "price": 460.0 },
+        { "min": 1000, "max": 1000, "price": 590.0 }
+      ]
+    }
+  }
+}

@@ -1,152 +1,192 @@
 import { Router } from "./router";
-import { categories } from "../categories";
-import { cartApi } from "../core/cart";
+import { ViewContext } from "./types";
+import { SampleCategory } from "./categories/sample";
+import { SolwentPlakatyView } from "./views/solwent-plakaty";
+import { VoucheryView } from "./views/vouchery";
+import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
+import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
+import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
+import { BannerView } from "./views/banner";
+import { WlepkiView } from "./views/wlepki-naklejki";
 import { formatPLN } from "../core/money";
+import { Cart } from "../core/cart";
+import { downloadExcel } from "./excel";
+import { CustomerData } from "../core/types";
+import categories from "../../data/categories.json";
 
-const router = new Router("viewContainer");
-categories.forEach(cat => {
-  if (cat.mount) router.addRoute(cat as any);
-});
+const cart = new Cart();
 
-// Category Menu Logic
-const categorySelect = document.getElementById("categorySelect") as HTMLSelectElement;
-const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
-
-function populateMenu(filter = "") {
-  const currentVal = categorySelect.value;
-  categorySelect.innerHTML = '<option value="">-- Wybierz kategorię --</option>';
-
-  categories
-    .filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
-    .forEach(c => {
-      const opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.name;
-      categorySelect.appendChild(opt);
-    });
-
-  categorySelect.value = currentVal;
-}
-
-categorySelect.addEventListener("change", () => {
-  if (categorySelect.value) {
-    window.location.hash = `/${categorySelect.value}`;
-  }
-});
-
-categorySearch.addEventListener("input", () => {
-  populateMenu(categorySearch.value);
-});
-
-// Cart Sync Logic
 function updateCartUI() {
-  const cartList = document.getElementById("cartList");
-  const cartTotal = document.getElementById("cartTotal");
-  if (!cartList || !cartTotal) return;
+  const listEl = document.getElementById("basketList");
+  const totalEl = document.getElementById("basketTotal");
+  const debugEl = document.getElementById("basketDebug");
 
-  const items = cartApi.getItems();
-  cartList.innerHTML = "";
+  if (!listEl || !totalEl || !debugEl) return;
+
+  const items = cart.getItems();
 
   if (items.length === 0) {
-    cartList.innerHTML = '<div class="basketItem" style="color: var(--muted); padding: 20px; text-align: center;">Koszyk jest pusty</div>';
-  } else {
-    items.forEach(item => {
-      const div = document.createElement("div");
-      div.className = "basketItem";
-      div.innerHTML = `
+    listEl.innerHTML = `
+      <div class="basketItem">
         <div>
-          <div class="basketTitle">${item.categoryName}</div>
-          <div class="basketMeta">${JSON.stringify(item.details)}</div>
+          <div class="basketTitle">Brak pozycji</div>
+          <div class="basketMeta">Kliknij „Dodaj”, aby zbudować listę.</div>
+        </div>
+        <div class="basketPrice">—</div>
+      </div>
+    `;
+  } else {
+    listEl.innerHTML = items.map((item, idx) => `
+      <div class="basketItem">
+        <div style="min-width:0;">
+          <div class="basketTitle">${item.category}: ${item.name}</div>
+          <div class="basketMeta">${item.optionsHint} (${item.quantity} ${item.unit})</div>
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
-          <div class="basketPrice">${formatPLN(item.price)}</div>
-          <button class="remove-item" data-id="${item.id}" style="padding: 4px 8px; font-size: 10px;">×</button>
+          <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
+          <button class="iconBtn" onclick="window.removeItem(${idx})" title="Usuń">×</button>
         </div>
-      `;
-      cartList.appendChild(div);
-    });
+      </div>
+    `).join("");
   }
 
-  cartTotal.textContent = money(cartApi.getTotal());
-
-  // Attach remove events
-  cartList.querySelectorAll(".remove-item").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      const id = (e.target as HTMLElement).dataset.id;
-      if (id) {
-        cartApi.removeItem(id);
-        updateCartUI();
-      }
-    });
-  });
+  const total = cart.getGrandTotal();
+  totalEl.innerText = formatPLN(total).replace(" zł", "");
+  debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
 }
 
-function money(n: number) {
-  return n.toFixed(2);
-}
-
-document.getElementById("clearCartBtn")?.addEventListener("click", () => {
-  cartApi.clear();
+// Global exposure for the 'onclick' in generated HTML
+(window as any).removeItem = (idx: number) => {
+  cart.removeItem(idx);
   updateCartUI();
-});
-
-document.getElementById("copyCartBtn")?.addEventListener("click", async () => {
-  const payload = {
-    createdAt: new Date().toISOString(),
-    items: cartApi.getItems(),
-    total: cartApi.getTotal()
-  };
-  await navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-  alert("Skopiowano JSON koszyka");
-});
-
-document.getElementById("sendCartBtn")?.addEventListener("click", async () => {
-  const statusEl = document.getElementById("sendStatus");
-  const url = (document.getElementById("webAppUrl") as HTMLInputElement)?.value;
-
-  if (!url) {
-    if (statusEl) statusEl.textContent = "Błąd: Brak URL";
-    return;
-  }
-
-  const payload = {
-    createdAt: new Date().toISOString(),
-    items: cartApi.getItems(),
-    total: cartApi.getTotal()
-  };
-
-  if (statusEl) statusEl.textContent = "Wysyłanie...";
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-    if (statusEl) statusEl.textContent = "Wysłano!";
-  } catch (e) {
-    if (statusEl) statusEl.textContent = "Błąd wysyłki";
-  }
-});
-
-// Observe cart changes (simple way: polling or wrapping addItem)
-// For now, we'll just refresh on actions.
-// A better way is to make Cart an EventTarget or use a Proxy.
-const originalAddItem = cartApi.addItem.bind(cartApi);
-cartApi.addItem = (item) => {
-  const res = originalAddItem(item);
-  updateCartUI();
-  return res;
 };
 
-// Init
-populateMenu();
-updateCartUI();
-router.init();
+document.addEventListener("DOMContentLoaded", () => {
+  const viewContainer = document.getElementById("viewContainer");
+  const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement;
+  const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
+  const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
-// Sync menu with hash on load
-const initialHash = window.location.hash.replace("#/", "");
-if (initialHash) {
-  categorySelect.value = initialHash;
+  if (!viewContainer || !categorySelector || !globalExpress || !categorySearch) return;
+
+  const getCtx = (): ViewContext => ({
+    cart: {
+      addItem: (item) => {
+        cart.addItem(item);
+        updateCartUI();
+      }
+    },
+    expressMode: globalExpress.checked,
+    updateLastCalculated: (price, hint) => {
+      const currentPriceEl = document.getElementById("currentPrice");
+      const currentHintEl = document.getElementById("currentHint");
+      if (currentPriceEl) currentPriceEl.innerText = formatPLN(price).replace(" zł", "");
+      if (currentHintEl) currentHintEl.innerText = hint ? `(${hint})` : "";
+    }
+  });
+
+  const router = new Router(viewContainer, getCtx);
+  router.setCategories(categories);
+  router.addRoute(SolwentPlakatyView);
+  router.addRoute(VoucheryView);
+  router.addRoute(WizytowkiView);
+  router.addRoute(UlotkiDwustronneView);
+  router.addRoute(UlotkiJednostronneView);
+  router.addRoute(BannerView);
+  router.addRoute(WlepkiView);
+
+  // Populate category selector
+  categories.forEach(cat => {
+    const opt = document.createElement("option");
+    opt.value = cat.id;
+    opt.innerText = `${cat.icon} ${cat.name}`;
+    if (!cat.implemented) {
+      opt.disabled = true;
+      opt.innerText += " (wkrótce)";
+    }
+    categorySelector.appendChild(opt);
+  });
+
+  categorySelector.addEventListener("change", () => {
+    const val = categorySelector.value;
+    if (val) {
+      window.location.hash = `#/${val}`;
+    } else {
+      window.location.hash = "#/";
+    }
+  });
+
+  categorySearch.addEventListener("input", () => {
+    const filter = categorySearch.value.toLowerCase();
+    const options = Array.from(categorySelector.options);
+    options.forEach((opt, idx) => {
+      if (idx === 0) return; // Skip "Wybierz kategorię..."
+      const text = opt.text.toLowerCase();
+      (opt as any).hidden = !text.includes(filter);
+    });
+  });
+
+  categorySearch.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      const filter = categorySearch.value.toLowerCase();
+      const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
+        return idx > 0 && !(opt as any).hidden && !(opt as any).disabled;
+      });
+      if (firstVisible) {
+        categorySelector.value = firstVisible.value;
+        window.location.hash = `#/${firstVisible.value}`;
+        categorySearch.value = "";
+      }
+    }
+  });
+
+  // Keep selector in sync with hash
+  window.addEventListener("hashchange", () => {
+    const hash = window.location.hash || "#/";
+    const path = hash.slice(2); // remove #/
+    categorySelector.value = path;
+  });
+
+  // Re-render view when express mode changes
+  globalExpress.addEventListener("change", () => {
+    // Triger route refresh
+    const currentHash = window.location.hash;
+    window.location.hash = "";
+    window.location.hash = currentHash;
+  });
+
+  // Clear basket
+  document.getElementById("clearBtn")?.addEventListener("click", () => {
+    cart.clear();
+    updateCartUI();
+  });
+
+  // Excel download
+  document.getElementById("sendBtn")?.addEventListener("click", () => {
+    const customer: CustomerData = {
+      name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
+      phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
+      email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
+      priority: (document.getElementById("custPriority") as HTMLSelectElement).value
+    };
+
+    if (cart.isEmpty()) {
+      alert("Lista jest pusta!");
+      return;
+    }
+
+    downloadExcel(cart.getItems(), customer);
+  });
+
+  updateCartUI();
+  router.start();
+});
+
+// Service Worker Registration
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .then(reg => console.log("SW registered", reg))
+      .catch(err => console.error("SW failed", err));
+  });
 }

@@ -1,0 +1,54 @@
+{
+  "category": "Wlepki / Naklejki",
+  "groups": [
+    {
+      "id": "wlepki_obrys_folia",
+      "title": "Wlepki po obrysie (Folia Biała/Trans)",
+      "unit": "m2",
+      "pricing": "per_unit",
+      "tiers": [
+        { "min": 1, "max": 5, "price": 67 },
+        { "min": 6, "max": 25, "price": 60 },
+        { "min": 26, "max": 50, "price": 52 },
+        { "min": 51, "max": null, "price": 48 }
+      ],
+      "rules": [
+        { "type": "minimum", "unit": "m2", "value": 1 }
+      ]
+    },
+    {
+      "id": "wlepki_polipropylen",
+      "title": "Wlepki po obrysie - Polipropylen",
+      "unit": "m2",
+      "pricing": "per_unit",
+      "tiers": [
+        { "min": 1, "max": 10, "price": 50 },
+        { "min": 11, "max": null, "price": 42 }
+      ],
+      "rules": [
+        { "type": "minimum", "unit": "m2", "value": 1 }
+      ]
+    },
+    {
+      "id": "wlepki_standard_folia",
+      "title": "Folia Biała / Transparentna (standard)",
+      "unit": "m2",
+      "pricing": "per_unit",
+      "tiers": [
+        { "min": 1, "max": 5, "price": 54 },
+        { "min": 6, "max": 25, "price": 50 },
+        { "min": 26, "max": 50, "price": 46 },
+        { "min": 51, "max": null, "price": 42 }
+      ],
+      "rules": [
+        { "type": "minimum", "unit": "m2", "value": 1 }
+      ]
+    }
+  ],
+  "modifiers": [
+    { "id": "mocny_klej", "name": "Mocny klej", "type": "percent", "value": 0.12 },
+    { "id": "arkusze", "name": "Cięte na arkusze", "type": "fixed_per_unit", "value": 2 },
+    { "id": "pojedyncze", "name": "Cięte na pojedyncze sztuki", "type": "fixed_per_unit", "value": 10 },
+    { "id": "express", "name": "EXPRESS", "type": "percent", "value": 0.20 }
+  ]
+}

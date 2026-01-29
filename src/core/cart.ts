@@ -1,13 +1,59 @@
-export interface CartItem { id: string; categoryId: string; categoryName: string; details: any; price: number; }
+import { CartItem } from "./types";
+
 export class Cart {
   private items: CartItem[] = [];
-  constructor() { this.load(); }
-  private load() { if (typeof localStorage !== 'undefined') { const saved = localStorage.getItem("razdwa_cart"); if (saved) { try { this.items = JSON.parse(saved); } catch (e) { this.items = []; } } } }
-  private save() { if (typeof localStorage !== 'undefined') { localStorage.setItem("razdwa_cart", JSON.stringify(this.items)); } }
-  addItem(item: Omit<CartItem, "id">) { const newItem = { ...item, id: Math.random().toString(36).substr(2, 9) }; this.items.push(newItem); this.save(); return newItem; }
-  removeItem(id: string) { this.items = this.items.filter(i => i.id !== id); this.save(); }
-  getItems() { return [...this.items]; }
-  getTotal() { return this.items.reduce((sum, item) => sum + item.price, 0); }
-  clear() { this.items = []; this.save(); }
+  private storageKey = "razdwa-cart-v1";
+
+  constructor() {
+    this.load();
+  }
+
+  private load() {
+    try {
+      const saved = localStorage.getItem(this.storageKey);
+      if (saved) {
+        this.items = JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error("Failed to load cart from localStorage", e);
+      this.items = [];
+    }
+  }
+
+  private save() {
+    try {
+      localStorage.setItem(this.storageKey, JSON.stringify(this.items));
+    } catch (e) {
+      console.error("Failed to save cart to localStorage", e);
+    }
+  }
+
+  addItem(item: CartItem) {
+    this.items.push(item);
+    this.save();
+  }
+
+  removeItem(index: number) {
+    if (index >= 0 && index < this.items.length) {
+      this.items.splice(index, 1);
+      this.save();
+    }
+  }
+
+  clear() {
+    this.items = [];
+    this.save();
+  }
+
+  getItems(): CartItem[] {
+    return [...this.items];
+  }
+
+  getGrandTotal(): number {
+    return this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+  }
+
+  isEmpty(): boolean {
+    return this.items.length === 0;
+  }
 }
-export const cartApi = new Cart();

@@ -1,0 +1,47 @@
+<div class="category-view" id="wlepki-view">
+    <div class="view-header">
+        <h2>Wlepki / Naklejki</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div class="form-group">
+            <label for="wlepki-group">Rodzaj:</label>
+            <select id="wlepki-group" class="form-control">
+                <option value="wlepki_obrys_folia">Wlepki po obrysie (Folia Biała/Trans)</option>
+                <option value="wlepki_polipropylen">Wlepki po obrysie - Polipropylen</option>
+                <option value="wlepki_standard_folia">Folia Biała / Transparentna (standard)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="wlepki-area">Powierzchnia (m2):</label>
+            <input type="number" id="wlepki-area" class="form-control" value="1" min="0.1" step="0.1">
+            <small class="form-text">Minimalnie 1m2 (minimalka).</small>
+        </div>
+
+        <div class="form-group modifiers-list">
+            <label>Opcje dodatkowe:</label>
+            <div class="checkbox-group">
+                <label><input type="checkbox" value="mocny_klej" class="wlepki-mod"> Mocny klej (+12%)</label>
+                <label><input type="checkbox" value="arkusze" class="wlepki-mod"> Cięte na arkusze (+2 zł/m2)</label>
+                <label><input type="checkbox" value="pojedyncze" class="wlepki-mod"> Cięte na pojedyncze sztuki (+10 zł/m2)</label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button id="btn-calculate" class="btn btn-primary">Oblicz</button>
+            <button id="btn-add-to-cart" class="btn btn-success">Dodaj do koszyka</button>
+        </div>
+    </div>
+
+    <div id="wlepki-result" class="result-display card" style="display: none;">
+        <div class="result-row">
+            <span>Cena za m2:</span>
+            <span id="unit-price" class="price-value">0,00 zł</span>
+        </div>
+        <div class="result-row total">
+            <span>Cena całkowita:</span>
+            <span id="total-price" class="price-value">0,00 zł</span>
+        </div>
+    </div>
+</div>
