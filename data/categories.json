@@ -81,5 +81,11 @@
         "A3": 12.00
       }
     }
+  },
+  {
+    "id": "folia-szroniona",
+    "name": "Folia szroniona",
+    "icon": "❄️",
+    "implemented": true
   }
 ]
