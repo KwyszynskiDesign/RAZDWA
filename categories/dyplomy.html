@@ -1,0 +1,36 @@
+<div class="category-view">
+  <h3>DYPLOMY - druk cyfrowy</h3>
+
+  <div class="form-group">
+    <label for="dypSides">Zadruk:</label>
+    <select id="dypSides">
+      <option value="1">Jednostronne</option>
+      <option value="2">Dwustronne</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="dypQty">Ilość (szt):</label>
+    <input type="number" id="dypQty" value="1" min="1" step="1">
+    <div class="hint">Od 6 szt. automatyczny rabat -12%.</div>
+  </div>
+
+  <div class="form-group">
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <input type="checkbox" id="dypSatin"> Papier satynowy (+12%)
+    </label>
+  </div>
+
+  <div class="actions">
+    <button id="calcBtn" class="primary">Oblicz</button>
+    <button id="addToCartBtn">Dodaj do koszyka</button>
+  </div>
+
+  <div id="dypResult" class="result-area" style="margin-top: 20px; display: none;">
+    <div class="price-line">Cena za szt: <span id="resUnitPrice">0.00</span></div>
+    <div class="price-line highlight">Cena brutto: <span id="resTotalPrice">0.00</span></div>
+    <div id="resDiscountHint" class="modifier-hint" style="display: none; color: #22c55e;">Zastosowano rabat ilościowy -12%</div>
+    <div id="resExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+    <div id="resSatinHint" class="modifier-hint" style="display: none;">W tym dopłata SATYNA +12%</div>
+  </div>
+</div>

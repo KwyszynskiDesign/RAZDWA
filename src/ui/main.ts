@@ -1,9 +1,11 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
-import { SampleCategory } from "./categories/sample";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { VoucheryView } from "./views/vouchery";
+import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
+import { RollUpView } from "./views/roll-up";
+import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
 import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
 import { BannerView } from "./views/banner";
@@ -89,7 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
   router.setCategories(categories);
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
+  router.addRoute(DyplomyView);
   router.addRoute(WizytowkiView);
+  router.addRoute(RollUpView);
+  router.addRoute(ZaproszeniaKredaView);
   router.addRoute(UlotkiDwustronneView);
   router.addRoute(UlotkiJednostronneView);
   router.addRoute(BannerView);

@@ -1,32 +1,80 @@
-import { PriceTable, CalculationResult, Tier, Modifier, Rule } from "./types";
-export function calculatePrice(quantity: number, table: PriceTable, selectedModifiers: string[] = []): CalculationResult {
-  let effectiveQuantity = quantity;
-  if (table.rules) {
-    for (const rule of table.rules) {
-      if (rule.type === "minimum" && rule.unit === table.unit) {
-        if (effectiveQuantity < rule.value) effectiveQuantity = rule.value;
-      }
-    }
+import { PriceTable, Tier, Rule, Modifier, CalculationResult } from "./types";
+
+export function findTier(tiers: Tier[], quantity: number): Tier {
+  const sorted = [...tiers].sort((a, b) => a.min - b.min);
+
+  // 1. Exact range match
+  const tier = sorted.find(
+    (t) => quantity >= t.min && (t.max === null || quantity <= t.max)
+  );
+  if (tier) return tier;
+
+  // 2. "Point-based" tiers fallback: find first tier where min >= quantity
+  const nextTier = sorted.find((t) => t.min >= quantity);
+  if (nextTier) return nextTier;
+
+  // 3. Last tier fallback
+  return sorted[sorted.length - 1];
+}
+
+export function applyMinimumRule(quantity: number, rules?: Rule[]): number {
+  if (!rules) return quantity;
+
+  const m2Rule = rules.find(r => r.type === "minimum" && r.unit === "m2");
+  if (m2Rule && quantity < m2Rule.value) {
+    return m2Rule.value;
   }
-  const tier = table.tiers.find(t => effectiveQuantity >= t.min && (t.max === null || effectiveQuantity <= t.max));
-  if (!tier) throw new Error(`No tier found for quantity ${effectiveQuantity}`);
-  let basePrice = table.pricing === "per_unit" ? effectiveQuantity * tier.price : tier.price;
-  let totalPrice = basePrice;
-  const appliedModifiersList = [];
+
+  return quantity;
+}
+
+export function calculatePrice(
+  table: PriceTable,
+  quantity: number,
+  activeModifierIds: string[] = []
+): CalculationResult {
+  const effectiveQuantity = applyMinimumRule(quantity, table.rules);
+  const tier = findTier(table.tiers, effectiveQuantity);
+
+  let basePrice = 0;
+  if (table.pricing === "per_unit") {
+    basePrice = effectiveQuantity * tier.price;
+  } else {
+    basePrice = tier.price;
+  }
+
+  let modifiersTotal = 0;
+  const appliedModifiers: string[] = [];
+
   if (table.modifiers) {
-    for (const modId of selectedModifiers) {
+    for (const modId of activeModifierIds) {
       const modifier = table.modifiers.find(m => m.id === modId);
       if (modifier) {
+        appliedModifiers.push(modifier.name);
         if (modifier.type === "percent") {
-          const modValue = basePrice * (modifier.value / 100);
-          totalPrice += modValue;
-          appliedModifiersList.push({ id: modifier.id, value: modValue, type: "percent" });
-        } else if (modifier.type === "fixed") {
-          totalPrice += modifier.value;
-          appliedModifiersList.push({ id: modifier.id, value: modifier.value, type: "fixed" });
+          modifiersTotal += basePrice * modifier.value;
+        } else if (modifier.type === "fixed_per_unit") {
+          modifiersTotal += modifier.value * effectiveQuantity;
+        } else {
+          modifiersTotal += modifier.value;
         }
       }
     }
   }
-  return { basePrice, totalPrice, appliedTiers: tier, appliedModifiers: appliedModifiersList, quantity, effectiveQuantity, unit: table.unit };
+
+  let totalPrice = basePrice + modifiersTotal;
+
+  const plnRule = table.rules?.find(r => r.type === "minimum" && r.unit === "pln");
+  if (plnRule && totalPrice < plnRule.value) {
+    totalPrice = plnRule.value;
+  }
+
+  return {
+    basePrice,
+    effectiveQuantity,
+    tierPrice: tier.price,
+    modifiersTotal,
+    totalPrice: parseFloat(totalPrice.toFixed(2)),
+    appliedModifiers
+  };
 }

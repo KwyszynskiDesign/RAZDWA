@@ -5,8 +5,13 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "build": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --sourcemap --format=esm",
-    "dev": "esbuild src/ui/main.ts --bundle --outfile=public/assets/app.js --sourcemap --format=esm --watch"
+    "copy": "cp index.html manifest.json sw.js docs/ && cp -r categories data docs/",
+    "build": "npm run build:js && npm run build:css && npm run copy",
+    "build:js": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --format=esm --minify",
+    "build:css": "esbuild src/assets/styles.css --minify --outfile=docs/assets/styles.css --allow-overwrite",
+    "dev": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --format=esm --watch",
+    "preview": "npx http-server docs",
+    "deploy": "npm run build && gh-pages -d docs"
   },
   "devDependencies": {
     "esbuild": "^0.20.2",
