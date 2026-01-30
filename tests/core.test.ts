@@ -16,38 +16,38 @@ const mockTable: PriceTable = {
     { type: "minimum", unit: "m2", value: 1 }
   ],
   modifiers: [
-    { id: "EXPRESS", type: "percent", value: 20 },
+    { id: "EXPRESS", type: "percent", value: 0.20 },
     { id: "FIXED", type: "fixed", value: 50 }
   ]
 };
 
 describe("Pricing Core", () => {
   it("should select correct tier", () => {
-    const res = calculatePrice(2, mockTable);
-    expect(res.appliedTiers.price).toBe(100);
+    const res = calculatePrice(mockTable, 2);
+    expect(res.tierPrice).toBe(100);
     expect(res.totalPrice).toBe(200);
   });
 
   it("should select middle tier", () => {
-    const res = calculatePrice(5, mockTable);
-    expect(res.appliedTiers.price).toBe(80);
+    const res = calculatePrice(mockTable, 5);
+    expect(res.tierPrice).toBe(80);
     expect(res.totalPrice).toBe(400);
   });
 
   it("should apply 1m2 minimum rule", () => {
-    const res = calculatePrice(0.5, mockTable);
+    const res = calculatePrice(mockTable, 0.5);
     expect(res.effectiveQuantity).toBe(1);
     expect(res.totalPrice).toBe(100);
   });
 
   it("should apply percentage modifier (EXPRESS +20%)", () => {
-    const res = calculatePrice(2, mockTable, ["EXPRESS"]);
+    const res = calculatePrice(mockTable, 2, ["EXPRESS"]);
     // 2 * 100 = 200. 200 + 20% = 240.
     expect(res.totalPrice).toBe(240);
   });
 
   it("should apply multiple modifiers", () => {
-    const res = calculatePrice(2, mockTable, ["EXPRESS", "FIXED"]);
+    const res = calculatePrice(mockTable, 2, ["EXPRESS", "FIXED"]);
     // 2 * 100 = 200. 200 + 40 (20%) + 50 (fixed) = 290.
     expect(res.totalPrice).toBe(290);
   });

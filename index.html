@@ -3,83 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RAZ DRUKU DWA - Kalkulator Cen</title>
-  <style>
-    /* Minimalny CSS z monolitu */
-    body { font-family: Segoe UI, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
-    .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 15px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
-    .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-    .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; padding: 30px; }
-    .view-container { padding: 20px; border: 2px dashed #667eea; min-height: 400px; text-align: center; }
-    .cart-section { background: #f8f9fa; padding: 20px; border-radius: 10px; border: 2px solid #e9ecef; }
-    .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 12px 24px; border-radius: 5px; cursor: pointer; }
-  </style>
+  <title>Kalkulator – Studio Raz Druku Dwa</title>
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🖨️ System Zamówień - RAZ DRUKU DWA</h1>
-      <p>Szybko i wygodnie - kalkulator cen drukarni</p>
-    </div>
-    
-    <div class="main-grid">
-      <!-- LEWY PANELE: KATEGORIE -->
+  <div class="wrap">
+    <header>
       <div>
+        <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+        <p class="small">Wybierz kategorię → Oblicz → Dodaj do listy → Pobierz Excel.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- LEFT: View Container -->
+      <div class="card">
         <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-          <select id="categorySelect" style="flex: 1; padding: 10px;">
-            <option>🌟 Wybierz kategorię</option>
-            <option value="solwent-plakaty">🖼️ Solwent - Plakaty</option>
-            <option value="vouchery">📄 Vouchery</option>
-            <option value="wizytowki">📇 Wizytówki</option>
+          <select id="categorySelector" style="flex: 1;">
+            <option value="">🌟 Wybierz kategorię...</option>
           </select>
-          <input id="searchInput" placeholder="🔍 Szukaj..." style="flex: 1; padding: 10px;">
+          <input id="categorySearch" placeholder="🔍 Szukaj..." style="flex: 1;">
         </div>
-        <div id="viewContainer" class="view-container">
-          <h2>Witaj!</h2>
-          <p>Wybierz kategorię z menu powyżej lub wpisz nazwę.</p>
-          <p><em>Czekamy na Julesa... 🚀</em></p>
+
+        <div id="viewContainer">
+          <!-- SPA Content -->
+        </div>
+
+        <div style="margin-top: 20px;">
+          <details>
+            <summary>Szczegóły bieżącej pozycji (JSON)</summary>
+            <pre id="basketDebug">{}</pre>
+          </details>
         </div>
       </div>
-      
-      <!-- PRAWY PANELE: KOSZYK + FORMULARZ -->
-      <div class="sidebar">
-        <div class="cart-section">
-          <h3>🛒 Koszyk</h3>
-          <div id="cartItems">Pusty koszyk</div>
-          <div style="font-weight: bold; text-align: right;">
-            Razem: <span id="cartTotal">0.00 zł</span>
+
+      <!-- RIGHT: Cart & Customer Data -->
+      <div class="card">
+        <h2>Podsumowanie</h2>
+
+        <div class="summary">
+          <div class="sumRow">
+            <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
+            <div class="v" id="currentPrice">0,00 zł</div>
           </div>
-          <button class="btn" onclick="clearCart()" style="width: 100%; margin-top: 10px;">🗑️ Wyczyść</button>
+          <div class="sumRow total">
+            <div class="k">Suma listy</div>
+            <div class="v" id="basketTotal">0,00 zł</div>
+          </div>
         </div>
-        
-        <div class="cart-section">
+
+        <div class="divider"></div>
+
+        <div class="basket">
+          <div class="basketList" id="basketList">
+            <!-- Basket items -->
+          </div>
+
+          <div class="actions">
+            <button id="clearBtn" class="danger">Wyczyść listę</button>
+          </div>
+
+          <div class="divider"></div>
+
           <h3>👤 Dane Zamówienia</h3>
-          <input id="customerName" placeholder="Imię i Nazwisko" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <input id="phone" placeholder="Telefon" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <input id="email" placeholder="Email" style="width: 100%; padding: 8px; margin: 5px 0;">
-          <select id="priority" style="width: 100%; padding: 8px; margin: 5px 0;">
-            <option>🟢 Normalny (7 dni)</option>
-            <option>🟡 Podwyższony (3 dni)</option>
-            <option>🔴 Express (1 dzień)</option>
-          </select>
-          <label><input type="checkbox" id="express"> 💨 Express (+20%)</label>
-          <button class="btn" onclick="downloadExcel()" style="width: 100%; margin-top: 10px;">📥 Pobierz Excel</button>
-          <button class="btn" onclick="submitOrder()" style="width: 100%; background: #28a745;">✉️ Wyślij Zamówienie</button>
+          <div class="form">
+            <div class="row">
+              <label for="custName">Imię i Nazwisko</label>
+              <input id="custName" type="text" placeholder="Jan Kowalski">
+            </div>
+            <div class="row">
+              <label for="custPhone">Telefon</label>
+              <input id="custPhone" type="text" placeholder="+48 ...">
+            </div>
+            <div class="row">
+              <label for="custEmail">E-mail</label>
+              <input id="custEmail" type="text" placeholder="klient@przyklad.pl">
+            </div>
+            <div class="row">
+              <label for="custPriority">Priorytet</label>
+              <select id="custPriority">
+                <option value="Normalny">🟢 Normalny (7 dni)</option>
+                <option value="Podwyższony">🟡 Podwyższony (3 dni)</option>
+                <option value="Express">🔴 Express (1 dzień)</option>
+              </select>
+            </div>
+            <div class="row">
+              <label></label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="globalExpress" style="width: auto;">
+                💨 Tryb EXPRESS (+20%)
+              </label>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top: 20px;">
+            <button id="sendBtn" class="success" style="width: 100%;">📥 Pobierz Excel</button>
+          </div>
         </div>
       </div>
-    </aside>
+    </div>
   </div>
 
-  <script>
-    // Minimalny JS do testów
-    function clearCart() { document.getElementById('cartItems').innerHTML = 'Pusty'; document.getElementById('cartTotal').textContent = '0.00 zł'; }
-    function downloadExcel() { alert('Excel pobieranie... (Jules zrobi prawdziwe)'); }
-    function submitOrder() { alert('Zamówienie wysłane! (Jules zrobi prawdziwe)'); }
-    
-    document.getElementById('categorySelect').addEventListener('change', function() {
-      const id = this.value;
-      if (id) document.getElementById('viewContainer').innerHTML = `<h2>${id}</h2><p>Wybrano kategorię: ${id}</p>`;
-    });
-  </script>
+  <script src="assets/app.js" type="module"></script>
 </body>
 </html>

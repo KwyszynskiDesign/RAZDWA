@@ -1,59 +1,61 @@
-import { cartApi } from "../core/cart";
-
-export interface CategoryContext {
-  cart: typeof cartApi;
-  expressMode: boolean;
-}
-
-export interface CategoryModule {
-  id: string;
-  name: string;
-  mount: (container: HTMLElement, ctx: CategoryContext) => void;
-  unmount?: () => void;
-}
+import { View, ViewContext } from "./types";
 
 export class Router {
-  private routes: Map<string, CategoryModule> = new Map();
-  private currentModule: CategoryModule | null = null;
+  private routes: Map<string, View> = new Map();
+  private currentView: View | null = null;
   private container: HTMLElement;
+  private getCtx: () => ViewContext;
+  private categories: any[] = [];
 
-  constructor(containerId: string) {
-    const el = document.getElementById(containerId);
-    if (!el) throw new Error(`Container #${containerId} not found`);
-    this.container = el;
-
+  constructor(container: HTMLElement, getCtx: () => ViewContext) {
+    this.container = container;
+    this.getCtx = getCtx;
     window.addEventListener("hashchange", () => this.handleRoute());
   }
 
-  addRoute(module: CategoryModule) {
-    this.routes.set(module.id, module);
+  setCategories(categories: any[]) {
+    this.categories = categories;
+  }
+
+  addRoute(view: View) {
+    this.routes.set(view.id, view);
   }
 
   handleRoute() {
-    const hash = window.location.hash.replace("#/", "");
-    const module = this.routes.get(hash);
+    const hash = window.location.hash || "#/";
+    const path = hash.slice(2); // remove #/
 
-    if (this.currentModule && this.currentModule.unmount) {
-      this.currentModule.unmount();
+    if (this.currentView && this.currentView.unmount) {
+      this.currentView.unmount();
     }
 
     this.container.innerHTML = "";
 
-    if (module) {
-      this.currentModule = module;
-      const ctx: CategoryContext = {
-        cart: cartApi,
-        expressMode: false, // Can be linked to a global toggle if needed
-      };
-      module.mount(this.container, ctx);
+    const view = this.routes.get(path);
+    if (view) {
+      this.currentView = view;
+      view.mount(this.container, this.getCtx());
     } else {
-      this.container.innerHTML = `<div style="padding: 40px; text-align: center; color: var(--muted);">
-        Wybierz kategorię z menu powyżej, aby rozpocząć.
-      </div>`;
+      this.renderHome();
     }
   }
 
-  init() {
+  private renderHome() {
+    this.container.innerHTML = `
+      <div class="category-grid">
+        ${this.categories.map(cat => `
+          <div class="category-card ${cat.implemented ? '' : 'coming-soon'}"
+               ${cat.implemented ? `onclick="window.location.hash='#/${cat.id}'"` : ''}>
+            <div class="category-icon">${cat.icon}</div>
+            <div class="category-name">${cat.name}</div>
+            ${cat.implemented ? '' : '<div class="badge">Wkrótce</div>'}
+          </div>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  start() {
     this.handleRoute();
   }
 }
