@@ -87,5 +87,11 @@
     "name": "Folia szroniona",
     "icon": "❄️",
     "implemented": true
+  },
+  {
+    "id": "laminowanie",
+    "name": "Laminowanie",
+    "icon": "✨",
+    "implemented": true
   }
 ]

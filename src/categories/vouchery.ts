@@ -31,8 +31,8 @@ export function quoteVouchery(options: VoucheryOptions): any {
     percentageSum += 0.20;
   }
 
-  const modifiersTotal = basePrice * (options.satin ? 0.12 : 0);
-  const total = basePrice * (1 + percentageSum);
+  const modifiersTotal = basePrice * percentageSum;
+  const total = basePrice + modifiersTotal;
 
   return {
     basePrice,
