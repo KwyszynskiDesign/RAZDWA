@@ -1,35 +1,48 @@
-import { CategoryModule, CategoryContext } from "../ui/router";
+import data from "../../data/normalized/vouchery.json";
+import { CalculationResult } from "../core/types";
 
-export const voucheryCategory: CategoryModule = {
-  id: "vouchery",
-  name: "Vouchery",
-  mount: (container: HTMLElement, ctx: CategoryContext) => {
-    container.innerHTML = `
-      <div class="category-view">
-        <h2>Vouchery</h2>
-        <div class="form">
-          <p>Kreda 200-350g, A4/DL</p>
-          <div class="row">
-            <label>Ilość (szt)</label>
-            <input type="number" id="voucheryQty" value="1" min="1">
-          </div>
-          <div class="divider"></div>
-          <p>Dla demonstracji: stała cena 25 zł/szt</p>
-          <div class="actions">
-            <button id="addVoucheryBtn" class="primary">Dodaj do koszyka</button>
-          </div>
-        </div>
-      </div>
-    `;
+export interface VoucheryOptions {
+  qty: number;
+  sides: "single" | "double";
+  satin: boolean;
+  express: boolean;
+}
 
-    container.querySelector("#addVoucheryBtn")?.addEventListener("click", () => {
-      const qty = parseInt((container.querySelector("#voucheryQty") as HTMLInputElement).value) || 1;
-      ctx.cart.addItem({
-        categoryId: "vouchery",
-        categoryName: "Vouchery",
-        details: { qty },
-        price: qty * 25
-      });
-    });
+export function quoteVouchery(options: VoucheryOptions): any {
+  const tiers = data as any[];
+
+  // Find the exact tier or the next one
+  let tier = tiers.find(t => t.qty === options.qty);
+  if (!tier) {
+    // If not exact, find the first tier where t.qty >= options.qty
+    tier = tiers.find(t => t.qty >= options.qty);
   }
+  if (!tier) {
+    tier = tiers[tiers.length - 1];
+  }
+
+  const basePrice = tier[options.sides];
+  let percentageSum = 0;
+
+  if (options.satin) {
+    percentageSum += 0.12;
+  }
+  if (options.express) {
+    percentageSum += 0.20;
+  }
+
+  const modifiersTotal = basePrice * (options.satin ? 0.12 : 0);
+  const total = basePrice * (1 + percentageSum);
+
+  return {
+    basePrice,
+    modifiersTotal: parseFloat(modifiersTotal.toFixed(2)),
+    totalPrice: parseFloat(total.toFixed(2))
+  };
+}
+
+// Keep the old export for compatibility if needed elsewhere
+export const voucheryCategory: any = {
+    id: "vouchery",
+    name: "Vouchery"
 };

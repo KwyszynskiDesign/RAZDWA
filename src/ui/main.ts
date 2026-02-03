@@ -10,6 +10,9 @@ import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
 import { BannerView } from "./views/banner";
 import { WlepkiView } from "./views/wlepki-naklejki";
+import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan";
+import { DrukCADView } from "./views/druk-cad";
+import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -53,7 +56,7 @@ function updateCartUI() {
   }
 
   const total = cart.getGrandTotal();
-  totalEl.innerText = formatPLN(total).replace(" zł", "");
+  totalEl.innerText = formatPLN(total);
   debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
 }
 
@@ -82,7 +85,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateLastCalculated: (price, hint) => {
       const currentPriceEl = document.getElementById("currentPrice");
       const currentHintEl = document.getElementById("currentHint");
-      if (currentPriceEl) currentPriceEl.innerText = formatPLN(price).replace(" zł", "");
+      if (currentPriceEl) currentPriceEl.innerText = formatPLN(price);
       if (currentHintEl) currentHintEl.innerText = hint ? `(${hint})` : "";
     }
   });
@@ -99,6 +102,9 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(UlotkiJednostronneView);
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
+  router.addRoute(DrukA4A3SkanView);
+  router.addRoute(DrukCADView);
+  router.addRoute(FoliaSzronionaView);
 
   // Populate category selector
   categories.forEach(cat => {

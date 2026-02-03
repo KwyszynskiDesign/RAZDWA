@@ -1,127 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kalkulator – Studio Raz Druku Dwa</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#ff3c00" />
-  <link rel="stylesheet" href="assets/styles.css" />
-  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
-  <style>
-    /* Additional styles for category search */
-    .search-wrap {
-      margin-bottom: 20px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .search-select {
-      flex-grow: 1;
-    }
-    .express-toggle {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--ok);
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
-
 <body>
-<div class="wrap">
-  <header>
-    <div>
-      <h1>Kalkulator – Studio Raz Druku Dwa</h1>
-      <p class="small">Oblicz → Dodaj do listy → Wyślij listę do arkusza.</p>
-    </div>
-    <div class="express-toggle">
-      <input type="checkbox" id="globalExpress" style="width: auto;">
-      <label for="globalExpress">TRYB EXPRESS (+20%)</label>
-    </div>
-  </header>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+        <p class="small">Wybierz kategorię → Oblicz → Dodaj do listy → Pobierz Excel.</p>
+      </div>
+    </header>
 
-  <div class="search-wrap card">
-    <div class="search-select">
-      <input type="text" id="categorySearch" placeholder="Szukaj kategorii..." style="margin-bottom: 8px;">
-      <select id="categorySelector">
-        <option value="">Wybierz kategorię...</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="grid">
-    <!-- LEFT: VIEW CONTAINER -->
-    <main id="viewContainer" class="card">
-      <p>Proszę wybrać kategorię powyżej...</p>
-    </main>
-
-    <!-- RIGHT: PERSISTENT CART/SUMMARY -->
-    <div class="card">
-      <h2>Podsumowanie</h2>
-
-      <div class="summary">
-        <div class="sumRow">
-          <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
-          <div class="v"><span id="currentPrice">0.00</span> zł</div>
+    <div class="grid">
+      <!-- LEFT: View Container -->
+      <div class="card">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+          <select id="categorySelector" style="flex: 1;">
+            <option value="">🌟 Wybierz kategorię...</option>
+          </select>
+          <input id="categorySearch" placeholder="🔍 Szukaj..." style="flex: 1;">
         </div>
-        <div class="sumRow total">
-          <div class="k">Suma listy</div>
-          <div class="v"><span id="basketTotal">0.00</span> zł</div>
+
+        <div id="viewContainer">
+          <!-- SPA Content -->
+        </div>
+
+        <div style="margin-top: 20px;">
+          <details>
+            <summary>Szczegóły bieżącej pozycji (JSON)</summary>
+            <pre id="basketDebug">{}</pre>
+          </details>
         </div>
       </div>
 
-      <div class="divider"></div>
+      <!-- RIGHT: Cart & Customer Data -->
+      <div class="card">
+        <h2>Podsumowanie</h2>
 
-      <div class="basket">
-        <div class="basketList" id="basketList">
-          <div class="basketItem">
-            <div>
-              <div class="basketTitle">Brak pozycji</div>
-              <div class="basketMeta">Kliknij „Dodaj”, aby zbudować listę.</div>
-            </div>
-            <div class="basketPrice">—</div>
+        <div class="summary">
+          <div class="sumRow">
+            <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
+            <div class="v" id="currentPrice">0,00 zł</div>
           </div>
-        </div>
-
-        <div class="actions">
-          <button id="clearBtn" class="danger">Wyczyść listę</button>
+          <div class="sumRow total">
+            <div class="k">Suma listy</div>
+            <div class="v" id="basketTotal">0,00 zł</div>
+          </div>
         </div>
 
         <div class="divider"></div>
 
-        <details open>
-          <summary>Dane klienta / Wysyłka</summary>
-          <div class="hint" style="margin-top:8px;">Podaj dane do arkusza Excel.</div>
-          <input id="custName" type="text" placeholder="Imię i Nazwisko / Firma" />
-          <input id="custPhone" type="text" placeholder="Telefon" />
-          <input id="custEmail" type="text" placeholder="Email" />
-          <select id="custPriority">
-            <option value="Normalny">Priorytet: Normalny</option>
-            <option value="Wysoki">Priorytet: Wysoki</option>
-            <option value="Krytyczny">Priorytet: Krytyczny</option>
-          </select>
-          <div class="hint" style="margin-top:8px;">Opcjonalnie: URL Apps Script</div>
-          <input id="webAppUrl" type="text" placeholder="https://script.google.com/macros/s/.../exec" />
-        </details>
+        <div class="basket">
+          <div class="basketList" id="basketList">
+            <!-- Basket items -->
+          </div>
 
-        <div class="actions">
-          <button id="sendBtn" class="success">Wyślij listę do arkusza</button>
-          <button id="copyBtn">Kopiuj JSON listy</button>
-          <span id="sendStatus" class="status"></span>
+          <div class="actions">
+            <button id="clearBtn" class="danger">Wyczyść listę</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <h3>👤 Dane Zamówienia</h3>
+          <div class="form">
+            <div class="row">
+              <label for="custName">Imię i Nazwisko</label>
+              <input id="custName" type="text" placeholder="Jan Kowalski">
+            </div>
+            <div class="row">
+              <label for="custPhone">Telefon</label>
+              <input id="custPhone" type="text" placeholder="+48 ...">
+            </div>
+            <div class="row">
+              <label for="custEmail">E-mail</label>
+              <input id="custEmail" type="text" placeholder="klient@przyklad.pl">
+            </div>
+            <div class="row">
+              <label for="custPriority">Priorytet</label>
+              <select id="custPriority">
+                <option value="Normalny">🟢 Normalny (7 dni)</option>
+                <option value="Podwyższony">🟡 Podwyższony (3 dni)</option>
+                <option value="Express">🔴 Express (1 dzień)</option>
+              </select>
+            </div>
+            <div class="row">
+              <label></label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="globalExpress" style="width: auto;">
+                💨 Tryb EXPRESS (+20%)
+              </label>
+            </div>
+          </div>
+
+          <div class="actions" style="margin-top: 20px;">
+            <button id="sendBtn" class="success" style="width: 100%;">📥 Pobierz Excel</button>
+          </div>
         </div>
-
-        <details style="margin-top:10px;">
-          <summary>Szczegóły listy (JSON)</summary>
-          <pre id="basketDebug">[]</pre>
-        </details>
       </div>
     </div>
   </div>
-</div>
-<script type="module" src="assets/app.js"></script>
+
+  <script src="assets/app.js" type="module"></script>
 </body>
 </html>

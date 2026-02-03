@@ -8,5 +8,84 @@
   { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
   { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true }
+  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
+  {
+    "id": "druk-a4-a3-skan",
+    "name": "Druk A4/A3 + skan",
+    "icon": "🖨️",
+    "implemented": true,
+    "pricing": {
+      "print_bw": [
+        { "min": 1, "max": 5, "a4": 0.90, "a3": 1.70 },
+        { "min": 6, "max": 20, "a4": 0.60, "a3": 1.10 },
+        { "min": 21, "max": 100, "a4": 0.35, "a3": 0.70 },
+        { "min": 101, "max": 500, "a4": 0.30, "a3": 0.60 },
+        { "min": 501, "max": 999, "a4": 0.23, "a3": 0.45 },
+        { "min": 1000, "max": 4999, "a4": 0.19, "a3": 0.33 },
+        { "min": 5000, "max": null, "a4": 0.15, "a3": 0.30 }
+      ],
+      "print_color": [
+        { "min": 1, "max": 10, "a4": 2.40, "a3": 4.80 },
+        { "min": 11, "max": 40, "a4": 2.20, "a3": 4.20 },
+        { "min": 41, "max": 100, "a4": 2.00, "a3": 3.80 },
+        { "min": 101, "max": null, "a4": 1.80, "a3": 3.40 }
+      ],
+      "scan_auto": [
+        { "min": 1, "max": 9, "price": 1.00 },
+        { "min": 10, "max": 49, "price": 0.50 },
+        { "min": 50, "max": 99, "price": 0.40 },
+        { "min": 100, "max": null, "price": 0.25 }
+      ],
+      "scan_manual": [
+        { "min": 1, "max": 4, "price": 2.00 },
+        { "min": 5, "max": null, "price": 1.00 }
+      ],
+      "email_cost": 1.00,
+      "surcharge_factor": 0.50
+    }
+  },
+  {
+    "id": "druk-cad",
+    "name": "Druk CAD wielkoformatowy",
+    "icon": "📐",
+    "implemented": true,
+    "format_prices": {
+      "bw": {
+        "A0+": { "length": 1292, "price": 12.50 },
+        "A0": { "length": 1189, "price": 11.00 },
+        "A1": { "length": 841, "price": 6.00 },
+        "A2": { "length": 594, "price": 4.00 },
+        "A3": { "length": 420, "price": 2.50 }
+      },
+      "color": {
+        "A0+": { "length": 1292, "price": 26.00 },
+        "A0": { "length": 1189, "price": 24.00 },
+        "A1": { "length": 841, "price": 12.00 },
+        "A2": { "length": 594, "price": 8.50 },
+        "A3": { "length": 420, "price": 5.30 }
+      }
+    },
+    "meter_prices": {
+      "bw": {
+        "A0+": 10.00,
+        "A0": 9.00,
+        "A1": 5.00,
+        "A2": 4.50,
+        "A3": 3.50
+      },
+      "color": {
+        "A0+": 21.00,
+        "A0": 20.00,
+        "A1": 14.50,
+        "A2": 13.90,
+        "A3": 12.00
+      }
+    }
+  },
+  {
+    "id": "folia-szroniona",
+    "name": "Folia szroniona",
+    "icon": "❄️",
+    "implemented": true
+  }
 ]
