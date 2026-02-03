@@ -1,43 +1,45 @@
-import prices from "../../data/normalized/wizytowki-druk-cyfrowy.json";
-import { calculatePrice } from "../core/pricing";
-import { PriceTable, CalculationResult } from "../core/types";
+import { calculateBusinessCards } from "../core/compat-logic";
+import { CalculationResult } from "../core/types";
 
 export interface WizytowkiOptions {
-  format: '85x55' | '90x50';
-  folia: 'none' | 'matt_gloss';
+  family?: "standard" | "deluxe";
+  format?: '85x55' | '90x50'; // Mapping this to 'size' in compat logic
+  folia?: 'none' | 'matt_gloss'; // Mapping 'none'->'noLam', 'matt_gloss'->'lam'
+  finish?: "mat" | "blysk" | "softtouch";
+  deluxeOpt?: "uv3d_softtouch" | "uv3d_gold_softtouch";
   qty: number;
   express: boolean;
 }
 
-export function getWizytowkiTable(format: '85x55' | '90x50', folia: 'none' | 'matt_gloss'): PriceTable {
-  const formatData = (prices as any)[format];
-  const tierData = formatData[folia];
+export function quoteWizytowki(options: WizytowkiOptions): CalculationResult {
+  const family = options.family || "standard";
 
-  const tiers = tierData.map((t: any, index: number) => {
-    const prevQty = index === 0 ? 0 : tierData[index - 1].qty;
-    return {
-      min: prevQty + 1,
-      max: t.qty,
-      price: t.price
-    };
+  // Compat mapping for the old UI options
+  const size = options.format || "85x55";
+  const lam = options.folia === 'none' ? 'noLam' : 'lam';
+  const finish = options.finish || "mat";
+
+  const res = calculateBusinessCards({
+    family,
+    size: size as any,
+    lam: lam as any,
+    finish,
+    deluxeOpt: options.deluxeOpt,
+    qty: options.qty
   });
 
+  let totalPrice = res.total;
+  if (options.express) {
+    totalPrice = res.total * 1.2;
+  }
+
   return {
-    id: `wizytowki-${format}-${folia}`,
-    title: `Wizytówki ${format} ${folia === 'none' ? '(bez foliowania)' : '(foliowane)'}`,
-    unit: "szt",
-    pricing: "flat",
-    tiers,
-    modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
-    ]
-  };
-}
-
-export function quoteWizytowki(options: WizytowkiOptions): CalculationResult {
-  const table = getWizytowkiTable(options.format, options.folia);
-  const activeModifiers = [];
-  if (options.express) activeModifiers.push("express");
-
-  return calculatePrice(table, options.qty, activeModifiers);
+    totalPrice: parseFloat(totalPrice.toFixed(2)),
+    basePrice: res.total,
+    effectiveQuantity: options.qty,
+    tierPrice: res.total / res.qtyBilled, // approximate
+    modifiersTotal: options.express ? res.total * 0.2 : 0,
+    appliedModifiers: options.express ? ["TRYB EXPRESS"] : [],
+    qtyBilled: res.qtyBilled
+  } as any;
 }
