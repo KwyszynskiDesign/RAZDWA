@@ -13,6 +13,7 @@ import { WlepkiView } from "./views/wlepki-naklejki";
 import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan";
 import { DrukCADView } from "./views/druk-cad";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
+import { LaminowanieView } from "./views/laminowanie";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -105,6 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(DrukA4A3SkanView);
   router.addRoute(DrukCADView);
   router.addRoute(FoliaSzronionaView);
+  router.addRoute(LaminowanieView);
 
   // Populate category selector
   categories.forEach(cat => {
