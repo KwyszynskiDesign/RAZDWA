@@ -1,4 +1,4 @@
-/* Data and helpers from kalkulatorv2.html */
+/* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
 
 export function money(n: any) {
   return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
@@ -26,17 +26,17 @@ export const PRICE = {
         { from: 6, to: 20, unit: 0.6 },
         { from: 21, to: 100, unit: 0.35 },
         { from: 101, to: 500, unit: 0.3 },
-        { from: 500, to: 999, unit: 0.23 },
-        { from: 1000, to: 4989, unit: 0.19 },
-        { from: 1000, to: 9999, unit: 0.15 },
+        { from: 501, to: 999, unit: 0.23 },
+        { from: 1000, to: 4999, unit: 0.19 },
+        { from: 5000, to: 99999, unit: 0.15 },
       ],
       A3: [
         { from: 1, to: 5, unit: 1.7 },
         { from: 6, to: 20, unit: 1.1 },
         { from: 21, to: 100, unit: 0.7 },
         { from: 101, to: 500, unit: 0.6 },
-        { from: 500, to: 999, unit: 0.45 },
-        { from: 1000, to: 4989, unit: 0.33 },
+        { from: 501, to: 999, unit: 0.45 },
+        { from: 1000, to: 99999, unit: 0.33 },
       ],
     },
     color: {
@@ -47,7 +47,7 @@ export const PRICE = {
         { from: 101, to: 250, unit: 1.8 },
         { from: 251, to: 500, unit: 1.6 },
         { from: 501, to: 999, unit: 1.4 },
-        { from: 1000, to: 4989, unit: 1.1 },
+        { from: 1000, to: 99999, unit: 1.1 },
       ],
       A3: [
         { from: 1, to: 10, unit: 4.8 },
@@ -56,6 +56,7 @@ export const PRICE = {
         { from: 101, to: 250, unit: 3.0 },
         { from: 251, to: 500, unit: 2.5 },
         { from: 501, to: 999, unit: 1.9 },
+        { from: 1000, to: 99999, unit: 1.6 },
       ],
     },
   },

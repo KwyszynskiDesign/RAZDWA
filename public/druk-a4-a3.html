@@ -1,0 +1,67 @@
+<h2>Druk A4/A3 + skan</h2>
+<div class="form">
+  <div class="row">
+    <label for="d-mode">Tryb:</label>
+    <select id="d-mode">
+      <option value="bw">Czarno-biały</option>
+      <option value="color">Kolorowy</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="d-format">Format:</label>
+    <select id="d-format">
+      <option value="a4">A4</option>
+      <option value="a3">A3</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="d-print-qty">Ilość stron druku:</label>
+    <input type="number" id="d-print-qty" value="1" min="0">
+  </div>
+
+  <div class="row checkbox-row">
+    <input type="checkbox" id="d-email">
+    <label for="d-email">Wysyłka e-mail (+1 zł)</label>
+  </div>
+
+  <div class="row checkbox-row">
+    <input type="checkbox" id="d-surcharge">
+    <label for="d-surcharge">Zadruk >25% (+50%)</label>
+  </div>
+
+  <div id="surcharge-qty-row" class="row" style="display: none;">
+    <label for="d-surcharge-qty">Ilość stron z dopłatą:</label>
+    <input type="number" id="d-surcharge-qty" value="1" min="1">
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row">
+    <label for="d-scan-type">Skanowanie:</label>
+    <select id="d-scan-type">
+      <option value="none">Brak</option>
+      <option value="auto">Automatyczne A4-A3</option>
+      <option value="manual">Ręczne z szyby A4-A3</option>
+    </select>
+  </div>
+
+  <div id="scan-qty-row" class="row" style="display: none;">
+    <label for="d-scan-qty">Ilość stron skanu:</label>
+    <input type="number" id="d-scan-qty" value="1" min="1">
+  </div>
+
+  <div class="actions">
+    <button id="d-calculate" class="primary">Oblicz</button>
+    <button id="d-add-to-cart" class="success" disabled>Dodaj do listy</button>
+  </div>
+
+  <div id="d-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+    <div style="display: flex; justify-content: space-between;">
+      <span>Cena całkowita:</span>
+      <span id="d-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+    </div>
+    <div id="d-express-hint" style="font-size: 12px; color: #f59e0b; display: none;">Zawiera dopłatę EXPRESS +20%</div>
+  </div>
+</div>
