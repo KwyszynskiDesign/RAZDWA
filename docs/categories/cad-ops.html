@@ -1,0 +1,42 @@
+<div class="category-view" id="cad-ops-view">
+    <div class="view-header">
+        <h2>CAD: składanie / skan</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <h3>Składanie</h3>
+        <div class="form-group">
+            <label for="fold-format">Format:</label>
+            <select id="fold-format" class="form-control">
+                <option value="A0p">A0+</option>
+                <option value="A0">A0</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="A3">A3</option>
+                <option value="A3L">A3-poprzeczne</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="fold-qty">Ilość (szt):</label>
+            <input type="number" id="fold-qty" class="form-control" value="1" min="1">
+        </div>
+        <div class="form-actions">
+            <button id="fold-add" class="btn btn-success">Dodaj składanie</button>
+        </div>
+    </div>
+
+    <div class="calculator-form card" style="margin-top: 20px;">
+        <h3>Skanowanie wielkoformatowe</h3>
+        <div class="form-group">
+            <label for="wf-scan-mm">Długość (mm):</label>
+            <input type="number" id="wf-scan-mm" class="form-control" placeholder="np. 1100" min="1">
+        </div>
+        <div class="form-group">
+            <label for="wf-scan-qty">Ilość (szt):</label>
+            <input type="number" id="wf-scan-qty" class="form-control" value="1" min="1">
+        </div>
+        <div class="form-actions">
+            <button id="wf-scan-add" class="btn btn-success">Dodaj skan</button>
+        </div>
+    </div>
+</div>

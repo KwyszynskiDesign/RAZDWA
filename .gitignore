@@ -1,7 +1,6 @@
 node_modules/
 dist/
 .vitest-result.json
-<<<<<<< HEAD
 public/assets/*.js
 public/assets/*.map
 verification/
@@ -12,7 +11,7 @@ final_test_output.txt
 build_check.txt
 server_output.log
 script_output*.txt
-=======
 /assets/app.js
 /assets/styles.css
->>>>>>> feature/pricing-foundation-8467807441326301834
+docs/assets/app.js
+docs/assets/styles.css

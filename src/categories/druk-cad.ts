@@ -1,34 +1,31 @@
+import { calculateCad } from "../core/compat-logic";
+
 export interface DrukCADOptions {
   mode: "bw" | "color";
   format: string;
   lengthMm: number;
+  qty: number;
   express: boolean;
 }
 
-export function calculateDrukCAD(options: DrukCADOptions, pricing: any) {
-  const formatData = pricing.format_prices[options.mode][options.format];
-  const meterPrice = pricing.meter_prices[options.mode][options.format];
+export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
+  const res = calculateCad({
+    mode: options.mode,
+    format: options.format,
+    lengthMm: options.lengthMm,
+    qty: options.qty || 1
+  });
 
-  let basePrice = 0;
-  let isMeter = false;
-
-  if (options.lengthMm === formatData.length) {
-    basePrice = formatData.price;
-  } else {
-    basePrice = (options.lengthMm / 1000) * meterPrice;
-    isMeter = true;
-  }
-
-  let totalPrice = basePrice;
+  let totalPrice = res.total;
   if (options.express) {
-    totalPrice = basePrice * 1.2;
+    totalPrice = res.total * 1.2;
   }
 
   return {
     totalPrice: parseFloat(totalPrice.toFixed(2)),
-    basePrice,
-    isMeter,
-    formatLength: formatData.length,
-    meterPrice: isMeter ? meterPrice : null
+    basePrice: res.total, // In CAD, basePrice is qty * rate (format or mb)
+    detectedType: res.detectedType,
+    isMeter: res.detectedType === 'mb',
+    rate: res.rate
   };
 }

@@ -93,5 +93,11 @@
     "name": "Laminowanie",
     "icon": "✨",
     "implemented": true
+  },
+  {
+    "id": "cad-ops",
+    "name": "CAD: składanie / skan",
+    "icon": "📏",
+    "implemented": true
   }
 ]
