@@ -1,6 +1,6 @@
 [
   {
-    "id": "druk-a4-a3",
+    "id": "druk-a4-a3-skan",
     "name": "Druk A4/A3 + skan",
     "icon": "🖨️",
     "implemented": true,
@@ -75,6 +75,12 @@
       }
     }
   },
+  {
+    "id": "laminowanie",
+    "name": "Laminowanie",
+    "icon": "✨",
+    "implemented": true
+  },
   { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
   { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
   { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
@@ -84,23 +90,5 @@
   { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
   { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
-  {
-    "id": "folia-szroniona",
-    "name": "Folia szroniona",
-    "icon": "❄️",
-    "implemented": true
-  },
-  {
-    "id": "laminowanie",
-    "name": "Laminowanie",
-    "icon": "✨",
-    "implemented": true
-  },
-  {
-    "id": "cad-ops",
-    "name": "CAD: składanie / skan",
-    "icon": "📏",
-    "implemented": true
-  }
+  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true }
 ]

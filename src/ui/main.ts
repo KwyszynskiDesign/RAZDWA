@@ -10,11 +10,9 @@ import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
 import { BannerView } from "./views/banner";
 import { WlepkiView } from "./views/wlepki-naklejki";
-import { DrukA4A3SkanView } from "./views/druk-a4-a3";
+import { DrukA4A3SkanView } from "./views/DrukA4A3SkanView";
 import { DrukCADView } from "./views/druk-cad";
-import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { LaminowanieView } from "./views/laminowanie";
-import { CadOpsView } from "./views/cad-ops";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -106,9 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(UlotkiJednostronneView);
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
-  router.addRoute(FoliaSzronionaView);
   router.addRoute(LaminowanieView);
-  router.addRoute(CadOpsView);
 
   // Populate category selector
   categories.forEach(cat => {

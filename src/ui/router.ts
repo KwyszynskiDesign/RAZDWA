@@ -44,12 +44,13 @@ export class Router {
     this.container.innerHTML = `
       <div class="category-grid">
         ${this.categories.map(cat => `
-          <div class="category-card ${cat.implemented ? '' : 'coming-soon'}"
-               ${cat.implemented ? `onclick="window.location.hash='#/${cat.id}'"` : ''}>
-            <div class="category-icon">${cat.icon}</div>
-            <div class="category-name">${cat.name}</div>
-            ${cat.implemented ? '' : '<div class="badge">Wkrótce</div>'}
-          </div>
+          <a href="categories/${cat.id}.html"
+             class="cat-card ${cat.implemented ? '' : 'disabled'}"
+             onclick="if(${cat.implemented}) { event.preventDefault(); window.location.hash='#/${cat.id}'; } else { event.preventDefault(); }">
+            <div class="cat-icon">${cat.icon}</div>
+            <div class="cat-title">${cat.name}</div>
+            ${cat.implemented ? '' : '<div class="cat-status">Wkrótce</div>'}
+          </a>
         `).join("")}
       </div>
     `;
