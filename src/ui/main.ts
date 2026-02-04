@@ -10,7 +10,7 @@ import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
 import { BannerView } from "./views/banner";
 import { WlepkiView } from "./views/wlepki-naklejki";
-import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan";
+import { DrukA4A3SkanView } from "./views/druk-a4-a3";
 import { DrukCADView } from "./views/druk-cad";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { LaminowanieView } from "./views/laminowanie";
@@ -94,6 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = new Router(viewContainer, getCtx);
   router.setCategories(categories);
+  router.addRoute(DrukA4A3SkanView);
+  router.addRoute(DrukCADView);
   router.addRoute(SolwentPlakatyView);
   router.addRoute(VoucheryView);
   router.addRoute(DyplomyView);
@@ -104,8 +106,6 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(UlotkiJednostronneView);
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
-  router.addRoute(DrukA4A3SkanView);
-  router.addRoute(DrukCADView);
   router.addRoute(FoliaSzronionaView);
   router.addRoute(LaminowanieView);
   router.addRoute(CadOpsView);

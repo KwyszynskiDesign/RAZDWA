@@ -1,16 +1,6 @@
 [
-  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
-  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
-  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
-  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
-  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
-  { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
-  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
-  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
-  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
   {
-    "id": "druk-a4-a3-skan",
+    "id": "druk-a4-a3",
     "name": "Druk A4/A3 + skan",
     "icon": "🖨️",
     "implemented": true,
@@ -28,7 +18,10 @@
         { "min": 1, "max": 10, "a4": 2.40, "a3": 4.80 },
         { "min": 11, "max": 40, "a4": 2.20, "a3": 4.20 },
         { "min": 41, "max": 100, "a4": 2.00, "a3": 3.80 },
-        { "min": 101, "max": null, "a4": 1.80, "a3": 3.40 }
+        { "min": 101, "max": 250, "a4": 1.80, "a3": 3.00 },
+        { "min": 251, "max": 500, "a4": 1.60, "a3": 2.50 },
+        { "min": 501, "max": 999, "a4": 1.40, "a3": 1.90 },
+        { "min": 1000, "max": null, "a4": 1.10, "a3": 1.60 }
       ],
       "scan_auto": [
         { "min": 1, "max": 9, "price": 1.00 },
@@ -82,6 +75,16 @@
       }
     }
   },
+  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
+  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
+  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
+  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
+  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
+  { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
+  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
+  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
+  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
+  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
   {
     "id": "folia-szroniona",
     "name": "Folia szroniona",

@@ -4,11 +4,11 @@ import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
 
 export const DrukA4A3SkanView: View = {
-  id: "druk-a4-a3-skan",
+  id: "druk-a4-a3",
   name: "Druk A4/A3 + skan",
   async mount(container, ctx) {
     try {
-      const response = await fetch("categories/druk-a4-a3-skan.html");
+      const response = await fetch("categories/druk-a4-a3.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
 
@@ -19,7 +19,7 @@ export const DrukA4A3SkanView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const pricing = categories.find(c => c.id === "druk-a4-a3-skan")?.pricing;
+    const pricing = categories.find(c => c.id === "druk-a4-a3")?.pricing;
     if (!pricing) return;
 
     const modeSelect = container.querySelector("#d-mode") as HTMLSelectElement;

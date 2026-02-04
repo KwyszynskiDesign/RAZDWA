@@ -4,7 +4,7 @@ import { calculateDrukCAD } from "../src/categories/druk-cad";
 import categories from "../data/categories.json";
 
 describe("Druk A4/A3 + skan", () => {
-  const pricing = categories.find(c => c.id === "druk-a4-a3-skan")?.pricing;
+  const pricing = categories.find(c => c.id === "druk-a4-a3")?.pricing;
 
   it("should calculate simple B&W A4 print", () => {
     const result = calculateDrukA4A3Skan({
