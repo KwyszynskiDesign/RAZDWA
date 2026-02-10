@@ -13,5 +13,3 @@ server_output.log
 script_output*.txt
 /assets/app.js
 /assets/styles.css
-docs/assets/app.js
-docs/assets/styles.css
