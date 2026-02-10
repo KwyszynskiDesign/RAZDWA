@@ -20,6 +20,7 @@ import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
 import { CustomerData } from "../core/types";
 import categories from "../../data/categories.json";
+import { categories as categoryModules } from "../categories/index";
 
 const cart = new Cart();
 
@@ -83,6 +84,21 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCartUI();
       }
     },
+    addToBasket: (item) => {
+      cart.addItem({
+        id: `item-${Date.now()}`,
+        category: item.category,
+        name: item.description || "Produkt",
+        quantity: 1,
+        unit: "szt.",
+        unitPrice: item.price,
+        isExpress: globalExpress.checked,
+        totalPrice: item.price,
+        optionsHint: item.description || "",
+        payload: item
+      });
+      updateCartUI();
+    },
     expressMode: globalExpress.checked,
     updateLastCalculated: (price, hint) => {
       const currentPriceEl = document.getElementById("currentPrice");
@@ -94,21 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = new Router(viewContainer, getCtx);
   router.setCategories(categories);
-  router.addRoute(DrukA4A3SkanView);
-  router.addRoute(DrukCADView);
-  router.addRoute(SolwentPlakatyView);
-  router.addRoute(VoucheryView);
-  router.addRoute(DyplomyView);
-  router.addRoute(WizytowkiView);
-  router.addRoute(RollUpView);
-  router.addRoute(ZaproszeniaKredaView);
-  router.addRoute(UlotkiDwustronneView);
-  router.addRoute(UlotkiJednostronneView);
-  router.addRoute(BannerView);
-  router.addRoute(WlepkiView);
-  router.addRoute(FoliaSzronionaView);
-  router.addRoute(LaminowanieView);
-  router.addRoute(CadOpsView);
+
+  // Register all categories from the index
+  categoryModules.forEach(module => {
+    router.addRoute(module);
+  });
 
   // Populate category selector
   categories.forEach(cat => {

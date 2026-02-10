@@ -1,5 +1,8 @@
 import { View, ViewContext } from "./types";
 
+export type CategoryModule = View;
+export type CategoryContext = ViewContext;
+
 export class Router {
   private routes: Map<string, View> = new Map();
   private currentView: View | null = null;
