@@ -42,16 +42,9 @@ export class Router {
 
   private renderHome() {
     this.container.innerHTML = `
-      <div class="category-grid">
-        ${this.categories.map(cat => `
-          <a href="categories/${cat.id}.html"
-             class="cat-card ${cat.implemented ? '' : 'disabled'}"
-             onclick="if(${cat.implemented}) { event.preventDefault(); window.location.hash='#/${cat.id}'; } else { event.preventDefault(); }">
-            <div class="cat-icon">${cat.icon}</div>
-            <div class="cat-title">${cat.name}</div>
-            ${cat.implemented ? '' : '<div class="cat-status">Wkrótce</div>'}
-          </a>
-        `).join("")}
+      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
+        <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
+        <p style="margin-top: 10px;">Wybierz kategorię z panelu powyżej, aby rozpocząć obliczenia.</p>
       </div>
     `;
   }
