@@ -37,7 +37,21 @@ export class Router {
     const view = this.routes.get(path);
     if (view) {
       this.currentView = view;
-      view.mount(this.container, this.getCtx());
+
+      // Dodaj przycisk powrotu
+      const backButton = document.createElement('button');
+      backButton.className = 'back-button';
+      backButton.textContent = 'Wszystkie kategorie';
+      backButton.onclick = () => { window.location.hash = '#/'; };
+      this.container.appendChild(backButton);
+
+      // Kontener na kategorię
+      const categoryContent = document.createElement('div');
+      categoryContent.className = 'category-content';
+      categoryContent.id = 'current-category';
+      this.container.appendChild(categoryContent);
+
+      view.mount(categoryContent, this.getCtx());
     } else {
       this.renderHome();
     }
