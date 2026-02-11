@@ -15,91 +15,101 @@
       </div>
     </header>
 
-    <div class="grid">
-      <!-- LEFT: View Container -->
-      <div class="card">
-        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-          <select id="categorySelector" style="flex: 1;">
-            <option value="">🌟 Wybierz kategorię...</option>
-          </select>
-          <input id="categorySearch" placeholder="🔍 Szukaj..." style="flex: 1;">
+    <div class="app-container">
+
+      <!-- LEFT COLUMN: Categories -->
+      <div class="main-content">
+        <div class="card" style="margin-bottom: 20px;">
+          <div style="display: flex; gap: 10px;">
+            <select id="categorySelector" style="flex: 1;">
+              <option value="">🌟 Wybierz kategorię...</option>
+            </select>
+            <input id="categorySearch" placeholder="🔍 Szukaj..." style="flex: 1;">
+          </div>
         </div>
 
         <div id="viewContainer">
           <!-- SPA Content -->
         </div>
-
-        <div style="margin-top: 20px;">
-          <details>
-            <summary>Szczegóły bieżącej pozycji (JSON)</summary>
-            <pre id="basketDebug">{}</pre>
-          </details>
-        </div>
       </div>
 
-      <!-- RIGHT: Cart & Customer Data -->
-      <div class="card">
-        <h2>Podsumowanie</h2>
+      <!-- RIGHT COLUMN: Basket/Summary -->
+      <div class="sidebar">
 
-        <div class="summary">
-          <div class="sumRow">
-            <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
-            <div class="v" id="currentPrice">0,00 zł</div>
+        <div class="summary-panel">
+          <h3>Podsumowanie</h3>
+
+          <div class="summary-row">
+            <span>Ostatnio obliczone <small id="currentHint"></small></span>
+            <strong id="last-calculated">0,00 zł</strong>
           </div>
-          <div class="sumRow total">
-            <div class="k">Suma listy</div>
-            <div class="v" id="basketTotal">0,00 zł</div>
+
+          <div class="summary-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #444;">
+            <span>Suma listy</span>
+            <strong id="basket-total" style="font-size: 24px; color: #667eea;">0,00 zł</strong>
           </div>
+
+          <div id="basket-items" style="margin: 20px 0; max-height: 400px; overflow-y: auto;">
+            <p style="color: #999; text-align: center; padding: 20px;">
+              Brak pozycji<br>
+              <small>Kliknij „Dodaj", aby zbudować listę.</small>
+            </p>
+          </div>
+
+          <button id="clear-basket" class="btn-danger" style="width: 100%;">
+            Wyczyść listę
+          </button>
         </div>
 
-        <div class="divider"></div>
+        <div class="order-form">
+          <h3>🧾 Dane Zamówienia</h3>
+          <p style="color: #999; font-size: 13px; margin-bottom: 15px;">
+            Podaj dane do arkusza Excel.
+          </p>
 
-        <div class="basket">
-          <div class="basketList" id="basketList">
-            <!-- Basket items -->
+          <div class="form-group">
+            <label>Imię i Nazwisko / Firma</label>
+            <input type="text" id="client-name" placeholder="Jan Kowalski">
           </div>
 
-          <div class="actions">
-            <button id="clearBtn" class="danger">Wyczyść listę</button>
+          <div class="form-group">
+            <label>Telefon</label>
+            <input type="tel" id="client-phone" placeholder="+48 ...">
           </div>
 
-          <div class="divider"></div>
-
-          <h3>👤 Dane Zamówienia</h3>
-          <div class="form">
-            <div class="row">
-              <label for="custName">Imię i Nazwisko</label>
-              <input id="custName" type="text" placeholder="Jan Kowalski">
-            </div>
-            <div class="row">
-              <label for="custPhone">Telefon</label>
-              <input id="custPhone" type="text" placeholder="+48 ...">
-            </div>
-            <div class="row">
-              <label for="custEmail">E-mail</label>
-              <input id="custEmail" type="text" placeholder="klient@przyklad.pl">
-            </div>
-            <div class="row">
-              <label for="custPriority">Priorytet</label>
-              <select id="custPriority">
-                <option value="Normalny">🟢 Normalny (7 dni)</option>
-                <option value="Podwyższony">🟡 Podwyższony (3 dni)</option>
-                <option value="Express">🔴 Express (1 dzień)</option>
-              </select>
-            </div>
-            <div class="row">
-              <label></label>
-              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                <input type="checkbox" id="globalExpress" style="width: auto;">
-                💨 Tryb EXPRESS (+20%)
-              </label>
-            </div>
+          <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="client-email" placeholder="klient@przyklad.pl">
           </div>
 
-          <div class="actions" style="margin-top: 20px;">
-            <button id="sendBtn" class="success" style="width: 100%;">📥 Pobierz Excel</button>
+          <div class="form-group">
+            <label>Priorytet</label>
+            <select id="priority">
+              <option value="normalny">Normalny</option>
+              <option value="wysoki">Wysoki</option>
+              <option value="pilny">Pilny</option>
+            </select>
           </div>
+
+          <label style="display: flex; align-items: center; gap: 8px; margin: 15px 0; cursor: pointer;">
+            <input type="checkbox" id="tryb-express">
+            <span>→ Tryb EXPRESS (+20%)</span>
+          </label>
+
+          <button id="export-excel" class="btn-success" style="width: 100%;">
+            📥 Pobierz Excel
+          </button>
+
+          <button id="copy-json" class="btn-primary" style="width: 100%; margin-top: 10px;">
+            Kopiuj JSON listy
+          </button>
+
+          <details style="margin-top: 15px;">
+            <summary style="cursor: pointer; color: #667eea;">▶ Szczegóły bieżącej pozycji (JSON)</summary>
+            <pre id="json-preview" style="background: #1a1a1a; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 11px; margin-top: 10px;">{}</pre>
+          </details>
         </div>
+
       </div>
     </div>
   </div>
