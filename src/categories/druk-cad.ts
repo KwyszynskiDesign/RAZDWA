@@ -140,6 +140,7 @@ export const drukCADCategory: CategoryModule = {
         if (priceDisplay) {
           priceDisplay.textContent = `${newPrice.toFixed(2)} zł`;
         }
+        ctx.updateLastCalculated(newPrice, `${product.produkt} - ${customLength}mm`);
       });
 
       // Event listener: dodaj do koszyka

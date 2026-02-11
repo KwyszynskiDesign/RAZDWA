@@ -195,3 +195,57 @@ button.danger:hover {
   border-color: var(--primary-color);
   background: var(--bg-hover);
 }
+
+/* === LAYOUT UPDATES === */
+.app-container {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar {
+  width: 350px;
+  position: sticky;
+  top: 20px;
+  height: fit-content;
+}
+
+.summary-panel,
+.order-form {
+  background: var(--bg-card);
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  color: white;
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+}
+
+.basket-item {
+  transition: transform 0.2s;
+}
+
+.basket-item:hover {
+  transform: translateX(4px);
+}
