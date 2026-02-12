@@ -11,7 +11,7 @@ import { WlepkiView as wlepkiCategory } from "../ui/views/wlepki-naklejki";
 import { RollUpView as rollupCategory } from "../ui/views/roll-up";
 import { createHTMLCategory } from "./loader";
 import { drukCADCategory } from "./druk-cad";
-import { drukA4A3Category } from "./druk-a4-a3";
+import { drukA4A3Category } from "./druk-a4-a3-skan";
 
 export const categories = [
   // Istniejące kategorie JS
@@ -32,7 +32,6 @@ export const categories = [
   drukA4A3Category,
 
   // Pozostałe kategorie HTML
-  createHTMLCategory('druk-a4-a3-skan', '📄 Druk A4/A3 + skan', 'druk-a4-a3-skan.html'),
   createHTMLCategory('cad-ops', '🗺️ CAD OPS', 'cad-ops.html'),
   createHTMLCategory('folia-szroniona', '✨ Folia Szroniona', 'folia-szroniona.html'),
   createHTMLCategory('laminowanie', '🔒 Laminowanie', 'laminowanie.html'),
