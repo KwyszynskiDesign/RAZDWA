@@ -2,7 +2,7 @@ import { sampleCategory } from "./sample";
 import { plakatyCategory } from "./plakaty";
 import { voucheryCategory } from "./vouchery";
 import { dyplomyCategory } from "./dyplomy";
-import { WizytowkiView as wizytowyCategory } from "../ui/views/wizytowki-druk-cyfrowy";
+import { wizytowkiCategory } from "./wizytowki";
 import { ZaproszeniaKredaView as zaproszeniaKredaCategory } from "../ui/views/zaproszenia-kreda";
 import { UlotkiDwustronneView as ulotkiDwustronneCategory } from "../ui/views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView as ulotkiJednostronneCategory } from "../ui/views/ulotki-cyfrowe-jednostronne";
@@ -19,7 +19,7 @@ export const categories = [
   plakatyCategory,
   voucheryCategory,
   dyplomyCategory,
-  wizytowyCategory,
+  wizytowkiCategory,
   zaproszeniaKredaCategory,
   ulotkiDwustronneCategory,
   ulotkiJednostronneCategory,

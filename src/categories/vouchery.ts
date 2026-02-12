@@ -129,8 +129,9 @@ export const voucheryCategory: CategoryModule = {
 
       const basePrice = getPriceForQuantity(quantity, sides === 'single');
       const paperMultiplier = paper === 'satin' ? 1.12 : 1;
+      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
 
-      currentPrice = basePrice * paperMultiplier;
+      currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
       if (totalDisplay) {
         totalDisplay.textContent = currentPrice.toFixed(2) + ' zł';

@@ -234,6 +234,7 @@ export const drukCADCategory: CategoryModule = {
       }
 
       currentPrice = pricing.price;
+      if (ctx.expressMode) currentPrice *= 1.2;
 
       const formatDisplay = container.querySelector('#format-display');
       const dimsDisplay = container.querySelector('#dims-display');
@@ -257,6 +258,7 @@ export const drukCADCategory: CategoryModule = {
 
       const pricePerMb = pricing.price;
       currentPrice = pricePerMb * length;
+      if (ctx.expressMode) currentPrice *= 1.2;
 
       const pricePerMbDisplay = container.querySelector('#price-per-mb');
       const lengthDisplay = container.querySelector('#length-display');
