@@ -210,6 +210,7 @@ export const drukA4A3Category: CategoryModule = {
 
       currentPricePerPage = getPricePerPage(format, quantity, color);
       currentPrice = currentPricePerPage * quantity;
+      if (ctx.expressMode) currentPrice *= 1.2;
 
       if (pricePerPageDisplay) {
         pricePerPageDisplay.textContent = `${currentPricePerPage.toFixed(2)} zł/str`;
