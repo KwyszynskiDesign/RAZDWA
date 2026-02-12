@@ -1,7 +1,7 @@
 import { sampleCategory } from "./sample";
 import { plakatyCategory } from "./plakaty";
 import { voucheryCategory } from "./vouchery";
-import { DyplomyView as dyplomyCategory } from "../ui/views/dyplomy";
+import { dyplomyCategory } from "./dyplomy";
 import { WizytowkiView as wizytowyCategory } from "../ui/views/wizytowki-druk-cyfrowy";
 import { ZaproszeniaKredaView as zaproszeniaKredaCategory } from "../ui/views/zaproszenia-kreda";
 import { UlotkiDwustronneView as ulotkiDwustronneCategory } from "../ui/views/ulotki-cyfrowe-dwustronne";
