@@ -21,20 +21,10 @@ Available on:
   http://192.168.0.2:8081
 Hit CTRL-C to stop the server
 
-[2026-02-12T06:30:44.423Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-(node:36297) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+[2026-02-12T17:03:01.357Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+(node:42800) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
 (Use `node --trace-deprecation ...` to show where the warning was created)
-[2026-02-12T06:30:44.454Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.465Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.674Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.730Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.749Z]  "GET /data/categories.json" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.750Z]  "GET /categories/banner.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.750Z]  "GET /categories/dyplomy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.761Z]  "GET /categories/wlepki-naklejki.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.762Z]  "GET /categories/ulotki-cyfrowe-dwustronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.763Z]  "GET /categories/ulotki-cyfrowe-jednostronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.775Z]  "GET /categories/roll-up.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.780Z]  "GET /categories/wizytowki-druk-cyfrowy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-12T06:30:44.787Z]  "GET /categories/zaproszenia-kreda.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-12T17:03:01.399Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-12T17:03:01.411Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-12T17:03:01.681Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
 http-server stopped.

@@ -11,7 +11,7 @@ export interface DrukCADOptions {
 
 /**
  * @deprecated Use drukCADCategory module instead.
- * Kept for compatibility with tests and legacy views.
+ * Kept for compatibility with tests.
  */
 export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
   const res = calculateCad({
@@ -35,129 +35,291 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
   };
 }
 
-const CAD_PRODUCTS = [
-  {
-    produkt: "A0+ 914×1292",
-    jednostka: "1 szt",
-    cena: 26.0,
-    baseWidth: 914,
-    baseLength: 1292,
-    typ: "cad_length"
+const CAD_PRICING: any = {
+  kolor: {
+    formatowe: {
+      'A0+': { price: 26.00, dims: '914×1292 mm' },
+      'A0': { price: 24.00, dims: '841×1189 mm' },
+      'A1': { price: 12.00, dims: '594×841 mm' },
+      'A2': { price: 8.50, dims: '420×594 mm' },
+      'A3': { price: 5.30, dims: '297×420 mm' }
+    },
+    metr_biezacy: {
+      'A0+': { price: 21.00, width: 914 },
+      'A0': { price: 20.00, width: 841 },
+      'A1': { price: 14.50, width: 594 },
+      'A2': { price: 13.90, width: 420 },
+      'A3': { price: 12.00, width: 297 },
+      'MB 1067': { price: 30.00, width: 1067 }
+    }
   },
-  {
-    produkt: "A1+ 610×914",
-    jednostka: "1 szt",
-    cena: 18.0,
-    baseWidth: 610,
-    baseLength: 914,
-    typ: "cad_length"
-  },
-  {
-    produkt: "A2+ 450×610",
-    jednostka: "1 szt",
-    cena: 12.0,
-    baseWidth: 450,
-    baseLength: 610,
-    typ: "cad_length"
-  },
-  {
-    produkt: "MB 90cm",
-    jednostka: "1 mb",
-    cena: 21.0,
-    baseWidth: 900,
-    baseLength: 1000,
-    typ: "cad_length"
-  },
-  {
-    produkt: "MB 61cm",
-    jednostka: "1 mb",
-    cena: 15.0,
-    baseWidth: 610,
-    baseLength: 1000,
-    typ: "cad_length"
+  czarno_bialy: {
+    formatowe: {
+      'A0+': { price: 13.00, dims: '914×1292 mm' },
+      'A0': { price: 11.00, dims: '841×1189 mm' },
+      'A1': { price: 6.00, dims: '594×841 mm' },
+      'A2': { price: 4.00, dims: '420×594 mm' },
+      'A3': { price: 2.50, dims: '297×420 mm' }
+    },
+    metr_biezacy: {
+      'A0+': { price: 10.00, width: 914 },
+      'A0': { price: 9.00, width: 841 },
+      'A1': { price: 5.00, width: 594 },
+      'A2': { price: 4.50, width: 420 },
+      'A3': { price: 3.50, width: 297 },
+      'MB 1067': { price: 12.50, width: 1067 }
+    }
   }
-];
+};
 
 export const drukCADCategory: CategoryModule = {
   id: 'druk-cad',
-  name: '🗺️ Druk CAD wielkoformatowy',
+  name: '📐 Druk CAD',
   mount: (container, ctx) => {
     container.innerHTML = `
       <div class="category-form">
-        <h2>Druk CAD wielkoformatowy</h2>
+        <h2>Druk CAD Wielkoformatowy</h2>
         <p style="color: #999; margin-bottom: 20px;">
-          Druk techniczny na ploterze wielkoformatowym. Dostosuj długość druku.
+          Druk rysunków technicznych CAD - linie i cienkie teksty (WEKTOR). Papier 80g/m².
         </p>
 
-        <div id="cad-products"></div>
+        <div class="form-group">
+          <label>Format:</label>
+          <select id="format">
+            <option value="A0+">A0+ (914×1292 mm)</option>
+            <option value="A0">A0 (841×1189 mm)</option>
+            <option value="A1" selected>A1 (594×841 mm)</option>
+            <option value="A2">A2 (420×594 mm)</option>
+            <option value="A3">A3 (297×420 mm)</option>
+            <option value="MB 1067">MB 1067 (rolka 1067 mm)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Druk:</label>
+          <select id="color">
+            <option value="kolor">Kolor</option>
+            <option value="czarno_bialy">Czarno-biały</option>
+          </select>
+        </div>
+
+        <div style="background: #1a1a1a; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #667eea; margin: 0 0 15px 0;">Wybierz rodzaj wydruku:</h3>
+
+          <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <button id="btn-formatowy" class="btn-toggle active" style="flex: 1; padding: 15px; border: 2px solid #667eea; background: #667eea; color: white; border-radius: 8px; cursor: pointer; font-weight: bold;">
+              📐 FORMATOWY<br>
+              <small style="font-weight: normal; opacity: 0.9;">Stała cena za format</small>
+            </button>
+            <button id="btn-nieformatowy" class="btn-toggle" style="flex: 1; padding: 15px; border: 2px solid #444; background: #2a2a2a; color: #999; border-radius: 8px; cursor: pointer; font-weight: bold;">
+              📏 NIEFORMATOWY<br>
+              <small style="font-weight: normal; opacity: 0.7;">Własna długość (mb)</small>
+            </button>
+          </div>
+
+          <div id="formatowy-section" style="display: block;">
+            <div style="padding: 15px; background: #2a2a2a; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #999;">Format:</span>
+                <strong id="format-display" style="color: #667eea; font-size: 18px;">A1</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #999;">Wymiary:</span>
+                <strong id="dims-display" style="color: #ccc;">594×841 mm</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: #999;">Cena:</span>
+                <strong id="formatowy-price" style="font-size: 24px; color: #667eea;">12.00 zł</strong>
+              </div>
+            </div>
+          </div>
+
+          <div id="nieformatowy-section" style="display: none;">
+            <div class="form-group">
+              <label>Długość (metry):</label>
+              <input type="number" id="length" value="1.0" min="0.1" step="0.001" max="50">
+              <small style="color: #666;">
+                Przykład: 2.0 (2 metry) lub 0.585 (585mm)
+              </small>
+            </div>
+
+            <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin-top: 15px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #999;">Cena za mb:</span>
+                <strong id="price-per-mb" style="color: #667eea; font-size: 18px;">14.50 zł/mb</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <span style="color: #999;">Długość:</span>
+                <strong id="length-display" style="color: #ccc;">1.000 m</strong>
+              </div>
+              <div style="border-top: 1px solid #444; padding-top: 10px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span style="color: #999;">Cena całkowita:</span>
+                  <strong id="nieformatowy-price" style="font-size: 24px; color: #667eea;">14.50 zł</strong>
+                </div>
+                <p id="calc-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;">
+                  14.50 zł/mb × 1.000 m = 14.50 zł
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="addToBasket" class="btn-success" style="width: 100%; padding: 15px; font-size: 16px;">
+          Dodaj do listy
+        </button>
       </div>
     `;
 
-    const productsContainer = container.querySelector('#cad-products');
-    if (!productsContainer) return;
+    let currentMode = 'formatowy';
+    let currentPrice = 0;
 
-    CAD_PRODUCTS.forEach((product, index) => {
-      const card = document.createElement('div');
-      card.className = 'product-card';
-      card.innerHTML = `
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <strong>${product.produkt}</strong>
-          <span style="color: #999;">${product.jednostka}</span>
-        </div>
+    const formatSelect = container.querySelector('#format') as HTMLSelectElement;
+    const colorSelect = container.querySelector('#color') as HTMLSelectElement;
+    const btnFormatowy = container.querySelector('#btn-formatowy') as HTMLButtonElement;
+    const btnNieformatowy = container.querySelector('#btn-nieformatowy') as HTMLButtonElement;
+    const formatowySection = container.querySelector('#formatowy-section') as HTMLDivElement;
+    const nieformatowySection = container.querySelector('#nieformatowy-section') as HTMLDivElement;
+    const lengthInput = container.querySelector('#length') as HTMLInputElement;
+    const addBtn = container.querySelector('#addToBasket') as HTMLButtonElement;
 
-        <div class="form-group" style="margin-bottom: 10px;">
-          <label>Długość (mm):</label>
-          <input
-            type="number"
-            id="clen-${index}"
-            value="${product.baseLength}"
-            min="${product.baseLength}"
-            step="10"
-          >
-        </div>
+    // Toggle between modes
+    function setMode(mode: 'formatowy' | 'nieformatowy') {
+      currentMode = mode;
 
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <span style="color: #999;">Cena:</span>
-            <strong id="price-${index}" style="font-size: 18px; color: #667eea; margin-left: 8px;">
-              ${product.cena.toFixed(2)} zł
-            </strong>
-          </div>
-          <button class="btn-success" data-index="${index}">Dodaj do listy</button>
-        </div>
-      `;
+      if (mode === 'formatowy') {
+        btnFormatowy.style.background = '#667eea';
+        btnFormatowy.style.color = 'white';
+        btnFormatowy.style.borderColor = '#667eea';
 
-      productsContainer.appendChild(card);
+        btnNieformatowy.style.background = '#2a2a2a';
+        btnNieformatowy.style.color = '#999';
+        btnNieformatowy.style.borderColor = '#444';
 
-      // Event listener: aktualizacja ceny
-      const lengthInput = card.querySelector(`#clen-${index}`) as HTMLInputElement;
-      const priceDisplay = card.querySelector(`#price-${index}`);
+        formatowySection.style.display = 'block';
+        nieformatowySection.style.display = 'none';
 
-      lengthInput.addEventListener('input', () => {
-        const customLength = parseFloat(lengthInput.value) || product.baseLength;
-        const ratio = customLength / product.baseLength;
-        const newPrice = product.cena * ratio;
-        if (priceDisplay) {
-          priceDisplay.textContent = `${newPrice.toFixed(2)} zł`;
-        }
-        ctx.updateLastCalculated(newPrice, `${product.produkt} - ${customLength}mm`);
-      });
+        updateFormatowyPrice();
+      } else {
+        btnNieformatowy.style.background = '#667eea';
+        btnNieformatowy.style.color = 'white';
+        btnNieformatowy.style.borderColor = '#667eea';
 
-      // Event listener: dodaj do koszyka
-      const addBtn = card.querySelector('.btn-success');
-      addBtn?.addEventListener('click', () => {
-        const customLength = parseFloat(lengthInput.value) || product.baseLength;
-        const ratio = customLength / product.baseLength;
-        const finalPrice = product.cena * ratio;
+        btnFormatowy.style.background = '#2a2a2a';
+        btnFormatowy.style.color = '#999';
+        btnFormatowy.style.borderColor = '#444';
 
-        ctx.addToBasket({
-          category: 'Druk CAD',
-          price: finalPrice,
-          description: `${product.produkt} - ${customLength}mm`
-        });
+        formatowySection.style.display = 'none';
+        nieformatowySection.style.display = 'block';
 
-        alert(`✅ Dodano do listy: ${product.produkt} (${finalPrice.toFixed(2)} zł)`);
-      });
+        updateNieformatowyPrice();
+      }
+    }
+
+    btnFormatowy.addEventListener('click', () => setMode('formatowy'));
+    btnNieformatowy.addEventListener('click', () => setMode('nieformatowy'));
+
+    // Update formatowy price
+    function updateFormatowyPrice() {
+      const format = formatSelect.value;
+      const color = colorSelect.value as 'kolor' | 'czarno_bialy';
+
+      const pricing = CAD_PRICING[color].formatowe[format];
+      if (!pricing) {
+        // Fallback if someone selects MB 1067 in formatowy mode
+        currentPrice = 0;
+        const priceDisplay = container.querySelector('#formatowy-price');
+        if (priceDisplay) priceDisplay.textContent = '---';
+        return;
+      }
+
+      currentPrice = pricing.price;
+
+      const formatDisplay = container.querySelector('#format-display');
+      const dimsDisplay = container.querySelector('#dims-display');
+      const priceDisplay = container.querySelector('#formatowy-price');
+
+      if (formatDisplay) formatDisplay.textContent = format;
+      if (dimsDisplay) dimsDisplay.textContent = pricing.dims;
+      if (priceDisplay) priceDisplay.textContent = currentPrice.toFixed(2) + ' zł';
+
+      ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' formatowy - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
+    }
+
+    // Update nieformatowy price
+    function updateNieformatowyPrice() {
+      const format = formatSelect.value;
+      const color = colorSelect.value as 'kolor' | 'czarno_bialy';
+      const length = parseFloat(lengthInput.value) || 1.0;
+
+      const pricing = CAD_PRICING[color].metr_biezacy[format];
+      if (!pricing) return;
+
+      const pricePerMb = pricing.price;
+      currentPrice = pricePerMb * length;
+
+      const pricePerMbDisplay = container.querySelector('#price-per-mb');
+      const lengthDisplay = container.querySelector('#length-display');
+      const priceDisplay = container.querySelector('#nieformatowy-price');
+      const breakdownDisplay = container.querySelector('#calc-breakdown');
+
+      if (pricePerMbDisplay) pricePerMbDisplay.textContent = pricePerMb.toFixed(2) + ' zł/mb';
+      if (lengthDisplay) lengthDisplay.textContent = length.toFixed(3) + ' m';
+      if (priceDisplay) priceDisplay.textContent = currentPrice.toFixed(2) + ' zł';
+      if (breakdownDisplay) {
+        breakdownDisplay.textContent = pricePerMb.toFixed(2) + ' zł/mb × ' + length.toFixed(3) + ' m = ' + currentPrice.toFixed(2) + ' zł';
+      }
+
+      ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' nieformatowy ' + length.toFixed(3) + 'm - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
+    }
+
+    // Event listeners
+    formatSelect.addEventListener('change', () => {
+      if (currentMode === 'formatowy') {
+        updateFormatowyPrice();
+      } else {
+        updateNieformatowyPrice();
+      }
     });
+
+    colorSelect.addEventListener('change', () => {
+      if (currentMode === 'formatowy') {
+        updateFormatowyPrice();
+      } else {
+        updateNieformatowyPrice();
+      }
+    });
+
+    lengthInput.addEventListener('input', updateNieformatowyPrice);
+
+    addBtn.addEventListener('click', () => {
+      if (currentPrice === 0) {
+        alert('⚠️ Błąd obliczenia ceny!');
+        return;
+      }
+
+      const format = formatSelect.value;
+      const color = colorSelect.value === 'kolor' ? 'kolor' : 'cz-b';
+
+      let description = '';
+      if (currentMode === 'formatowy') {
+        description = format + ' formatowy, ' + color;
+      } else {
+        const length = parseFloat(lengthInput.value);
+        const pricePerMb = CAD_PRICING[colorSelect.value as 'kolor' | 'czarno_bialy'].metr_biezacy[format].price;
+        description = format + ' nieformatowy, ' + length.toFixed(3) + ' m, ' + color + ' (' + pricePerMb.toFixed(2) + ' zł/mb)';
+      }
+
+      ctx.addToBasket({
+        category: 'Druk CAD',
+        price: currentPrice,
+        description: description
+      });
+
+      alert('✅ Dodano: ' + currentPrice.toFixed(2) + ' zł');
+    });
+
+    // Initialize
+    setMode('formatowy');
   }
 };
