@@ -92,6 +92,7 @@ export const CAD_BASE: any = {
   A1: { w: 594, l: 841, label: "A1" },
   A2: { w: 420, l: 594, label: "A2" },
   A3: { w: 297, l: 420, label: "A3" },
+  R1067: { w: 1067, l: 0, label: "Roll 1067" },
 };
 
 export const FORMAT_TOLERANCE_MM = 0.5;

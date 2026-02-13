@@ -55,7 +55,7 @@ const CAD_PRICING: any = {
   },
   czarno_bialy: {
     formatowe: {
-      'A0+': { price: 13.00, dims: '914×1292 mm' },
+      'A0+': { price: 12.50, dims: '914×1292 mm' },
       'A0': { price: 11.00, dims: '841×1189 mm' },
       'A1': { price: 6.00, dims: '594×841 mm' },
       'A2': { price: 4.00, dims: '420×594 mm' },
