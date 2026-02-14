@@ -4,7 +4,6 @@ import { voucheryCategory } from "./vouchery";
 import { dyplomyCategory } from "./dyplomy";
 import { wizytowkiCategory } from "./wizytowki";
 import { ZaproszeniaKredaView as zaproszeniaKredaCategory } from "../ui/views/zaproszenia-kreda";
-import { UlotkiDwustronneView as ulotkiDwustronneCategory } from "../ui/views/ulotki-cyfrowe-dwustronne";
 import { UlotkiJednostronneView as ulotkiJednostronneCategory } from "../ui/views/ulotki-cyfrowe-jednostronne";
 import { BannerView as banneryCategory } from "../ui/views/banner";
 import { WlepkiView as wlepkiCategory } from "../ui/views/wlepki-naklejki";
@@ -21,7 +20,6 @@ export const categories = [
   dyplomyCategory,
   wizytowkiCategory,
   zaproszeniaKredaCategory,
-  ulotkiDwustronneCategory,
   ulotkiJednostronneCategory,
   banneryCategory,
   wlepkiCategory,

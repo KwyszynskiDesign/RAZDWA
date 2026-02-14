@@ -5,18 +5,23 @@ import { PriceTable, CalculationResult } from "../core/types";
 export interface UlotkiJednostronneOptions {
   qty: number;
   format: string;
+  mode: "jednostronne" | "dwustronne";
   express: boolean;
 }
 
-export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
-  const formatData = (prices.formats as any)[formatKey];
+export function getUlotkiJednostronneTable(formatKey: string, mode: "jednostronne" | "dwustronne" = "jednostronne"): PriceTable {
+  const modeData = (prices as any)[mode];
+  if (!modeData) {
+    throw new Error(`Invalid mode: ${mode}`);
+  }
+  const formatData = modeData[formatKey];
   if (!formatData) {
-    throw new Error(`Invalid format: ${formatKey}`);
+    throw new Error(`Invalid format: ${formatKey} for mode ${mode}`);
   }
 
   return {
-    id: `ulotki-cyfrowe-jednostronne-${formatKey.toLowerCase()}`,
-    title: `Ulotki Cyfrowe Jednostronne ${formatData.name}`,
+    id: `ulotki-cyfrowe-${mode}-${formatKey.toLowerCase()}`,
+    title: `Ulotki Cyfrowe ${mode === 'dwustronne' ? 'Dwustronne' : 'Jednostronne'} ${formatData.name}`,
     unit: "szt",
     pricing: "flat",
     tiers: formatData.tiers,
@@ -27,7 +32,7 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
 }
 
 export function quoteJednostronne(options: UlotkiJednostronneOptions): CalculationResult {
-  const table = getUlotkiJednostronneTable(options.format);
+  const table = getUlotkiJednostronneTable(options.format, options.mode);
   const activeModifiers = [];
   if (options.express) activeModifiers.push("express");
 

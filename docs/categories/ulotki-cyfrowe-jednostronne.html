@@ -1,9 +1,23 @@
 <div class="category-view" id="ulotki-jednostronne-view">
     <div class="view-header">
-        <h2>Ulotki – cyfrowe jednostronne</h2>
+        <h2>Ulotki – cyfrowe</h2>
     </div>
 
     <div class="calculator-form card">
+        <div class="form-group">
+            <label>Tryb druku:</label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="uj-mode" value="jednostronne" checked>
+                    <span>Jednostronne</span>
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="uj-mode" value="dwustronne">
+                    <span>Dwustronne</span>
+                </label>
+            </div>
+        </div>
+
         <div class="form-group">
             <label for="uj-format">Format:</label>
             <select id="uj-format" class="form-control">
@@ -14,41 +28,72 @@
         </div>
 
         <div class="form-group">
-            <label for="uj-qty">Ilość (szt):</label>
-            <select id="uj-qty" class="form-control">
-                <option value="10">10 szt</option>
-                <option value="20">20 szt</option>
-                <option value="30">30 szt</option>
-                <option value="40">40 szt</option>
-                <option value="50">50 szt</option>
-                <option value="60">60 szt</option>
-                <option value="70">70 szt</option>
-                <option value="80">80 szt</option>
-                <option value="90">90 szt</option>
-                <option value="100">100 szt</option>
-                <option value="150">150 szt</option>
-                <option value="200">200 szt</option>
-                <option value="300">300 szt</option>
-                <option value="400">400 szt</option>
-                <option value="500">500 szt</option>
-                <option value="700">700 szt</option>
-                <option value="1000">1000 szt</option>
-            </select>
+            <label for="uj-qty-input">Ilość (szt):</label>
+            <input type="number" id="uj-qty-input" class="form-control" value="100" min="1" step="1">
+            <small class="hint">Wpisz dowolną ilość (maks. 1000 szt)</small>
         </div>
 
         <div class="form-actions">
-            <button id="uj-calculate" class="btn btn-primary">Oblicz</button>
             <button id="uj-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
         </div>
     </div>
 
     <div id="uj-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Cena brutto:</span>
+            <span>Ilość:</span>
+            <span id="uj-display-qty">-</span>
+        </div>
+        <div class="result-row">
+            <span>Cena za 1 szt:</span>
+            <span id="uj-unit-price" class="price-value">-</span>
+        </div>
+        <div class="result-row total">
+            <span>Suma brutto:</span>
             <span id="uj-total-price" class="price-value">-</span>
         </div>
         <div id="uj-express-hint" class="express-hint" style="display: none;">
             W tym dopłata EXPRESS +20%
         </div>
     </div>
+
+    <div id="uj-individual-quote" class="info-box warning" style="display: none; margin-top: 20px;">
+        <p><strong>Wycena indywidualna</strong></p>
+        <p>Dla nakładów powyżej 1000 sztuk prosimy o kontakt mailowy.</p>
+    </div>
 </div>
+
+<style>
+    .radio-group {
+        display: flex;
+        gap: 20px;
+        margin-top: 5px;
+    }
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+    .radio-label input {
+        width: 18px;
+        height: 18px;
+    }
+    .info-box.warning {
+        background: rgba(245, 158, 11, 0.1);
+        border: 1px solid #f59e0b;
+        padding: 15px;
+        border-radius: 8px;
+        color: #f59e0b;
+        text-align: center;
+    }
+    .result-row.total {
+        border-top: 1px solid #333;
+        padding-top: 10px;
+        margin-top: 10px;
+        font-weight: bold;
+    }
+    .result-row.total .price-value {
+        color: #667eea;
+        font-size: 1.4em;
+    }
+</style>
