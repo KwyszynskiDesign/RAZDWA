@@ -4,7 +4,7 @@ import { formatPLN } from "../../core/money";
 
 export const UlotkiJednostronneView: View = {
   id: "ulotki-cyfrowe-jednostronne",
-  name: "Ulotki - Cyfrowe Jednostronne",
+  name: "Ulotki – cyfrowe jednostronne",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/ulotki-cyfrowe-jednostronne.html");
