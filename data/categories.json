@@ -81,7 +81,7 @@
   { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
   { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
   { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
-  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki - Cyfrowe Jednostronne", "icon": "📄", "implemented": true },
+  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki – cyfrowe jednostronne", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
   { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
   { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
