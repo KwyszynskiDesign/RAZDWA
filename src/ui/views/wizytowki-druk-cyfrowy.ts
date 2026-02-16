@@ -1,5 +1,5 @@
 import { View, ViewContext } from "../types";
-import { quoteWizytowki } from "../../categories/wizytowki";
+import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 
 export const WizytowkiView: View = {

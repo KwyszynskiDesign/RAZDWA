@@ -1,3 +1,7 @@
+
+> razdwa-calculator@1.0.0 preview
+> npx http-server docs
+
 Starting up http-server, serving docs
 
 http-server version: 14.1.1
@@ -17,35 +21,23 @@ Available on:
   http://192.168.0.2:8080
 Hit CTRL-C to stop the server
 
-[2026-02-04T19:59:01.722Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-(node:88371) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
+[2026-02-16T06:45:07.895Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+(node:171589) [DEP0066] DeprecationWarning: OutgoingMessage.prototype._headers is deprecated
 (Use `node --trace-deprecation ...` to show where the warning was created)
-[2026-02-04T19:59:01.739Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.742Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.832Z]  "GET /categories/druk-cad.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.849Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.884Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.886Z]  "GET /data/categories.json" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.896Z]  "GET /categories/banner.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.898Z]  "GET /categories/dyplomy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.900Z]  "GET /categories/wlepki-naklejki.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.907Z]  "GET /categories/ulotki-cyfrowe-dwustronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.911Z]  "GET /categories/ulotki-cyfrowe-jednostronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.912Z]  "GET /categories/roll-up.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.913Z]  "GET /categories/wizytowki-druk-cyfrowy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T19:59:01.917Z]  "GET /categories/zaproszenia-kreda.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.573Z]  "GET /" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.583Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.585Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.615Z]  "GET /categories/druk-cad.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.671Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.687Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.695Z]  "GET /data/categories.json" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.700Z]  "GET /categories/banner.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.701Z]  "GET /categories/dyplomy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.705Z]  "GET /categories/wlepki-naklejki.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.710Z]  "GET /categories/ulotki-cyfrowe-dwustronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.711Z]  "GET /categories/ulotki-cyfrowe-jednostronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.711Z]  "GET /categories/roll-up.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.718Z]  "GET /categories/wizytowki-druk-cyfrowy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
-[2026-02-04T20:00:18.720Z]  "GET /categories/zaproszenia-kreda.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:07.921Z]  "GET /assets/styles.css" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:07.939Z]  "GET /assets/app.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.165Z]  "GET /sw.js" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.389Z]  "GET /index.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.425Z]  "GET /data/categories.json" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.439Z]  "GET /categories/banner.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.478Z]  "GET /categories/dyplomy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.481Z]  "GET /categories/wlepki-naklejki.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.483Z]  "GET /categories/ulotki-cyfrowe-dwustronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.514Z]  "GET /categories/ulotki-cyfrowe-dwustronne.html" Error (404): "Not found"
+[2026-02-16T06:45:08.516Z]  "GET /categories/ulotki-cyfrowe-jednostronne.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.518Z]  "GET /categories/roll-up.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.520Z]  "GET /categories/ulotki-cyfrowe-jednostronne.html" Error (404): "Not found"
+[2026-02-16T06:45:08.539Z]  "GET /categories/wizytowki-druk-cyfrowy.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.545Z]  "GET /categories/zaproszenia-kreda.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.619Z]  "GET /categories/ulotki-cyfrowe.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"
+[2026-02-16T06:45:08.973Z]  "GET /categories/druk-cad.html" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/143.0.7499.4 Safari/537.36"

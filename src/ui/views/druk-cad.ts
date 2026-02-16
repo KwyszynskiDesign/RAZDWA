@@ -25,6 +25,8 @@ export const DrukCADView: View = {
     const modeSelect = container.querySelector("#cad-mode") as HTMLSelectElement;
     const formatSelect = container.querySelector("#cad-format") as HTMLSelectElement;
     const lengthInput = container.querySelector("#cad-length") as HTMLInputElement;
+    const qtySheetsInput = container.querySelector("#qty-sheets") as HTMLInputElement;
+    const qtySheetsGroup = container.querySelector("#qty-sheets-group") as HTMLElement;
     const useBaseBtn = container.querySelector("#cad-use-base") as HTMLButtonElement;
     const baseInfo = container.querySelector("#cad-base-info") as HTMLElement;
 
@@ -35,20 +37,29 @@ export const DrukCADView: View = {
     const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
 
-    const updateBaseInfo = () => {
+    const updateUI = () => {
       const format = formatSelect.value;
       const mode = modeSelect.value;
       const baseLen = catData.format_prices[mode][format].length;
       baseInfo.innerText = `Wymiar bazowy: ${baseLen} mm`;
+
+      const currentLen = parseInt(lengthInput.value) || 0;
+      const isFormatowe = Math.abs(currentLen - baseLen) <= 0.5;
+      qtySheetsGroup.style.display = isFormatowe ? "grid" : "none";
+
       return baseLen;
     };
 
-    formatSelect.onchange = updateBaseInfo;
-    modeSelect.onchange = updateBaseInfo;
+    formatSelect.onchange = updateUI;
+    modeSelect.onchange = updateUI;
+    lengthInput.oninput = updateUI;
 
     useBaseBtn.onclick = () => {
-      lengthInput.value = updateBaseInfo().toString();
+      lengthInput.value = updateUI().toString();
+      updateUI();
     };
+
+    updateUI();
 
     let currentResult: any = null;
     let currentOptions: any = null;
@@ -58,6 +69,7 @@ export const DrukCADView: View = {
         mode: modeSelect.value,
         format: formatSelect.value,
         lengthMm: parseInt(lengthInput.value) || 0,
+        qty: parseInt(qtySheetsInput.value) || 1,
         express: ctx.expressMode
       };
 
@@ -79,9 +91,10 @@ export const DrukCADView: View = {
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
+        const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;
         const opts = [
             `${currentOptions.format} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
-            `${currentOptions.lengthMm} mm`,
+            `${qtyLabel}${currentOptions.lengthMm} mm`,
             ctx.expressMode ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");
 

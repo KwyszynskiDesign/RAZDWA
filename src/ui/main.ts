@@ -6,8 +6,7 @@ import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
 import { RollUpView } from "./views/roll-up";
 import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
-import { UlotkiDwustronneView } from "./views/ulotki-cyfrowe-dwustronne";
-import { UlotkiJednostronneView } from "./views/ulotki-cyfrowe-jednostronne";
+import { UlotkiCyfroweView } from "./views/ulotki-cyfrowe";
 import { BannerView } from "./views/banner";
 import { WlepkiView } from "./views/wlepki-naklejki";
 import { DrukA4A3SkanView } from "./views/DrukA4A3SkanView";
@@ -22,6 +21,17 @@ import { CustomerData } from "../core/types";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
+
+function showToast(message: string) {
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.innerText = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    setTimeout(() => toast.remove(), 300);
+  }, 2000);
+}
 
 function updateCartUI() {
   const listEl = document.getElementById("basketList");
@@ -81,6 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addItem: (item) => {
         cart.addItem(item);
         updateCartUI();
+        showToast("✓ Dodano do listy");
       }
     },
     expressMode: globalExpress.checked,
@@ -102,8 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(WizytowkiView);
   router.addRoute(RollUpView);
   router.addRoute(ZaproszeniaKredaView);
-  router.addRoute(UlotkiDwustronneView);
-  router.addRoute(UlotkiJednostronneView);
+  router.addRoute(UlotkiCyfroweView);
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
