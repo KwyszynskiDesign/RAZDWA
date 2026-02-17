@@ -34,7 +34,27 @@ export class Router {
 
     this.container.innerHTML = "";
 
-    const view = this.routes.get(path);
+    let view = this.routes.get(path);
+
+    // Check if it's an iframe category
+    const catDef = this.categories.find(c => c.id === path);
+    if (!view && catDef && catDef.type === 'iframe') {
+      view = {
+        id: catDef.id,
+        name: catDef.name,
+        mount: (container) => {
+          container.innerHTML = `
+            <iframe
+              src="${catDef.id === 'cad-kalkulator' ? 'kalkulator_cad.html' : catDef.path}"
+              style="width: 100%; height: calc(100vh - 150px); border: 2px solid #e2e8f0; border-radius: 12px; display: block; background: white;"
+              title="${catDef.name}"
+              allow="clipboard-write"
+            ></iframe>
+          `;
+        }
+      };
+    }
+
     if (view) {
       this.currentView = view;
 

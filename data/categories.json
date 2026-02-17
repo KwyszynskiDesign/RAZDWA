@@ -160,5 +160,15 @@
     "icon": "🏷️",
     "group": "Reklama i wykończenie",
     "implemented": true
+  },
+  {
+    "id": "cad-kalkulator",
+    "name": "CAD - Kalkulator",
+    "description": "Wycena wydruków wielkiformatowych (A3-A0+)",
+    "icon": "🖨️",
+    "group": "Druk wielkoformatowy",
+    "path": "/kalkulator-cad",
+    "type": "iframe",
+    "implemented": true
   }
 ]
