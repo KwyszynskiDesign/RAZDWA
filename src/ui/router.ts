@@ -59,15 +59,9 @@ export class Router {
 
   private renderHome() {
     this.container.innerHTML = `
-      <div class="category-grid">
-        ${this.categories.map(cat => `
-          <div class="category-card ${cat.implemented ? '' : 'coming-soon'}"
-               ${cat.implemented ? `onclick="window.location.hash='#/${cat.id}'"` : ''}>
-            <div class="category-icon">${cat.icon}</div>
-            <div class="category-name">${cat.name}</div>
-            ${cat.implemented ? '' : '<div class="badge">Wkrótce</div>'}
-          </div>
-        `).join("")}
+      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
+        <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
+        <p style="margin-top: 10px;">Wybierz kategorię z panelu powyżej, aby rozpocząć obliczenia.</p>
       </div>
     `;
   }

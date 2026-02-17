@@ -1,0 +1,50 @@
+<div class="category-view">
+    <div class="view-header">
+        <h2>Vouchery A4</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div class="form-group">
+            <label for="v-qty">Ilość (szt):</label>
+            <input type="number" id="v-qty" class="form-control" value="1" min="1" max="30" step="1">
+            <div class="hint">Zakres 1-30 szt.</div>
+        </div>
+
+        <div class="form-group">
+            <label>Zadruk:</label>
+            <div class="radio-group" style="display: flex; gap: 20px; margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="v-sides" value="single" checked> Jednostronne
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="radio" name="v-sides" value="double"> Dwustronne
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <input type="checkbox" id="v-satin">
+            <label for="v-satin">Papier satynowy (+12%)</label>
+        </div>
+
+        <div class="form-actions">
+            <button id="v-calculate" class="btn btn-primary">Oblicz</button>
+            <button id="v-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
+        </div>
+    </div>
+
+    <div id="v-result-display" class="result-display card" style="display: none;">
+        <div class="result-row">
+            <span>Cena bazowa:</span>
+            <span id="v-base-price" class="price-unit">-</span>
+        </div>
+        <div id="v-modifiers-row" class="result-row" style="display: none; font-size: 0.9em; opacity: 0.8;">
+            <span>Dopłaty:</span>
+            <span id="v-modifiers-total">-</span>
+        </div>
+        <div class="result-row total-row" style="margin-top: 8px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 8px;">
+            <span>Cena brutto:</span>
+            <span id="v-total-price" class="price-value">-</span>
+        </div>
+    </div>
+</div>

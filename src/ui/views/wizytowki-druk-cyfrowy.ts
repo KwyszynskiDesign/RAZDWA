@@ -5,85 +5,16 @@ import { formatPLN } from "../../core/money";
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",
   name: "Wizytówki - druk cyfrowy",
-  mount(container, ctx) {
-    container.innerHTML = `
-      <div class="category-view">
-        <div class="view-header">
-            <h2>Wizytówki - druk cyfrowy</h2>
-        </div>
+  async mount(container, ctx) {
+    try {
+      const response = await fetch("categories/wizytowki-druk-cyfrowy.html");
+      if (!response.ok) throw new Error("Failed to load template");
+      container.innerHTML = await response.text();
 
-        <div class="calculator-form card">
-            <div class="form-group">
-                <label for="w-family">Rodzaj:</label>
-                <select id="w-family" class="form-control">
-                    <option value="standard">Standard</option>
-                    <option value="deluxe">DELUXE</option>
-                </select>
-            </div>
-
-            <div id="standard-options">
-                <div class="form-group">
-                    <label for="w-finish">Wykończenie:</label>
-                    <select id="w-finish" class="form-control">
-                        <option value="mat">Mat</option>
-                        <option value="blysk">Błysk</option>
-                        <option value="softtouch">SoftTouch</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="w-size">Rozmiar:</label>
-                    <select id="w-size" class="form-control">
-                        <option value="85x55">85x55 mm</option>
-                        <option value="90x50">90x50 mm</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="w-lam">Foliowanie:</label>
-                    <select id="w-lam" class="form-control">
-                        <option value="noLam">Bez foliowania</option>
-                        <option value="lam">Foliowane</option>
-                    </select>
-                </div>
-            </div>
-
-            <div id="deluxe-options" style="display: none;">
-                <div class="form-group">
-                    <label for="w-deluxe-opt">Opcja DELUXE:</label>
-                    <select id="w-deluxe-opt" class="form-control">
-                        <option value="uv3d_softtouch">UV 3D + SoftTouch</option>
-                        <option value="uv3d_gold_softtouch">UV 3D + Złocenie + SoftTouch</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="w-qty">Ilość (szt):</label>
-                <input type="number" id="w-qty" class="form-control" value="100" min="1">
-                <div class="hint">Zaokrąglamy w górę do najbliższego progu.</div>
-            </div>
-
-            <div class="form-actions">
-                <button id="w-calculate" class="btn btn-primary">Oblicz</button>
-                <button id="w-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
-            </div>
-        </div>
-
-        <div id="w-result-display" class="result-display card" style="display: none;">
-            <div class="result-row">
-                <span>Cena brutto:</span>
-                <span id="w-total-price" class="price-value">-</span>
-            </div>
-            <div id="w-billed-qty-hint" class="hint"></div>
-            <div id="w-express-hint" class="express-hint" style="display: none;">
-                W tym dopłata EXPRESS +20%
-            </div>
-        </div>
-      </div>
-    `;
-
-    this.initLogic(container, ctx);
+      this.initLogic(container, ctx);
+    } catch (err) {
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+    }
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
@@ -130,7 +61,7 @@ export const WizytowkiView: View = {
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
         billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
-        expressHint.style.display = ctx.expressMode ? "block" : "none";
+        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 

@@ -9,109 +9,142 @@
 <body>
   <div class="wrap">
     <header>
-      <div>
-        <h1>Kalkulator – Studio Raz Druku Dwa</h1>
-        <p class="small">Wybierz kategorię → Oblicz → Dodaj do listy → Pobierz Excel.</p>
-      </div>
+      <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+      <p class="small">Studio poligraficzne: Szybko • Tanio • Profesjonalnie</p>
     </header>
 
-    <main class="app-container">
+    <div class="category-sticky">
+      <div class="tile-grid">
+        <a href="#/druk-a4-a3-skan" class="tile">
+          <span class="tile-icon">🖨️</span>
+          <span class="tile-title">Druk A4/A3 + skan</span>
+        </a>
+        <a href="#/druk-cad" class="tile">
+          <span class="tile-icon">📐</span>
+          <span class="tile-title">CAD wielkoformatowy</span>
+        </a>
+        <a href="#/laminowanie" class="tile">
+          <span class="tile-icon">✨</span>
+          <span class="tile-title">Laminowanie</span>
+        </a>
+        <a href="#/banner" class="tile">
+          <span class="tile-icon">🏁</span>
+          <span class="tile-title">Banner</span>
+        </a>
+        <a href="#/wizytowki-druk-cyfrowy" class="tile">
+          <span class="tile-icon">📇</span>
+          <span class="tile-title">Wizytówki</span>
+        </a>
+        <a href="#/ulotki-cyfrowe" class="tile">
+          <span class="tile-icon">📄</span>
+          <span class="tile-title">Ulotki cyfrowe</span>
+        </a>
+        <a href="#/wlepki-naklejki" class="tile">
+          <span class="tile-icon">🏷️</span>
+          <span class="tile-title">Wlepki / Naklejki</span>
+        </a>
+        <a href="#/roll-up" class="tile">
+          <span class="tile-icon">↕️</span>
+          <span class="tile-title">Roll-up</span>
+        </a>
+        <a href="#/dyplomy" class="tile">
+          <span class="tile-icon">📜</span>
+          <span class="tile-title">Dyplomy</span>
+        </a>
+        <a href="#/zaproszenia-kreda" class="tile">
+          <span class="tile-icon">✉️</span>
+          <span class="tile-title">Zaproszenia KREDA</span>
+        </a>
+        <a href="#/folia-szroniona" class="tile">
+          <span class="tile-icon">❄️</span>
+          <span class="tile-title">Folia szroniona</span>
+        </a>
+        <a href="#/cad-ops" class="tile">
+          <span class="tile-icon">🛠️</span>
+          <span class="tile-title">CAD OPS</span>
+        </a>
+      </div>
+    </div>
 
-      <!-- LEFT COLUMN: Categories -->
-      <div class="main-content">
-        <div class="card" style="margin-bottom: 20px;">
-          <div style="display: flex; gap: 10px;">
-            <select id="categorySelector" style="flex: 1;">
-              <option value="">🌟 Wybierz kategorię...</option>
-            </select>
-            <input id="categorySearch" placeholder="🔍 Szukaj..." style="flex: 1;">
+    <div class="layout-grid">
+      <!-- Main Calculator Area -->
+      <div class="card">
+        <!-- Hidden but required for app.js -->
+        <select id="categorySelector"><option value=""></option></select>
+        <input id="categorySearch" type="hidden">
+
+        <div id="viewContainer">
+          <div style="text-align: center; padding: 40px;">
+            <h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2>
           </div>
         </div>
 
-        <div id="viewContainer">
-          <!-- SPA Content -->
+        <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+          <details style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
+            <summary style="cursor: pointer; font-size: 13px; font-weight: 700;">Debug Data (JSON)</summary>
+            <pre id="basketDebug" style="font-size: 11px; margin-top: 10px; overflow: auto; max-height: 200px;">{}</pre>
+          </details>
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: Basket/Summary -->
-      <aside class="sidebar">
+      <!-- Sidebar: Cart & Customer -->
+      <div class="sidebar">
+        <div class="card">
+          <h2>Podsumowanie</h2>
 
-        <div class="summary-panel">
-          <h3>Podsumowanie</h3>
-
-          <div class="summary-row">
-            <span>Ostatnio obliczone <small id="currentHint"></small></span>
-            <strong id="last-calculated">0,00 zł</strong>
+          <div class="summary">
+            <div class="sumRow">
+              <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
+              <div class="v" id="currentPrice">0,00 zł</div>
+            </div>
+            <div class="sumRow total">
+              <div class="k">Suma listy</div>
+              <div class="v" id="basketTotal">0,00 zł</div>
+            </div>
           </div>
 
-          <div class="summary-row" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #444;">
-            <span>Suma listy</span>
-            <strong id="basket-total" style="font-size: 24px; color: #667eea;">0,00 zł</strong>
+          <div style="margin: 20px 0; height: 1px; background: rgba(255,255,255,0.1);"></div>
+
+          <div class="basketList" id="basketList">
+            <!-- Basket items -->
           </div>
 
-          <div id="basket-items" style="margin: 20px 0; max-height: 400px; overflow-y: auto;">
-            <p style="color: #999; text-align: center; padding: 20px;">
-              Brak pozycji<br>
-              <small>Kliknij „Dodaj", aby zbudować listę.</small>
-            </p>
+          <button id="clearBtn" class="danger" style="width: 100%; margin-top: 12px;">Wyczyść listę</button>
+
+          <div style="margin: 20px 0; height: 1px; background: rgba(255,255,255,0.1);"></div>
+
+          <h3>Dane Zamówienia</h3>
+          <div class="form">
+            <div class="row">
+              <label for="custName">Imię i Nazwisko</label>
+              <input id="custName" type="text" placeholder="Jan Kowalski">
+            </div>
+            <div class="row">
+              <label for="custPhone">Telefon</label>
+              <input id="custPhone" type="text" placeholder="+48 ...">
+            </div>
+            <div class="row">
+              <label for="custEmail">E-mail</label>
+              <input id="custEmail" type="text" placeholder="klient@przyklad.pl">
+            </div>
+            <div class="row">
+              <label for="custPriority">Priorytet</label>
+              <select id="custPriority">
+                <option value="Normalny">🟢 Normalny (7 dni)</option>
+                <option value="Podwyższony">🟡 Podwyższony (3 dni)</option>
+                <option value="Express">🔴 Express (1 dzień)</option>
+              </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin-top: 10px;">
+              <input type="checkbox" id="globalExpress" style="width: auto;">
+              <label for="globalExpress" style="cursor: pointer;">💨 Tryb EXPRESS (+20%)</label>
+            </div>
           </div>
 
-          <button id="clear-basket" class="btn-danger" style="width: 100%;">
-            Wyczyść listę
-          </button>
+          <button id="sendBtn" class="primary" style="width: 100%; margin-top: 24px; font-size: 18px;">📥 Pobierz Excel</button>
         </div>
-
-        <div class="order-form">
-          <h3>🧾 Dane Zamówienia</h3>
-          <p style="color: #999; font-size: 13px; margin-bottom: 15px;">
-            Podaj dane do arkusza Excel.
-          </p>
-
-          <div class="form-group">
-            <label>Imię i Nazwisko / Firma</label>
-            <input type="text" id="client-name" placeholder="Jan Kowalski">
-          </div>
-
-          <div class="form-group">
-            <label>Telefon</label>
-            <input type="tel" id="client-phone" placeholder="+48 ...">
-          </div>
-
-          <div class="form-group">
-            <label>E-mail</label>
-            <input type="email" id="client-email" placeholder="klient@przyklad.pl">
-          </div>
-
-          <div class="form-group">
-            <label>Priorytet</label>
-            <select id="priority">
-              <option value="normalny">Normalny</option>
-              <option value="wysoki">Wysoki</option>
-              <option value="pilny">Pilny</option>
-            </select>
-          </div>
-
-          <label style="display: flex; align-items: center; gap: 8px; margin: 15px 0; cursor: pointer;">
-            <input type="checkbox" id="tryb-express">
-            <span>→ Tryb EXPRESS (+20%)</span>
-          </label>
-
-          <button id="export-excel" class="btn-success" style="width: 100%;">
-            📥 Pobierz Excel
-          </button>
-
-          <button id="copy-json" class="btn-primary" style="width: 100%; margin-top: 10px;">
-            Kopiuj JSON listy
-          </button>
-
-          <details style="margin-top: 15px;">
-            <summary style="cursor: pointer; color: #667eea;">▶ Szczegóły bieżącej pozycji (JSON)</summary>
-            <pre id="json-preview" style="background: #1a1a1a; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 11px; margin-top: 10px;">{}</pre>
-          </details>
-        </div>
-
-      </aside>
-    </main>
+      </div>
+    </div>
   </div>
 
   <script src="assets/app.js" type="module"></script>

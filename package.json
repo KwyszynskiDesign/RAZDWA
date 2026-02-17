@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "test": "vitest run",
-    "copy": "cp public/index.html public/manifest.json public/sw.js docs/ && cp -r categories data docs/",
+    "copy": "cp -r data docs/",
     "build": "npm run build:js && npm run build:css && npm run copy",
     "build:js": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --format=esm --minify --sourcemap",
     "build:css": "esbuild src/assets/styles.css --minify --outfile=docs/assets/styles.css --allow-overwrite",

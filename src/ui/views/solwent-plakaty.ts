@@ -6,44 +6,24 @@ import * as data from "../../../data/normalized/solwent-plakaty.json";
 export const SolwentPlakatyView: View = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
-  mount(container, ctx) {
-    const tableData = data as any;
-    const materials = tableData.materials;
+  async mount(container, ctx) {
+    try {
+      const response = await fetch("categories/solwent-plakaty.html");
+      if (!response.ok) throw new Error("Failed to load template");
+      container.innerHTML = await response.text();
 
-    container.innerHTML = `
-      <h2>Solwent - Plakaty</h2>
-      <div class="form">
-        <div class="row">
-          <label for="material">Materiał:</label>
-          <select id="material">
-            ${materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("")}
-          </select>
-        </div>
+      const tableData = data as any;
+      const materials = tableData.materials;
+      const materialSelect = container.querySelector("#material") as HTMLSelectElement;
+      materialSelect.innerHTML = materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
 
-        <div class="row">
-          <label for="area">Powierzchnia (m2):</label>
-          <input type="number" id="area" value="1" min="0.1" step="0.1">
-          <div class="hint">MINIMALKA 1m2!</div>
-        </div>
+      this.initLogic(container, ctx);
+    } catch (err) {
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+    }
+  },
 
-        <div class="actions">
-          <button id="calculate" class="primary">Oblicz</button>
-          <button id="add-to-cart" class="success" disabled>Dodaj do listy</button>
-        </div>
-
-        <div id="result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-          <div style="display: flex; justify-content: space-between;">
-            <span>Cena jednostkowa:</span>
-            <span id="unit-price" style="font-weight: 900;">-</span>
-          </div>
-          <div style="display: flex; justify-content: space-between;">
-            <span style="font-weight: 800;">Cena całkowita:</span>
-            <span id="total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
-          </div>
-        </div>
-      </div>
-    `;
-
+  initLogic(container: HTMLElement, ctx: ViewContext) {
     const materialSelect = container.querySelector("#material") as HTMLSelectElement;
     const areaInput = container.querySelector("#area") as HTMLInputElement;
     const calculateBtn = container.querySelector("#calculate") as HTMLButtonElement;
@@ -51,6 +31,7 @@ export const SolwentPlakatyView: View = {
     const resultDisplay = container.querySelector("#result-display") as HTMLElement;
     const unitPriceSpan = container.querySelector("#unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#total-price") as HTMLElement;
+    const expressHint = container.querySelector("#express-hint") as HTMLElement;
 
     let currentResult: any = null;
 
@@ -67,6 +48,7 @@ export const SolwentPlakatyView: View = {
 
         unitPriceSpan.innerText = formatPLN(result.tierPrice);
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
+        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 

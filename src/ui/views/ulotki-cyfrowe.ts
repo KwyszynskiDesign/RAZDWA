@@ -1,13 +1,14 @@
 import { View, ViewContext } from "../types";
 import { quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
+import { quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
 
-export const UlotkiDwustronneView: View = {
-  id: "ulotki-cyfrowe-dwustronne",
-  name: "Ulotki - Cyfrowe Dwustronne",
+export const UlotkiCyfroweView: View = {
+  id: "ulotki-cyfrowe",
+  name: "Ulotki cyfrowe",
   async mount(container, ctx) {
     try {
-      const response = await fetch("categories/ulotki-cyfrowe-dwustronne.html");
+      const response = await fetch("categories/ulotki-cyfrowe.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
 
@@ -30,14 +31,20 @@ export const UlotkiDwustronneView: View = {
     let currentOptions: any = null;
 
     calculateBtn.onclick = () => {
+      const sides = (container.querySelector('input[name="sides"]:checked') as HTMLInputElement).value;
+
       currentOptions = {
         format: formatSelect.value,
         qty: parseInt(qtySelect.value),
-        express: ctx.expressMode
+        express: ctx.expressMode,
+        sides
       };
 
       try {
-        const result = quoteUlotkiDwustronne(currentOptions);
+        const result = sides === "dwustronne"
+          ? quoteUlotkiDwustronne(currentOptions)
+          : quoteJednostronne(currentOptions);
+
         currentResult = result;
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
@@ -54,17 +61,18 @@ export const UlotkiDwustronneView: View = {
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const expressLabel = currentOptions.express ? ', EXPRESS' : '';
+        const sidesLabel = currentOptions.sides === 'dwustronne' ? 'Dwustronne' : 'Jednostronne';
 
         ctx.cart.addItem({
-          id: `ulotki-dwustronne-${Date.now()}`,
+          id: `ulotki-${Date.now()}`,
           category: "Ulotki",
-          name: `Ulotki Dwustronne ${currentOptions.format}`,
+          name: `Ulotki ${sidesLabel} ${currentOptions.format}`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt, Dwustronne${expressLabel}`,
+          optionsHint: `${currentOptions.qty} szt, ${sidesLabel}${expressLabel}`,
           payload: currentResult
         });
       }
