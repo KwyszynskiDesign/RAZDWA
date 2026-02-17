@@ -4,6 +4,7 @@ export interface ViewContext {
   cart: {
     addItem: (item: CartItem) => void;
   };
+  addToBasket: (item: { category: string; price: number; description: string }) => void;
   expressMode: boolean;
   updateLastCalculated: (price: number, hint?: string) => void;
 }

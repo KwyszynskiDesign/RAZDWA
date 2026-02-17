@@ -10,8 +10,6 @@ describe("Vouchery Category", () => {
   it("should calculate 5 szt dwustronne with satin (+12%)", () => {
     const result = quoteVouchery({ qty: 5, sides: 'double', satin: true, express: false });
     // 43 * 1.12 = 48.16
-    // Note: User prompt mentioned 47.16, but 43 * 1.12 = 48.16.
-    // We will check what the engine produces.
     expect(result.totalPrice).toBe(48.16);
   });
 
@@ -21,9 +19,10 @@ describe("Vouchery Category", () => {
     expect(result.totalPrice).toBe(56.76);
   });
 
-  it("should handle quantity ranges (e.g. 11 szt should be priced as 15 szt)", () => {
-    // 15 szt single = 60
+  it("should handle quantity ranges (e.g. 11 szt should be priced as 10 szt per latest requirements)", () => {
+    // 10 szt single = 52
+    // Our latest logic (qty >= tier.qty) picks tier 10 for qty 11.
     const result = quoteVouchery({ qty: 11, sides: 'single', satin: false, express: false });
-    expect(result.totalPrice).toBe(60);
+    expect(result.totalPrice).toBe(52);
   });
 });

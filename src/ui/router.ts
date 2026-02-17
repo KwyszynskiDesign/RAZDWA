@@ -1,5 +1,8 @@
 import { View, ViewContext } from "./types";
 
+export type CategoryModule = View;
+export type CategoryContext = ViewContext;
+
 export class Router {
   private routes: Map<string, View> = new Map();
   private currentView: View | null = null;
@@ -34,7 +37,21 @@ export class Router {
     const view = this.routes.get(path);
     if (view) {
       this.currentView = view;
-      view.mount(this.container, this.getCtx());
+
+      // Dodaj przycisk powrotu
+      const backButton = document.createElement('button');
+      backButton.className = 'back-button';
+      backButton.textContent = 'Wszystkie kategorie';
+      backButton.onclick = () => { window.location.hash = '#/'; };
+      this.container.appendChild(backButton);
+
+      // Kontener na kategorię
+      const categoryContent = document.createElement('div');
+      categoryContent.className = 'category-content';
+      categoryContent.id = 'current-category';
+      this.container.appendChild(categoryContent);
+
+      view.mount(categoryContent, this.getCtx());
     } else {
       this.renderHome();
     }

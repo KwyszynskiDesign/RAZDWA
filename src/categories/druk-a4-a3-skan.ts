@@ -1,3 +1,4 @@
+import { CategoryModule } from "../ui/router";
 import { calculateSimplePrint, calculateSimpleScan } from "../core/compat-logic";
 
 export interface DrukA4A3SkanOptions {
@@ -13,7 +14,6 @@ export interface DrukA4A3SkanOptions {
 }
 
 export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: any) {
-  // We use our compat logic instead of the passed pricing object (which was categories.json)
   const format = options.format.toUpperCase() as "A4" | "A3";
   const printResult = calculateSimplePrint({
     mode: options.mode,
@@ -49,3 +49,202 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     baseTotal
   };
 }
+
+// Pricing structure from official price list (synchronized with compat.ts)
+const PRICING = {
+  czarnoBialy: {
+    A4: [
+      { min: 1, max: 5, price: 0.90 },
+      { min: 6, max: 20, price: 0.60 },
+      { min: 21, max: 100, price: 0.35 },
+      { min: 101, max: 500, price: 0.30 },
+      { min: 501, max: 999, price: 0.23 },
+      { min: 1000, max: 4999, price: 0.19 },
+      { min: 5000, max: 99999, price: 0.15 }
+    ],
+    A3: [
+      { min: 1, max: 5, price: 1.70 },
+      { min: 6, max: 20, price: 1.10 },
+      { min: 21, max: 100, price: 0.70 },
+      { min: 101, max: 500, price: 0.60 },
+      { min: 501, max: 999, price: 0.45 },
+      { min: 1000, max: 99999, price: 0.33 }
+    ]
+  },
+  kolorowy: {
+    A4: [
+      { min: 1, max: 10, price: 2.40 },
+      { min: 11, max: 40, price: 2.20 },
+      { min: 41, max: 100, price: 2.00 },
+      { min: 101, max: 250, price: 1.80 },
+      { min: 251, max: 500, price: 1.60 },
+      { min: 501, max: 999, price: 1.40 },
+      { min: 1000, max: 99999, price: 1.10 }
+    ],
+    A3: [
+      { min: 1, max: 10, price: 4.80 },
+      { min: 11, max: 40, price: 4.20 },
+      { min: 41, max: 100, price: 3.80 },
+      { min: 101, max: 250, price: 3.00 },
+      { min: 251, max: 500, price: 2.50 },
+      { min: 501, max: 999, price: 1.90 },
+      { min: 1000, max: 99999, price: 1.60 }
+    ]
+  }
+};
+
+function getPricePerPage(
+  format: "A4" | "A3",
+  quantity: number,
+  color: "czarnoBialy" | "kolorowy"
+): number {
+  const tiers = PRICING[color][format];
+
+  for (const tier of tiers) {
+    if (quantity >= tier.min && quantity <= tier.max) {
+      return tier.price;
+    }
+  }
+
+  // Fallback to last tier
+  return tiers[tiers.length - 1].price;
+}
+
+export const drukA4A3Category: CategoryModule = {
+  id: 'druk-a4-a3',
+  name: '📄 Druk A4/A3 + skan',
+  mount: (container, ctx) => {
+    container.innerHTML = `
+      <div class="category-form">
+        <h2>Druk / Ksero A4/A3</h2>
+        <p style="color: #999; margin-bottom: 20px;">
+          Cena za stronę zależy od nakładu. Im więcej stron, tym niższa cena jednostkowa.
+        </p>
+
+        <div class="form-group">
+          <label>Format:</label>
+          <select id="format">
+            <option value="A4">A4 (210×297 mm)</option>
+            <option value="A3">A3 (297×420 mm)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Ilość stron:</label>
+          <input type="number" id="quantity" value="1" min="1" max="10000" step="1">
+          <small style="color: #666;">Całkowita liczba stron do wydruku</small>
+        </div>
+
+        <div class="form-group">
+          <label>Druk:</label>
+          <select id="color">
+            <option value="czarnoBialy">Czarno-biały</option>
+            <option value="kolorowy">Kolorowy</option>
+          </select>
+        </div>
+
+        <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
+          <div id="tiers-list"></div>
+        </div>
+
+        <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <span style="color: #999;">Cena za stronę:</span>
+            <strong id="price-per-page" style="font-size: 18px; color: #667eea;">0.00 zł/str</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="color: #999;">Cena całkowita:</span>
+            <strong id="total-price" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
+          </div>
+          <p id="price-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <button id="calculate" class="btn-primary" style="flex: 1;">Oblicz cenę</button>
+          <button id="addToBasket" class="btn-success" style="flex: 1;">Dodaj do listy</button>
+        </div>
+      </div>
+    `;
+
+    let currentPrice = 0;
+    let currentPricePerPage = 0;
+
+    const formatSelect = container.querySelector('#format') as HTMLSelectElement;
+    const quantityInput = container.querySelector('#quantity') as HTMLInputElement;
+    const colorSelect = container.querySelector('#color') as HTMLSelectElement;
+    const calculateBtn = container.querySelector('#calculate');
+    const addBtn = container.querySelector('#addToBasket');
+    const tiersList = container.querySelector('#tiers-list');
+    const pricePerPageDisplay = container.querySelector('#price-per-page');
+    const totalDisplay = container.querySelector('#total-price');
+    const breakdownDisplay = container.querySelector('#price-breakdown');
+
+    // Update tiers display when format or color changes
+    function updateTiersDisplay() {
+      const format = formatSelect.value as "A4" | "A3";
+      const color = colorSelect.value as "czarnoBialy" | "kolorowy";
+      const tiers = PRICING[color][format];
+
+      if (tiersList) {
+        tiersList.innerHTML = tiers.map(tier => {
+          const rangeText = tier.max >= 99999
+            ? `${tier.min}+ str`
+            : `${tier.min}-${tier.max} str`;
+          return `<div style="display: flex; justify-content: space-between; padding: 5px 0; color: #ccc;">
+            <span>${rangeText}</span>
+            <span style="color: #667eea;">${tier.price.toFixed(2)} zł/str</span>
+          </div>`;
+        }).join('');
+      }
+    }
+
+    formatSelect.addEventListener('change', updateTiersDisplay);
+    colorSelect.addEventListener('change', updateTiersDisplay);
+    updateTiersDisplay();
+
+    calculateBtn?.addEventListener('click', () => {
+      const format = formatSelect.value as "A4" | "A3";
+      const quantity = parseInt(quantityInput.value) || 1;
+      const color = colorSelect.value as "czarnoBialy" | "kolorowy";
+
+      currentPricePerPage = getPricePerPage(format, quantity, color);
+      currentPrice = currentPricePerPage * quantity;
+      if (ctx.expressMode) currentPrice *= 1.2;
+
+      if (pricePerPageDisplay) {
+        pricePerPageDisplay.textContent = `${currentPricePerPage.toFixed(2)} zł/str`;
+      }
+
+      if (totalDisplay) {
+        totalDisplay.textContent = `${currentPrice.toFixed(2)} zł`;
+      }
+
+      if (breakdownDisplay) {
+        const colorLabel = color === "czarnoBialy" ? "Czarno-biały" : "Kolorowy";
+        breakdownDisplay.textContent = `${colorLabel}, ${format}, ${quantity} str × ${currentPricePerPage.toFixed(2)} zł = ${currentPrice.toFixed(2)} zł`;
+      }
+
+      ctx.updateLastCalculated(currentPrice, `Druk ${format} ${color === "czarnoBialy" ? "CZ-B" : "KOLOR"} - ${quantity} str`);
+    });
+
+    addBtn?.addEventListener('click', () => {
+      if (currentPrice === 0) {
+        alert('⚠️ Najpierw oblicz cenę!');
+        return;
+      }
+
+      const format = formatSelect.value;
+      const quantity = quantityInput.value;
+      const color = colorSelect.value === "czarnoBialy" ? "CZ-B" : "KOLOR";
+
+      ctx.addToBasket({
+        category: 'Druk A4/A3',
+        price: currentPrice,
+        description: `${format}, ${quantity} str, ${color} (${currentPricePerPage.toFixed(2)} zł/str)`
+      });
+
+      alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
+    });
+  }
+};
