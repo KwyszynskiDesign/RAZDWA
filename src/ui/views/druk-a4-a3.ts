@@ -1,7 +1,7 @@
 import { View, ViewContext } from "../types";
 import { calculateDrukA4A3Skan } from "../../categories/druk-a4-a3-skan";
 import { formatPLN } from "../../core/money";
-import categories from "../../../data/categories.json";
+import { PRICE } from "../../core/compat";
 
 export const DrukA4A3SkanView: View = {
   id: "druk-a4-a3",
@@ -19,9 +19,6 @@ export const DrukA4A3SkanView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const pricing = categories.find(c => c.id === "druk-a4-a3")?.pricing;
-    if (!pricing) return;
-
     const modeSelect = container.querySelector("#d-mode") as HTMLSelectElement;
     const formatSelect = container.querySelector("#d-format") as HTMLSelectElement;
     const printQtyInput = container.querySelector("#d-print-qty") as HTMLInputElement;
@@ -41,127 +38,137 @@ export const DrukA4A3SkanView: View = {
     const tierTable = container.querySelector("#tier-table") as HTMLElement;
 
     const updateTiers = () => {
-      if (!tierTable) return;
-      const mode = modeSelect.value;
-      const format = formatSelect.value;
-      const tiers = (pricing as any)[mode]?.[format];
+      if (!tierTable || !modeSelect || !formatSelect) return;
+      const mode = modeSelect.value; // 'bw' or 'color'
+      const format = formatSelect.value.toUpperCase(); // 'A4' or 'A3'
+
+      const p = PRICE.print;
+      const tiers = p[mode][format];
 
       if (tiers) {
         tierTable.innerHTML = tiers.map((t: any) =>
-          `<div>${t.from}-${t.to || '∞'} szt.</div><div style="text-align: right;">${t.unit.toFixed(2)} zł</div>`
+          `<div>${t.from}-${t.to >= 99999 ? '∞' : t.to} szt.</div><div style="text-align: right;">${t.unit.toFixed(2)} zł</div>`
         ).join('');
       }
     };
 
-    modeSelect.onchange = updateTiers;
-    formatSelect.onchange = updateTiers;
+    if (modeSelect) modeSelect.onchange = updateTiers;
+    if (formatSelect) formatSelect.onchange = updateTiers;
     updateTiers();
 
-    surchargeCheck.onchange = () => {
-      surchargeQtyRow.style.display = surchargeCheck.checked ? "flex" : "none";
-    };
+    if (surchargeCheck && surchargeQtyRow) {
+      surchargeCheck.onchange = () => {
+        surchargeQtyRow.style.display = surchargeCheck.checked ? "flex" : "none";
+      };
+    }
 
-    scanTypeSelect.onchange = () => {
-      scanQtyRow.style.display = scanTypeSelect.value !== "none" ? "flex" : "none";
-    };
+    if (scanTypeSelect && scanQtyRow) {
+      scanTypeSelect.onchange = () => {
+        scanQtyRow.style.display = scanTypeSelect.value !== "none" ? "flex" : "none";
+      };
+    }
 
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
-      currentOptions = {
-        mode: modeSelect.value,
-        format: formatSelect.value,
-        printQty: parseInt(printQtyInput.value) || 0,
-        email: emailCheck.checked,
-        surcharge: surchargeCheck.checked,
-        surchargeQty: parseInt(surchargeQtyInput.value) || 0,
-        scanType: scanTypeSelect.value,
-        scanQty: parseInt(scanQtyInput.value) || 0,
-        express: ctx.expressMode
+    if (calculateBtn) {
+      calculateBtn.onclick = () => {
+        currentOptions = {
+          mode: modeSelect.value,
+          format: formatSelect.value,
+          printQty: parseInt(printQtyInput.value) || 0,
+          email: emailCheck.checked,
+          surcharge: surchargeCheck.checked,
+          surchargeQty: parseInt(surchargeQtyInput.value) || 0,
+          scanType: scanTypeSelect.value,
+          scanQty: parseInt(scanQtyInput.value) || 0,
+          express: ctx.expressMode
+        };
+
+        try {
+        const result = calculateDrukA4A3Skan(currentOptions);
+          currentResult = result;
+
+          totalPriceSpan.innerText = formatPLN(result.totalPrice);
+          if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+          resultDisplay.style.display = "block";
+          addToCartBtn.disabled = false;
+
+          ctx.updateLastCalculated(result.totalPrice, "Druk A4/A3 + skan");
+        } catch (err) {
+          alert("Błąd: " + (err as Error).message);
+        }
       };
+    }
 
-      try {
-        const result = calculateDrukA4A3Skan(currentOptions, pricing);
-        currentResult = result;
+    if (addToCartBtn) {
+      addToCartBtn.onclick = () => {
+        if (currentResult && currentOptions) {
+          const timestamp = Date.now();
+          const expressFactor = ctx.expressMode ? 1.2 : 1;
 
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+          // 1. Główny produkt: Druk + Skan
+          if (currentOptions.printQty > 0 || (currentOptions.scanQty > 0 && currentOptions.scanType !== 'none')) {
+            const details = [];
+            if (currentOptions.printQty > 0) {
+              details.push(`${currentOptions.printQty} str. ${currentOptions.format.toUpperCase()} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`);
+            }
+            if (currentOptions.scanQty > 0 && currentOptions.scanType !== 'none') {
+              details.push(`Skan ${currentOptions.scanType}: ${currentOptions.scanQty} str.`);
+            }
+            if (ctx.expressMode) details.push("EXPRESS");
 
-        ctx.updateLastCalculated(result.totalPrice, "Druk A4/A3 + skan");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
-    };
+            const mainPrice = (currentResult.totalPrintPrice + currentResult.totalScanPrice) * expressFactor;
 
-    addToCartBtn.onclick = () => {
-      if (currentResult && currentOptions) {
-        const timestamp = Date.now();
-        const expressFactor = ctx.expressMode ? 1.2 : 1;
-
-        // 1. Główny produkt: Druk + Skan
-        if (currentOptions.printQty > 0 || (currentOptions.scanQty > 0 && currentOptions.scanType !== 'none')) {
-          const details = [];
-          if (currentOptions.printQty > 0) {
-            details.push(`${currentOptions.printQty} str. ${currentOptions.format.toUpperCase()} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`);
+            ctx.cart.addItem({
+              id: `druk-${timestamp}-main`,
+              category: "Druk A4/A3 + skan",
+              name: `${currentOptions.format.toUpperCase()} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
+              quantity: currentOptions.printQty || currentOptions.scanQty,
+              unit: currentOptions.printQty > 0 ? "str." : "skan",
+              unitPrice: mainPrice / (currentOptions.printQty || currentOptions.scanQty),
+              isExpress: ctx.expressMode,
+              totalPrice: parseFloat(mainPrice.toFixed(2)),
+              optionsHint: details.join(", "),
+              payload: { ...currentResult, type: 'main' }
+            });
           }
-          if (currentOptions.scanQty > 0 && currentOptions.scanType !== 'none') {
-            details.push(`Skan ${currentOptions.scanType}: ${currentOptions.scanQty} str.`);
+
+          // 2. Osobny produkt: Wysyłka e-mail
+          if (currentOptions.email) {
+            const emailPrice = currentResult.emailPrice * expressFactor;
+            ctx.cart.addItem({
+              id: `email-${timestamp}-email`,
+              category: "Druk A4/A3 + skan",
+              name: "Wysyłka e-mail",
+              quantity: 1,
+              unit: "szt.",
+              unitPrice: emailPrice,
+              isExpress: ctx.expressMode,
+              totalPrice: parseFloat(emailPrice.toFixed(2)),
+              optionsHint: ctx.expressMode ? "EXPRESS" : "",
+              payload: { price: emailPrice, type: 'email' }
+            });
           }
-          if (ctx.expressMode) details.push("EXPRESS");
 
-          const mainPrice = (currentResult.totalPrintPrice + currentResult.totalScanPrice) * expressFactor;
-
-          ctx.cart.addItem({
-            id: `druk-${timestamp}-main`,
-            category: "Druk A4/A3 + skan",
-            name: `${currentOptions.format.toUpperCase()} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
-            quantity: currentOptions.printQty || currentOptions.scanQty,
-            unit: currentOptions.printQty > 0 ? "str." : "skan",
-            unitPrice: mainPrice / (currentOptions.printQty || currentOptions.scanQty),
-            isExpress: ctx.expressMode,
-            totalPrice: parseFloat(mainPrice.toFixed(2)),
-            optionsHint: details.join(", "),
-            payload: { ...currentResult, type: 'main' }
-          });
+          // 3. Osobny produkt: Dopłata za zadruk >25%
+          if (currentOptions.surcharge && currentOptions.surchargeQty > 0) {
+            const surchargePrice = currentResult.surchargePrice * expressFactor;
+            ctx.cart.addItem({
+              id: `surcharge-${timestamp}-surcharge`,
+              category: "Druk A4/A3 + skan",
+              name: "Zadruk >25% - dopłata",
+              quantity: currentOptions.surchargeQty,
+              unit: "str.",
+              unitPrice: surchargePrice / currentOptions.surchargeQty,
+              isExpress: ctx.expressMode,
+              totalPrice: parseFloat(surchargePrice.toFixed(2)),
+              optionsHint: `${currentOptions.surchargeQty} str. (+50%), ${ctx.expressMode ? "EXPRESS" : ""}`,
+              payload: { price: surchargePrice, type: 'surcharge' }
+            });
+          }
         }
-
-        // 2. Osobny produkt: Wysyłka e-mail
-        if (currentOptions.email) {
-          const emailPrice = currentResult.emailPrice * expressFactor;
-          ctx.cart.addItem({
-            id: `email-${timestamp}-email`,
-            category: "Druk A4/A3 + skan",
-            name: "Wysyłka e-mail",
-            quantity: 1,
-            unit: "szt.",
-            unitPrice: emailPrice,
-            isExpress: ctx.expressMode,
-            totalPrice: parseFloat(emailPrice.toFixed(2)),
-            optionsHint: ctx.expressMode ? "EXPRESS" : "",
-            payload: { price: emailPrice, type: 'email' }
-          });
-        }
-
-        // 3. Osobny produkt: Dopłata za zadruk >25%
-        if (currentOptions.surcharge && currentOptions.surchargeQty > 0) {
-          const surchargePrice = currentResult.surchargePrice * expressFactor;
-          ctx.cart.addItem({
-            id: `surcharge-${timestamp}-surcharge`,
-            category: "Druk A4/A3 + skan",
-            name: "Zadruk >25% - dopłata",
-            quantity: currentOptions.surchargeQty,
-            unit: "str.",
-            unitPrice: surchargePrice / currentOptions.surchargeQty,
-            isExpress: ctx.expressMode,
-            totalPrice: parseFloat(surchargePrice.toFixed(2)),
-            optionsHint: `${currentOptions.surchargeQty} str. (+50%), ${ctx.expressMode ? "EXPRESS" : ""}`,
-            payload: { price: surchargePrice, type: 'surcharge' }
-          });
-        }
-      }
-    };
+      };
+    }
   }
 };

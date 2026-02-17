@@ -32,7 +32,7 @@ export const SettingsView: View = {
                   ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join("")}
                 </select>
               </div>
-              <button class="btn-success save-btn">Zapisz ceny</button>
+              <button id="save-prices-top" class="btn-success save-btn">Zapisz ceny</button>
             </div>
 
             <div class="settings-table-container">

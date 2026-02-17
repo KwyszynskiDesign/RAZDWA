@@ -3,6 +3,7 @@
     "id": "druk-a4-a3",
     "name": "Druk A4/A3 + skan",
     "icon": "🖨️",
+    "group": "Druk małoformatowy",
     "implemented": true,
     "pricing": {
       "print_bw": [
@@ -38,9 +39,45 @@
     }
   },
   {
+    "id": "ulotki-cyfrowe-jednostronne",
+    "name": "Ulotki",
+    "icon": "📄",
+    "group": "Druk małoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "wizytowki-druk-cyfrowy",
+    "name": "Wizytówki",
+    "icon": "📇",
+    "group": "Druk małoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "dyplomy",
+    "name": "Dyplomy",
+    "icon": "📜",
+    "group": "Druk małoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "zaproszenia-kreda",
+    "name": "Zaproszenia",
+    "icon": "✉️",
+    "group": "Druk małoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "vouchery",
+    "name": "Vouchery",
+    "icon": "🎟️",
+    "group": "Druk małoformatowy",
+    "implemented": true
+  },
+  {
     "id": "druk-cad",
-    "name": "Druk CAD wielkoformatowy",
+    "name": "Druk CAD",
     "icon": "📐",
+    "group": "Druk wielkoformatowy",
     "implemented": true,
     "format_prices": {
       "bw": {
@@ -75,31 +112,53 @@
       }
     }
   },
-  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
-  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
-  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
-  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
-  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
-  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki – cyfrowe", "icon": "📄", "implemented": true },
-  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
-  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
+  {
+    "id": "cad-ops",
+    "name": "CAD: składanie / skan",
+    "icon": "📏",
+    "group": "Druk wielkoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "solwent-plakaty",
+    "name": "Solwent - Plakaty",
+    "icon": "🖼️",
+    "group": "Druk wielkoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "banner",
+    "name": "Bannery",
+    "icon": "🏁",
+    "group": "Druk wielkoformatowy",
+    "implemented": true
+  },
   {
     "id": "folia-szroniona",
     "name": "Folia szroniona",
     "icon": "❄️",
+    "group": "Druk wielkoformatowy",
+    "implemented": true
+  },
+  {
+    "id": "roll-up",
+    "name": "Roll-up",
+    "icon": "↕️",
+    "group": "Reklama i wykończenie",
     "implemented": true
   },
   {
     "id": "laminowanie",
     "name": "Laminowanie",
     "icon": "✨",
+    "group": "Reklama i wykończenie",
     "implemented": true
   },
   {
-    "id": "cad-ops",
-    "name": "CAD: składanie / skan",
-    "icon": "📏",
+    "id": "wlepki-naklejki",
+    "name": "Wlepki / Naklejki",
+    "icon": "🏷️",
+    "group": "Reklama i wykończenie",
     "implemented": true
   }
 ]

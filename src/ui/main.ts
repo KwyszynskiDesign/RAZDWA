@@ -30,13 +30,13 @@ function updateCartUI() {
     totalEl.textContent = '0,00 zł';
   } else {
     listEl.innerHTML = items.map((item, idx) => `
-      <div class="basket-item" style="padding: 12px; background: #1a1a1a; border-radius: 8px; margin-bottom: 8px;">
+      <div class="basket-item" style="padding: 12px; border-radius: 8px; margin-bottom: 8px;">
         <div style="display: flex; justify-content: space-between; align-items: start;">
           <div style="flex: 1; min-width: 0;">
-            <strong style="color: white; font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <strong style="color: #003B5C; font-size: 14px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
               ${item.category}: ${item.name}
             </strong>
-            <p style="color: #999; font-size: 12px; margin: 4px 0 0 0;">
+            <p style="color: #64748b; font-size: 12px; margin: 4px 0 0 0;">
               ${item.optionsHint} (${item.quantity} ${item.unit})
             </p>
           </div>
@@ -111,8 +111,17 @@ document.addEventListener("DOMContentLoaded", () => {
   // Register settings view
   router.addRoute(SettingsView);
 
-  // Populate category selector
+  // Populate category selector with optgroups
+  const groups: Record<string, HTMLOptGroupElement> = {};
   categories.forEach(cat => {
+    const groupName = (cat as any).group || "Inne";
+    if (!groups[groupName]) {
+      const group = document.createElement("optgroup");
+      group.label = groupName;
+      categorySelector.appendChild(group);
+      groups[groupName] = group;
+    }
+
     const opt = document.createElement("option");
     opt.value = cat.id;
     opt.innerText = `${cat.icon} ${cat.name}`;
@@ -120,7 +129,7 @@ document.addEventListener("DOMContentLoaded", () => {
       opt.disabled = true;
       opt.innerText += " (wkrótce)";
     }
-    categorySelector.appendChild(opt);
+    groups[groupName].appendChild(opt);
   });
 
   categorySelector.addEventListener("change", () => {

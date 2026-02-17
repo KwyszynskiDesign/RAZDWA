@@ -58,18 +58,31 @@ export class Router {
   }
 
   private renderHome() {
-    this.container.innerHTML = `
-      <div class="category-grid">
-        ${this.categories.map(cat => `
-          <div class="category-card ${cat.implemented ? '' : 'coming-soon'}"
-               ${cat.implemented ? `onclick="window.location.hash='#/${cat.id}'"` : ''}>
-            <div class="category-icon">${cat.icon}</div>
-            <div class="category-name">${cat.name}</div>
-            ${cat.implemented ? '' : '<div class="badge">Wkrótce</div>'}
-          </div>
-        `).join("")}
-      </div>
-    `;
+    const groups: Record<string, any[]> = {};
+    this.categories.forEach(cat => {
+      const g = cat.group || "Pozostałe";
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(cat);
+    });
+
+    let html = '';
+    for (const [groupName, cats] of Object.entries(groups)) {
+      html += `
+        <h2 class="category-group-title">${groupName}</h2>
+        <div class="category-grid">
+          ${cats.map(cat => `
+            <div class="category-card ${cat.implemented ? '' : 'coming-soon'}"
+                 ${cat.implemented ? `onclick="window.location.hash='#/${cat.id}'"` : ''}>
+              <div class="category-icon">${cat.icon}</div>
+              <div class="category-name">${cat.name}</div>
+              ${cat.implemented ? '' : '<div class="badge">Wkrótce</div>'}
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    this.container.innerHTML = html;
   }
 
   start() {

@@ -2,27 +2,29 @@
     .cad-container {
       max-width: 1200px;
       margin: 0 auto;
-      background: #1e293b;
+      background: #FFFFFF;
+      border: 1px solid #D6D6D6;
       border-radius: 16px;
       overflow: hidden;
-      color: white;
+      color: #003B5C;
       padding: 20px;
     }
 
     .upload-zone {
-      border: 3px dashed #667eea;
+      border: 3px dashed #00A9E0;
       border-radius: 12px;
       padding: 30px;
       text-align: center;
-      background: rgba(102, 126, 234, 0.05);
+      background: rgba(0, 169, 224, 0.05);
       transition: all 0.3s ease;
       cursor: pointer;
       margin-bottom: 24px;
+      color: #003B5C;
     }
 
     .upload-zone:hover, .upload-zone.drag-over {
-      background: rgba(102, 126, 234, 0.1);
-      border-color: #764ba2;
+      background: rgba(0, 169, 224, 0.1);
+      border-color: #003B5C;
     }
 
     .upload-zone svg {
@@ -30,10 +32,12 @@
       height: 48px;
       margin-bottom: 12px;
       opacity: 0.7;
+      color: #00A9E0;
     }
 
     .settings-panel {
-      background: rgba(255,255,255,0.05);
+      background: #F8FAFC;
+      border: 1px solid #D6D6D6;
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 24px;
@@ -50,17 +54,17 @@
 
     .setting-group label {
       font-weight: 600;
-      color: #ccc;
+      color: #003B5C;
       font-size: 0.9rem;
     }
 
     .setting-group input {
       padding: 10px 12px;
-      background: #0f172a;
-      border: 2px solid #334155;
+      background: #FFFFFF;
+      border: 1px solid #D6D6D6;
       border-radius: 8px;
       font-size: 1rem;
-      color: white;
+      color: #003B5C;
     }
 
     .toggle-switch {
@@ -68,22 +72,22 @@
       align-items: center;
       gap: 12px;
       padding: 12px;
-      background: #0f172a;
+      background: #FFFFFF;
       border-radius: 8px;
-      border: 2px solid #334155;
+      border: 1px solid #D6D6D6;
     }
 
     .switch {
       position: relative;
       width: 56px;
       height: 28px;
-      background: #334155;
+      background: #D6D6D6;
       border-radius: 14px;
       cursor: pointer;
     }
 
     .switch.active {
-      background: #667eea;
+      background: #00A9E0;
     }
 
     .switch::after {
@@ -111,20 +115,22 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
+      color: #003B5C;
     }
 
     thead {
-      background: #334155;
+      background: #F1F5F9;
     }
 
     th {
       padding: 12px;
       text-align: left;
+      border-bottom: 2px solid #D6D6D6;
     }
 
     td {
       padding: 12px;
-      border-bottom: 1px solid #334155;
+      border-bottom: 1px solid #D6D6D6;
     }
 
     .badge {
@@ -135,12 +141,12 @@
       font-weight: 600;
     }
 
-    .badge-formatowy { background: #065f46; color: #a7f3d0; }
-    .badge-nieformatowy { background: #92400e; color: #fef3c7; }
-    .badge-warning { background: #991b1b; color: #fee2e2; }
+    .badge-formatowy { background: #DCFCE7; color: #166534; }
+    .badge-nieformatowy { background: #FEF3C7; color: #92400E; }
+    .badge-warning { background: #FEE2E2; color: #991B1B; }
 
     .summary-panel {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #003B5C;
       color: white;
       padding: 24px;
       border-radius: 12px;
@@ -200,7 +206,7 @@
         <div class="summary-grid" id="summaryGrid"></div>
         <div style="display: flex; gap: 10px; margin-top: 16px;">
             <button class="btn-clear" id="clearBtn" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Wyczyść</button>
-            <button id="add-all-to-cart" style="background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1;">Dodaj wszystko do listy</button>
+            <button id="add-all-to-cart" style="background: #00A9E0; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1; font-weight: 600;">Dodaj wszystko do listy</button>
         </div>
     </div>
 </div>
