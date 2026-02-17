@@ -1,6 +1,7 @@
 import { CategoryModule } from "../ui/router";
+import { priceStore } from "../core/price-store";
 
-const WIZYTOWKI_PRICING = {
+const DEFAULT_WIZYTOWKI_PRICING = {
   '85x55': [
     { qty: 50, plain: 65, foil: 160 },
     { qty: 100, plain: 75, foil: 170 },
@@ -26,18 +27,21 @@ const WIZYTOWKI_PRICING = {
 };
 
 function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boolean): number {
-  const tiers = WIZYTOWKI_PRICING[format];
-  let selectedTier = tiers[0];
+  const defaultTiers = DEFAULT_WIZYTOWKI_PRICING[format];
+  const type = foiled ? 'foil' : 'plain';
 
+  const tiers = priceStore.registerTiers(`wizytowki-${format}-${type}`, `Wizytówki ${format} ${type}`, defaultTiers.map(t => ({ min: t.qty, max: null, price: foiled ? t.foil : t.plain })));
+
+  let selectedTier = tiers[0];
   for (const tier of tiers) {
-    if (qty >= tier.qty) {
+    if (qty >= tier.min) {
       selectedTier = tier;
     } else {
       break;
     }
   }
 
-  return foiled ? selectedTier.foil : selectedTier.plain;
+  return selectedTier.price;
 }
 
 /**

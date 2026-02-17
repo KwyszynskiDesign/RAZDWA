@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import * as data from "../../data/normalized/solwent-plakaty.json";
+import { priceStore } from "../core/price-store";
 
 export interface SolwentPlakatyInput {
   areaM2: number;
@@ -19,8 +20,8 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
   }
 
   const priceTable: PriceTable = {
-    id: tableData.id,
-    title: tableData.title,
+    id: `solwent-plakaty-${input.material.replace(/\s+/g, '-').toLowerCase()}`,
+    title: `Solwent Plakaty - ${input.material}`,
     unit: tableData.unit,
     pricing: tableData.pricing,
     tiers: materialData.tiers,

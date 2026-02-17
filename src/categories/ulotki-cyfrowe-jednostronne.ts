@@ -1,6 +1,7 @@
 import prices from "../../data/normalized/ulotki-cyfrowe-jednostronne.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
+import { priceStore } from "../core/price-store";
 
 export interface UlotkiJednostronneOptions {
   qty: number;
@@ -20,7 +21,7 @@ export function getUlotkiJednostronneTable(formatKey: string, mode: "jednostronn
   }
 
   return {
-    id: `ulotki-cyfrowe-${mode}-${formatKey.toLowerCase()}`,
+    id: `ulotki-${mode}-${formatKey.toLowerCase()}`,
     title: `Ulotki Cyfrowe ${mode === 'dwustronne' ? 'Dwustronne' : 'Jednostronne'} ${formatData.name}`,
     unit: "szt",
     pricing: "flat",

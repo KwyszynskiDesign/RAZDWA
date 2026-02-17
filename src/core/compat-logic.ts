@@ -4,7 +4,7 @@ import {
   CAD_BASE,
   FORMAT_TOLERANCE_MM,
   FOLD_PRICE,
-  WF_SCAN_PRICE_PER_CM,
+  WF_SCAN_PRICE_CM,
   BIZ,
   pickTier,
   pickNearestCeilKey,
@@ -116,7 +116,7 @@ export function calculateCadFold(options: { format: string; qty: number }) {
 /** WF Scan logic */
 export function calculateWfScan(options: { lengthMm: number; qty: number }) {
   const cmRounded = Math.round(options.lengthMm / 10);
-  const unitPrice = cmRounded * WF_SCAN_PRICE_PER_CM;
+  const unitPrice = cmRounded * WF_SCAN_PRICE_CM.value;
   return {
     cmRounded,
     unitPrice,

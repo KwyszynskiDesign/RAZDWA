@@ -1,6 +1,7 @@
 import { CategoryModule } from "../ui/router";
+import { priceStore } from "../core/price-store";
 
-const VOUCHERY_PRICING = [
+const VOUCHERY_DEFAULTS = [
   { qty: 1, single: 20, double: 25 },
   { qty: 2, single: 29, double: 32 },
   { qty: 3, single: 30, double: 37 },
@@ -17,10 +18,19 @@ const VOUCHERY_PRICING = [
   { qty: 30, single: 84, double: 120 }
 ];
 
-function getPriceForQuantity(qty: number, isSingle: boolean): number {
-  let selectedTier = VOUCHERY_PRICING[0];
+function getVoucheryPricing() {
+  return VOUCHERY_DEFAULTS.map(tier => ({
+    qty: tier.qty,
+    single: priceStore.register(`vouchery-s-${tier.qty}`, 'Vouchery', `Jednostronne ${tier.qty} szt`, tier.single),
+    double: priceStore.register(`vouchery-d-${tier.qty}`, 'Vouchery', `Dwustronne ${tier.qty} szt`, tier.double)
+  }));
+}
 
-  for (const tier of VOUCHERY_PRICING) {
+function getPriceForQuantity(qty: number, isSingle: boolean): number {
+  const pricing = getVoucheryPricing();
+  let selectedTier = pricing[0];
+
+  for (const tier of pricing) {
     if (qty >= tier.qty) {
       selectedTier = tier;
     } else {
@@ -43,10 +53,10 @@ export function quoteVouchery(options: VoucheryOptions): any {
   let percentageSum = 0;
 
   if (options.satin) {
-    percentageSum += 0.12;
+    percentageSum += priceStore.register('vouchery-mod-satin', 'Vouchery', 'Dopłata Satyna', 0.12);
   }
   if (options.express) {
-    percentageSum += 0.20;
+    percentageSum += priceStore.register('vouchery-mod-express', 'Vouchery', 'Dopłata Express', 0.20);
   }
 
   const modifiersTotal = basePrice * percentageSum;
@@ -128,8 +138,11 @@ export const voucheryCategory: CategoryModule = {
       const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
 
       const basePrice = getPriceForQuantity(quantity, sides === 'single');
-      const paperMultiplier = paper === 'satin' ? 1.12 : 1;
-      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
+      const satinMod = priceStore.register('vouchery-mod-satin', 'Vouchery', 'Dopłata Satyna', 0.12);
+      const expressMod = priceStore.register('vouchery-mod-express', 'Vouchery', 'Dopłata Express', 0.20);
+
+      const paperMultiplier = paper === 'satin' ? (1 + satinMod) : 1;
+      const expressMultiplier = ctx.expressMode ? (1 + expressMod) : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 

@@ -1,5 +1,6 @@
 import { CalculationResult, Modifier } from "../core/types";
 import data from "../../data/normalized/zaproszenia-kreda.json";
+import { priceStore } from "../core/price-store";
 
 export interface ZaproszeniaKredaOptions {
   format: string; // "A6", "A5", "DL"
@@ -34,7 +35,12 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
     }
   }
 
-  const basePrice = priceTable[selectedTier.toString()];
+  const rawBasePrice = priceTable[selectedTier.toString()];
+  // Register in PriceStore
+  const ps = priceStore;
+  const priceId = `zap-${format}-${sidesKey}-${typeKey}-${selectedTier}`;
+  const priceName = `Zaproszenia ${format} ${sidesKey === 'single' ? '1s' : '2s'} ${typeKey === 'folded' ? 'skł' : 'norm'} (od ${selectedTier}szt)`;
+  const basePrice = ps.register(priceId, "Zaproszenia", priceName, rawBasePrice);
 
   const modifiers: Modifier[] = [];
   if (isSatin) {
@@ -42,7 +48,7 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
       id: "satin",
       name: "Papier satynowy (+12%)",
       type: "percentage",
-      value: data.modifiers.satin
+      value: ps.register("zap-mod-satin", "Zaproszenia", "Satyna (+%)", data.modifiers.satin)
     });
   }
   if (express) {
@@ -50,7 +56,7 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
       id: "express",
       name: "EXPRESS (+20%)",
       type: "percentage",
-      value: data.modifiers.express
+      value: ps.register("global-express", "Global", "Express (+%)", 0.20)
     });
   }
 

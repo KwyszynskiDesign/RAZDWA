@@ -8,11 +8,12 @@
 </head>
 <body>
   <div class="wrap">
-    <header>
+    <header style="display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h1>Kalkulator – Studio Raz Druku Dwa</h1>
         <p class="small">Wybierz kategorię → Oblicz → Dodaj do listy → Pobierz Excel.</p>
       </div>
+      <button id="settings-btn" title="Ustawienia" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #94a3b8; padding: 10px; transition: color 0.2s;">⚙️</button>
     </header>
 
     <main class="app-container">
@@ -112,6 +113,20 @@
 
       </aside>
     </main>
+  </div>
+
+  <!-- PIN Modal -->
+  <div id="pin-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+      <h3>🔒 Dostęp zabezpieczony</h3>
+      <p>Podaj PIN, aby wejść do ustawień:</p>
+      <input type="password" id="pin-input" maxlength="4" placeholder="****" style="text-align: center; font-size: 24px; letter-spacing: 10px; margin: 20px 0;">
+      <div id="pin-error" style="color: #ef4444; margin-bottom: 10px; display: none;">Błędny PIN!</div>
+      <div style="display: flex; gap: 10px;">
+        <button id="pin-cancel" class="btn-secondary" style="flex: 1;">Anuluj</button>
+        <button id="pin-submit" class="btn-primary" style="flex: 1;">Wejdź</button>
+      </div>
+    </div>
   </div>
 
   <script src="assets/app.js" type="module"></script>

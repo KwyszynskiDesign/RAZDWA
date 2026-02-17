@@ -18,7 +18,7 @@ export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
   }
 
   const priceTable: PriceTable = {
-    id: "wlepki",
+    id: `wlepki-${groupData.id}`,
     title: groupData.title,
     unit: groupData.unit,
     pricing: groupData.pricing || "per_unit",

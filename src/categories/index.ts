@@ -9,8 +9,8 @@ import { BannerView as banneryCategory } from "../ui/views/banner";
 import { WlepkiView as wlepkiCategory } from "../ui/views/wlepki-naklejki";
 import { RollUpView as rollupCategory } from "../ui/views/roll-up";
 import { createHTMLCategory } from "./loader";
-import { drukCADCategory } from "./druk-cad";
-import { drukA4A3Category } from "./druk-a4-a3-skan";
+import { DrukCADAdvancedView as drukCADCategory } from "../ui/views/druk-cad-advanced";
+import { DrukA4A3SkanView as drukA4A3Category } from "../ui/views/druk-a4-a3";
 
 export const categories = [
   // Istniejące kategorie JS

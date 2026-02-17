@@ -9,6 +9,22 @@ export interface CalculationResult {
   tierPrice: number;
   modifiersTotal: number;
   appliedModifiers: string[];
+  qtyBilled?: number;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  category: string;
+}
+
+export interface PricingRule {
+  product_id: string;
+  name: string;
+  type: "base" | "multiplier" | "addon";
+  value: number;
+  threshold?: number;
+  updated_at: string;
 }
 
 export interface CartItem {

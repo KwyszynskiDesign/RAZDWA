@@ -1,0 +1,206 @@
+<style>
+    .cad-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      color: white;
+      padding: 20px;
+    }
+
+    .upload-zone {
+      border: 3px dashed #667eea;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      background: rgba(102, 126, 234, 0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      background: rgba(102, 126, 234, 0.1);
+      border-color: #764ba2;
+    }
+
+    .upload-zone svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .settings-panel {
+      background: rgba(255,255,255,0.05);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-group label {
+      font-weight: 600;
+      color: #ccc;
+      font-size: 0.9rem;
+    }
+
+    .setting-group input {
+      padding: 10px 12px;
+      background: #0f172a;
+      border: 2px solid #334155;
+      border-radius: 8px;
+      font-size: 1rem;
+      color: white;
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 2px solid #334155;
+    }
+
+    .switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      background: #334155;
+      border-radius: 14px;
+      cursor: pointer;
+    }
+
+    .switch.active {
+      background: #667eea;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    .switch.active::after {
+      transform: translateX(28px);
+    }
+
+    .files-table-wrapper {
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: #334155;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #334155;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .badge-formatowy { background: #065f46; color: #a7f3d0; }
+    .badge-nieformatowy { background: #92400e; color: #fef3c7; }
+    .badge-warning { background: #991b1b; color: #fee2e2; }
+
+    .summary-panel {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-top: 24px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+</style>
+
+<div class="cad-container">
+    <div class="upload-zone" id="uploadZone">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        <h3>Przeciągnij pliki tutaj</h3>
+        <p>lub kliknij, aby wybrać (CAD, PDF, JPG, PNG)</p>
+        <input type="file" id="fileInput" multiple accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.tif,.tiff" style="display: none;" />
+    </div>
+
+    <div class="settings-panel">
+        <div class="setting-group">
+          <label>Rozdzielczość DPI:</label>
+          <input type="number" id="dpiInput" value="300" min="72" max="600" />
+        </div>
+
+        <div class="toggle-switch" id="colorToggle" style="cursor: pointer;">
+          <label>Czarno-białe</label>
+          <div class="switch" id="colorSwitch"></div>
+          <label>Kolorowe</label>
+        </div>
+    </div>
+
+    <div class="files-table-wrapper" id="filesTableWrapper" style="display: none;">
+        <table>
+          <thead>
+            <tr>
+              <th>Nazwa pliku</th>
+              <th>Wymiary (mm)</th>
+              <th>Format</th>
+              <th>Typ</th>
+              <th>Składanie</th>
+              <th>Skan</th>
+              <th>Cena</th>
+            </tr>
+          </thead>
+          <tbody id="filesTableBody"></tbody>
+        </table>
+    </div>
+
+    <div class="summary-panel" id="summaryPanel" style="display: none;">
+        <h3>💰 Podsumowanie wyceny</h3>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+            <button class="btn-clear" id="clearBtn" style="background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer;">Wyczyść</button>
+            <button id="add-all-to-cart" style="background: #22c55e; color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; flex: 1;">Dodaj wszystko do listy</button>
+        </div>
+    </div>
+</div>

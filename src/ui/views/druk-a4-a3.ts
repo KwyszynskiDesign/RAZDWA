@@ -8,7 +8,7 @@ export const DrukA4A3SkanView: View = {
   name: "Druk A4/A3 + skan",
   async mount(container, ctx) {
     try {
-      const response = await fetch("categories/druk-a4-a3.html");
+      const response = await fetch("categories/druk-a4-a3-skan.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
 
@@ -38,6 +38,24 @@ export const DrukA4A3SkanView: View = {
     const resultDisplay = container.querySelector("#d-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#d-total-price") as HTMLElement;
     const expressHint = container.querySelector("#d-express-hint") as HTMLElement;
+    const tierTable = container.querySelector("#tier-table") as HTMLElement;
+
+    const updateTiers = () => {
+      if (!tierTable) return;
+      const mode = modeSelect.value;
+      const format = formatSelect.value;
+      const tiers = (pricing as any)[mode]?.[format];
+
+      if (tiers) {
+        tierTable.innerHTML = tiers.map((t: any) =>
+          `<div>${t.from}-${t.to || '∞'} szt.</div><div style="text-align: right;">${t.unit.toFixed(2)} zł</div>`
+        ).join('');
+      }
+    };
+
+    modeSelect.onchange = updateTiers;
+    formatSelect.onchange = updateTiers;
+    updateTiers();
 
     surchargeCheck.onchange = () => {
       surchargeQtyRow.style.display = surchargeCheck.checked ? "flex" : "none";

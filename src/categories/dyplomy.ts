@@ -1,6 +1,7 @@
 import { CategoryModule } from "../ui/router";
+import { priceStore } from "../core/price-store";
 
-const DYPLOMY_PRICING = [
+const DEFAULT_DYPLOMY_PRICING = [
   { qty: 1, price: 20 },
   { qty: 2, price: 30 },
   { qty: 3, price: 32 },
@@ -20,10 +21,11 @@ const DYPLOMY_PRICING = [
 ];
 
 function getPriceForQuantity(qty: number): number {
-  let selectedTier = DYPLOMY_PRICING[0];
+  const tiers = priceStore.registerTiers('dyplomy', 'Dyplomy', DEFAULT_DYPLOMY_PRICING.map(t => ({ min: t.qty, max: null, price: t.price })));
 
-  for (const tier of DYPLOMY_PRICING) {
-    if (qty >= tier.qty) {
+  let selectedTier = tiers[0];
+  for (const tier of tiers) {
+    if (qty >= tier.min) {
       selectedTier = tier;
     } else {
       break;
@@ -136,15 +138,16 @@ export const dyplomyCategory: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        let selectedTier = DYPLOMY_PRICING[0];
-        for (const tier of DYPLOMY_PRICING) {
-          if (quantity >= tier.qty) {
+        const tiers = priceStore.registerTiers('dyplomy', 'Dyplomy', DEFAULT_DYPLOMY_PRICING.map(t => ({ min: t.qty, max: null, price: t.price })));
+        let selectedTier = tiers[0];
+        for (const tier of tiers) {
+          if (quantity >= tier.min) {
             selectedTier = tier;
           } else {
             break;
           }
         }
-        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ' × 1.12 (satyna)' : ''}`;
+        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.min}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ' × 1.12 (satyna)' : ''}`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Dyplomy DL - ${quantity} szt`);

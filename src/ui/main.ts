@@ -6,6 +6,8 @@ import { downloadExcel } from "./excel";
 import { CustomerData } from "../core/types";
 import categories from "../../data/categories.json";
 import { categories as categoryModules } from "../categories/index";
+import { CONFIG } from "../core/config";
+import { SettingsView } from "./views/settings";
 
 const cart = new Cart();
 
@@ -106,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
     router.addRoute(module);
   });
 
+  // Register settings view
+  router.addRoute(SettingsView);
+
   // Populate category selector
   categories.forEach(cat => {
     const opt = document.createElement("option");
@@ -200,6 +205,45 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCartUI();
   router.start();
+
+  // Settings Logic
+  const settingsBtn = document.getElementById("settings-btn");
+  const pinModal = document.getElementById("pin-modal");
+  const pinInput = document.getElementById("pin-input") as HTMLInputElement;
+  const pinSubmit = document.getElementById("pin-submit");
+  const pinCancel = document.getElementById("pin-cancel");
+  const pinError = document.getElementById("pin-error");
+
+  settingsBtn?.addEventListener("click", () => {
+    if (pinModal) pinModal.style.display = "flex";
+    pinInput?.focus();
+  });
+
+  pinCancel?.addEventListener("click", () => {
+    if (pinModal) pinModal.style.display = "none";
+    if (pinInput) pinInput.value = "";
+    if (pinError) pinError.style.display = "none";
+  });
+
+  const verifyPin = () => {
+    if (pinInput?.value === CONFIG.SETTINGS_PIN) {
+      if (pinModal) pinModal.style.display = "none";
+      pinInput.value = "";
+      if (pinError) pinError.style.display = "none";
+      window.location.hash = "#/settings";
+    } else {
+      if (pinError) pinError.style.display = "block";
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
+    }
+  };
+
+  pinSubmit?.addEventListener("click", verifyPin);
+  pinInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") verifyPin();
+  });
 });
 
 // Service Worker Registration
