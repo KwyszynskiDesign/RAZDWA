@@ -1,0 +1,76 @@
+[33mcommit 682f405ae4a0d24e28bb8d15e4016a960661dbb5[m
+Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date:   Sun Feb 8 21:25:01 2026 +0000
+
+    Cleanup: Remove duplicate files, consolidate to /docs
+    
+    - Removed redundant root-level folders: /public/, /categories/, /assets/
+    - Removed redundant root-level files: index.html, manifest.json, sw.js
+    - Verified that all deployment artifacts are present in /docs/
+    - Confirmed that /docs/categories/ contains all 13 required HTML templates
+    - All tests pass after the cleanup.
+    
+    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+
+[33mcommit bd23c99c24f43c7e679740529e208ba4e256fd65[m
+Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date:   Wed Feb 4 20:37:02 2026 +0000
+
+    feat: implement Druk A4/A3 + skan and Druk CAD categories
+    
+    - Added complex pricing logic for A4/A3 print and scan
+    - Implemented CAD format vs meter pricing logic
+    - Updated categories.json with 13 categories in priority order
+    - Refactored home grid to use literal links with SPA redirection
+    - Standardized CSS classes across priority views
+    - Verified with unit tests and playwright screenshots
+    
+    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+
+[33mcommit 68d74c68e21dcdfc8e8d7d40cc4877284bf77718[m
+Merge: 82e5587 3d00128
+Author: KwyszynskiDesign <karol2609@gmail.com>
+Date:   Wed Feb 4 09:33:04 2026 +0100
+
+    Merge pull request #9 from KwyszynskiDesign/feat/new-categories-druk-cad-skan-10112798478717047823
+    
+    Feat/new categories druk cad skan 10112798478717047823
+
+[33mcommit 3d001288afe5c1ae15192528de391605d0adf50d[m
+Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date:   Wed Feb 4 08:14:52 2026 +0000
+
+    Implement new print/CAD categories and logic parity with legacy calculator
+    
+    - Added "Druk A4/A3 + skan" and "Druk CAD wielkoformatowy" categories.
+    - Implemented core/compat-logic.ts to ensure 100% logic parity with legacy HTML pricing.
+    - Added support for "separate product" surcharges (Email, Zadruk >25%).
+    - Optimized file structure by moving static assets to public/ and removing legacy/duplicate index.html files.
+    - Reordered categories to place Druk A4/A3 and Druk CAD at the top of the grid and selector.
+    - Added comprehensive unit tests (88 passing) and visual verification via Playwright.
+    - Updated build scripts to support public/ to docs/ sync for GitHub Pages.
+    
+    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+
+[33mcommit 4448841fd3007d153a98b26c9d3dd13e8fa9b499[m
+Merge: ef320f9 eb4ccba
+Author: KwyszynskiDesign <karol2609@gmail.com>
+Date:   Tue Feb 3 19:34:13 2026 +0100
+
+    Merge pull request #6 from KwyszynskiDesign/feat/new-categories-druk-cad-skan-10112798478717047823
+    
+    Add Druk A4/A3 + skan and Druk CAD categories
+
+[33mcommit c72d5b343bc4565099f385abc7b5889367e078d4[m
+Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
+Date:   Fri Jan 30 06:58:05 2026 +0000
+
+    feat: add Druk A4/A3 + skan and Druk CAD categories
+    
+    Implemented logic, UI, and pricing data for two new categories:
+    - Druk A4/A3 + skan: Handles tiered pricing for prints and scans, with separate cart items for email and high-ink surcharges.
+    - Druk CAD wielkoformatowy: Handles format-based and meter-based pricing with base length detection.
+    
+    Added unit tests and verified UI with Playwright.
+    
+    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
