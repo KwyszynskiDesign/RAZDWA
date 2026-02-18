@@ -55,3 +55,5 @@
 .toggle-btn input:checked + span {
   background: var(--blue-gradient);
 }
+html { scroll-padding-top: 80px !important; scroll-behavior: smooth; } #app { position: relative; }
+html { scroll-padding-top: 80px !important; scroll-behavior: smooth; } #app { position: relative; }
