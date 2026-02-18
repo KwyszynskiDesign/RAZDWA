@@ -9,7 +9,8 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #FFFFFF;
+      color: #003B5C;
       min-height: 100vh;
       padding: 20px;
     }
@@ -17,15 +18,17 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      background: white;
+      background: #FFFFFF;
+      border: 1px solid #8A9199;
       border-radius: 16px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       overflow: hidden;
     }
 
     header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #FFFFFF;
+      border-bottom: 2px solid #8A9199;
+      color: #003B5C;
       padding: 32px;
       text-align: center;
     }
@@ -45,19 +48,19 @@
     }
 
     .upload-zone {
-      border: 3px dashed #667eea;
+      border: 3px dashed #8A9199;
       border-radius: 12px;
       padding: 48px 32px;
       text-align: center;
-      background: #f8f9ff;
+      background: #F8F9FA;
       transition: all 0.3s ease;
       cursor: pointer;
       margin-bottom: 24px;
     }
 
     .upload-zone:hover, .upload-zone.drag-over {
-      background: #eef1ff;
-      border-color: #764ba2;
+      background: #E6F4F9;
+      border-color: #006494;
       transform: translateY(-2px);
     }
 
@@ -69,7 +72,7 @@
     }
 
     .upload-zone h3 {
-      color: #667eea;
+      color: #006494;
       margin-bottom: 8px;
       font-size: 1.3rem;
     }
@@ -115,7 +118,7 @@
 
     .setting-group input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #006494;
     }
 
     .toggle-switch {
@@ -145,7 +148,7 @@
     }
 
     .switch.active {
-      background: #667eea;
+      background: #006494;
     }
 
     .switch::after {
@@ -177,7 +180,7 @@
     }
 
     thead {
-      background: #667eea;
+      background: #006494;
       color: white;
     }
 
@@ -232,14 +235,16 @@
     }
 
     .rolls-summary {
-      background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+      background: #E6F4F9;
+      border: 1px solid #8A9199;
       padding: 20px;
       border-radius: 12px;
       margin-bottom: 24px;
+      color: #003B5C;
     }
 
     .rolls-summary h3 {
-      color: #667eea;
+      color: #003B5C;
       margin-bottom: 16px;
       display: flex;
       align-items: center;
@@ -264,7 +269,7 @@
     }
 
     .roll-count {
-      background: #667eea;
+      background: #006494;
       color: white;
       padding: 4px 12px;
       border-radius: 12px;
@@ -325,8 +330,9 @@
     }
 
     .summary-panel {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
+      background: #F8F9FA;
+      border: 1px solid #8A9199;
+      color: #003B5C;
       padding: 24px;
       border-radius: 12px;
       margin-top: 24px;
@@ -335,6 +341,7 @@
     .summary-panel h3 {
       margin-bottom: 16px;
       font-size: 1.3rem;
+      color: #003B5C;
     }
 
     .summary-grid {
@@ -346,7 +353,7 @@
       display: flex;
       justify-content: space-between;
       padding: 8px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.2);
+      border-bottom: 1px solid #8A9199;
     }
 
     .summary-item:last-child {
@@ -355,11 +362,12 @@
       font-weight: 700;
       margin-top: 8px;
       padding-top: 16px;
-      border-top: 2px solid rgba(255,255,255,0.3);
+      border-top: 2px solid #006494;
+      color: #006494;
     }
 
     .btn-clear {
-      background: #dc3545;
+      background: #C92A2A;
       color: white;
       border: none;
       padding: 12px 24px;
@@ -372,9 +380,9 @@
     }
 
     .btn-clear:hover {
-      background: #c82333;
+      background: #A52020;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+      box-shadow: 0 4px 12px rgba(201,42,42,0.3);
     }
 
     .hidden {
