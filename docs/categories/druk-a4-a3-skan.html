@@ -1,104 +1,69 @@
-<div class="category-view" id="druk-a4-a3-skan-view">
-    <div class="view-header">
-        <h2>Druk A4/A3 + skan</h2>
+<h2>Druk A4/A3 + skan</h2>
+<div class="form">
+  <div class="row">
+    <label for="d-mode">Tryb:</label>
+    <select id="d-mode">
+      <option value="bw">Czarno-biały</option>
+      <option value="color">Kolorowy</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="d-format">Format:</label>
+    <select id="d-format">
+      <option value="a4">A4</option>
+      <option value="a3">A3</option>
+    </select>
+  </div>
+
+  <div class="row">
+    <label for="d-print-qty">Ilość stron druku:</label>
+    <input type="number" id="d-print-qty" value="1" min="0">
+  </div>
+
+  <div class="row checkbox-row">
+    <input type="checkbox" id="d-email">
+    <label for="d-email">Wysyłka e-mail (+1 zł)</label>
+  </div>
+
+  <div class="row checkbox-row">
+    <input type="checkbox" id="d-surcharge">
+    <label for="d-surcharge">Zadruk >25% (+50%)</label>
+  </div>
+
+  <div id="surcharge-qty-row" class="row" style="display: none;">
+    <label for="d-surcharge-qty">Ilość stron z dopłatą:</label>
+    <input type="number" id="d-surcharge-qty" value="1" min="1">
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row">
+    <label for="d-scan-type">Skanowanie:</label>
+    <select id="d-scan-type">
+      <option value="none">Brak</option>
+      <option value="auto">Automatyczne A4-A3</option>
+      <option value="manual">Ręczne z szyby A4-A3</option>
+    </select>
+  </div>
+
+  <div id="scan-qty-row" class="row" style="display: none;">
+    <label for="d-scan-qty">Ilość stron skanu:</label>
+    <input type="number" id="d-scan-qty" value="1" min="1">
+  </div>
+
+  <div class="actions">
+    <button id="d-calculate" class="primary">Oblicz</button>
+    <button id="d-add-to-cart" class="success" disabled>Dodaj do listy</button>
+  </div>
+
+  <div id="tier-table" style="margin-top: 20px; font-size: 13px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px; border-radius: 8px;"></div>
+
+  <div id="d-result-display" style="display: none; margin-top: 20px; padding: 14px; border-radius: 12px;">
+    <div style="display: flex; justify-content: space-between;">
+      <span>Cena całkowita:</span>
+      <span id="d-total-price" style="font-size: 18px; font-weight: 950;">-</span>
     </div>
-
-    <div class="calculator-form card">
-        <div class="form-group">
-            <label for="d-mode">Tryb druku:</label>
-            <select id="d-mode" class="form-control">
-                <option value="bw">Czarno-biały</option>
-                <option value="color">Kolorowy</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="d-format">Format:</label>
-            <select id="d-format" class="form-control">
-                <option value="a4">A4</option>
-                <option value="a3">A3</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label for="d-print-qty">Ilość stron druku:</label>
-            <input type="number" id="d-print-qty" class="form-control" value="1" min="0">
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="row checkbox-row">
-            <input type="checkbox" id="d-email">
-            <label for="d-email">Wysyłka e-mail (+1.00 zł)</label>
-        </div>
-
-        <div class="row checkbox-row">
-            <input type="checkbox" id="d-surcharge">
-            <label for="d-surcharge">Zadruk >25% (+50% ceny druku)</label>
-        </div>
-
-        <div id="surcharge-qty-row" class="form-group" style="display: none;">
-            <label for="d-surcharge-qty">Ilość stron z dopłatą >25%:</label>
-            <input type="number" id="d-surcharge-qty" class="form-control" value="1" min="1">
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="form-group">
-            <label for="d-scan-type">Skanowanie:</label>
-            <select id="d-scan-type" class="form-control">
-                <option value="none">Brak</option>
-                <option value="auto">Automatyczne (A4/A3)</option>
-                <option value="manual">Ręczne z szyby (A4/A3)</option>
-            </select>
-        </div>
-
-        <div id="scan-qty-row" class="form-group" style="display: none;">
-            <label for="d-scan-qty">Ilość stron skanowania:</label>
-            <input type="number" id="d-scan-qty" class="form-control" value="1" min="1">
-        </div>
-
-        <div class="form-actions" style="margin-top: 20px;">
-            <button id="d-calculate" class="btn btn-primary">Oblicz</button>
-            <button id="d-add-to-cart" class="btn btn-success" disabled>Dodaj do listy</button>
-        </div>
-    </div>
-
-    <div id="d-result-display" class="result-display card" style="display: none;">
-        <div class="result-row">
-            <span>Cena druku jedn.:</span>
-            <span id="d-unit-print-price" class="price-unit">-</span>
-        </div>
-        <div class="result-row">
-            <span>Łączna cena druku:</span>
-            <span id="d-total-print-price" class="price-value">-</span>
-        </div>
-        <div class="result-row">
-            <span>Skanowanie:</span>
-            <span id="d-total-scan-price" class="price-value">-</span>
-        </div>
-        <div class="result-row">
-            <span>E-mail:</span>
-            <span id="d-email-price" class="price-value">-</span>
-        </div>
-        <div class="result-row">
-            <span>Dopłata zadruk:</span>
-            <span id="d-surcharge-price" class="price-value">-</span>
-        </div>
-        <div class="divider"></div>
-        <div class="result-row total" style="display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-weight: 700;">SUMA:</span>
-            <span id="d-total-price" class="price-value" style="font-size: 20px; font-weight: 900;">-</span>
-        </div>
-        <div id="d-express-hint" class="express-hint" style="display: none; color: #d97706; font-size: 13px; font-weight: 600; margin-top: 8px;">
-            TRYB EXPRESS +20%
-        </div>
-    </div>
-
-    <div class="pricing-reference card" style="margin-top: 20px;">
-        <h3 style="font-size: 16px; margin-bottom: 12px;">Cennik druku (za 1 str.)</h3>
-        <div id="tier-table" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; padding: 12px; border-radius: 8px; background: #f8f9fa; border: 1px solid #8A9199;">
-            <!-- Dynamicznie wypełniane przez app.js -->
-        </div>
-    </div>
+    <div id="d-express-hint" style="font-size: 12px; color: #f59e0b; display: none;">Zawiera dopłatę EXPRESS +20%</div>
+  </div>
 </div>

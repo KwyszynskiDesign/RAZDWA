@@ -395,3 +395,60 @@ label {
 .success-msg { background: #E6F4F9; color: #2B8A3E; border: 1px solid #2B8A3E; }
 .error-msg { background: #FFF0F0; color: #C92A2A; border: 1px solid #C92A2A; }
 .info-msg { background: #E6F4F9; color: #003B5C; border: 1px solid #006494; }
+
+/* ==================== WCAG REDESIGN V3 FORCE ==================== */
+:root {
+  --bg-main: #FFFFFF;
+  --bg-section: #F8F9FA;
+  --text-main: #003B5C;
+  --text-sec: #495057;
+  --btn-main: #006494;
+  --btn-hover: #004F7A;
+  --btn-red: #C92A2A;
+  --border: #8A9199;
+}
+
+/* TŁO */
+body, .main-container { background: var(--bg-main) !important; }
+
+/* PRZYCISKI GŁÓWNE (wszystkie CTA, Dodaj, Pobierz Excel) */
+button, .btn, .cta, [class*="button"], #add-to-list, #download-excel {
+  background: var(--btn-main) !important;
+  color: #FFFFFF !important;
+  border: none !important;
+  border-radius: 4px;
+}
+button:hover, .btn:hover { background: var(--btn-hover) !important; }
+
+/* WYCZYŚĆ LISTĘ */
+#clear-list, .destructive { background: var(--btn-red) !important; }
+#clear-list:hover { background: #A52020 !important; }
+
+/* TEKSTY */
+h1, h2, h3, label, .header { color: var(--text-main) !important; font-weight: 700; }
+p, .desc, .secondary { color: var(--text-sec) !important; }
+
+/* BOKSY */
+.section-box, .summary, .ulotki {
+  background: var(--bg-section) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important;
+}
+
+/* RAMKI/SEPARATORY */
+hr, .separator, border { border-color: var(--border) !important; }
+
+/* FOCUS/DISABLED */
+button:focus { outline: 2px solid var(--btn-main); outline-offset: 2px; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* RE-FIX FOR ACTUAL IDs IN HTML */
+#clear-basket, .btn-danger { background: var(--btn-red) !important; }
+#clear-basket:hover, .btn-danger:hover { background: #A52020 !important; }
+
+#export-excel, .btn-success { background: var(--btn-main) !important; }
+#copy-json, .btn-primary { background: var(--btn-main) !important; }
+
+/* Keep settings button clean if it's just an icon, or follow 'all buttons cyan' rule? */
+/* User said 'wszystkie!' so cyan is probably intended. */
