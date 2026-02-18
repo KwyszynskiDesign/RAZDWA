@@ -1,76 +1,105 @@
-[33mcommit 682f405ae4a0d24e28bb8d15e4016a960661dbb5[m
-Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
-Date:   Sun Feb 8 21:25:01 2026 +0000
+<div class="category-template">
+  <h2>Druk A4/A3 + skan</h2>
+  
+  <!-- TRYB + FORMAT -->
+  <div class="form-row">
+    <div class="form-group">
+      <label>Tryb:</label>
+      <select id="d-mode">
+        <option value="bw">Czarnobiały</option>
+        <option value="color">Kolorowy</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Format:</label>
+      <select id="d-format">
+        <option value="A4">A4</option>
+        <option value="A3">A3</option>
+      </select>
+    </div>
+  </div>
 
-    Cleanup: Remove duplicate files, consolidate to /docs
-    
-    - Removed redundant root-level folders: /public/, /categories/, /assets/
-    - Removed redundant root-level files: index.html, manifest.json, sw.js
-    - Verified that all deployment artifacts are present in /docs/
-    - Confirmed that /docs/categories/ contains all 13 required HTML templates
-    - All tests pass after the cleanup.
-    
-    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+  <!-- DRUK -->
+  <div class="form-group">
+    <label>Ilość stron do druku:</label>
+    <input type="number" id="d-print-qty" min="0" value="1">
+  </div>
 
-[33mcommit bd23c99c24f43c7e679740529e208ba4e256fd65[m
-Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
-Date:   Wed Feb 4 20:37:02 2026 +0000
+  <!-- OPCJE -->
+  <div class="form-row">
+    <div class="form-group">
+      <label><input type="checkbox" id="d-email"> E-mail (1zł)</label>
+    </div>
+    <div class="form-group">
+      <label><input type="checkbox" id="d-surcharge"> Zadruk >25% (+50%)</label>
+    </div>
+  </div>
 
-    feat: implement Druk A4/A3 + skan and Druk CAD categories
-    
-    - Added complex pricing logic for A4/A3 print and scan
-    - Implemented CAD format vs meter pricing logic
-    - Updated categories.json with 13 categories in priority order
-    - Refactored home grid to use literal links with SPA redirection
-    - Standardized CSS classes across priority views
-    - Verified with unit tests and playwright screenshots
-    
-    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+  <!-- DOPŁATA ZADRUK -->
+  <div class="form-row" id="surcharge-qty-row" style="display:none;">
+    <div class="form-group">
+      <label>Ilość zadrukowanych >25%:</label>
+      <input type="number" id="d-surcharge-qty" min="0" value="0">
+    </div>
+  </div>
 
-[33mcommit 68d74c68e21dcdfc8e8d7d40cc4877284bf77718[m
-Merge: 82e5587 3d00128
-Author: KwyszynskiDesign <karol2609@gmail.com>
-Date:   Wed Feb 4 09:33:04 2026 +0100
+  <!-- SKANOWANIE -->
+  <div class="form-group">
+    <label>Rodzaj skanowania:</label>
+    <select id="d-scan-type">
+      <option value="none">Brak</option>
+      <option value="auto">Automatyczne</option>
+      <option value="manual">Ręczne z szyby</option>
+    </select>
+  </div>
 
-    Merge pull request #9 from KwyszynskiDesign/feat/new-categories-druk-cad-skan-10112798478717047823
-    
-    Feat/new categories druk cad skan 10112798478717047823
+  <div class="form-row" id="scan-qty-row" style="display:none;">
+    <div class="form-group">
+      <label>Ilość stron do skanowania:</label>
+      <input type="number" id="d-scan-qty" min="0" value="1">
+    </div>
+  </div>
 
-[33mcommit 3d001288afe5c1ae15192528de391605d0adf50d[m
-Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
-Date:   Wed Feb 4 08:14:52 2026 +0000
+  <!-- PRZYCISKI -->
+  <div class="form-row">
+    <button id="d-calculate" class="btn-primary">Oblicz</button>
+    <button id="d-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+  </div>
 
-    Implement new print/CAD categories and logic parity with legacy calculator
-    
-    - Added "Druk A4/A3 + skan" and "Druk CAD wielkoformatowy" categories.
-    - Implemented core/compat-logic.ts to ensure 100% logic parity with legacy HTML pricing.
-    - Added support for "separate product" surcharges (Email, Zadruk >25%).
-    - Optimized file structure by moving static assets to public/ and removing legacy/duplicate index.html files.
-    - Reordered categories to place Druk A4/A3 and Druk CAD at the top of the grid and selector.
-    - Added comprehensive unit tests (88 passing) and visual verification via Playwright.
-    - Updated build scripts to support public/ to docs/ sync for GitHub Pages.
-    
-    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+  <!-- WYNIKI -->
+  <div id="d-result-display" style="display:none;">
+    <div class="result-row">Cena druku/str.: <span id="d-unit-print-price">-</span></div>
+    <div class="result-row">Całkowity druk: <span id="d-total-print-price">-</span></div>
+    <div class="result-row" id="d-scan-row" style="display:none;">Skanowanie: <span id="d-total-scan-price">-</span></div>
+    <div class="result-row" id="d-email-row" style="display:none;">E-mail: <span id="d-email-price">-</span></div>
+    <div class="result-row" id="d-surcharge-row" style="display:none;">Dopłata zadruk: <span id="d-surcharge-price">-</span></div>
+    <hr>
+    <div class="result-row total"><strong>SUMA:</strong> <span id="d-total-price">-</span></div>
+  </div>
 
-[33mcommit 4448841fd3007d153a98b26c9d3dd13e8fa9b499[m
-Merge: ef320f9 eb4ccba
-Author: KwyszynskiDesign <karol2609@gmail.com>
-Date:   Tue Feb 3 19:34:13 2026 +0100
+  <!-- EXPRESS HINT -->
+  <div id="d-express-hint" style="display:none; color:orange; font-weight:bold;">⚡ TRYB EXPRESS +20%</div>
 
-    Merge pull request #6 from KwyszynskiDesign/feat/new-categories-druk-cad-skan-10112798478717047823
+  <!-- CENNİK Z SCREENA - POPRAWNE CENY -->
+  <div class="pricing-table" style="margin-top:30px; font-size:0.9em;">
+    <h3>Cennik Studio Raz Druku Dwa</h3>
     
-    Add Druk A4/A3 + skan and Druk CAD categories
-
-[33mcommit c72d5b343bc4565099f385abc7b5889367e078d4[m
-Author: google-labs-jules[bot] <161369871+google-labs-jules[bot]@users.noreply.github.com>
-Date:   Fri Jan 30 06:58:05 2026 +0000
-
-    feat: add Druk A4/A3 + skan and Druk CAD categories
+    <div><strong>DRUK CZARNO-BIAŁY</strong></div>
+    <div>A4: 1-5: 0,90zł | 6-20: 0,60zł | 21-100: 0,35zł | 101-500: 0,30zł | 501-999: 0,23zł | 1000+: 0,15zł</div>
+    <div>A3: 1-5: 1,70zł | 6-20: 1,10zł | 21-100: 0,70zł | 101-500: 0,60zł | 501-999: 0,45zł | 1000+: 0,33zł</div>
     
-    Implemented logic, UI, and pricing data for two new categories:
-    - Druk A4/A3 + skan: Handles tiered pricing for prints and scans, with separate cart items for email and high-ink surcharges.
-    - Druk CAD wielkoformatowy: Handles format-based and meter-based pricing with base length detection.
+    <div><strong>DRUK KOLOROWY</strong></div>
+    <div>A4: 1-10: 2,40zł | 11-40: 2,20zł | 41-100: 2,00zł | 101-250: 1,80zł | 251-500: 1,60zł | 501+: 1,10zł</div>
+    <div>A3: 1-10: 4,80zł | 11-40: 4,20zł | 41-100: 3,80zł | 101-250: 3,00zł | 251-500: 2,50zł | 501+: 1,60zł</div>
     
-    Added unit tests and verified UI with Playwright.
+    <div><strong>SKANOWANIE AUTOMATYCZNE</strong></div>
+    <div>1-9: 1,00zł | 10-49: 0,50zł | 50-99: 0,40zł | 100+: 0,25zł</div>
     
-    Co-authored-by: KwyszynskiDesign <222573507+KwyszynskiDesign@users.noreply.github.com>
+    <div><strong>SKANOWANIE RĘCZNE</strong></div>
+    <div>1-4: 2,00zł | 5+: 1,00zł</div>
+    
+    <div style="font-size:0.8em; color:#666;">
+      *Kopie z szyby +20% | Zadruk >25% powierzchni: +50% ceny podstawowej
+    </div>
+  </div>
+</div>
