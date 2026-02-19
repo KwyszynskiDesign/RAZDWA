@@ -1,8 +1,8 @@
 import { CalculationResult, Modifier } from "../core/types";
 import data from "../../data/normalized/zaproszenia-kreda.json";
 
-export interface ZaproszeniaKredaOptions {
-  format: string; // "A6", "A5", "DL"
+export interface ZaproszeniaKredaOptions  {
+  format: string; //  "A6", "A5", "DL"
   qty: number;
   sides: number; // 1 or 2
   isFolded: boolean;
@@ -40,7 +40,7 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
   if (isSatin) {
     modifiers.push({
       id: "satin",
-      name: "Papier satynowy (+12%)",
+      name: "Papier satynowy  (+12%)",
       type: "percentage",
       value: data.modifiers.satin
     });
@@ -48,7 +48,7 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
   if (express) {
     modifiers.push({
       id: "express",
-      name: "EXPRESS (+20%)",
+      name: "EXPRESS  (+20%)",<｜begin▁of▁sentence｜>",
       type: "percentage",
       value: data.modifiers.express
     });
