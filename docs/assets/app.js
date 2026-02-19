@@ -8,7 +8,7 @@ var $e=Object.defineProperty;var O=(e,t)=>{for(var a in t)$e(e,a,{get:t[a],enume
 }
 
 
-      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8)">;
+      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
         <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
         <p style="margin-top: 10px;">Wybierz kategori\u0119 z panelu powy\u017Cej, aby rozpocz\u0105\u0107 obliczenia.</p>
       </div>
