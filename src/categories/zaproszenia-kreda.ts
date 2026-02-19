@@ -1,5 +1,5 @@
 // src/categories/zaproszenia-kreda.ts
-export interface ZaproszeniaKredaOptions  {
+export interface ZaproszeniaKredaOptions   {
   format: string; // "A6", "A5", "DL"
   qty: number;
   sides: number; // 1 or 2
