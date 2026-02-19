@@ -7,11 +7,12 @@ var $e=Object.defineProperty;var O=(e,t)=>{for(var a in t)$e(e,a,{get:t[a],enume
   `;
 }
 
+this.container.innerHTML = `  
+<div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">  
+  <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>  
+  <p style="margin-top: 10px;">Wybierz kategorię z panelu powyżej, aby rozpocząć obliczenia.</p>  
+</div>`;  
 
-      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
-        <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
-        <p style="margin-top: 10px;">Wybierz kategori\u0119 z panelu powy\u017Cej, aby rozpocz\u0105\u0107 obliczenia.</p>
-      </div>
     `}start(){this.handleRoute()}};function Ve(e,t){let a=[...e].sort((r,s)=>r.min-s.min),i=a.find(r=>t>=r.min&&(r.max===null||t<=r.max));
  if(i)return i;let o=a.find(r=>r.min>=t);return o||a[a.length-1]}function Fe(e,t){if(!t)return e;let a=t.find(i=>i.type==="minimum"&&i.unit==="m2");
      return a&&e<a.value?a.value:e}function E(e,t,a=[]){let i=Fe(t,e.rules),o=Ve(e.tiers,i),r=0;e.pricing==="per_unit"?r=i*o.price:r=o.price;let s=0,u=[];
