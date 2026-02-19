@@ -6,18 +6,7 @@ var $e=Object.defineProperty;var O=(e,t)=>{for(var a in t)$e(e,a,{get:t[a],enume
     </div>
   `;
 }
-  const el = document.getElementById(elId) || event?.target;
-  return el && el.checked ? el.checked : fallback;
-}
 
-// DOM ready wrapper
-function onReady(fn) {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', fn);
-  } else {
-    fn();
-  }
-}
 
       <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
         <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
