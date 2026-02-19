@@ -1,11 +1,12 @@
-var $e=Object.defineProperty;var O=(e,t)=>{for(var a in t)$e(e,a,{get:t[a],enumerable:!0})};var A=class{routes=new Map;currentView=null;container;getCtx;categories=[];constructor(t,a){this.container=t,this.getCtx=a,window.addEventListener("hashchange",()=>this.handleRoute())}setCategories(t){this.categories=t}addRoute(t){this.routes.set(t.id,t)}handleRoute(){let a=(window.location.hash||"#/").slice(2);this.currentView&&this.currentView.unmount&&this.currentView.unmount(),this.container.innerHTML="";let i=this.routes.get(a);i?(this.currentView=i,i.mount(this.container,this.getCtx())):this.renderHome()}renderHome() {
-  this.container.innerHTML = `
-    <div style="text-align:center;padding:40px;color:rgba(255,255,255,0.9)">
-      <h2 style="font-size:28px;margin-bottom:16px">Kliknij kategorię z menu </h2>
-      <p style="max-width:500px;margin:0 auto;opacity:0.8">Kalkulator załaduje się automatycznie w tym panelu.</p>
-    </div>
-  `;
-}
+var $e=Object.defineProperty;var O=(e,t)=>{for(var a in t)$e(e,a,{get:t[a],enumerable:!0})};
+var A=class{routes=new Map;currentView=null;container;getCtx;categories=[];
+constructor(t,a){this.container=t,this.getCtx=a,window.addEventListener("hashchange",()=>this.handleRoute())}
+setCategories(t){this.categories=t}
+addRoute(t){this.routes.set(t.id,t)}
+handleRoute(){let a=(window.location.hash||"#/").slice(2);this.currentView&&this.currentView.unmount&&this.currentView.unmount(),this.container.innerHTML="";let i=this.routes.get(a);i?(this.currentView=i,i.mount(this.container,this.getCtx())):this.renderHome()}
+renderHome(){
+  this.container.innerHTML='<div style="text-align:center;padding:40px;color:rgba(255,255,255,0.9)"><h2 style="font-size:28px;margin-bottom:16px">Kliknij kategorię z menu</h2><p style="max-width:500px;margin:0 auto;opacity:0.8">Kalkulator załaduje się automatycznie w tym panelu.</p></div>'
+}};
 
 
 
