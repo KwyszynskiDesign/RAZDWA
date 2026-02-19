@@ -52,6 +52,18 @@ var it="Wlepki / Naklejki",nt=[{id:"wlepki_obrys_folia",title:"Wlepki po obrysie
         </div>
       </div>
     `).join("");let o=P.getGrandTotal();t.innerText=w(o),a.innerText=JSON.stringify(i.map(r=>r.payload),null,2)}window.removeItem=e=>{P.removeItem(e),V()};document.addEventListener("DOMContentLoaded",()=>{let e=document.getElementById("viewContainer"),t=document.getElementById("categorySelector"),
+    // 🔥 KAFELKI MENU - OBSŁUGA KLIKÓW
+  document.querySelector('.tile-grid').addEventListener('click', (e) => {
+    const link = e.target.closest('a[href^="#/"]');
+    if (link) {
+      e.preventDefault();
+      window.location.hash = link.getAttribute('href');
+    }
+  });
+
+  // Auto-start current hash
+  window.location.hash ? r.handleRoute() : r.renderHome();
+
       a=document.getElementById("categorySearch"),i=document.getElementById("globalExpress");if(!e||!t||!i||!a)return;let o=()=>({cart:{addItem:s=>{P.addItem(s),V(),pt("\u2713 Dodano do listy")}},expressMode:i.checked,updateLastCalculated:(s,u)=>{let p=document.getElementById("currentPrice"),m=document.getElementById("currentHint");p&&(p.innerText=w(s)),m&&(m.innerText=u?`(${u})`:"")}}),r=new A(e,o);r.setCategories(q),r.addRoute(Me),r.addRoute(qe),r.addRoute(N),r.addRoute(Q),r.addRoute(j),r.addRoute(ce),r.addRoute(ue),r.addRoute(de),r.addRoute(he),r.addRoute(Ee),r.addRoute(Te),r.addRoute(He),r.addRoute(Ae),r.addRoute(Re),q.forEach(s=>{let u=document.createElement("option");u.value=s.id,u.innerText=`${s.icon} ${s.name}`,s.implemented||(u.disabled=!0,u.innerText+=" (wkr\xF3tce)"),t.appendChild(u)}),t.addEventListener("change",()=>{let s=t.value;s?window.location.hash=`#/${s}`:window.location.hash="#/"}),a.addEventListener("input",()=>{let s=a.value.toLowerCase();Array.from(t.options).forEach((p,m)=>{if(m===0)return;let n=p.text.toLowerCase();p.hidden=!n.includes(s)})}),a.addEventListener("keydown",s=>{if(s.key==="Enter"){let u=a.value.toLowerCase(),p=Array.from(t.options).find((m,n)=>n>0&&!m.hidden&&!m.disabled);p&&(t.value=p.value,window.location.hash=`#/${p.value}`,a.value="")}}),window.addEventListener("hashchange",()=>{let u=(window.location.hash||"#/").slice(2);t.value=u}),i.addEventListener("change",()=>{let s=window.location.hash;window.location.hash="",window.location.hash=s}),document.getElementById("clearBtn")?.addEventListener("click",()=>{P.clear(),V()}),document.getElementById("sendBtn")?.addEventListener("click",()=>{let s={name:document.getElementById("custName").value||"Anonim",phone:document.getElementById("custPhone").value||"-",email:document.getElementById("custEmail").value||"-",priority:document.getElementById("custPriority").value};if(P.isEmpty()){alert("Lista jest pusta!");return}ze(P.getItems(),s)}),V(),r.start()});
 const tilesGrid = document.querySelector('.tile-grid');
   if (tilesGrid) {
