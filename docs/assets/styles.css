@@ -1,5 +1,25 @@
 :root {
-  /* [WSZYSTKIE ZMIENNE Z GÓRY] */
+  /* NOWA PALETA - WCAG 2.1 AA */
+  --bg: #FFFFFF;                    /* Biały - tło główne */
+  --surface: #F8F9FA;               /* Jasnoszary - sekcje */
+  --surface-alt: #E6F4F9;           /* Jasny cyjan - akcenty */
+  --text-primary: #003B5C;          /* Granat - nagłówki/tekst główny */
+  --text-secondary: #495057;        /* Ciemnoszary - drugorzędny */
+  --border: #8A9199;                /* Szarość - ramki */
+  
+  /* CTA - Poziom 1 */
+  --primary: #006494;               /* Ciemny cyjan - przyciski główne */
+  --primary-hover: #004F7A;         /* Cyjan hover */
+  --primary-text: #FFFFFF;          /* Biały tekst na primary */
+  
+  /* Semantyka */
+  --success: #2B8A3E;               /* Zielony sukces */
+  --danger: #C92A2A;                /* Czerwony destrukcyjne */
+  --danger-hover: #A52020;
+  
+  /* Cienie i focus */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+  --focus-outline: 2px solid var(--primary);
 }
 
 * { box-sizing: border-box; }
