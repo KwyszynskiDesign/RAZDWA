@@ -13,7 +13,8 @@ export const ZaproszeniaKredaView: View = {
     const sidesSel = container.querySelector("#zapSides") as HTMLSelectElement;
     const foldedCheck = container.querySelector("#zapFolded") as HTMLInputElement;
     const qtyInput = container.querySelector("#zapQty") as HTMLInputElement;
-    const satinCheck = container.querySelector("#zapSatin") as HTMLInputElement;
+    const gramSel = container.querySelector("#zapGramature") as HTMLSelectElement;
+    const finishSel = container.querySelector("#zapFinish") as HTMLSelectElement;
     const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
@@ -24,7 +25,8 @@ export const ZaproszeniaKredaView: View = {
         qty: parseInt(qtyInput.value) || 10,
         sides: parseInt(sidesSel.value) || 1,
         isFolded: foldedCheck.checked,
-        isSatin: satinCheck.checked,
+        gramMod: parseFloat(gramSel.value),
+        finishMod: parseFloat(finishSel.value),
         express: ctx.expressMode
       };
 
@@ -34,7 +36,7 @@ export const ZaproszeniaKredaView: View = {
       (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(result.totalPrice / options.qty);
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(result.totalPrice);
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
-      (container.querySelector("#resSatinHint") as HTMLElement).style.display = options.isSatin ? "block" : "none";
+      (container.querySelector("#resFinishHint") as HTMLElement).style.display = options.finishMod > 1 ? "block" : "none";
 
       ctx.updateLastCalculated(result.totalPrice, "Zaproszenia");
       return { options, result };
@@ -54,7 +56,7 @@ export const ZaproszeniaKredaView: View = {
         unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
         totalPrice: result.totalPrice,
-        optionsHint: `${options.qty} szt, ${options.isSatin ? 'Satyna' : 'Kreda'}`,
+        optionsHint: `${options.qty} szt, ${gramSel.options[gramSel.selectedIndex].text}, ${finishSel.options[finishSel.selectedIndex].text}`,
         payload: options
       });
     });

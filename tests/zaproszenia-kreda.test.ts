@@ -9,7 +9,8 @@ describe("Zaproszenia KREDA logic", () => {
       qty: 10,
       sides: 2,
       isFolded: false,
-      isSatin: false,
+      gramMod: 1.0,
+      finishMod: 1.0,
       express: false
     });
     expect(result.totalPrice).toBe(35.00);
@@ -22,7 +23,8 @@ describe("Zaproszenia KREDA logic", () => {
       qty: 50,
       sides: 2,
       isFolded: true,
-      isSatin: false,
+      gramMod: 1.0,
+      finishMod: 1.0,
       express: false
     });
     expect(result.totalPrice).toBe(149.00);
@@ -35,23 +37,25 @@ describe("Zaproszenia KREDA logic", () => {
       qty: 50,
       sides: 2,
       isFolded: false,
-      isSatin: false,
+      gramMod: 1.0,
+      finishMod: 1.0,
       express: false
     });
     expect(result.totalPrice).toBe(79.00);
   });
 
-  it("should apply Satin modifier (+12%)", () => {
-    // A6 Double-sided Normal 10szt = 35.00. 35 + 12% = 39.20
+  it("should apply Finish modifier (+15%)", () => {
+    // A6 Double-sided Normal 10szt = 35.00. 35 + 15% = 40.25
     const result = calculateZaproszeniaKreda({
       format: "A6",
       qty: 10,
       sides: 2,
       isFolded: false,
-      isSatin: true,
+      gramMod: 1.0,
+      finishMod: 1.15,
       express: false
     });
-    expect(result.totalPrice).toBe(39.20);
+    expect(result.totalPrice).toBe(40.25);
   });
 
   it("should apply Express modifier (+20%)", () => {
@@ -61,22 +65,24 @@ describe("Zaproszenia KREDA logic", () => {
       qty: 10,
       sides: 2,
       isFolded: false,
-      isSatin: false,
+      gramMod: 1.0,
+      finishMod: 1.0,
       express: true
     });
     expect(result.totalPrice).toBe(42.00);
   });
 
-  it("should apply both Satin and Express modifiers", () => {
-    // 35 + 12% + 20% = 35 + 4.2 + 7.0 = 46.20
+  it("should apply both Gramature and Express modifiers", () => {
+    // 35 + 10% (160g) + 20% = 35 + 3.5 + 7.0 = 45.50
     const result = calculateZaproszeniaKreda({
       format: "A6",
       qty: 10,
       sides: 2,
       isFolded: false,
-      isSatin: true,
+      gramMod: 1.1,
+      finishMod: 1.0,
       express: true
     });
-    expect(result.totalPrice).toBe(46.20);
+    expect(result.totalPrice).toBe(45.50);
   });
 });

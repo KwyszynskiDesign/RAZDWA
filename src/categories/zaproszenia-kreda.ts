@@ -7,12 +7,13 @@ export interface ZaproszeniaKredaOptions {
   qty: number;
   sides: number; // 1 or 2
   isFolded: boolean;
-  isSatin: boolean;
+  gramMod: number;
+  finishMod: number;
   express: boolean;
 }
 
 export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): CalculationResult {
-  const { format, qty, sides, isFolded, isSatin, express } = options;
+  const { format, qty, sides, isFolded, gramMod, finishMod, express } = options;
 
   const formatData = (data.formats as any)[format];
   if (!formatData) {
@@ -43,12 +44,20 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Cal
   const basePrice = ps.register(priceId, "Zaproszenia", priceName, rawBasePrice);
 
   const modifiers: Modifier[] = [];
-  if (isSatin) {
+  if (gramMod > 1) {
     modifiers.push({
-      id: "satin",
-      name: "Papier satynowy (+12%)",
+      id: "gramature",
+      name: `Gramatura (${Math.round((gramMod-1)*100)}%)`,
       type: "percentage",
-      value: ps.register("zap-mod-satin", "Zaproszenia", "Satyna (+%)", data.modifiers.satin)
+      value: gramMod - 1
+    });
+  }
+  if (finishMod > 1) {
+    modifiers.push({
+      id: "finish",
+      name: "Wykończenie połysk (+15%)",
+      type: "percentage",
+      value: 0.15
     });
   }
   if (express) {

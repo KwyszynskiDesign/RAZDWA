@@ -31,9 +31,23 @@
   </div>
 
   <div class="form-group">
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-      <input type="checkbox" id="zapSatin"> Papier satynowy (+12%)
-    </label>
+    <label for="zapGramature">Gramatura papieru:</label>
+    <select id="zapGramature">
+      <option value="1.0">120g</option>
+      <option value="1.1">160g (+10%)</option>
+      <option value="1.2">200g (+20%)</option>
+      <option value="1.3">250g (+30%)</option>
+      <option value="1.4">300g (+40%)</option>
+      <option value="1.6">350g (+60%)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="zapFinish">Wykończenie:</label>
+    <select id="zapFinish">
+      <option value="1.0">Mat</option>
+      <option value="1.15">Połysk (+15%)</option>
+    </select>
   </div>
 
   <div class="actions">
@@ -45,6 +59,6 @@
     <div class="price-line">Cena za szt: <span id="resUnitPrice">0.00</span></div>
     <div class="price-line highlight">Cena brutto: <span id="resTotalPrice">0.00</span></div>
     <div id="resExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
-    <div id="resSatinHint" class="modifier-hint" style="display: none;">W tym dopłata SATYNA +12%</div>
+    <div id="resFinishHint" class="modifier-hint" style="display: none;">W tym dopłata POŁYSK +15%</div>
   </div>
 </div>

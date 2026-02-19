@@ -62,7 +62,7 @@ export function quoteWizytowki(options: { format: '85x55' | '90x50'; qty: number
 }
 
 export const wizytowkiCategory: CategoryModule = {
-  id: 'wizytowki',
+  id: 'wizytowki-druk-cyfrowy',
   name: '💼 Wizytówki',
   mount: (container, ctx) => {
     container.innerHTML = `
@@ -96,10 +96,23 @@ export const wizytowkiCategory: CategoryModule = {
         </div>
 
         <div class="form-group">
+          <label>Gramatura papieru:</label>
+          <select id="gramature">
+            <option value="1.0">120g</option>
+            <option value="1.1">160g (+10%)</option>
+            <option value="1.2">200g (+20%)</option>
+            <option value="1.3">250g (+30%)</option>
+            <option value="1.4">300g (+40%)</option>
+            <option value="1.6" selected>350g (+60%)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
           <label>Wykończenie:</label>
-          <select id="foiling">
-            <option value="plain">Bez foliowania</option>
-            <option value="foil">Z folią mat/błysk</option>
+          <select id="finish">
+            <option value="1.0">Mat</option>
+            <option value="1.15">Połysk (+15%)</option>
+            <option value="foil">Z folią mat/błysk (stała cena)</option>
           </select>
         </div>
 
@@ -128,17 +141,28 @@ export const wizytowkiCategory: CategoryModule = {
     calculateBtn?.addEventListener('click', () => {
       const format = (container.querySelector('#format') as HTMLSelectElement).value as '85x55' | '90x50';
       const quantity = parseInt((container.querySelector('#quantity') as HTMLSelectElement).value);
-      const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
+      const finish = (container.querySelector('#finish') as HTMLSelectElement).value;
+      const gramMod = parseFloat((container.querySelector('#gramature') as HTMLSelectElement).value);
 
-      currentPrice = getPriceForQuantity(format, quantity, foiling === 'foil');
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (finish === 'foil') {
+        currentPrice = getPriceForQuantity(format, quantity, true);
+        if (ctx.expressMode) currentPrice *= 1.2;
+      } else {
+        const finishMod = parseFloat(finish);
+        const basePrice = getPriceForQuantity(format, quantity, false);
+
+        let percentageSum = (gramMod - 1) + (finishMod - 1);
+        if (ctx.expressMode) percentageSum += 0.20;
+
+        currentPrice = basePrice * (1 + percentageSum);
+      }
 
       if (totalDisplay) {
         totalDisplay.textContent = `${currentPrice.toFixed(2)} zł`;
       }
 
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = `Format ${format} mm, ${quantity} szt, ${foiling === 'foil' ? 'z folią' : 'bez foliowania'}`;
+        breakdownDisplay.textContent = `Format ${format} mm, ${quantity} szt, ${finish === 'foil' ? 'z folią' : 'wykończenie: ' + finish}`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Wizytówki ${format} - ${quantity} szt`);
@@ -152,12 +176,13 @@ export const wizytowkiCategory: CategoryModule = {
 
       const format = (container.querySelector('#format') as HTMLSelectElement).value;
       const quantity = (container.querySelector('#quantity') as HTMLSelectElement).value;
-      const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
+      const finishText = (container.querySelector('#finish') as HTMLSelectElement).options[(container.querySelector('#finish') as HTMLSelectElement).selectedIndex].text;
+      const gramText = (container.querySelector('#gramature') as HTMLSelectElement).options[(container.querySelector('#gramature') as HTMLSelectElement).selectedIndex].text;
 
       ctx.addToBasket({
         category: 'Wizytówki',
         price: currentPrice,
-        description: `${format} mm, ${quantity} szt, ${foiling === 'foil' ? 'z folią' : 'bez foliowania'}`
+        description: `${format} mm, ${quantity} szt, ${gramText}, ${finishText}`
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);

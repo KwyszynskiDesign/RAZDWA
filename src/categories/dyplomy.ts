@@ -84,10 +84,22 @@ export const dyplomyCategory: CategoryModule = {
         </div>
 
         <div class="form-group">
-          <label>Papier:</label>
-          <select id="paper">
-            <option value="standard">Standardowy (kreda)</option>
-            <option value="satin">Satynowy (+12%)</option>
+          <label>Gramatura papieru:</label>
+          <select id="gramature">
+            <option value="1.0">120g</option>
+            <option value="1.1">160g (+10%)</option>
+            <option value="1.2">200g (+20%)</option>
+            <option value="1.3">250g (+30%)</option>
+            <option value="1.4">300g (+40%)</option>
+            <option value="1.6">350g (+60%)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Wykończenie:</label>
+          <select id="finish">
+            <option value="1.0">Mat</option>
+            <option value="1.15">Połysk (+15%)</option>
           </select>
         </div>
 
@@ -125,13 +137,15 @@ export const dyplomyCategory: CategoryModule = {
 
     calculateBtn?.addEventListener('click', () => {
       const quantity = parseInt((container.querySelector('#quantity') as HTMLInputElement).value) || 1;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+      const gramMod = parseFloat((container.querySelector('#gramature') as HTMLSelectElement).value);
+      const finishMod = parseFloat((container.querySelector('#finish') as HTMLSelectElement).value);
 
       const basePrice = getPriceForQuantity(quantity);
-      const paperMultiplier = paper === 'satin' ? 1.12 : 1;
-      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
 
-      currentPrice = basePrice * paperMultiplier * expressMultiplier;
+      let percentageSum = (gramMod - 1) + (finishMod - 1);
+      if (ctx.expressMode) percentageSum += 0.20;
+
+      currentPrice = basePrice * (1 + percentageSum);
 
       if (totalDisplay) {
         totalDisplay.textContent = `${currentPrice.toFixed(2)} zł`;
@@ -147,7 +161,7 @@ export const dyplomyCategory: CategoryModule = {
             break;
           }
         }
-        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.min}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ' × 1.12 (satyna)' : ''}`;
+        breakdownDisplay.textContent = `${quantity} szt, baza: ${basePrice.toFixed(2)} zł × ${gramMod} (gramatura) × ${finishMod} (wykończenie)`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Dyplomy DL - ${quantity} szt`);
@@ -160,12 +174,13 @@ export const dyplomyCategory: CategoryModule = {
       }
 
       const quantity = (container.querySelector('#quantity') as HTMLInputElement).value;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+      const gramature = (container.querySelector('#gramature') as HTMLSelectElement).options[(container.querySelector('#gramature') as HTMLSelectElement).selectedIndex].text;
+      const finish = (container.querySelector('#finish') as HTMLSelectElement).options[(container.querySelector('#finish') as HTMLSelectElement).selectedIndex].text;
 
       ctx.addToBasket({
         category: 'Dyplomy',
         price: currentPrice,
-        description: `DL dwustronny, ${quantity} szt, ${paper === 'satin' ? 'satyna' : 'standard'}`
+        description: `DL dwustronny, ${quantity} szt, ${gramature}, ${finish}`
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
