@@ -157,31 +157,6 @@
     </div>
   </div>
 
- <script src="assets/app.js" type="module"></script> 
- <!-- <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const tiles = document.querySelectorAll('.tile-grid a');
-  const container = document.getElementById('viewContainer');
-  tiles.forEach(tile => {
-    tile.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const hash = tile.getAttribute('href').slice(2);
-      container.innerHTML = `<div style="padding:40px;text-align:center"><h2>Ładuję ${hash}...</h2></div>`;
-      try {
-        const resp = await fetch(`categories/${hash}.html`);
-        if (resp.ok) {
-          container.innerHTML = await resp.text();
-          // Tu dodaj initLogice(hash) dla kalkulatora
-        } else {
-          container.innerHTML = `<div class="error">Brak template: ${hash}.html</div>`;
-        }
-      } catch(err) {
-        container.innerHTML = `<div class="error">Błąd sieci: ${err.message}</div>`;
-      }
-    });
-  });
-  // Inicjalizuj koszyk itp.
-});
-</script>-->
+  <script src="assets/app.js" type="module"></script>
 </body>
 </html>
