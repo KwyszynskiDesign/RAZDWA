@@ -1,32 +1,24 @@
-export interface Tier { min: number; max: number | null; price: number; }
-export interface Modifier { id: string; type: "percent" | "fixed"; value: number; }
-export interface Rule { type: "minimum"; unit: "m2" | "pln"; value: number; }
-export interface PriceTable { id: string; title: string; unit: "m2" | "szt" | "mb" | "strona" | "format" | "inna"; pricing: "per_unit" | "flat"; tiers: Tier[]; modifiers?: Modifier[]; rules?: Rule[]; notes?: string[]; }
-export interface CalculationResult {
-  basePrice: number;
-  totalPrice: number;
-  effectiveQuantity: number;
-  tierPrice: number;
-  modifiersTotal: number;
-  appliedModifiers: string[];
-}
+// Domain types for pricing calculations
 
-export interface CartItem {
-  id: string;
-  category: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  unitPrice: number;
-  isExpress: boolean;
-  totalPrice: number;
-  optionsHint: string;
-  payload: any;
-}
+export type PricingCalculation = {
+    basePrice: number;
+    discount?: number;
+    tax?: number;
+};
 
-export interface CustomerData {
-  name: string;
-  phone: string;
-  email: string;
-  priority: string;
+export type PriceBreakdown = {
+    total: number;
+    details: string;
+};
+
+export function calculateTotal(pricing: PricingCalculation): PriceBreakdown {
+    const discountAmount = pricing.discount ? (pricing.basePrice * (pricing.discount / 100)) : 0;
+    const subtotal = pricing.basePrice - discountAmount;
+    const taxAmount = pricing.tax ? (subtotal * (pricing.tax / 100)) : 0;
+    const total = subtotal + taxAmount;
+
+    return {
+        total,
+        details: `Base Price: $${pricing.basePrice}, Discount: $${discountAmount}, Tax: $${taxAmount}`,
+    };
 }
