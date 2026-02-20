@@ -1,24 +1,67 @@
-// Domain types for pricing calculations
+/**
+ * /src/core/types.ts
+ * Domain types for RAZDWA pricing calculator
+ */
 
-export type PricingCalculation = {
-    basePrice: number;
-    discount?: number;
-    tax?: number;
-};
+export type Unit = 'm²' | 'szt' | 'mb'
 
-export type PriceBreakdown = {
-    total: number;
-    details: string;
-};
+export interface PriceTier {
+  min: number
+  max: number | null
+  pricePerUnit: number
+}
 
-export function calculateTotal(pricing: PricingCalculation): PriceBreakdown {
-    const discountAmount = pricing.discount ? (pricing.basePrice * (pricing.discount / 100)) : 0;
-    const subtotal = pricing.basePrice - discountAmount;
-    const taxAmount = pricing.tax ? (subtotal * (pricing.tax / 100)) : 0;
-    const total = subtotal + taxAmount;
+export interface PriceTable {
+  id: string
+  name: string
+  unit: Unit
+  tiers: PriceTier[]
+  minimumQuantity?: number // e.g., 1 for m²
+  minimumPrice?: number // e.g., 10 PLN minimum
+}
 
-    return {
-        total,
-        details: `Base Price: $${pricing.basePrice}, Discount: $${discountAmount}, Tax: $${taxAmount}`,
-    };
+export interface CategoryInput {
+  quantity: number
+  modifiers: string[]
+  [key: string]: unknown
+}
+
+export interface ModifierBreakdown {
+  id: string
+  name: string
+  basePrice: number
+  appliedPrice: number
+  percentageChange: number
+  description: string
+}
+
+export interface PricingResult {
+  success: boolean
+  basePrice: number
+  modifiers: ModifierBreakdown[]
+  finalPrice: number
+  unit: Unit
+  quantity: number
+  warnings: string[]
+  errors: string[]
+}
+
+export interface ModifierConfig {
+  id: string
+  name: string
+  type: 'percentage' | 'fixed' | 'multiplicative'
+  value: number
+  description: string
+  applicableTo?: Unit[]
+}
+
+export class PricingError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public details?: unknown
+  ) {
+    super(message)
+    this.name = 'PricingError'
+  }
 }
