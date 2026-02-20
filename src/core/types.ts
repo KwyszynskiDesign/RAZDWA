@@ -1,32 +1,67 @@
-export interface Tier { min: number; max: number | null; price: number; }
-export interface Modifier { id: string; type: "percent" | "fixed"; value: number; }
-export interface Rule { type: "minimum"; unit: "m2" | "pln"; value: number; }
-export interface PriceTable { id: string; title: string; unit: "m2" | "szt" | "mb" | "strona" | "format" | "inna"; pricing: "per_unit" | "flat"; tiers: Tier[]; modifiers?: Modifier[]; rules?: Rule[]; notes?: string[]; }
-export interface CalculationResult {
-  basePrice: number;
-  totalPrice: number;
-  effectiveQuantity: number;
-  tierPrice: number;
-  modifiersTotal: number;
-  appliedModifiers: string[];
+/**
+ * /src/core/types.ts
+ * Domain types for RAZDWA pricing calculator
+ */
+
+export type Unit = 'm²' | 'szt' | 'mb'
+
+export interface PriceTier {
+  min: number
+  max: number | null
+  pricePerUnit: number
 }
 
-export interface CartItem {
-  id: string;
-  category: string;
-  name: string;
-  quantity: number;
-  unit: string;
-  unitPrice: number;
-  isExpress: boolean;
-  totalPrice: number;
-  optionsHint: string;
-  payload: any;
+export interface PriceTable {
+  id: string
+  name: string
+  unit: Unit
+  tiers: PriceTier[]
+  minimumQuantity?: number // e.g., 1 for m²
+  minimumPrice?: number // e.g., 10 PLN minimum
 }
 
-export interface CustomerData {
-  name: string;
-  phone: string;
-  email: string;
-  priority: string;
+export interface CategoryInput {
+  quantity: number
+  modifiers: string[]
+  [key: string]: unknown
+}
+
+export interface ModifierBreakdown {
+  id: string
+  name: string
+  basePrice: number
+  appliedPrice: number
+  percentageChange: number
+  description: string
+}
+
+export interface PricingResult {
+  success: boolean
+  basePrice: number
+  modifiers: ModifierBreakdown[]
+  finalPrice: number
+  unit: Unit
+  quantity: number
+  warnings: string[]
+  errors: string[]
+}
+
+export interface ModifierConfig {
+  id: string
+  name: string
+  type: 'percentage' | 'fixed' | 'multiplicative'
+  value: number
+  description: string
+  applicableTo?: Unit[]
+}
+
+export class PricingError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public details?: unknown
+  ) {
+    super(message)
+    this.name = 'PricingError'
+  }
 }
