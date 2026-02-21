@@ -1,80 +1,172 @@
-import { PriceTable, Tier, Rule, Modifier, CalculationResult } from "./types";
+import { PriceTable, PriceTier, PricingResult, Unit } from './types'
+import {
+  TierNotFoundError,
+  IncompatibleUnitError,
+  MinimumQuantityError,
+} from './errors'
 
-export function findTier(tiers: Tier[], quantity: number): Tier {
-  const sorted = [...tiers].sort((a, b) => a.min - b.min);
+/**
+ * /src/core/pricing.ts
+ * Core pricing calculation engine
+ */
 
-  // 1. Exact range match
-  const tier = sorted.find(
-    (t) => quantity >= t.min && (t.max === null || quantity <= t.max)
-  );
-  if (tier) return tier;
+// Cache for tier lookups (memoization)
+const TIER_CACHE = new Map<string, Map<number, PriceTier>>()
 
-  // 2. "Point-based" tiers fallback: find first tier where min >= quantity
-  const nextTier = sorted.find((t) => t.min >= quantity);
-  if (nextTier) return nextTier;
-
-  // 3. Last tier fallback
-  return sorted[sorted.length - 1];
+function getCacheKey(tableId: string): string {
+  return `tier_cache_${tableId}`
 }
 
-export function applyMinimumRule(quantity: number, rules?: Rule[]): number {
-  if (!rules) return quantity;
+export function clearPricingCache(): void {
+  TIER_CACHE.clear()
+}
 
-  const m2Rule = rules.find(r => r.type === "minimum" && r.unit === "m2");
-  if (m2Rule && quantity < m2Rule.value) {
-    return m2Rule.value;
+export function buildTierCache(table: PriceTable): void {
+  const cacheKey = getCacheKey(table.id)
+  const tierMap = new Map<number, PriceTier>()
+
+  for (const tier of table.tiers) {
+    tierMap.set(tier.min, tier)
   }
 
-  return quantity;
+  TIER_CACHE.set(cacheKey, tierMap)
 }
 
-export function calculatePrice(
-  table: PriceTable,
+/**
+ * Find applicable tier for given quantity
+ * Tiers are matched as: quantity >= min AND (max === null OR quantity <= max)
+ */
+export function findTier(
   quantity: number,
-  activeModifierIds: string[] = []
-): CalculationResult {
-  const effectiveQuantity = applyMinimumRule(quantity, table.rules);
-  const tier = findTier(table.tiers, effectiveQuantity);
+  tiers: PriceTier[]
+): PriceTier | null {
+  return (
+    tiers.find(
+      (tier) => quantity >= tier.min && (tier.max === null || quantity <= tier.max)
+    ) || null
+  )
+}
 
-  let basePrice = 0;
-  if (table.pricing === "per_unit") {
-    basePrice = effectiveQuantity * tier.price;
-  } else {
-    basePrice = tier.price;
+/**
+ * Calculate base price before modifiers
+ */
+export function calculateBasePrice(
+  quantity: number,
+  priceTable: PriceTable,
+  applyMinimum: boolean = true
+): {
+  success: boolean
+  basePrice: number
+  quantity: number
+  appliedMinimum: boolean
+  errors: string[]
+} {
+  const result = {
+    success: true,
+    basePrice: 0,
+    quantity,
+    appliedMinimum: false,
+    errors: [] as string[],
   }
 
-  let modifiersTotal = 0;
-  const appliedModifiers: string[] = [];
+  // Handle minimum quantity for m²
+  let effectiveQuantity = quantity
+  if (
+    applyMinimum &&
+    priceTable.unit === 'm²' &&
+    priceTable.minimumQuantity &&
+    quantity < priceTable.minimumQuantity
+  ) {
+    effectiveQuantity = priceTable.minimumQuantity
+    result.appliedMinimum = true
+  }
 
-  if (table.modifiers) {
-    for (const modId of activeModifierIds) {
-      const modifier = table.modifiers.find(m => m.id === modId);
-      if (modifier) {
-        appliedModifiers.push(modifier.name);
-        if (modifier.type === "percent") {
-          modifiersTotal += basePrice * modifier.value;
-        } else if (modifier.type === "fixed_per_unit") {
-          modifiersTotal += modifier.value * effectiveQuantity;
-        } else {
-          modifiersTotal += modifier.value;
-        }
-      }
+  // Find tier
+  const tier = findTier(effectiveQuantity, priceTable.tiers)
+  if (!tier) {
+    result.success = false
+    result.errors.push(
+      `Nie znaleziono tier'u dla ilości ${effectiveQuantity} ${priceTable.unit}`
+    )
+    return result
+  }
+
+  // Calculate price
+  result.basePrice = effectiveQuantity * tier.pricePerUnit
+
+  // Apply minimum price if set
+  if (
+    priceTable.minimumPrice &&
+    result.basePrice < priceTable.minimumPrice
+  ) {
+    result.basePrice = priceTable.minimumPrice
+  }
+
+  result.basePrice = Math.round(result.basePrice * 100) / 100
+
+  return result
+}
+
+/**
+ * Validate unit compatibility
+ */
+export function validateUnit(
+  expectedUnit: Unit,
+  providedUnit: Unit
+): { valid: boolean; error?: Error } {
+  if (expectedUnit !== providedUnit) {
+    return {
+      valid: false,
+      error: new IncompatibleUnitError(expectedUnit, providedUnit),
+    }
+  }
+  return { valid: true }
+}
+
+/**
+ * Get pricing statistics (min, max, avg prices across tiers)
+ */
+export function getPricingStats(tiers: PriceTier[]): {
+  minPrice: number
+  maxPrice: number
+  avgPrice: number
+  tierCount: number
+} {
+  if (tiers.length === 0) {
+    return {
+      minPrice: 0,
+      maxPrice: 0,
+      avgPrice: 0,
+      tierCount: 0,
     }
   }
 
-  let totalPrice = basePrice + modifiersTotal;
-
-  const plnRule = table.rules?.find(r => r.type === "minimum" && r.unit === "pln");
-  if (plnRule && totalPrice < plnRule.value) {
-    totalPrice = plnRule.value;
-  }
+  const prices = tiers.map((t) => t.pricePerUnit)
+  const minPrice = Math.min(...prices)
+  const maxPrice = Math.max(...prices)
+  const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
 
   return {
-    basePrice,
-    effectiveQuantity,
-    tierPrice: tier.price,
-    modifiersTotal,
-    totalPrice: parseFloat(totalPrice.toFixed(2)),
-    appliedModifiers
-  };
+    minPrice: Math.round(minPrice * 100) / 100,
+    maxPrice: Math.round(maxPrice * 100) / 100,
+    avgPrice: Math.round(avgPrice * 100) / 100,
+    tierCount: tiers.length,
+  }
+}
+
+/**
+ * Format pricing tiers for display
+ */
+export function formatTierRange(tier: PriceTier, unit: Unit): string {
+  const maxStr = tier.max === null ? '+' : `-${tier.max}`
+  return `${tier.min}${maxStr} ${unit}: ${tier.pricePerUnit.toFixed(2)} zł/${unit}`
+}
+
+/**
+ * Get all tier ranges for a price table
+ */
+export function formatAllTiers(table: PriceTable): string[] {
+  return table.tiers
+    .sort((a, b) => a.min - b.min)
+    .map((tier) => formatTierRange(tier, table.unit))
 }

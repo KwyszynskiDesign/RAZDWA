@@ -64,9 +64,14 @@
           <span class="tile-icon">❄️</span>
           <span class="tile-title">Folia szroniona</span>
         </a>
-        <a href="#/cad-ops" class="tile">
+        <a href="#//cad-upload" class="tile">
           <span class="tile-icon">🛠️</span>
-          <span class="tile-title">CAD OPS</span>
+          <span class="tile-title">CAD Pliki kalkulator</span>
+        </a>
+     
+        <a href="#/vouchery" class="tile">
+          <span class="tile-icon"></span>
+          <span class="tile-title">Vouchery</span>
         </a>
       </div>
     </div>
@@ -152,6 +157,31 @@
     </div>
   </div>
 
-  <script src="assets/app.js" type="module"></script>
+ <script src="assets/app.js" type="module"></script> 
+ <!-- <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tiles = document.querySelectorAll('.tile-grid a');
+  const container = document.getElementById('viewContainer');
+  tiles.forEach(tile => {
+    tile.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const hash = tile.getAttribute('href').slice(2);
+      container.innerHTML = `<div style="padding:40px;text-align:center"><h2>Ładuję ${hash}...</h2></div>`;
+      try {
+        const resp = await fetch(`categories/${hash}.html`);
+        if (resp.ok) {
+          container.innerHTML = await resp.text();
+          // Tu dodaj initLogice(hash) dla kalkulatora
+        } else {
+          container.innerHTML = `<div class="error">Brak template: ${hash}.html</div>`;
+        }
+      } catch(err) {
+        container.innerHTML = `<div class="error">Błąd sieci: ${err.message}</div>`;
+      }
+    });
+  });
+  // Inicjalizuj koszyk itp.
+});
+</script>-->
 </body>
 </html>
