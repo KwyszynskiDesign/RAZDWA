@@ -174,10 +174,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Re-render view when express mode changes
   globalExpress.addEventListener("change", () => {
-    // Triger route refresh
+    // Toggle express styling on order summary
+    const orderSummary = document.getElementById("orderSummary");
+    if (orderSummary) {
+      orderSummary.classList.toggle("is-express", globalExpress.checked);
+    }
+    // Trigger route refresh
     const currentHash = window.location.hash;
     window.location.hash = "";
     window.location.hash = currentHash;
+  });
+
+  // Copy summary to clipboard
+  document.getElementById("copyBtn")?.addEventListener("click", () => {
+    const total = document.getElementById("basketTotal");
+    const text = total ? `Suma: ${total.innerText}` : "Brak pozycji";
+    navigator.clipboard?.writeText(text);
   });
 
   // Clear basket

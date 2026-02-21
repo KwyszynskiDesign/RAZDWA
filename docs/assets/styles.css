@@ -303,3 +303,114 @@ html {
   scroll-padding-top: 200px !important;
   scroll-behavior: smooth;
 }
+
+/* ===== ORDER SUMMARY EXPRESS STATE ===== */
+#orderSummary.is-express {
+  border: 2px solid var(--danger);
+  background: #fffde7;
+}
+
+/* ===== DANE ZAMÓWIENIA FORM ===== */
+.order-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.order-row {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.order-row input[type=text],
+.order-row input[type=tel],
+.order-row input[type=email],
+.order-row select {
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.order-row textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.order-row textarea:hover { border-color: var(--primary); }
+.order-row textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,100,148,.1);
+}
+
+.order-row--express {
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.order-row--express input[type=checkbox] {
+  width: auto;
+  height: auto;
+  padding: 0;
+  cursor: pointer;
+}
+
+.order-row--express label {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.order-row--full {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+/* ===== GHOST BUTTON ===== */
+button.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+button.ghost:hover {
+  background: var(--surface-alt);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.order-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.order-btn--primary {
+  flex: 1;
+  font-size: 15px;
+}
+
+.order-btn--ghost {
+  padding: 0 14px;
+  white-space: nowrap;
+}
