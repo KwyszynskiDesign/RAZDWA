@@ -484,8 +484,73 @@ button.ghost:hover {
   }
 }
 
+
 @media (max-width: 1024px) and (min-width: 769px) {
   .app-grid {
     grid-template-columns: 1fr minmax(240px, 40%);
   }
 }
+
+/* ===== CENNIK TABLE (category pricing reference) ===== */
+.cennik-table {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.cennik-table h4 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cennik-table table {
+  font-size: 13px;
+  box-shadow: none;
+  border-radius: 6px;
+}
+
+.cennik-table th {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.cennik-table td {
+  padding: 8px 12px;
+}
+
+.cennik-note {
+  margin: 8px 0 0 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ===== RESULT AREA (category views) ===== */
+.result-area .price-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.result-area .price-line.highlight {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.modifier-hint {
+  font-size: 12px;
+  padding: 2px 0;
+}
+

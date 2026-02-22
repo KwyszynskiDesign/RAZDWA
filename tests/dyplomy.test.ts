@@ -51,4 +51,22 @@ describe("Dyplomy logic", () => {
     });
     expect(result.totalPrice).toBe(24.00);
   });
+
+  it("should track satin in appliedModifiers", () => {
+    const result = calculateDyplomy({ qty: 1, isSatin: true, express: false });
+    expect(result.appliedModifiers).toContain("satin");
+    expect(result.appliedModifiers).not.toContain("express");
+  });
+
+  it("should track express in appliedModifiers", () => {
+    const result = calculateDyplomy({ qty: 1, isSatin: false, express: true });
+    expect(result.appliedModifiers).toContain("express");
+    expect(result.appliedModifiers).not.toContain("satin");
+  });
+
+  it("should have empty appliedModifiers when no modifiers active", () => {
+    const result = calculateDyplomy({ qty: 1, isSatin: false, express: false });
+    expect(result.appliedModifiers).toEqual([]);
+  });
 });
+

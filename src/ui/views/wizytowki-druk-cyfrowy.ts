@@ -2,6 +2,9 @@ import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 
+const VAT = 1.23;
+const SATIN_MULTIPLIER = 1.12;
+
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",
   name: "Wizytówki - druk cyfrowy",
@@ -26,14 +29,18 @@ export const WizytowkiView: View = {
     const sizeSelect = container.querySelector("#w-size") as HTMLSelectElement;
     const lamSelect = container.querySelector("#w-lam") as HTMLSelectElement;
     const deluxeOptSelect = container.querySelector("#w-deluxe-opt") as HTMLSelectElement;
+    const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
     const calculateBtn = container.querySelector("#w-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
+    const nettoSpan = container.querySelector("#w-netto-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
     const billedQtyHint = container.querySelector("#w-billed-qty-hint") as HTMLElement;
+    const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#w-express-hint") as HTMLElement;
+    const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
 
     familySelect.onchange = () => {
         const isDeluxe = familySelect.value === 'deluxe';
@@ -45,6 +52,9 @@ export const WizytowkiView: View = {
     let currentOptions: any = null;
 
     calculateBtn.onclick = () => {
+      const paperVal = paperSelect.value;
+      const isSatin = paperVal.startsWith("satyna");
+
       currentOptions = {
         family: familySelect.value,
         finish: finishSelect.value,
@@ -57,15 +67,20 @@ export const WizytowkiView: View = {
 
       try {
         const result = quoteWizytowki(currentOptions);
-        currentResult = result;
+        const nettoPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+        const bruttoPrice = parseFloat((nettoPrice * VAT).toFixed(2));
+        currentResult = { ...result, nettoPrice, bruttoPrice, isSatin };
 
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
+        nettoSpan.innerText = formatPLN(nettoPrice);
+        totalPriceSpan.innerText = formatPLN(bruttoPrice);
         billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
+        if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny ${(result.totalPrice).toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+        if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Wizytówki");
+        ctx.updateLastCalculated(bruttoPrice, "Wizytówki");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
@@ -75,6 +90,8 @@ export const WizytowkiView: View = {
       if (currentResult && currentOptions) {
         const name = currentOptions.family === 'deluxe' ? 'Wizytówki DELUXE' : 'Wizytówki Standard';
         const expressLabel = currentOptions.express ? ', EXPRESS' : '';
+        const satinLabel = currentResult.isSatin ? ', SATYNA' : '';
+        const paperVal = paperSelect.value;
 
         ctx.cart.addItem({
           id: `wizytowki-${Date.now()}`,
@@ -82,10 +99,10 @@ export const WizytowkiView: View = {
           name: name,
           quantity: currentResult.qtyBilled,
           unit: "szt",
-          unitPrice: currentResult.totalPrice / currentResult.qtyBilled,
+          unitPrice: currentResult.bruttoPrice / currentResult.qtyBilled,
           isExpress: currentOptions.express,
-          totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt (rozliczono ${currentResult.qtyBilled})${expressLabel}`,
+          totalPrice: currentResult.bruttoPrice,
+          optionsHint: `${currentOptions.qty} szt (rozliczono ${currentResult.qtyBilled})${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
           payload: currentResult
         });
       }
