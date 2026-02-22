@@ -1,7 +1,8 @@
 {
   "devDependencies": {
     "esbuild": "^0.27.3",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "name": "razdwa",
   "version": "1.0.0",

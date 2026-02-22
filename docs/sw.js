@@ -17,27 +17,27 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const url = new URL(event.request.url);
+  const request = event.request;
+
+  // Only handle http/https requests
+  if (!request.url.startsWith('http')) {
+    return;
+  }
+
+  const url = new URL(request.url);
 
   // NEVER cache HTML - always fetch fresh
   if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/')) {
-    return event.respondWith(fetch(event.request));
+    return event.respondWith(fetch(request));
   }
 
   // Cache other assets normally
   event.respondWith(
-    caches.match(event.request).then(response => {
-      return response || fetch(event.request).then(networkResponse => {
-        // Only cache successful responses
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
-        }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_VERSION).then(cache => {
-          cache.put(event.request, responseToCache);
-        });
-        return networkResponse;
-      });
+    caches.match(request).then(response => {
+      return response || fetch(request);
+    }).then(response => {
+      caches.open(CACHE_VERSION).then(cache => cache.put(request, response.clone()));
+      return response;
     })
   );
 });
