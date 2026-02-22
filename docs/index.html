@@ -80,29 +80,32 @@
       </div>
     </div>
 
-    <div class="layout-grid">
-      <!-- Main Calculator Area -->
-      <div class="card">
-        <!-- Hidden but required for app.js -->
-        <select id="categorySelector"><option value=""></option></select>
-        <input id="categorySearch" type="hidden">
-
-        <div id="viewContainer">
-          <div style="text-align: center; padding: 40px;">
-            <h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2>
-          </div>
+    <div class="app-grid">
+      <!-- Left column: category selector + main calculator -->
+      <div class="left-col">
+        <div class="card" style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+          <select id="categorySelector"><option value=""></option></select>
+          <input id="categorySearch" type="text" placeholder="Szukaj kategorii...">
         </div>
 
-        <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-          <details style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
-            <summary style="cursor: pointer; font-size: 13px; font-weight: 700;">Debug Data (JSON)</summary>
-            <pre id="basketDebug" style="font-size: 11px; margin-top: 10px; overflow: auto; max-height: 200px;">{}</pre>
-          </details>
+        <div class="card">
+          <div id="viewContainer">
+            <div style="text-align: center; padding: 40px;">
+              <h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2>
+            </div>
+          </div>
+
+          <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+            <details style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
+              <summary style="cursor: pointer; font-size: 13px; font-weight: 700;">Debug Data (JSON)</summary>
+              <pre id="basketDebug" style="font-size: 11px; margin-top: 10px; overflow: auto; max-height: 200px;">{}</pre>
+            </details>
+          </div>
         </div>
       </div>
 
-      <!-- Sidebar: Cart & Customer -->
-      <div class="sidebar">
+      <!-- Right column: order summary -->
+      <div class="right-col">
         <div class="card" id="orderSummary">
           <h2>Podsumowanie</h2>
 
