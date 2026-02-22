@@ -493,11 +493,15 @@ button.ghost:hover {
 
 /* ===== CENNIK TABLE (category pricing reference) ===== */
 .cennik-table {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
   margin-top: 24px;
   padding: 16px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: 10px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
 }
 
 .cennik-table h4 {
