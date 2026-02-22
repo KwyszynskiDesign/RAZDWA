@@ -33,19 +33,25 @@ function getPriceForQuantity(qty: number): number {
   return selectedTier.price;
 }
 
-/**
- * @deprecated Use dyplomyCategory module instead.
- * Kept for compatibility with tests.
- */
-export function calculateDyplomy(options: { qty: number; sides?: number; isSatin: boolean; express: boolean }) {
+export interface DyplomyOptions {
+  qty: number;
+  sides?: number;
+  isSatin: boolean;
+  express: boolean;
+}
+
+export function calculateDyplomy(options: DyplomyOptions) {
   const basePrice = getPriceForQuantity(options.qty);
   let percentageSum = 0;
+  const appliedModifiers: string[] = [];
 
   if (options.isSatin) {
     percentageSum += 0.12;
+    appliedModifiers.push("satin");
   }
   if (options.express) {
     percentageSum += 0.20;
+    appliedModifiers.push("express");
   }
 
   const modifiersTotal = basePrice * percentageSum;
@@ -54,7 +60,8 @@ export function calculateDyplomy(options: { qty: number; sides?: number; isSatin
   return {
     basePrice,
     modifiersTotal,
-    totalPrice: Math.round(totalPrice * 100) / 100
+    totalPrice: Math.round(totalPrice * 100) / 100,
+    appliedModifiers
   };
 }
 

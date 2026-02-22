@@ -16,9 +16,23 @@
   </div>
 
   <div class="form-group">
-    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-      <input type="checkbox" id="dypSatin"> Papier satynowy (+12%)
-    </label>
+    <label for="dypPaper">Papier:</label>
+    <select id="dypPaper">
+      <optgroup label="Kreda (standard)">
+        <option value="kreda_130">130g Kreda</option>
+        <option value="kreda_170">170g Kreda</option>
+        <option value="kreda_200" selected>200g Kreda</option>
+        <option value="kreda_250">250g Kreda</option>
+        <option value="kreda_300">300g Kreda</option>
+        <option value="kreda_350">350g Kreda</option>
+      </optgroup>
+      <optgroup label="Satyna (+12%)">
+        <option value="satyna_130">130g Satyna</option>
+        <option value="satyna_170">170g Satyna</option>
+        <option value="satyna_200">200g Satyna</option>
+        <option value="satyna_250">250g Satyna</option>
+      </optgroup>
+    </select>
   </div>
 
   <div class="actions">
@@ -27,10 +41,30 @@
   </div>
 
   <div id="dypResult" class="result-area" style="margin-top: 20px; display: none;">
+    <div class="price-line">Netto: <span id="resNettoPrice">0.00</span></div>
     <div class="price-line">Cena za szt: <span id="resUnitPrice">0.00</span></div>
-    <div class="price-line highlight">Cena brutto: <span id="resTotalPrice">0.00</span></div>
+    <div class="price-line highlight">Cena brutto (z VAT 23%): <span id="resTotalPrice">0.00</span></div>
+    <div id="resTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
     <div id="resDiscountHint" class="modifier-hint" style="display: none; color: #22c55e;">Zastosowano rabat ilościowy -12%</div>
     <div id="resExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
     <div id="resSatinHint" class="modifier-hint" style="display: none;">W tym dopłata SATYNA +12%</div>
+  </div>
+
+  <div class="cennik-table">
+    <h4>CENNIK DYPLOMY</h4>
+    <table>
+      <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>
+      <tbody>
+        <tr><td>1 szt</td><td>20,00 zł</td><td>24,60 zł</td></tr>
+        <tr><td>2 szt</td><td>30,00 zł</td><td>36,90 zł</td></tr>
+        <tr><td>5 szt</td><td>35,00 zł</td><td>43,05 zł</td></tr>
+        <tr><td>10 szt</td><td>40,00 zł</td><td>49,20 zł</td></tr>
+        <tr><td>20 szt</td><td>49,00 zł</td><td>60,27 zł</td></tr>
+        <tr><td>30 szt</td><td>58,00 zł</td><td>71,34 zł</td></tr>
+        <tr><td>50 szt</td><td>75,00 zł</td><td>92,25 zł</td></tr>
+        <tr><td>100 szt</td><td>120,00 zł</td><td>147,60 zł</td></tr>
+      </tbody>
+    </table>
+    <p class="cennik-note">* Ceny netto. Satyna +12%. EXPRESS +20%.</p>
   </div>
 </div>

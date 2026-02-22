@@ -54,6 +54,26 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="u-paper">Papier:</label>
+            <select id="u-paper" class="form-control">
+                <optgroup label="Kreda (standard)">
+                    <option value="kreda_130">130g Kreda</option>
+                    <option value="kreda_170" selected>170g Kreda</option>
+                    <option value="kreda_200">200g Kreda</option>
+                    <option value="kreda_250">250g Kreda</option>
+                    <option value="kreda_300">300g Kreda</option>
+                    <option value="kreda_350">350g Kreda</option>
+                </optgroup>
+                <optgroup label="Satyna (+12%)">
+                    <option value="satyna_130">130g Satyna</option>
+                    <option value="satyna_170">170g Satyna</option>
+                    <option value="satyna_200">200g Satyna</option>
+                    <option value="satyna_250">250g Satyna</option>
+                </optgroup>
+            </select>
+        </div>
+
         <div class="form-actions">
             <button id="u-calculate" class="btn btn-primary">Oblicz</button>
             <button id="u-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
@@ -62,11 +82,35 @@
 
     <div id="u-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Cena brutto:</span>
+            <span>Netto:</span>
+            <span id="u-netto-price" class="price-value">-</span>
+        </div>
+        <div class="result-row">
+            <span>Cena brutto (z VAT 23%):</span>
             <span id="u-total-price" class="price-value">-</span>
         </div>
+        <div id="u-tier-hint" class="hint" style="color: #555;"></div>
         <div id="u-express-hint" class="express-hint" style="display: none;">
             W tym dopłata EXPRESS +20%
         </div>
+        <div id="u-satin-hint" class="modifier-hint" style="display: none;">
+            W tym dopłata SATYNA +12%
+        </div>
+    </div>
+
+    <div class="cennik-table">
+        <h4>CENNIK ULOTKI A6 jednostronne</h4>
+        <table>
+            <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>
+            <tbody>
+                <tr><td>10 szt</td><td>30,00 zł</td><td>36,90 zł</td></tr>
+                <tr><td>50 szt</td><td>55,00 zł</td><td>67,65 zł</td></tr>
+                <tr><td>100 szt</td><td>79,00 zł</td><td>97,17 zł</td></tr>
+                <tr><td>200 szt</td><td>110,00 zł</td><td>135,30 zł</td></tr>
+                <tr><td>500 szt</td><td>190,00 zł</td><td>233,70 zł</td></tr>
+                <tr><td>1000 szt</td><td>320,00 zł</td><td>393,60 zł</td></tr>
+            </tbody>
+        </table>
+        <p class="cennik-note">* Ceny netto dla A6 jednostronne. Satyna +12%. EXPRESS +20%.</p>
     </div>
 </div>
