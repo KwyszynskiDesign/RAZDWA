@@ -414,3 +414,6 @@ button.ghost:hover {
   padding: 0 14px;
   white-space: nowrap;
 }
+
+.tile::before, .tile::after { pointer-events: none !important; }
+#orderSummary.is-express { border: 2px solid var(--danger, #c92a2a); background: #fffde7; }
