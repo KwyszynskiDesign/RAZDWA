@@ -18,7 +18,7 @@
   --focus-outline: 2px solid var(--primary);
 
   --left-col-padding: 1rem;
-  --category-sticky-height: 152px;
+  --category-sticky-height: 200px;
 }
 
 * { box-sizing: border-box; }
@@ -71,11 +71,14 @@ h1 {
   background: var(--bg);
   padding: 16px var(--left-col-padding);
   border-bottom: 1px solid var(--border);
-  height: var(--category-sticky-height);
+  min-height: var(--category-sticky-height);
+  max-height: 40vh;
+  overflow-y: auto;
+  flex-shrink: 0;
   box-shadow: var(--shadow-sm);
   margin: 0 calc(-1 * var(--left-col-padding));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .tile-grid {
@@ -428,11 +431,11 @@ button.ghost:hover {
 .tile::before, .tile::after { pointer-events: none !important; }
 #orderSummary.is-express { border: 2px solid var(--danger, #c92a2a); background: #fffde7; }
 
-/* ===== APP GRID (70/30 LAYOUT) ===== */
+/* ===== APP GRID (elastic layout) ===== */
 
 .app-grid {
   display: grid;
-  grid-template-columns: 70% 30%;
+  grid-template-columns: 1fr minmax(280px, 35%);
   gap: 0;
   flex: 1;
   min-height: 0;
@@ -458,7 +461,13 @@ button.ghost:hover {
   align-self: stretch;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1200px) {
+  .app-grid {
+    grid-template-columns: 1fr minmax(250px, 40%);
+  }
+}
+
+@media (max-width: 768px) {
   .app-grid {
     grid-template-columns: 1fr;
     flex: none;
@@ -472,5 +481,11 @@ button.ghost:hover {
   .right-col {
     height: auto;
     position: relative;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .app-grid {
+    grid-template-columns: 1fr minmax(240px, 40%);
   }
 }
