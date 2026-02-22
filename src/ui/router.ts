@@ -34,13 +34,20 @@ export class Router {
     let path = hash.startsWith("#/") ? hash.slice(2) : "";
     path = path.replace(/^\/+/, "");
 
+    // Unmount previous view before mounting a new one
+    if (this.currentView?.unmount) {
+      this.currentView.unmount();
+    }
+
     const view = this.routes.get(path);
     if (view) {
+      this.currentView = view;
       await view.mount(this.container, this.getCtx());
     } else {
       try {
         const resp = await fetch(`categories/${path}.html`);
         if (resp.ok) {
+          this.currentView = null;
           this.container.innerHTML = await resp.text();
           // Opcjonalny JS
           try {

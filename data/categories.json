@@ -92,5 +92,6 @@
   { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
   { "id": "folia-szroniona", "name": "Folia szroniona", "icon": "❄️", "implemented": true },
   { "id": "cad-ops", "name": "CAD OPS", "icon": "🛠️", "implemented": true },
-  { "id": "upload-kalkulator", "name": "Upload Kalkulator CAD", "icon": "📐", "implemented": true }
+  { "id": "upload-kalkulator", "name": "Upload Kalkulator CAD", "icon": "📐", "implemented": true },
+  { "id": "ustawienia", "name": "Ustawienia cen", "icon": "⚙️", "implemented": true }
 ]
