@@ -1,6 +1,7 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
+import { PlakatyView } from "./views/plakaty";
 import { VoucheryView } from "./views/vouchery";
 import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
@@ -106,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = new Router(viewContainer, getCtx);
   router.setCategories(categories);
+  router.addRoute(PlakatyView);
   router.addRoute(DrukA4A3SkanView);
   router.addRoute(DrukCADView);
   router.addRoute(SolwentPlakatyView);
