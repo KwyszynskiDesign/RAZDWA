@@ -1,0 +1,32 @@
+<script>
+  if (window.location.pathname.includes('/categories/')) {
+    window.location.href = "/#/ustawienia";
+  }
+</script>
+<h2>⚙️ Ustawienia – Panel cen</h2>
+<div class="form">
+  <p style="color: var(--text-secondary); font-size: 14px; margin-top: 0;">
+    Zarządzaj cennikiem zapisanym lokalnie. Zmiany są widoczne natychmiast po zapisaniu.
+  </p>
+
+  <div style="overflow-x: auto;">
+    <table id="pricesTable" style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <thead>
+        <tr style="border-bottom: 2px solid var(--border);">
+          <th style="text-align: left; padding: 8px 10px; color: var(--text-secondary); font-weight: 600;">Kategoria</th>
+          <th style="text-align: left; padding: 8px 10px; color: var(--text-secondary); font-weight: 600;">Cena jednostkowa (zł)</th>
+          <th style="padding: 8px 10px; width: 50px;"></th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="actions" style="margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap;">
+    <button id="addPriceBtn" class="secondary">+ Dodaj pozycję</button>
+    <button id="saveAllBtn" class="primary">💾 Zapisz i odśwież</button>
+    <button id="resetPricesBtn" class="danger">🗑️ Przywróć domyślne</button>
+  </div>
+
+  <div id="ustawienia-msg" style="display: none; margin-top: 14px; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;"></div>
+</div>
