@@ -24,35 +24,34 @@ export class Router {
     this.routes.set(view.id, view);
   }
 
-  handleRoute() {
-    const hash = window.location.hash || "#/";
-    const path = hash.slice(2); // remove #/
+  async handleRoute() {
+    const path = window.location.hash.replace(/^#\/*/, '');
+    if (!path) return this.renderHome();
 
-    if (this.currentView && this.currentView.unmount) {
-      this.currentView.unmount();
-    }
+    if (!/^[\w-]+$/.test(path)) return this.renderHome();
 
-    this.container.innerHTML = "";
+    const container = document.getElementById('viewContainer');
+    if (!container) return;
 
-    const view = this.routes.get(path);
-    if (view) {
-      this.currentView = view;
+    try {
+      const htmlResp = await fetch(`categories/${path}.html`);
+      if (htmlResp.ok) {
+        container.innerHTML = await htmlResp.text();
 
-      // Dodaj przycisk powrotu
-      const backButton = document.createElement('button');
-      backButton.className = 'back-button';
-      backButton.textContent = 'Wszystkie kategorie';
-      backButton.onclick = () => { window.location.hash = '#/'; };
-      this.container.appendChild(backButton);
+        // Remove previous category script if present
+        const oldScript = container.querySelector('script[data-category]');
+        if (oldScript) oldScript.remove();
 
-      // Kontener na kategorię
-      const categoryContent = document.createElement('div');
-      categoryContent.className = 'category-content';
-      categoryContent.id = 'current-category';
-      this.container.appendChild(categoryContent);
-
-      view.mount(categoryContent, this.getCtx());
-    } else {
+        // Dynamically load JS module for category
+        const script = document.createElement('script');
+        script.type = 'module';
+        script.src = `categories/${path}.js`;
+        script.dataset.category = path;
+        container.appendChild(script);
+      } else {
+        this.renderHome();
+      }
+    } catch (e) {
       this.renderHome();
     }
   }
