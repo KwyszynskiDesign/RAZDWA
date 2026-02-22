@@ -1,0 +1,147 @@
+{
+  "id": "plakaty",
+  "title": "Plakaty",
+  "solwent": {
+    "unit": "m2",
+    "minimumM2": 1.0,
+    "materials": [
+      {
+        "id": "200g-polysk",
+        "name": "200g Połysk (solwent)",
+        "tiers": [
+          { "min": 1,  "max": 3,    "price": 70 },
+          { "min": 4,  "max": 9,    "price": 65 },
+          { "min": 10, "max": 20,   "price": 59 },
+          { "min": 21, "max": 40,   "price": 53 },
+          { "min": 41, "max": null, "price": 45 }
+        ]
+      },
+      {
+        "id": "blockout200g",
+        "name": "Blockout 200g Satyna (solwent)",
+        "tiers": [
+          { "min": 1,  "max": 3,    "price": 80 },
+          { "min": 4,  "max": 9,    "price": 75 },
+          { "min": 10, "max": 20,   "price": 70 },
+          { "min": 21, "max": 40,   "price": 65 },
+          { "min": 41, "max": null, "price": 60 }
+        ]
+      },
+      {
+        "id": "150g-polmat",
+        "name": "150g Półmat (solwent)",
+        "tiers": [
+          { "min": 1,  "max": 3,    "price": 65 },
+          { "min": 4,  "max": 9,    "price": 60 },
+          { "min": 10, "max": 20,   "price": 55 },
+          { "min": 21, "max": 40,   "price": 50 },
+          { "min": 41, "max": null, "price": 42 }
+        ]
+      },
+      {
+        "id": "115g-mat",
+        "name": "115g Matowy (solwent)",
+        "tiers": [
+          { "min": 1,  "max": 3,    "price": 45 },
+          { "min": 4,  "max": 19,   "price": 40 },
+          { "min": 20, "max": null, "price": 35 }
+        ]
+      }
+    ]
+  },
+  "formatowe": {
+    "unit": "szt",
+    "formats": ["297x420", "420x594", "594x841", "841x1189", "914x1189", "914x1292", "rolka1067"],
+    "materials": [
+      {
+        "id": "120g-formatowe",
+        "name": "120g Formatowe",
+        "discountGroup": "120g",
+        "prices": {
+          "297x420":  9,
+          "420x594":  12,
+          "594x841":  18,
+          "841x1189": 28,
+          "914x1189": 34,
+          "914x1292": 50,
+          "rolka1067": 68
+        }
+      },
+      {
+        "id": "120g-nieformatowe",
+        "name": "120g Nieformatowe",
+        "discountGroup": "120g",
+        "prices": {
+          "297x420":  28,
+          "420x594":  30,
+          "594x841":  33,
+          "841x1189": 35,
+          "914x1292": 50,
+          "rolka1067": 63
+        }
+      },
+      {
+        "id": "260g-satyna-formatowe",
+        "name": "260g Satyna Formatowe (fotoplakaty)",
+        "discountGroup": "260g",
+        "prices": {
+          "297x420":  23,
+          "420x594":  39,
+          "594x841":  50,
+          "841x1189": 80,
+          "914x1292": 88
+        }
+      },
+      {
+        "id": "260g-satyna-nieformatowe",
+        "name": "260g Satyna Nieformatowe (fotoplakaty)",
+        "discountGroup": "260g",
+        "prices": {
+          "297x420":  27,
+          "420x594":  36,
+          "594x841":  39.50,
+          "841x1189": 66.70,
+          "914x1292": 75.30
+        }
+      },
+      {
+        "id": "180g-pp-formatowe",
+        "name": "180g PP Formatowe",
+        "discountGroup": "120g",
+        "prices": {
+          "297x420":  18,
+          "420x594":  37,
+          "610x841":  45,
+          "841x1189": 70,
+          "914x1292": 74
+        }
+      },
+      {
+        "id": "180g-pp-nieformatowe",
+        "name": "180g PP Nieformatowe",
+        "discountGroup": "120g",
+        "prices": {
+          "297x420":  23,
+          "420x594":  31,
+          "610x841":  34,
+          "841x1189": 62,
+          "914x1292": 70.50
+        }
+      }
+    ],
+    "discounts": {
+      "120g": [
+        { "min": 2,  "max": 5,    "factor": 0.95 },
+        { "min": 6,  "max": 20,   "factor": 0.92 },
+        { "min": 21, "max": 30,   "factor": 0.87 }
+      ],
+      "260g": [
+        { "min": 9,  "max": 20,   "factor": 0.93 },
+        { "min": 21, "max": 30,   "factor": 0.88 }
+      ]
+    }
+  },
+  "modifiers": [
+    { "id": "express", "name": "TRYB EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+  ]
+}
