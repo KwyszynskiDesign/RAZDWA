@@ -113,3 +113,5 @@ export function applySurcharge(amount: number, surchargePercent: number): number
   const surchargeAmount = percentageOf(amount, surchargePercent)
   return Math.round((amount + surchargeAmount) * 100) / 100
 }
+/** Alias for formatPrice, used by UI views */
+export const formatPLN = formatPrice;
