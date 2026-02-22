@@ -3,7 +3,11 @@ import { calculatePrice } from "../core/pricing";
 import { formatPLN } from "../core/money";
 import plakatyData from "../../data/normalized/solwent-plakaty-200g.json";
 import { PriceTable } from "../core/types";
+import * as fullData from "../../data/normalized/plakaty.json";
 
+// ---------------------------------------------------------------------------
+// Legacy CategoryModule export kept for backward compatibility
+// ---------------------------------------------------------------------------
 export const plakatyCategory: CategoryModule = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
@@ -74,3 +78,126 @@ export const plakatyCategory: CategoryModule = {
     update();
   }
 };
+
+// ---------------------------------------------------------------------------
+// Full Plakaty calculator – m² solwent materials
+// ---------------------------------------------------------------------------
+
+export interface PlakatyM2Input {
+  materialId: string;
+  areaM2: number;
+  express?: boolean;
+}
+
+export interface PlakatyM2Result {
+  materialName: string;
+  effectiveM2: number;
+  tierPrice: number;
+  basePrice: number;
+  modifiersTotal: number;
+  totalPrice: number;
+  appliedModifiers: string[];
+}
+
+export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
+  const data = fullData as any;
+  const mat = data.solwent.materials.find((m: any) => m.id === input.materialId);
+  if (!mat) throw new Error(`Unknown solwent material: ${input.materialId}`);
+
+  const minM2: number = data.solwent.minimumM2 ?? 1;
+  const effectiveM2 = Math.max(input.areaM2, minM2);
+
+  // Find tier
+  const tier = mat.tiers.find(
+    (t: any) => effectiveM2 >= t.min && (t.max === null || effectiveM2 <= t.max)
+  );
+  if (!tier) throw new Error(`No tier for ${effectiveM2} m2`);
+
+  const basePrice = parseFloat((effectiveM2 * tier.price).toFixed(2));
+
+  let modifiersTotal = 0;
+  const appliedModifiers: string[] = [];
+  if (input.express) {
+    const mod = data.modifiers.find((m: any) => m.id === "express");
+    if (mod) {
+      modifiersTotal = parseFloat((basePrice * mod.value).toFixed(2));
+      appliedModifiers.push(mod.name);
+    }
+  }
+
+  return {
+    materialName: mat.name,
+    effectiveM2,
+    tierPrice: tier.price,
+    basePrice,
+    modifiersTotal,
+    totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
+    appliedModifiers,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Full Plakaty calculator – per-format szt materials
+// ---------------------------------------------------------------------------
+
+export interface PlakatyFormatInput {
+  materialId: string;
+  formatKey: string;
+  qty: number;
+  express?: boolean;
+}
+
+export interface PlakatyFormatResult {
+  materialName: string;
+  formatKey: string;
+  qty: number;
+  unitPrice: number;
+  discountFactor: number;
+  pricePerPiece: number;
+  basePrice: number;
+  modifiersTotal: number;
+  totalPrice: number;
+  appliedModifiers: string[];
+}
+
+export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormatResult {
+  const data = fullData as any;
+  const mat = data.formatowe.materials.find((m: any) => m.id === input.materialId);
+  if (!mat) throw new Error(`Unknown format material: ${input.materialId}`);
+
+  const unitPrice: number = mat.prices[input.formatKey];
+  if (unitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
+
+  // Find discount factor
+  const discountGroup: string = mat.discountGroup;
+  const discountTiers: any[] = data.formatowe.discounts[discountGroup] ?? [];
+  const discountTier = discountTiers.find(
+    (d: any) => input.qty >= d.min && (d.max === null || input.qty <= d.max)
+  );
+  const discountFactor: number = discountTier ? discountTier.factor : 1.0;
+  const pricePerPiece = parseFloat((unitPrice * discountFactor).toFixed(2));
+  const basePrice = parseFloat((pricePerPiece * input.qty).toFixed(2));
+
+  let modifiersTotal = 0;
+  const appliedModifiers: string[] = [];
+  if (input.express) {
+    const mod = data.modifiers.find((m: any) => m.id === "express");
+    if (mod) {
+      modifiersTotal = parseFloat((basePrice * mod.value).toFixed(2));
+      appliedModifiers.push(mod.name);
+    }
+  }
+
+  return {
+    materialName: mat.name,
+    formatKey: input.formatKey,
+    qty: input.qty,
+    unitPrice,
+    discountFactor,
+    pricePerPiece,
+    basePrice,
+    modifiersTotal,
+    totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
+    appliedModifiers,
+  };
+}
