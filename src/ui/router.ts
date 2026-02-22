@@ -30,10 +30,21 @@ export class Router {
 
     if (!/^[\w-]+$/.test(path)) return this.renderHome();
 
-    const container = document.getElementById('viewContainer');
+    const container = document.getElementById('viewContainer') || this.container;
     if (!container) return;
 
+    // Clear previous content and show loading spinner
+    container.innerHTML = '<div class="router-loading"><div class="router-spinner"></div></div>';
+
     try {
+      // Check registered route views first
+      const view = this.routes.get(path);
+      if (view) {
+        await view.mount(container, this.getCtx());
+        return;
+      }
+
+      // Fall back to static HTML file
       const htmlResp = await fetch(`categories/${path}.html`);
       if (htmlResp.ok) {
         container.innerHTML = await htmlResp.text();
@@ -52,6 +63,7 @@ export class Router {
         this.renderHome();
       }
     } catch (e) {
+      console.error('Router error:', e);
       this.renderHome();
     }
   }
