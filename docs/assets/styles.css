@@ -417,3 +417,26 @@ button.ghost:hover {
 
 .tile::before, .tile::after { pointer-events: none !important; }
 #orderSummary.is-express { border: 2px solid var(--danger, #c92a2a); background: #fffde7; }
+
+/* ===== APP GRID (2-COL LAYOUT) ===== */
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 24px;
+  margin: 24px 0;
+  min-height: calc(100vh - 140px);
+}
+
+.right-col {
+  position: sticky !important;
+  top: 20px;
+  height: fit-content;
+  align-self: start;
+}
+
+@media (max-width: 1024px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+  }
+}
