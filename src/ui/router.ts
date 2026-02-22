@@ -13,7 +13,12 @@ export class Router {
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
     this.getCtx = getCtx;
-    window.addEventListener("hashchange", () => this.handleRoute());
+    window.addEventListener("hashchange", () => {
+      this.handleRoute().catch(e => {
+        console.error('Router navigation error:', e);
+        this.renderHome();
+      });
+    });
   }
 
   setCategories(categories: any[]) {
