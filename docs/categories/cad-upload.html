@@ -35,6 +35,16 @@
         </div>
       </div>
 
+      <!-- Rolls Summary -->
+      <div class="cad-calc__rolls hidden" id="rollsSummary">
+        <div id="rollsList"></div>
+        <div id="suggestedRoll"></div>
+        <div class="cad-calc__warning" id="warningAlert">
+          <span id="warningCount"></span>
+          <div id="warningDetails"></div>
+        </div>
+      </div>
+
       <!-- Table -->
       <div class="cad-calc__table-wrapper" id="filesTableWrapper">
         <table class="cad-calc__table">
@@ -152,7 +162,7 @@
       updateDisplay();
     });
 
-    warningAlert.addEventListener('click', () => {
+    if (warningAlert && warningDetails) warningAlert.addEventListener('click', () => {
       warningDetails.classList.toggle('expanded');
     });
 
