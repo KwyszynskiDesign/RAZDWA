@@ -35,4 +35,5 @@ export const categories = [
   createHTMLCategory('cad-ops', '🗺️ CAD OPS', 'cad-ops.html'),
   createHTMLCategory('folia-szroniona', '✨ Folia Szroniona', 'folia-szroniona.html'),
   createHTMLCategory('laminowanie', '🔒 Laminowanie', 'laminowanie.html'),
+  createHTMLCategory('upload-kalkulator', '🖨️ Kalkulator CAD Upload', 'upload-kalkulator.html'),
 ];

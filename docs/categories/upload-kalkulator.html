@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upload Kalkulator CAD - Przeciągnij plik (.dwg/.step) – cena LIVE!</title>
+  <title>Kalkulator Druku CAD - Wycena Wydruków</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -839,7 +839,7 @@
             <td>${Math.round(file.widthMm)} × ${Math.round(file.heightMm)} mm<br>
                 <small>${(file.widthMm/10).toFixed(1)} × ${(file.heightMm/10).toFixed(1)} cm</small></td>
             <td><strong>${format}</strong></td>
-            <td>${typeBadge}</td>
+            <td>${typeHeadge}</td>
             <td class="checkbox-cell">
               <input type="checkbox" ${file.folding ? 'checked' : ''} 
                      onchange="toggleFolding('${file.id}')" />

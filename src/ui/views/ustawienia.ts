@@ -1,133 +1,162 @@
-import { View } from "../types";
+import { View, ViewContext } from "../types";
+
+const STORAGE_KEY = "razdwa_prices";
+
+// Module-level cleanup so re-mounting removes the previous listener
+let _cleanup: (() => void) | null = null;
+
+interface PriceEntry {
+  category: string;
+  unitPrice: number;
+}
+
+function loadPrices(): PriceEntry[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw) as PriceEntry[];
+  } catch {}
+  return [];
+}
+
+function savePrices(entries: PriceEntry[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+}
 
 export const UstawieniaView: View = {
   id: "ustawienia",
-  name: "Ustawienia",
-  async mount(container) {
-    try {
-      const response = await fetch("categories/ustawienia.html");
-      if (!response.ok) throw new Error("Failed to load template");
-      container.innerHTML = await response.text();
+  name: "Ustawienia cen",
 
-      this.initLogic(container);
-    } catch (err) {
-      const div = document.createElement("div");
-      div.className = "error";
-      div.textContent = `Błąd ładowania: ${(err as Error).message}`;
-      container.replaceChildren(div);
-    }
-  },
+  mount(container: HTMLElement, _ctx: ViewContext) {
+    // Remove any previous storage listener from an earlier mount
+    if (_cleanup) { _cleanup(); _cleanup = null; }
+    let entries = loadPrices();
 
-  initLogic(container: HTMLElement) {
-    const STORAGE_KEY = "razdwa_prices";
+    function render() {
+      container.innerHTML = `
+        <div style="padding: 20px;">
+          <h2 style="margin: 0 0 16px; font-size: 20px;">⚙️ Ustawienia – Cennik</h2>
+          <p style="margin: 0 0 16px; font-size: 13px; color: rgba(255,255,255,0.6);">
+            Własne stawki bazowe zapisywane w przeglądarce (<code>razdwa_prices</code>). Zmiany widoczne we wszystkich kartach.
+          </p>
 
-    const DEFAULT_PRICES = [
-      { category: "Druk A4/A3 – B&W", unitPrice: 0.5 },
-      { category: "Druk A4/A3 – Kolor", unitPrice: 2.0 },
-      { category: "CAD B&W (m2)", unitPrice: 4.0 },
-      { category: "CAD Kolor (m2)", unitPrice: 12.0 },
-      { category: "Laminowanie A4", unitPrice: 3.0 },
-      { category: "Banner (m2)", unitPrice: 53.0 },
-      { category: "Roll-up 85x200", unitPrice: 129.0 },
-    ];
+          <table id="prices-table" style="width:100%; border-collapse:collapse; font-size:14px; margin-bottom:16px;">
+            <thead>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <th style="text-align:left; padding:6px 8px;">Kategoria</th>
+                <th style="text-align:right; padding:6px 8px; width:120px;">Cena jedn. (zł)</th>
+                <th style="padding:4px; width:60px;"></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${entries.map((e, i) => `
+                <tr data-idx="${i}" style="border-bottom: 1px solid rgba(255,255,255,0.08);">
+                  <td style="padding:4px 8px;">
+                    <input data-field="category" value="${escapeHtml(e.category)}"
+                      style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:inherit;padding:4px 6px;width:100%;font-size:13px;">
+                  </td>
+                  <td style="padding:4px 8px;">
+                    <input data-field="unitPrice" type="number" step="0.01" min="0" value="${e.unitPrice}"
+                      style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:inherit;padding:4px 6px;width:90px;font-size:13px;text-align:right;">
+                  </td>
+                  <td style="padding:4px; text-align:center;">
+                    <button data-action="delete" data-idx="${i}"
+                      style="background:rgba(220,50,50,0.7);border:none;border-radius:4px;color:#fff;cursor:pointer;padding:3px 8px;font-size:13px;">✕</button>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
 
-    let prices: Array<{ category: string; unitPrice: number }> =
-      JSON.parse(localStorage.getItem(STORAGE_KEY) || "null") || DEFAULT_PRICES;
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button id="btn-add-row"
+              style="background:rgba(60,130,60,0.8);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:8px 16px;font-size:14px;">
+              + Dodaj wiersz
+            </button>
+            <button id="btn-save"
+              style="background:rgba(40,100,200,0.85);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:8px 16px;font-size:14px;">
+              💾 Zapisz
+            </button>
+            <button id="btn-reset"
+              style="background:rgba(100,100,100,0.7);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:8px 16px;font-size:14px;">
+              ↩ Resetuj
+            </button>
+          </div>
 
-    function escAttr(str: string) {
-      return String(str)
-        .replace(/&/g, "&amp;")
-        .replace(/"/g, "&quot;")
-        .replace(/</g, "&lt;");
-    }
+          <div id="save-msg" style="display:none; margin-top:12px; padding:8px 12px; background:rgba(50,180,50,0.25); border-radius:6px; font-size:13px;">
+            ✓ Zapisano. Inne karty zostaną odświeżone automatycznie.
+          </div>
+        </div>
+      `;
 
-    function updateTable() {
-      const tbody = container.querySelector("#pricesTable tbody");
-      if (!tbody) return;
-      tbody.innerHTML = prices
-        .map(
-          (p, i) => `
-        <tr style="border-bottom: 1px solid var(--border);">
-          <td style="padding: 6px 10px;">
-            <input value="${escAttr(p.category)}" data-idx="${i}" data-field="category"
-              style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);">
-          </td>
-          <td style="padding: 6px 10px;">
-            <input type="number" value="${Number(p.unitPrice).toFixed(2)}" step="0.01" min="0"
-              data-idx="${i}" data-field="unitPrice"
-              style="width: 120px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);">
-          </td>
-          <td style="padding: 6px 10px; text-align: center;">
-            <button data-remove="${i}" title="Usuń" style="background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;">🗑️</button>
-          </td>
-        </tr>`
-        )
-        .join("");
-
-      tbody.querySelectorAll<HTMLInputElement>("input[data-idx]").forEach((input) => {
-        input.addEventListener("change", () => {
-          const idx = Number(input.dataset.idx);
-          const field = input.dataset.field;
-          if (field === "unitPrice") {
-            prices[idx].unitPrice = parseFloat(input.value) || 0;
-          } else {
-            prices[idx].category = input.value;
+      // Delete row
+      container.querySelectorAll("[data-action='delete']").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const idx = parseInt((btn as HTMLElement).dataset.idx ?? "-1");
+          if (idx >= 0) {
+            entries.splice(idx, 1);
+            render();
           }
         });
       });
 
-      tbody.querySelectorAll<HTMLButtonElement>("button[data-remove]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          prices.splice(Number(btn.dataset.remove), 1);
-          updateTable();
+      // Add row
+      container.querySelector("#btn-add-row")?.addEventListener("click", () => {
+        entries.push({ category: "", unitPrice: 0 });
+        render();
+        // Focus the last category input
+        const rows = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='category']");
+        rows[rows.length - 1]?.focus();
+      });
+
+      // Save
+      container.querySelector("#btn-save")?.addEventListener("click", () => {
+        // Read current values from inputs
+        const rows = container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-idx]");
+        const updated: PriceEntry[] = [];
+        rows.forEach(row => {
+          const catInput = row.querySelector<HTMLInputElement>("input[data-field='category']");
+          const priceInput = row.querySelector<HTMLInputElement>("input[data-field='unitPrice']");
+          if (catInput && priceInput) {
+            updated.push({
+              category: catInput.value.trim(),
+              unitPrice: parseFloat(priceInput.value) || 0,
+            });
+          }
         });
+        entries = updated.filter(e => e.category !== "");
+        savePrices(entries);
+        const msg = container.querySelector<HTMLElement>("#save-msg");
+        if (msg) { msg.style.display = "block"; setTimeout(() => { msg.style.display = "none"; }, 3000); }
+      });
+
+      // Reset
+      container.querySelector("#btn-reset")?.addEventListener("click", () => {
+        if (confirm("Usunąć wszystkie zapisane stawki?")) {
+          entries = [];
+          savePrices(entries);
+          render();
+        }
       });
     }
 
-    function showMsg(text: string, isError = false) {
-      const el = container.querySelector<HTMLElement>("#ustawienia-msg");
-      if (!el) return;
-      el.textContent = text;
-      el.style.display = "block";
-      el.style.background = isError ? "rgba(201,42,42,0.1)" : "rgba(43,138,62,0.1)";
-      el.style.color = isError ? "var(--danger)" : "var(--success)";
-      el.style.border = isError ? "1px solid var(--danger)" : "1px solid var(--success)";
-      setTimeout(() => {
-        el.style.display = "none";
-      }, 3000);
-    }
+    render();
 
-    const addBtn = container.querySelector<HTMLButtonElement>("#addPriceBtn");
-    const saveBtn = container.querySelector<HTMLButtonElement>("#saveAllBtn");
-    const resetBtn = container.querySelector<HTMLButtonElement>("#resetPricesBtn");
+    // Listen for changes from other tabs
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY) {
+        entries = loadPrices();
+        render();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    _cleanup = () => window.removeEventListener("storage", onStorage);
+  },
 
-    if (addBtn) {
-      addBtn.addEventListener("click", () => {
-        prices.push({ category: "Nowa pozycja", unitPrice: 0 });
-        updateTable();
-        const tbody = container.querySelector("#pricesTable tbody");
-        if (tbody) (tbody.lastElementChild as HTMLElement)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      });
-    }
-
-    if (saveBtn) {
-      saveBtn.addEventListener("click", () => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
-        showMsg("✅ Zapisano! Ceny zaktualizowane.");
-        window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
-      });
-    }
-
-    if (resetBtn) {
-      resetBtn.addEventListener("click", () => {
-        if (!confirm("Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.")) return;
-        prices = [...DEFAULT_PRICES];
-        localStorage.removeItem(STORAGE_KEY);
-        updateTable();
-        showMsg("🔄 Przywrócono domyślne ceny.");
-      });
-    }
-
-    updateTable();
-  }
+  unmount() {
+    if (_cleanup) { _cleanup(); _cleanup = null; }
+  },
 };
+
+function escapeHtml(str: string): string {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}

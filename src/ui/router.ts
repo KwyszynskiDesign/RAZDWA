@@ -13,7 +13,12 @@ export class Router {
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
     this.getCtx = getCtx;
-    window.addEventListener("hashchange", () => this.handleRoute());
+    window.addEventListener("hashchange", () => {
+      this.handleRoute().catch(e => {
+        console.error('Router navigation error:', e);
+        this.renderHome();
+      });
+    });
   }
 
   setCategories(categories: any[]) {
@@ -25,46 +30,41 @@ export class Router {
   }
 
   async handleRoute() {
-    const path = window.location.hash.replace(/^#\/*/, '');
-    if (!path) return this.renderHome();
+    const hash = window.location.hash || "#/";
+    let path = hash.startsWith("#/") ? hash.slice(2) : "";
+    path = path.replace(/^\/+/, "");
 
-    if (!/^[\w-]+$/.test(path)) return this.renderHome();
+    // Unmount previous view before mounting a new one
+    if (this.currentView?.unmount) {
+      this.currentView.unmount();
+    }
 
-    const container = document.getElementById('viewContainer') || this.container;
-    if (!container) return;
-
-    // Clear previous content and show loading spinner
-    container.innerHTML = '<div class="router-loading"><div class="router-spinner"></div></div>';
-
-    try {
-      // Check registered route views first
-      const view = this.routes.get(path);
-      if (view) {
-        await view.mount(container, this.getCtx());
-        return;
-      }
-
-      // Fall back to static HTML file
-      const htmlResp = await fetch(`categories/${path}.html`);
-      if (htmlResp.ok) {
-        container.innerHTML = await htmlResp.text();
-
-        // Remove previous category script if present
-        const oldScript = container.querySelector('script[data-category]');
-        if (oldScript) oldScript.remove();
-
-        // Dynamically load JS module for category
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = `categories/${path}.js`;
-        script.dataset.category = path;
-        container.appendChild(script);
-      } else {
+    const view = this.routes.get(path);
+    if (view) {
+      this.currentView = view;
+      await view.mount(this.container, this.getCtx());
+    } else {
+      try {
+        const resp = await fetch(`categories/${path}.html`);
+        if (resp.ok) {
+          this.currentView = null;
+          this.container.innerHTML = await resp.text();
+          // Opcjonalny JS
+          try {
+            const jsResp = await fetch(`categories/${path}.js`);
+            if (jsResp.ok) {
+              const script = document.createElement('script');
+              script.textContent = await jsResp.text();
+              this.container.appendChild(script);
+            }
+          } catch {}
+        } else {
+          this.renderHome();
+        }
+      } catch(e) {
+        console.error('Category load:', e);
         this.renderHome();
       }
-    } catch (e) {
-      console.error('Router error:', e);
-      this.renderHome();
     }
   }
 
