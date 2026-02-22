@@ -9,7 +9,19 @@ import {
   pickTier,
   pickNearestCeilKey,
   money,
+  readStoredPrices,
 } from "./compat";
+
+/** Returns a storage-range suffix: "1-5" or "5000+" (sentinel to > 50000). */
+function tierRange(from: number, to: number): string {
+  return to > 50000 ? `${from}+` : `${from}-${to}`;
+}
+
+/** Resolves price: stored value wins over hard-coded default. */
+function storedPrice(key: string, defaultUnit: number): number {
+  const stored = readStoredPrices();
+  return typeof stored[key] === "number" ? stored[key] : defaultUnit;
+}
 
 /** A4/A3 Print calculation logic */
 export function calculateSimplePrint(options: {
@@ -33,7 +45,11 @@ export function calculateSimplePrint(options: {
   const tier = pickTier(tiers, options.pages);
   if (!tier) throw new Error("Brak progu cenowego dla druku.");
 
-  const unitPrice = tier.unit;
+  // Map to storage key: druk-{bw|kolor}-{a4|a3}-{range}
+  const modeKey = options.mode === "bw" ? "bw" : "kolor";
+  const fmtKey = options.format.toLowerCase();
+  const printStorageKey = `druk-${modeKey}-${fmtKey}-${tierRange(tier.from, tier.to)}`;
+  const unitPrice = storedPrice(printStorageKey, tier.unit);
   let total = options.pages * unitPrice;
 
   let emailItemTotal = 0;
@@ -65,7 +81,10 @@ export function calculateSimpleScan(options: {
   const tier = pickTier(tiers, options.pages);
   if (!tier) throw new Error("Brak progu cenowego dla skanowania.");
 
-  const unitPrice = tier.unit;
+  // Map to storage key: skan-{auto|reczne}-{range}
+  const scanTypeKey = options.type === "auto" ? "auto" : "reczne";
+  const scanStorageKey = `skan-${scanTypeKey}-${tierRange(tier.from, tier.to)}`;
+  const unitPrice = storedPrice(scanStorageKey, tier.unit);
   return {
     unitPrice,
     total: options.pages * unitPrice,
@@ -88,17 +107,24 @@ export function calculateCad(options: {
   const rate = CAD_PRICE[options.mode][detectedType][options.format];
   if (rate == null) throw new Error("Brak stawki w cenniku dla CAD.");
 
+  // Map to storage key: druk-cad-{bw|kolor}-{fmt|mb}-{format}
+  const cadModeKey = options.mode === "bw" ? "bw" : "kolor";
+  const cadTypeKey = detectedType === "formatowe" ? "fmt" : "mb";
+  const cadFmtKey = options.format.toLowerCase().replace("0p", "0plus").replace("r1067", "mb1067");
+  const cadStorageKey = `druk-cad-${cadModeKey}-${cadTypeKey}-${cadFmtKey}`;
+  const resolvedRate = storedPrice(cadStorageKey, rate);
+
   let total = 0;
   if (detectedType === "formatowe") {
-    total = options.qty * rate;
+    total = options.qty * resolvedRate;
   } else {
     const meters = options.lengthMm / 1000;
-    total = options.qty * meters * rate;
+    total = options.qty * meters * resolvedRate;
   }
 
   return {
     detectedType,
-    rate,
+    rate: resolvedRate,
     total: parseFloat(money(total)),
   };
 }
