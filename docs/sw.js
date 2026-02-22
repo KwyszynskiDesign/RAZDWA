@@ -36,7 +36,11 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then(response => {
       return response || fetch(request);
     }).then(response => {
-      caches.open(CACHE_VERSION).then(cache => cache.put(request, response.clone()));
+      caches.open(CACHE_VERSION).then(cache => {
+        const url = new URL(request.url);
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+        cache.put(request, response.clone());
+      });
       return response;
     })
   );
