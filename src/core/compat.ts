@@ -108,6 +108,22 @@ export const FOLD_PRICE: any = {
 
 export const WF_SCAN_PRICE_PER_CM = 0.08;
 
+const _PRICES_KEY = "razdwa_prices";
+
+/** Read user-overridden prices from localStorage. Returns empty object on error or if not set. */
+export function readStoredPrices(): Record<string, number> {
+  try {
+    if (typeof localStorage === "undefined") return {};
+    const raw = localStorage.getItem(_PRICES_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, number>;
+    }
+  } catch { /* ignore */ }
+  return {};
+}
+
 export const BIZ: any = {
   cyfrowe: {
     standardPrices: {
