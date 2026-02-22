@@ -14,6 +14,7 @@ import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { CadOpsView } from "./views/cad-ops";
+import { UstawieniaView } from "./views/ustawienia";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -119,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(LaminowanieView);
   router.addRoute(FoliaSzronionaView);
   router.addRoute(CadOpsView);
+  router.addRoute(UstawieniaView);
 
   // Populate category selector
   categories.forEach(cat => {
