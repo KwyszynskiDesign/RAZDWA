@@ -33,6 +33,10 @@ export class Router {
     const hash = window.location.hash || "#/";
     let path = hash.startsWith("#/") ? hash.slice(2) : "";
     path = path.replace(/^\/+/, "");
+    if (!path) {
+      this.renderHome();
+      return;
+    }
 
     // Unmount previous view before mounting a new one
     if (this.currentView?.unmount) {
