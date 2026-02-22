@@ -49,6 +49,12 @@ export class Router {
         if (resp.ok) {
           this.currentView = null;
           this.container.innerHTML = await resp.text();
+          // Re-execute inline <script> tags (innerHTML does not run scripts)
+          this.container.querySelectorAll<HTMLScriptElement>('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.textContent = oldScript.textContent ?? '';
+            oldScript.replaceWith(newScript);
+          });
           // Opcjonalny JS
           try {
             const jsResp = await fetch(`categories/${path}.js`);
