@@ -33,15 +33,17 @@ self.addEventListener('fetch', (event) => {
 
   // Cache other assets normally
   event.respondWith(
-    caches.match(request).then(response => {
-      return response || fetch(request);
-    }).then(response => {
-      caches.open(CACHE_VERSION).then(cache => {
-        const url = new URL(request.url);
-        if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
-        cache.put(request, response.clone());
+    caches.match(request).then(cached => {
+      if (cached) return cached;
+      return fetch(request).then(response => {
+        const clone = response.clone();
+        caches.open(CACHE_VERSION).then(cache => {
+          const u = new URL(request.url);
+          if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
+          cache.put(request, clone);
+        });
+        return response;
       });
-      return response;
     })
   );
 });

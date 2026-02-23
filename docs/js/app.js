@@ -124,6 +124,10 @@ async function loadCategory(hash) {
 
 // Automatyczna inicjalizacja po załadowaniu DOM
 document.addEventListener('DOMContentLoaded', () => {
+  // Initialize basket/calculator core
+  const core = new KalkulatorCore();
+  window.kalkulatorCore = core;
+
   const total = Object.keys(CATEGORY_INITS).length;
   Promise.allSettled(
     Object.entries(CATEGORY_INITS).map(([id, fn]) =>
@@ -152,6 +156,159 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('hashchange', () => loadCategory(window.location.hash));
+
+// ─── KALKULATOR CORE ──────────────────────────────────────────────────────────
+class KalkulatorCore {
+  constructor() {
+    this._storageKey = 'razdwa-basket-v1';
+    this._items = this._load();
+    this._express = false;
+    this._render();
+    this._bindUI();
+    this._listen();
+  }
+
+  _load() {
+    try {
+      return JSON.parse(localStorage.getItem(this._storageKey) || '[]');
+    } catch (e) {
+      return [];
+    }
+  }
+
+  _save() {
+    try {
+      localStorage.setItem(this._storageKey, JSON.stringify(this._items));
+    } catch (e) { /* ignore */ }
+  }
+
+  _fmt(val) {
+    return val.toFixed(2).replace('.', ',') + ' zł';
+  }
+
+  _esc(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  addItem(detail) {
+    const { id, price, name, cat } = detail;
+    if (!id || price == null) return;
+    const existing = this._items.findIndex(i => i.id === id);
+    const item = { id, price: Number(price), name: name || id, cat: cat || '' };
+    if (existing >= 0) {
+      this._items[existing] = item;
+    } else {
+      this._items.push(item);
+    }
+    this._save();
+    this._render();
+  }
+
+  removeItem(id) {
+    this._items = this._items.filter(i => i.id !== id);
+    this._save();
+    this._render();
+  }
+
+  clear() {
+    this._items = [];
+    this._save();
+    this._render();
+  }
+
+  _getTotal() {
+    const mult = this._express ? 1.2 : 1;
+    return this._items.reduce((s, i) => s + i.price * mult, 0);
+  }
+
+  _render() {
+    const listEl = document.getElementById('basketList');
+    const totalEl = document.getElementById('basketTotal');
+    const debugEl = document.getElementById('basketDebug');
+
+    if (listEl) {
+      if (this._items.length === 0) {
+        listEl.innerHTML = '<div class="basketItem"><div class="basketTitle">Brak pozycji</div><div class="basketMeta">Kliknij „Dodaj", aby zbudować listę.</div></div>';
+      } else {
+        const mult = this._express ? 1.2 : 1;
+        listEl.innerHTML = this._items.map(item => `
+          <div class="basketItem">
+            <div style="min-width:0;">
+              <div class="basketTitle">${this._esc(item.cat ? item.cat + ': ' : '')}${this._esc(item.name)}</div>
+              <div class="basketMeta">${this._express ? '⚡ EXPRESS (+20%)' : ''}</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="basketPrice">${this._fmt(item.price * mult)}</div>
+              <button class="iconBtn" data-remove="${this._esc(item.id)}" title="Usuń">🗑️</button>
+            </div>
+          </div>`).join('');
+        listEl.querySelectorAll('[data-remove]').forEach(btn => {
+          btn.addEventListener('click', () => this.removeItem(btn.dataset.remove));
+        });
+      }
+    }
+
+    if (totalEl) totalEl.textContent = this._fmt(this._getTotal());
+    if (debugEl) debugEl.textContent = JSON.stringify(this._items, null, 2);
+  }
+
+  _bindUI() {
+    document.getElementById('clearBtn')?.addEventListener('click', () => this.clear());
+
+    document.getElementById('globalExpress')?.addEventListener('change', (e) => {
+      this._express = e.target.checked;
+      const orderSummary = document.getElementById('orderSummary');
+      if (orderSummary) orderSummary.classList.toggle('is-express', this._express);
+      this._render();
+    });
+
+    document.getElementById('copyBtn')?.addEventListener('click', () => {
+      const lines = this._items.map(i => {
+        const mult = this._express ? 1.2 : 1;
+        return `${i.cat ? i.cat + ': ' : ''}${i.name} – ${this._fmt(i.price * mult)}`;
+      });
+      lines.push('Suma: ' + this._fmt(this._getTotal()));
+      navigator.clipboard?.writeText(lines.join('\n')).catch(() => {});
+    });
+
+    document.getElementById('sendBtn')?.addEventListener('click', () => {
+      if (this._items.length === 0) { alert('Lista jest pusta!'); return; }
+      const name = document.getElementById('custName')?.value || 'Anonim';
+      const phone = document.getElementById('custPhone')?.value || '-';
+      const email = document.getElementById('custEmail')?.value || '-';
+      const priority = document.getElementById('custPriority')?.value || '-';
+      const date = new Date().toISOString().slice(0, 10);
+      const mult = this._express ? 1.2 : 1;
+      const header = ['Kategoria', 'Nazwa', 'Cena', 'Express', 'Klient', 'Telefon', 'Email', 'Priorytet'].join('\t');
+      const rows = this._items.map(i =>
+        [i.cat, i.name, this._fmt(i.price * mult), this._express ? 'TAK' : 'NIE', name, phone, email, priority].join('\t')
+      );
+      const csv = [header, ...rows].join('\n');
+      const blob = new Blob([csv], { type: 'text/tab-separated-values;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Zamowienie_${name.replace(/\s+/g, '_')}_${date}.tsv`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+  }
+
+  _listen() {
+    window.addEventListener('priceUpdate', (e) => {
+      const d = e.detail || {};
+      this.addItem(d);
+      const currentPriceEl = document.getElementById('currentPrice');
+      const currentHintEl = document.getElementById('currentHint');
+      const mult = this._express ? 1.2 : 1;
+      if (currentPriceEl) currentPriceEl.textContent = this._fmt((d.price || 0) * mult);
+      if (currentHintEl) currentHintEl.textContent = d.name ? `(${d.name})` : '';
+    });
+    window.addEventListener('priceRemove', (e) => {
+      const d = e.detail || {};
+      if (d.id) this.removeItem(d.id);
+    });
+  }
+}
 
 // ─── GLOBALNE API ─────────────────────────────────────────────────────────────
 window.openUstawienia = () => loadCategory('#/ustawienia');
