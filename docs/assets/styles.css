@@ -793,3 +793,6 @@ a[href] {
 @media (hover: none) and (pointer: coarse) {
   .tile a:active { text-decoration: none; }
 }
+
+/* ===== CENNIK TABLE (hidden by default) ===== */
+.cennik-table { display: none; }
