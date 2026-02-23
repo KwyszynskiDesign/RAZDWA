@@ -39,9 +39,24 @@ export const DrukA4A3SkanView: View = {
     const totalPriceSpan = container.querySelector("#d-total-price") as HTMLElement;
     const expressHint = container.querySelector("#d-express-hint") as HTMLElement;
 
-    surchargeCheck.onchange = () => {
-      surchargeQtyRow.style.display = surchargeCheck.checked ? "flex" : "none";
-    };
+    // OptionCard toggle logic
+    container.querySelectorAll<HTMLElement>(".option-card").forEach(card => {
+      const toggleCard = () => {
+        const isChecked = card.dataset.checked === "true";
+        card.dataset.checked = String(!isChecked);
+        card.classList.toggle("checked", !isChecked);
+        card.setAttribute("aria-checked", String(!isChecked));
+        const checkbox = card.querySelector<HTMLInputElement>("input[type='checkbox']");
+        if (checkbox) checkbox.checked = !isChecked;
+        if (card.id === "d-surcharge-card") {
+          surchargeQtyRow.style.display = !isChecked ? "flex" : "none";
+        }
+      };
+      card.addEventListener("click", toggleCard);
+      card.addEventListener("keydown", (e: KeyboardEvent) => {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); toggleCard(); }
+      });
+    });
 
     scanTypeSelect.onchange = () => {
       scanQtyRow.style.display = scanTypeSelect.value !== "none" ? "flex" : "none";
