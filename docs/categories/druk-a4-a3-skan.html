@@ -26,12 +26,22 @@
   </div>
 
   <!-- OPCJE -->
-  <div class="form-row">
-    <div class="form-group">
-      <label><input type="checkbox" id="d-email"> E-mail (1zł)</label>
+  <div class="form-row option-cards-row">
+    <div class="option-card" data-checked="false" id="d-email-card" role="checkbox" aria-checked="false" tabindex="0">
+      <span class="icon">📧</span>
+      <div>
+        <div>E-mail</div>
+        <div class="price">+1 zł</div>
+      </div>
+      <input type="checkbox" id="d-email" hidden>
     </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="d-surcharge"> Zadruk >25% (+50%)</label>
+    <div class="option-card" data-checked="false" id="d-surcharge-card" role="checkbox" aria-checked="false" tabindex="0">
+      <span class="icon">🎨</span>
+      <div>
+        <div>Zadruk &gt;25%</div>
+        <div class="price">+50%</div>
+      </div>
+      <input type="checkbox" id="d-surcharge" hidden>
     </div>
   </div>
 
@@ -61,7 +71,7 @@
   </div>
 
   <!-- PRZYCISKI -->
-  <div class="form-row">
+  <div class="form-row form-actions-row">
     <button id="d-calculate" class="btn-primary">Oblicz</button>
     <button id="d-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
   </div>
@@ -144,13 +154,8 @@
 </div>
 
 <script>
-document.getElementById('d-surcharge').addEventListener('change', function() {
-  document.getElementById('surcharge-qty-row').style.display = this.checked ? 'flex' : 'none';
-});
-
-document.getElementById('d-scan-type').addEventListener('change', function() {
-  document.getElementById('scan-qty-row').style.display = this.value !== 'none' ? 'flex' : 'none';
-});
+// Note: when loaded via DrukA4A3SkanView (SPA), initLogic handles all interactions.
+// This script only runs when the HTML is opened standalone (e.g. direct file access).
 
 // CENNİK POPRAWNY - Z TWOJEGO KODU
 const cenyDruk = {
