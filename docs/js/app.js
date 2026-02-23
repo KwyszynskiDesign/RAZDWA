@@ -19,6 +19,8 @@ import { init as initWizytowki }        from './categories/wizytowki-druk-cyfrow
 import { init as initWlepki }           from './categories/wlepki-naklejki.js';
 import { init as initZaproszenia }      from './categories/zaproszenia-kreda.js';
 
+console.log('🚀 Modular JS init...');
+
 /** Mapa id kategorii → funkcja inicjalizująca */
 const CATEGORY_INITS = {
   'cad-upload':              initCadUpload,
@@ -64,5 +66,60 @@ export function initAll() {
   }
 }
 
+// ─── SPA ROUTER ───────────────────────────────────────────────────────────────
+/**
+ * Załaduj szablon HTML kategorii do #viewContainer i uruchom jej init().
+ * @param {string} hash  np. '#/plakaty' lub 'plakaty'
+ */
+async function loadCategory(hash) {
+  const id = hash.replace(/^#?\//, '');
+  const container = document.getElementById('viewContainer');
+  if (!container) return;
+
+  if (!id) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;"><h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2></div>';
+    return;
+  }
+
+  container.innerHTML = `<div style="padding:40px;text-align:center"><h2>Ładuję ${id}…</h2></div>`;
+  try {
+    const resp = await fetch(`categories/${id}.html`);
+    if (resp.ok) {
+      container.innerHTML = await resp.text();
+      initCategory(id);
+      console.log(`[RAZDWA] ✅ Loaded: ${id}`);
+    } else {
+      container.innerHTML = `<div style="padding:20px;color:#f55;">Brak szablonu: ${id}.html (${resp.status})</div>`;
+      console.warn(`[RAZDWA] ❌ Template not found: ${id}.html`);
+    }
+  } catch (err) {
+    container.innerHTML = `<div style="padding:20px;color:#f55;">Błąd sieci: ${err.message}</div>`;
+    console.error(`[RAZDWA] ❌ Network error loading ${id}:`, err);
+  }
+}
+
 // Automatyczna inicjalizacja po załadowaniu DOM
-document.addEventListener('DOMContentLoaded', initAll);
+document.addEventListener('DOMContentLoaded', () => {
+  const total = Object.keys(CATEGORY_INITS).length;
+  Promise.allSettled(
+    Object.entries(CATEGORY_INITS).map(([id, fn]) =>
+      Promise.resolve().then(() => fn()).then(() => id)
+    )
+  ).then(results => {
+    const failed = results.filter(r => r.status === 'rejected');
+    failed.forEach(r => console.warn(`[RAZDWA] initCategory(${r.reason?.id ?? '?'}) error:`, r.reason?.err ?? r.reason));
+    console.log(`[RAZDWA] ✅ ${total - failed.length}/${total} categories initialized`);
+  });
+
+  // SPA router: załaduj kategorię z hash przy starcie
+  if (window.location.hash) loadCategory(window.location.hash);
+});
+
+window.addEventListener('hashchange', () => loadCategory(window.location.hash));
+
+// ─── GLOBALNE API ─────────────────────────────────────────────────────────────
+window.openUstawienia = () => loadCategory('#/ustawienia');
+window.kalkulator = {
+  openUstawienia: () => loadCategory('#/ustawienia'),
+  refreshAll: initAll,
+};
