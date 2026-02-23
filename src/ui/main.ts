@@ -15,6 +15,7 @@ import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { UstawieniaView } from "./views/ustawienia";
+import { CadUploadView } from "./views/cad-upload";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -127,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
   router.addRoute(FoliaSzronionaView);
+  router.addRoute(CadUploadView);
   router.addRoute(UstawieniaView);
 
   // Populate category selector
