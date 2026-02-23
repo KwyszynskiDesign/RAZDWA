@@ -116,6 +116,20 @@ export function init() {
 
   calcBtn.addEventListener('click', calculate);
 
+  // Dispatch priceUpdate when "Dodaj do listy" is clicked
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', () => {
+      const mode   = modeSelect   ? modeSelect.value   : 'bw';
+      const format = formatSelect ? formatSelect.value : 'A4';
+      const totalEl = document.getElementById('d-total-price');
+      const price = totalEl ? parseFloat(totalEl.textContent?.replace(',', '.').replace(/[^\d.]/g, '') || '0') : 0;
+      const name = `Druk ${format} ${mode === 'color' ? 'Kolor' : 'C/B'}`;
+      window.dispatchEvent(new CustomEvent('priceUpdate', {
+        detail: { id: `druk-a4-a3-${mode}-${format}`, price, name, cat: 'Druk A4/A3' }
+      }));
+    });
+  }
+
   // Live update when qty inputs change
   document.querySelectorAll('.qty-input').forEach(input => {
     input.addEventListener('input', calculate);
