@@ -95,6 +95,15 @@ export function init() {
     if (addToCartBtn)  addToCartBtn.disabled = false;
   });
 
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', () => {
+      if (!lastResult) { console.warn('druk-cad: brak wyniku – najpierw oblicz cenę'); return; }
+      document.dispatchEvent(new CustomEvent('razdwa:addToCart', {
+        detail: { category: 'CAD wielkoformatowy', name: lastResult.label, totalPrice: lastResult.totalPrice }
+      }));
+    });
+  }
+
   // ── CAD Ops ───────────────────────────────────────────────────────────────
   const opsItems     = [];
   const opsListEl    = document.getElementById('cad-ops-list');
