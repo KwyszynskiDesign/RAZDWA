@@ -8,9 +8,12 @@
 </head>
 <body>
   <div class="wrap">
-    <header>
-      <h1>Kalkulator – Studio Raz Druku Dwa</h1>
-      <p class="small">Studio poligraficzne: Szybko • Tanio • Profesjonalnie</p>
+    <header class="site-header">
+      <div class="header-left">
+        <h1>Kalkulator – Studio Raz Druku Dwa</h1>
+        <p class="small">Studio poligraficzne: Szybko • Tanio • Profesjonalnie</p>
+      </div>
+      <button class="btn-settings" onclick="openUstawienia()">⚙️ Ustawienia</button>
     </header>
 
  
@@ -169,6 +172,11 @@
     </div>
   </div>
 
+ <script>
+function openUstawienia() {
+  window.location.hash = '#/ustawienia';
+}
+</script>
  <script src="assets/app.js" type="module"></script>
  <!-- <script>
 document.addEventListener('DOMContentLoaded', () => {
