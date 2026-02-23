@@ -16,6 +16,14 @@ function fmtPLN(amount) {
   return amount.toFixed(2).replace('.', ',') + ' zł';
 }
 
+function debounce(fn, delay) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+
 export function init() {
   const dropZone    = document.getElementById('cadDropZone');
   if (!dropZone) return;
@@ -66,6 +74,33 @@ export function init() {
   // Przelicz button re-dispatches the current total
   przeliczBtn?.addEventListener('click', () => dispatchPrice());
 
+  // ── Event delegation for file list (attach once) ──────────────────────────
+  const debouncedDispatch = debounce(dispatchPrice, 300);
+
+  if (fileListEl) {
+    fileListEl.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-delete]');
+      if (btn) deleteFile(btn.dataset.delete);
+    });
+
+    fileListEl.addEventListener('input', (e) => {
+      const input = e.target.closest('.cad-qty-input');
+      if (!input) return;
+      const entry = files.find(file => String(file.id) === input.dataset.qtyid);
+      if (!entry) return;
+      const parsed = parseInt(input.value, 10);
+      if (isNaN(parsed) || parsed < 1) {
+        input.value = entry.qty;
+        return;
+      }
+      entry.qty = Math.min(999, parsed);
+      const row = input.closest('.cad-file-item');
+      const priceEl = row?.querySelector('.cad-file-price');
+      if (priceEl) priceEl.textContent = fmtPLN(entry.qty * PRICE_PER_FILE);
+      debouncedDispatch();
+    });
+  }
+
   // ── File management ───────────────────────────────────────────────────────
   function addFiles(fileList) {
     for (const f of fileList) {
@@ -112,22 +147,6 @@ export function init() {
         <span class="cad-file-price">${fmtPLN(f.qty * PRICE_PER_FILE)}</span>
       </div>
     `).join('');
-
-    fileListEl.querySelectorAll('[data-delete]').forEach(btn => {
-      btn.addEventListener('click', () => deleteFile(btn.dataset.delete));
-    });
-
-    fileListEl.querySelectorAll('.cad-qty-input').forEach(input => {
-      input.addEventListener('input', () => {
-        const entry = files.find(file => String(file.id) === input.dataset.qtyid);
-        if (!entry) return;
-        entry.qty = Math.max(1, parseInt(input.value) || 1);
-        const row = input.closest('.cad-file-item');
-        const priceEl = row?.querySelector('.cad-file-price');
-        if (priceEl) priceEl.textContent = fmtPLN(entry.qty * PRICE_PER_FILE);
-        dispatchPrice();
-      });
-    });
 
     dispatchPrice();
   }

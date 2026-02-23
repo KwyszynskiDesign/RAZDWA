@@ -19,7 +19,7 @@ import { init as initWizytowki }        from './categories/wizytowki-druk-cyfrow
 import { init as initWlepki }           from './categories/wlepki-naklejki.js';
 import { init as initZaproszenia }      from './categories/zaproszenia-kreda.js';
 
-console.log('🚀 Modular JS init...');
+
 
 /** Mapa id kategorii → funkcja inicjalizująca */
 const CATEGORY_INITS = {
@@ -61,7 +61,6 @@ export function initAll() {
       fn();
     } catch (err) {
       // Nie przerywaj inicjalizacji pozostałych kategorii
-      console.warn(`[RAZDWA] initCategory(${id}) error:`, err);
     }
   }
 }
@@ -104,13 +103,11 @@ async function loadCategory(hash) {
       div.innerHTML = await resp.text();
       container.appendChild(div);
       initCategory(id);
-      console.log(`[RAZDWA] ✅ Loaded: ${id}`);
     } else {
       const err = document.createElement('div');
       err.style.cssText = 'padding:20px;color:#f55;';
       err.textContent = `Brak szablonu: ${id}.html (${resp.status})`;
       container.appendChild(err);
-      console.warn(`[RAZDWA] ❌ Template not found: ${id}.html`);
     }
   } catch (err) {
     if (loadingSpinner) loadingSpinner.style.display = 'none';
@@ -118,7 +115,6 @@ async function loadCategory(hash) {
     errEl.style.cssText = 'padding:20px;color:#f55;';
     errEl.textContent = `Błąd sieci: ${err.message}`;
     container.appendChild(errEl);
-    console.error(`[RAZDWA] ❌ Network error loading ${id}:`, err);
   }
 }
 
@@ -128,16 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const core = new KalkulatorCore();
   window.kalkulatorCore = core;
 
-  const total = Object.keys(CATEGORY_INITS).length;
   Promise.allSettled(
     Object.entries(CATEGORY_INITS).map(([id, fn]) =>
       Promise.resolve().then(() => fn()).then(() => id)
     )
-  ).then(results => {
-    const failed = results.filter(r => r.status === 'rejected');
-    failed.forEach(r => console.warn(`[RAZDWA] initCategory(${r.reason?.id ?? '?'}) error:`, r.reason?.err ?? r.reason));
-    console.log(`[RAZDWA] ✅ ${total - failed.length}/${total} categories initialized`);
-  });
+  ).then(() => {});
 
   // SPA router: załaduj kategorię z hash przy starcie
   if (window.location.hash) loadCategory(window.location.hash);
