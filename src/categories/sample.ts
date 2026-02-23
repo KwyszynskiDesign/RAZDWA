@@ -40,6 +40,6 @@ export const sampleCategory: CategoryModule = {
     });
   },
   unmount: () => {
-    console.log("Unmounting sample category");
+    // cleanup if needed
   }
 };

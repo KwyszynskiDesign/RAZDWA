@@ -14,8 +14,7 @@ export class Router {
     this.container = container;
     this.getCtx = getCtx;
     window.addEventListener("hashchange", () => {
-      this.handleRoute().catch(e => {
-        console.error('Router navigation error:', e);
+      this.handleRoute().catch(() => {
         this.renderHome();
       });
     });
@@ -71,8 +70,7 @@ export class Router {
         } else {
           this.renderHome();
         }
-      } catch(e) {
-        console.error('Category load:', e);
+      } catch {
         this.renderHome();
       }
     }

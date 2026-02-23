@@ -62,7 +62,7 @@ function updateCartUI() {
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
-          <button class="iconBtn" onclick="window.removeItem(${idx})" title="Usuń">×</button>
+          <button class="iconBtn" data-remove-idx="${idx}" title="Usuń">×</button>
         </div>
       </div>
     `).join("");
@@ -73,17 +73,24 @@ function updateCartUI() {
   debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
 }
 
-// Global exposure for the 'onclick' in generated HTML
-(window as any).removeItem = (idx: number) => {
-  cart.removeItem(idx);
-  updateCartUI();
-};
 
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
   const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement;
   const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
+
+  // Event delegation for remove buttons rendered inside basket list
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest("[data-remove-idx]");
+    if (btn) {
+      const idx = parseInt((btn as HTMLElement).dataset.removeIdx ?? "", 10);
+      if (!isNaN(idx)) {
+        cart.removeItem(idx);
+        updateCartUI();
+      }
+    }
+  });
 
   if (!viewContainer || !categorySelector || !globalExpress || !categorySearch) return;
 
@@ -225,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .then(reg => console.log("SW registered", reg))
-      .catch(err => console.error("SW failed", err));
+      .then(() => {})
+      .catch(() => {});
   });
 }

@@ -30,7 +30,7 @@ export function createHTMLCategory(
             <br><small>${error}</small>
           </div>
         `;
-        console.error('Category load error:', error);
+        // error already displayed in container HTML above
       }
     }
   };
@@ -46,7 +46,6 @@ function attachCategoryEventListeners(container: HTMLElement, ctx: CategoryConte
     if (action === 'calculate') {
       btn.addEventListener('click', () => {
         // Logika obliczania ceny
-        console.log('Calculate clicked');
       });
     }
 
