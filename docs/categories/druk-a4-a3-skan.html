@@ -31,25 +31,23 @@
       <span class="icon">📧</span>
       <div>
         <div>E-mail</div>
-        <div class="price">+1 zł</div>
+        <div class="price">+1 zł/str.</div>
       </div>
+      <label class="qty-inline">
+        Ilość: <input type="number" class="qty-input" id="d-email-qty" value="1" min="1"> stron
+      </label>
       <input type="checkbox" id="d-email" hidden>
     </div>
     <div class="option-card" data-checked="false" id="d-surcharge-card" role="checkbox" aria-checked="false" tabindex="0">
       <span class="icon">🎨</span>
       <div>
         <div>Zadruk &gt;25%</div>
-        <div class="price">+50%</div>
+        <div class="price">+50%/str.</div>
       </div>
+      <label class="qty-inline">
+        Ilość: <input type="number" class="qty-input" id="d-surcharge-qty" value="1" min="1"> stron
+      </label>
       <input type="checkbox" id="d-surcharge" hidden>
-    </div>
-  </div>
-
-  <!-- DOPŁATA ZADRUK -->
-  <div class="form-row" id="surcharge-qty-row" style="display:none;">
-    <div class="form-group">
-      <label>Ilość zadrukowanych >25%:</label>
-      <input type="number" id="d-surcharge-qty" min="0" value="0">
     </div>
   </div>
 

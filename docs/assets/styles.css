@@ -667,6 +667,50 @@ button.ghost:hover {
   font-size: 14px;
 }
 
+.option-card .qty-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.option-card .qty-inline input.qty-input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  width: 50px;
+}
+
+/* ===== CAD druk – tryb + format inline ===== */
+.cad-mode-format-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cad-mode-format-row > div {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ===== CAD upload – ops grid (column → row) ===== */
+.cad-calc__ops-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 600px) {
+  .cad-calc__ops-grid {
+    flex-direction: row;
+  }
+}
+
 /* ===== BTN-PRIMARY / BTN-SECONDARY (druk-a4-a3-skan & legacy) ===== */
 .btn-primary {
   background: var(--primary);
