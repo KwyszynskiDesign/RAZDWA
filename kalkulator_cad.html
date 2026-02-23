@@ -381,6 +381,111 @@
       display: none;
     }
 
+    .file-list {
+      margin: 16px 0;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+
+    .file-item .file-name {
+      flex: 1;
+      font-weight: 500;
+      min-width: 120px;
+    }
+
+    .btn-calculate {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-calculate:hover:not(:disabled) {
+      background: #5a6fd6;
+    }
+
+    .btn-calculate:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-add {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover:not(:disabled) {
+      background: #16a34a;
+    }
+
+    .btn-add:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .file-item .result {
+      font-size: 0.9rem;
+      color: #333;
+      min-width: 160px;
+    }
+
+    .running-total {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.1rem;
+      flex-wrap: wrap;
+    }
+
+    .running-total strong {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .btn-clear-total {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: auto;
+    }
+
+    .btn-clear-total:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
     @media (max-width: 768px) {
       .container {
         border-radius: 0;
@@ -424,6 +529,16 @@
         <h3>Przeciągnij pliki tutaj</h3>
         <p>lub kliknij, aby wybrać (CAD, PDF, JPG, PNG)</p>
         <input type="file" id="fileInput" multiple accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.tif,.tiff" />
+      </div>
+
+      <!-- File List: per-file OBLICZ / DODAJ DO SUMY -->
+      <div id="file-list" class="file-list"></div>
+
+      <!-- Running Total -->
+      <div id="running-total" class="running-total hidden">
+        <span>Suma do zapłaty:</span>
+        <strong id="running-total-amount">0,00 zł</strong>
+        <button id="total-clear-btn" class="btn-clear-total">Wyczyść sumę</button>
       </div>
 
       <!-- Settings Panel -->
@@ -518,6 +633,11 @@
     let isColor = false;
     let dpi = 300;
 
+    // Map for per-file OBLICZ flow
+    const fileObjects = new Map();
+    let runningTotal = 0;
+    let fileCounter = 0;
+
     // DOM Elements
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
@@ -535,6 +655,10 @@
     const summaryPanel = document.getElementById('summaryPanel');
     const summaryGrid = document.getElementById('summaryGrid');
     const clearBtn = document.getElementById('clearBtn');
+    const fileListEl = document.getElementById('file-list');
+    const runningTotalEl = document.getElementById('running-total');
+    const runningTotalAmount = document.getElementById('running-total-amount');
+    const totalClearBtn = document.getElementById('total-clear-btn');
 
     // Event Listeners
     uploadZone.addEventListener('click', () => fileInput.click());
@@ -546,9 +670,9 @@
     uploadZone.addEventListener('drop', (e) => {
       e.preventDefault();
       uploadZone.classList.remove('drag-over');
-      handleFiles(e.dataTransfer.files);
+      [...e.dataTransfer.files].forEach(addFileToList);
     });
-    fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
+    fileInput.addEventListener('change', (e) => [...e.target.files].forEach(addFileToList));
 
     colorToggle.addEventListener('click', () => {
       isColor = !isColor;
@@ -568,12 +692,147 @@
     clearBtn.addEventListener('click', () => {
       filesData = [];
       fileInput.value = '';
+      fileListEl.innerHTML = '';
+      fileObjects.clear();
+      runningTotal = 0;
+      runningTotalEl.classList.add('hidden');
+      runningTotalAmount.textContent = '0,00 zł';
       updateDisplay();
     });
 
     warningAlert.addEventListener('click', () => {
       warningDetails.classList.toggle('expanded');
     });
+
+    totalClearBtn.addEventListener('click', () => {
+      runningTotal = 0;
+      runningTotalEl.classList.add('hidden');
+      runningTotalAmount.textContent = '0,00 zł';
+      fileListEl.querySelectorAll('.btn-add[data-added="true"]').forEach(btn => {
+        btn.textContent = 'DODAJ DO SUMY';
+        btn.disabled = false;
+        btn.removeAttribute('data-added');
+      });
+    });
+
+    // Dodaj plik do wizualnej listy (bez analizy)
+    function addFileToList(file) {
+      const fileId = 'f_' + (++fileCounter);
+      fileObjects.set(fileId, file);
+
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.dataset.fileId = fileId;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'file-name';
+      nameSpan.textContent = file.name;
+
+      const calcBtn = document.createElement('button');
+      calcBtn.className = 'btn-calculate';
+      calcBtn.textContent = 'OBLICZ';
+      calcBtn.addEventListener('click', () => obliczTenPlik(calcBtn));
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn-add';
+      addBtn.textContent = 'DODAJ DO SUMY';
+      addBtn.disabled = true;
+      addBtn.addEventListener('click', () => dodajDoSumy(addBtn));
+
+      const resultSpan = document.createElement('span');
+      resultSpan.className = 'result';
+
+      div.appendChild(nameSpan);
+      div.appendChild(calcBtn);
+      div.appendChild(addBtn);
+      div.appendChild(resultSpan);
+      fileListEl.appendChild(div);
+    }
+
+    // Promise-based analiza pliku (bez auto-wyświetlania)
+    function analyzeFile(file) {
+      return new Promise((resolve, reject) => {
+        if (file.name.match(/\.(dwg|dxf)$/i)) {
+          const mockW = 2480 + Math.random() * 1000;
+          const mockH = 1754 + Math.random() * 1000;
+          const wMm = pxToMm(mockW, dpi);
+          const hMm = pxToMm(mockH, dpi);
+          resolve({
+            name: file.name,
+            widthPx: mockW, heightPx: mockH,
+            widthMm: wMm, heightMm: hMm,
+            formatInfo: detectFormat(wMm, hMm),
+            folding: false, scanning: false,
+          });
+        } else {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+              const wMm = pxToMm(img.width, dpi);
+              const hMm = pxToMm(img.height, dpi);
+              resolve({
+                name: file.name,
+                widthPx: img.width, heightPx: img.height,
+                widthMm: wMm, heightMm: hMm,
+                formatInfo: detectFormat(wMm, hMm),
+                folding: false, scanning: false,
+              });
+            };
+            img.onerror = () => reject(new Error('Nie można wczytać pliku jako obraz'));
+            img.src = ev.target.result;
+          };
+          reader.onerror = () => reject(new Error('Błąd odczytu pliku'));
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // OBLICZ – analizuj plik i pokaż wynik
+    window.obliczTenPlik = async function(btn) {
+      const fileItem = btn.closest('.file-item');
+      const fileId = fileItem.dataset.fileId;
+      const file = fileObjects.get(fileId);
+      if (!file) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+      try {
+        const fileData = await analyzeFile(file);
+        const printPrice = calculatePrintPrice(fileData);
+        const { format, isFormatowy } = fileData.formatInfo;
+        const typStr = isFormatowy ? 'formatowy' : 'nieformat./mb';
+        fileItem.querySelector('.result').textContent =
+          `${format} (${typStr}): ${Math.round(fileData.heightMm)} mm → ${printPrice.toFixed(2)} zł`;
+        fileItem.dataset.price = printPrice.toFixed(2);
+        fileItem.querySelector('.btn-add').disabled = false;
+        btn.textContent = '✅';
+      } catch (e) {
+        fileItem.querySelector('.result').textContent = 'Błąd analizy pliku';
+        btn.textContent = 'OBLICZ';
+        btn.disabled = false;
+      }
+    };
+
+    // DODAJ DO SUMY – dodaj wyliczoną cenę do sumy bieżącej
+    window.dodajDoSumy = function(btn) {
+      const fileItem = btn.closest('.file-item');
+      const price = parseFloat(fileItem.dataset.price);
+      if (isNaN(price) || price < 0) return;
+      runningTotal += price;
+      runningTotalEl.classList.remove('hidden');
+      runningTotalAmount.textContent = runningTotal.toFixed(2) + ' zł';
+      btn.disabled = true;
+      btn.dataset.added = 'true';
+      btn.textContent = '✅ DODANO';
+    };
+
+    // Aktualizacja sumy (helper, zgodny z istniejącymi wywołaniami)
+    function updateTotal(cena) {
+      runningTotal += cena;
+      runningTotalEl.classList.remove('hidden');
+      runningTotalAmount.textContent = runningTotal.toFixed(2) + ' zł';
+    }
 
     // Konwersja px → mm
     function pxToMm(px, dpi) {
