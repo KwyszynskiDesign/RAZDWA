@@ -13,11 +13,12 @@ export interface WizytowkiOptions {
 
 export function quoteWizytowki(options: WizytowkiOptions): CalculationResult {
   const family = options.family || "standard";
+  const finish = options.finish || "mat";
 
   // Compat mapping for the old UI options
   const size = options.format || "85x55";
-  const lam = options.folia === 'none' ? 'noLam' : 'lam';
-  const finish = options.finish || "mat";
+  // When softtouch, lam is always 'lam' (softtouch IS the lamination)
+  const lam = finish === "softtouch" ? "lam" : (options.folia === 'none' ? 'noLam' : 'lam');
 
   const res = calculateBusinessCards({
     family,

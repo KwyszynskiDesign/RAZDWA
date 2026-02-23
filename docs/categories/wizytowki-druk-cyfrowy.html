@@ -30,13 +30,13 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="w-lam">Foliowanie:</label>
-                <select id="w-lam" class="form-control">
-                    <option value="noLam">Bez foliowania</option>
-                    <option value="lam">Foliowane</option>
-                </select>
-            </div>
+        <div id="w-lam-group" class="form-group">
+            <label for="w-lam">Foliowanie:</label>
+            <select id="w-lam" class="form-control">
+                <option value="noLam">Bez foliowania</option>
+                <option value="lam">Foliowane</option>
+            </select>
+        </div>
         </div>
 
         <div id="deluxe-options" style="display: none;">
@@ -83,24 +83,13 @@
 
     <div id="w-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Netto:</span>
-            <span id="w-netto-price" class="price-value">-</span>
-        </div>
-        <div class="result-row">
-            <span>Cena brutto (z VAT 23%):</span>
+            <span>Cena brutto (z VAT):</span>
             <span id="w-total-price" class="price-value">-</span>
         </div>
         <div id="w-billed-qty-hint" class="hint"></div>
-        <div id="w-tier-hint" class="hint" style="color: #555;"></div>
-        <div id="w-express-hint" class="express-hint" style="display: none;">
-            W tym dopłata EXPRESS +20%
-        </div>
-        <div id="w-satin-hint" class="modifier-hint" style="display: none;">
-            W tym dopłata SATYNA +12%
-        </div>
     </div>
 
-    <div class="cennik-table">
+    <div class="cennik-table" style="display:none;">
         <h4>CENNIK WIZYTÓWKI 85x55 (bez foliowania)</h4>
         <table>
             <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>

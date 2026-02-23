@@ -46,5 +46,47 @@
       { "qty": 500, "price": 260 },
       { "qty": 1000, "price": 345 }
     ]
+  },
+  "softtouch": {
+    "85x55": [
+      { "qty": 50, "price": 170 },
+      { "qty": 100, "price": 190 },
+      { "qty": 150, "price": 210 },
+      { "qty": 200, "price": 220 },
+      { "qty": 250, "price": 230 },
+      { "qty": 300, "price": 240 },
+      { "qty": 400, "price": 260 },
+      { "qty": 500, "price": 270 },
+      { "qty": 1000, "price": 380 }
+    ],
+    "90x50": [
+      { "qty": 50, "price": 170 },
+      { "qty": 100, "price": 190 },
+      { "qty": 150, "price": 210 },
+      { "qty": 200, "price": 220 },
+      { "qty": 250, "price": 230 },
+      { "qty": 300, "price": 240 },
+      { "qty": 400, "price": 260 },
+      { "qty": 500, "price": 270 },
+      { "qty": 1000, "price": 390 }
+    ]
+  },
+  "deluxe": {
+    "uv3d_softtouch": [
+      { "qty": 50, "price": 280 },
+      { "qty": 100, "price": 320 },
+      { "qty": 200, "price": 395 },
+      { "qty": 250, "price": 479 },
+      { "qty": 400, "price": 655 },
+      { "qty": 500, "price": 778 }
+    ],
+    "uv3d_gold_softtouch": [
+      { "qty": 50, "price": 450 },
+      { "qty": 100, "price": 550 },
+      { "qty": 200, "price": 650 },
+      { "qty": 250, "price": 720 },
+      { "qty": 400, "price": 850 },
+      { "qty": 500, "price": 905 }
+    ]
   }
 }

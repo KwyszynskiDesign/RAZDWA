@@ -32,4 +32,44 @@ describe('Wizytówki - druk cyfrowy', () => {
     // 65.00 * 1.2 = 78.00
     expect(result.totalPrice).toBe(78.00);
   });
+
+  it('should calculate SOFTTOUCH 85x55, 50 szt', () => {
+    const result = quoteWizytowki({
+      format: '85x55',
+      finish: 'softtouch',
+      qty: 50,
+      express: false
+    });
+    expect(result.totalPrice).toBe(170.00);
+  });
+
+  it('should calculate SOFTTOUCH 90x50, 1000 szt', () => {
+    const result = quoteWizytowki({
+      format: '90x50',
+      finish: 'softtouch',
+      qty: 1000,
+      express: false
+    });
+    expect(result.totalPrice).toBe(390.00);
+  });
+
+  it('should calculate DELUXE uv3d_softtouch, 100 szt', () => {
+    const result = quoteWizytowki({
+      family: 'deluxe',
+      deluxeOpt: 'uv3d_softtouch',
+      qty: 100,
+      express: false
+    });
+    expect(result.totalPrice).toBe(320.00);
+  });
+
+  it('should calculate DELUXE uv3d_gold_softtouch, 200 szt', () => {
+    const result = quoteWizytowki({
+      family: 'deluxe',
+      deluxeOpt: 'uv3d_gold_softtouch',
+      qty: 200,
+      express: false
+    });
+    expect(result.totalPrice).toBe(650.00);
+  });
 });
