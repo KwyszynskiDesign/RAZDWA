@@ -71,6 +71,51 @@
         <button class="cad-calc__btn" id="clearBtn">Wyczyść</button>
       </div>
 
+      <!-- CAD Ops: składanie + skan wielkoformat -->
+      <div class="cad-calc__ops">
+        <h3>🗂️ CAD Ops: Składanie / Skan wielkoformat</h3>
+        <div class="cad-calc__ops-grid">
+          <div class="cad-calc__ops-form">
+            <h4>Składanie</h4>
+            <div class="cad-calc__field">
+              <label for="fold-format">Format:</label>
+              <select id="fold-format">
+                <option value="A0+">A0+</option>
+                <option value="A0">A0</option>
+                <option value="A1">A1</option>
+                <option value="A2">A2</option>
+                <option value="A3">A3</option>
+                <option value="A3-poprzeczne">A3-poprzeczne</option>
+              </select>
+            </div>
+            <div class="cad-calc__field">
+              <label for="fold-qty">Ilość (szt):</label>
+              <input type="number" id="fold-qty" value="1" min="1" />
+            </div>
+            <button class="cad-calc__btn" id="fold-add">Dodaj składanie</button>
+          </div>
+          <div class="cad-calc__ops-form">
+            <h4>Skanowanie wielkoformatowe</h4>
+            <div class="cad-calc__field">
+              <label for="wf-scan-mm">Długość (mm):</label>
+              <input type="number" id="wf-scan-mm" placeholder="np. 1100" min="1" />
+            </div>
+            <div class="cad-calc__field">
+              <label for="wf-scan-qty">Ilość (szt):</label>
+              <input type="number" id="wf-scan-qty" value="1" min="1" />
+            </div>
+            <button class="cad-calc__btn" id="wf-scan-add">Dodaj skan</button>
+          </div>
+        </div>
+        <div class="cad-calc__ops-list hidden" id="opsList">
+          <h4>Dodane usługi:</h4>
+          <div id="opsListItems"></div>
+          <div class="cad-calc__ops-total">
+            Suma usług: <strong id="opsTotal">0.00 zł</strong>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -496,6 +541,57 @@
         updateDisplay();
       }
     };
+
+    // CAD Ops: składanie + skan wielkoformat
+    (function() {
+      const opsItems = [];
+      const opsListEl = document.getElementById('opsList');
+      const opsListItems = document.getElementById('opsListItems');
+      const opsTotalEl = document.getElementById('opsTotal');
+
+      function updateOpsList() {
+        if (opsItems.length === 0) {
+          opsListEl.classList.add('hidden');
+          return;
+        }
+        opsListEl.classList.remove('hidden');
+        opsListItems.innerHTML = opsItems.map((item, i) => `
+          <div class="ops-item" style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1)">
+            <span>${item.label}</span>
+            <span>${item.price.toFixed(2)} zł</span>
+            <button data-remove-ops="${i}" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:16px;">✕</button>
+          </div>
+        `).join('');
+        const total = opsItems.reduce(function(sum, item) { return sum + item.price; }, 0);
+        opsTotalEl.textContent = total.toFixed(2) + ' zł';
+      }
+
+      opsListItems.addEventListener('click', function(e) {
+        const btn = (e.target as HTMLElement).closest('[data-remove-ops]');
+        if (btn) {
+          const idx = parseInt((btn as HTMLElement).getAttribute('data-remove-ops') || '-1');
+          if (idx >= 0) { opsItems.splice(idx, 1); updateOpsList(); }
+        }
+      });
+
+      document.getElementById('fold-add').addEventListener('click', function() {
+        const format = document.getElementById('fold-format').value;
+        const qty = parseInt(document.getElementById('fold-qty').value) || 1;
+        const unitPrice = PRICES.skladanie.formatowe[format] || 0;
+        const price = unitPrice * qty;
+        opsItems.push({ label: 'Składanie ' + format + ' × ' + qty + ' szt', price: price });
+        updateOpsList();
+      });
+
+      document.getElementById('wf-scan-add').addEventListener('click', function() {
+        const mm = parseFloat(document.getElementById('wf-scan-mm').value) || 0;
+        const qty = parseInt(document.getElementById('wf-scan-qty').value) || 1;
+        if (mm <= 0) { alert('Podaj długość w mm'); return; }
+        const price = PRICES.skanowanie * mm * qty;
+        opsItems.push({ label: 'Skan wielkoformat ' + mm + 'mm × ' + qty + ' szt', price: price });
+        updateOpsList();
+      });
+    })();
   </script>
 </body>
 </html>
