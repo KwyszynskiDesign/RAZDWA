@@ -118,51 +118,43 @@
       border-color: #667eea;
     }
 
-    .toggle-switch {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: white;
-      border-radius: 8px;
+    .setting-group select {
+      padding: 10px 12px;
       border: 2px solid #e0e0e0;
-    }
-
-    .toggle-switch label {
-      flex: 1;
-      font-weight: 600;
-      color: #333;
-    }
-
-    .switch {
-      position: relative;
-      width: 56px;
-      height: 28px;
-      background: #ccc;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .switch.active {
-      background: #667eea;
-    }
-
-    .switch::after {
-      content: '';
-      position: absolute;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      border-radius: 8px;
+      font-size: 1rem;
       background: white;
-      top: 3px;
-      left: 3px;
-      transition: transform 0.3s;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: border-color 0.2s;
     }
 
-    .switch.active::after {
-      transform: translateX(28px);
+    .setting-group select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .btn-oblicz {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      flex: 1;
+    }
+
+    .btn-oblicz:hover:not(:disabled) {
+      background: #5a6fd6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+    }
+
+    .btn-oblicz:disabled {
+      background: #ccc;
+      cursor: not-allowed;
     }
 
     .files-table-wrapper {
@@ -433,10 +425,12 @@
           <input type="number" id="dpiInput" value="300" min="72" max="600" />
         </div>
 
-        <div class="toggle-switch" id="colorToggle">
-          <label>Czarno-białe</label>
-          <div class="switch" id="colorSwitch"></div>
-          <label>Kolorowe</label>
+        <div class="setting-group">
+          <label for="printMode">Tryb druku:</label>
+          <select id="printMode">
+            <option value="bw">Czarno-biały</option>
+            <option value="color">Kolorowy</option>
+          </select>
         </div>
       </div>
 
@@ -479,7 +473,10 @@
       <div class="summary-panel hidden" id="summaryPanel">
         <h3>💰 Podsumowanie wyceny</h3>
         <div class="summary-grid" id="summaryGrid"></div>
-        <button class="btn-clear" id="clearBtn">Wyczyść wszystko</button>
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
+          <button class="btn-oblicz" id="obliczBtn" disabled>✅ OBLICZ</button>
+          <button class="btn-clear" id="clearBtn">Wyczyść wszystko</button>
+        </div>
       </div>
     </div>
   </div>
@@ -522,8 +519,7 @@
     const uploadZone = document.getElementById('uploadZone');
     const fileInput = document.getElementById('fileInput');
     const dpiInput = document.getElementById('dpiInput');
-    const colorToggle = document.getElementById('colorToggle');
-    const colorSwitch = document.getElementById('colorSwitch');
+    const printMode = document.getElementById('printMode');
     const rollsSummary = document.getElementById('rollsSummary');
     const rollsList = document.getElementById('rollsList');
     const suggestedRoll = document.getElementById('suggestedRoll');
@@ -534,6 +530,7 @@
     const filesTableBody = document.getElementById('filesTableBody');
     const summaryPanel = document.getElementById('summaryPanel');
     const summaryGrid = document.getElementById('summaryGrid');
+    const obliczBtn = document.getElementById('obliczBtn');
     const clearBtn = document.getElementById('clearBtn');
 
     // Event Listeners
@@ -550,9 +547,8 @@
     });
     fileInput.addEventListener('change', (e) => handleFiles(e.target.files));
 
-    colorToggle.addEventListener('click', () => {
-      isColor = !isColor;
-      colorSwitch.classList.toggle('active');
+    printMode.addEventListener('change', (e) => {
+      isColor = e.target.value === 'color';
       if (filesData.length > 0) {
         recalculateAll();
       }
@@ -569,6 +565,12 @@
       filesData = [];
       fileInput.value = '';
       updateDisplay();
+    });
+
+    obliczBtn.addEventListener('click', () => {
+      if (filesData.length > 0) {
+        updateDisplay();
+      }
     });
 
     warningAlert.addEventListener('click', () => {
@@ -839,7 +841,7 @@
             <td>${Math.round(file.widthMm)} × ${Math.round(file.heightMm)} mm<br>
                 <small>${(file.widthMm/10).toFixed(1)} × ${(file.heightMm/10).toFixed(1)} cm</small></td>
             <td><strong>${format}</strong></td>
-            <td>${typeHeadge}</td>
+            <td>${typeBadge}</td>
             <td class="checkbox-cell">
               <input type="checkbox" ${file.folding ? 'checked' : ''} 
                      onchange="toggleFolding('${file.id}')" />
@@ -886,6 +888,8 @@
           <span>${total.toFixed(2)} zł</span>
         </div>
       `;
+
+      obliczBtn.disabled = total <= 0;
     }
 
     // Toggle składanie
