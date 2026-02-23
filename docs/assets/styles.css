@@ -749,3 +749,47 @@ button.ghost:hover {
   cursor: not-allowed;
 }
 
+
+/* NO UNDERLINES FIX - MENTOR UX */
+.tile, 
+.tile a, 
+.tile a:hover, 
+.tile a:focus, 
+.tile span { 
+  text-decoration: none !important; 
+  border-bottom: none !important;
+  color: inherit;
+}
+
+.tile a:focus { 
+  outline: var(--focus-outline) !important; 
+  outline-offset: 2px;
+}
+
+button, 
+button:hover, 
+button:focus, 
+button:focus-visible,
+.btn-primary, .btn-secondary, .btn-settings,
+.order-btn--primary, .order-btn--ghost { 
+  text-decoration: none !important; 
+  border-bottom: none !important;
+}
+
+button:focus-visible { 
+  outline: var(--focus-outline) !important; 
+}
+
+a[href] { 
+  text-decoration: none; 
+}
+
+.tile a:hover { 
+  text-decoration: none !important; 
+  color: inherit !important;
+}
+
+/* Mobile hover fix */
+@media (hover: none) and (pointer: coarse) {
+  .tile a:active { text-decoration: none; }
+}
