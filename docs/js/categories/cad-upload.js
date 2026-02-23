@@ -1,17 +1,17 @@
 // cad-upload.js – kalkulator uploadowania plików CAD z pełnym cennikiem
 // LEGACY JS (nie TypeScript) – docs/js/categories/cad-upload.js
 
-// ─── CENNIKI ────────────────────────────────────────────────────────────────
-const CENN_KOLOR    = { 'A0+': 26,   'A0': 24,   'A1': 12,   'A2': 8.5,  'A3': 5.3  };
-const CENN_CZB      = { 'A0+': 13,   'A0': 12.5, 'A1': 6,    'A2': 4,    'A3': 2.5  };
-const CENN_KOLOR_MB = { 'A0+': 21,   'A0': 20,   'A1': 14.5, 'A2': 13.9, 'A3': 12,   'rolka1067': 30   };
-const CENN_CZB_MB   = { 'A0+': 10,   'A0': 9,    'A1': 5,    'A2': 4.5,  'A3': 3.5,  'rolka1067': 12.5 };
-const SKLAD_CENY    = { 'A0+': 4,    'A0': 3,    'A1': 2,    'A2': 1.5,  'A3': 1,    'A3-poprzeczne': 0.7, 'nieformat': 2.5 };
+import { drukCad } from '../prices.js';
 
-// Bazowe długości formatów (mm) – granica formatowy/nieformatowy
-const BASE_LENGTHS  = { 'A0+': 1292, 'A0': 1189, 'A1': 841, 'A2': 594, 'A3': 420 };
-const SCAN_PER_CM   = 0.08;
+// ─── CENY (z prices.js – identyczne jak w druk-cad) ─────────────────────────
+const BASE_LENGTHS  = drukCad.baseLengthMm;          // { A3:420, A2:594, A1:841, A0:1189, 'A0+':1292 }
+const WIDTHS        = drukCad.widths;                 // { A3:297, A2:420, A1:594, A0:841, 'A0+':914 }
+const SKLAD_CENY    = { ...drukCad.skladanie, 'nieformat': 2.5 };
+const SCAN_PER_CM   = drukCad.skanowanie;             // 0.08 zł/cm (identycznie jak w druk-cad.js)
 const MAX_FILES_SOFT = 50;
+
+/** Tolerancja (mm) przy sprawdzaniu długości formatowej – identyczna jak w druk-cad.js */
+const TOLERANCE_MM = 5;
 
 let _nextId = 1;
 
@@ -33,39 +33,41 @@ function debounce(fn, ms) {
 }
 
 // ─── WYKRYWANIE FORMATU ──────────────────────────────────────────────────────
+/** Wykryj format po KRÓTSZYM boku (szerokość rolki), identycznie jak w druk-cad. */
 function detectFormat(wMm, hMm) {
   const shorter = Math.min(wMm, hMm);
-  if (shorter >= 1189) return 'A0+';
-  if (shorter >= 841)  return 'A0';
-  if (shorter >= 594)  return 'A1';
-  if (shorter >= 420)  return 'A2';
-  if (shorter >= 297)  return 'A3';
+  if (shorter >= WIDTHS['A0+']) return 'A0+';
+  if (shorter >= WIDTHS['A0'])  return 'A0';
+  if (shorter >= WIDTHS['A1'])  return 'A1';
+  if (shorter >= WIDTHS['A2'])  return 'A2';
+  if (shorter >= WIDTHS['A3'])  return 'A3';
   return 'nieformatowy';
 }
 
 // ─── OBLICZENIE CENY DRUKU JEDNEGO PLIKU ───────────────────────────────────
+/** Oblicz cenę druku używając dokładnie tej samej logiki co druk-cad.js. */
 function obliczPlik(entry, mode) {
   const { wMm, hMm, qty } = entry;
   if (!wMm || !hMm || wMm <= 0 || hMm <= 0) return 0;
 
   const fmt    = detectFormat(wMm, hMm);
   const longer = Math.max(wMm, hMm);
+
   let unitPrice;
 
   if (fmt === 'nieformatowy') {
-    // Minimum: cena mb A3
-    const mb = mode === 'color' ? CENN_KOLOR_MB['A3'] : CENN_CZB_MB['A3'];
-    unitPrice = longer / 1000 * mb;
+    // Format nierozpoznany (krótszy bok poniżej A3) → cena mb rolki A3
+    const width = WIDTHS['A3'];
+    unitPrice = (drukCad.metrBiezacy[mode][width] || 0) * (longer / 1000);
   } else {
     const baseLen = BASE_LENGTHS[fmt];
-    if (Math.abs(longer - baseLen) <= 5) {
+    if (Math.abs(longer - baseLen) <= TOLERANCE_MM) {
       // Format standardowy → cena formatowa
-      unitPrice = mode === 'color' ? CENN_KOLOR[fmt] : CENN_CZB[fmt];
+      unitPrice = drukCad.formatowe[mode][fmt] || 0;
     } else {
-      // Nieformatowy → długość(m) × cena mb najbliższego formatu
-      const table = mode === 'color' ? CENN_KOLOR_MB : CENN_CZB_MB;
-      const mb = table[fmt] ?? table['A3'];
-      unitPrice = longer / 1000 * mb;
+      // Nieformatowy → długość(m) × cena mb dla danej szerokości rolki
+      const width = WIDTHS[fmt];
+      unitPrice = (drukCad.metrBiezacy[mode][width] || 0) * (longer / 1000);
     }
   }
 
@@ -148,12 +150,6 @@ export function init() {
     fileListEl.addEventListener('click', e => {
       const delBtn = e.target.closest('[data-delete]');
       if (delBtn) { deleteFile(delBtn.dataset.delete); return; }
-
-      const detectBtn = e.target.closest('[data-detect]');
-      if (detectBtn) {
-        const entry = files.find(f => String(f.id) === detectBtn.dataset.detect);
-        if (entry?.blob) autoDetectDims(entry);
-      }
     });
 
     fileListEl.addEventListener('input', e => {
@@ -166,18 +162,6 @@ export function init() {
         const v = parseInt(el.value, 10);
         if (isNaN(v) || v < 1) { el.value = entry.qty; return; }
         entry.qty = Math.min(999, v);
-      } else if (el.classList.contains('cad-w-input')) {
-        const entry = byId(el.dataset.dimid);
-        if (entry) {
-          entry.wMm = Math.max(0, parseFloat(el.value) || 0);
-          updateSkladFormat(entry);
-        }
-      } else if (el.classList.contains('cad-h-input')) {
-        const entry = byId(el.dataset.dimid);
-        if (entry) {
-          entry.hMm = Math.max(0, parseFloat(el.value) || 0);
-          updateSkladFormat(entry);
-        }
       } else if (el.classList.contains('sklad-qty')) {
         const entry = byId(el.dataset.skladid);
         if (entry) entry.skladanieQty = Math.max(0, parseInt(el.value, 10) || 0);
@@ -244,10 +228,6 @@ export function init() {
       });
       entry.wMm = wMm;
       entry.hMm = hMm;
-      const wEl = fileListEl?.querySelector(`.cad-w-input[data-dimid="${entry.id}"]`);
-      const hEl = fileListEl?.querySelector(`.cad-h-input[data-dimid="${entry.id}"]`);
-      if (wEl) wEl.value = wMm;
-      if (hEl) hEl.value = hMm;
       updateSkladFormat(entry);
       recalculateAll();
     } catch (err) { console.warn('Nie udało się wykryć wymiarów obrazu:', err); }
@@ -269,25 +249,16 @@ export function init() {
     fileListEl.innerHTML = files.map(f => {
       const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
       const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
+      const dimsLabel = (f.wMm > 0 && f.hMm > 0)
+        ? `${f.wMm}×${f.hMm} mm`
+        : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : '— brak danych —');
       return `
         <div class="cad-file-item" data-fileid="${f.id}">
           <button class="cad-delete-x" data-delete="${f.id}"
                   aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
           <span class="cad-file-name" title="${escHtml(f.name)}">${escHtml(f.name)}</span>
           <span class="cad-file-size">${f.sizeMB} MB</span>
-          <label class="cad-qty-label">
-            W(mm):
-            <input type="number" class="cad-qty-input cad-w-input" data-dimid="${f.id}"
-                   value="${f.wMm || ''}" min="1" placeholder="szer." style="width:72px;"
-                   aria-label="Szerokość mm dla ${escHtml(f.name)}" />
-          </label>
-          <label class="cad-qty-label">
-            H(mm):
-            <input type="number" class="cad-qty-input cad-h-input" data-dimid="${f.id}"
-                   value="${f.hMm || ''}" min="1" placeholder="wys." style="width:72px;"
-                   aria-label="Wysokość mm dla ${escHtml(f.name)}" />
-          </label>
-          ${f.blob?.type?.startsWith('image/') ? `<button class="cad-detect-btn" data-detect="${f.id}" title="Wykryj wymiary z obrazu" aria-label="Wykryj wymiary obrazu ${escHtml(f.name)}">🔍</button>` : ''}
+          <span class="cad-dims-label" style="color:var(--text-secondary);font-size:0.85rem;white-space:nowrap;">${escHtml(dimsLabel)}</span>
           ${fmt ? `<span class="cad-format-badge" data-badgeid="${f.id}">${escHtml(fmt)}</span>` : ''}
           <label class="cad-qty-label">
             Kop.:
