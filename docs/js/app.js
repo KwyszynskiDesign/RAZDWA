@@ -76,24 +76,48 @@ async function loadCategory(hash) {
   const container = document.getElementById('viewContainer');
   if (!container) return;
 
+  const emptyState = document.getElementById('emptyState');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+
   if (!id) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;"><h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2></div>';
+    if (emptyState) emptyState.style.display = 'block';
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
+    // Remove previously loaded category content (keep emptyState + loadingSpinner)
+    Array.from(container.children).forEach(el => {
+      if (el.id !== 'emptyState' && el.id !== 'loadingSpinner') el.remove();
+    });
     return;
   }
 
-  container.innerHTML = `<div style="padding:40px;text-align:center"><h2>Ładuję ${id}…</h2></div>`;
+  if (emptyState) emptyState.style.display = 'none';
+  if (loadingSpinner) loadingSpinner.style.display = 'block';
+  // Remove previously loaded category content
+  Array.from(container.children).forEach(el => {
+    if (el.id !== 'emptyState' && el.id !== 'loadingSpinner') el.remove();
+  });
+
   try {
     const resp = await fetch(`categories/${id}.html`);
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
     if (resp.ok) {
-      container.innerHTML = await resp.text();
+      const div = document.createElement('div');
+      div.innerHTML = await resp.text();
+      container.appendChild(div);
       initCategory(id);
       console.log(`[RAZDWA] ✅ Loaded: ${id}`);
     } else {
-      container.innerHTML = `<div style="padding:20px;color:#f55;">Brak szablonu: ${id}.html (${resp.status})</div>`;
+      const err = document.createElement('div');
+      err.style.cssText = 'padding:20px;color:#f55;';
+      err.textContent = `Brak szablonu: ${id}.html (${resp.status})`;
+      container.appendChild(err);
       console.warn(`[RAZDWA] ❌ Template not found: ${id}.html`);
     }
   } catch (err) {
-    container.innerHTML = `<div style="padding:20px;color:#f55;">Błąd sieci: ${err.message}</div>`;
+    if (loadingSpinner) loadingSpinner.style.display = 'none';
+    const errEl = document.createElement('div');
+    errEl.style.cssText = 'padding:20px;color:#f55;';
+    errEl.textContent = `Błąd sieci: ${err.message}`;
+    container.appendChild(errEl);
     console.error(`[RAZDWA] ❌ Network error loading ${id}:`, err);
   }
 }
@@ -113,12 +137,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // SPA router: załaduj kategorię z hash przy starcie
   if (window.location.hash) loadCategory(window.location.hash);
+
+  // Live tile search filter
+  const searchInput = document.getElementById('categorySearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      const query = searchInput.value.trim().toLowerCase();
+      document.querySelectorAll('.tile-grid .tile').forEach(tile => {
+        const label = tile.querySelector('.tile-title')?.textContent?.toLowerCase() ?? '';
+        tile.style.display = (!query || label.includes(query)) ? '' : 'none';
+      });
+    });
+  }
 });
 
 window.addEventListener('hashchange', () => loadCategory(window.location.hash));
 
 // ─── GLOBALNE API ─────────────────────────────────────────────────────────────
 window.openUstawienia = () => loadCategory('#/ustawienia');
+window.clearSearch = () => {
+  const searchInput = document.getElementById('categorySearch');
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input'));
+  }
+};
+window.scrollToTopTiles = () => {
+  const grid = document.querySelector('.category-sticky');
+  if (grid) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    grid.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+  }
+};
 window.kalkulator = {
   openUstawienia: () => loadCategory('#/ustawienia'),
   refreshAll: initAll,
