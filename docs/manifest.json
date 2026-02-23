@@ -8,8 +8,13 @@
   "theme_color": "#ff3c00",
   "icons": [
     {
-      "src": "profilowe/fb128.png",
-      "sizes": "128x128",
+      "src": "profilowe/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "profilowe/icon-512x512.png",
+      "sizes": "512x512",
       "type": "image/png"
     }
   ]
