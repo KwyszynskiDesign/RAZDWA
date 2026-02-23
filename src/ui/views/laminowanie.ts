@@ -49,9 +49,8 @@ export const LaminowanieView: View = {
           addToCartBtn.disabled = false;
 
           ctx.updateLastCalculated(result.totalPrice, "Laminowanie");
-        } catch (err) {
-          // If we are over the max qty, we might want to handle it
-          console.error(err);
+        } catch {
+          // calculation error — result remains unchanged
         }
     };
 
