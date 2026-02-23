@@ -30,9 +30,9 @@ export function init() {
   const printQtyInput = document.getElementById('d-print-qty');
   const emailCard     = document.getElementById('d-email-card');
   const emailChk      = document.getElementById('d-email');
+  const emailQtyInput = document.getElementById('d-email-qty');
   const surchargeCard = document.getElementById('d-surcharge-card');
   const surchargeChk  = document.getElementById('d-surcharge');
-  const surchargeRow  = document.getElementById('surcharge-qty-row');
   const surchargeQtyInput = document.getElementById('d-surcharge-qty');
   const scanTypeSelect = document.getElementById('d-scan-type');
   const scanQtyRow    = document.getElementById('scan-qty-row');
@@ -57,14 +57,11 @@ export function init() {
         card.click();
       }
     });
-  });
-
-  // Show/hide surcharge qty input
-  if (surchargeChk && surchargeRow) {
-    surchargeChk.addEventListener('change', () => {
-      surchargeRow.style.display = surchargeChk.checked ? '' : 'none';
+    // Prevent qty input clicks from toggling the card
+    card.querySelectorAll('.qty-input, .qty-inline').forEach(el => {
+      el.addEventListener('click', (e) => e.stopPropagation());
     });
-  }
+  });
 
   // Show/hide scan qty input
   if (scanTypeSelect && scanQtyRow) {
@@ -73,8 +70,8 @@ export function init() {
     });
   }
 
-  // Calculate
-  calcBtn.addEventListener('click', () => {
+  /** Core calculation – called on button click and on qty input changes */
+  function calculate() {
     const mode      = modeSelect ? modeSelect.value : 'bw';
     const format    = formatSelect ? formatSelect.value : 'A4';
     const printQty  = parseInt(printQtyInput ? printQtyInput.value : '0') || 0;
@@ -93,7 +90,8 @@ export function init() {
     const totalScanPrice = unitScanPrice * scanQty;
 
     const emailChecked = emailChk ? emailChk.checked : false;
-    const emailPrice = emailChecked ? drukA4A3.email : 0;
+    const emailQty = emailChecked && emailQtyInput ? (parseInt(emailQtyInput.value) || 1) : 0;
+    const emailPrice = emailQty * drukA4A3.email;
 
     const total = totalPrintPrice + surchargePrice + totalScanPrice + emailPrice;
 
@@ -114,6 +112,13 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addToCartBtn)  addToCartBtn.disabled = (totalPrintPrice === 0);
+  }
+
+  calcBtn.addEventListener('click', calculate);
+
+  // Live update when qty inputs change
+  document.querySelectorAll('.qty-input').forEach(input => {
+    input.addEventListener('input', calculate);
   });
 }
 
