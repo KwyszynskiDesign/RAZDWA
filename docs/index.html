@@ -4,7 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kalkulator – Studio Raz Druku Dwa</title>
+  <meta name="description" content="Kalkulator cen brutto dla Studio Raz Druku Dwa – druk cyfrowy, wielkoformatowy, wizytówki, naklejki i więcej.">
+  <meta name="theme-color" content="#004080">
+  <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="assets/styles.css">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+    }
+  </script>
 </head>
 <body>
   <div class="wrap">
@@ -22,77 +30,83 @@
       <div class="left-col">
         <div class="category-sticky">
           <div class="tile-grid">
-            <a href="#/druk-a4-a3-skan" class="tile">
+            <a href="#/druk-a4-a3-skan" class="tile" role="button" tabindex="0" aria-label="Przejdź do Druk A4/A3 + skan">
               <span class="tile-icon">🖨️</span>
               <span class="tile-title">Druk A4/A3 + skan</span>
             </a>
-            <a href="#/druk-cad" class="tile">
+            <a href="#/druk-cad" class="tile" role="button" tabindex="0" aria-label="Przejdź do CAD wielkoformatowy">
               <span class="tile-icon">📐</span>
               <span class="tile-title">CAD wielkoformatowy</span>
             </a>
-            <a href="#/cad-upload" class="tile">
+            <a href="#/cad-upload" class="tile" role="button" tabindex="0" aria-label="Przejdź do CAD Upload plików">
               <span class="tile-icon">📁</span>
               <span class="tile-title">CAD Upload plików</span>
             </a>
-            <a href="#/laminowanie" class="tile">
+            <a href="#/laminowanie" class="tile" role="button" tabindex="0" aria-label="Przejdź do Laminowanie">
               <span class="tile-icon">✨</span>
               <span class="tile-title">Laminowanie</span>
             </a>
-            <a href="#/banner" class="tile">
+            <a href="#/banner" class="tile" role="button" tabindex="0" aria-label="Przejdź do Banner">
               <span class="tile-icon">🏁</span>
               <span class="tile-title">Banner</span>
             </a>
-            <a href="#/wizytowki-druk-cyfrowy" class="tile">
+            <a href="#/wizytowki-druk-cyfrowy" class="tile" role="button" tabindex="0" aria-label="Przejdź do Wizytówki">
               <span class="tile-icon">📇</span>
               <span class="tile-title">Wizytówki</span>
             </a>
-            <a href="#/ulotki-cyfrowe" class="tile">
+            <a href="#/ulotki-cyfrowe" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ulotki cyfrowe">
               <span class="tile-icon">📄</span>
               <span class="tile-title">Ulotki cyfrowe</span>
             </a>
-            <a href="#/wlepki-naklejki" class="tile">
+            <a href="#/wlepki-naklejki" class="tile" role="button" tabindex="0" aria-label="Przejdź do Wlepki / Naklejki">
               <span class="tile-icon">🏷️</span>
               <span class="tile-title">Wlepki / Naklejki</span>
             </a>
-            <a href="#/roll-up" class="tile">
+            <a href="#/roll-up" class="tile" role="button" tabindex="0" aria-label="Przejdź do Roll-up">
               <span class="tile-icon">↕️</span>
               <span class="tile-title">Roll-up</span>
             </a>
-            <a href="#/dyplomy" class="tile">
+            <a href="#/dyplomy" class="tile" role="button" tabindex="0" aria-label="Przejdź do Dyplomy">
               <span class="tile-icon">📜</span>
               <span class="tile-title">Dyplomy</span>
             </a>
-            <a href="#/zaproszenia-kreda" class="tile">
+            <a href="#/zaproszenia-kreda" class="tile" role="button" tabindex="0" aria-label="Przejdź do Zaproszenia KREDA">
               <span class="tile-icon">✉️</span>
               <span class="tile-title">Zaproszenia KREDA</span>
             </a>
-            <a href="#/folia-szroniona" class="tile">
+            <a href="#/folia-szroniona" class="tile" role="button" tabindex="0" aria-label="Przejdź do Folia szroniona">
               <span class="tile-icon">❄️</span>
               <span class="tile-title">Folia szroniona</span>
             </a>
-            <a href="#/vouchery" class="tile">
+            <a href="#/vouchery" class="tile" role="button" tabindex="0" aria-label="Przejdź do Vouchery">
               <span class="tile-icon"></span>
               <span class="tile-title">Vouchery</span>
             </a>
-            <a href="#/ustawienia" class="tile">
+            <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ustawienia cen">
               <span class="tile-icon">⚙️</span>
               <span class="tile-title">Ustawienia cen</span> 
             </a>
-            <a href="#/Plakaty" class="tile">
+            <a href="#/Plakaty" class="tile" role="button" tabindex="0" aria-label="Przejdź do Plakaty">
               <span class="tile-icon">⚙️</span>
               <span class="tile-title">Plakaty </span> 
             </a>
           </div>
         </div>
-        <div class="card" style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-          <select id="categorySelector"><option value=""></option></select>
-          <input id="categorySearch" type="text" placeholder="Szukaj kategorii...">
+        <div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
+          <label for="categorySearch" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap">Szukaj</label>
+          <input id="categorySearch" type="search" placeholder="🔍 Szukaj kategorii (wizytówki...)" style="flex:1;padding:12px;border-radius:8px">
+          <button class="btn-secondary" onclick="clearSearch()" style="white-space:nowrap">Wyczyść</button>
         </div>
 
         <div class="card">
           <div id="viewContainer">
-            <div style="text-align: center; padding: 40px;">
-              <h2>Wybierz kategorię powyżej, aby rozpocząć obliczenia</h2>
+            <div id="emptyState" style="display:block;text-align:center;padding:60px;background:var(--surface-alt);border-radius:12px;margin:20px 0">
+              <h2 style="color:var(--primary)">🖨️ Wybierz kategorię</h2>
+              <p>Wpisz usługę lub kliknij tile. Wycena + Excel w 1 klik!</p>
+              <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px">📂 Przeglądaj kategorie</button>
+            </div>
+            <div id="loadingSpinner" style="display:none;text-align:center;padding:40px">
+              ⏳ Ładowanie kategorii... <div style="animation:dots 1s infinite"></div>
             </div>
           </div>
 
