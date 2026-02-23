@@ -8,6 +8,9 @@ const BASE_LENGTHS = drukCad.baseLengthMm;
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej */
 const TOLERANCE_MM = 5;
 
+/** Cena skanowania wielkoformatowego za cm bieżący (zł/cmb) */
+const SCAN_PRICE_PER_CM = 0.08;
+
 /** Sprawdź czy podana długość jest formatową dla danego formatu */
 function isFormatLength(format, lengthMm) {
   const base = BASE_LENGTHS[format];
@@ -138,10 +141,11 @@ export function init() {
   const wfScanAddBtn = document.getElementById('cad-wf-scan-add');
   if (wfScanAddBtn) {
     wfScanAddBtn.addEventListener('click', () => {
-      const mm  = parseFloat(document.getElementById('cad-wf-scan-mm').value) || 0;
+      const cm  = parseFloat(document.getElementById('cad-wf-scan-cm').value) || 0;
       const qty = parseInt(document.getElementById('cad-wf-scan-qty').value) || 1;
-      if (mm <= 0) { alert('Podaj długość w mm'); return; }
-      opsItems.push({ label: `Skan wielkoformat ${mm}mm × ${qty} szt`, price: drukCad.skanowanie * mm * qty });
+      if (cm <= 0) { alert('Podaj długość w cm'); return; }
+      const price = +((cm * SCAN_PRICE_PER_CM * qty).toFixed(2));
+      opsItems.push({ label: `Skan wielkoformat ${cm}cm × ${qty} szt`, price });
       renderOpsList();
     });
   }
