@@ -1,6 +1,7 @@
 import prices from "../../data/normalized/laminowanie.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
+import { overrideTiersWithStoredPrices } from "../core/compat";
 
 export interface LaminowanieOptions {
   qty: number;
@@ -19,7 +20,7 @@ export function getLaminowanieTable(formatKey: string): PriceTable {
     title: `Laminowanie ${formatKey}`,
     unit: "szt",
     pricing: "per_unit",
-    tiers: tiers,
+    tiers: overrideTiersWithStoredPrices(`laminowanie-${formatKey.toLowerCase()}`, tiers),
     modifiers: [
       { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
     ]

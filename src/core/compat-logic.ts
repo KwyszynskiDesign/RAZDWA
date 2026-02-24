@@ -54,12 +54,12 @@ export function calculateSimplePrint(options: {
 
   let emailItemTotal = 0;
   if (options.email) {
-    emailItemTotal = PRICE.email_price;
+    emailItemTotal = storedPrice("druk-email", PRICE.email_price);
   }
 
   let inkItemTotal = 0;
   if (options.ink25) {
-    inkItemTotal = 0.5 * unitPrice * options.ink25Qty;
+    inkItemTotal = storedPrice("modifier-druk-zadruk25", 0.5) * unitPrice * options.ink25Qty;
   }
 
   return {
@@ -174,7 +174,15 @@ export function calculateBusinessCards(options: {
   const qtyBilled = pickNearestCeilKey(table, options.qty);
   if (qtyBilled == null) throw new Error("Brak progu cenowego dla takiej ilości.");
 
-  const total = table[qtyBilled];
+  // Check if admin panel has a stored override for this standard/softtouch run price.
+  // Key format: wizytowki-{size}-{none|matt_gloss}-{qty}szt
+  let total = table[qtyBilled];
+  if (options.family !== "deluxe" && options.size) {
+    const foliaKey = options.lam === "noLam" ? "none" : "matt_gloss";
+    const storageKey = `wizytowki-${options.size}-${foliaKey}-${qtyBilled}szt`;
+    total = storedPrice(storageKey, total);
+  }
+
   return {
     qtyBilled,
     total,

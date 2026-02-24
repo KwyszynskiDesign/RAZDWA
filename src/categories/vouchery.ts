@@ -1,26 +1,11 @@
 import { CategoryModule } from "../ui/router";
-
-const VOUCHERY_PRICING = [
-  { qty: 1, single: 20, double: 25 },
-  { qty: 2, single: 29, double: 32 },
-  { qty: 3, single: 30, double: 37 },
-  { qty: 4, single: 32, double: 39 },
-  { qty: 5, single: 35, double: 43 },
-  { qty: 6, single: 39, double: 45 },
-  { qty: 7, single: 41, double: 48 },
-  { qty: 8, single: 45, double: 50 },
-  { qty: 9, single: 48, double: 52 },
-  { qty: 10, single: 52, double: 58 },
-  { qty: 15, single: 60, double: 70 },
-  { qty: 20, single: 67, double: 82 },
-  { qty: 25, single: 74, double: 100 },
-  { qty: 30, single: 84, double: 120 }
-];
+import voucheryData from "../../data/normalized/vouchery.json";
+import { resolveStoredPrice } from "../core/compat";
 
 function getPriceForQuantity(qty: number, isSingle: boolean): number {
-  let selectedTier = VOUCHERY_PRICING[0];
+  let selectedTier = voucheryData[0];
 
-  for (const tier of VOUCHERY_PRICING) {
+  for (const tier of voucheryData) {
     if (qty >= tier.qty) {
       selectedTier = tier;
     } else {
@@ -28,7 +13,10 @@ function getPriceForQuantity(qty: number, isSingle: boolean): number {
     }
   }
 
-  return isSingle ? selectedTier.single : selectedTier.double;
+  const side = isSingle ? "jed" : "dwu";
+  const storageKey = `vouchery-${selectedTier.qty}-${side}`;
+  const defaultPrice = isSingle ? selectedTier.single : selectedTier.double;
+  return resolveStoredPrice(storageKey, defaultPrice);
 }
 
 export interface VoucheryOptions {
@@ -43,10 +31,10 @@ export function quoteVouchery(options: VoucheryOptions): any {
   let percentageSum = 0;
 
   if (options.satin) {
-    percentageSum += 0.12;
+    percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
   }
   if (options.express) {
-    percentageSum += 0.20;
+    percentageSum += resolveStoredPrice("modifier-express", 0.20);
   }
 
   const modifiersTotal = basePrice * percentageSum;

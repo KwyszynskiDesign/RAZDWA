@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import * as data from "../../data/normalized/solwent-plakaty.json";
+import { overrideTiersWithStoredPrices } from "../core/compat";
 
 export interface SolwentPlakatyInput {
   areaM2: number;
@@ -23,7 +24,7 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
     title: tableData.title,
     unit: tableData.unit,
     pricing: tableData.pricing,
-    tiers: materialData.tiers,
+    tiers: overrideTiersWithStoredPrices(`solwent-${materialData.id}`, materialData.tiers),
     rules: tableData.rules,
     modifiers: tableData.modifiers
   };

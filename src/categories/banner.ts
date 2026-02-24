@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import data from "../../data/normalized/banner.json";
+import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
 export interface BannerOptions {
   material: string;
@@ -22,8 +23,12 @@ export function calculateBanner(options: BannerOptions): CalculationResult {
     title: tableData.title,
     unit: tableData.unit,
     pricing: tableData.pricing,
-    tiers: materialData.tiers,
-    modifiers: tableData.modifiers
+    tiers: overrideTiersWithStoredPrices(`banner-${options.material}`, materialData.tiers),
+    modifiers: tableData.modifiers.map((m: any) =>
+      m.id === "oczkowanie"
+        ? { ...m, value: resolveStoredPrice("banner-oczkowanie", m.value) }
+        : m
+    )
   };
 
   const activeModifiers: string[] = [];
