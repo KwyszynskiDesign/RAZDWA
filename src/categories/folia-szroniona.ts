@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import data from "../../data/normalized/folia-szroniona.json";
+import { overrideTiersWithStoredPrices } from "../core/compat";
 
 export interface FoliaSzronionaOptions {
   widthMm: number;
@@ -25,7 +26,10 @@ export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): Calcula
     unit: tableData.unit,
     pricing: tableData.pricing,
     rules: tableData.rules,
-    tiers: materialData.tiers,
+    tiers: overrideTiersWithStoredPrices(
+      `folia-szroniona-${materialData.storageId ?? materialData.id}`,
+      materialData.tiers
+    ),
     modifiers: tableData.modifiers
   };
 

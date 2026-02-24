@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import * as data from "../../data/normalized/wlepki-naklejki.json";
+import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
 export interface WlepkiCalculation {
   groupId: string;
@@ -17,13 +18,20 @@ export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
     throw new Error(`Unknown group: ${input.groupId}`);
   }
 
+  // Normalize storage prefix: JSON uses underscores (e.g. wlepki_obrys_folia),
+  // while admin panel keys use hyphens (e.g. wlepki-obrys-folia).
+  const storagePrefix = input.groupId.replace(/_/g, "-");
+
   const priceTable: PriceTable = {
     id: "wlepki",
     title: groupData.title,
     unit: groupData.unit,
     pricing: groupData.pricing || "per_unit",
-    tiers: groupData.tiers,
-    modifiers: tableData.modifiers,
+    tiers: overrideTiersWithStoredPrices(storagePrefix, groupData.tiers),
+    modifiers: tableData.modifiers.map((m: any) => {
+      const modKey = `wlepki-modifier-${m.id.replace(/_/g, "-")}`;
+      return { ...m, value: resolveStoredPrice(modKey, m.value) };
+    }),
     rules: groupData.rules || [{ type: "minimum", unit: "m2", value: 1 }]
   };
 
