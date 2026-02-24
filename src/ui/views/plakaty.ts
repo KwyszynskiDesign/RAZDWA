@@ -1,7 +1,9 @@
 import { View, ViewContext } from "../types";
 import { calculatePlakatyM2, calculatePlakatyFormat } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
-import * as data from "../../../data/normalized/plakaty.json";
+import _config from "../../../config/prices.json";
+
+const data: any = _config.plakaty;
 
 const SOLWENT_IDS = new Set(["200g-polysk", "blockout200g", "150g-polmat", "115g-mat"]);
 

@@ -1,9 +1,11 @@
 import { CategoryModule, CategoryContext } from "../ui/router";
 import { calculatePrice } from "../core/pricing";
 import { formatPLN } from "../core/money";
-import plakatyData from "../../data/normalized/solwent-plakaty-200g.json";
+import _config from "../../config/prices.json";
 import { PriceTable } from "../core/types";
-import * as fullData from "../../data/normalized/plakaty.json";
+
+const plakatyData: any = (_config.plakaty as any).legacy200g;
+const fullData: any = _config.plakaty as any;
 
 // ---------------------------------------------------------------------------
 // Legacy CategoryModule export kept for backward compatibility

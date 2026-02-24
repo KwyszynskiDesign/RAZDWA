@@ -1,6 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import voucheryData from "../../data/normalized/vouchery.json";
+import _config from "../../config/prices.json";
 import { resolveStoredPrice } from "../core/compat";
+
+const voucheryData: any[] = _config.vouchery as any[];
 
 function getPriceForQuantity(qty: number, isSingle: boolean): number {
   let selectedTier = voucheryData[0];
@@ -126,8 +128,8 @@ export const voucheryCategory: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        let tierInfo = VOUCHERY_PRICING[0];
-        for (const tier of VOUCHERY_PRICING) {
+        let tierInfo = voucheryData[0];
+        for (const tier of voucheryData) {
           if (quantity >= tier.qty) {
             tierInfo = tier;
           } else {

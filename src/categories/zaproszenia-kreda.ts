@@ -1,4 +1,6 @@
-import pricingData from "../../data/normalized/zaproszenia-kreda.json";
+import _config from "../../config/prices.json";
+
+const pricingData: any = _config.zaproszeniaKreda;
 
 export interface ZaproszeniaKredaOptions {
   format: string;
