@@ -1,6 +1,8 @@
-import prices from "../../data/normalized/ulotki-cyfrowe-dwustronne.json";
+import _config from "../../config/prices.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
+
+const prices: any = _config.ulotkiDwustronne;
 
 export interface UlotkiDwustronneOptions {
   qty: number;

@@ -1,7 +1,9 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import data from "../../data/normalized/banner.json";
+import _config from "../../config/prices.json";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
+
+const data: any = _config.banner;
 
 export interface BannerOptions {
   material: string;

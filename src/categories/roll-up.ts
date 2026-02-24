@@ -1,7 +1,9 @@
-import data from "../../data/normalized/roll-up.json";
+import _config from "../../config/prices.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
+
+const data: any = _config.rollUp;
 
 export interface RollUpOptions {
   format: string;

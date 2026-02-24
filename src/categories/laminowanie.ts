@@ -1,7 +1,9 @@
-import prices from "../../data/normalized/laminowanie.json";
+import _config from "../../config/prices.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import { overrideTiersWithStoredPrices } from "../core/compat";
+
+const prices: any = _config.laminowanie;
 
 export interface LaminowanieOptions {
   qty: number;
