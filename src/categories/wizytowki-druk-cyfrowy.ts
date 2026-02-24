@@ -1,5 +1,6 @@
 import { calculateBusinessCards } from "../core/compat-logic";
 import { CalculationResult } from "../core/types";
+import { resolveStoredPrice } from "../core/compat";
 
 export interface WizytowkiOptions {
   family?: "standard" | "deluxe";
@@ -31,7 +32,7 @@ export function quoteWizytowki(options: WizytowkiOptions): CalculationResult {
 
   let totalPrice = res.total;
   if (options.express) {
-    totalPrice = res.total * 1.2;
+    totalPrice = res.total * (1 + resolveStoredPrice("modifier-express", 0.20));
   }
 
   return {
@@ -39,7 +40,7 @@ export function quoteWizytowki(options: WizytowkiOptions): CalculationResult {
     basePrice: res.total,
     effectiveQuantity: options.qty,
     tierPrice: res.total / res.qtyBilled, // approximate
-    modifiersTotal: options.express ? res.total * 0.2 : 0,
+    modifiersTotal: options.express ? res.total * resolveStoredPrice("modifier-express", 0.20) : 0,
     appliedModifiers: options.express ? ["TRYB EXPRESS"] : [],
     qtyBilled: res.qtyBilled
   } as any;

@@ -33,7 +33,7 @@ export function calculateRollUp(options: RollUpOptions): CalculationResult {
       pricing: "per_unit",
       tiers: [{ min: 1, max: null, price: pricePerSzt }],
       modifiers: [
-        { id: "express", name: "EXPRESS", type: "percent", value: 0.20 }
+        { id: "express", name: "EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
       ]
     };
   } else {
@@ -44,7 +44,7 @@ export function calculateRollUp(options: RollUpOptions): CalculationResult {
       pricing: "per_unit",
       tiers: overrideTiersWithStoredPrices(`rollup-${options.format}`, formatData.tiers),
       modifiers: [
-        { id: "express", name: "EXPRESS", type: "percent", value: 0.20 }
+        { id: "express", name: "EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
       ]
     };
   }

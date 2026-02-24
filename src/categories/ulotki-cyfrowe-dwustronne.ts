@@ -1,6 +1,7 @@
 import _config from "../../config/prices.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
+import { resolveStoredPrice } from "../core/compat";
 
 const prices: any = _config.ulotkiDwustronne;
 
@@ -23,7 +24,7 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
     pricing: "flat",
     tiers: formatData.tiers,
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
+      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
     ]
   };
 }

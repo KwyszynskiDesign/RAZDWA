@@ -1,7 +1,7 @@
 import _config from "../../config/prices.json";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import { overrideTiersWithStoredPrices } from "../core/compat";
+import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
 const prices: any = _config.laminowanie;
 
@@ -24,7 +24,7 @@ export function getLaminowanieTable(formatKey: string): PriceTable {
     pricing: "per_unit",
     tiers: overrideTiersWithStoredPrices(`laminowanie-${formatKey.toLowerCase()}`, tiers),
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
+      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
     ]
   };
 }

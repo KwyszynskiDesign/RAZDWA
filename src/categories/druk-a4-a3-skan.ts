@@ -36,7 +36,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
   const baseTotal = printResult.grandTotal + scanResult.total;
   let finalTotal = baseTotal;
   if (options.express) {
-    finalTotal = baseTotal * 1.2;
+    finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.20));
   }
 
   return {
@@ -179,7 +179,7 @@ export const drukA4A3Category: CategoryModule = {
 
       currentPricePerPage = getPricePerPage(format, quantity, color);
       currentPrice = currentPricePerPage * quantity;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       if (pricePerPageDisplay) {
         pricePerPageDisplay.textContent = `${currentPricePerPage.toFixed(2)} zł/str`;
