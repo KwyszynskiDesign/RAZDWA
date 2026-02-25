@@ -1,14 +1,20 @@
 import { View, ViewContext } from "../types";
-import { PRICE_PER_FILE } from "../../categories/cad-upload";
+import { calculatePriceFromDimensions, detectFormatFromDimensions } from "../../categories/cad-upload";
 import { formatPLN } from "../../core/money";
 
 const MAX_FILES_SOFT = 50;
+/** 300 DPI: 1 px = 25.4/300 mm */
+const PX_TO_MM = 25.4 / 300;
 
 interface FileEntry {
   id: number;
   name: string;
   sizeMB: string;
   qty: number;
+  widthPx: number;
+  heightPx: number;
+  widthMm: number;
+  heightMm: number;
 }
 
 function escHtml(str: string): string {
@@ -53,9 +59,31 @@ export const CadUploadView: View = {
     const totalEl = container.querySelector<HTMLElement>("#cadTotal")!;
     const warningEl = container.querySelector<HTMLElement>("#cadWarning")!;
     const przeliczBtn = container.querySelector<HTMLButtonElement>("#cadPrzelicz")!;
+    const tableBody = container.querySelector<HTMLElement>("#cadTableBody");
+    const grandTotalEl = container.querySelector<HTMLElement>("#grandTotal");
+    const modeEl = container.querySelector<HTMLSelectElement>("#cadMode");
 
     let nextId = 1;
     let files: FileEntry[] = [];
+
+    function getMode(): 'bw' | 'color' {
+      return modeEl?.value === 'bw' ? 'bw' : 'color';
+    }
+
+    function detectImageDimensions(file: File, entry: FileEntry): void {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        entry.widthPx = img.naturalWidth;
+        entry.heightPx = img.naturalHeight;
+        entry.widthMm = Math.round(img.naturalWidth * PX_TO_MM);
+        entry.heightMm = Math.round(img.naturalHeight * PX_TO_MM);
+        renderFileList();
+      };
+      img.onerror = () => URL.revokeObjectURL(url);
+      img.src = url;
+    }
 
     // ── Drop zone events ──────────────────────────────────────────────────────
     dropZone.addEventListener("click", () => fileInput.click());
@@ -87,6 +115,9 @@ export const CadUploadView: View = {
       input.value = "";
     });
 
+    // Mode change recalculates prices
+    modeEl?.addEventListener("change", () => renderFileList());
+
     // Przelicz button re-dispatches the current total
     przeliczBtn?.addEventListener("click", () => updateSummary());
 
@@ -109,21 +140,33 @@ export const CadUploadView: View = {
         return;
       }
       entry.qty = Math.min(999, parsed);
+      const mode = getMode();
+      const price = (entry.widthMm > 0 && entry.heightMm > 0)
+        ? calculatePriceFromDimensions(entry.widthMm, entry.heightMm, mode, entry.qty)
+        : 0;
       const row = input.closest<HTMLElement>(".cad-file-item");
       const priceEl = row?.querySelector<HTMLElement>(".cad-file-price");
-      if (priceEl) priceEl.textContent = formatPLN(entry.qty * PRICE_PER_FILE);
+      if (priceEl) priceEl.textContent = price > 0 ? formatPLN(price) : "—";
       debouncedUpdate();
     });
 
     // ── File management ───────────────────────────────────────────────────────
     function addFiles(fileList: FileList): void {
       for (const f of Array.from(fileList)) {
-        files.push({
+        const entry: FileEntry = {
           id: nextId++,
           name: f.name,
           sizeMB: (f.size / (1024 * 1024)).toFixed(2),
           qty: 1,
-        });
+          widthPx: 0,
+          heightPx: 0,
+          widthMm: 0,
+          heightMm: 0,
+        };
+        files.push(entry);
+        if (f.type.startsWith("image/")) {
+          detectImageDimensions(f, entry);
+        }
       }
       if (warningEl) warningEl.style.display = files.length > MAX_FILES_SOFT ? "" : "none";
       renderFileList();
@@ -140,29 +183,42 @@ export const CadUploadView: View = {
       if (files.length === 0) {
         fileListEl.innerHTML = "";
         if (summaryEl) summaryEl.style.display = "none";
-        updateSummary();
+        if (tableBody) tableBody.innerHTML = "";
+        if (grandTotalEl) grandTotalEl.textContent = "0,00 zł";
         return;
       }
       if (summaryEl) summaryEl.style.display = "";
 
+      const mode = getMode();
       fileListEl.innerHTML = files
-        .map(
-          (f) => `
+        .map((f) => {
+          const fmt = (f.widthMm > 0 && f.heightMm > 0)
+            ? detectFormatFromDimensions(f.widthMm, f.heightMm)
+            : "";
+          const dimsLabel = (f.widthMm > 0 && f.heightMm > 0)
+            ? `${f.widthPx}×${f.heightPx} px / ${f.widthMm}×${f.heightMm} mm`
+            : (f.widthPx === 0 && f.name.match(/\.(jpg|jpeg|png|tif|tiff)$/i) ? "⏳ wykrywanie…" : "—");
+          const price = (f.widthMm > 0 && f.heightMm > 0)
+            ? calculatePriceFromDimensions(f.widthMm, f.heightMm, mode, f.qty)
+            : 0;
+          return `
         <div class="cad-file-item" data-fileid="${f.id}">
           <button class="cad-delete-x" data-delete="${f.id}"
                   aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
           <span class="cad-file-name" title="${escHtml(f.name)}">${escHtml(f.name)}</span>
           <span class="cad-file-size">${f.sizeMB} MB</span>
+          <span style="color:var(--text-secondary,#666);font-size:0.85rem;white-space:nowrap">${escHtml(dimsLabel)}</span>
+          ${fmt ? `<span class="cad-format-badge">${escHtml(fmt)}</span>` : ""}
           <label class="cad-qty-label">
-            Ilość:
+            Kop.:
             <input type="number" class="cad-qty-input" data-qtyid="${f.id}"
                    value="${f.qty}" min="1" max="999"
-                   aria-label="Ilość dla ${escHtml(f.name)}" />
+                   aria-label="Ilość kopii dla ${escHtml(f.name)}" />
           </label>
-          <span class="cad-file-price">${formatPLN(f.qty * PRICE_PER_FILE)}</span>
+          <span class="cad-file-price">${price > 0 ? formatPLN(price) : "—"}</span>
         </div>
-      `
-        )
+      `;
+        })
         .join("");
 
       updateSummary();
@@ -170,10 +226,41 @@ export const CadUploadView: View = {
 
     // ── Price calculation & cart update ───────────────────────────────────────
     function updateSummary(): void {
-      const total = files.reduce((s, f) => s + f.qty * PRICE_PER_FILE, 0);
-      const n = files.length;
+      const mode = getMode();
+      let total = 0;
+      const rows: string[] = [];
 
+      for (const f of files) {
+        const price = (f.widthMm > 0 && f.heightMm > 0)
+          ? calculatePriceFromDimensions(f.widthMm, f.heightMm, mode, f.qty)
+          : 0;
+        total += price;
+        const fmt = (f.widthMm > 0 && f.heightMm > 0)
+          ? detectFormatFromDimensions(f.widthMm, f.heightMm)
+          : "—";
+        const rozmiar = (f.widthMm > 0 && f.heightMm > 0)
+          ? `${fmt} (${f.widthMm}×${f.heightMm} mm)`
+          : "—";
+        rows.push(`
+          <tr>
+            <td>${escHtml(f.name)}<br><small style="color:var(--text-secondary,#666)">${rozmiar}</small></td>
+            <td>${price > 0 ? formatPLN(price) : "—"}</td>
+            <td>—</td>
+            <td>—</td>
+            <td><strong>${price > 0 ? formatPLN(price) : "—"}</strong></td>
+          </tr>
+        `);
+      }
+
+      if (tableBody) {
+        tableBody.innerHTML = rows.length > 0
+          ? rows.join("")
+          : '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary,#666)">Brak plików</td></tr>';
+      }
+      if (grandTotalEl) grandTotalEl.textContent = formatPLN(total);
       if (totalEl) totalEl.textContent = formatPLN(total);
+
+      const n = files.length;
       if (fileCountEl) fileCountEl.textContent = String(n);
 
       if (n > 0) {
@@ -184,10 +271,10 @@ export const CadUploadView: View = {
           name: `${n} plik${n === 1 ? "" : n < 5 ? "i" : "ów"}`,
           quantity: n,
           unit: "szt",
-          unitPrice: PRICE_PER_FILE,
+          unitPrice: total / n,
           totalPrice: total,
-          optionsHint: `${n} plików × ${formatPLN(PRICE_PER_FILE)}/szt`,
-          payload: { files: files.map((f) => ({ name: f.name, qty: f.qty })), totalPrice: total },
+          optionsHint: `${n} plików, tryb: ${mode === 'color' ? 'kolor' : 'czarno-białe'}`,
+          payload: { files: files.map((f) => ({ name: f.name, qty: f.qty, widthMm: f.widthMm, heightMm: f.heightMm })), totalPrice: total },
         });
       }
     }
