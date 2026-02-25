@@ -1,5 +1,6 @@
 import { CategoryModule } from "../ui/router";
 import _config from "../../config/prices.json";
+import { resolveStoredPrice } from "../core/compat";
 
 const DYPLOMY_PRICING: Array<{ qty: number; price: number }> = _config.dyplomy as Array<{ qty: number; price: number }>;
 
@@ -30,11 +31,11 @@ export function calculateDyplomy(options: DyplomyOptions) {
   const appliedModifiers: string[] = [];
 
   if (options.isSatin) {
-    percentageSum += 0.12;
+    percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
     appliedModifiers.push("satin");
   }
   if (options.express) {
-    percentageSum += 0.20;
+    percentageSum += resolveStoredPrice("modifier-express", 0.20);
     appliedModifiers.push("express");
   }
 
@@ -114,8 +115,8 @@ export const dyplomyCategory: CategoryModule = {
       const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
 
       const basePrice = getPriceForQuantity(quantity);
-      const paperMultiplier = paper === 'satin' ? 1.12 : 1;
-      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
+      const paperMultiplier = paper === 'satin' ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
+      const expressMultiplier = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
@@ -132,7 +133,7 @@ export const dyplomyCategory: CategoryModule = {
             break;
           }
         }
-        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ' × 1.12 (satyna)' : ''}`;
+        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ` × ${paperMultiplier.toFixed(2)} (satyna)` : ''}`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Dyplomy DL - ${quantity} szt`);

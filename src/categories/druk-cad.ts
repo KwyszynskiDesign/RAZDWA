@@ -1,6 +1,7 @@
 import { CategoryModule } from "../ui/router";
 import { calculateCad } from "../core/compat-logic";
 import _config from "../../config/prices.json";
+import { resolveStoredPrice } from "../core/compat";
 
 export interface DrukCADOptions {
   mode: "bw" | "color";
@@ -24,7 +25,7 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
 
   let totalPrice = res.total;
   if (options.express) {
-    totalPrice = res.total * 1.2;
+    totalPrice = res.total * (1 + resolveStoredPrice("modifier-express", 0.20));
   }
 
   return {
@@ -226,7 +227,7 @@ export const drukCADCategory: CategoryModule = {
       }
 
       currentPrice = pricing.price;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       const formatDisplay = container.querySelector('#format-display');
       const dimsDisplay = container.querySelector('#dims-display');
@@ -250,7 +251,7 @@ export const drukCADCategory: CategoryModule = {
 
       const pricePerMb = pricing.price;
       currentPrice = pricePerMb * length;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       const pricePerMbDisplay = container.querySelector('#price-per-mb');
       const lengthDisplay = container.querySelector('#length-display');

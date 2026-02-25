@@ -118,8 +118,8 @@ export const voucheryCategory: CategoryModule = {
       const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
 
       const basePrice = getPriceForQuantity(quantity, sides === 'single');
-      const paperMultiplier = paper === 'satin' ? 1.12 : 1;
-      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
+      const paperMultiplier = paper === 'satin' ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
+      const expressMultiplier = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
