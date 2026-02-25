@@ -32,25 +32,33 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   isFormatowy: boolean;
   isStandardWidth: boolean;
 } {
+  console.log("detectFormatFromDimensions called with:", { widthMm, heightMm });
+  console.log("CAD_BASE:", CAD_BASE);
+  
   const shorter = Math.min(widthMm, heightMm);
   const longer = Math.max(widthMm, heightMm);
+  console.log("shorter:", shorter, "longer:", longer);
 
   // Check standard formats by width
   for (const [fmt, base] of Object.entries(CAD_BASE)) {
     if (fmt === 'R1067') continue; // Skip roll for now
     const baseWidth = (base as any).w;
     const baseLength = (base as any).l;
+    console.log("Checking format", fmt, "width:", baseWidth, "length:", baseLength);
 
     // Check if width matches
     if (Math.abs(shorter - baseWidth) < 0.5) {
+      console.log("Width matches for format", fmt);
       // Check if length is within tolerance
       if (Math.abs(longer - baseLength) <= FORMAT_TOLERANCE_MM) {
+        console.log("Length also matches - formatowy");
         return {
           format: fmt,
           isFormatowy: true,
           isStandardWidth: true
         };
       } else {
+        console.log("Length doesn't match - meter-based");
         // Width matches but length doesn't = meter-based (mb)
         return {
           format: fmt,
@@ -61,6 +69,7 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
     }
   }
 
+  console.log("No standard format found - non-standard");
   // Non-standard width
   return {
     format: `${Math.round(shorter)}mm`,
@@ -81,19 +90,26 @@ export function calculateCadPrintPrice(
   mode: 'bw' | 'color',
   qty: number
 ): number {
+  console.log("calculateCadPrintPrice called with:", { widthMm, heightMm, format, isFormatowy, mode, qty });
+  
   const prices = CAD_PRICE[mode];
+  console.log("CAD_PRICE:", CAD_PRICE);
+  console.log("prices for mode", mode, ":", prices);
 
   if (isFormatowy) {
     // Format-based pricing
     const price = prices.formatowe[format];
+    console.log("Format-based price for", format, ":", price);
     if (!price) return 0;
     return qty * price;
   } else {
     // Meter-based pricing
     const price = prices.mb[format];
+    console.log("Meter-based price for", format, ":", price);
     if (!price) return 0;
     // Use longer side (usually height) for length in meters
     const lengthMeters = Math.max(widthMm, heightMm) / 1000;
+    console.log("Length in meters:", lengthMeters);
     return qty * lengthMeters * price;
   }
 }

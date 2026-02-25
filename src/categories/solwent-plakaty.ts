@@ -12,7 +12,7 @@ export interface SolwentPlakatyInput {
 }
 
 export function calculateSolwentPlakaty(input: SolwentPlakatyInput): CalculationResult {
-  const tableData = priceService.loadSync('solwent-plakaty') as any;
+  const tableData = getPrice('solwent-plakaty') as any;
 
   // Find material by name in the list
   const materialData = tableData.materials.find((m: any) => m.name === input.material);

@@ -179,17 +179,33 @@ export const CadUploadView: View = {
           entry.isStandardWidth = fmt.isStandardWidth;
 
           const fileEntry = updateCadFileEntry(entry, getMode());
+          console.log("CAD FILE META AFTER PROCESSING:", fileEntry);
+          files.push(fileEntry);
+          renderFiles();
+        };
+        img.onerror = () => {
+          console.error("Failed to load image:", file.name);
+          // Still add file with zero dimensions
+          const fileEntry = updateCadFileEntry(entry, getMode());
           files.push(fileEntry);
           renderFiles();
         };
         img.src = e.target?.result as string;
       };
 
+      reader.onerror = () => {
+        console.error("Failed to read file:", file.name);
+      };
+
       reader.readAsDataURL(file);
     }
 
     function addFiles(fileList: FileList): void {
+      console.log("CAD FILES:", fileList);
+      
       for (const file of Array.from(fileList)) {
+        console.log("Processing file:", file.name, "type:", file.type);
+        
         const entry: Partial<CadUploadFileEntry> = {
           id: nextId++,
           name: file.name,
@@ -208,7 +224,7 @@ export const CadUploadView: View = {
           totalPrice: 0,
         };
 
-        if (file.type.startsWith("image/")) {
+        if (file.type.startsWith("image/") || file.type === "application/pdf" || file.name.match(/\.(pdf|jpe?g|png|tiff?)$/i)) {
           detectImageDimensions(file, entry);
         } else if (file.name.match(/\.(dwg|dxf)$/i)) {
           // Mock DWG/DXF dimensions
@@ -231,9 +247,11 @@ export const CadUploadView: View = {
           renderFiles();
         } else {
           // Unsupported file - add with placeholder
+          console.warn("Unsupported file type:", file.name, file.type);
           entry.widthMm = 0;
           entry.heightMm = 0;
           const fileEntry = updateCadFileEntry(entry, getMode());
+          console.log("CAD FILE META AFTER PROCESSING (unsupported):", fileEntry);
           files.push(fileEntry);
           renderFiles();
         }

@@ -1,6 +1,5 @@
 import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
-import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
@@ -13,7 +12,7 @@ export interface LaminowanieOptions {
 }
 
 export function getLaminowanieTable(formatKey: string): PriceTable {
-  const prices = priceService.loadSync('laminowanie');
+  const prices = getPrice('laminowanie');
   const tiers = (prices.formats as any)[formatKey];
   if (!tiers) {
     throw new Error(`Invalid format: ${formatKey}`);
