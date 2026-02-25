@@ -9,5 +9,8 @@
   "scripts": {
     "build": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --target=es2019 --minify",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
   }
 }

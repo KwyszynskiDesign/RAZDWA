@@ -84,12 +84,13 @@ export const CadUploadView: View = {
       }
 
       tableBody.innerHTML = files
-        .map(
-          (file) => `
+        .map((file) => {
+          const row = { ...file, price: file.totalPrice };
+          return `
         <tr data-file-id="${file.id}">
           <td><strong>${escapeHtml(file.name)}</strong></td>
           <td>${file.widthPx} × ${file.heightPx}</td>
-          <td>${Math.round(file.widthMm)} × ${Math.round(file.heightMm)} mm</td>
+          <td>${row.widthMm?.toFixed(1) || "—"} × ${row.heightMm?.toFixed(1) || "—"} cm</td>
           <td><strong>${file.format}</strong></td>
           <td>${file.isFormatowy ? "Formatowy" : "Metr-bieżący"}</td>
           <td>
@@ -98,10 +99,10 @@ export const CadUploadView: View = {
           <td>
             <input type="checkbox" class="scan-check" ${file.scanning ? "checked" : ""} />
           </td>
-          <td><strong>${formatPLN(file.totalPrice)}</strong></td>
+          <td><strong>Cena: ${row.price?.toFixed(2) || "0,00"} zł</strong></td>
         </tr>
-      `
-        )
+      `;
+        })
         .join("");
 
       // Attach event listeners
@@ -160,83 +161,16 @@ export const CadUploadView: View = {
       summaryPanel.style.display = files.length > 0 ? "block" : "none";
     }
 
-    function detectImageDimensions(file: File, entry: Partial<CadUploadFileEntry>): void {
-      const reader = new FileReader();
+    async function addFiles(fileList: FileList): Promise<void> {
+      console.log("CAD FILES:", fileList);
 
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const widthMm = pxToMm(img.naturalWidth || img.width);
-          const heightMm = pxToMm(img.naturalHeight || img.height);
-          const fmt = detectFormatFromDimensions(widthMm, heightMm);
-
-          entry.widthPx = img.naturalWidth || img.width;
-          entry.heightPx = img.naturalHeight || img.height;
-          entry.widthMm = widthMm;
-          entry.heightMm = heightMm;
-          entry.format = fmt.format;
-          entry.isFormatowy = fmt.isFormatowy;
-          entry.isStandardWidth = fmt.isStandardWidth;
-
-          const fileEntry = updateCadFileEntry(entry, getMode());
-          files.push(fileEntry);
-          renderFiles();
-        };
-        img.src = e.target?.result as string;
-      };
-
-      reader.readAsDataURL(file);
-    }
-
-    function addFiles(fileList: FileList): void {
       for (const file of Array.from(fileList)) {
-        const entry: Partial<CadUploadFileEntry> = {
-          id: nextId++,
-          name: file.name,
-          widthPx: 0,
-          heightPx: 0,
-          widthMm: 0,
-          heightMm: 0,
-          format: "unknown",
-          isFormatowy: false,
-          isStandardWidth: false,
-          folding: false,
-          scanning: false,
-          printPrice: 0,
-          foldingPrice: 0,
-          scanPrice: 0,
-          totalPrice: 0,
-        };
+        console.log("Processing file:", file);
 
-        if (file.type.startsWith("image/")) {
-          detectImageDimensions(file, entry);
-        } else if (file.name.match(/\.(dwg|dxf)$/i)) {
-          // Mock DWG/DXF dimensions
-          const mockWidth = 2480 + Math.random() * 1000;
-          const mockHeight = 1754 + Math.random() * 1000;
-          const widthMm = pxToMm(mockWidth);
-          const heightMm = pxToMm(mockHeight);
-          const fmt = detectFormatFromDimensions(widthMm, heightMm);
-
-          entry.widthPx = Math.round(mockWidth);
-          entry.heightPx = Math.round(mockHeight);
-          entry.widthMm = widthMm;
-          entry.heightMm = heightMm;
-          entry.format = fmt.format;
-          entry.isFormatowy = fmt.isFormatowy;
-          entry.isStandardWidth = fmt.isStandardWidth;
-
-          const fileEntry = updateCadFileEntry(entry, getMode());
-          files.push(fileEntry);
-          renderFiles();
-        } else {
-          // Unsupported file - add with placeholder
-          entry.widthMm = 0;
-          entry.heightMm = 0;
-          const fileEntry = updateCadFileEntry(entry, getMode());
-          files.push(fileEntry);
-          renderFiles();
-        }
+        const fileEntry = await updateCadFileEntry(file);
+        fileEntry.id = nextId++;
+        files.push(fileEntry);
+        renderFiles();
       }
     }
 
@@ -261,14 +195,17 @@ export const CadUploadView: View = {
       });
 
       dropZone.addEventListener("drop", (e) => {
+        console.log("*** CAD UPLOAD HANDLER FIRED ***", e.dataTransfer?.files?.length || 0);
         e.preventDefault();
         dropZone.classList.remove("drag-over");
-        addFiles(e.dataTransfer!.files);
+        void addFiles(e.dataTransfer!.files);
       });
     }
 
     fileInput.addEventListener("change", (e) => {
-      addFiles((e.target as HTMLInputElement).files!);
+      console.log("*** CAD UPLOAD HANDLER FIRED ***", (e.target as HTMLInputElement).files?.length || 0);
+      const targetFiles = (e.target as HTMLInputElement).files;
+      void addFiles(targetFiles!);
     });
 
     // Color mode toggle

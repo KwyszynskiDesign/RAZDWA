@@ -13,7 +13,7 @@ export interface FoliaSzronionaOptions {
 }
 
 export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): CalculationResult & { isCustom: boolean } {
-  const tableData = priceService.loadSync('folia-szroniona') as any;
+  const tableData = getPrice('folia-szroniona') as any;
   const materialData = tableData.materials.find((m: any) => m.id === options.serviceId);
 
   if (!materialData) {
