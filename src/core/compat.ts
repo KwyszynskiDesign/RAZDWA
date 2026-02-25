@@ -1,5 +1,5 @@
 /* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
-import { getPrice } from "../services/priceService";
+import { getPrice, PRICES_STORAGE_KEY } from "../services/priceService";
 
 export function money(n: any) {
   return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
@@ -31,13 +31,11 @@ export const FOLD_PRICE: any = getPrice("drukCAD.fold") as any;
 
 export const WF_SCAN_PRICE_PER_CM = getPrice("drukCAD.wfScanPerCm") as number;
 
-const _PRICES_KEY = "razdwa_prices";
-
 /** Read user-overridden prices from localStorage. Returns empty object on error or if not set. */
 export function readStoredPrices(): Record<string, number> {
   try {
     if (typeof localStorage === "undefined") return {};
-    const raw = localStorage.getItem(_PRICES_KEY);
+    const raw = localStorage.getItem(PRICES_STORAGE_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
@@ -76,8 +74,8 @@ export function overrideTiersWithStoredPrices(
 }
 
 // ---------------------------------------------------------------------------
-// DEFAULT_PRICES – single source of truth for all price defaults.
-// Used by the admin panel (ustawienia.ts) as the initial/reset values.
+// DEFAULT_PRICES – snapshot of default prices from priceService at module load.
+// NOTE: do not use for reset logic; call resetPrices() from priceService instead.
 // ---------------------------------------------------------------------------
 export const DEFAULT_PRICES: Record<string, number> = getPrice("defaultPrices") as Record<string, number>;
 
