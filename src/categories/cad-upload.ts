@@ -1,5 +1,6 @@
 import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
+import { PDFDocument } from "pdf-lib";
 
 /** Pixel to millimeters conversion at 300 DPI */
 export const PX_TO_MM_300DPI = 25.4 / 300;
@@ -265,7 +266,26 @@ function pxToMm(px: number): number {
 }
 
 function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number }>{
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
+    if (file.type === "application/pdf") {
+      try {
+        const bytes = await file.arrayBuffer();
+        const pdfDoc = await PDFDocument.load(bytes);
+        const page = pdfDoc.getPage(0);
+        const { width, height } = page.getSize(); // points (1/72 inch)
+        
+        // Convert points → px (300 DPI)
+        const pxPerPoint = 300 / 72;
+        const widthPx = Math.round(width * pxPerPoint);
+        const heightPx = Math.round(height * pxPerPoint);
+        
+        resolve({ widthPx, heightPx });
+      } catch (err) {
+        reject(new Error("Failed to load PDF"));
+      }
+      return;
+    }
+
     if (!file.type.startsWith("image/")) {
       reject(new Error("Unsupported file type"));
       return;
