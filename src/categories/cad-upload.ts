@@ -1,6 +1,7 @@
 import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
 import { PDFDocument } from "pdf-lib";
+import { getFileDimensions, detectPaperFormat, formatDimensionOutput, pixelsToMm as pxToMmUtil } from "../utils/fileDimensionReader";
 
 /** Pixel to millimeters conversion at 300 DPI */
 export const PX_TO_MM_300DPI = 25.4 / 300;
@@ -270,14 +271,18 @@ function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: n
     if (file.type === "application/pdf") {
       try {
         const bytes = await file.arrayBuffer();
+        console.log("PDF bytes:", bytes.byteLength);
         const pdfDoc = await PDFDocument.load(bytes);
+        console.log("PDF loaded:", pdfDoc.getPageCount());
         const page = pdfDoc.getPage(0);
         const { width, height } = page.getSize(); // points (1/72 inch)
+        console.log("Page size:", { width, height });
         
         // Convert points → px (300 DPI)
         const pxPerPoint = 300 / 72;
         const widthPx = Math.round(width * pxPerPoint);
         const heightPx = Math.round(height * pxPerPoint);
+        console.log("Final px:", { widthPx, heightPx });
         
         resolve({ widthPx, heightPx });
       } catch (err) {
