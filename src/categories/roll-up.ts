@@ -1,5 +1,5 @@
-import data from "../../data/normalized/roll-up.json";
 import { calculatePrice } from "../core/pricing";
+import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
 
 export interface RollUpOptions {
@@ -10,6 +10,7 @@ export interface RollUpOptions {
 }
 
 export function calculateRollUp(options: RollUpOptions): CalculationResult {
+  const data = priceService.loadSync('roll-up');
   const formatData = (data.formats as any)[options.format];
   if (!formatData) {
     throw new Error(`Unknown format: ${options.format}`);

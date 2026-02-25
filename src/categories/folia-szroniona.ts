@@ -1,6 +1,6 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import data from "../../data/normalized/folia-szroniona.json";
+import { priceService } from "../services/priceService";
 
 export interface FoliaSzronionaOptions {
   widthMm: number;
@@ -10,7 +10,7 @@ export interface FoliaSzronionaOptions {
 }
 
 export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): CalculationResult & { isCustom: boolean } {
-  const tableData = data as any;
+  const tableData = priceService.loadSync('folia-szroniona') as any;
   const materialData = tableData.materials.find((m: any) => m.id === options.serviceId);
 
   if (!materialData) {

@@ -1,6 +1,6 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import * as data from "../../data/normalized/wlepki-naklejki.json";
+import { priceService } from "../services/priceService";
 
 export interface WlepkiCalculation {
   groupId: string;
@@ -10,7 +10,7 @@ export interface WlepkiCalculation {
 }
 
 export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
-  const tableData = data as any;
+  const tableData = priceService.loadSync('wlepki-naklejki') as any;
   const groupData = tableData.groups.find((g: any) => g.id === input.groupId);
 
   if (!groupData) {

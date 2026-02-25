@@ -1,6 +1,6 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import data from "../../data/normalized/banner.json";
+import { priceService } from "../services/priceService";
 
 export interface BannerOptions {
   material: string;
@@ -10,7 +10,7 @@ export interface BannerOptions {
 }
 
 export function calculateBanner(options: BannerOptions): CalculationResult {
-  const tableData = data as any;
+  const tableData = priceService.loadSync('banner') as any;
   const materialData = tableData.materials.find((m: any) => m.id === options.material);
 
   if (!materialData) {

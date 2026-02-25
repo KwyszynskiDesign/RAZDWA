@@ -1,14 +1,14 @@
 import { CategoryModule, CategoryContext } from "../ui/router";
 import { calculatePrice } from "../core/pricing";
 import { formatPLN } from "../core/money";
-import plakatyData from "../../data/normalized/solwent-plakaty-200g.json";
+import { priceService } from "../services/priceService";
 import { PriceTable } from "../core/types";
 
 export const plakatyCategory: CategoryModule = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
   mount: (container: HTMLElement, ctx: CategoryContext) => {
-    const table = plakatyData as PriceTable;
+    const table = priceService.loadSync('solwent-plakaty-200g') as PriceTable;
 
     container.innerHTML = `
       <div class="category-view">

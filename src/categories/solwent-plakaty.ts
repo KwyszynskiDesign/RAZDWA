@@ -1,6 +1,6 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import * as data from "../../data/normalized/solwent-plakaty.json";
+import { priceService } from "../services/priceService";
 
 export interface SolwentPlakatyInput {
   areaM2: number;
@@ -9,7 +9,7 @@ export interface SolwentPlakatyInput {
 }
 
 export function calculateSolwentPlakaty(input: SolwentPlakatyInput): CalculationResult {
-  const tableData = data as any;
+  const tableData = priceService.loadSync('solwent-plakaty') as any;
 
   // Find material by name in the list
   const materialData = tableData.materials.find((m: any) => m.name === input.material);
