@@ -1,6 +1,6 @@
 [
   {
-    "id": "druk-a4-a3-skan",
+    "id": "druk-a4-a3",
     "name": "Druk A4/A3 + skan",
     "icon": "🖨️",
     "implemented": true,
@@ -44,14 +44,14 @@
     "implemented": true,
     "format_prices": {
       "bw": {
-        "A0p": { "length": 1292, "price": 12.50 },
+        "A0+": { "length": 1292, "price": 12.50 },
         "A0": { "length": 1189, "price": 11.00 },
         "A1": { "length": 841, "price": 6.00 },
         "A2": { "length": 594, "price": 4.00 },
         "A3": { "length": 420, "price": 2.50 }
       },
       "color": {
-        "A0p": { "length": 1292, "price": 26.00 },
+        "A0+": { "length": 1292, "price": 26.00 },
         "A0": { "length": 1189, "price": 24.00 },
         "A1": { "length": 841, "price": 12.00 },
         "A2": { "length": 594, "price": 8.50 },
@@ -60,14 +60,14 @@
     },
     "meter_prices": {
       "bw": {
-        "A0p": 10.00,
+        "A0+": 10.00,
         "A0": 9.00,
         "A1": 5.00,
         "A2": 4.50,
         "A3": 3.50
       },
       "color": {
-        "A0p": 21.00,
+        "A0+": 21.00,
         "A0": 20.00,
         "A1": 14.50,
         "A2": 13.90,
@@ -75,23 +75,32 @@
       }
     }
   },
+  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
+  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
+  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
+  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
+  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
+  { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
+  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki – cyfrowe jednostronne", "icon": "📄", "implemented": true },
+  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
+  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
+  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
+  {
+    "id": "folia-szroniona",
+    "name": "Folia szroniona",
+    "icon": "❄️",
+    "implemented": true
+  },
   {
     "id": "laminowanie",
     "name": "Laminowanie",
     "icon": "✨",
     "implemented": true
   },
-  { "id": "plakaty", "name": "Plakaty", "icon": "🖼️", "implemented": true },
-  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
-  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
-  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
-  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
-  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
-  { "id": "ulotki-cyfrowe", "name": "Ulotki cyfrowe", "icon": "📄", "implemented": true },
-  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
-  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
-  { "id": "folia-szroniona", "name": "Folia szroniona", "icon": "❄️", "implemented": true },
-  { "id": "upload-kalkulator", "name": "Upload Kalkulator CAD", "icon": "📐", "implemented": true },
-  { "id": "ustawienia", "name": "Ustawienia cen", "icon": "⚙️", "implemented": true }
+  {
+    "id": "cad-ops",
+    "name": "CAD: składanie / skan",
+    "icon": "📏",
+    "implemented": true
+  }
 ]
