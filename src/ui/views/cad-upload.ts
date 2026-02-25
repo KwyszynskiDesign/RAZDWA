@@ -84,12 +84,13 @@ export const CadUploadView: View = {
       }
 
       tableBody.innerHTML = files
-        .map(
-          (file) => `
+        .map((file) => {
+          const row = { ...file, price: file.totalPrice };
+          return `
         <tr data-file-id="${file.id}">
           <td><strong>${escapeHtml(file.name)}</strong></td>
           <td>${file.widthPx} × ${file.heightPx}</td>
-          <td>${Math.round(file.widthMm)} × ${Math.round(file.heightMm)} mm</td>
+          <td>${row.widthMm?.toFixed(1) || "—"} × ${row.heightMm?.toFixed(1) || "—"} cm</td>
           <td><strong>${file.format}</strong></td>
           <td>${file.isFormatowy ? "Formatowy" : "Metr-bieżący"}</td>
           <td>
@@ -98,10 +99,10 @@ export const CadUploadView: View = {
           <td>
             <input type="checkbox" class="scan-check" ${file.scanning ? "checked" : ""} />
           </td>
-          <td><strong>${formatPLN(file.totalPrice)}</strong></td>
+          <td><strong>Cena: ${row.price?.toFixed(2) || "0,00"} zł</strong></td>
         </tr>
-      `
-        )
+      `;
+        })
         .join("");
 
       // Attach event listeners
@@ -194,6 +195,7 @@ export const CadUploadView: View = {
       });
 
       dropZone.addEventListener("drop", (e) => {
+        console.log("*** CAD UPLOAD HANDLER FIRED ***", e.dataTransfer?.files?.length || 0);
         e.preventDefault();
         dropZone.classList.remove("drag-over");
         void addFiles(e.dataTransfer!.files);
@@ -201,7 +203,9 @@ export const CadUploadView: View = {
     }
 
     fileInput.addEventListener("change", (e) => {
-      void addFiles((e.target as HTMLInputElement).files!);
+      console.log("*** CAD UPLOAD HANDLER FIRED ***", (e.target as HTMLInputElement).files?.length || 0);
+      const targetFiles = (e.target as HTMLInputElement).files;
+      void addFiles(targetFiles!);
     });
 
     // Color mode toggle
