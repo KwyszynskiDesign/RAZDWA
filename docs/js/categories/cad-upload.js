@@ -3,6 +3,8 @@
 
 import { drukCad } from '../prices.js';
 
+console.log('✅ PRODUCTION READY');
+
 // ─── CENY (z prices.js – identyczne jak w druk-cad) ─────────────────────────
 const BASE_LENGTHS  = drukCad.baseLengthMm;          // { A3:420, A2:594, A1:841, A0:1189, 'A0+':1292 }
 const WIDTHS        = drukCad.widths;                 // { A3:297, A2:420, A1:594, A0:841, 'A0+':914 }
@@ -43,6 +45,46 @@ function detectFormat(wMm, hMm) {
   if (shorter >= WIDTHS['A3'])  return 'A3';
   return 'nieformatowy';
 }
+
+// ─── CLASSIFY FORMAT (UI) ─────────────────────────────────────────────────-
+const CLASSIFY_TOLERANCE_MM = 15;
+
+function classifyFormat(widthMm, heightMm) {
+  const short = Math.min(widthMm, heightMm);
+  const long = Math.max(widthMm, heightMm);
+
+  console.group('📏 FORMAT CLASSIFICATION');
+  console.log(`Input: ${widthMm}x${heightMm}mm → Short:${short} Long:${long}`);
+
+  let result;
+  // A-FORMATY z tolerancją ±15mm
+  if (inRange(short, 210, 297)) result = classifyA4(long);
+  else if (inRange(short, 297, 420)) result = classifyA3(long);
+  else if (inRange(short, 420, 594)) result = classifyA2(long);
+  else if (inRange(short, 594, 841)) result = classifyA1(long);
+  else if (inRange(short, 841, 1189)) result = classifyA0(long);
+  else result = classifyA0Plus(short, long);
+
+  console.log('✅ PRODUCTION FORMAT READY');
+  console.groupEnd();
+  return result;
+}
+
+function inRange(value, min, max) {
+  return value >= (min - CLASSIFY_TOLERANCE_MM) && value <= (max + CLASSIFY_TOLERANCE_MM);
+}
+
+function classifyA4(long) { return long >= 280 && long <= 310 ? 'A4' : 'A4-custom'; }
+function classifyA3(long) { return long >= 400 && long <= 440 ? 'A3' : 'A3-custom'; }
+function classifyA2(long) { return long >= 575 && long <= 615 ? 'A2' : 'A2-custom'; }
+function classifyA1(long) { return long >= 825 && long <= 860 ? 'A1' : 'A1-custom'; }
+function classifyA0(long) { return long >= 1170 && long <= 1215 ? 'A0' : 'A0-custom'; }
+function classifyA0Plus(short, long) {
+  const shortCm = Math.round(short / 10);
+  const longCm = Math.round(long / 10);
+  return short > 1189 ? `A0+ (${shortCm}x${longCm}cm)` : `Custom (${shortCm}x${longCm}cm)`;
+}
+
 
 // ─── OBLICZENIE CENY DRUKU JEDNEGO PLIKU ───────────────────────────────────
 /** Oblicz cenę druku używając dokładnie tej samej logiki co druk-cad.js. */
