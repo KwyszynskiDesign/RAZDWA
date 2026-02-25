@@ -1,9 +1,9 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
-const data: any = _config.wlepkiNaklejki;
+const data: any = getPrice("wlepkiNaklejki");
 
 export interface WlepkiCalculation {
   groupId: string;

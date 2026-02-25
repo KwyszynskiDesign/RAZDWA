@@ -1,8 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
 
-const voucheryData: any[] = _config.vouchery as any[];
+const voucheryData: any[] = getPrice("vouchery") as any[];
 
 function getPriceForQuantity(qty: number, isSingle: boolean): number {
   let selectedTier = voucheryData[0];
