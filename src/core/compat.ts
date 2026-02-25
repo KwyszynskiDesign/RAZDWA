@@ -1,5 +1,5 @@
 /* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
-import _prices from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 
 export function money(n: any) {
   return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
@@ -19,17 +19,17 @@ export function pickNearestCeilKey(table: any, qty: number) {
   return k == null ? null : k;
 }
 
-export const PRICE: any = _prices.drukA4A3 as any;
+export const PRICE: any = getPrice("drukA4A3") as any;
 
-export const CAD_PRICE: any = _prices.drukCAD.price as any;
+export const CAD_PRICE: any = getPrice("drukCAD.price") as any;
 
-export const CAD_BASE: any = _prices.drukCAD.base as any;
+export const CAD_BASE: any = getPrice("drukCAD.base") as any;
 
-export const FORMAT_TOLERANCE_MM = _prices.drukCAD.tolerance as number;
+export const FORMAT_TOLERANCE_MM = getPrice("drukCAD.tolerance") as number;
 
-export const FOLD_PRICE: any = _prices.drukCAD.fold as any;
+export const FOLD_PRICE: any = getPrice("drukCAD.fold") as any;
 
-export const WF_SCAN_PRICE_PER_CM = _prices.drukCAD.wfScanPerCm as number;
+export const WF_SCAN_PRICE_PER_CM = getPrice("drukCAD.wfScanPerCm") as number;
 
 const _PRICES_KEY = "razdwa_prices";
 
@@ -79,6 +79,6 @@ export function overrideTiersWithStoredPrices(
 // DEFAULT_PRICES – single source of truth for all price defaults.
 // Used by the admin panel (ustawienia.ts) as the initial/reset values.
 // ---------------------------------------------------------------------------
-export const DEFAULT_PRICES: Record<string, number> = _prices.defaultPrices as Record<string, number>;
+export const DEFAULT_PRICES: Record<string, number> = getPrice("defaultPrices") as Record<string, number>;
 
-export const BIZ: any = _prices.wizytowki as any;
+export const BIZ: any = getPrice("wizytowki") as any;

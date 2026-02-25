@@ -1,8 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
 
-const DYPLOMY_PRICING: Array<{ qty: number; price: number }> = _config.dyplomy as Array<{ qty: number; price: number }>;
+const DYPLOMY_PRICING: Array<{ qty: number; price: number }> = getPrice("dyplomy") as Array<{ qty: number; price: number }>;
 
 function getPriceForQuantity(qty: number): number {
   let selectedTier = DYPLOMY_PRICING[0];

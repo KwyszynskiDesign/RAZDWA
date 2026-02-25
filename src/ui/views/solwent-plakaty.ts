@@ -1,9 +1,9 @@
 import { View, ViewContext } from "../types";
 import { calculateSolwentPlakaty } from "../../categories/solwent-plakaty";
 import { formatPLN } from "../../core/money";
-import _config from "../../../config/prices.json";
+import { getPrice } from "../../services/priceService";
 
-const data: any = _config.solwentPlakaty;
+const data: any = getPrice("solwentPlakaty");
 
 export const SolwentPlakatyView: View = {
   id: "solwent-plakaty",

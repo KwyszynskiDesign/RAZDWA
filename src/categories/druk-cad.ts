@@ -1,6 +1,6 @@
 import { CategoryModule } from "../ui/router";
 import { calculateCad } from "../core/compat-logic";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
 
 export interface DrukCADOptions {
@@ -37,8 +37,8 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
   };
 }
 
-const _cadPrice: any = _config.drukCAD.price;
-const _cadBase: any = _config.drukCAD.base;
+const _cadPrice: any = getPrice("drukCAD.price");
+const _cadBase: any = getPrice("drukCAD.base");
 
 // Map from UI select values to config keys
 const _fmtMap: Record<string, string> = {

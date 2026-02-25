@@ -1,9 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
-
-const data: any = _config.banner;
 
 export interface BannerOptions {
   material: string;
@@ -13,7 +11,7 @@ export interface BannerOptions {
 }
 
 export function calculateBanner(options: BannerOptions): CalculationResult {
-  const tableData = data as any;
+  const tableData = getPrice("banner") as any;
   const materialData = tableData.materials.find((m: any) => m.id === options.material);
 
   if (!materialData) {

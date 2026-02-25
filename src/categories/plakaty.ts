@@ -1,11 +1,11 @@
 import { CategoryModule, CategoryContext } from "../ui/router";
 import { calculatePrice } from "../core/pricing";
 import { formatPLN } from "../core/money";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { PriceTable } from "../core/types";
 
-const plakatyData: any = (_config.plakaty as any).legacy200g;
-const fullData: any = _config.plakaty as any;
+const plakatyData: any = (getPrice("plakaty") as any).legacy200g;
+const fullData: any = getPrice("plakaty") as any;
 
 // ---------------------------------------------------------------------------
 // Legacy CategoryModule export kept for backward compatibility

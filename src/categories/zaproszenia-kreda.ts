@@ -1,6 +1,6 @@
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 
-const pricingData: any = _config.zaproszeniaKreda;
+const pricingData: any = getPrice("zaproszeniaKreda");
 
 export interface ZaproszeniaKredaOptions {
   format: string;

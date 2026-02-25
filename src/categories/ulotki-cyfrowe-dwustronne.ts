@@ -1,9 +1,9 @@
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import { resolveStoredPrice } from "../core/compat";
 
-const prices: any = _config.ulotkiDwustronne;
+const prices: any = getPrice("ulotkiDwustronne");
 
 export interface UlotkiDwustronneOptions {
   qty: number;

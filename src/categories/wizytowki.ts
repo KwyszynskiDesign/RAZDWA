@@ -1,8 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { pickNearestCeilKey, resolveStoredPrice } from "../core/compat";
 
-const _biz: any = _config.wizytowki;
+const _biz: any = getPrice("wizytowki");
 
 function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boolean): number {
   const table = _biz.cyfrowe.standardPrices[format][foiled ? 'lam' : 'noLam'];

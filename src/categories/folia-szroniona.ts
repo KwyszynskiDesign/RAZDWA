@@ -1,9 +1,9 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import _config from "../../config/prices.json";
+import { getPrice } from "../services/priceService";
 import { overrideTiersWithStoredPrices } from "../core/compat";
 
-const data: any = _config.foliaSzroniona;
+const data: any = getPrice("foliaSzroniona");
 
 export interface FoliaSzronionaOptions {
   widthMm: number;
