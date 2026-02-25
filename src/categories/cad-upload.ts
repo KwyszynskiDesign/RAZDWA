@@ -1,4 +1,4 @@
-﻿import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
+import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
 import { getFileDimensions, detectPaperFormat, formatDimensionOutput, pixelsToMm as pxToMmUtil } from "../utils/fileDimensionReader";
 
@@ -27,53 +27,81 @@ export interface CadUploadFileEntry {
 /**
  * Detect CAD format from dimensions (mm).
  * Based on SHORTER side (= paper/roll width).
+ * FIXED: Inteligentna klasyfikacja A4-A0+ z ±15mm tolerancją
  */
 export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   format: string;
   isFormatowy: boolean;
   isStandardWidth: boolean;
 } {
-  console.log("detectFormatFromDimensions called with:", { widthMm, heightMm });
-  console.log("CAD_BASE:", CAD_BASE);
+  const FORMAT_TOLERANCE_CLASSIFY = 15; // ±15mm dla klasyfikacji A-formatów
   
   const shorter = Math.min(widthMm, heightMm);
   const longer = Math.max(widthMm, heightMm);
-  console.log("shorter:", shorter, "longer:", longer);
-
-  // Check standard formats by width
-  for (const [fmt, base] of Object.entries(CAD_BASE)) {
-    if (fmt === 'R1067') continue; // Skip roll for now
-    const baseWidth = (base as any).w;
-    const baseLength = (base as any).l;
-    console.log("Checking format", fmt, "width:", baseWidth, "length:", baseLength);
-
-    // Check if width matches
-    if (Math.abs(shorter - baseWidth) < 0.5) {
-      console.log("Width matches for format", fmt);
-      // Check if length is within tolerance
-      if (Math.abs(longer - baseLength) <= FORMAT_TOLERANCE_MM) {
-        console.log("Length also matches - formatowy");
-        return {
-          format: fmt,
-          isFormatowy: true,
-          isStandardWidth: true
-        };
-      } else {
-        console.log("Length doesn't match - meter-based");
-        // Width matches but length doesn't = meter-based (mb)
-        return {
-          format: fmt,
-          isFormatowy: false,
-          isStandardWidth: true
-        };
-      }
+  
+  console.group('📏 FORMAT CLASSIFICATION');
+  console.log(`📐 Dim: ${shorter.toFixed(1)}×${longer.toFixed(1)}mm`);
+  
+  function inRange(value: number, target: number): boolean {
+    return Math.abs(value - target) <= FORMAT_TOLERANCE_CLASSIFY;
+  }
+  
+  // Klasyfikacja A-formatów: 210, 297, 420, 594, 841mm
+  if (inRange(shorter, 210)) {
+    const fmt = inRange(longer, 297) ? 'A4' : (inRange(longer, 210) ? 'A4-landscape' : null);
+    if (fmt) {
+      console.log(`✅ ${fmt}`);
+      console.groupEnd();
+      return { format: fmt, isFormatowy: true, isStandardWidth: true };
     }
   }
-
-  console.log("No standard format found - non-standard");
-  // Non-standard width
+  
+  if (inRange(shorter, 297)) {
+    const fmt = inRange(longer, 420) ? 'A3' : (inRange(longer, 297) ? 'A3-landscape' : null);
+    if (fmt) {
+      console.log(`✅ ${fmt}`);
+      console.groupEnd();
+      return { format: fmt, isFormatowy: true, isStandardWidth: true };
+    }
+  }
+  
+  if (inRange(shorter, 420)) {
+    const fmt = inRange(longer, 594) ? 'A2' : (inRange(longer, 420) ? 'A2-landscape' : null);
+    if (fmt) {
+      console.log(`✅ ${fmt}`);
+      console.groupEnd();
+      return { format: fmt, isFormatowy: true, isStandardWidth: true };
+    }
+  }
+  
+  if (inRange(shorter, 594)) {
+    const fmt = inRange(longer, 841) ? 'A1' : (inRange(longer, 594) ? 'A1-landscape' : null);
+    if (fmt) {
+      console.log(`✅ ${fmt}`);
+      console.groupEnd();
+      return { format: fmt, isFormatowy: true, isStandardWidth: true };
+    }
+  }
+  
+  if (inRange(shorter, 841)) {
+    const fmt = inRange(longer, 1189) ? 'A0' : (inRange(longer, 841) ? 'A0-landscape' : null);
+    if (fmt) {
+      console.log(`✅ ${fmt}`);
+      console.groupEnd();
+      return { format: fmt, isFormatowy: true, isStandardWidth: true };
+    }
+  }
+  
+  // A0+ i Custom: rozmiary niestandarowe
+  const customLabel = shorter > 1189
+    ? `A0+ (${Math.round(shorter/10)}×${Math.round(longer/10)}cm)`
+    : `Custom (${Math.round(shorter/10)}×${Math.round(longer/10)}cm)`;
+  
+  console.log(`✅ ${customLabel}`);
+  console.groupEnd();
+  
   return {
-    format: `${Math.round(shorter)}mm`,
+    format: customLabel,
     isFormatowy: false,
     isStandardWidth: false
   };
