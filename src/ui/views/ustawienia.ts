@@ -1,31 +1,13 @@
 import { View, ViewContext } from "../types";
-import { DEFAULT_PRICES } from "../../core/compat";
+import { getPrice, setPrice, resetPrices, PRICES_STORAGE_KEY } from "../../services/priceService";
 
-const STORAGE_KEY = "razdwa_prices";
+const STORAGE_KEY = PRICES_STORAGE_KEY;
 
 // Module-level cleanup so re-mounting removes the previous listener
 let _cleanup: (() => void) | null = null;
 
 function loadPrices(): Record<string, number> {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Accept only plain objects (not arrays – legacy format)
-      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-        const validated: Record<string, number> = {};
-        for (const [k, v] of Object.entries(parsed)) {
-          if (k && typeof v === "number" && isFinite(v)) validated[k] = v;
-        }
-        if (Object.keys(validated).length > 0) return validated;
-      }
-    }
-  } catch { /* ignore */ }
-  return { ...DEFAULT_PRICES };
-}
-
-function savePrices(entries: Record<string, number>): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  return { ...(getPrice("defaultPrices") as Record<string, number>) };
 }
 
 export const UstawieniaView: View = {
@@ -130,7 +112,7 @@ export const UstawieniaView: View = {
           if (k) updated[k] = parseFloat(priceInput?.value ?? "0") || 0;
         });
         prices = updated;
-        savePrices(prices);
+        setPrice("defaultPrices", prices);
         window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
         const msg = container.querySelector<HTMLElement>("#save-msg");
         if (msg) { msg.style.display = "block"; setTimeout(() => { msg.style.display = "none"; }, 3000); }
@@ -139,8 +121,8 @@ export const UstawieniaView: View = {
       // Reset to defaults
       container.querySelector("#btn-reset")?.addEventListener("click", () => {
         if (confirm("Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.")) {
-          prices = { ...DEFAULT_PRICES };
-          savePrices(prices);
+          resetPrices();
+          prices = loadPrices();
           render();
         }
       });
