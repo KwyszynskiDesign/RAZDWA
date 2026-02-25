@@ -1,75 +1,183 @@
-import { CAD_PRICE, CAD_BASE, FORMAT_TOLERANCE_MM } from "../core/compat";
+import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
+import { money } from "../core/compat";
 
-/** Detect CAD paper format from image/file dimensions (mm).
- *  Detection is based on the SHORTER side (= roll/paper width). */
-export function detectFormatFromDimensions(wMm: number, hMm: number): string {
-  const shorter = Math.min(wMm, hMm);
-  if (shorter >= CAD_BASE['A0p'].w) return 'A0p';
-  if (shorter >= CAD_BASE['A0'].w)  return 'A0';
-  if (shorter >= CAD_BASE['A1'].w)  return 'A1';
-  if (shorter >= CAD_BASE['A2'].w)  return 'A2';
-  if (shorter >= CAD_BASE['A3'].w)  return 'A3';
-  return 'nieformatowy';
+/** Pixel to millimeters conversion at 300 DPI */
+export const PX_TO_MM_300DPI = 25.4 / 300;
+
+/** File entry with dimensions and pricing data */
+export interface CadUploadFileEntry {
+  id: number;
+  name: string;
+  widthPx: number;
+  heightPx: number;
+  widthMm: number;
+  heightMm: number;
+  format: string;
+  isFormatowy: boolean;
+  isStandardWidth: boolean;
+  folding: boolean;
+  scanning: boolean;
+  printPrice: number;
+  foldingPrice: number;
+  scanPrice: number;
+  totalPrice: number;
 }
 
-/** Calculate print price for a single file based on auto-detected dimensions.
- *  Uses the same pricing logic as druk-cad: formatowe vs metr-bieżący. */
-export function calculatePriceFromDimensions(
-  wMm: number,
-  hMm: number,
+/**
+ * Detect CAD format from dimensions (mm).
+ * Based on SHORTER side (= paper/roll width).
+ */
+export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
+  format: string;
+  isFormatowy: boolean;
+  isStandardWidth: boolean;
+} {
+  const shorter = Math.min(widthMm, heightMm);
+  const longer = Math.max(widthMm, heightMm);
+
+  // Check standard formats by width
+  for (const [fmt, base] of Object.entries(CAD_BASE)) {
+    if (fmt === 'R1067') continue; // Skip roll for now
+    const baseWidth = (base as any).w;
+    const baseLength = (base as any).l;
+
+    // Check if width matches
+    if (Math.abs(shorter - baseWidth) < 0.5) {
+      // Check if length is within tolerance
+      if (Math.abs(longer - baseLength) <= FORMAT_TOLERANCE_MM) {
+        return {
+          format: fmt,
+          isFormatowy: true,
+          isStandardWidth: true
+        };
+      } else {
+        // Width matches but length doesn't = meter-based (mb)
+        return {
+          format: fmt,
+          isFormatowy: false,
+          isStandardWidth: true
+        };
+      }
+    }
+  }
+
+  // Non-standard width
+  return {
+    format: `${Math.round(shorter)}mm`,
+    isFormatowy: false,
+    isStandardWidth: false
+  };
+}
+
+/**
+ * Calculate print price for CAD file.
+ * Uses formatowe vs metr-bieżący pricing.
+ */
+export function calculateCadPrintPrice(
+  widthMm: number,
+  heightMm: number,
+  format: string,
+  isFormatowy: boolean,
   mode: 'bw' | 'color',
   qty: number
 ): number {
-  if (wMm <= 0 || hMm <= 0) return 0;
+  const prices = CAD_PRICE[mode];
 
-  const fmtKey = detectFormatFromDimensions(wMm, hMm);
-  const longer  = Math.max(wMm, hMm);
-
-  if (fmtKey === 'nieformatowy') {
-    // Fall back to A3 roll pricing for any non-standard format smaller than A3
-    const rate = CAD_PRICE[mode].mb['A3'];
-    return parseFloat((longer / 1000 * rate * qty).toFixed(2));
-  }
-
-  const base = CAD_BASE[fmtKey];
-  const isFormatowe = Math.abs(longer - base.l) <= FORMAT_TOLERANCE_MM;
-
-  if (isFormatowe) {
-    const rate = CAD_PRICE[mode].formatowe[fmtKey];
-    return parseFloat((rate * qty).toFixed(2));
+  if (isFormatowy) {
+    // Format-based pricing
+    const price = prices.formatowe[format];
+    if (!price) return 0;
+    return qty * price;
   } else {
-    const rate = CAD_PRICE[mode].mb[fmtKey];
-    return parseFloat((longer / 1000 * rate * qty).toFixed(2));
+    // Meter-based pricing
+    const price = prices.mb[format];
+    if (!price) return 0;
+    // Use longer side (usually height) for length in meters
+    const lengthMeters = Math.max(widthMm, heightMm) / 1000;
+    return qty * lengthMeters * price;
   }
 }
 
-export interface CadUploadFileInput {
-  wMm: number;
-  hMm: number;
-  qty?: number; // default: 1
-  mode?: 'bw' | 'color'; // default: 'color'
+/**
+ * Calculate folding price for CAD file.
+ */
+export function calculateCadFoldingPrice(
+  format: string,
+  isFormatowy: boolean,
+  widthMm: number,
+  heightMm: number,
+  folding: boolean,
+  qty: number
+): number {
+  if (!folding) return 0;
+
+  if (isFormatowy) {
+    // Format-based folding price
+    const FOLD_PRICES: Record<string, number> = {
+      A0p: 4.0,
+      A0: 3.0,
+      A1: 2.0,
+      A2: 1.5,
+      A3: 1.0,
+      A3L: 0.7,
+    };
+    const price = FOLD_PRICES[format];
+    return price ? qty * price : 0;
+  } else {
+    // Non-format folding = per m²
+    const areaM2 = (widthMm / 1000) * (heightMm / 1000);
+    return qty * areaM2 * 2.5; // 2.5 zł/m²
+  }
 }
 
-export interface CadUploadResult {
-  totalPrice: number;
-  detectedFormat: string;
-  wMm: number;
-  hMm: number;
-  qty: number;
-  mode: 'bw' | 'color';
+/**
+ * Calculate scanning price for CAD file.
+ */
+export function calculateCadScanningPrice(
+  widthMm: number,
+  heightMm: number,
+  scanning: boolean,
+  qty: number
+): number {
+  if (!scanning) return 0;
+
+  // Scanning: longer side in mm × price per cm
+  const longerSide = Math.max(widthMm, heightMm);
+  return qty * longerSide * WF_SCAN_PRICE_PER_CM;
 }
 
-export function calculateCadUpload(options: CadUploadFileInput): CadUploadResult {
-  const { wMm, hMm, qty = 1, mode = 'color' } = options;
-  if (wMm < 0 || hMm < 0) throw new Error("Wymiary nie mogą być ujemne");
-  if (qty < 1) throw new Error("Ilość kopii musi wynosić co najmniej 1");
-  const totalPrice = calculatePriceFromDimensions(wMm, hMm, mode, qty);
+/**
+ * Calculate total price for a file and return updated entry.
+ */
+export function updateCadFileEntry(
+  entry: Partial<CadUploadFileEntry>,
+  mode: 'bw' | 'color'
+): CadUploadFileEntry {
+  const widthMm = entry.widthMm || 0;
+  const heightMm = entry.heightMm || 0;
+  const format = entry.format || 'unknown';
+  const isFormatowy = entry.isFormatowy || false;
+  const qty = 1; // For now, always qty=1
+
+  const printPrice = calculateCadPrintPrice(widthMm, heightMm, format, isFormatowy, mode, qty);
+  const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, qty);
+  const scanPrice = calculateCadScanningPrice(widthMm, heightMm, entry.scanning || false, qty);
+
   return {
-    totalPrice,
-    detectedFormat: detectFormatFromDimensions(wMm, hMm),
-    wMm,
-    hMm,
-    qty,
-    mode,
+    id: entry.id || 0,
+    name: entry.name || '',
+    widthPx: entry.widthPx || 0,
+    heightPx: entry.heightPx || 0,
+    widthMm,
+    heightMm,
+    format,
+    isFormatowy,
+    isStandardWidth: entry.isStandardWidth || false,
+    folding: entry.folding || false,
+    scanning: entry.scanning || false,
+    printPrice,
+    foldingPrice,
+    scanPrice,
+    totalPrice: parseFloat(money(printPrice + foldingPrice + scanPrice))
   };
 }
