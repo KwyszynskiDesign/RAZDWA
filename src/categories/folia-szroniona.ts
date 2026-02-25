@@ -1,6 +1,9 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import { priceService } from "../services/priceService";
+import { getPrice } from "../services/priceService";
+import { overrideTiersWithStoredPrices } from "../core/compat";
+
+const data: any = getPrice("foliaSzroniona");
 
 export interface FoliaSzronionaOptions {
   widthMm: number;
@@ -25,7 +28,10 @@ export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): Calcula
     unit: tableData.unit,
     pricing: tableData.pricing,
     rules: tableData.rules,
-    tiers: materialData.tiers,
+    tiers: overrideTiersWithStoredPrices(
+      `folia-szroniona-${materialData.storageId ?? materialData.id}`,
+      materialData.tiers
+    ),
     modifiers: tableData.modifiers
   };
 

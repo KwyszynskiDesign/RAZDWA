@@ -1,0 +1,52 @@
+<div class="category-view">
+    <div class="view-header">
+        <h2>🖼️ Plakaty</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div class="form-group">
+            <label for="p-material">Papier / Materiał:</label>
+            <select id="p-material" class="form-control">
+                <!-- populated by JS -->
+            </select>
+        </div>
+
+        <!-- m² input (solwent materials) -->
+        <div id="p-m2-group" class="form-group">
+            <label for="p-area">Powierzchnia (m²):</label>
+            <input type="number" id="p-area" class="form-control" value="1" min="0.1" step="0.1">
+            <div class="hint">MINIMALKA 1 m²</div>
+        </div>
+
+        <!-- format + qty input (formatowe/nieformatowe) -->
+        <div id="p-format-group" class="form-group" style="display:none;">
+            <label for="p-format">Format:</label>
+            <select id="p-format" class="form-control">
+                <!-- populated by JS -->
+            </select>
+            <label for="p-qty" style="margin-top:10px;">Ilość (szt):</label>
+            <input type="number" id="p-qty" class="form-control" value="1" min="1" step="1">
+            <div class="hint">Rabat: 2-5 szt (120g: -5%), 6-20 szt (120g: -8%), 21-30 szt (120g: -13%); 9-20 szt (260g: -7%), 21-30 szt (260g: -12%)</div>
+        </div>
+
+        <div class="form-actions">
+            <button id="p-calculate" class="btn btn-primary">Oblicz</button>
+            <button id="p-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
+        </div>
+    </div>
+
+    <div id="p-result-display" class="result-display card" style="display: none;">
+        <div class="result-row">
+            <span>Cena jednostkowa:</span>
+            <span id="p-unit-price" class="price-unit">-</span>
+        </div>
+        <div class="result-row">
+            <span>Cena łączna:</span>
+            <span id="p-total-price" class="price-value">-</span>
+        </div>
+        <div id="p-express-hint" class="express-hint" style="display: none;">
+            W tym dopłata EXPRESS +20%
+        </div>
+    </div>
+</div>
+<script type="module" src="../js/categories/plakaty.js"></script>

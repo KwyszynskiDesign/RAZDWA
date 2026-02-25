@@ -6,30 +6,31 @@
 </script>
 <h2>Druk CAD wielkoformatowy</h2>
 <div class="form">
-  <div class="row">
-    <label for="cad-mode">Tryb:</label>
-    <select id="cad-mode">
-      <option value="bw">Czarno-biały</option>
-      <option value="color">Kolorowy</option>
-    </select>
-  </div>
-
-  <div class="row">
-    <label for="cad-format">Format:</label>
-    <select id="cad-format">
-      <option value="A0p">A0+ (914 mm)</option>
-      <option value="A0">A0 (841 mm)</option>
-      <option value="A1">A1 (594 mm)</option>
-      <option value="A2">A2 (420 mm)</option>
-      <option value="A3">A3 (297 mm)</option>
-    </select>
+  <div class="cad-mode-format-row">
+    <div>
+      <label for="cad-mode">Tryb:</label>
+      <select id="cad-mode">
+        <option value="bw">Czarno-biały</option>
+        <option value="color">Kolorowy</option>
+      </select>
+    </div>
+    <div>
+      <label for="cad-format">Format:</label>
+      <select id="cad-format">
+        <option value="A0p">A0+ (914 mm)</option>
+        <option value="A0">A0 (841 mm)</option>
+        <option value="A1">A1 (594 mm)</option>
+        <option value="A2">A2 (420 mm)</option>
+        <option value="A3">A3 (297 mm)</option>
+      </select>
+    </div>
   </div>
 
   <div class="row">
     <label for="cad-length">Długość (mm):</label>
-    <div style="display: flex; gap: 10px;">
+    <div style="display: flex; gap: 24px; align-items: center;">
       <input type="number" id="cad-length" value="1292" min="1">
-      <button id="cad-use-base" class="secondary" style="white-space: nowrap;">Użyj bazowej</button>
+      <button id="cad-use-base" class="secondary btn-use-base" style="white-space: nowrap; min-width: 120px;">Użyj bazowej</button>
     </div>
     <div id="cad-base-info" class="hint">Wymiar bazowy: 1292 mm</div>
   </div>
@@ -37,6 +38,49 @@
   <div class="row" id="qty-sheets-group">
     <label for="qty-sheets">Ilość arkuszy:</label>
     <input type="number" id="qty-sheets" value="1" min="1">
+  </div>
+
+  <!-- CAD Ops: składanie + skan wielkoformat -->
+  <div class="row" id="cad-ops-section" style="flex-direction:column;gap:24px;margin-top:8px;">
+    <h3 style="margin:0;font-size:1rem;font-weight:700;">🗂️ CAD Ops: Składanie / Skan wielkoformat</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:24px;">
+      <div style="flex:1;min-width:200px;">
+        <strong>Składanie</strong>
+        <div class="row" style="margin-top:8px;">
+          <label for="cad-fold-format">Format:</label>
+          <select id="cad-fold-format">
+            <option value="A0+">A0+</option>
+            <option value="A0">A0</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A3-poprzeczne">A3-poprzeczne</option>
+          </select>
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label for="cad-fold-qty">Ilość (szt):</label>
+          <input type="number" id="cad-fold-qty" value="1" min="1" />
+        </div>
+        <button id="cad-fold-add" class="secondary" style="margin-top:8px;">Dodaj składanie</button>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <strong>Skanowanie wielkoformatowe</strong>
+        <div class="row" style="margin-top:8px;">
+          <label for="cad-wf-scan-cm">Długość (cm):</label>
+          <input type="number" id="cad-wf-scan-cm" placeholder="np. 110" min="1" step="0.1" />
+        </div>
+        <div class="row" style="margin-top:8px;">
+          <label for="cad-wf-scan-qty">Ilość (szt):</label>
+          <input type="number" id="cad-wf-scan-qty" value="1" min="1" />
+        </div>
+        <button id="cad-wf-scan-add" class="secondary" style="margin-top:8px;">Dodaj skan</button>
+      </div>
+    </div>
+    <div id="cad-ops-list" style="display:none;margin-top:8px;padding:10px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:8px;">
+      <strong>Dodane usługi:</strong>
+      <div id="cad-ops-list-items"></div>
+      <div style="margin-top:8px;font-weight:700;">Suma usług: <span id="cad-ops-total">0.00 zł</span></div>
+    </div>
   </div>
 
   <div class="actions">
@@ -52,3 +96,5 @@
     <div id="cad-express-hint" style="font-size: 12px; color: #f59e0b; display: none;">Zawiera dopłatę EXPRESS +20%</div>
   </div>
 </div>
+
+<script type="module" src="../js/categories/druk-cad.js"></script>

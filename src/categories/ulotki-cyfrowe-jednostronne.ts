@@ -1,6 +1,10 @@
+import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
 import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
+import { resolveStoredPrice } from "../core/compat";
+
+const prices: any = getPrice("ulotkiJednostronne");
 
 export interface UlotkiJednostronneOptions {
   qty: number;
@@ -22,7 +26,7 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
     pricing: "flat",
     tiers: formatData.tiers,
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
+      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
     ]
   };
 }

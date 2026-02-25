@@ -9,6 +9,7 @@
   "materials": [
     {
       "id": "material-only",
+      "storageId": "wydruk",
       "name": "Tylko wydruk",
       "tiers": [
         { "min": 1, "max": 5, "price": 65.0 },
@@ -19,6 +20,7 @@
     },
     {
       "id": "full-service",
+      "storageId": "oklejanie",
       "name": "Wydruk z oklejaniem",
       "tiers": [
         { "min": 1, "max": 5, "price": 140.0 },

@@ -16,6 +16,9 @@
   
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
   --focus-outline: 2px solid var(--primary);
+
+  --left-col-padding: 1rem;
+  --category-sticky-height: 200px;
 }
 
 * { box-sizing: border-box; }
@@ -32,13 +35,77 @@ body {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 header {
   padding: 24px 0;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
+  margin-bottom: 0.5rem;
   background: var(--bg);
+  flex-shrink: 0;
+}
+
+/* ===== SITE HEADER (sticky flexbox) ===== */
+
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px;
+  background: #004080;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.site-header h1 {
+  color: white;
+  margin: 0;
+}
+
+.site-header .small {
+  color: rgba(255,255,255,0.8);
+  margin-top: 2px;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.btn-settings {
+  background: rgba(255,255,255,0.2);
+  border: 2px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 8px 16px;
+  height: auto;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-settings:hover {
+  background: white;
+  color: #004080;
+}
+
+@media (max-width: 768px) {
+  .site-header { padding: 12px; }
+  .btn-settings {
+    padding: 6px 12px;
+    font-size: 14px;
+    min-width: 44px;
+  }
 }
 
 h1 {
@@ -61,12 +128,16 @@ h1 {
   top: 0;
   z-index: 200;
   background: var(--bg);
-  padding: 16px 0;
+  padding: 16px var(--left-col-padding);
   border-bottom: 1px solid var(--border);
-  height: 152px;
+  min-height: var(--category-sticky-height);
+  max-height: 40vh;
+  overflow-y: auto;
+  flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+  margin: 0 calc(-1 * var(--left-col-padding));
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .tile-grid {
@@ -300,6 +371,428 @@ tbody tr:hover {
 }
 
 html {
-  scroll-padding-top: 200px !important;
+  scroll-padding-top: calc(var(--category-sticky-height) + 8px) !important;
   scroll-behavior: smooth;
+  height: 100%;
 }
+
+/* ===== ORDER SUMMARY EXPRESS STATE ===== */
+#orderSummary.is-express {
+  border: 2px solid var(--danger);
+  background: #fffde7;
+}
+
+/* ===== DANE ZAMÓWIENIA FORM ===== */
+.order-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.order-row {
+  display: grid;
+  grid-template-columns: 30% 70%;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-row label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.order-row input[type=text],
+.order-row input[type=tel],
+.order-row input[type=email],
+.order-row select {
+  height: 34px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.order-row textarea {
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.order-row textarea:hover { border-color: var(--primary); }
+.order-row textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(0,100,148,.1);
+}
+
+.order-row--express {
+  grid-template-columns: auto 1fr;
+  gap: 8px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.order-row--express input[type=checkbox] {
+  width: auto;
+  height: auto;
+  padding: 0;
+  cursor: pointer;
+}
+
+.order-row--express label {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.order-row--full {
+  grid-template-columns: 1fr;
+  gap: 4px;
+}
+
+/* ===== GHOST BUTTON ===== */
+button.ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+button.ghost:hover {
+  background: var(--surface-alt);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.order-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.order-btn--primary {
+  flex: 1;
+  font-size: 15px;
+}
+
+.order-btn--ghost {
+  padding: 0 14px;
+  white-space: nowrap;
+}
+
+.tile::before, .tile::after { pointer-events: none !important; }
+#orderSummary.is-express { border: 2px solid var(--danger, #c92a2a); background: #fffde7; }
+
+/* ===== APP GRID (elastic layout) ===== */
+
+.app-grid {
+  display: grid;
+  grid-template-columns: 1fr minmax(280px, 35%);
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.left-col {
+  overflow-y: auto;
+  height: 100%;
+  position: relative;
+  z-index: 10;
+  border-right: 1px solid var(--border);
+  padding: 0 var(--left-col-padding) var(--left-col-padding);
+}
+
+.right-col {
+  position: relative;
+  z-index: 11;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  background: var(--surface);
+  align-self: stretch;
+}
+
+@media (max-width: 1200px) {
+  .app-grid {
+    grid-template-columns: 1fr minmax(250px, 40%);
+  }
+}
+
+@media (max-width: 768px) {
+  .app-grid {
+    grid-template-columns: 1fr;
+    flex: none;
+    overflow: visible;
+  }
+  .left-col {
+    height: auto;
+    overflow-y: visible;
+    border-right: none;
+  }
+  .right-col {
+    height: auto;
+    position: relative;
+  }
+}
+
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .app-grid {
+    grid-template-columns: 1fr minmax(240px, 40%);
+  }
+}
+
+/* ===== CENNIK TABLE (category pricing reference) ===== */
+.cennik-table {
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
+}
+
+.cennik-table h4 {
+  margin: 0 0 12px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cennik-table table {
+  font-size: 13px;
+  box-shadow: none;
+  border-radius: 6px;
+}
+
+.cennik-table th {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.cennik-table td {
+  padding: 8px 12px;
+}
+
+.cennik-note {
+  margin: 8px 0 0 0;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* ===== RESULT AREA (category views) ===== */
+.result-area .price-line {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.result-area .price-line.highlight {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary);
+  border-top: 1px solid var(--border);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.modifier-hint {
+  font-size: 12px;
+  padding: 2px 0;
+}
+
+/* ===== FORM ROW (category views) ===== */
+.form-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+.form-actions-row {
+  margin-top: 8px;
+}
+
+/* ===== OPTION CARD ===== */
+.option-card {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 12px 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  flex: 1;
+  min-width: 140px;
+  user-select: none;
+}
+
+.option-card:hover {
+  border-color: var(--primary);
+}
+
+.option-card.checked {
+  border-color: var(--primary);
+  background: var(--surface-alt);
+}
+
+.option-card .icon {
+  font-size: 18px;
+}
+
+.option-card .price {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.option-card .qty-inline {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+.option-card .qty-inline input.qty-input {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  width: 50px;
+}
+
+/* ===== CAD druk – tryb + format inline ===== */
+.cad-mode-format-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cad-mode-format-row > div {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ===== CAD upload – ops grid (column → row) ===== */
+.cad-calc__ops-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 600px) {
+  .cad-calc__ops-grid {
+    flex-direction: row;
+  }
+}
+
+/* ===== BTN-PRIMARY / BTN-SECONDARY (druk-a4-a3-skan & legacy) ===== */
+.btn-primary {
+  background: var(--primary);
+  color: var(--primary-text);
+  border: none;
+  padding: 0 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  height: 44px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  padding: 0 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  height: 44px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: var(--surface-alt);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+
+/* NO UNDERLINES FIX - MENTOR UX */
+.tile, 
+.tile a, 
+.tile a:hover, 
+.tile a:focus, 
+.tile span { 
+  text-decoration: none !important; 
+  border-bottom: none !important;
+  color: inherit;
+}
+
+.tile a:focus { 
+  outline: var(--focus-outline) !important; 
+  outline-offset: 2px;
+}
+
+button, 
+button:hover, 
+button:focus, 
+button:focus-visible,
+.btn-primary, .btn-secondary, .btn-settings,
+.order-btn--primary, .order-btn--ghost { 
+  text-decoration: none !important; 
+  border-bottom: none !important;
+}
+
+button:focus-visible { 
+  outline: var(--focus-outline) !important; 
+}
+
+a[href] { 
+  text-decoration: none; 
+}
+
+.tile a:hover { 
+  text-decoration: none !important; 
+  color: inherit !important;
+}
+
+/* Mobile hover fix */
+@media (hover: none) and (pointer: coarse) {
+  .tile a:active { text-decoration: none; }
+}
+
+/* ===== CENNIK TABLE (hidden by default) ===== */
+.cennik-table { display: none; }

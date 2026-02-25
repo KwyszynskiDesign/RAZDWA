@@ -1,5 +1,6 @@
 import { CategoryModule } from "../ui/router";
 import { calculateSimplePrint, calculateSimpleScan } from "../core/compat-logic";
+import { PRICE, resolveStoredPrice } from "../core/compat";
 
 export interface DrukA4A3SkanOptions {
   mode: "bw" | "color";
@@ -35,7 +36,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
   const baseTotal = printResult.grandTotal + scanResult.total;
   let finalTotal = baseTotal;
   if (options.express) {
-    finalTotal = baseTotal * 1.2;
+    finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.20));
   }
 
   return {
@@ -50,64 +51,27 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
   };
 }
 
-// Pricing structure from official price list (synchronized with compat.ts)
-const PRICING = {
-  czarnoBialy: {
-    A4: [
-      { min: 1, max: 5, price: 0.90 },
-      { min: 6, max: 20, price: 0.60 },
-      { min: 21, max: 100, price: 0.35 },
-      { min: 101, max: 500, price: 0.30 },
-      { min: 501, max: 999, price: 0.23 },
-      { min: 1000, max: 4999, price: 0.19 },
-      { min: 5000, max: 99999, price: 0.15 }
-    ],
-    A3: [
-      { min: 1, max: 5, price: 1.70 },
-      { min: 6, max: 20, price: 1.10 },
-      { min: 21, max: 100, price: 0.70 },
-      { min: 101, max: 500, price: 0.60 },
-      { min: 501, max: 999, price: 0.45 },
-      { min: 1000, max: 99999, price: 0.33 }
-    ]
-  },
-  kolorowy: {
-    A4: [
-      { min: 1, max: 10, price: 2.40 },
-      { min: 11, max: 40, price: 2.20 },
-      { min: 41, max: 100, price: 2.00 },
-      { min: 101, max: 250, price: 1.80 },
-      { min: 251, max: 500, price: 1.60 },
-      { min: 501, max: 999, price: 1.40 },
-      { min: 1000, max: 99999, price: 1.10 }
-    ],
-    A3: [
-      { min: 1, max: 10, price: 4.80 },
-      { min: 11, max: 40, price: 4.20 },
-      { min: 41, max: 100, price: 3.80 },
-      { min: 101, max: 250, price: 3.00 },
-      { min: 251, max: 500, price: 2.50 },
-      { min: 501, max: 999, price: 1.90 },
-      { min: 1000, max: 99999, price: 1.60 }
-    ]
-  }
-};
-
 function getPricePerPage(
   format: "A4" | "A3",
   quantity: number,
   color: "czarnoBialy" | "kolorowy"
 ): number {
-  const tiers = PRICING[color][format];
+  // Use PRICE from compat.ts (same data, no duplication) and apply stored overrides.
+  const modeKey = color === "czarnoBialy" ? "bw" : "color";
+  const tiers = (PRICE.print as any)[modeKey][format];
 
+  let selectedTier = tiers[tiers.length - 1];
   for (const tier of tiers) {
-    if (quantity >= tier.min && quantity <= tier.max) {
-      return tier.price;
+    if (quantity >= tier.from && quantity <= tier.to) {
+      selectedTier = tier;
+      break;
     }
   }
 
-  // Fallback to last tier
-  return tiers[tiers.length - 1].price;
+  const adminModeKey = color === "czarnoBialy" ? "bw" : "kolor";
+  const suffix = selectedTier.to > 50000 ? `${selectedTier.from}+` : `${selectedTier.from}-${selectedTier.to}`;
+  const storageKey = `druk-${adminModeKey}-${format.toLowerCase()}-${suffix}`;
+  return resolveStoredPrice(storageKey, selectedTier.unit);
 }
 
 export const drukA4A3Category: CategoryModule = {
@@ -184,16 +148,21 @@ export const drukA4A3Category: CategoryModule = {
     function updateTiersDisplay() {
       const format = formatSelect.value as "A4" | "A3";
       const color = colorSelect.value as "czarnoBialy" | "kolorowy";
-      const tiers = PRICING[color][format];
+      const modeKey = color === "czarnoBialy" ? "bw" : "color";
+      const tiers = (PRICE.print as any)[modeKey][format];
 
       if (tiersList) {
-        tiersList.innerHTML = tiers.map(tier => {
-          const rangeText = tier.max >= 99999
-            ? `${tier.min}+ str`
-            : `${tier.min}-${tier.max} str`;
+        tiersList.innerHTML = tiers.map((tier: any) => {
+          const rangeText = tier.to >= 99999
+            ? `${tier.from}+ str`
+            : `${tier.from}-${tier.to} str`;
+          const adminModeKey = color === "czarnoBialy" ? "bw" : "kolor";
+          const suffix = tier.to > 50000 ? `${tier.from}+` : `${tier.from}-${tier.to}`;
+          const storageKey = `druk-${adminModeKey}-${format.toLowerCase()}-${suffix}`;
+          const displayPrice = resolveStoredPrice(storageKey, tier.unit);
           return `<div style="display: flex; justify-content: space-between; padding: 5px 0; color: #ccc;">
             <span>${rangeText}</span>
-            <span style="color: #667eea;">${tier.price.toFixed(2)} zł/str</span>
+            <span style="color: #667eea;">${displayPrice.toFixed(2)} zł/str</span>
           </div>`;
         }).join('');
       }
@@ -210,7 +179,7 @@ export const drukA4A3Category: CategoryModule = {
 
       currentPricePerPage = getPricePerPage(format, quantity, color);
       currentPrice = currentPricePerPage * quantity;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       if (pricePerPageDisplay) {
         pricePerPageDisplay.textContent = `${currentPricePerPage.toFixed(2)} zł/str`;

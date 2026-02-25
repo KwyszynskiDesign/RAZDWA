@@ -13,7 +13,11 @@ export class Router {
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
     this.getCtx = getCtx;
-    window.addEventListener("hashchange", () => this.handleRoute());
+    window.addEventListener("hashchange", () => {
+      this.handleRoute().catch(() => {
+        this.renderHome();
+      });
+    });
   }
 
   setCategories(categories: any[]) {
@@ -24,36 +28,51 @@ export class Router {
     this.routes.set(view.id, view);
   }
 
-  handleRoute() {
+  async handleRoute() {
     const hash = window.location.hash || "#/";
-    const path = hash.slice(2); // remove #/
-
-    if (this.currentView && this.currentView.unmount) {
-      this.currentView.unmount();
+    let path = hash.startsWith("#/") ? hash.slice(2) : "";
+    path = path.replace(/^\/+/, "");
+    if (!path) {
+      this.renderHome();
+      return;
     }
 
-    this.container.innerHTML = "";
+    // Unmount previous view before mounting a new one
+    if (this.currentView?.unmount) {
+      this.currentView.unmount();
+    }
 
     const view = this.routes.get(path);
     if (view) {
       this.currentView = view;
-
-      // Dodaj przycisk powrotu
-      const backButton = document.createElement('button');
-      backButton.className = 'back-button';
-      backButton.textContent = 'Wszystkie kategorie';
-      backButton.onclick = () => { window.location.hash = '#/'; };
-      this.container.appendChild(backButton);
-
-      // Kontener na kategorię
-      const categoryContent = document.createElement('div');
-      categoryContent.className = 'category-content';
-      categoryContent.id = 'current-category';
-      this.container.appendChild(categoryContent);
-
-      view.mount(categoryContent, this.getCtx());
+      await view.mount(this.container, this.getCtx());
     } else {
-      this.renderHome();
+      try {
+        const resp = await fetch(`categories/${path}.html`);
+        if (resp.ok) {
+          this.currentView = null;
+          this.container.innerHTML = await resp.text();
+          // Re-execute inline <script> tags (innerHTML does not run scripts)
+          this.container.querySelectorAll<HTMLScriptElement>('script').forEach(oldScript => {
+            const newScript = document.createElement('script');
+            newScript.textContent = oldScript.textContent ?? '';
+            oldScript.replaceWith(newScript);
+          });
+          // Opcjonalny JS
+          try {
+            const jsResp = await fetch(`categories/${path}.js`);
+            if (jsResp.ok) {
+              const script = document.createElement('script');
+              script.textContent = await jsResp.text();
+              this.container.appendChild(script);
+            }
+          } catch {}
+        } else {
+          this.renderHome();
+        }
+      } catch {
+        this.renderHome();
+      }
     }
   }
 

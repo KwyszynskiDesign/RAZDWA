@@ -1,6 +1,7 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
+import { PlakatyView } from "./views/plakaty";
 import { VoucheryView } from "./views/vouchery";
 import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
@@ -13,7 +14,8 @@ import { DrukA4A3SkanView } from "./views/DrukA4A3SkanView";
 import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
-import { CadOpsView } from "./views/cad-ops";
+import { UstawieniaView } from "./views/ustawienia";
+import { CadUploadView } from "./views/cad-upload";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { downloadExcel } from "./excel";
@@ -61,7 +63,7 @@ function updateCartUI() {
         </div>
         <div style="display:flex; gap:10px; align-items:center;">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
-          <button class="iconBtn" onclick="window.removeItem(${idx})" title="Usuń">×</button>
+          <button class="iconBtn" data-remove-idx="${idx}" title="Usuń">×</button>
         </div>
       </div>
     `).join("");
@@ -72,17 +74,24 @@ function updateCartUI() {
   debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
 }
 
-// Global exposure for the 'onclick' in generated HTML
-(window as any).removeItem = (idx: number) => {
-  cart.removeItem(idx);
-  updateCartUI();
-};
 
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
   const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement;
   const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
+
+  // Event delegation for remove buttons rendered inside basket list
+  document.addEventListener("click", (e) => {
+    const btn = (e.target as HTMLElement).closest("[data-remove-idx]");
+    if (btn) {
+      const idx = parseInt((btn as HTMLElement).dataset.removeIdx ?? "", 10);
+      if (!isNaN(idx)) {
+        cart.removeItem(idx);
+        updateCartUI();
+      }
+    }
+  });
 
   if (!viewContainer || !categorySelector || !globalExpress || !categorySearch) return;
 
@@ -105,6 +114,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = new Router(viewContainer, getCtx);
   router.setCategories(categories);
+  router.addRoute(PlakatyView);
   router.addRoute(DrukA4A3SkanView);
   router.addRoute(DrukCADView);
   router.addRoute(SolwentPlakatyView);
@@ -118,7 +128,8 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
   router.addRoute(FoliaSzronionaView);
-  router.addRoute(CadOpsView);
+  router.addRoute(CadUploadView);
+  router.addRoute(UstawieniaView);
 
   // Populate category selector
   categories.forEach(cat => {
@@ -174,10 +185,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Re-render view when express mode changes
   globalExpress.addEventListener("change", () => {
-    // Triger route refresh
+    // Toggle express styling on order summary
+    const orderSummary = document.getElementById("orderSummary");
+    if (orderSummary) {
+      orderSummary.classList.toggle("is-express", globalExpress.checked);
+    }
+    // Trigger route refresh
     const currentHash = window.location.hash;
     window.location.hash = "";
     window.location.hash = currentHash;
+  });
+
+  // Copy summary to clipboard
+  document.getElementById("copyBtn")?.addEventListener("click", () => {
+    const total = document.getElementById("basketTotal");
+    const text = total ? `Suma: ${total.innerText}` : "Brak pozycji";
+    navigator.clipboard?.writeText(text);
   });
 
   // Clear basket
@@ -211,7 +234,7 @@ document.addEventListener("DOMContentLoaded", () => {
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .then(reg => console.log("SW registered", reg))
-      .catch(err => console.error("SW failed", err));
+      .then(() => {})
+      .catch(() => {});
   });
 }

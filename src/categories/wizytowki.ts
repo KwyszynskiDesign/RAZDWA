@@ -1,43 +1,15 @@
 import { CategoryModule } from "../ui/router";
+import { getPrice } from "../services/priceService";
+import { pickNearestCeilKey, resolveStoredPrice } from "../core/compat";
 
-const WIZYTOWKI_PRICING = {
-  '85x55': [
-    { qty: 50, plain: 65, foil: 160 },
-    { qty: 100, plain: 75, foil: 170 },
-    { qty: 150, plain: 85, foil: 180 },
-    { qty: 200, plain: 96, foil: 190 },
-    { qty: 250, plain: 110, foil: 200 },
-    { qty: 300, plain: 126, foil: 220 },
-    { qty: 400, plain: 146, foil: 240 },
-    { qty: 500, plain: 170, foil: 250 },
-    { qty: 1000, plain: 290, foil: 335 }
-  ],
-  '90x50': [
-    { qty: 50, plain: 70, foil: 170 },
-    { qty: 100, plain: 79, foil: 180 },
-    { qty: 150, plain: 89, foil: 190 },
-    { qty: 200, plain: 99, foil: 200 },
-    { qty: 250, plain: 120, foil: 210 },
-    { qty: 300, plain: 129, foil: 230 },
-    { qty: 400, plain: 149, foil: 250 },
-    { qty: 500, plain: 175, foil: 260 },
-    { qty: 1000, plain: 300, foil: 345 }
-  ]
-};
+const _biz: any = getPrice("wizytowki");
 
 function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boolean): number {
-  const tiers = WIZYTOWKI_PRICING[format];
-  let selectedTier = tiers[0];
-
-  for (const tier of tiers) {
-    if (qty >= tier.qty) {
-      selectedTier = tier;
-    } else {
-      break;
-    }
-  }
-
-  return foiled ? selectedTier.foil : selectedTier.plain;
+  const table = _biz.cyfrowe.standardPrices[format][foiled ? 'lam' : 'noLam'];
+  const key = pickNearestCeilKey(table, qty);
+  if (key == null) throw new Error(`Brak progu cenowego dla ${qty} szt (${format})`);
+  const foliaKey = foiled ? 'matt_gloss' : 'none';
+  return resolveStoredPrice(`wizytowki-${format}-${foliaKey}-${key}szt`, table[key]);
 }
 
 /**
@@ -48,7 +20,7 @@ export function quoteWizytowki(options: { format: '85x55' | '90x50'; qty: number
   const basePrice = getPriceForQuantity(options.format, options.qty, options.folia === 'matt_gloss');
   let totalPrice = basePrice;
   if (options.express) {
-    totalPrice *= 1.2;
+    totalPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
   }
 
   return {
@@ -127,7 +99,7 @@ export const wizytowkiCategory: CategoryModule = {
       const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
 
       currentPrice = getPriceForQuantity(format, quantity, foiling === 'foil');
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       if (totalDisplay) {
         totalDisplay.textContent = `${currentPrice.toFixed(2)} zł`;

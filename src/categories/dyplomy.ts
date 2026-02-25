@@ -1,23 +1,8 @@
 import { CategoryModule } from "../ui/router";
+import { getPrice } from "../services/priceService";
+import { resolveStoredPrice } from "../core/compat";
 
-const DYPLOMY_PRICING = [
-  { qty: 1, price: 20 },
-  { qty: 2, price: 30 },
-  { qty: 3, price: 32 },
-  { qty: 4, price: 34 },
-  { qty: 5, price: 35 },
-  { qty: 6, price: 35 },
-  { qty: 7, price: 36 },
-  { qty: 8, price: 37 },
-  { qty: 9, price: 39 },
-  { qty: 10, price: 40 },
-  { qty: 15, price: 45 },
-  { qty: 20, price: 49 },
-  { qty: 30, price: 58 },
-  { qty: 40, price: 65 },
-  { qty: 50, price: 75 },
-  { qty: 100, price: 120 }
-];
+const DYPLOMY_PRICING: Array<{ qty: number; price: number }> = getPrice("dyplomy") as Array<{ qty: number; price: number }>;
 
 function getPriceForQuantity(qty: number): number {
   let selectedTier = DYPLOMY_PRICING[0];
@@ -33,19 +18,25 @@ function getPriceForQuantity(qty: number): number {
   return selectedTier.price;
 }
 
-/**
- * @deprecated Use dyplomyCategory module instead.
- * Kept for compatibility with tests.
- */
-export function calculateDyplomy(options: { qty: number; sides?: number; isSatin: boolean; express: boolean }) {
+export interface DyplomyOptions {
+  qty: number;
+  sides?: number;
+  isSatin: boolean;
+  express: boolean;
+}
+
+export function calculateDyplomy(options: DyplomyOptions) {
   const basePrice = getPriceForQuantity(options.qty);
   let percentageSum = 0;
+  const appliedModifiers: string[] = [];
 
   if (options.isSatin) {
-    percentageSum += 0.12;
+    percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
+    appliedModifiers.push("satin");
   }
   if (options.express) {
-    percentageSum += 0.20;
+    percentageSum += resolveStoredPrice("modifier-express", 0.20);
+    appliedModifiers.push("express");
   }
 
   const modifiersTotal = basePrice * percentageSum;
@@ -54,7 +45,8 @@ export function calculateDyplomy(options: { qty: number; sides?: number; isSatin
   return {
     basePrice,
     modifiersTotal,
-    totalPrice: Math.round(totalPrice * 100) / 100
+    totalPrice: Math.round(totalPrice * 100) / 100,
+    appliedModifiers
   };
 }
 
@@ -92,10 +84,7 @@ export const dyplomyCategory: CategoryModule = {
         <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color: #ccc;">
-            <div>1 szt → 20 zł</div><div>2 szt → 30 zł</div>
-            <div>5 szt → 35 zł</div><div>10 szt → 40 zł</div>
-            <div>20 szt → 49 zł</div><div>30 szt → 58 zł</div>
-            <div>50 szt → 75 zł</div><div>100 szt → 120 zł</div>
+            ${DYPLOMY_PRICING.map(t => `<div>${t.qty} szt → ${t.price} zł</div>`).join('')}
           </div>
         </div>
 
@@ -126,8 +115,8 @@ export const dyplomyCategory: CategoryModule = {
       const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
 
       const basePrice = getPriceForQuantity(quantity);
-      const paperMultiplier = paper === 'satin' ? 1.12 : 1;
-      const expressMultiplier = ctx.expressMode ? 1.20 : 1;
+      const paperMultiplier = paper === 'satin' ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
+      const expressMultiplier = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
@@ -144,7 +133,7 @@ export const dyplomyCategory: CategoryModule = {
             break;
           }
         }
-        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ' × 1.12 (satyna)' : ''}`;
+        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ` × ${paperMultiplier.toFixed(2)} (satyna)` : ''}`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Dyplomy DL - ${quantity} szt`);

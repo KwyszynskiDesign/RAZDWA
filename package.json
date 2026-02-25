@@ -1,18 +1,13 @@
 {
-  "name": "razdwa-calculator",
-  "version": "1.0.0",
-  "description": "Kalkulator cenników RAZ DWA",
-  "type": "module",
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:ui": "vitest --ui",
-    "build": "tsc && esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --format=iife"
-  },
   "devDependencies": {
-    "esbuild": "^0.20.2",
-    "ts-node": "^10.9.2",
+    "esbuild": "^0.27.3",
     "typescript": "^5.9.3",
-    "vitest": "^1.6.1"
+    "vitest": "^4.0.18"
+  },
+  "name": "razdwa",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --target=es2019 --minify",
+    "test": "vitest run"
   }
 }

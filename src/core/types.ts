@@ -55,6 +55,26 @@ export interface ModifierConfig {
   applicableTo?: Unit[]
 }
 
+export interface CartItem {
+  id: string
+  category: string
+  name: string
+  quantity: number
+  unit: string
+  unitPrice: number
+  isExpress: boolean
+  totalPrice: number
+  optionsHint: string
+  payload: Record<string, unknown>
+}
+
+export interface CustomerData {
+  name: string
+  phone: string
+  email: string
+  priority: string
+}
+
 export class PricingError extends Error {
   constructor(
     message: string,

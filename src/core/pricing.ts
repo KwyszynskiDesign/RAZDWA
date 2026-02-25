@@ -170,3 +170,12 @@ export function formatAllTiers(table: PriceTable): string[] {
     .sort((a, b) => a.min - b.min)
     .map((tier) => formatTierRange(tier, table.unit))
 }
+
+// ---------------------------------------------------------------------------
+// Simple pricing engine used by /src/categories/* files
+// ---------------------------------------------------------------------------
+
+export { CalculationResult, SimplePriceTable, computeTotalPrice } from './computeTotalPrice';
+
+// Backward-compatible alias so existing callers of calculatePrice keep working
+export { computeTotalPrice as calculatePrice } from './computeTotalPrice';

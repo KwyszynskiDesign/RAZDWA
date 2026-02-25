@@ -30,13 +30,13 @@
                 </select>
             </div>
 
-            <div class="form-group">
-                <label for="w-lam">Foliowanie:</label>
-                <select id="w-lam" class="form-control">
-                    <option value="noLam">Bez foliowania</option>
-                    <option value="lam">Foliowane</option>
-                </select>
-            </div>
+        <div id="w-lam-group" class="form-group">
+            <label for="w-lam">Foliowanie:</label>
+            <select id="w-lam" class="form-control">
+                <option value="noLam">Bez foliowania</option>
+                <option value="lam">Foliowane</option>
+            </select>
+        </div>
         </div>
 
         <div id="deluxe-options" style="display: none;">
@@ -47,6 +47,26 @@
                     <option value="uv3d_gold_softtouch">UV 3D + Złocenie + SoftTouch</option>
                 </select>
             </div>
+        </div>
+
+        <div class="form-group">
+            <label for="w-paper">Papier:</label>
+            <select id="w-paper" class="form-control">
+                <optgroup label="Kreda (standard)">
+                    <option value="kreda_130">130g Kreda</option>
+                    <option value="kreda_170">170g Kreda</option>
+                    <option value="kreda_200">200g Kreda</option>
+                    <option value="kreda_250">250g Kreda</option>
+                    <option value="kreda_300">300g Kreda</option>
+                    <option value="kreda_350" selected>350g Kreda</option>
+                </optgroup>
+                <optgroup label="Satyna (+12%)">
+                    <option value="satyna_130">130g Satyna</option>
+                    <option value="satyna_170">170g Satyna</option>
+                    <option value="satyna_200">200g Satyna</option>
+                    <option value="satyna_250">250g Satyna</option>
+                </optgroup>
+            </select>
         </div>
 
         <div class="form-group">
@@ -63,12 +83,29 @@
 
     <div id="w-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Cena brutto:</span>
+            <span>Cena brutto (z VAT):</span>
             <span id="w-total-price" class="price-value">-</span>
         </div>
         <div id="w-billed-qty-hint" class="hint"></div>
-        <div id="w-express-hint" class="express-hint" style="display: none;">
-            W tym dopłata EXPRESS +20%
-        </div>
+    </div>
+
+    <div class="cennik-table" style="display:none;">
+        <h4>CENNIK WIZYTÓWKI 85x55 (bez foliowania)</h4>
+        <table>
+            <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>
+            <tbody>
+                <tr><td>50 szt</td><td>65,00 zł</td><td>79,95 zł</td></tr>
+                <tr><td>100 szt</td><td>75,00 zł</td><td>92,25 zł</td></tr>
+                <tr><td>150 szt</td><td>85,00 zł</td><td>104,55 zł</td></tr>
+                <tr><td>200 szt</td><td>96,00 zł</td><td>118,08 zł</td></tr>
+                <tr><td>250 szt</td><td>110,00 zł</td><td>135,30 zł</td></tr>
+                <tr><td>300 szt</td><td>126,00 zł</td><td>154,98 zł</td></tr>
+                <tr><td>500 szt</td><td>170,00 zł</td><td>209,10 zł</td></tr>
+                <tr><td>1000 szt</td><td>290,00 zł</td><td>356,70 zł</td></tr>
+            </tbody>
+        </table>
+        <p class="cennik-note">* Ceny netto. Satyna +12%. EXPRESS +20%.</p>
     </div>
 </div>
+
+<script type="module" src="../js/categories/wizytowki-druk-cyfrowy.js"></script>

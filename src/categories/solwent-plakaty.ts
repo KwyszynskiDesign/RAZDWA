@@ -1,6 +1,9 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import { priceService } from "../services/priceService";
+import { getPrice } from "../services/priceService";
+import { overrideTiersWithStoredPrices } from "../core/compat";
+
+const data: any = getPrice("solwentPlakaty");
 
 export interface SolwentPlakatyInput {
   areaM2: number;
@@ -23,7 +26,7 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
     title: tableData.title,
     unit: tableData.unit,
     pricing: tableData.pricing,
-    tiers: materialData.tiers,
+    tiers: overrideTiersWithStoredPrices(`solwent-${materialData.id}`, materialData.tiers),
     rules: tableData.rules,
     modifiers: tableData.modifiers
   };

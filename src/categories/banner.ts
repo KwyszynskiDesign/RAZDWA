@@ -1,6 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
-import { priceService } from "../services/priceService";
+import { getPrice } from "../services/priceService";
+import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
 export interface BannerOptions {
   material: string;
@@ -10,7 +11,7 @@ export interface BannerOptions {
 }
 
 export function calculateBanner(options: BannerOptions): CalculationResult {
-  const tableData = priceService.loadSync('banner') as any;
+  const tableData = getPrice("banner") as any;
   const materialData = tableData.materials.find((m: any) => m.id === options.material);
 
   if (!materialData) {
@@ -22,8 +23,12 @@ export function calculateBanner(options: BannerOptions): CalculationResult {
     title: tableData.title,
     unit: tableData.unit,
     pricing: tableData.pricing,
-    tiers: materialData.tiers,
-    modifiers: tableData.modifiers
+    tiers: overrideTiersWithStoredPrices(`banner-${options.material}`, materialData.tiers),
+    modifiers: tableData.modifiers.map((m: any) =>
+      m.id === "oczkowanie"
+        ? { ...m, value: resolveStoredPrice("banner-oczkowanie", m.value) }
+        : m
+    )
   };
 
   const activeModifiers: string[] = [];

@@ -26,20 +26,28 @@
   </div>
 
   <!-- OPCJE -->
-  <div class="form-row">
-    <div class="form-group">
-      <label><input type="checkbox" id="d-email"> E-mail (1zł)</label>
+  <div class="form-row option-cards-row">
+    <div class="option-card" data-checked="false" id="d-email-card" role="checkbox" aria-checked="false" tabindex="0">
+      <span class="icon">📧</span>
+      <div>
+        <div>E-mail</div>
+        <div class="price">+1 zł/str.</div>
+      </div>
+      <label class="qty-inline">
+        Ilość: <input type="number" class="qty-input" id="d-email-qty" value="1" min="1"> stron
+      </label>
+      <input type="checkbox" id="d-email" hidden>
     </div>
-    <div class="form-group">
-      <label><input type="checkbox" id="d-surcharge"> Zadruk >25% (+50%)</label>
-    </div>
-  </div>
-
-  <!-- DOPŁATA ZADRUK -->
-  <div class="form-row" id="surcharge-qty-row" style="display:none;">
-    <div class="form-group">
-      <label>Ilość zadrukowanych >25%:</label>
-      <input type="number" id="d-surcharge-qty" min="0" value="0">
+    <div class="option-card" data-checked="false" id="d-surcharge-card" role="checkbox" aria-checked="false" tabindex="0">
+      <span class="icon">🎨</span>
+      <div>
+        <div>Zadruk &gt;25%</div>
+        <div class="price">+50%/str.</div>
+      </div>
+      <label class="qty-inline">
+        Ilość: <input type="number" class="qty-input" id="d-surcharge-qty" value="1" min="1"> stron
+      </label>
+      <input type="checkbox" id="d-surcharge" hidden>
     </div>
   </div>
 
@@ -61,7 +69,7 @@
   </div>
 
   <!-- PRZYCISKI -->
-  <div class="form-row">
+  <div class="form-row form-actions-row">
     <button id="d-calculate" class="btn-primary">Oblicz</button>
     <button id="d-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
   </div>
@@ -143,90 +151,4 @@
   </div>
 </div>
 
-<script>
-document.getElementById('d-surcharge').addEventListener('change', function() {
-  document.getElementById('surcharge-qty-row').style.display = this.checked ? 'flex' : 'none';
-});
-
-document.getElementById('d-scan-type').addEventListener('change', function() {
-  document.getElementById('scan-qty-row').style.display = this.value !== 'none' ? 'flex' : 'none';
-});
-
-// CENNİK POPRAWNY - Z TWOJEGO KODU
-const cenyDruk = {
-  bw: {
-    A4: [[5,0.90],[20,0.60],[100,0.35],[500,0.30],[999,0.23],[Infinity,0.15]],
-    A3: [[5,1.70],[20,1.10],[100,0.70],[500,0.60],[999,0.45],[Infinity,0.33]]
-  },
-  color: {
-    A4: [[10,2.40],[40,2.20],[100,2.00],[250,1.80],[500,1.60],[Infinity,1.10]],
-    A3: [[10,4.80],[40,4.20],[100,3.80],[250,3.00],[500,2.50],[Infinity,1.60]]
-  }
-};
-
-document.getElementById('d-calculate').addEventListener('click', function() {
-  // OBLICZANIE DRUKU
-  const mode = document.getElementById('d-mode').value;
-  const format = document.getElementById('d-format').value;
-  const printQty = parseInt(document.getElementById('d-print-qty').value) || 0;
-  
-  let unitPrintPrice = 0;
-  if (printQty > 0) {
-    for (let zakres of cenyDruk[mode][format]) {
-      if (printQty <= zakres[0]) {
-        unitPrintPrice = zakres[1];
-        break;
-      }
-    }
-  }
-  
-  const totalPrintPrice = (unitPrintPrice * printQty).toFixed(2);
-  
-  // DOPŁATA ZADRUK
-  const surchargeChecked = document.getElementById('d-surcharge').checked;
-  let surchargePrice = 0;
-  if (surchargeChecked) {
-    const surchargeQty = parseInt(document.getElementById('d-surcharge-qty').value) || 0;
-    surchargePrice = (unitPrintPrice * 0.5 * surchargeQty).toFixed(2);
-  }
-  
-  // SKANOWANIE
-  const scanType = document.getElementById('d-scan-type').value;
-  let scanPrice = 0;
-  if (scanType !== 'none') {
-    const scanQty = parseInt(document.getElementById('d-scan-qty').value) || 0;
-    if (scanType === 'auto') {
-      if (scanQty <= 9) scanPrice = 1.00;
-      else if (scanQty <= 49) scanPrice = 0.50;
-      else if (scanQty <= 99) scanPrice = 0.40;
-      else scanPrice = 0.25;
-    } else {
-      scanPrice = scanQty <= 4 ? 2.00 : 1.00;
-    }
-    scanPrice *= scanQty;
-    scanPrice = scanPrice.toFixed(2);
-  }
-  
-  // E-MAIL
-  const emailChecked = document.getElementById('d-email').checked;
-  const emailPrice = emailChecked ? '1,00' : '0,00';
-  
-  // SUMA
-  const total = (parseFloat(totalPrintPrice) + parseFloat(surchargePrice) + parseFloat(scanPrice) + parseFloat(emailPrice.replace(',','.'))).toFixed(2);
-  
-  // WYŚWIETLANIE
-  document.getElementById('d-unit-print-price').textContent = unitPrintPrice.toFixed(2) + ' zł';
-  document.getElementById('d-total-print-price').textContent = totalPrintPrice + ' zł';
-  document.getElementById('d-total-scan-price').textContent = scanPrice + ' zł';
-  document.getElementById('d-email-price').textContent = emailPrice + ' zł';
-  document.getElementById('d-surcharge-price').textContent = surchargePrice + ' zł';
-  document.getElementById('d-total-price').textContent = total.replace('.',',') + ' zł';
-  
-  document.getElementById('d-result-display').style.display = 'block';
-  document.querySelector('.total').scrollIntoView({ behavior: 'smooth' });
-  
-  if (totalPrintPrice > 0) {
-    document.getElementById('d-add-to-cart').disabled = false;
-  }
-});
-</script>
+<script type="module" src="../js/categories/druk-a4-a3-skan.js"></script>

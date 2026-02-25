@@ -1,7 +1,9 @@
 import { View, ViewContext } from "../types";
 import { calculateWlepki, WlepkiCalculation } from "../../categories/wlepki-naklejki";
 import { formatPLN } from "../../core/money";
-import * as data from "../../../data/normalized/wlepki-naklejki.json";
+import { getPrice } from "../../services/priceService";
+
+const data: any = getPrice("wlepkiNaklejki");
 
 export const WlepkiView: View = {
   id: "wlepki-naklejki",

@@ -1,5 +1,7 @@
 import { CategoryModule } from "../ui/router";
 import { calculateCad } from "../core/compat-logic";
+import { getPrice } from "../services/priceService";
+import { resolveStoredPrice } from "../core/compat";
 
 export interface DrukCADOptions {
   mode: "bw" | "color";
@@ -23,7 +25,7 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
 
   let totalPrice = res.total;
   if (options.express) {
-    totalPrice = res.total * 1.2;
+    totalPrice = res.total * (1 + resolveStoredPrice("modifier-express", 0.20));
   }
 
   return {
@@ -35,42 +37,33 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
   };
 }
 
-const CAD_PRICING: any = {
-  kolor: {
-    formatowe: {
-      'A0+': { price: 26.00, dims: '914×1292 mm' },
-      'A0': { price: 24.00, dims: '841×1189 mm' },
-      'A1': { price: 12.00, dims: '594×841 mm' },
-      'A2': { price: 8.50, dims: '420×594 mm' },
-      'A3': { price: 5.30, dims: '297×420 mm' }
-    },
-    metr_biezacy: {
-      'A0+': { price: 21.00, width: 914 },
-      'A0': { price: 20.00, width: 841 },
-      'A1': { price: 14.50, width: 594 },
-      'A2': { price: 13.90, width: 420 },
-      'A3': { price: 12.00, width: 297 },
-      'MB 1067': { price: 30.00, width: 1067 }
-    }
-  },
-  czarno_bialy: {
-    formatowe: {
-      'A0+': { price: 12.50, dims: '914×1292 mm' },
-      'A0': { price: 11.00, dims: '841×1189 mm' },
-      'A1': { price: 6.00, dims: '594×841 mm' },
-      'A2': { price: 4.00, dims: '420×594 mm' },
-      'A3': { price: 2.50, dims: '297×420 mm' }
-    },
-    metr_biezacy: {
-      'A0+': { price: 10.00, width: 914 },
-      'A0': { price: 9.00, width: 841 },
-      'A1': { price: 5.00, width: 594 },
-      'A2': { price: 4.50, width: 420 },
-      'A3': { price: 3.50, width: 297 },
-      'MB 1067': { price: 12.50, width: 1067 }
-    }
-  }
+const _cadPrice: any = getPrice("drukCAD.price");
+const _cadBase: any = getPrice("drukCAD.base");
+
+// Map from UI select values to config keys
+const _fmtMap: Record<string, string> = {
+  'A0+': 'A0p', 'A0': 'A0', 'A1': 'A1', 'A2': 'A2', 'A3': 'A3', 'MB 1067': 'R1067'
 };
+const _clrMap: Record<string, string> = {
+  'kolor': 'color', 'czarno_bialy': 'bw'
+};
+
+function _getFormatowyPricing(color: string, format: string): { price: number; dims: string } | null {
+  const c = _clrMap[color];
+  const f = _fmtMap[format];
+  const price = _cadPrice[c]?.formatowe?.[f];
+  if (price == null) return null;
+  const b = _cadBase[f];
+  return { price, dims: b ? `${b.w}\u00d7${b.l} mm` : '' };
+}
+
+function _getMbPricing(color: string, format: string): { price: number } | null {
+  const c = _clrMap[color];
+  const f = _fmtMap[format];
+  const price = _cadPrice[c]?.mb?.[f];
+  if (price == null) return null;
+  return { price };
+}
 
 export const drukCADCategory: CategoryModule = {
   id: 'druk-cad',
@@ -224,7 +217,7 @@ export const drukCADCategory: CategoryModule = {
       const format = formatSelect.value;
       const color = colorSelect.value as 'kolor' | 'czarno_bialy';
 
-      const pricing = CAD_PRICING[color].formatowe[format];
+      const pricing = _getFormatowyPricing(color, format);
       if (!pricing) {
         // Fallback if someone selects MB 1067 in formatowy mode
         currentPrice = 0;
@@ -234,7 +227,7 @@ export const drukCADCategory: CategoryModule = {
       }
 
       currentPrice = pricing.price;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       const formatDisplay = container.querySelector('#format-display');
       const dimsDisplay = container.querySelector('#dims-display');
@@ -253,12 +246,12 @@ export const drukCADCategory: CategoryModule = {
       const color = colorSelect.value as 'kolor' | 'czarno_bialy';
       const length = parseFloat(lengthInput.value) || 1.0;
 
-      const pricing = CAD_PRICING[color].metr_biezacy[format];
+      const pricing = _getMbPricing(color, format);
       if (!pricing) return;
 
       const pricePerMb = pricing.price;
       currentPrice = pricePerMb * length;
-      if (ctx.expressMode) currentPrice *= 1.2;
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       const pricePerMbDisplay = container.querySelector('#price-per-mb');
       const lengthDisplay = container.querySelector('#length-display');
@@ -308,7 +301,7 @@ export const drukCADCategory: CategoryModule = {
         description = format + ' formatowy, ' + color;
       } else {
         const length = parseFloat(lengthInput.value);
-        const pricePerMb = CAD_PRICING[colorSelect.value as 'kolor' | 'czarno_bialy'].metr_biezacy[format].price;
+        const pricePerMb = _getMbPricing(colorSelect.value, format)!.price;
         description = format + ' nieformatowy, ' + length.toFixed(3) + ' m, ' + color + ' (' + pricePerMb.toFixed(2) + ' zł/mb)';
       }
 

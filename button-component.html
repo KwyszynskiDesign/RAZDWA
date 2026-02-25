@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Button Component – Studio Raz Druku Dwa</title>
+  <link rel="icon" type="image/png" href="docs/profilowe/fb128.png" sizes="128x128">
+  <link rel="apple-touch-icon" href="docs/profilowe/fb128.png">
+  <style>
+    /* ─── CSS Custom Properties ──────────────────────────────── */
+    :root {
+      --btn-color-primary:       #2563eb;
+      --btn-color-primary-hover: #1d4ed8;
+      --btn-color-white:         #ffffff;
+      --btn-border-radius:       12px;
+      --btn-font-family:         'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+                                 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --btn-font-size:           16px;
+      --btn-font-weight:         600;
+      --btn-padding-y:           12px;
+      --btn-padding-x:           24px;
+      --btn-transition:          color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                                 background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                                 border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                                 box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                                 transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --btn-shadow:              0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.08);
+      --btn-shadow-hover:        0 4px 12px rgba(37, 99, 235, 0.35), 0 2px 4px rgba(0, 0, 0, 0.12);
+      --btn-focus-outline-color: rgba(37, 99, 235, 0.45);
+    }
+
+    /* ─── Reset & Base ───────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--btn-font-family);
+      font-size: var(--btn-font-size);
+      background: #f1f5f9;
+      color: #1e293b;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    /* ─── Layout ─────────────────────────────────────────────── */
+    .demo {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.10);
+      padding: 48px;
+      max-width: 720px;
+      width: 100%;
+    }
+
+    .demo__heading {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 8px;
+    }
+
+    .demo__sub {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 40px;
+    }
+
+    .demo__section {
+      margin-bottom: 40px;
+    }
+
+    .demo__section-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    .demo__row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    /* ─── BEM Block: btn ─────────────────────────────────────── */
+
+    /* Base element */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--btn-font-family);
+      font-size: var(--btn-font-size);
+      font-weight: var(--btn-font-weight);
+      line-height: 1;
+      padding: var(--btn-padding-y) var(--btn-padding-x);
+      border-radius: var(--btn-border-radius);
+      border: 2px solid transparent;
+      cursor: pointer;
+      text-decoration: none !important;   /* remove ALL underlines */
+      white-space: nowrap;
+      user-select: none;
+      transition: var(--btn-transition);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Focus visible – accessible keyboard outline */
+    .btn:focus-visible {
+      outline: 3px solid var(--btn-focus-outline-color);
+      outline-offset: 3px;
+    }
+
+    /* Remove legacy Firefox dotted outline */
+    .btn::-moz-focus-inner { border: 0; }
+
+    /* ── Modifier: primary ────────────────────────────────────── */
+    .btn--primary {
+      background-color: var(--btn-color-primary);
+      color: var(--btn-color-white);
+      border-color: var(--btn-color-primary);
+      box-shadow: var(--btn-shadow);
+    }
+
+    .btn--primary:hover,
+    .btn--primary:focus-visible {
+      background-color: var(--btn-color-primary-hover);
+      border-color: var(--btn-color-primary-hover);
+      box-shadow: var(--btn-shadow-hover);
+      transform: scale(1.02);
+      will-change: transform, box-shadow;
+    }
+
+    .btn--primary:active {
+      transform: scale(0.99);
+      box-shadow: var(--btn-shadow);
+    }
+
+    /* ── Modifier: secondary ──────────────────────────────────── */
+    .btn--secondary {
+      background-color: var(--btn-color-white);
+      color: var(--btn-color-primary);
+      border-color: var(--btn-color-primary);
+      box-shadow: var(--btn-shadow);
+    }
+
+    .btn--secondary:hover,
+    .btn--secondary:focus-visible {
+      background-color: #eff6ff;
+      border-color: var(--btn-color-primary-hover);
+      color: var(--btn-color-primary-hover);
+      box-shadow: var(--btn-shadow-hover);
+      transform: scale(1.02);
+      will-change: transform, box-shadow;
+    }
+
+    .btn--secondary:active {
+      transform: scale(0.99);
+      box-shadow: var(--btn-shadow);
+    }
+
+    /* ── Modifier: ghost ──────────────────────────────────────── */
+    .btn--ghost {
+      background-color: transparent;
+      color: var(--btn-color-primary);
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .btn--ghost:hover,
+    .btn--ghost:focus-visible {
+      background-color: #eff6ff;
+      border-color: var(--btn-color-primary);
+      color: var(--btn-color-primary-hover);
+      box-shadow: var(--btn-shadow-hover);
+      transform: scale(1.02);
+      will-change: transform, box-shadow;
+    }
+
+    .btn--ghost:active {
+      transform: scale(0.99);
+      box-shadow: none;
+    }
+
+    /* ── Modifier: disabled ───────────────────────────────────── */
+    .btn[disabled],
+    .btn[aria-disabled="true"] {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    /* ── Modifier: small ──────────────────────────────────────── */
+    .btn--sm {
+      font-size: 14px;
+      padding: 8px 18px;
+      border-radius: 8px;
+    }
+
+    /* ── Modifier: large ──────────────────────────────────────── */
+    .btn--lg {
+      font-size: 18px;
+      padding: 16px 32px;
+    }
+
+    /* ─── Responsive ─────────────────────────────────────────── */
+    @media (max-width: 480px) {
+      .demo { padding: 28px 20px; }
+
+      .demo__row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .btn { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="demo" role="main">
+    <h1 class="demo__heading">Button Component</h1>
+    <p class="demo__sub">Clean, accessible buttons – no underlines, GPU-accelerated hover effects.</p>
+
+    <!-- Primary -->
+    <section class="demo__section" aria-labelledby="label-primary">
+      <p class="demo__section-label" id="label-primary">Primary</p>
+      <div class="demo__row">
+        <button class="btn btn--primary" type="button">
+          Get started
+        </button>
+        <button class="btn btn--primary btn--sm" type="button">
+          Small
+        </button>
+        <button class="btn btn--primary btn--lg" type="button">
+          Large
+        </button>
+        <button class="btn btn--primary" type="button" disabled>
+          Disabled
+        </button>
+      </div>
+    </section>
+
+    <!-- Secondary -->
+    <section class="demo__section" aria-labelledby="label-secondary">
+      <p class="demo__section-label" id="label-secondary">Secondary</p>
+      <div class="demo__row">
+        <button class="btn btn--secondary" type="button">
+          Learn more
+        </button>
+        <button class="btn btn--secondary btn--sm" type="button">
+          Small
+        </button>
+        <button class="btn btn--secondary btn--lg" type="button">
+          Large
+        </button>
+        <button class="btn btn--secondary" type="button" disabled>
+          Disabled
+        </button>
+      </div>
+    </section>
+
+    <!-- Ghost -->
+    <section class="demo__section" aria-labelledby="label-ghost">
+      <p class="demo__section-label" id="label-ghost">Ghost</p>
+      <div class="demo__row">
+        <button class="btn btn--ghost" type="button">
+          Cancel
+        </button>
+        <button class="btn btn--ghost btn--sm" type="button">
+          Small
+        </button>
+        <button class="btn btn--ghost btn--lg" type="button">
+          Large
+        </button>
+        <button class="btn btn--ghost" type="button" disabled>
+          Disabled
+        </button>
+      </div>
+    </section>
+
+    <!-- As anchor links (no underlines) -->
+    <section class="demo__section" aria-labelledby="label-links">
+      <p class="demo__section-label" id="label-links">As anchor links – zero underlines</p>
+      <div class="demo__row">
+        <a href="#" class="btn btn--primary">Primary link</a>
+        <a href="#" class="btn btn--secondary">Secondary link</a>
+        <a href="#" class="btn btn--ghost">Ghost link</a>
+      </div>
+    </section>
+  </main>
+
+</body>
+</html>

@@ -1,6 +1,10 @@
+import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
 import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
+import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
+
+const prices: any = getPrice("laminowanie");
 
 export interface LaminowanieOptions {
   qty: number;
@@ -20,9 +24,9 @@ export function getLaminowanieTable(formatKey: string): PriceTable {
     title: `Laminowanie ${formatKey}`,
     unit: "szt",
     pricing: "per_unit",
-    tiers: tiers,
+    tiers: overrideTiersWithStoredPrices(`laminowanie-${formatKey.toLowerCase()}`, tiers),
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: 0.20 }
+      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
     ]
   };
 }

@@ -4,7 +4,6 @@ declare const XLSX: any;
 
 export function downloadExcel(cartItems: CartItem[], customer: CustomerData) {
   if (typeof XLSX === 'undefined') {
-    console.error("XLSX library not loaded from CDN");
     alert("Błąd: Biblioteka Excel nie została wczytana.");
     return;
   }

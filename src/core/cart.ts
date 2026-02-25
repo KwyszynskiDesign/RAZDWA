@@ -14,8 +14,7 @@ export class Cart {
       if (saved) {
         this.items = JSON.parse(saved);
       }
-    } catch (e) {
-      console.error("Failed to load cart from localStorage", e);
+    } catch {
       this.items = [];
     }
   }
@@ -23,8 +22,8 @@ export class Cart {
   private save() {
     try {
       localStorage.setItem(this.storageKey, JSON.stringify(this.items));
-    } catch (e) {
-      console.error("Failed to save cart to localStorage", e);
+    } catch {
+      // storage write failed — cart state is still in memory
     }
   }
 

@@ -1,0 +1,1171 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Druku CAD - Wycena Wydruków</title>
+  <link rel="icon" type="image/png" href="docs/profilowe/fb128.png" sizes="128x128">
+  <link rel="apple-touch-icon" href="docs/profilowe/fb128.png">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 32px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .content {
+      padding: 32px;
+    }
+
+    .upload-zone {
+      border: 3px dashed #667eea;
+      border-radius: 12px;
+      padding: 48px 32px;
+      text-align: center;
+      background: #f8f9ff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      margin-bottom: 24px;
+    }
+
+    .upload-zone:hover, .upload-zone.drag-over {
+      background: #eef1ff;
+      border-color: #764ba2;
+      transform: translateY(-2px);
+    }
+
+    .upload-zone svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.7;
+    }
+
+    .upload-zone h3 {
+      color: #667eea;
+      margin-bottom: 8px;
+      font-size: 1.3rem;
+    }
+
+    .upload-zone p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    #fileInput {
+      display: none;
+    }
+
+    .settings-panel {
+      background: #f8f9fa;
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .setting-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .setting-group label {
+      font-weight: 600;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .setting-group input {
+      padding: 10px 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .setting-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .toggle-switch {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+
+    .toggle-switch label {
+      flex: 1;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .switch {
+      position: relative;
+      width: 56px;
+      height: 28px;
+      background: #ccc;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .switch.active {
+      background: #667eea;
+    }
+
+    .switch::after {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: white;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .switch.active::after {
+      transform: translateX(28px);
+    }
+
+    .files-table-wrapper {
+      margin: 24px 0;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    thead {
+      background: #667eea;
+      color: white;
+    }
+
+    th {
+      padding: 12px;
+      text-align: left;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    tbody tr:hover {
+      background: #f8f9ff;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-formatowy {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .badge-nieformatowy {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-warning {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .checkbox-cell {
+      text-align: center;
+    }
+
+    .checkbox-cell input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .rolls-summary {
+      background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+
+    .rolls-summary h3 {
+      color: #667eea;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .rolls-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .roll-item {
+      background: white;
+      padding: 12px 16px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 500;
+    }
+
+    .roll-count {
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+    }
+
+    .warning-alert {
+      background: #fff3cd;
+      border: 2px solid #ffc107;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .warning-alert:hover {
+      background: #ffe69c;
+    }
+
+    .warning-alert.show {
+      display: flex;
+    }
+
+    .warning-icon {
+      font-size: 2rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .warning-content {
+      flex: 1;
+    }
+
+    .warning-content strong {
+      display: block;
+      color: #856404;
+      margin-bottom: 4px;
+    }
+
+    .warning-details {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #ffc107;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .warning-details.expanded {
+      display: block;
+    }
+
+    .summary-panel {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-top: 24px;
+    }
+
+    .summary-panel h3 {
+      margin-bottom: 16px;
+      font-size: 1.3rem;
+    }
+
+    .summary-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 8px;
+      padding-top: 16px;
+      border-top: 2px solid rgba(255,255,255,0.3);
+    }
+
+    .btn-clear {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 16px;
+    }
+
+    .btn-clear:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .file-list {
+      margin: 16px 0;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid #e0e0e0;
+      flex-wrap: wrap;
+    }
+
+    .file-item .file-name {
+      flex: 1;
+      font-weight: 500;
+      min-width: 120px;
+    }
+
+    .btn-calculate {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-calculate:hover:not(:disabled) {
+      background: #5a6fd6;
+    }
+
+    .btn-calculate:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .btn-add {
+      background: #22c55e;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover:not(:disabled) {
+      background: #16a34a;
+    }
+
+    .btn-add:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .file-item .result {
+      font-size: 0.9rem;
+      color: #333;
+      min-width: 160px;
+    }
+
+    .running-total {
+      background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px;
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 1.1rem;
+      flex-wrap: wrap;
+    }
+
+    .running-total strong {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .btn-clear-total {
+      background: rgba(255,255,255,0.2);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.4);
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      margin-left: auto;
+    }
+
+    .btn-clear-total:hover {
+      background: rgba(255,255,255,0.35);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        border-radius: 0;
+      }
+
+      header h1 {
+        font-size: 1.5rem;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .settings-panel {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        font-size: 0.8rem;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🖨️ Kalkulator Druku CAD</h1>
+      <p>Wycena wydruków wielkiformatowych - formaty A0+ do A3</p>
+    </header>
+
+    <div class="content">
+      <!-- Upload Zone -->
+      <div class="upload-zone" id="uploadZone">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+        </svg>
+        <h3>Przeciągnij pliki tutaj</h3>
+        <p>lub kliknij, aby wybrać (CAD, PDF, JPG, PNG)</p>
+        <input type="file" id="fileInput" multiple accept=".dwg,.dxf,.pdf,.jpg,.jpeg,.png,.tif,.tiff" />
+      </div>
+
+      <!-- File List: per-file OBLICZ / DODAJ DO SUMY -->
+      <div id="file-list" class="file-list"></div>
+
+      <!-- Running Total -->
+      <div id="running-total" class="running-total hidden">
+        <span>Suma do zapłaty:</span>
+        <strong id="running-total-amount">0,00 zł</strong>
+        <button id="total-clear-btn" class="btn-clear-total">Wyczyść sumę</button>
+      </div>
+
+      <!-- Settings Panel -->
+      <div class="settings-panel">
+        <div class="setting-group">
+          <label>Rozdzielczość DPI:</label>
+          <input type="number" id="dpiInput" value="300" min="72" max="600" />
+        </div>
+
+        <div class="toggle-switch" id="colorToggle">
+          <label>Czarno-białe</label>
+          <div class="switch" id="colorSwitch"></div>
+          <label>Kolorowe</label>
+        </div>
+      </div>
+
+      <!-- Rolls Summary -->
+      <div class="rolls-summary hidden" id="rollsSummary">
+        <h3>📊 Analiza szerokości rolek</h3>
+        <div class="rolls-list" id="rollsList"></div>
+        <div id="suggestedRoll"></div>
+
+        <div class="warning-alert" id="warningAlert">
+          <div class="warning-icon">⚠️</div>
+          <div class="warning-content">
+            <strong>Pliki z niestandardową szerokością:</strong>
+            <span id="warningCount">0</span>
+            <div class="warning-details" id="warningDetails"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Files Table -->
+      <div class="files-table-wrapper hidden" id="filesTableWrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nazwa pliku</th>
+              <th>Rozmiar (px)</th>
+              <th>Wymiary (mm)</th>
+              <th>Format</th>
+              <th>Typ</th>
+              <th>Składanie</th>
+              <th>Skanowanie</th>
+              <th>Cena (zł)</th>
+            </tr>
+          </thead>
+          <tbody id="filesTableBody"></tbody>
+        </table>
+      </div>
+
+      <!-- Summary Panel -->
+      <div class="summary-panel hidden" id="summaryPanel">
+        <h3>💰 Podsumowanie wyceny</h3>
+        <div class="summary-grid" id="summaryGrid"></div>
+        <button class="btn-clear" id="clearBtn">Wyczyść wszystko</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // CENNIK
+    const PRICES = {
+      formatowe: {
+        czb: { A3: 2.50, A2: 4.00, A1: 6.00, A0: 11.00, 'A0+': 12.50 },
+        kolor: { A3: 5.30, A2: 8.50, A1: 12.00, A0: 24.00, 'A0+': 26.00 }
+      },
+      nieformatowe: {
+        czb: { 297: 3.50, 420: 4.50, 594: 5.00, 841: 9.00, 914: 10.00, 1067: 12.50 },
+        kolor: { 297: 12.00, 420: 13.90, 594: 14.50, 841: 20.00, 914: 21.00, 1067: 30.00 }
+      },
+      skladanie: {
+        formatowe: { A3: 1.00, 'A3-poprzeczne': 0.70, A2: 1.50, A1: 2.00, A0: 3.00, 'A0+': 4.00 },
+        nieformatowe: 2.50 // zł/m²
+      },
+      skanowanie: 0.08 // zł/mm
+    };
+
+    // FORMATY STANDARDOWE (mm)
+    const FORMATS = {
+      'A3': [297, 420],
+      'A2': [420, 594],
+      'A1': [594, 841],
+      'A0': [841, 1189],
+      'A0+': [914, 1292]
+    };
+
+    const STANDARD_WIDTHS = [297, 420, 594, 841, 914, 1067];
+    const TOLERANCE = 5; // mm dla długości
+
+    let filesData = [];
+    let isColor = false;
+    let dpi = 300;
+
+    // Map for per-file OBLICZ flow
+    const fileObjects = new Map();
+    let runningTotal = 0;
+    let fileCounter = 0;
+
+    // DOM Elements
+    const uploadZone = document.getElementById('uploadZone');
+    const fileInput = document.getElementById('fileInput');
+    const dpiInput = document.getElementById('dpiInput');
+    const colorToggle = document.getElementById('colorToggle');
+    const colorSwitch = document.getElementById('colorSwitch');
+    const rollsSummary = document.getElementById('rollsSummary');
+    const rollsList = document.getElementById('rollsList');
+    const suggestedRoll = document.getElementById('suggestedRoll');
+    const warningAlert = document.getElementById('warningAlert');
+    const warningCount = document.getElementById('warningCount');
+    const warningDetails = document.getElementById('warningDetails');
+    const filesTableWrapper = document.getElementById('filesTableWrapper');
+    const filesTableBody = document.getElementById('filesTableBody');
+    const summaryPanel = document.getElementById('summaryPanel');
+    const summaryGrid = document.getElementById('summaryGrid');
+    const clearBtn = document.getElementById('clearBtn');
+    const fileListEl = document.getElementById('file-list');
+    const runningTotalEl = document.getElementById('running-total');
+    const runningTotalAmount = document.getElementById('running-total-amount');
+    const totalClearBtn = document.getElementById('total-clear-btn');
+
+    // Event Listeners
+    uploadZone.addEventListener('click', () => fileInput.click());
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('drag-over');
+    });
+    uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('drag-over');
+      [...e.dataTransfer.files].forEach(addFileToList);
+    });
+    fileInput.addEventListener('change', (e) => [...e.target.files].forEach(addFileToList));
+
+    colorToggle.addEventListener('click', () => {
+      isColor = !isColor;
+      colorSwitch.classList.toggle('active');
+      if (filesData.length > 0) {
+        recalculateAll();
+      }
+    });
+
+    dpiInput.addEventListener('change', (e) => {
+      dpi = parseInt(e.target.value) || 300;
+      if (filesData.length > 0) {
+        recalculateAll();
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      filesData = [];
+      fileInput.value = '';
+      fileListEl.innerHTML = '';
+      fileObjects.clear();
+      runningTotal = 0;
+      runningTotalEl.classList.add('hidden');
+      runningTotalAmount.textContent = '0,00 zł';
+      updateDisplay();
+    });
+
+    warningAlert.addEventListener('click', () => {
+      warningDetails.classList.toggle('expanded');
+    });
+
+    totalClearBtn.addEventListener('click', () => {
+      runningTotal = 0;
+      runningTotalEl.classList.add('hidden');
+      runningTotalAmount.textContent = '0,00 zł';
+      fileListEl.querySelectorAll('.btn-add[data-added="true"]').forEach(btn => {
+        btn.textContent = 'DODAJ DO SUMY';
+        btn.disabled = false;
+        btn.removeAttribute('data-added');
+      });
+    });
+
+    // Dodaj plik do wizualnej listy (bez analizy)
+    function addFileToList(file) {
+      const fileId = 'f_' + (++fileCounter);
+      fileObjects.set(fileId, file);
+
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.dataset.fileId = fileId;
+
+      const nameSpan = document.createElement('span');
+      nameSpan.className = 'file-name';
+      nameSpan.textContent = file.name;
+
+      const calcBtn = document.createElement('button');
+      calcBtn.className = 'btn-calculate';
+      calcBtn.textContent = 'OBLICZ';
+      calcBtn.addEventListener('click', () => obliczTenPlik(calcBtn));
+
+      const addBtn = document.createElement('button');
+      addBtn.className = 'btn-add';
+      addBtn.textContent = 'DODAJ DO SUMY';
+      addBtn.disabled = true;
+      addBtn.addEventListener('click', () => dodajDoSumy(addBtn));
+
+      const resultSpan = document.createElement('span');
+      resultSpan.className = 'result';
+
+      div.appendChild(nameSpan);
+      div.appendChild(calcBtn);
+      div.appendChild(addBtn);
+      div.appendChild(resultSpan);
+      fileListEl.appendChild(div);
+    }
+
+    // Promise-based analiza pliku (bez auto-wyświetlania)
+    function analyzeFile(file) {
+      return new Promise((resolve, reject) => {
+        if (file.name.match(/\.(dwg|dxf)$/i)) {
+          const mockW = 2480 + Math.random() * 1000;
+          const mockH = 1754 + Math.random() * 1000;
+          const wMm = pxToMm(mockW, dpi);
+          const hMm = pxToMm(mockH, dpi);
+          resolve({
+            name: file.name,
+            widthPx: mockW, heightPx: mockH,
+            widthMm: wMm, heightMm: hMm,
+            formatInfo: detectFormat(wMm, hMm),
+            folding: false, scanning: false,
+          });
+        } else {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const img = new Image();
+            img.onload = () => {
+              const wMm = pxToMm(img.width, dpi);
+              const hMm = pxToMm(img.height, dpi);
+              resolve({
+                name: file.name,
+                widthPx: img.width, heightPx: img.height,
+                widthMm: wMm, heightMm: hMm,
+                formatInfo: detectFormat(wMm, hMm),
+                folding: false, scanning: false,
+              });
+            };
+            img.onerror = () => reject(new Error('Nie można wczytać pliku jako obraz'));
+            img.src = ev.target.result;
+          };
+          reader.onerror = () => reject(new Error('Błąd odczytu pliku'));
+          reader.readAsDataURL(file);
+        }
+      });
+    }
+
+    // OBLICZ – analizuj plik i pokaż wynik
+    window.obliczTenPlik = async function(btn) {
+      const fileItem = btn.closest('.file-item');
+      const fileId = fileItem.dataset.fileId;
+      const file = fileObjects.get(fileId);
+      if (!file) return;
+
+      btn.disabled = true;
+      btn.textContent = '⏳';
+      try {
+        const fileData = await analyzeFile(file);
+        const printPrice = calculatePrintPrice(fileData);
+        const { format, isFormatowy } = fileData.formatInfo;
+        const typStr = isFormatowy ? 'formatowy' : 'nieformat./mb';
+        fileItem.querySelector('.result').textContent =
+          `${format} (${typStr}): ${Math.round(fileData.heightMm)} mm → ${printPrice.toFixed(2)} zł`;
+        fileItem.dataset.price = printPrice.toFixed(2);
+        fileItem.querySelector('.btn-add').disabled = false;
+        btn.textContent = '✅';
+      } catch (e) {
+        fileItem.querySelector('.result').textContent = 'Błąd analizy pliku';
+        btn.textContent = 'OBLICZ';
+        btn.disabled = false;
+      }
+    };
+
+    // DODAJ DO SUMY – dodaj wyliczoną cenę do sumy bieżącej
+    window.dodajDoSumy = function(btn) {
+      const fileItem = btn.closest('.file-item');
+      const price = parseFloat(fileItem.dataset.price);
+      if (isNaN(price) || price < 0) return;
+      runningTotal += price;
+      runningTotalEl.classList.remove('hidden');
+      runningTotalAmount.textContent = runningTotal.toFixed(2) + ' zł';
+      btn.disabled = true;
+      btn.dataset.added = 'true';
+      btn.textContent = '✅ DODANO';
+    };
+
+    // Aktualizacja sumy (helper, zgodny z istniejącymi wywołaniami)
+    function updateTotal(cena) {
+      runningTotal += cena;
+      runningTotalEl.classList.remove('hidden');
+      runningTotalAmount.textContent = runningTotal.toFixed(2) + ' zł';
+    }
+
+    // Konwersja px → mm
+    function pxToMm(px, dpi) {
+      return (px * 25.4) / dpi;
+    }
+
+    // Znajdź najbliższą standardową szerokość
+    function findClosestWidth(width) {
+      return STANDARD_WIDTHS.reduce((prev, curr) => 
+        Math.abs(curr - width) < Math.abs(prev - width) ? curr : prev
+      );
+    }
+
+    // Sprawdź czy szerokość jest standardowa
+    function isStandardWidth(width) {
+      return STANDARD_WIDTHS.includes(Math.round(width));
+    }
+
+    // Wykryj format
+    function detectFormat(widthMm, heightMm) {
+      const w = Math.round(widthMm);
+      const h = Math.round(heightMm);
+
+      // Sprawdź orientację (zawsze mniejszy to szerokość)
+      const [minDim, maxDim] = w < h ? [w, h] : [h, w];
+
+      // Sprawdź czy szerokość jest standardowa
+      if (!isStandardWidth(minDim)) {
+        return {
+          format: `${minDim}mm`,
+          isFormatowy: false,
+          isStandardWidth: false,
+          widthCategory: findClosestWidth(minDim)
+        };
+      }
+
+      // Znajdź format
+      for (const [name, [fw, fh]] of Object.entries(FORMATS)) {
+        if (minDim === fw) {
+          // Sprawdź tolerancję długości
+          const isWithinTolerance = Math.abs(maxDim - fh) <= TOLERANCE;
+          return {
+            format: name,
+            isFormatowy: isWithinTolerance,
+            isStandardWidth: true,
+            widthCategory: fw,
+            actualLength: maxDim,
+            standardLength: fh
+          };
+        }
+      }
+
+      // Rolka 1067
+      if (minDim === 1067) {
+        return {
+          format: '1067mm',
+          isFormatowy: false,
+          isStandardWidth: true,
+          widthCategory: 1067
+        };
+      }
+
+      return {
+        format: `${minDim}×${maxDim}`,
+        isFormatowy: false,
+        isStandardWidth: true,
+        widthCategory: minDim
+      };
+    }
+
+    // Oblicz cenę wydruku
+    function calculatePrintPrice(fileData) {
+      const mode = isColor ? 'kolor' : 'czb';
+      const { format, isFormatowy, widthCategory, actualLength } = fileData.formatInfo;
+
+      if (isFormatowy) {
+        return PRICES.formatowe[mode][format] || 0;
+      } else {
+        // Nieformatowy - cena za mb
+        const pricePerMb = PRICES.nieformatowe[mode][widthCategory] || 0;
+        const lengthMeters = fileData.heightMm / 1000;
+        return pricePerMb * lengthMeters;
+      }
+    }
+
+    // Oblicz cenę składania
+    function calculateFoldingPrice(fileData) {
+      if (!fileData.folding) return 0;
+
+      const { format, isFormatowy } = fileData.formatInfo;
+
+      if (isFormatowy) {
+        return PRICES.skladanie.formatowe[format] || 0;
+      } else {
+        // Nieformatowy - za m²
+        const areaM2 = (fileData.widthMm / 1000) * (fileData.heightMm / 1000);
+        return PRICES.skladanie.nieformatowe * areaM2;
+      }
+    }
+
+    // Oblicz cenę skanowania
+    function calculateScanPrice(fileData) {
+      if (!fileData.scanning) return 0;
+      const longerSide = Math.max(fileData.widthMm, fileData.heightMm);
+      return PRICES.skanowanie * longerSide;
+    }
+
+    // Przetwórz pliki
+    async function handleFiles(files) {
+      for (const file of files) {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+          img.onload = () => {
+            const widthMm = pxToMm(img.width, dpi);
+            const heightMm = pxToMm(img.height, dpi);
+            const formatInfo = detectFormat(widthMm, heightMm);
+
+            const fileData = {
+              id: Date.now() + Math.random(),
+              name: file.name,
+              widthPx: img.width,
+              heightPx: img.height,
+              widthMm: widthMm,
+              heightMm: heightMm,
+              formatInfo: formatInfo,
+              folding: false,
+              scanning: false
+            };
+
+            filesData.push(fileData);
+            updateDisplay();
+          };
+          img.src = e.target.result;
+        };
+
+        // Dla plików CAD symulujemy wymiary (w prawdziwej wersji użyj parsera DWG/DXF)
+        if (file.name.match(/\.(dwg|dxf)$/i)) {
+          const mockWidth = 2480 + Math.random() * 1000;
+          const mockHeight = 1754 + Math.random() * 1000;
+          const widthMm = pxToMm(mockWidth, dpi);
+          const heightMm = pxToMm(mockHeight, dpi);
+          const formatInfo = detectFormat(widthMm, heightMm);
+
+          filesData.push({
+            id: Date.now() + Math.random(),
+            name: file.name,
+            widthPx: mockWidth,
+            heightPx: mockHeight,
+            widthMm: widthMm,
+            heightMm: heightMm,
+            formatInfo: formatInfo,
+            folding: false,
+            scanning: false
+          });
+          updateDisplay();
+        } else {
+          reader.readAsDataURL(file);
+        }
+      }
+    }
+
+    // Przelicz wszystko przy zmianie ustawień
+    function recalculateAll() {
+      filesData = filesData.map(file => {
+        const widthMm = pxToMm(file.widthPx, dpi);
+        const heightMm = pxToMm(file.heightPx, dpi);
+        const formatInfo = detectFormat(widthMm, heightMm);
+
+        return {
+          ...file,
+          widthMm,
+          heightMm,
+          formatInfo
+        };
+      });
+      updateDisplay();
+    }
+
+    // Aktualizuj wyświetlanie
+    function updateDisplay() {
+      if (filesData.length === 0) {
+        rollsSummary.classList.add('hidden');
+        filesTableWrapper.classList.add('hidden');
+        summaryPanel.classList.add('hidden');
+        return;
+      }
+
+      rollsSummary.classList.remove('hidden');
+      filesTableWrapper.classList.remove('hidden');
+      summaryPanel.classList.remove('hidden');
+
+      displayRollsSummary();
+      displayFilesTable();
+      displaySummary();
+    }
+
+    // Wyświetl podsumowanie rolek
+    function displayRollsSummary() {
+      const rollCounts = {};
+      const nonStandardFiles = [];
+
+      filesData.forEach(file => {
+        const { widthCategory, isStandardWidth } = file.formatInfo;
+
+        if (!isStandardWidth) {
+          nonStandardFiles.push(file);
+        } else {
+          rollCounts[widthCategory] = (rollCounts[widthCategory] || 0) + 1;
+        }
+      });
+
+      // Wyświetl rolki
+      rollsList.innerHTML = Object.entries(rollCounts)
+        .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
+        .map(([width, count]) => `
+          <div class="roll-item">
+            <span>Rolka ${width}mm</span>
+            <span class="roll-count">${count} plik${count > 1 ? 'i/ów' : ''}</span>
+          </div>
+        `).join('');
+
+      // Sugerowana rolka
+      const maxWidth = Math.max(...Object.keys(rollCounts).map(Number));
+      suggestedRoll.innerHTML = `<strong>→ Sugerowana rolka: ${maxWidth}mm (pokryje wszystkie standardowe pliki)</strong>`;
+
+      // Ostrzeżenie o niestandardowych szerokościach
+      if (nonStandardFiles.length > 0) {
+        warningAlert.classList.add('show');
+        warningCount.textContent = `${nonStandardFiles.length} plik${nonStandardFiles.length > 1 ? 'i/ów' : ''}`;
+        warningDetails.innerHTML = nonStandardFiles.map(f => `
+          <div>• ${f.name}: ${Math.round(f.widthMm)} × ${Math.round(f.heightMm)}mm (niestandardowa szerokość)</div>
+        `).join('');
+      } else {
+        warningAlert.classList.remove('show');
+      }
+    }
+
+    // Wyświetl tabelę plików
+    function displayFilesTable() {
+      filesTableBody.innerHTML = filesData.map(file => {
+        const printPrice = calculatePrintPrice(file);
+        const foldingPrice = calculateFoldingPrice(file);
+        const scanPrice = calculateScanPrice(file);
+        const totalPrice = printPrice + foldingPrice + scanPrice;
+
+        const { format, isFormatowy, isStandardWidth } = file.formatInfo;
+
+        let typeBadge = '';
+        if (!isStandardWidth) {
+          typeBadge = '<span class="badge badge-warning">⚠️ Niestandardowa szerokość</span>';
+        } else if (isFormatowy) {
+          typeBadge = '<span class="badge badge-formatowy">Formatowy</span>';
+        } else {
+          typeBadge = '<span class="badge badge-nieformatowy">Nieformatowy [MB]</span>';
+        }
+
+        return `
+          <tr>
+            <td><strong>${file.name}</strong></td>
+            <td>${file.widthPx} × ${file.heightPx}</td>
+            <td>${Math.round(file.widthMm)} × ${Math.round(file.heightMm)} mm<br>
+                <small>${(file.widthMm/10).toFixed(1)} × ${(file.heightMm/10).toFixed(1)} cm</small></td>
+            <td><strong>${format}</strong></td>
+            <td>${typeBadge}</td>
+            <td class="checkbox-cell">
+              <input type="checkbox" ${file.folding ? 'checked' : ''} 
+                     onchange="toggleFolding('${file.id}')" />
+            </td>
+            <td class="checkbox-cell">
+              <input type="checkbox" ${file.scanning ? 'checked' : ''} 
+                     onchange="toggleScanning('${file.id}')" />
+            </td>
+            <td><strong>${totalPrice.toFixed(2)} zł</strong></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Wyświetl podsumowanie
+    function displaySummary() {
+      let totalPrint = 0;
+      let totalFolding = 0;
+      let totalScan = 0;
+
+      filesData.forEach(file => {
+        totalPrint += calculatePrintPrice(file);
+        totalFolding += calculateFoldingPrice(file);
+        totalScan += calculateScanPrice(file);
+      });
+
+      const total = totalPrint + totalFolding + totalScan;
+
+      summaryGrid.innerHTML = `
+        <div class="summary-item">
+          <span>Wydruki (${filesData.length} plik${filesData.length > 1 ? 'i/ów' : ''}):</span>
+          <span>${totalPrint.toFixed(2)} zł</span>
+        </div>
+        <div class="summary-item">
+          <span>Składanie:</span>
+          <span>${totalFolding.toFixed(2)} zł</span>
+        </div>
+        <div class="summary-item">
+          <span>Skanowanie:</span>
+          <span>${totalScan.toFixed(2)} zł</span>
+        </div>
+        <div class="summary-item">
+          <span>RAZEM:</span>
+          <span>${total.toFixed(2)} zł</span>
+        </div>
+      `;
+    }
+
+    // Toggle składanie
+    window.toggleFolding = function(fileId) {
+      const file = filesData.find(f => f.id == fileId);
+      if (file) {
+        file.folding = !file.folding;
+        updateDisplay();
+      }
+    };
+
+    // Toggle skanowanie
+    window.toggleScanning = function(fileId) {
+      const file = filesData.find(f => f.id == fileId);
+      if (file) {
+        file.scanning = !file.scanning;
+        updateDisplay();
+      }
+    };
+  </script>
+</body>
+</html>
