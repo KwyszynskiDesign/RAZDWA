@@ -1,6 +1,5 @@
-import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
+﻿import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
-import { PDFDocument } from "pdf-lib";
 import { getFileDimensions, detectPaperFormat, formatDimensionOutput, pixelsToMm as pxToMmUtil } from "../utils/fileDimensionReader";
 
 /** Pixel to millimeters conversion at 300 DPI */
