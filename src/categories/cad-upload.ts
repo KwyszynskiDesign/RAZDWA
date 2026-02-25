@@ -82,7 +82,18 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
  * Calculate print price for CAD file.
  * Uses formatowe vs metr-bieżący pricing.
  */
-export function calculateCadPrintPrice(
+export function calculateCadPrintPrice(format: string, isColor: boolean): number {
+  const mode: 'bw' | 'color' = isColor ? 'color' : 'bw';
+  const prices = CAD_PRICE[mode];
+
+  const formatPrice = prices.formatowe[format];
+  if (formatPrice) return formatPrice;
+
+  const mbPrice = prices.mb[format];
+  return mbPrice || 0;
+}
+
+function calculateCadPrintPriceWithDimensions(
   widthMm: number,
   heightMm: number,
   format: string,
@@ -90,28 +101,18 @@ export function calculateCadPrintPrice(
   mode: 'bw' | 'color',
   qty: number
 ): number {
-  console.log("calculateCadPrintPrice called with:", { widthMm, heightMm, format, isFormatowy, mode, qty });
-  
   const prices = CAD_PRICE[mode];
-  console.log("CAD_PRICE:", CAD_PRICE);
-  console.log("prices for mode", mode, ":", prices);
 
   if (isFormatowy) {
-    // Format-based pricing
     const price = prices.formatowe[format];
-    console.log("Format-based price for", format, ":", price);
     if (!price) return 0;
     return qty * price;
-  } else {
-    // Meter-based pricing
-    const price = prices.mb[format];
-    console.log("Meter-based price for", format, ":", price);
-    if (!price) return 0;
-    // Use longer side (usually height) for length in meters
-    const lengthMeters = Math.max(widthMm, heightMm) / 1000;
-    console.log("Length in meters:", lengthMeters);
-    return qty * lengthMeters * price;
   }
+
+  const price = prices.mb[format];
+  if (!price) return 0;
+  const lengthMeters = Math.max(widthMm, heightMm) / 1000;
+  return qty * lengthMeters * price;
 }
 
 /**
@@ -168,14 +169,75 @@ export function calculateCadScanningPrice(
 export function updateCadFileEntry(
   entry: Partial<CadUploadFileEntry>,
   mode: 'bw' | 'color'
-): CadUploadFileEntry {
+): CadUploadFileEntry;
+export function updateCadFileEntry(
+  file: File,
+  isColor?: boolean
+): Promise<CadUploadFileEntry>;
+export function updateCadFileEntry(
+  arg1: Partial<CadUploadFileEntry> | File,
+  arg2?: 'bw' | 'color' | boolean
+): CadUploadFileEntry | Promise<CadUploadFileEntry> {
+  if (arg1 instanceof File) {
+    const file = arg1;
+    const isColor = typeof arg2 === "boolean" ? arg2 : false;
+    const mode: 'bw' | 'color' = isColor ? 'color' : 'bw';
+
+    return loadImageDimensions(file)
+      .then(({ widthPx, heightPx }) => {
+        const widthMm = pxToMm(widthPx);
+        const heightMm = pxToMm(heightPx);
+        const fmt = detectFormatFromDimensions(widthMm, heightMm);
+        const printPrice = calculateCadPrintPrice(fmt.format, isColor);
+
+        return {
+          id: Date.now(),
+          name: file.name,
+          widthPx,
+          heightPx,
+          widthMm,
+          heightMm,
+          format: fmt.format,
+          isFormatowy: fmt.isFormatowy,
+          isStandardWidth: fmt.isStandardWidth,
+          folding: false,
+          scanning: false,
+          printPrice,
+          foldingPrice: 0,
+          scanPrice: 0,
+          totalPrice: parseFloat(money(printPrice))
+        };
+      })
+      .catch(() => {
+        return {
+          id: Date.now(),
+          name: file.name,
+          widthPx: 0,
+          heightPx: 0,
+          widthMm: 0,
+          heightMm: 0,
+          format: "unknown",
+          isFormatowy: false,
+          isStandardWidth: false,
+          folding: false,
+          scanning: false,
+          printPrice: 0,
+          foldingPrice: 0,
+          scanPrice: 0,
+          totalPrice: 0
+        };
+      });
+  }
+
+  const entry = arg1;
+  const mode = (arg2 as 'bw' | 'color') || 'bw';
   const widthMm = entry.widthMm || 0;
   const heightMm = entry.heightMm || 0;
   const format = entry.format || 'unknown';
   const isFormatowy = entry.isFormatowy || false;
-  const qty = 1; // For now, always qty=1
+  const qty = 1;
 
-  const printPrice = calculateCadPrintPrice(widthMm, heightMm, format, isFormatowy, mode, qty);
+  const printPrice = calculateCadPrintPriceWithDimensions(widthMm, heightMm, format, isFormatowy, mode, qty);
   const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, qty);
   const scanPrice = calculateCadScanningPrice(widthMm, heightMm, entry.scanning || false, qty);
 
@@ -196,4 +258,32 @@ export function updateCadFileEntry(
     scanPrice,
     totalPrice: parseFloat(money(printPrice + foldingPrice + scanPrice))
   };
+}
+
+function pxToMm(px: number): number {
+  return px * PX_TO_MM_300DPI;
+}
+
+function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number }>{
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) {
+      reject(new Error("Unsupported file type"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        resolve({
+          widthPx: img.naturalWidth || img.width,
+          heightPx: img.naturalHeight || img.height
+        });
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
 }
