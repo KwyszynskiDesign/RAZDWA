@@ -14,7 +14,7 @@ export const plakatyCategory: CategoryModule = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
   mount: (container: HTMLElement, ctx: CategoryContext) => {
-    const table = plakatyData as PriceTable;
+    const table = priceService.loadSync('solwent-plakaty-200g') as PriceTable;
 
     container.innerHTML = `
       <div class="category-view">

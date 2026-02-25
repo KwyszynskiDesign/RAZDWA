@@ -1,5 +1,6 @@
 import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
+import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
 import { resolveStoredPrice } from "../core/compat";
 
@@ -12,6 +13,7 @@ export interface UlotkiJednostronneOptions {
 }
 
 export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
+  const prices = priceService.loadSync('ulotki-cyfrowe-jednostronne');
   const formatData = (prices.formats as any)[formatKey];
   if (!formatData) {
     throw new Error(`Invalid format: ${formatKey}`);

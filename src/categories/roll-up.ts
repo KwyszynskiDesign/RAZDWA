@@ -1,5 +1,6 @@
 import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
+import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
 import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
@@ -13,6 +14,7 @@ export interface RollUpOptions {
 }
 
 export function calculateRollUp(options: RollUpOptions): CalculationResult {
+  const data = priceService.loadSync('roll-up');
   const formatData = (data.formats as any)[options.format];
   if (!formatData) {
     throw new Error(`Unknown format: ${options.format}`);

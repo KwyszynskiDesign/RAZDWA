@@ -1,5 +1,6 @@
 import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
+import { priceService } from "../services/priceService";
 import { PriceTable, CalculationResult } from "../core/types";
 import { resolveStoredPrice } from "../core/compat";
 
@@ -12,6 +13,7 @@ export interface UlotkiDwustronneOptions {
 }
 
 export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
+  const prices = priceService.loadSync('ulotki-cyfrowe-dwustronne');
   const formatData = (prices.formats as any)[formatKey];
   if (!formatData) {
     throw new Error(`Invalid format: ${formatKey}`);

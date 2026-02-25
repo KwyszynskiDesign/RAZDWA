@@ -13,7 +13,7 @@ export interface WlepkiCalculation {
 }
 
 export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
-  const tableData = data as any;
+  const tableData = priceService.loadSync('wlepki-naklejki') as any;
   const groupData = tableData.groups.find((g: any) => g.id === input.groupId);
 
   if (!groupData) {
