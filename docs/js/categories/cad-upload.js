@@ -1,7 +1,7 @@
 // cad-upload.js – kalkulator uploadowania plików CAD z pełnym cennikiem
 // LEGACY JS (nie TypeScript) – docs/js/categories/cad-upload.js
 
-import { drukCad } from '../prices.js';
+import { drukCad } from './prices.js';
 
 console.log('✅ PRODUCTION READY');
 
@@ -140,6 +140,45 @@ function updateSkan() {
 // MULTI-PAGE PDF ANALYSIS + RESULTS TABLE (before init to ensure availability)
 // ──────────────────────────────────────────────────────────────────────────────
 
+const PT_TO_MM = 0.3528;
+const FORMAT_TOLERANCE_RATIO = 0.05;
+const STANDARD_PAGE_FORMATS = [
+  { format: 'A3', short: 297, long: 420 },
+  { format: 'A4', short: 210, long: 297 }
+];
+
+function ptToMm(pt) {
+  return Math.round(pt * PT_TO_MM);
+}
+
+function inTolerance(value, target, toleranceRatio) {
+  return Math.abs(value - target) <= target * toleranceRatio;
+}
+
+function mapStandardFormat(widthMm, heightMm) {
+  const short = Math.min(widthMm, heightMm);
+  const long = Math.max(widthMm, heightMm);
+
+  for (const f of STANDARD_PAGE_FORMATS) {
+    if (inTolerance(short, f.short, FORMAT_TOLERANCE_RATIO) && inTolerance(long, f.long, FORMAT_TOLERANCE_RATIO)) {
+      return f.format;
+    }
+  }
+
+  return null;
+}
+
+export function getPageDimensions(page) {
+  const viewport = page.getViewport({ scale: 1.0 });
+  const widthMm = ptToMm(viewport.width);
+  const heightMm = ptToMm(viewport.height);
+  const mappedFormat = mapStandardFormat(widthMm, heightMm);
+  const format = mappedFormat || detectFormat(widthMm, heightMm);
+  const mm = `${widthMm}x${heightMm}mm`;
+
+  return { format, mm, widthMm, heightMm };
+}
+
 /**
  * Wait for PDF.js to load (max 5 retries)
  */
@@ -184,25 +223,21 @@ export async function analyzePdf(file) {
 
     for (let i = 1; i <= maxPages; i++) {
       const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: 1.0 });
-      
-      // Convert from PDF points (1/72 inch) to mm (300 DPI)
-      const widthMm = Math.round((viewport.width / 72) * 25.4);
-      const heightMm = Math.round((viewport.height / 72) * 25.4);
-      const format = detectFormat(widthMm, heightMm);
+      const { format, mm, widthMm, heightMm } = getPageDimensions(page);
 
-      console.log(`  Page ${i}: ${widthMm}×${heightMm}mm → ${format}`);
+      console.log(`  Page ${i}: ${format} (${mm})`);
       
       pages.push({
         page: i,
         widthMm,
         heightMm,
-        format
+        format,
+        mm
       });
     }
 
     // Calculate total price
-    const totalPrice = pages.reduce((sum, p) => sum + calculatePagePrice(p.format, 'color'), 0);
+    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculatePagePrice(p.format, 'color')), 0);
     
     console.log(`✅ Total PDF price: ${totalPrice.toFixed(2)} zł`);
     console.groupEnd();
@@ -221,22 +256,82 @@ export async function analyzePdf(file) {
  * @param {string} mode - 'bw' or 'color'
  * @returns {number} price
  */
-export function calculatePagePrice(format, mode = 'color') {
-  const prices = {
-    color: {
-      'A4': 1.5, 'A3': 3.5, 'A2': 8.5, 'A1': 12, 'A0': 24, 'A0+': 26,
-      'A4-custom': 1.5, 'A3-custom': 3.5, 'A2-custom': 8.5,
-      'nieformatowy': 2.5
-    },
-    bw: {
-      'A4': 0.9, 'A3': 1.7, 'A2': 4, 'A1': 6, 'A0': 11, 'A0+': 12.5,
-      'A4-custom': 0.9, 'A3-custom': 1.7, 'A2-custom': 4,
-      'nieformatowy': 1.5
+export function calculatePagePrice(format, mode = 'color', qty = 1, vat = true) {
+  const priceTable = drukCad.prices[format] || drukCad.prices.Custom;
+  const unit = priceTable?.[mode] ?? priceTable?.color ?? 2.5;
+  let price = unit * qty;
+  if (vat) price *= 1.23;
+  return price.toFixed(2);
+}
+
+export function updatePrices() {
+  const modeEl = document.getElementById('printMode');
+  const vatEl = document.getElementById('vatToggle');
+  const totalPriceEl = document.getElementById('results-total-price');
+  const totalLiveEl = document.getElementById('results-total-live');
+  const sumaEl = document.querySelector('.suma');
+
+  if (!modeEl || !vatEl) return;
+
+  const mode = modeEl.value;
+  const vat = vatEl.checked;
+  let total = 0;
+
+  document.querySelectorAll('tr.data-row').forEach(row => {
+    const formatsCsv = row.dataset.formats;
+    const format = row.dataset.format;
+    const priceCell = row.querySelector('[data-price-cell]');
+    const totalCell = row.querySelector('[data-total-cell]');
+
+    let rowTotal = 0;
+    let pricePerPageText = '-';
+
+    if (formatsCsv) {
+      const formats = formatsCsv.split(',').map(f => f.trim()).filter(Boolean);
+      const prices = formats.map(f => calculatePagePrice(f, mode, 1, vat));
+      pricePerPageText = prices.map(p => `${p} zł`).join(', ');
+      rowTotal = prices.reduce((sum, p) => sum + parseFloat(p), 0);
+    } else if (format) {
+      const price = calculatePagePrice(format, mode, 1, vat);
+      pricePerPageText = `${price} zł`;
+      rowTotal = parseFloat(price);
     }
-  };
-  
-  const modeData = prices[mode] || prices.color;
-  return modeData[format] || modeData['nieformatowy'] || 2.5;
+
+    if (priceCell) priceCell.textContent = pricePerPageText;
+    if (totalCell) totalCell.innerHTML = `<strong>${rowTotal.toFixed(2)} zł</strong>`;
+    total += rowTotal;
+  });
+
+  const totalText = `${total.toFixed(2)} zł`;
+  if (totalPriceEl) totalPriceEl.textContent = totalText;
+  if (totalLiveEl) totalLiveEl.textContent = `Suma całkowita: ${totalText}`;
+  if (sumaEl && sumaEl !== totalLiveEl) sumaEl.textContent = totalText;
+}
+
+export function exportCSV() {
+  let csv = 'Plik,Rozmiar mm,Tryb,Cena zł\n';
+  const modeEl = document.getElementById('printMode');
+  const mode = modeEl ? modeEl.value : 'color';
+
+  document.querySelectorAll('tr.data-row').forEach(row => {
+    const file = row.dataset.file || '';
+    const size = row.dataset.size || '';
+    const totalCell = row.querySelector('[data-total-cell]');
+    const price = totalCell ? totalCell.textContent.replace(' zł', '') : '';
+    csv += `${file},${size},${mode},${price}\n`;
+  });
+
+  download(csv, 'kalkulacja-druk.csv');
+}
+
+function download(content, filename) {
+  const blob = new Blob([content], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /**
@@ -260,12 +355,17 @@ export async function analyzeAllFiles(fileEntries) {
       if (pdfData.pages.length > 0) {
         total += pdfData.totalPrice;
         const pagesInfo = pdfData.pages.map(p => `${p.format}`).join(', ');
+        const pagesSizes = pdfData.pages.map(p => p.mm).join(', ');
+        const pagesPrices = pdfData.pages.map(p => `${calculatePagePrice(p.format, 'color')} zł`).join(', ');
         details.push({
           idx: fileIdx++,
           file: file.name,
           type: 'PDF',
           pagesCount: pdfData.pages.length,
           pagesFormats: pagesInfo,
+          dimensions: pagesSizes,
+          formatsCsv: pdfData.pages.map(p => p.format).join(', '),
+          pricePerPage: pagesPrices,
           price: pdfData.totalPrice
         });
         console.log(`  ✅ PDF: ${pdfData.totalPrice.toFixed(2)} zł (${pdfData.pages.length} pages)`);
@@ -275,14 +375,15 @@ export async function analyzeAllFiles(fileEntries) {
       try {
         const dims = await detectImageDimensions(file);
         const format = detectFormat(dims.widthMm, dims.heightMm);
-        const price = calculatePagePrice(format, 'color');
+        const price = parseFloat(calculatePagePrice(format, 'color'));
         total += price;
         details.push({
           idx: fileIdx++,
           file: file.name,
           type: 'Image',
           format: format,
-          dimensions: `${dims.widthMm}×${dims.heightMm}mm`,
+          dimensions: `${dims.widthMm}x${dims.heightMm}mm`,
+          pricePerPage: `${calculatePagePrice(format, 'color')} zł`,
           price: price
         });
         console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format})`);
@@ -329,6 +430,7 @@ export function renderResultsTable(details, total) {
   const container = document.getElementById('results-container');
   const tbody = document.getElementById('results-body');
   const totalPriceEl = document.getElementById('results-total-price');
+  const totalLiveEl = document.getElementById('results-total-live');
 
   if (!container || !tbody || !totalPriceEl) {
     console.warn('⚠️ Results table elements not found');
@@ -345,20 +447,28 @@ export function renderResultsTable(details, total) {
     const formatOrPages = d.type === 'PDF'
       ? `${d.pagesCount} str. (${d.pagesFormats})`
       : d.format;
+    const pricePerPage = d.pricePerPage || '-';
     
     return `
-      <tr>
+      <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
         <td><strong>${escHtml(d.file)}</strong></td>
         <td>${d.type}</td>
         <td>${formatOrPages}</td>
-        <td style="text-align:right;"><strong>${fmtPLN(d.price)}</strong></td>
+        <td>${d.dimensions || '-'}</td>
+        <td data-price-cell>${pricePerPage}</td>
+        <td data-total-cell style="text-align:right;"><strong>${fmtPLN(d.price)}</strong></td>
       </tr>
     `;
   }).join('');
 
   // Update total
   totalPriceEl.textContent = fmtPLN(total);
+  if (totalLiveEl) {
+    totalLiveEl.textContent = `Suma całkowita: ${fmtPLN(total)}`;
+  }
   container.style.display = '';
+
+  updatePrices();
 
   console.log(`✅ Results table rendered: ${details.length} entries, total ${fmtPLN(total)}`);
 }
@@ -378,6 +488,11 @@ export function init() {
   const tableBody   = document.getElementById('cadTableBody');
   const grandTotalEl = document.getElementById('grandTotal');
   const modeEl      = document.getElementById('cadMode');
+  const printModeEl = document.getElementById('printMode');
+  const vatToggleEl = document.getElementById('vatToggle');
+
+  if (printModeEl) printModeEl.onchange = updatePrices;
+  if (vatToggleEl) vatToggleEl.onchange = updatePrices;
   const optZapEl    = document.getElementById('optZapelnienie');
   const optPowEl    = document.getElementById('optPowieksz');
   const optEmailEl  = document.getElementById('optEmail');
@@ -646,6 +761,9 @@ export function init() {
     }
   }
 }
+
+window.updatePrices = updatePrices;
+window.exportCSV = exportCSV;
 
 export function destroy() { /* no global listeners to remove */ }
 

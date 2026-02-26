@@ -262,24 +262,40 @@
   </div>
 
   <!-- Tabela podsumowania -->
+  <div class="results-controls" aria-label="Ustawienia wyceny">
+    <label>Tryb:
+      <select id="printMode">
+        <option value="color">Kolor</option>
+        <option value="bw">Cz/b</option>
+      </select>
+    </label>
+    <label>VAT 23%:
+      <input type="checkbox" id="vatToggle" checked>
+    </label>
+    <button type="button" onclick="updatePrices()">Odśwież ceny</button>
+    <button type="button" onclick="exportCSV()">Eksport CSV</button>
+  </div>
   <div id="results-container" class="results-table-container" style="display:none;">
-    <table class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
+    <table id="resultsTable" class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
           <th>Plik</th>
           <th>Typ</th>
           <th>Format / Strony</th>
+          <th>Rozmiar mm</th>
+          <th>Cena/str zł</th>
           <th>Cena</th>
         </tr>
       </thead>
       <tbody id="results-body"></tbody>
       <tfoot>
         <tr>
-          <td colspan="3"><strong>RAZEM (PDF + pliki)</strong></td>
+          <td colspan="5"><strong>RAZEM (PDF + pliki)</strong></td>
           <td id="results-total-price">0,00 zł</td>
         </tr>
       </tfoot>
     </table>
+    <div id="results-total-live" class="results-total-live suma">Suma całkowita: 0,00 zł</div>
   </div>
 
   <table class="cad-table" aria-live="polite" aria-label="Podsumowanie cenowe">
