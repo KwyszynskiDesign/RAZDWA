@@ -130,14 +130,14 @@ function calculateCadCennik(format, dlugosc_mm, strony = 1) {
   const baseLength = CAD_CENNIK.baseLengthMm[format];
   const isFormatowy = Math.abs(dlugosc_mm - baseLength) <= TOLERANCE_MM;
 
-  let cena, wyjasnienie;
+  let cena, wyjasnenie;
 
   if (isFormatowy) {
     // FORMATOWE: cena stała za arkusz
     const cenaNetto = CAD_CENNIK.formatowe[modeKey][format];
     cena = cenaNetto * strony;
     const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
-    wyjasnienie = `Formatowe ${format} ${modeLabel} = ${cenaNetto}zł × ${strony}str`;
+    wyjasnenie = `Formatowe ${format} ${modeLabel} = ${cenaNetto}zł × ${strony}str`;
     console.log(`💲 FORMATOWE: ${format} (${dlugosc_mm}mm ≈ ${baseLength}mm base) ${modeLabel} × ${strony}str = ${cena.toFixed(2)}zł`);
   } else {
     // NIEFORMATOWE: cena za metr bieżący
@@ -146,7 +146,7 @@ function calculateCadCennik(format, dlugosc_mm, strony = 1) {
     const metryBiezace = dlugosc_mm / 1000;
     cena = (cenaMb * metryBiezace * strony).toFixed(2);
     const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
-    wyjasnienie = `Nieformatowe ${format} ${modeLabel} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
+    wyjasnenie = `Nieformatowe ${format} ${modeLabel} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
     console.log(`📐 NIEFORMATOWE: ${format} ${dlugosc_mm}mm ${modeLabel} = ${metryBiezace.toFixed(3)}m × ${cenaMb}zł/mb × ${strony}str = ${cena}zł`);
   }
 
@@ -299,28 +299,9 @@ function obliczPlik(entry, mode) {
   const { wMm, hMm, qty } = entry;
   if (!wMm || !hMm || wMm <= 0 || hMm <= 0) return 0;
 
-  const fmt    = detectFormat(wMm, hMm);
-  const longer = Math.max(wMm, hMm);
-
-  let unitPrice;
-
-  if (fmt === 'nieformatowy') {
-    // Format nierozpoznany (krótszy bok poniżej A3) → cena mb rolki A3
-    const width = WIDTHS['A3'];
-    unitPrice = (drukCad.metrBiezacy[mode][width] || 0) * (longer / 1000);
-  } else {
-    const baseLen = BASE_LENGTHS[fmt];
-    if (Math.abs(longer - baseLen) <= TOLERANCE_MM) {
-      // Format standardowy → cena formatowa
-      unitPrice = drukCad.formatowe[mode][fmt] || 0;
-    } else {
-      // Nieformatowy → długość(m) × cena mb dla danej szerokości rolki
-      const width = WIDTHS[fmt];
-      unitPrice = (drukCad.metrBiezacy[mode][width] || 0) * (longer / 1000);
-    }
-  }
-
-  return unitPrice * qty;
+  // Use new CAD_CENNIK system with PRINT_MODE
+  const result = calculateCadByDims(wMm, hMm, qty, mode || PRINT_MODE);
+  return result.cena || 0;
 }
 
 // ─── SKŁADANIE ──────────────────────────────────────────────────────────────
@@ -914,6 +895,11 @@ export function init() {
       const dimsLabel = (f.wMm > 0 && f.hMm > 0)
         ? `${f.wMm}×${f.hMm} mm`
         : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : '— brak danych —');
+      
+      // Calculate price for this file
+      const price = obliczPlik(f, PRINT_MODE);
+      const priceLabel = price > 0 ? fmtPLN(price) : '—';
+      
       return `
         <div class="cad-file-item" data-fileid="${f.id}">
           <button class="cad-delete-x" data-delete="${f.id}"
@@ -934,6 +920,7 @@ export function init() {
                    value="${f.skladanieQty}" min="0" max="999" style="width:56px;"
                    aria-label="Ilość składań dla ${escHtml(f.name)}" />
           </label>
+          <span class="cad-file-price">${priceLabel}</span>
         </div>
       `;
     }).join('');
