@@ -141,12 +141,23 @@ function updateSkan() {
 // ──────────────────────────────────────────────────────────────────────────────
 
 /**
- * Analyze PDF file – extract dimensions from each page (max 5 pages)
+ * Wait for PDF.js to load (max 5 retries)
+ */
+async function waitForPdfJs(retries = 5) {
+  for (let i = 0; i < retries; i++) {
+    if (window.pdfjsLib) return window.pdfjsLib;
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  return null;
+}
+
+/**
+ * Analyze single PDF file (max 5 pages), extract dimensions, calculate total price
  * @param {File} file - PDF file
  * @returns {Promise} { pages: [{page, widthMm, heightMm, format}], totalPrice }
  */
 export async function analyzePdf(file) {
-  const pdfjs = window.pdfjsLib || (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null);
+  const pdfjs = await waitForPdfJs();
   if (!pdfjs) {
     console.error('❌ PDF.js MISSING - check worker');
     return { pages: [], totalPrice: 0 };
