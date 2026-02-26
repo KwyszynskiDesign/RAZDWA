@@ -119,14 +119,20 @@ const CAD_FORMATS = ['A3', 'A2', 'A1', 'A0', 'A0+'];
  * @param {number} strony - liczba stron/arkuszy
  * @returns {object} { cena: number, typ: 'formatowe'|'nieformatowe', wyjasnenie: string }
  */
-function calculateCadCennik(format, dlugosc_mm, strony = 1) {
+function calculateCadCennik(format, dlugosc_mm, strony = 1, mode = 'bw') {
   if (!format || !CAD_CENNIK.formatowe.kolor[format]) {
     console.warn(`⚠️ Nieznany format: ${format}`);
-    return { cena: 0, typ: 'unknown', wyjasnenie: 'Nieznany format' };
+    return { cena: 0, typ: 'unknown', wyjasnenie: 'Nieznany format', format, dlugosc_mm, strony };
+  }
+
+  // Normalizuj mode
+  if (mode !== 'bw' && mode !== 'color') {
+    console.warn(`⚠️ Nieznany tryb: ${mode}, używam BW`);
+    mode = 'bw';
   }
 
   // Wybierz tryb druku (KOLOR lub B/W)
-  const modeKey = PRINT_MODE === 'color' ? 'kolor' : 'bw';
+  const modeKey = mode === 'color' ? 'kolor' : 'bw';
   const baseLength = CAD_CENNIK.baseLengthMm[format];
   const isFormatowy = Math.abs(dlugosc_mm - baseLength) <= TOLERANCE_MM;
 
@@ -136,16 +142,29 @@ function calculateCadCennik(format, dlugosc_mm, strony = 1) {
     // FORMATOWE: cena stała za arkusz
     const cenaNetto = CAD_CENNIK.formatowe[modeKey][format];
     cena = cenaNetto * strony;
-    const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
+    const modeLabel = mode === 'color' ? 'kolor' : 'cz-b';
     wyjasnenie = `Formatowe ${format} ${modeLabel} = ${cenaNetto}zł × ${strony}str`;
     console.log(`💲 FORMATOWE: ${format} (${dlugosc_mm}mm ≈ ${baseLength}mm base) ${modeLabel} × ${strony}str = ${cena.toFixed(2)}zł`);
   } else {
     // NIEFORMATOWE: cena za metr bieżący
+    // Znajdź szerokość rolki dla tego formatu
+    let rollWidth = format; // Domyślnie użyj klucza formatu
+    
+    // Sprawdź czy to rolka 1067
     const szerokosc = WIDTHS[format];
-    const cenaMb = CAD_CENNIK.nieformatowe_mb[modeKey][format];
+    if (szerokosc >= 1000) {
+      rollWidth = '1067'; // Użyj klucza dla rolki 1067
+    }
+    
+    const cenaMb = CAD_CENNIK.nieformatowe_mb[modeKey][rollWidth];
+    if (!cenaMb) {
+      console.warn(`⚠️ Brak ceny mb dla ${rollWidth} w trybie ${modeKey}`);
+      return { cena: 0, typ: 'error', wyjasnenie: `Brak ceny dla ${format}`, format, dlugosc_mm, strony };
+    }
+    
     const metryBiezace = dlugosc_mm / 1000;
-    cena = (cenaMb * metryBiezace * strony).toFixed(2);
-    const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
+    cena = parseFloat((cenaMb * metryBiezace * strony).toFixed(2));
+    const modeLabel = mode === 'color' ? 'kolor' : 'cz-b';
     wyjasnenie = `Nieformatowe ${format} ${modeLabel} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
     console.log(`📐 NIEFORMATOWE: ${format} ${dlugosc_mm}mm ${modeLabel} = ${metryBiezace.toFixed(3)}m × ${cenaMb}zł/mb × ${strony}str = ${cena}zł`);
   }
@@ -164,14 +183,12 @@ function calculateCadCennik(format, dlugosc_mm, strony = 1) {
  * ✅ PEŁNY SYSTEM CEN CAD – oblicza cenę na podstawie formatu, trybów i liczby stron
  * @param {string} format - format (A3, A2, A1, A0, A0+)
  * @param {number} strony - liczba stron/arkuszy
- * @param {string} mode - tryb ('bw' lub 'color'), jeśli undefined to PRINT_MODE
+ * @param {string} mode - tryb ('bw' lub 'color')
  * @returns {string} - cena formatowana (zł)
  */
-function calculateCadFull(format, strony = 1, mode = undefined) {
-  if (!mode) mode = PRINT_MODE;  // Use global PRINT_MODE if not specified
-  
+function calculateCadFull(format, strony = 1, mode = 'bw') {
   // Use new cennik system
-  const result = calculateCadCennik(format, BASE_LENGTHS[format], strony);
+  const result = calculateCadCennik(format, BASE_LENGTHS[format], strony, mode);
   return result.cena.toFixed(2);
 }
 
@@ -180,12 +197,10 @@ function calculateCadFull(format, strony = 1, mode = undefined) {
  * @param {number} widthMm - szerokość (mm)
  * @param {number} heightMm - wysokość (mm)
  * @param {number} qty - ilość
- * @param {string} mode - tryb ('bw' lub 'color'), jeśli undefined to PRINT_MODE
+ * @param {string} mode - tryb ('bw' lub 'color')
  * @returns {object} - { cena, typ, wyjasnenie }
  */
-function calculateCadByDims(widthMm, heightMm, qty = 1, mode = undefined) {
-  if (!mode) mode = PRINT_MODE;
-  
+function calculateCadByDims(widthMm, heightMm, qty = 1, mode = 'bw') {
   if (!widthMm || !heightMm || widthMm <= 0 || heightMm <= 0) {
     return { cena: 0, typ: 'error', wyjasnenie: 'Błędne wymiary' };
   }
@@ -198,8 +213,8 @@ function calculateCadByDims(widthMm, heightMm, qty = 1, mode = undefined) {
     return { cena: 0, typ: 'unknown', wyjasnenie: 'Format nierozpoznany' };
   }
   
-  // Use new cennik
-  const result = calculateCadCennik(format, longer, qty);
+  // Use new cennik with mode parameter
+  const result = calculateCadCennik(format, longer, qty, mode);
   return result;
 }
 
