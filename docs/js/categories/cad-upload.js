@@ -136,6 +136,210 @@ function updateSkan() {
   return (parseFloat(el?.value || 0) || 0) * SCAN_PER_CM;
 }
 
+// ──────────────────────────────────────────────────────────────────────────────
+// MULTI-PAGE PDF ANALYSIS + RESULTS TABLE (before init to ensure availability)
+// ──────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Analyze PDF file – extract dimensions from each page (max 5 pages)
+ * @param {File} file - PDF file
+ * @returns {Promise} { pages: [{page, widthMm, heightMm, format}], totalPrice }
+ */
+export async function analyzePdf(file) {
+  if (typeof pdfjsLib === 'undefined') {
+    console.warn('⚠️ PDF.js not loaded');
+    return { pages: [], totalPrice: 0 };
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const pages = [];
+    const maxPages = Math.min(5, pdf.numPages);
+
+    console.group('📄 PDF Analysis');
+    console.log(`📋 Pages: ${pdf.numPages} (analyzing max ${maxPages})`);
+
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const viewport = page.getViewport({ scale: 1.0 });
+      
+      // Convert from PDF points (1/72 inch) to mm (300 DPI)
+      const widthMm = Math.round((viewport.width / 72) * 25.4);
+      const heightMm = Math.round((viewport.height / 72) * 25.4);
+      const format = detectFormat(widthMm, heightMm);
+
+      console.log(`  Page ${i}: ${widthMm}×${heightMm}mm → ${format}`);
+      
+      pages.push({
+        page: i,
+        widthMm,
+        heightMm,
+        format
+      });
+    }
+
+    // Calculate total price
+    const totalPrice = pages.reduce((sum, p) => sum + calculatePagePrice(p.format, 'color'), 0);
+    
+    console.log(`✅ Total PDF price: ${totalPrice.toFixed(2)} zł`);
+    console.groupEnd();
+
+    return { pages, totalPrice, fileName: file.name };
+  } catch (err) {
+    console.error('❌ PDF Analysis failed:', err);
+    return { pages: [], totalPrice: 0, fileName: file.name };
+  }
+}
+
+/**
+ * Calculate price for single format (using drukCad prices)
+ * @param {string} format - e.g., 'A4', 'A3', 'nieformatowy'
+ * @param {string} mode - 'bw' or 'color'
+ * @returns {number} price
+ */
+export function calculatePagePrice(format, mode = 'color') {
+  const prices = {
+    color: {
+      'A4': 1.5, 'A3': 3.5, 'A2': 8.5, 'A1': 12, 'A0': 24, 'A0+': 26,
+      'A4-custom': 1.5, 'A3-custom': 3.5, 'A2-custom': 8.5,
+      'nieformatowy': 2.5
+    },
+    bw: {
+      'A4': 0.9, 'A3': 1.7, 'A2': 4, 'A1': 6, 'A0': 11, 'A0+': 12.5,
+      'A4-custom': 0.9, 'A3-custom': 1.7, 'A2-custom': 4,
+      'nieformatowy': 1.5
+    }
+  };
+  
+  const modeData = prices[mode] || prices.color;
+  return modeData[format] || modeData['nieformatowy'] || 2.5;
+}
+
+/**
+ * Analyze all dropped files (JPG/PNG + PDF multi-page)
+ * @param {File[]} fileEntries - dropped files
+ * @returns {Promise} { total, details: [{file, type, format/pages, price}], count }
+ */
+export async function analyzeAllFiles(fileEntries) {
+  console.log('🔄 Analyzing all files...');
+  
+  let total = 0;
+  const details = [];
+  let fileIdx = 1;
+
+  for (const file of fileEntries) {
+    const fileName = file.name.toLowerCase();
+    
+    if (fileName.endsWith('.pdf')) {
+      // Analyze PDF multi-page
+      const pdfData = await analyzePdf(file);
+      if (pdfData.pages.length > 0) {
+        total += pdfData.totalPrice;
+        const pagesInfo = pdfData.pages.map(p => `${p.format}`).join(', ');
+        details.push({
+          idx: fileIdx++,
+          file: file.name,
+          type: 'PDF',
+          pagesCount: pdfData.pages.length,
+          pagesFormats: pagesInfo,
+          price: pdfData.totalPrice
+        });
+        console.log(`  ✅ PDF: ${pdfData.totalPrice.toFixed(2)} zł (${pdfData.pages.length} pages)`);
+      }
+    } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
+      // Single image file
+      try {
+        const dims = await detectImageDimensions(file);
+        const format = detectFormat(dims.widthMm, dims.heightMm);
+        const price = calculatePagePrice(format, 'color');
+        total += price;
+        details.push({
+          idx: fileIdx++,
+          file: file.name,
+          type: 'Image',
+          format: format,
+          dimensions: `${dims.widthMm}×${dims.heightMm}mm`,
+          price: price
+        });
+        console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format})`);
+      } catch (err) {
+        console.warn(`  ⚠️ Could not read image: ${file.name}`);
+      }
+    }
+  }
+
+  console.log(`✅ Total: ${total.toFixed(2)} zł (${details.length} files)`);
+  return { total, details, count: details.length };
+}
+
+/**
+ * Detect image dimensions from blob
+ * @param {File} file - Image file
+ * @returns {Promise} { widthMm, heightMm }
+ */
+export async function detectImageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        // 300 DPI: px / 300 [inch] × 25.4 [mm/inch]
+        const widthMm = Math.round((img.naturalWidth / 300) * 25.4);
+        const heightMm = Math.round((img.naturalHeight / 300) * 25.4);
+        resolve({ widthMm, heightMm });
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+/**
+ * Render results table with file analysis
+ * @param {Array} details - array of {file, type, format/pages, price}
+ * @param {number} total - total price
+ */
+export function renderResultsTable(details, total) {
+  const container = document.getElementById('results-container');
+  const tbody = document.getElementById('results-body');
+  const totalPriceEl = document.getElementById('results-total-price');
+
+  if (!container || !tbody || !totalPriceEl) {
+    console.warn('⚠️ Results table elements not found');
+    return;
+  }
+
+  if (details.length === 0) {
+    container.style.display = 'none';
+    return;
+  }
+
+  // Render table rows
+  tbody.innerHTML = details.map(d => {
+    const formatOrPages = d.type === 'PDF'
+      ? `${d.pagesCount} str. (${d.pagesFormats})`
+      : d.format;
+    
+    return `
+      <tr>
+        <td><strong>${escHtml(d.file)}</strong></td>
+        <td>${d.type}</td>
+        <td>${formatOrPages}</td>
+        <td style="text-align:right;"><strong>${fmtPLN(d.price)}</strong></td>
+      </tr>
+    `;
+  }).join('');
+
+  // Update total
+  totalPriceEl.textContent = fmtPLN(total);
+  container.style.display = '';
+
+  console.log(`✅ Results table rendered: ${details.length} entries, total ${fmtPLN(total)}`);
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
   const dropZone    = document.getElementById('cadDropZone');
@@ -171,9 +375,16 @@ export function init() {
     e.preventDefault();
     dropZone.classList.remove('drag-over');
     addFiles(e.dataTransfer.files);
+    // NEW: Analyze files for results table
+    analyzeAndRenderResults(e.dataTransfer.files);
   });
 
-  fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+  fileInput.addEventListener('change', e => {
+    addFiles(e.target.files);
+    // NEW: Analyze files for results table
+    analyzeAndRenderResults(e.target.files);
+    fileInput.value = '';
+  });
 
   document.getElementById('clearBtn')?.addEventListener('click', () => {
     files = [];
@@ -322,6 +533,24 @@ export function init() {
   }
 
   // ── Główna kalkulacja ─────────────────────────────────────────────────────
+  
+  /**
+   * NEW: Analyze dropped files and render results table
+   * Handles PDF multi-page + single images
+   */
+  async function analyzeAndRenderResults(fileList) {
+    if (!fileList || fileList.length === 0) return;
+    
+    console.log(`🔄 Analyzing ${fileList.length} dropped files for results table...`);
+    
+    try {
+      const result = await analyzeAllFiles(Array.from(fileList));
+      renderResultsTable(result.details, result.total);
+    } catch (err) {
+      console.error('❌ Failed to analyze files:', err);
+    }
+  }
+
   function recalculateAll() {
     const mode = modeEl?.value || 'color';
     let multiplier = 1;
@@ -396,3 +625,17 @@ export function init() {
 }
 
 export function destroy() { /* no global listeners to remove */ }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// INITIALIZATION
+// ──────────────────────────────────────────────────────────────────────────────
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    console.log('📝 CAD Upload: DOMContentLoaded');
+    init();
+  });
+} else {
+  console.log('📝 CAD Upload: DOM already loaded');
+  init();
+}

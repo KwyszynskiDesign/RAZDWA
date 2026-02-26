@@ -1,3 +1,6 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
+
 <style>
   .cad-upload { font-family: inherit; }
   .cad-drop-zone {
@@ -149,6 +152,57 @@
     background: var(--surface-alt);
   }
   #grandTotal { font-size: 1.1rem; color: var(--primary); }
+  
+  /* ── TABELA WYNIKÓW (PDF + IMAGE) ──────────────────────────────────── */
+  .results-table-container {
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .results-table th {
+    background: var(--surface-alt);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  .results-table td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .results-table tbody tr:hover {
+    background: var(--surface-alt);
+  }
+  .results-table tfoot {
+    background: var(--surface-alt);
+  }
+  .results-table tfoot td {
+    font-weight: 700;
+    padding: 12px;
+    border-top: 2px solid var(--border);
+  }
+  .results-table tfoot #results-total-price {
+    font-size: 1.1rem;
+    color: var(--primary);
+  }
+  
+  @media (max-width: 600px) {
+    .results-table { font-size: 0.75rem; }
+    .results-table th, .results-table td { padding: 6px 8px; }
+  }
+  
+  @media (max-width: 768px) {
+    .cad-file-item { flex-direction: column; }
+    .cad-file-price { margin-left: 0; margin-top: 8px; }
+  }
   @media (max-width: 600px) {
     .cad-table { font-size: 0.78rem; }
     .cad-table th, .cad-table td { padding: 5px 6px; }
@@ -209,6 +263,26 @@
   </div>
 
   <!-- Tabela podsumowania -->
+  <div id="results-container" class="results-table-container" style="display:none;">
+    <table class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
+      <thead>
+        <tr>
+          <th>Plik</th>
+          <th>Typ</th>
+          <th>Format / Strony</th>
+          <th>Cena</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3"><strong>RAZEM (PDF + pliki)</strong></td>
+          <td id="results-total-price">0,00 zł</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
   <table class="cad-table" aria-live="polite" aria-label="Podsumowanie cenowe">
     <thead>
       <tr>

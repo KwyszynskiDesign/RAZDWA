@@ -8,6 +8,7 @@
   "version": "1.0.0",
   "scripts": {
     "build": "esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --target=es2019 --minify",
+    "dev": "npx http-server docs -p 8080 -o",
     "test": "vitest run"
   },
   "dependencies": {
