@@ -79,6 +79,8 @@
   .cad-file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .cad-file-size { color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap; }
   .cad-qty-label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  /* Łamanie długich nazw plików w tabeli */
+  .cad-file-table tbody td:nth-child(4) { word-break: break-all; max-width: 180px; }
   .cad-qty-input {
     padding: 4px 8px;
     border: 1px solid var(--border);
@@ -419,26 +421,11 @@
     <div id="results-total-live" class="results-total-live suma">Suma całkowita: 0,00 zł</div>
   </div>
 
-  <!-- Skanowanie wielkoformatowe -->
-  <div class="cad-scan-row cad-options">
-    <label for="skanCm">🖨 Skanowanie wielkoformatowe (cm):</label>
-    <input type="number" id="skanCm" min="0" step="0.1" placeholder="0"
-           aria-label="Długość skanowania w cm" />
-    <small style="color:var(--text-secondary)">× 0,08 zł/cm</small>
-  </div>
-
   <!-- Tabela podsumowania -->
   <div class="results-controls" aria-label="Ustawienia wyceny">
-    <label style="display:none;">Tryb:
-      <select id="printMode">
-        <option value="color">Kolor</option>
-        <option value="bw">Cz/b</option>
-      </select>
-    </label>
     <label>VAT 23%:
       <input type="checkbox" id="vatToggle" checked>
     </label>
-    <button type="button" onclick="updatePrices()">Odśwież ceny</button>
     <button type="button" onclick="exportCSV()">Eksport CSV</button>
   </div>
 

@@ -917,7 +917,6 @@ export function init() {
   // ── Global options triggers (.cad-options) ──────────────────────────────────
   const debouncedRecalc = debounce(recalculateAll, 200);
   [modeEl, optZapEl, optPowEl, optEmailEl].forEach(el => el?.addEventListener('change', debouncedRecalc));
-  document.getElementById('skanCm')?.addEventListener('input', debouncedRecalc);
   
   // NO mode/VAT listeners for results table (direct CAD pricing)
 
