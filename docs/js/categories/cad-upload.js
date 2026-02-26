@@ -5,6 +5,28 @@ import { drukCad } from '../prices.js';
 
 console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
 
+// ─── 🎯 WSZYSTKIE GLOBALNE STAŁE – ZERO UNDEFINED! ──────────────────────────────
+
+/** Cena skanowania: 0,08 zł/cm */
+const SCAN_PER_CM = 0.08;
+
+/** Tolerancja (mm) przy sprawdzaniu długości formatowej */
+const TOLERANCJA_MM = 5;
+
+/** Ceny składania (złożenie) dla różnych formatów */
+const SKLAD_CENY = {
+  'A0+': 5.50,
+  'A0': 5.00,
+  'A1': 3.00,
+  'A2': 2.00,
+  'A3': 1.00,
+  'A4': 0.50,
+  'nieformat': 0.50
+};
+
+/** Global array do kumulacji wszystkich wyników */
+let globalneWyniki = [];
+
 // ─── FAKTYCZNY CENNIK CAD WIELKOFORMATOWE (KOLOR + CZARNO-BIAŁY) ────────────────
 const CAD_CENNIK = {
   // FORMATOWE: Ceny za jeden arkusz/stronę – zł za sztukę (KOLOR + B/W)
@@ -683,6 +705,15 @@ export function renderResultsTable(details, total) {
   console.log(`✅ Results table rendered: ${details.length} ALL entries, total ${fmtPLN(total)}`);
 }
 
+// ─── MODULE-LEVEL DOM REFS (accessible to nested functions) ──────────────────
+let modeEl = null;
+let optZapEl = null;
+let optPowEl = null;
+let optEmailEl = null;
+let tableBody = null;
+let grandTotalEl = null;
+let fileCountEl = null;
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
   const dropZone    = document.getElementById('cadDropZone');
@@ -691,11 +722,11 @@ export function init() {
   const fileInput   = document.getElementById('cadFileInput');
   const fileListEl  = document.getElementById('cadFileList');
   const summaryEl   = document.getElementById('cadSummary');
-  const fileCountEl = document.getElementById('cadFileCount');
+  fileCountEl = document.getElementById('cadFileCount');
   const totalEl     = document.getElementById('cadTotal');
   const warningEl   = document.getElementById('cadWarning');
   const ekranObliczen = document.getElementById('ekranObliczen');
-  const modeEl      = document.getElementById('cadMode');
+  modeEl      = document.getElementById('cadMode');
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
 
@@ -719,9 +750,13 @@ export function init() {
     if (label) label.style.display = 'none';
   }
   
-  const optZapEl    = document.getElementById('optZapelnienie');
-  const optPowEl    = document.getElementById('optPowieksz');
-  const optEmailEl  = document.getElementById('optEmail');
+  optZapEl    = document.getElementById('optZapelnienie');
+  optPowEl    = document.getElementById('optPowieksz');
+  optEmailEl  = document.getElementById('optEmail');
+  
+  // ✅ DOM elements for the old cad table system
+  tableBody = document.querySelector('#resultsTable tbody') || document.getElementById('results-body');
+  grandTotalEl = document.getElementById('results-total-live');
 
   let files = []; // [{ id, name, sizeMB, qty, wMm, hMm, skladanieQty, blob }]
 
@@ -1005,58 +1040,70 @@ export function init() {
   }
 
   function recalculateAll() {
-    const mode = modeEl?.value || 'color';
-    let multiplier = 1;
-    if (optZapEl?.checked)  multiplier += 0.5;
-    if (optPowEl?.checked)  multiplier += 0.5;
-    const emailAddon = optEmailEl?.checked ? 1 : 0;
+    try {
+      // ✅ Safe DOM access with fallbacks
+      const safeTableBody = tableBody || document.querySelector('#results-body') || document.querySelector('#resultsTable tbody');
+      const safeModeEl = modeEl || document.getElementById('printMode') || document.getElementById('cadMode');
+      const safeZapEl = optZapEl || document.getElementById('optZapelnienie');
+      const safePowEl = optPowEl || document.getElementById('optPowieksz');
+      const safeEmailEl = optEmailEl || document.getElementById('optEmail');
+      const safeGrandTotalEl = grandTotalEl || document.getElementById('results-total-live') || document.getElementById('grandTotal');
+      
+      const mode = safeModeEl?.value || 'color';
+      let multiplier = 1;
+      if (safeZapEl?.checked)  multiplier += 0.5;
+      if (safePowEl?.checked)  multiplier += 0.5;
+      const emailAddon = safeEmailEl?.checked ? 1 : 0;
 
-    const skanTotal  = updateSkan();
-    const skladTotal = updateSkladanie();
+      const skanTotal  = updateSkan();
+      const skladTotal = updateSkladanie();
 
-    const rows = files.map(f => {
-      const drukCena = obliczPlik(f, mode) * multiplier;
-      const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
-      const rozmiar  = fmt ? `${fmt} (${f.wMm}×${f.hMm} mm)` : '—';
-      return { name: f.name, rozmiar, drukCena };
-    });
+      const rows = files.map(f => {
+        const drukCena = obliczPlik(f, mode) * multiplier;
+        const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
+        const rozmiar  = fmt ? `${fmt} (${f.wMm}×${f.hMm} mm)` : '—';
+        return { name: f.name, rozmiar, drukCena };
+      });
 
-    const drukTotal  = rows.reduce((s, r) => s + r.drukCena, 0);
-    const grandTotal = drukTotal + skladTotal + skanTotal + emailAddon;
+      const drukTotal  = rows.reduce((s, r) => s + r.drukCena, 0);
+      const grandTotal = drukTotal + skladTotal + skanTotal + emailAddon;
 
-    // Render tabeli podsumowania
-    if (tableBody) {
-      if (rows.length === 0) {
-        tableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
-      } else {
-        let html = rows.map(r => `
-          <tr>
-            <td>${escHtml(r.name)}<br><small style="color:var(--text-secondary)">${r.rozmiar}</small></td>
-            <td>${r.drukCena > 0 ? fmtPLN(r.drukCena) : '—'}</td>
-            <td>—</td>
-            <td>—</td>
-            <td><strong>${r.drukCena > 0 ? fmtPLN(r.drukCena) : '—'}</strong></td>
-          </tr>
-        `).join('');
-        if (skladTotal > 0) {
-          html += `<tr><td>📐 Składanie</td><td>—</td><td>${fmtPLN(skladTotal)}</td><td>—</td><td>${fmtPLN(skladTotal)}</td></tr>`;
+      // Render tabeli podsumowania
+      if (safeTableBody) {
+        if (rows.length === 0) {
+          safeTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
+        } else {
+          let html = rows.map(r => `
+            <tr>
+              <td>${escHtml(r.name)}<br><small style="color:var(--text-secondary)">${r.rozmiar}</small></td>
+              <td>${r.drukCena > 0 ? fmtPLN(r.drukCena) : '—'}</td>
+              <td>—</td>
+              <td>—</td>
+              <td><strong>${r.drukCena > 0 ? fmtPLN(r.drukCena) : '—'}</strong></td>
+            </tr>
+          `).join('');
+          if (skladTotal > 0) {
+            html += `<tr><td>📐 Składanie</td><td>—</td><td>${fmtPLN(skladTotal)}</td><td>—</td><td>${fmtPLN(skladTotal)}</td></tr>`;
+          }
+          if (skanTotal > 0) {
+            const cm = parseFloat(document.getElementById('skanCm')?.value || 0);
+            html += `<tr><td>🖨 Skan (${cm} cm)</td><td>—</td><td>—</td><td>${fmtPLN(skanTotal)}</td><td>${fmtPLN(skanTotal)}</td></tr>`;
+          }
+          if (emailAddon > 0) {
+            html += `<tr><td>📧 Email</td><td>—</td><td>—</td><td>—</td><td>1,00 zł</td></tr>`;
+          }
+          safeTableBody.innerHTML = html;
         }
-        if (skanTotal > 0) {
-          const cm = parseFloat(document.getElementById('skanCm')?.value || 0);
-          html += `<tr><td>🖨 Skan (${cm} cm)</td><td>—</td><td>—</td><td>${fmtPLN(skanTotal)}</td><td>${fmtPLN(skanTotal)}</td></tr>`;
-        }
-        if (emailAddon > 0) {
-          html += `<tr><td>📧 Email</td><td>—</td><td>—</td><td>—</td><td>1,00 zł</td></tr>`;
-        }
-        tableBody.innerHTML = html;
       }
+
+      if (safeGrandTotalEl) safeGrandTotalEl.textContent = fmtPLN(grandTotal);
+      if (fileCountEl)  fileCountEl.textContent   = files.length;
+
+      dispatchPrice(grandTotal);
+      console.log(`✅ recalculateAll: ${files.length} files, total ${grandTotal.toFixed(2)}zł`);
+    } catch (error) {
+      console.error('❌ recalculateAll error:', error);
     }
-
-    if (grandTotalEl) grandTotalEl.textContent = fmtPLN(grandTotal);
-    if (totalEl)      totalEl.textContent       = fmtPLN(grandTotal);
-    if (fileCountEl)  fileCountEl.textContent   = files.length;
-
-    dispatchPrice(grandTotal);
   }
 
   // ── Dispatch price do globalnego systemu ──────────────────────────────────
