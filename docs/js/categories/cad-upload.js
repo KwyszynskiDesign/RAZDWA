@@ -194,9 +194,10 @@ function calculateCadFull(format, strony = 1, mode = 'bw') {
 
 /**
  * Oblicz cenę CAD z wymiarów – używa nowego systemu cennikowego
+ * LOGIKA: Jeden bok = szerokość (identyfikuje format), drugi bok = długość do obliczenia
  * @param {number} widthMm - szerokość (mm)
  * @param {number} heightMm - wysokość (mm)
- * @param {number} qty - ilość
+ * @param {number} qty - ilość stron/arkuszy
  * @param {string} mode - tryb ('bw' lub 'color')
  * @returns {object} - { cena, typ, wyjasnenie }
  */
@@ -205,16 +206,72 @@ function calculateCadByDims(widthMm, heightMm, qty = 1, mode = 'bw') {
     return { cena: 0, typ: 'error', wyjasnenie: 'Błędne wymiary' };
   }
   
-  const longer = Math.max(widthMm, heightMm);
-  const format = detectFormat(widthMm, heightMm);
+  const TOLERANCE = 15;
   
-  if (format === 'nieformatowy') {
-    console.warn(`📐 Format nierozpoznany: ${widthMm}×${heightMm}mm`);
+  // Zidentyfikuj format na podstawie pasującego boku
+  // Standardowe szerokości: 297, 420, 594, 841, 914 (1067)
+  let format = null;
+  let usableLength = null;  // Drugi bok do obliczenia
+  let fixedWidth = null;    // Bok który pasuje do formatu
+  
+  // Sprawdź czy widthMm pasuje do standardowej szerokości
+  if (Math.abs(widthMm - 297) <= TOLERANCE) {
+    format = 'A3';
+    fixedWidth = 297;
+    usableLength = heightMm;
+  } else if (Math.abs(widthMm - 420) <= TOLERANCE) {
+    format = 'A2';
+    fixedWidth = 420;
+    usableLength = heightMm;
+  } else if (Math.abs(widthMm - 594) <= TOLERANCE) {
+    format = 'A1';
+    fixedWidth = 594;
+    usableLength = heightMm;
+  } else if (Math.abs(widthMm - 841) <= TOLERANCE) {
+    format = 'A0';
+    fixedWidth = 841;
+    usableLength = heightMm;
+  } else if (Math.abs(widthMm - 914) <= TOLERANCE) {
+    format = 'A0+';
+    fixedWidth = 914;
+    usableLength = heightMm;
+  }
+  // Sprawdź czy heightMm pasuje do standardowej szerokości
+  else if (Math.abs(heightMm - 297) <= TOLERANCE) {
+    format = 'A3';
+    fixedWidth = 297;
+    usableLength = widthMm;
+  } else if (Math.abs(heightMm - 420) <= TOLERANCE) {
+    format = 'A2';
+    fixedWidth = 420;
+    usableLength = widthMm;
+  } else if (Math.abs(heightMm - 594) <= TOLERANCE) {
+    format = 'A1';
+    fixedWidth = 594;
+    usableLength = widthMm;
+  } else if (Math.abs(heightMm - 841) <= TOLERANCE) {
+    format = 'A0';
+    fixedWidth = 841;
+    usableLength = widthMm;
+  } else if (Math.abs(heightMm - 914) <= TOLERANCE) {
+    format = 'A0+';
+    fixedWidth = 914;
+    usableLength = widthMm;
+  }
+  
+  if (!format) {
+    console.warn(`📐 Format nierozpoznany: ${widthMm}×${heightMm}mm (żaden bok nie pasuje do standardowej szerokości)`);
     return { cena: 0, typ: 'unknown', wyjasnenie: 'Format nierozpoznany' };
   }
   
-  // Use new cennik with mode parameter
-  const result = calculateCadCennik(format, longer, qty, mode);
+  console.log(`📐 WYMIARY IDENTYFIKACJA: ${widthMm}×${heightMm}mm → Format: ${format} (fixed: ${fixedWidth}, length: ${usableLength})`);
+  
+  // Oblicz cenę z użyciem ustalnej szerokości i zmiennej długości
+  const result = calculateCadCennik(format, usableLength, qty, mode);
+  
+  // Dodaj informację diagnostyczną
+  result.dimensions = { widthMm, heightMm, fixedWidth, usableLength };
+  
   return result;
 }
 
