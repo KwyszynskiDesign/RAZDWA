@@ -676,23 +676,39 @@ export function renderResultsTable(details, total) {
     return;
   }
 
-  // Render table rows – WSZYSTKIE elementy z array
+  // Render table rows – WSZYSTKIE elementy z array (z kolumnami X, MB, Skan)
   tbody.innerHTML = details.map((d, idx) => {
     const formatOrPages = d.type === 'PDF'
       ? `${d.pagesCount} str. (${d.pagesFormats})`
       : d.format;
     const pricePerPage = d.pricePerPage || '-';
     
+    // Znajdź powiązany entry w files array
+    const fileEntry = files.find(f => f.name === d.file);
+    const fileSizeMB = fileEntry?.sizeMB || d.sizeMB || '-';
+    const fileId = fileEntry?.id || d.id || idx;
+    const scanChecked = fileEntry?.scanCm ? 'checked' : '';
+    const scanCm = fileEntry?.scanCm || 0;
+    const scanPrice = scanCm * SCAN_PER_CM;
+    const totalWithScan = d.price + scanPrice;
+    
     console.log(`  📝 Row ${idx}: ${d.file} | ${formatOrPages} | ${d.dimensions} | ${pricePerPage}`);
     
     return `
-      <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-dims="${escHtml(d.dimsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
+      <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-dims="${escHtml(d.dimsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}" data-fileid="${fileId}">
+        <td>
+          <button class="cad-delete-x" data-delete="${fileId}" aria-label="Usuń ${escHtml(d.file)}" title="Usuń plik">✕</button>
+        </td>
+        <td>${fileSizeMB} ${typeof fileSizeMB === 'number' || !isNaN(fileSizeMB) ? 'MB' : ''}</td>
+        <td>
+          <input type="checkbox" class="cad-scan-check" data-scanid="${fileId}" data-filename="${escHtml(d.file)}" ${scanChecked} />
+        </td>
         <td><strong>${escHtml(d.file)}</strong></td>
         <td>${d.type}</td>
         <td>${formatOrPages}</td>
         <td>${d.dimensions || '-'}</td>
         <td data-price-cell>${pricePerPage}</td>
-        <td data-total-cell style="text-align:right;"><strong>${fmtPLN(d.price)}</strong></td>
+        <td data-total-cell style="text-align:right;"><strong>${fmtPLN(totalWithScan)}</strong></td>
       </tr>
     `;
   }).join('');
@@ -815,7 +831,58 @@ export function init() {
   
   // NO mode/VAT listeners for results table (direct CAD pricing)
 
+  // ── Results table event delegation (X, MB, Skan) ───────────────────────────
+  const resultsContainer = document.getElementById('results-container');
+  if (resultsContainer) {
+    resultsContainer.addEventListener('click', e => {
+      const delBtn = e.target.closest('[data-delete]');
+      if (delBtn) {
+        const fileId = delBtn.dataset.delete;
+        deleteFileById(fileId);
+        return;
+      }
+    });
+
+    resultsContainer.addEventListener('change', e => {
+      const el = e.target;
+      
+      // Per-row scan checkbox
+      if (el.classList.contains('cad-scan-check')) {
+        const fileId = el.dataset.scanid;
+        const fileName = el.dataset.filename;
+        const fileEntry = files.find(f => String(f.id) === String(fileId) || f.name === fileName);
+        
+        if (fileEntry) {
+          if (el.checked && fileEntry.wMm > 0 && fileEntry.hMm > 0) {
+            // Algorytm skanowania: mm -> cm, x 0.08 zl/cm
+            const hosszDmm = Math.max(fileEntry.wMm, fileEntry.hMm);
+            const hosszCm = Math.round(hosszDmm / 10);
+            fileEntry.scanCm = hosszCm;
+            fileEntry.scanPrice = hosszCm * SCAN_PER_CM;
+            fileEntry.scanExpl = `Skan: ${hosszDmm}mm = ${hosszCm}cm x ${SCAN_PER_CM}zl/cm = ${fmtPLN(fileEntry.scanPrice)}`;
+            console.log(`🖨 Skan ${fileEntry.name}: ${fileEntry.scanExpl}`);
+          } else if (!el.checked) {
+            fileEntry.scanCm = 0;
+            fileEntry.scanPrice = 0;
+            fileEntry.scanExpl = '';
+          }
+          
+          // Przelicz całkowitą sumę i odśwież tabelę
+          const totalAll = wszystkieWyniki.reduce((sum, d) => {
+            const fe = files.find(f => f.name === d.file);
+            const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+            return sum + d.price + scanPrice;
+          }, 0);
+          renderResultsTable(wszystkieWyniki, totalAll);
+          renderObliczen(wszystkieWyniki);
+        }
+      }
+    });
+  }
+
   // ── File list event delegation ──────────────────────────────────────────────
+  // DEPRECATED: fileListEl nie jest już używany - wszystkie interakcje są w resultsTable
+  // Te listenery są tutaj dla zachowania kompatybilności wstecznej
   if (fileListEl) {
     fileListEl.addEventListener('click', e => {
       const delBtn = e.target.closest('[data-delete]');
@@ -826,49 +893,15 @@ export function init() {
       const el = e.target;
       const byId = id => files.find(f => String(f.id) === id);
 
-      // Bulk inputs
+      // Bulk inputs (deprecated - już nie używamy)
       if (el.id === 'cadBulkScan') {
-        if (el.checked) {
-          files.forEach(f => {
-            if (f.wMm > 0 && f.hMm > 0) {
-              const hosszDmm = Math.max(f.wMm, f.hMm);
-              const hosszCm = Math.round(hosszDmm / 10);
-              f.scanCm = hosszCm;
-              f.scanPrice = hosszCm * SCAN_PER_CM;
-              f.scanExpl = `Skan: ${hosszDmm}mm = ${hosszCm}cm x ${SCAN_PER_CM}zl/cm = ${fmtPLN(f.scanPrice)}`;
-            }
-          });
-        } else {
-          files.forEach(f => {
-            f.scanCm = 0;
-            f.scanPrice = 0;
-            f.scanExpl = '';
-          });
-        }
-        renderFileList();
-        debouncedRecalc();
+        console.log('⚠️ cadBulkScan is deprecated');
         return;
       }
 
-      // Per-row inputs
+      // Per-row inputs (deprecated - obsługiwane w resultsTable)
       if (el.classList.contains('cad-scan-check')) {
-        const entry = byId(el.dataset.scanid);
-        if (entry) {
-          if (el.checked && entry.wMm > 0 && entry.hMm > 0) {
-            // Algorytm skanowania: mm -> cm, x 0.08 zl/cm
-            const hosszDmm = Math.max(entry.wMm, entry.hMm);
-            const hosszCm = Math.round(hosszDmm / 10);
-            entry.scanCm = hosszCm;
-            entry.scanPrice = hosszCm * SCAN_PER_CM;
-            entry.scanExpl = `Skan: ${hosszDmm}mm = ${hosszCm}cm x ${SCAN_PER_CM}zl/cm = ${fmtPLN(entry.scanPrice)}`;
-            console.log(`Skan ${entry.name}: ${entry.scanExpl}`);
-          } else if (!el.checked) {
-            entry.scanCm = 0;
-            entry.scanPrice = 0;
-            entry.scanExpl = '';
-          }
-        }
-        renderFileList();
+        console.log('⚠️ cad-scan-check in fileListEl is deprecated');
       }
       debouncedRecalc();
     });
@@ -876,15 +909,8 @@ export function init() {
 
   // Aktualizuj data-format na sklad-qty po zmianie wymiarów
   function updateSkladFormat(entry) {
-    const fmt = (entry.wMm > 0 && entry.hMm > 0) ? detectFormat(entry.wMm, entry.hMm) : '';
-    const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
-    const skladEl = fileListEl?.querySelector(`.sklad-qty[data-skladid="${entry.id}"]`);
-    if (skladEl) {
-      skladEl.dataset.format = skladFmt;
-      // Odśwież badge formatu
-      const badge = fileListEl?.querySelector(`.cad-format-badge[data-badgeid="${entry.id}"]`);
-      if (badge) badge.textContent = fmt || '';
-    }
+    // DEPRECATED: fileListEl już nie istnieje
+    console.log('⚠️ updateSkladFormat is deprecated');
   }
 
   // ── File management ──────────────────────────────────────────────────────────
@@ -919,6 +945,40 @@ export function init() {
     renderFileList();
   }
 
+  function deleteFileById(id) {
+    // Znajdź nazwę pliku przed usunięciem
+    const fileEntry = files.find(f => String(f.id) === String(id));
+    const fileName = fileEntry?.name;
+    
+    // Usuń z files array
+    files = files.filter(f => String(f.id) !== String(id));
+    
+    // Usuń z wszystkieWyniki array
+    if (fileName) {
+      wszystkieWyniki = wszystkieWyniki.filter(w => w.file !== fileName);
+      console.log(`🗑️ Usunięto plik: ${fileName} (id: ${id})`);
+      console.log(`📦 Pozostało wyników: ${wszystkieWyniki.length}`);
+    }
+    
+    // Przelicz i odśwież tabele
+    const totalAll = wszystkieWyniki.reduce((sum, d) => {
+      const fe = files.find(f => f.name === d.file);
+      const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+      return sum + d.price + scanPrice;
+    }, 0);
+    
+    if (wszystkieWyniki.length === 0) {
+      const container = document.getElementById('results-container');
+      if (container) container.style.display = 'none';
+    } else {
+      renderResultsTable(wszystkieWyniki, totalAll);
+    }
+    
+    renderObliczen(wszystkieWyniki);
+    
+    if (warningEl) warningEl.style.display = files.length > MAX_FILES_SOFT ? '' : 'none';
+  }
+
   async function autoDetectDims(entry) {
     if (!entry.blob?.type?.startsWith('image/')) return;
     try {
@@ -945,93 +1005,17 @@ export function init() {
 
   // ── Rendering ──────────────────────────────────────────────────────────────
   function renderFileList() {
-    if (!fileListEl) return;
+    // Ta funkcja jest już deprecated - wszystkie dane są w resultsTable
+    // Pozostawiona dla zachowania kompatybilności z starym kodem
+    console.log('⚠️ renderFileList() is deprecated - using renderResultsTable() instead');
+    
     if (files.length === 0) {
-      fileListEl.innerHTML = '';
-      if (summaryEl)     summaryEl.style.display  = 'none';
+      if (summaryEl) summaryEl.style.display = 'none';
       dispatchPrice(0);
       return;
     }
-    if (summaryEl) summaryEl.style.display = '';
-
-    const totalSizeMb = files.reduce((sum, f) => sum + parseFloat(f.sizeMB || 0), 0);
-
-    fileListEl.innerHTML = `
-      <table class="cad-file-table">
-        <thead>
-          <tr>
-            <th></th>
-            <th>MB</th>
-            <th>Skan</th>
-            <th>Plik</th>
-            <th>Typ</th>
-            <th>Format / Strony</th>
-            <th>Rozmiar mm</th>
-            <th>Cena/str zł</th>
-            <th>Cena</th>
-          </tr>
-          <tr>
-            <th></th>
-            <th colspan="5" style="font-weight:500;color:var(--text-secondary)">Ustawienia zbiorcze</th>
-            <th></th>
-            <th></th>
-            <th style="text-align:center;"><input type="checkbox" class="cad-table-checkbox" id="cadBulkScan" /></th>
-          </tr>
-        </thead>
-        <tbody>
-          ${files.map(f => {
-            const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
-            const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
-            const dimsLabel = (f.wMm > 0 && f.hMm > 0)
-              ? `${f.wMm}×${f.hMm} mm`
-              : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : (f.dimensionsLabel || '—'));
-            const drukPrice = obliczPlik(f, PRINT_MODE);
-            const basePrice = typeof f.totalPrice === 'number' && f.totalPrice > 0 ? f.totalPrice : drukPrice;
-            // ✅ Przelicz pricePerPageLabel na podstawie aktualnego PRINT_MODE
-            let pricePerPageLabel = f.pricePerPageLabel || '—';
-            if (f.wMm > 0 && f.hMm > 0) {
-              const pricing = calculateCadByDims(f.wMm, f.hMm, 1, PRINT_MODE);
-              pricePerPageLabel = pricing.wyjasnenie || pricePerPageLabel;
-            }
-            const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
-            const rowTotal = basePrice + scanPrice;
-            const rowTotalLabel = rowTotal > 0 ? fmtPLN(rowTotal) : '—';
-            return `
-              <tr class="cad-file-row" data-fileid="${f.id}">
-                <td>
-                  <button class="cad-delete-x" data-delete="${f.id}" aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
-                </td>
-                <td>${f.sizeMB} MB</td>
-                <td>
-                  <input type="checkbox" class="cad-scan-check" data-scanid="${f.id}" ${f.scanCm ? 'checked' : ''} />
-                </td>
-                <td title="${escHtml(f.name)}">${escHtml(f.name)}</td>
-                <td>${escHtml(f.typeLabel || '—')}</td>
-                <td>${escHtml(f.formatLabel || fmt || '—')}</td>
-                <td>${escHtml(dimsLabel)}</td>
-                <td>${escHtml(pricePerPageLabel)}</td>
-                <td><strong>${rowTotalLabel}</strong></td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-        <tfoot>
-          <tr>
-            <td colspan="2"><strong>Podsumowanie</strong></td>
-            <td colspan="2">${totalSizeMb.toFixed(2)} MB</td>
-            <td colspan="4" style="text-align:right;"><strong>Razem:</strong></td>
-            <td><strong>${fmtPLN(files.reduce((s, f) => {
-              const basePrice = typeof f.totalPrice === 'number' && f.totalPrice > 0
-                ? f.totalPrice
-                : obliczPlik(f, PRINT_MODE);
-              const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
-              return s + basePrice + scanPrice;
-            }, 0))}</strong></td>
-          </tr>
-        </tfoot>
-      </table>
-    `;
-
+    
+    // Nie renderuj dolnej tabeli - wszystko jest już w górnej resultsTable
     recalculateAll();
   }
 
@@ -1067,7 +1051,11 @@ export function init() {
       });
     
       // Renderuj WSZYSTKIE tabele z nowymi cenami
-      const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
+      const totalAll = wszystkieWyniki.reduce((sum, d) => {
+        const fe = files.find(f => f.name === d.file);
+        const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+        return sum + d.price + scanPrice;
+      }, 0);
       renderResultsTable(wszystkieWyniki, totalAll);
       renderObliczen(wszystkieWyniki);
     
@@ -1127,7 +1115,11 @@ export function init() {
       console.log(`📋 ALL RESULTS SO FAR:`, wszystkieWyniki);
       
       // Renderuj WSZYSTKIE wyniki (nie tylko nowe!)
-      const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
+      const totalAll = wszystkieWyniki.reduce((sum, d) => {
+        const fe = files.find(f => f.name === d.file);
+        const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+        return sum + d.price + scanPrice;
+      }, 0);
       renderResultsTable(wszystkieWyniki, totalAll);
       
       // ✅ Renderuj ekran obliczeń!
