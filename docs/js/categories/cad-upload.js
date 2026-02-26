@@ -272,8 +272,8 @@ export async function analyzePdf(file) {
       });
     }
 
-    // Calculate total price
-    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculateCadPriceByDims(p.widthMm, p.heightMm, 'color', 1, true)), 0);
+    // Calculate total price (direct CAD, no VAT split)
+    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculateCadPriceByDims(p.widthMm, p.heightMm)), 0);
     
     console.log(`✅ Total PDF price: ${totalPrice.toFixed(2)} zł`);
     console.groupEnd();
@@ -287,38 +287,30 @@ export async function analyzePdf(file) {
 }
 
 /**
- * Calculate CAD price from format (fallback when no dimensions available).
+ * Calculate CAD price from format – DIRECT CAD cena (no VAT split).
  */
-export function calculateCadPrice(format, strony = 1, vat = true, mode = 'bw') {
-  const map = getPricesFromCadFile(mode);
+export function calculateCadPrice(format, strony = 1) {
+  const map = getPricesFromCadFile('bw');  // Always use BW (default CAD)
   const base = map[format] ?? map.A4 ?? 0;
-  const netto = base * strony;
-  const brutto = vat ? netto * 1.23 : netto;
-  console.log(`💲 CAD: ${format} × ${strony} = ${base} × ${strony} = ${netto.toFixed(2)} zł (netto), ${brutto.toFixed(2)} zł (brutto)`);
-  return brutto.toFixed(2);
+  const cena = base * strony;
+  console.log(`💲 CAD: ${format} × ${strony}str = ${cena.toFixed(2)} zł`);
+  return cena.toFixed(2);
 }
 
 /**
- * Calculate CAD price from dimensions using CAD logic.
+ * Calculate CAD price from dimensions – DIRECT CAD cena (no VAT split).
  */
-export function calculateCadPriceByDims(widthMm, heightMm, mode = 'bw', qty = 1, vat = true) {
-  const netto = obliczPlik({ wMm: widthMm, hMm: heightMm, qty }, mode);
-  const brutto = vat ? netto * 1.23 : netto;
-  console.log(`📐 CAD dims: ${widthMm}x${heightMm}mm, mode=${mode}, netto=${netto.toFixed(2)}, brutto=${brutto.toFixed(2)}`);
-  return brutto.toFixed(2);
+export function calculateCadPriceByDims(widthMm, heightMm, qty = 1) {
+  const cena = obliczPlik({ wMm: widthMm, hMm: heightMm, qty }, 'bw');
+  console.log(`📐 CAD: ${widthMm}x${heightMm}mm × ${qty} = ${cena.toFixed(2)} zł`);
+  return cena.toFixed(2);
 }
 
 export function updatePrices() {
-  const modeEl = document.getElementById('printMode');
-  const vatEl = document.getElementById('vatToggle');
   const totalPriceEl = document.getElementById('results-total-price');
   const totalLiveEl = document.getElementById('results-total-live');
   const sumaEl = document.querySelector('.suma');
 
-  if (!modeEl || !vatEl) return;
-
-  const mode = modeEl.value;
-  const vat = vatEl.checked;
   let total = 0;
 
   document.querySelectorAll('tr.data-row').forEach(row => {
@@ -335,17 +327,17 @@ export function updatePrices() {
       const dims = dimsCsv.split(',').map(d => d.trim()).filter(Boolean);
       const prices = dims.map(d => {
         const [w, h] = d.split('x').map(v => parseFloat(v));
-        return calculateCadPriceByDims(w, h, mode, 1, vat);
+        return calculateCadPriceByDims(w, h);
       });
       pricePerPageText = prices.map(p => `${p} zł`).join(', ');
       rowTotal = prices.reduce((sum, p) => sum + parseFloat(p), 0);
     } else if (formatsCsv) {
       const formats = formatsCsv.split(',').map(f => f.trim()).filter(Boolean);
-      const prices = formats.map(f => calculateCadPrice(f, 1, vat, mode));
+      const prices = formats.map(f => calculateCadPrice(f, 1));
       pricePerPageText = prices.map(p => `${p} zł`).join(', ');
       rowTotal = prices.reduce((sum, p) => sum + parseFloat(p), 0);
     } else if (format) {
-      const price = calculateCadPrice(format, 1, vat, mode);
+      const price = calculateCadPrice(format, 1);
       pricePerPageText = `${price} zł`;
       rowTotal = parseFloat(price);
     }
@@ -411,7 +403,7 @@ export async function analyzeAllFiles(fileEntries) {
         const pagesInfo = pdfData.pages.map(p => `${p.format}`).join(', ');
         const pagesSizes = pdfData.pages.map(p => p.mm).join(', ');
         const pagesDimsCsv = pdfData.pages.map(p => `${p.widthMm}x${p.heightMm}`).join(', ');
-        const pagesPrices = pdfData.pages.map(p => `${calculateCadPriceByDims(p.widthMm, p.heightMm, 'color', 1, true)} zł`).join(', ');
+        const pagesPrices = pdfData.pages.map(p => `${calculateCadPriceByDims(p.widthMm, p.heightMm)} zł`).join(', ');
         details.push({
           idx: fileIdx++,
           file: file.name,
@@ -433,7 +425,7 @@ export async function analyzeAllFiles(fileEntries) {
       try {
         const dims = await detectImageDimensions(file);
         const format = detectFormat(dims.widthMm, dims.heightMm);
-        const price = parseFloat(calculateCadPriceByDims(dims.widthMm, dims.heightMm, 'color', 1, true));
+        const price = parseFloat(calculateCadPriceByDims(dims.widthMm, dims.heightMm));
         total += price;
         details.push({
           idx: fileIdx++,
@@ -442,7 +434,7 @@ export async function analyzeAllFiles(fileEntries) {
           format: format,
           dimensions: `${dims.widthMm}x${dims.heightMm}mm`,
           dimsCsv: `${dims.widthMm}x${dims.heightMm}`,
-          pricePerPage: `${calculateCadPriceByDims(dims.widthMm, dims.heightMm, 'color', 1, true)} zł`,
+          pricePerPage: `${calculateCadPriceByDims(dims.widthMm, dims.heightMm)} zł`,
           price: price
         });
         console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format}), DETAILS PUSHED`);
@@ -559,8 +551,10 @@ export function init() {
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
 
-  if (printModeEl) printModeEl.onchange = updatePrices;
-  if (vatToggleEl) vatToggleEl.onchange = updatePrices;
+  // Note: printMode/vatToggle disabled – using direct CAD prices now
+  if (printModeEl) printModeEl.style.display = 'none';
+  if (vatToggleEl) vatToggleEl.closest('label')?.style.display = 'none';
+  
   const optZapEl    = document.getElementById('optZapelnienie');
   const optPowEl    = document.getElementById('optPowieksz');
   const optEmailEl  = document.getElementById('optEmail');
@@ -610,6 +604,8 @@ export function init() {
   const debouncedRecalc = debounce(recalculateAll, 200);
   [modeEl, optZapEl, optPowEl, optEmailEl].forEach(el => el?.addEventListener('change', debouncedRecalc));
   document.getElementById('skanCm')?.addEventListener('input', debouncedRecalc);
+  
+  // NO mode/VAT listeners for results table (direct CAD pricing)
 
   // ── File list event delegation ──────────────────────────────────────────────
   if (fileListEl) {
