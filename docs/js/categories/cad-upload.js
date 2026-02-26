@@ -5,28 +5,47 @@ import { drukCad } from '../prices.js';
 
 console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
 
-// ─── PEŁNY SYSTEM CEN CAD WIELKOFORMATOWE (z prices.js) ─────────────────────
-const CAD_WIELKOFORMATOWE = {
-  // Ceny formatowe (jeden arkusz) – zł za sztukę
-  formatowe: drukCad.formatowe,           // {bw: {A3: 2.50, A2: 4.00, ...}, color: {...}}
+// ─── FAKTYCZNY CENNIK CAD WIELKOFORMATOWE (WEKTOR kolor 80g/m2) ──────────────
+const CAD_CENNIK = {
+  // FORMATOWE: Ceny za jeden arkusz/stronę – zł za sztukę
+  formatowe: {
+    'A3': 5.30,     // 297×420mm
+    'A2': 8.50,     // 420×594mm
+    'A1': 12.00,    // 594×841mm
+    'A0': 24.00,    // 841×1189mm
+    'A0+': 26.00    // 914×1292mm
+  },
   
-  // Ceny nieformatowe (za metr bieżący rolki) – zł/mb
-  metrBiezacy: drukCad.metrBiezacy,       // {bw: {297: 3.50, 420: 4.50, ...}, color: {...}}
+  // NIEFORMATOWE: Ceny za metr bieżący roli – zł/mb dla każdej szerokości
+  nieformatowe_mb: {
+    'A3': 12.00,    // 297mm szerokość rolki
+    'A2': 13.90,    // 420mm szerokość rolki
+    'A1': 14.50,    // 594mm szerokość rolki
+    'A0': 20.00,    // 841mm szerokość rolki
+    'A0+': 21.00,   // 914mm szerokość rolki
+    '1067': 30.00   // 1067mm szerokość rolki
+  },
   
-  // Bazowe długości formatów – mm
-  baseLengthMm: drukCad.baseLengthMm,     // {A3: 420, A2: 594, A1: 841, A0: 1189, 'A0+': 1292}
+  // Mapowanie format → szerokość rolki (do obliczania metrowych)
+  formatToWidth: {
+    'A3': 297,
+    'A2': 420,
+    'A1': 594,
+    'A0': 841,
+    'A0+': 914
+  },
   
-  // Szerokości rolek – mm
-  widths: drukCad.widths,                 // {A3: 297, A2: 420, A1: 594, A0: 841, 'A0+': 914}
-  
-  // Ceny składania – zł za operację
-  skladanie: drukCad.skladanie,           // {A3: 1.00, A2: 1.50, A1: 2.00, ...}
-  
-  // Cena skanowania – zł/cm bieżący
-  skanowanie: drukCad.skanowanie,         // 0.08
+  // Bazowe długości formatów (mm) – do rozpoznawania formatowych vs nieformatowych
+  baseLengthMm: {
+    'A3': 420,
+    'A2': 594,
+    'A1': 841,
+    'A0': 1189,
+    'A0+': 1292
+  }
 };
 
-console.log('💰 CAD WIELKOFORMATOWE system załadowany:', CAD_WIELKOFORMATOWE);
+console.log('💎 CENNIK CAD WIELKOFORMATOWE załadowany:', CAD_CENNIK);
 
 // ─── TRYB DRUKU (COLOR/BW) – domyślnie BW ─────────────────────────────────────
 let PRINT_MODE = 'bw';  // Globalny tryb druku: 'bw' lub 'color'
@@ -40,16 +59,60 @@ function setPrintMode(mode) {
   console.log(`📋 Tryb druku zmieniony na: ${PRINT_MODE}`);
 }
 
-const BASE_LENGTHS  = CAD_WIELKOFORMATOWE.baseLengthMm;
-const WIDTHS        = CAD_WIELKOFORMATOWE.widths;
-const SKLAD_CENY    = { ...CAD_WIELKOFORMATOWE.skladanie, 'nieformat': 2.5 };
-const SCAN_PER_CM   = CAD_WIELKOFORMATOWE.skanowanie;
+const BASE_LENGTHS  = CAD_CENNIK.baseLengthMm;
+const WIDTHS        = CAD_CENNIK.formatToWidth;
 const MAX_FILES_SOFT = 50;
 
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej */
 const TOLERANCE_MM = 5;
 
-const CAD_FORMATS = ['A4', 'A3', 'A2', 'A1', 'A0', 'A0+'];
+const CAD_FORMATS = ['A3', 'A2', 'A1', 'A0', 'A0+'];
+
+/**
+ * ✅ GŁÓWNA FUNKCJA OBLICZANIA CENY CAD
+ * Rozróżnia: FORMATOWE (cena stała) vs NIEFORMATOWE (metrowy)
+ * 
+ * @param {string} format - format (A3, A2, A1, A0, A0+)
+ * @param {number} dlugosc_mm - długość w mm (jeśli różna od base length)
+ * @param {number} strony - liczba stron/arkuszy
+ * @returns {object} { cena: number, typ: 'formatowe'|'nieformatowe', wyjasnenie: string }
+ */
+function calculateCadCennik(format, dlugosc_mm, strony = 1) {
+  if (!format || !CAD_CENNIK.formatowe[format]) {
+    console.warn(`⚠️ Nieznany format: ${format}`);
+    return { cena: 0, typ: 'unknown', wyjasnenie: 'Nieznany format' };
+  }
+
+  const baseLength = CAD_CENNIK.baseLengthMm[format];
+  const isFormatowy = Math.abs(dlugosc_mm - baseLength) <= TOLERANCE_MM;
+
+  let cena, wyjasnenie;
+
+  if (isFormatowy) {
+    // FORMATOWE: cena stała za arkusz
+    const cenaNetto = CAD_CENNIK.formatowe[format];
+    cena = cenaNetto * strony;
+    wyjasnenie = `Formatowe ${format} = ${cenaNetto}zł × ${strony}str`;
+    console.log(`💲 FORMATOWE: ${format} (${dlugosc_mm}mm ≈ ${baseLength}mm base) × ${strony}str = ${cena.toFixed(2)}zł`);
+  } else {
+    // NIEFORMATOWE: cena za metr bieżący
+    const szerokosc = WIDTHS[format];
+    const cenaMb = CAD_CENNIK.nieformatowe_mb[format];
+    const metryBiezace = dlugosc_mm / 1000;
+    cena = (cenaMb * metryBiezace * strony).toFixed(2);
+    wyjasnenie = `Nieformatowe ${format} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
+    console.log(`📐 NIEFORMATOWE: ${format} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}m × ${cenaMb}zł/mb × ${strony}str = ${cena}zł`);
+  }
+
+  return {
+    cena: parseFloat(cena),
+    typ: isFormatowy ? 'formatowe' : 'nieformatowe',
+    wyjasnenie: wyjasnenie,
+    format: format,
+    dlugosc_mm: dlugosc_mm,
+    strony: strony
+  };
+}
 
 /**
  * ✅ PEŁNY SYSTEM CEN CAD – oblicza cenę na podstawie formatu, trybów i liczby stron
@@ -61,56 +124,37 @@ const CAD_FORMATS = ['A4', 'A3', 'A2', 'A1', 'A0', 'A0+'];
 function calculateCadFull(format, strony = 1, mode = undefined) {
   if (!mode) mode = PRINT_MODE;  // Use global PRINT_MODE if not specified
   
-  const basePrice = CAD_WIELKOFORMATOWE.formatowe[mode]?.[format];
-  
-  if (basePrice === undefined) {
-    console.warn(`⚠️ Brak ceny dla ${format} (${mode})`);
-    return '0.00';
-  }
-  
-  const totalPrice = basePrice * strony;
-  console.log(`💲 CAD FULL: ${format} × ${strony}str × ${mode} = ${basePrice} × ${strony} = ${totalPrice.toFixed(2)} zł`);
-  return totalPrice.toFixed(2);
+  // Use new cennik system
+  const result = calculateCadCennik(format, BASE_LENGTHS[format], strony);
+  return result.cena.toFixed(2);
 }
 
 /**
- * Oblicz cenę CAD z wymiarów – logika identyczna jak druk-cad.js
+ * Oblicz cenę CAD z wymiarów – używa nowego systemu cennikowego
  * @param {number} widthMm - szerokość (mm)
  * @param {number} heightMm - wysokość (mm)
  * @param {number} qty - ilość
  * @param {string} mode - tryb ('bw' lub 'color'), jeśli undefined to PRINT_MODE
- * @returns {string} - cena formatowana
+ * @returns {object} - { cena, typ, wyjasnenie }
  */
 function calculateCadByDims(widthMm, heightMm, qty = 1, mode = undefined) {
-  if (!mode) mode = PRINT_MODE;  // Use global PRINT_MODE if not specified
+  if (!mode) mode = PRINT_MODE;
   
-  if (!widthMm || !heightMm || widthMm <= 0 || heightMm <= 0) return '0.00';
+  if (!widthMm || !heightMm || widthMm <= 0 || heightMm <= 0) {
+    return { cena: 0, typ: 'error', wyjasnenie: 'Błędne wymiary' };
+  }
   
   const longer = Math.max(widthMm, heightMm);
   const format = detectFormat(widthMm, heightMm);
   
-  let unitPrice = 0;
-  
   if (format === 'nieformatowy') {
-    // Format nierozpoznany – cena metrowa rolki A3
-    const width = WIDTHS['A3'];
-    unitPrice = (CAD_WIELKOFORMATOWE.metrBiezacy[mode]?.[width] || 0) * (longer / 1000);
-  } else {
-    const baseLen = BASE_LENGTHS[format];
-    
-    if (Math.abs(longer - baseLen) <= TOLERANCE_MM) {
-      // Format standardowy – cena formatowa
-      unitPrice = CAD_WIELKOFORMATOWE.formatowe[mode]?.[format] || 0;
-    } else {
-      // Nieformatowy – metrowy dla danej szerokości
-      const width = WIDTHS[format];
-      unitPrice = (CAD_WIELKOFORMATOWE.metrBiezacy[mode]?.[width] || 0) * (longer / 1000);
-    }
+    console.warn(`📐 Format nierozpoznany: ${widthMm}×${heightMm}mm`);
+    return { cena: 0, typ: 'unknown', wyjasnenie: 'Format nierozpoznany' };
   }
   
-  const totalPrice = unitPrice * qty;
-  console.log(`📐 CAD BY DIMS: ${widthMm}×${heightMm}mm × ${qty} (${mode}) = ${totalPrice.toFixed(2)} zł`);
-  return totalPrice.toFixed(2);
+  // Use new cennik
+  const result = calculateCadCennik(format, longer, qty);
+  return result;
 }
 
 // ─── GLOBAL STATE: KUMULACJA WYNIKÓW ─────────────────────────────────────────
@@ -341,20 +385,22 @@ export async function analyzePdf(file) {
     for (let i = 1; i <= maxPages; i++) {
       const page = await pdf.getPage(i);
       const { format, mm, widthMm, heightMm } = getPageDimensions(page);
+      const pricingInfo = calculateCadByDims(widthMm, heightMm, 1);
 
-      console.log(`  Page ${i}: ${format} (${mm})`);
+      console.log(`  Page ${i}: ${format} (${mm}) - ${pricingInfo.wyjasnenie}`);
       
       pages.push({
         page: i,
         widthMm,
         heightMm,
         format,
-        mm
+        mm,
+        pricing: pricingInfo
       });
     }
 
-    // Calculate total price (direct CAD, no VAT split)
-    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculateCadPriceByDims(p.widthMm, p.heightMm)), 0);
+    // Calculate total price
+    const totalPrice = pages.reduce((sum, p) => sum + p.pricing.cena, 0);
     
     console.log(`✅ Total PDF price: ${totalPrice.toFixed(2)} zł`);
     console.groupEnd();
@@ -368,21 +414,19 @@ export async function analyzePdf(file) {
 }
 
 /**
- * Calculate CAD price from format – DIRECT CAD cena (no VAT split).
+ * Calculate CAD price from format – uses new CAD cennik system
  */
 export function calculateCadPrice(format, strony = 1) {
-  // Use full CAD system with current PRINT_MODE
-  const cena = parseFloat(calculateCadFull(format, strony, PRINT_MODE));
-  return cena.toFixed(2);
+  const result = calculateCadCennik(format, BASE_LENGTHS[format], strony);
+  return result.cena.toFixed(2);
 }
 
 /**
- * Calculate CAD price from dimensions – uses full CAD WIELKOFORMATOWE system
- * Uses current PRINT_MODE (color or bw)
+ * Calculate CAD price from dimensions – uses new CAD cennik system
  */
 export function calculateCadPriceByDims(widthMm, heightMm, qty = 1) {
-  const cena = parseFloat(calculateCadByDims(widthMm, heightMm, qty, PRINT_MODE));
-  return cena.toFixed(2);
+  const result = calculateCadByDims(widthMm, heightMm, qty, PRINT_MODE);
+  return result.cena.toFixed(2);
 }
 
 export function updatePrices() {
@@ -482,7 +526,7 @@ export async function analyzeAllFiles(fileEntries) {
         const pagesInfo = pdfData.pages.map(p => `${p.format}`).join(', ');
         const pagesSizes = pdfData.pages.map(p => p.mm).join(', ');
         const pagesDimsCsv = pdfData.pages.map(p => `${p.widthMm}x${p.heightMm}`).join(', ');
-        const pagesPrices = pdfData.pages.map(p => `${calculateCadPriceByDims(p.widthMm, p.heightMm)} zł`).join(', ');
+        const pricingExplain = pdfData.pages.map(p => p.pricing.wyjasnenie).join(', ');
         details.push({
           idx: fileIdx++,
           file: file.name,
@@ -492,8 +536,9 @@ export async function analyzeAllFiles(fileEntries) {
           dimensions: pagesSizes,
           dimsCsv: pagesDimsCsv,
           formatsCsv: pdfData.pages.map(p => p.format).join(', '),
-          pricePerPage: pagesPrices,
-          price: pdfData.totalPrice
+          pricePerPage: pricingExplain,
+          price: pdfData.totalPrice,
+          pricing: pdfData.pages[0].pricing  // Store first page pricing info
         });
         console.log(`  ✅ PDF: ${pdfData.totalPrice.toFixed(2)} zł (${pdfData.pages.length} pages), DETAILS PUSHED`);
       } else {
@@ -504,7 +549,8 @@ export async function analyzeAllFiles(fileEntries) {
       try {
         const dims = await detectImageDimensions(file);
         const format = detectFormat(dims.widthMm, dims.heightMm);
-        const price = parseFloat(calculateCadPriceByDims(dims.widthMm, dims.heightMm));
+        const pricing = calculateCadByDims(dims.widthMm, dims.heightMm, 1);
+        const price = pricing.cena;
         total += price;
         details.push({
           idx: fileIdx++,
@@ -513,8 +559,9 @@ export async function analyzeAllFiles(fileEntries) {
           format: format,
           dimensions: `${dims.widthMm}x${dims.heightMm}mm`,
           dimsCsv: `${dims.widthMm}x${dims.heightMm}`,
-          pricePerPage: `${calculateCadPriceByDims(dims.widthMm, dims.heightMm)} zł`,
-          price: price
+          pricePerPage: pricing.wyjasnenie,
+          price: price,
+          pricing: pricing
         });
         console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format}), DETAILS PUSHED`);
       } catch (err) {
@@ -896,28 +943,19 @@ export function init() {
     ekranObliczen.style.display = '';
     console.log(`📊 Rendering ${wyniki.length} calculations`);
 
-    // Render each calculation with explanation
+    // Render each calculation with detailed explanation
     let html = wyniki.map((w, idx) => {
-      const format = w.format || 'nieznany';
-      const isNieformatowy = w.format === 'nieformatowy';
-      const strony = w.type === 'PDF' ? w.pagesCount : 1;
       const cenaCalkkowita = fmtPLN(w.price);
-
-      let obliczenie;
-      if (isNieformatowy) {
-        // Explain metrowy pricing
-        obliczenie = `NIEFORMATOWE ${w.dimensions} = ${w.pricePerPage || '?'}/mb (${strony} str)`;
-      } else {
-        // Explain formatowe pricing
-        obliczenie = `Formatowe ${format} = ${w.pricePerPage || '?'} (${strony} str)`;
-      }
+      
+      // Use detailed pricing explanation from calculateCadCennik
+      const obliczenie = w.pricePerPage || 'Brak wyceny';
 
       console.log(`  📝 Calc ${idx + 1}: ${w.file} → ${obliczenie} = ${cenaCalkkowita}`);
 
       return `
         <div class="obliczenie-row">
           <strong>${escHtml(w.file)}:</strong> 
-          ${obliczenie}
+          ${escHtml(obliczenie)}
           <span style="float:right; font-weight:bold; color:#007bff;">${cenaCalkkowita}</span>
         </div>
       `;
