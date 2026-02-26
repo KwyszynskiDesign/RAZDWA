@@ -328,20 +328,22 @@ function updateSkladanie() {
   return total;
 }
 
-// ─── SKANOWANIE ─────────────────────────────────────────────────────────────
+// ── SKANOWANIE ────────────────────────────────────────────────────────────────
 function updateSkan() {
-  // Prefer per-row scan inputs if present
-  const scanInputs = document.querySelectorAll('.cad-scan-input');
+  // Use per-file scanCm values from files array
   let totalCm = 0;
-  if (scanInputs.length > 0) {
-    scanInputs.forEach(input => {
-      totalCm += parseFloat(input.value || 0) || 0;
-    });
-  } else {
-    const el = document.getElementById('skanCm');
-    totalCm = parseFloat(el?.value || 0) || 0;
-  }
-  return { total: totalCm * SCAN_PER_CM, cm: totalCm };
+  let scanExplanations = [];
+  files.forEach(f => {
+    if (f.scanCm > 0) {
+      totalCm += f.scanCm;
+      if (f.scanExpl) scanExplanations.push(f.scanExpl);
+    }
+  });
+  return { 
+    total: totalCm * SCAN_PER_CM, 
+    cm: totalCm,
+    explanations: scanExplanations
+  };
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -857,9 +859,24 @@ export function init() {
       } else if (el.classList.contains('sklad-qty')) {
         const entry = byId(el.dataset.skladid);
         if (entry) entry.skladanieQty = Math.max(0, parseInt(el.value, 10) || 0);
-      } else if (el.classList.contains('cad-scan-input')) {
+      } else if (el.classList.contains('cad-scan-check')) {
         const entry = byId(el.dataset.scanid);
-        if (entry) entry.scanCm = Math.max(0, parseFloat(el.value) || 0);
+        if (entry) {
+          if (el.checked && entry.wMm > 0 && entry.hMm > 0) {
+            // Algorytm skanowania: mm -> cm, x 0.08 zl/cm
+            const hosszDmm = Math.max(entry.wMm, entry.hMm);
+            const hosszCm = Math.round(hosszDmm / 10);
+            entry.scanCm = hosszCm;
+            entry.scanPrice = hosszCm * SCAN_PER_CM;
+            entry.scanExpl = `Skan: ${hosszDmm}mm = ${hosszCm}cm x ${SCAN_PER_CM}zl/cm = ${fmtPLN(entry.scanPrice)}`;
+            console.log(`Skan ${entry.name}: ${entry.scanExpl}`);
+          } else if (!el.checked) {
+            entry.scanCm = 0;
+            entry.scanPrice = 0;
+            entry.scanExpl = '';
+          }
+        }
+        renderFileList();
       }
       debouncedRecalc();
     });
@@ -980,6 +997,9 @@ export function init() {
               ? `${f.wMm}×${f.hMm} mm`
               : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : (f.dimensionsLabel || '—'));
             const drukPrice = obliczPlik(f, PRINT_MODE);
+            // ✅ Przelicz pricePerPageLabel na podstawie aktualnego PRINT_MODE
+            const pricing = calculateCadByDims(f.wMm || 0, f.hMm || 0, 1, PRINT_MODE);
+            const pricePerPageLabel = pricing.wyjasnenie || f.pricePerPageLabel || '—';
             const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
             const skladPrice = (f.skladanieQty || 0) * skladUnit;
             const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
@@ -995,7 +1015,7 @@ export function init() {
                 <td>${escHtml(f.typeLabel || '—')}</td>
                 <td>${escHtml(f.formatLabel || fmt || '—')}</td>
                 <td>${escHtml(dimsLabel)}</td>
-                <td>${escHtml(f.pricePerPageLabel || '—')}</td>
+                <td>${escHtml(pricePerPageLabel)}</td>
                 <td>
                   <input type="number" class="cad-qty-input cad-table-input" data-qtyid="${f.id}" value="${f.qty}" min="1" max="999" />
                 </td>
@@ -1004,7 +1024,7 @@ export function init() {
                          value="${f.skladanieQty}" min="0" max="999" />
                 </td>
                 <td>
-                  <input type="number" class="cad-scan-input cad-table-input" data-scanid="${f.id}" value="${f.scanCm || 0}" min="0" max="9999" />
+                  <input type="checkbox" class="cad-scan-check" data-scanid="${f.id}" ${f.scanCm ? 'checked' : ''} />
                 </td>
                 <td><strong>${rowTotalLabel}</strong></td>
               </tr>
