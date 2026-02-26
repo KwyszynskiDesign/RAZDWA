@@ -330,8 +330,18 @@ function updateSkladanie() {
 
 // ─── SKANOWANIE ─────────────────────────────────────────────────────────────
 function updateSkan() {
-  const el = document.getElementById('skanCm');
-  return (parseFloat(el?.value || 0) || 0) * SCAN_PER_CM;
+  // Prefer per-row scan inputs if present
+  const scanInputs = document.querySelectorAll('.cad-scan-input');
+  let totalCm = 0;
+  if (scanInputs.length > 0) {
+    scanInputs.forEach(input => {
+      totalCm += parseFloat(input.value || 0) || 0;
+    });
+  } else {
+    const el = document.getElementById('skanCm');
+    totalCm = parseFloat(el?.value || 0) || 0;
+  }
+  return { total: totalCm * SCAN_PER_CM, cm: totalCm };
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -813,17 +823,43 @@ export function init() {
       const el = e.target;
       const byId = id => files.find(f => String(f.id) === id);
 
+      // Bulk inputs
+      if (el.id === 'cadBulkQty') {
+        const v = parseInt(el.value, 10);
+        if (!isNaN(v) && v > 0) files.forEach(f => { f.qty = Math.min(999, v); });
+        renderFileList();
+        debouncedRecalc();
+        return;
+      }
+      if (el.id === 'cadBulkSklad') {
+        const v = parseInt(el.value, 10);
+        if (!isNaN(v) && v >= 0) files.forEach(f => { f.skladanieQty = Math.min(999, v); });
+        renderFileList();
+        debouncedRecalc();
+        return;
+      }
+      if (el.id === 'cadBulkScan') {
+        const v = parseFloat(el.value);
+        if (!isNaN(v) && v >= 0) files.forEach(f => { f.scanCm = Math.min(9999, v); });
+        renderFileList();
+        debouncedRecalc();
+        return;
+      }
+
+      // Per-row inputs
       if (el.classList.contains('cad-qty-input') && el.dataset.qtyid) {
         const entry = byId(el.dataset.qtyid);
         if (!entry) return;
         const v = parseInt(el.value, 10);
         if (isNaN(v) || v < 1) { el.value = entry.qty; return; }
         entry.qty = Math.min(999, v);
-        // ✅ Odśwież wyświetlanie ceny po zmianie qty
         renderFileList();
       } else if (el.classList.contains('sklad-qty')) {
         const entry = byId(el.dataset.skladid);
         if (entry) entry.skladanieQty = Math.max(0, parseInt(el.value, 10) || 0);
+      } else if (el.classList.contains('cad-scan-input')) {
+        const entry = byId(el.dataset.scanid);
+        if (entry) entry.scanCm = Math.max(0, parseFloat(el.value) || 0);
       }
       debouncedRecalc();
     });
@@ -852,6 +888,12 @@ export function init() {
         qty: 1,
         wMm: 0,
         hMm: 0,
+        typeLabel: f.type?.includes('pdf') || f.name.toLowerCase().endsWith('.pdf') ? 'PDF' : (f.type?.startsWith('image/') ? 'Image' : 'File'),
+        formatLabel: '—',
+        dimensionsLabel: '—',
+        pricePerPageLabel: '—',
+        pagesCount: 0,
+        scanCm: 0,
         skladanieQty: 0,
         blob: f,
       };
@@ -903,41 +945,89 @@ export function init() {
     }
     if (summaryEl) summaryEl.style.display = '';
 
-    fileListEl.innerHTML = files.map(f => {
-      const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
-      const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
-      const dimsLabel = (f.wMm > 0 && f.hMm > 0)
-        ? `${f.wMm}×${f.hMm} mm`
-        : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : '— brak danych —');
-      
-      // Calculate price for this file
-      const price = obliczPlik(f, PRINT_MODE);
-      const priceLabel = price > 0 ? fmtPLN(price) : '—';
-      
-      return `
-        <div class="cad-file-item" data-fileid="${f.id}">
-          <button class="cad-delete-x" data-delete="${f.id}"
-                  aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
-          <span class="cad-file-name" title="${escHtml(f.name)}">${escHtml(f.name)}</span>
-          <span class="cad-file-size">${f.sizeMB} MB</span>
-          <span class="cad-dims-label" style="color:var(--text-secondary);font-size:0.85rem;white-space:nowrap;">${escHtml(dimsLabel)}</span>
-          ${fmt ? `<span class="cad-format-badge" data-badgeid="${f.id}">${escHtml(fmt)}</span>` : ''}
-          <label class="cad-qty-label">
-            Kop.:
-            <input type="number" class="cad-qty-input" data-qtyid="${f.id}"
-                   value="${f.qty}" min="1" max="999"
-                   aria-label="Ilość kopii dla ${escHtml(f.name)}" />
-          </label>
-          <label class="cad-qty-label">
-            Skład.:
-            <input type="number" class="sklad-qty cad-qty-input" data-skladid="${f.id}" data-format="${escHtml(skladFmt)}"
-                   value="${f.skladanieQty}" min="0" max="999" style="width:56px;"
-                   aria-label="Ilość składań dla ${escHtml(f.name)}" />
-          </label>
-          <span class="cad-file-price">${priceLabel}</span>
-        </div>
-      `;
-    }).join('');
+    const totalSizeMb = files.reduce((sum, f) => sum + parseFloat(f.sizeMB || 0), 0);
+
+    fileListEl.innerHTML = `
+      <table class="cad-file-table">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Plik</th>
+            <th>MB</th>
+            <th>Typ</th>
+            <th>Format / Strony</th>
+            <th>Rozmiar</th>
+            <th>Cena/str.</th>
+            <th>Kopie</th>
+            <th>Składanie</th>
+            <th>Skan (cm)</th>
+            <th>Razem</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th colspan="6" style="font-weight:500;color:var(--text-secondary)">Ustawienia zbiorcze</th>
+            <th><input type="number" class="cad-table-input" id="cadBulkQty" min="1" max="999" placeholder="1" /></th>
+            <th><input type="number" class="cad-table-input" id="cadBulkSklad" min="0" max="999" placeholder="0" /></th>
+            <th><input type="number" class="cad-table-input" id="cadBulkScan" min="0" max="9999" placeholder="0" /></th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${files.map(f => {
+            const fmt      = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
+            const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
+            const dimsLabel = (f.wMm > 0 && f.hMm > 0)
+              ? `${f.wMm}×${f.hMm} mm`
+              : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : (f.dimensionsLabel || '—'));
+            const drukPrice = obliczPlik(f, PRINT_MODE);
+            const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
+            const skladPrice = (f.skladanieQty || 0) * skladUnit;
+            const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
+            const rowTotal = drukPrice + skladPrice + scanPrice;
+            const rowTotalLabel = rowTotal > 0 ? fmtPLN(rowTotal) : '—';
+            return `
+              <tr class="cad-file-row" data-fileid="${f.id}">
+                <td>
+                  <button class="cad-delete-x" data-delete="${f.id}" aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
+                </td>
+                <td title="${escHtml(f.name)}">${escHtml(f.name)}</td>
+                <td>${f.sizeMB} MB</td>
+                <td>${escHtml(f.typeLabel || '—')}</td>
+                <td>${escHtml(f.formatLabel || fmt || '—')}</td>
+                <td>${escHtml(dimsLabel)}</td>
+                <td>${escHtml(f.pricePerPageLabel || '—')}</td>
+                <td>
+                  <input type="number" class="cad-qty-input cad-table-input" data-qtyid="${f.id}" value="${f.qty}" min="1" max="999" />
+                </td>
+                <td>
+                  <input type="number" class="sklad-qty cad-table-input" data-skladid="${f.id}" data-format="${escHtml(skladFmt)}"
+                         value="${f.skladanieQty}" min="0" max="999" />
+                </td>
+                <td>
+                  <input type="number" class="cad-scan-input cad-table-input" data-scanid="${f.id}" value="${f.scanCm || 0}" min="0" max="9999" />
+                </td>
+                <td><strong>${rowTotalLabel}</strong></td>
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>Podsumowanie</strong></td>
+            <td colspan="2">${totalSizeMb.toFixed(2)} MB</td>
+            <td colspan="6" style="text-align:right;"><strong>Razem:</strong></td>
+            <td><strong>${fmtPLN(files.reduce((s, f) => {
+              const fmt = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
+              const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
+              const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
+              const skladPrice = (f.skladanieQty || 0) * skladUnit;
+              const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
+              return s + obliczPlik(f, PRINT_MODE) + skladPrice + scanPrice;
+            }, 0))}</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+    `;
 
     recalculateAll();
   }
@@ -1001,6 +1091,31 @@ export function init() {
     try {
       const result = await analyzeAllFiles(Array.from(fileList));
       console.log(`📊 Analysis complete: ${result.details.length} new items`);
+
+      // ✅ Uzupełnij dane w liście plików (format, wymiary, cena/strona)
+      result.details.forEach(d => {
+        const entry = files.find(f => f.name === d.file);
+        if (!entry) return;
+
+        entry.typeLabel = d.type || entry.typeLabel;
+        entry.formatLabel = d.type === 'PDF'
+          ? `${d.pagesCount || 0} str. (${d.pagesFormats || ''})`
+          : (d.format || '—');
+        entry.dimensionsLabel = d.dimensions || '—';
+        entry.pricePerPageLabel = d.pricePerPage || '—';
+        entry.pagesCount = d.pagesCount || 0;
+
+        // Zaktualizuj wymiary z dimsCsv (pierwsza strona)
+        if (d.dimsCsv && d.dimsCsv.includes('x')) {
+          const dims = d.dimsCsv.split(',')[0].trim().split('x');
+          const widthMm = parseFloat(dims[0]);
+          const heightMm = parseFloat(dims[1]);
+          if (widthMm > 0 && heightMm > 0) {
+            entry.wMm = widthMm;
+            entry.hMm = heightMm;
+          }
+        }
+      });
       
       // KUMULUJ: PUSH do globalnego array zamiast nadpisywać!
       wszystkieWyniki = wszystkieWyniki.concat(result.details);
@@ -1095,7 +1210,9 @@ export function init() {
       if (safePowEl?.checked)  multiplier += 0.5;
       const emailAddon = safeEmailEl?.checked ? 1 : 0;
 
-      const skanTotal  = updateSkan();
+      const skanInfo   = updateSkan();
+      const skanTotal  = skanInfo.total;
+      const skanCmTotal = skanInfo.cm;
       const skladTotal = updateSkladanie();
 
       const rows = files.map(f => {
@@ -1126,8 +1243,7 @@ export function init() {
             html += `<tr><td>📐 Składanie</td><td>—</td><td>${fmtPLN(skladTotal)}</td><td>—</td><td>${fmtPLN(skladTotal)}</td></tr>`;
           }
           if (skanTotal > 0) {
-            const cm = parseFloat(document.getElementById('skanCm')?.value || 0);
-            html += `<tr><td>🖨 Skan (${cm} cm)</td><td>—</td><td>—</td><td>${fmtPLN(skanTotal)}</td><td>${fmtPLN(skanTotal)}</td></tr>`;
+            html += `<tr><td>🖨 Skan (${skanCmTotal} cm)</td><td>—</td><td>—</td><td>${fmtPLN(skanTotal)}</td><td>${fmtPLN(skanTotal)}</td></tr>`;
           }
           if (emailAddon > 0) {
             html += `<tr><td>📧 Email</td><td>—</td><td>—</td><td>—</td><td>1,00 zł</td></tr>`;
