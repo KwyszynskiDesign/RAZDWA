@@ -5,25 +5,44 @@ import { drukCad } from '../prices.js';
 
 console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
 
-// ─── FAKTYCZNY CENNIK CAD WIELKOFORMATOWE (WEKTOR kolor 80g/m2) ──────────────
+// ─── FAKTYCZNY CENNIK CAD WIELKOFORMATOWE (KOLOR + CZARNO-BIAŁY) ────────────────
 const CAD_CENNIK = {
-  // FORMATOWE: Ceny za jeden arkusz/stronę – zł za sztukę
+  // FORMATOWE: Ceny za jeden arkusz/stronę – zł za sztukę (KOLOR + B/W)
   formatowe: {
-    'A3': 5.30,     // 297×420mm
-    'A2': 8.50,     // 420×594mm
-    'A1': 12.00,    // 594×841mm
-    'A0': 24.00,    // 841×1189mm
-    'A0+': 26.00    // 914×1292mm
+    kolor: {
+      'A3': 5.30,     // 297×420mm
+      'A2': 8.50,     // 420×594mm
+      'A1': 12.00,    // 594×841mm
+      'A0': 24.00,    // 841×1189mm
+      'A0+': 26.00    // 914×1292mm
+    },
+    bw: {
+      'A3': 2.50,     // 297×420mm czarno-biały
+      'A2': 4.00,     // 420×594mm czarno-biały
+      'A1': 6.00,     // 594×841mm czarno-biały
+      'A0': 11.00,    // 841×1189mm czarno-biały
+      'A0+': 12.50    // 914×1292mm czarno-biały (rolka 1067)
+    }
   },
   
-  // NIEFORMATOWE: Ceny za metr bieżący roli – zł/mb dla każdej szerokości
+  // NIEFORMATOWE: Ceny za metr bieżący roli – zł/mb dla każdej szerokości (KOLOR + B/W)
   nieformatowe_mb: {
-    'A3': 12.00,    // 297mm szerokość rolki
-    'A2': 13.90,    // 420mm szerokość rolki
-    'A1': 14.50,    // 594mm szerokość rolki
-    'A0': 20.00,    // 841mm szerokość rolki
-    'A0+': 21.00,   // 914mm szerokość rolki
-    '1067': 30.00   // 1067mm szerokość rolki
+    kolor: {
+      'A3': 12.00,    // 297mm szerokość rolki
+      'A2': 13.90,    // 420mm szerokość rolki
+      'A1': 14.50,    // 594mm szerokość rolki
+      'A0': 20.00,    // 841mm szerokość rolki
+      'A0+': 21.00,   // 914mm szerokość rolki
+      '1067': 30.00   // 1067mm szerokość rolki
+    },
+    bw: {
+      'A3': 3.50,     // 297mm szerokość rolki czarno-biały
+      'A2': 4.50,     // 420mm szerokość rolki czarno-biały
+      'A1': 5.00,     // 594mm szerokość rolki czarno-biały
+      'A0': 9.00,     // 841mm szerokość rolki czarno-biały
+      'A0+': 10.00,   // 914mm szerokość rolki czarno-biały
+      '1067': 12.50   // 1067mm szerokość rolki czarno-biały
+    }
   },
   
   // Mapowanie format → szerokość rolki (do obliczania metrowych)
@@ -71,6 +90,7 @@ const CAD_FORMATS = ['A3', 'A2', 'A1', 'A0', 'A0+'];
 /**
  * ✅ GŁÓWNA FUNKCJA OBLICZANIA CENY CAD
  * Rozróżnia: FORMATOWE (cena stała) vs NIEFORMATOWE (metrowy)
+ * Obsługuje: KOLOR i CZARNO-BIAŁY
  * 
  * @param {string} format - format (A3, A2, A1, A0, A0+)
  * @param {number} dlugosc_mm - długość w mm (jeśli różna od base length)
@@ -78,30 +98,34 @@ const CAD_FORMATS = ['A3', 'A2', 'A1', 'A0', 'A0+'];
  * @returns {object} { cena: number, typ: 'formatowe'|'nieformatowe', wyjasnenie: string }
  */
 function calculateCadCennik(format, dlugosc_mm, strony = 1) {
-  if (!format || !CAD_CENNIK.formatowe[format]) {
+  if (!format || !CAD_CENNIK.formatowe.kolor[format]) {
     console.warn(`⚠️ Nieznany format: ${format}`);
     return { cena: 0, typ: 'unknown', wyjasnenie: 'Nieznany format' };
   }
 
+  // Wybierz tryb druku (KOLOR lub B/W)
+  const modeKey = PRINT_MODE === 'color' ? 'kolor' : 'bw';
   const baseLength = CAD_CENNIK.baseLengthMm[format];
   const isFormatowy = Math.abs(dlugosc_mm - baseLength) <= TOLERANCE_MM;
 
-  let cena, wyjasnenie;
+  let cena, wyjasnienie;
 
   if (isFormatowy) {
     // FORMATOWE: cena stała za arkusz
-    const cenaNetto = CAD_CENNIK.formatowe[format];
+    const cenaNetto = CAD_CENNIK.formatowe[modeKey][format];
     cena = cenaNetto * strony;
-    wyjasnenie = `Formatowe ${format} = ${cenaNetto}zł × ${strony}str`;
-    console.log(`💲 FORMATOWE: ${format} (${dlugosc_mm}mm ≈ ${baseLength}mm base) × ${strony}str = ${cena.toFixed(2)}zł`);
+    const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
+    wyjasnienie = `Formatowe ${format} ${modeLabel} = ${cenaNetto}zł × ${strony}str`;
+    console.log(`💲 FORMATOWE: ${format} (${dlugosc_mm}mm ≈ ${baseLength}mm base) ${modeLabel} × ${strony}str = ${cena.toFixed(2)}zł`);
   } else {
     // NIEFORMATOWE: cena za metr bieżący
     const szerokosc = WIDTHS[format];
-    const cenaMb = CAD_CENNIK.nieformatowe_mb[format];
+    const cenaMb = CAD_CENNIK.nieformatowe_mb[modeKey][format];
     const metryBiezace = dlugosc_mm / 1000;
     cena = (cenaMb * metryBiezace * strony).toFixed(2);
-    wyjasnenie = `Nieformatowe ${format} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
-    console.log(`📐 NIEFORMATOWE: ${format} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}m × ${cenaMb}zł/mb × ${strony}str = ${cena}zł`);
+    const modeLabel = PRINT_MODE === 'color' ? 'kolor' : 'cz-b';
+    wyjasnienie = `Nieformatowe ${format} ${modeLabel} ${dlugosc_mm}mm = ${metryBiezace.toFixed(3)}mb × ${cenaMb}zł/mb × ${strony}str`;
+    console.log(`📐 NIEFORMATOWE: ${format} ${dlugosc_mm}mm ${modeLabel} = ${metryBiezace.toFixed(3)}m × ${cenaMb}zł/mb × ${strony}str = ${cena}zł`);
   }
 
   return {
