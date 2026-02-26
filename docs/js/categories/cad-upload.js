@@ -552,8 +552,13 @@ export function init() {
   const vatToggleEl = document.getElementById('vatToggle');
 
   // Note: printMode/vatToggle disabled – using direct CAD prices now
-  if (printModeEl) printModeEl.style.display = 'none';
-  if (vatToggleEl) vatToggleEl.closest('label')?.style.display = 'none';
+  if (printModeEl) {
+    printModeEl.style.display = 'none';
+  }
+  if (vatToggleEl) {
+    const label = vatToggleEl.closest('label');
+    if (label) label.style.display = 'none';
+  }
   
   const optZapEl    = document.getElementById('optZapelnienie');
   const optPowEl    = document.getElementById('optPowieksz');
