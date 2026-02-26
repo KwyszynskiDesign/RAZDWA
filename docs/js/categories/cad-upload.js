@@ -23,11 +23,14 @@ function getPricesFromCadFile(mode = 'bw') {
     const price = drukCad.formatowe?.[mode]?.[fmt];
     if (price != null) result[fmt] = price;
   });
+  console.log(`💰 CAD prices (${mode}):`, result);
   return result;
 }
 
+// Załaduj ceny z drukCad (domyślnie bw)
 const cenyCad = getPricesFromCadFile('bw');
-console.log('CAD ceny:', cenyCad);
+console.log('🔧 CAD ceny załadowane:', cenyCad);
+console.log('📊 drukCad.formatowe:', drukCad.formatowe);
 
 let _nextId = 1;
 
@@ -287,6 +290,7 @@ export function calculateCadPrice(format, strony = 1, vat = true, mode = 'bw') {
   const base = map[format] ?? map.A4 ?? 0;
   const netto = base * strony;
   const brutto = vat ? netto * 1.23 : netto;
+  console.log(`💲 CAD: ${format} × ${strony} = ${base} × ${strony} = ${netto.toFixed(2)} zł (netto), ${brutto.toFixed(2)} zł (brutto)`);
   return brutto.toFixed(2);
 }
 
@@ -296,6 +300,7 @@ export function calculateCadPrice(format, strony = 1, vat = true, mode = 'bw') {
 export function calculateCadPriceByDims(widthMm, heightMm, mode = 'bw', qty = 1, vat = true) {
   const netto = obliczPlik({ wMm: widthMm, hMm: heightMm, qty }, mode);
   const brutto = vat ? netto * 1.23 : netto;
+  console.log(`📐 CAD dims: ${widthMm}x${heightMm}mm, mode=${mode}, netto=${netto.toFixed(2)}, brutto=${brutto.toFixed(2)}`);
   return brutto.toFixed(2);
 }
 
@@ -392,6 +397,7 @@ export async function analyzeAllFiles(fileEntries) {
 
   for (const file of fileEntries) {
     const fileName = file.name.toLowerCase();
+    console.log(`  📄 Processing: ${file.name} (${fileName})`);
     
     if (fileName.endsWith('.pdf')) {
       // Analyze PDF multi-page
@@ -414,7 +420,9 @@ export async function analyzeAllFiles(fileEntries) {
           pricePerPage: pagesPrices,
           price: pdfData.totalPrice
         });
-        console.log(`  ✅ PDF: ${pdfData.totalPrice.toFixed(2)} zł (${pdfData.pages.length} pages)`);
+        console.log(`  ✅ PDF: ${pdfData.totalPrice.toFixed(2)} zł (${pdfData.pages.length} pages), DETAILS PUSHED`);
+      } else {
+        console.warn(`  ⚠️ PDF has no pages: ${file.name}`);
       }
     } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
       // Single image file
@@ -433,14 +441,17 @@ export async function analyzeAllFiles(fileEntries) {
           pricePerPage: `${calculateCadPriceByDims(dims.widthMm, dims.heightMm, 'color', 1, true)} zł`,
           price: price
         });
-        console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format})`);
+        console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format}), DETAILS PUSHED`);
       } catch (err) {
-        console.warn(`  ⚠️ Could not read image: ${file.name}`);
+        console.warn(`  ⚠️ Could not read image: ${file.name}`, err);
       }
+    } else {
+      console.warn(`  ⚠️ Unsupported file type: ${file.name}`);
     }
   }
 
   console.log(`✅ Total: ${total.toFixed(2)} zł (${details.length} files)`);
+  console.log('📋 FINAL DETAILS:', details);
   return { total, details, count: details.length };
 }
 
@@ -484,8 +495,12 @@ export function renderResultsTable(details, total) {
     return;
   }
 
+  console.log(`🎨 RENDER TABLE: ${details.length} entries, total ${total.toFixed(2)}`);
+  console.log('📋 Details:', details);
+
   if (details.length === 0) {
     container.style.display = 'none';
+    console.warn('⚠️ No details to render, hiding table');
     return;
   }
 
@@ -495,6 +510,8 @@ export function renderResultsTable(details, total) {
       ? `${d.pagesCount} str. (${d.pagesFormats})`
       : d.format;
     const pricePerPage = d.pricePerPage || '-';
+    
+    console.log(`  📝 Row: ${d.file} | ${formatOrPages} | ${d.dimensions} | ${pricePerPage}`);
     
     return `
       <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-dims="${escHtml(d.dimsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
@@ -724,12 +741,16 @@ export function init() {
    * Handles PDF multi-page + single images
    */
   async function analyzeAndRenderResults(fileList) {
-    if (!fileList || fileList.length === 0) return;
+    if (!fileList || fileList.length === 0) {
+      console.warn('⚠️ Empty file list');
+      return;
+    }
     
     console.log(`🔄 Analyzing ${fileList.length} dropped files for results table...`);
     
     try {
       const result = await analyzeAllFiles(Array.from(fileList));
+      console.log(`📊 Analysis complete: ${result.details.length} items, total ${result.total.toFixed(2)} zł`);
       renderResultsTable(result.details, result.total);
     } catch (err) {
       console.error('❌ Failed to analyze files:', err);
