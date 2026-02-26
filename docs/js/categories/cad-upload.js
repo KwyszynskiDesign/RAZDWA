@@ -943,10 +943,11 @@ export function init() {
   }
 
   // ── Główna kalkulacja ─────────────────────────────────────────────────────
-     * ✅ Przelicz wszystkie wyniki z nowym trybem druku (kolor/B&W)
-     * Używane przy zmianie trybu printMode
-     */
-    function recalculateAllResults() {
+  /**
+   * ✅ Przelicz wszystkie wyniki z nowym trybem druku (kolor/B&W)
+   * Używane przy zmianie trybu printMode
+   */
+  function recalculateAllResults() {
       if (wszystkieWyniki.length === 0) return;
     
       console.log(`🔄 Recalculating ${wszystkieWyniki.length} results with mode: ${PRINT_MODE}`);
