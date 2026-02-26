@@ -32,6 +32,10 @@ const cenyCad = getPricesFromCadFile('bw');
 console.log('🔧 CAD ceny załadowane:', cenyCad);
 console.log('📊 drukCad.formatowe:', drukCad.formatowe);
 
+// ─── GLOBAL STATE: KUMULACJA WYNIKÓW ─────────────────────────────────────────
+let wszystkieWyniki = [];  // KUMULUJ wszystkie analizy PDF/obrazów
+console.log('📦 Globalny array wyników inicjalizowany');
+
 let _nextId = 1;
 
 function escHtml(str) {
@@ -495,7 +499,7 @@ export function renderResultsTable(details, total) {
     return;
   }
 
-  console.log(`🎨 RENDER TABLE: ${details.length} entries, total ${total.toFixed(2)}`);
+  console.log(`🎨 RENDER TABLE: ${details.length} entries (CUMULATIVE), total ${total.toFixed(2)}`);
   console.log('📋 Details:', details);
 
   if (details.length === 0) {
@@ -504,14 +508,14 @@ export function renderResultsTable(details, total) {
     return;
   }
 
-  // Render table rows
-  tbody.innerHTML = details.map(d => {
+  // Render table rows – WSZYSTKIE elementy z array
+  tbody.innerHTML = details.map((d, idx) => {
     const formatOrPages = d.type === 'PDF'
       ? `${d.pagesCount} str. (${d.pagesFormats})`
       : d.format;
     const pricePerPage = d.pricePerPage || '-';
     
-    console.log(`  📝 Row: ${d.file} | ${formatOrPages} | ${d.dimensions} | ${pricePerPage}`);
+    console.log(`  📝 Row ${idx}: ${d.file} | ${formatOrPages} | ${d.dimensions} | ${pricePerPage}`);
     
     return `
       <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-dims="${escHtml(d.dimsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
@@ -534,7 +538,7 @@ export function renderResultsTable(details, total) {
 
   updatePrices();
 
-  console.log(`✅ Results table rendered: ${details.length} entries, total ${fmtPLN(total)}`);
+  console.log(`✅ Results table rendered: ${details.length} ALL entries, total ${fmtPLN(total)}`);
 }
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
@@ -591,6 +595,13 @@ export function init() {
   document.getElementById('clearBtn')?.addEventListener('click', () => {
     files = [];
     renderFileList();
+    
+    // RESET: Wyczyść również globalny array wyników
+    wszystkieWyniki = [];
+    console.log('🗑️ Wszystkie wyniki wyczyszczone, table hidden');
+    
+    const container = document.getElementById('results-container');
+    if (container) container.style.display = 'none';
   });
 
   przeliczBtn?.addEventListener('click', () => recalculateAll());
@@ -737,8 +748,9 @@ export function init() {
   // ── Główna kalkulacja ─────────────────────────────────────────────────────
   
   /**
-   * NEW: Analyze dropped files and render results table
+   * NEW: Analyze dropped files and render results table (CUMULATIVE)
    * Handles PDF multi-page + single images
+   * IMPORTANT: KUMULUJE do wszystkieWyniki (nie nadpisuje!)
    */
   async function analyzeAndRenderResults(fileList) {
     if (!fileList || fileList.length === 0) {
@@ -747,11 +759,20 @@ export function init() {
     }
     
     console.log(`🔄 Analyzing ${fileList.length} dropped files for results table...`);
+    console.log(`📦 BEFORE: wszystkieWyniki.length = ${wszystkieWyniki.length}`);
     
     try {
       const result = await analyzeAllFiles(Array.from(fileList));
-      console.log(`📊 Analysis complete: ${result.details.length} items, total ${result.total.toFixed(2)} zł`);
-      renderResultsTable(result.details, result.total);
+      console.log(`📊 Analysis complete: ${result.details.length} new items`);
+      
+      // KUMULUJ: PUSH do globalnego array zamiast nadpisywać!
+      wszystkieWyniki = wszystkieWyniki.concat(result.details);
+      console.log(`📦 AFTER: wszystkieWyniki.length = ${wszystkieWyniki.length}`);
+      console.log(`📋 ALL RESULTS SO FAR:`, wszystkieWyniki);
+      
+      // Renderuj WSZYSTKIE wyniki (nie tylko nowe!)
+      const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
+      renderResultsTable(wszystkieWyniki, totalAll);
     } catch (err) {
       console.error('❌ Failed to analyze files:', err);
     }
