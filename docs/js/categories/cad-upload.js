@@ -659,15 +659,16 @@ export async function detectImageDimensions(file) {
 export function renderResultsTable(details, total) {
   const container = document.getElementById('results-container');
   const tbody = document.getElementById('results-body');
-  const totalPriceEl = document.getElementById('results-total-price');
+  const totalColorEl = document.getElementById('results-total-color');
+  const totalBwEl = document.getElementById('results-total-bw');
   const totalLiveEl = document.getElementById('results-total-live');
 
-  if (!container || !tbody || !totalPriceEl) {
+  if (!container || !tbody || !totalColorEl || !totalBwEl) {
     console.warn('⚠️ Results table elements not found');
     return;
   }
 
-  console.log(`🎨 RENDER TABLE: ${details.length} entries (CUMULATIVE), total ${total.toFixed(2)}`);
+  console.log(`🎨 RENDER TABLE: ${details.length} entries (CUMULATIVE)`);
   console.log('📋 Details:', details);
 
   if (details.length === 0) {
@@ -713,16 +714,54 @@ export function renderResultsTable(details, total) {
     `;
   }).join('');
 
-  // Update total
-  totalPriceEl.textContent = fmtPLN(total);
+  // Oblicz obie sumy jednocześnie - KOLOR i CZARNO-BIAŁE
+  let totalColor = 0;
+  let totalBw = 0;
+  
+  details.forEach(d => {
+    const fileEntry = files.find(f => f.name === d.file);
+    const scanPrice = fileEntry?.scanCm ? fileEntry.scanCm * SCAN_PER_CM : 0;
+    
+    // Oblicz cenę dla koloru i B&W na podstawie wymiarów
+    if (d.dimsCsv && d.dimsCsv.includes('x')) {
+      const dims = d.dimsCsv.split(',')[0].trim().split('x');
+      const widthMm = parseFloat(dims[0]);
+      const heightMm = parseFloat(dims[1]);
+      
+      if (widthMm > 0 && heightMm > 0) {
+        const pricingColor = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'color');
+        const pricingBw = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'bw');
+        
+        totalColor += pricingColor.cena + scanPrice;
+        totalBw += pricingBw.cena + scanPrice;
+      } else {
+        // Fallback - użyj aktualnej ceny z d.price
+        totalColor += d.price + scanPrice;
+        totalBw += d.price + scanPrice;
+      }
+    } else {
+      // Fallback - użyj aktualnej ceny z d.price
+      totalColor += d.price + scanPrice;
+      totalBw += d.price + scanPrice;
+    }
+  });
+
+  // Wyświetl obie sumy
+  totalColorEl.textContent = fmtPLN(totalColor);
+  totalBwEl.textContent = fmtPLN(totalBw);
+  
   if (totalLiveEl) {
-    totalLiveEl.textContent = `Suma całkowita: ${fmtPLN(total)}`;
+    totalLiveEl.innerHTML = `
+      <div><strong>🎨 KOLOR:</strong> ${fmtPLN(totalColor)}</div>
+      <div><strong>⚫ CZARNO-BIAŁE:</strong> ${fmtPLN(totalBw)}</div>
+    `;
   }
   container.style.display = '';
 
   updatePrices();
 
-  console.log(`✅ Results table rendered: ${details.length} ALL entries, total ${fmtPLN(total)}`);
+  console.log(`✅ Results table rendered: ${details.length} ALL entries`);
+  console.log(`   💰 KOLOR: ${fmtPLN(totalColor)} | B&W: ${fmtPLN(totalBw)}`);
 }
 
 // ─── MODULE-LEVEL DOM REFS (accessible to nested functions) ──────────────────
@@ -752,20 +791,10 @@ export function init() {
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
 
-  // ✅ ENABLE printMode – use full CAD system with COLOR/BW selection!
+  // ✅ DEPRECATED: printMode jest teraz ukryty - pokazujemy obie ceny jednocześnie
   if (printModeEl) {
-    printModeEl.style.display = '';  // SHOW (was hidden)
-    printModeEl.addEventListener('change', (e) => {
-      const newMode = e.target.value || 'bw';
-      setPrintMode(newMode);
-      console.log(`🎨 Zmiana trybu druku na: ${newMode}`);
-      renderFileList();   // ✅ Odśwież listę plików z nowymi cenami
-        recalculateAllResults();  // ✅ Przelicz tabelę wyników (dolna tabela)
-      recalculateAll();   // Przelicz tabelę podsumowania
-    });
-    // Inicjalizuj z aktualnym PRINT_MODE
-    printModeEl.value = PRINT_MODE;
-    console.log(`✅ Print mode selector enabled: ${PRINT_MODE}`);
+    printModeEl.style.display = 'none';  // HIDE
+    console.log('⚠️ Print mode selector is deprecated - showing both prices simultaneously');
   }
   
   // HIDE vatToggle – not needed anymore
@@ -867,13 +896,31 @@ export function init() {
             fileEntry.scanExpl = '';
           }
           
-          // Przelicz całkowitą sumę i odśwież tabelę
-          const totalAll = wszystkieWyniki.reduce((sum, d) => {
+          // Przelicz obie sumy (kolor + B&W) i odśwież tabelę
+          let totalColor = 0;
+          let totalBw = 0;
+          
+          wszystkieWyniki.forEach(d => {
             const fe = files.find(f => f.name === d.file);
             const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
-            return sum + d.price + scanPrice;
-          }, 0);
-          renderResultsTable(wszystkieWyniki, totalAll);
+            
+            // Oblicz cenę dla koloru i B&W
+            if (d.dimsCsv && d.dimsCsv.includes('x')) {
+              const dims = d.dimsCsv.split(',')[0].trim().split('x');
+              const widthMm = parseFloat(dims[0]);
+              const heightMm = parseFloat(dims[1]);
+              
+              if (widthMm > 0 && heightMm > 0) {
+                const pricingColor = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'color');
+                const pricingBw = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'bw');
+                
+                totalColor += pricingColor.cena + scanPrice;
+                totalBw += pricingBw.cena + scanPrice;
+              }
+            }
+          });
+          
+          renderResultsTable(wszystkieWyniki, totalColor); // total jest ignorowany, ale zachowujemy sygnaturę
           renderObliczen(wszystkieWyniki);
         }
       }
@@ -960,18 +1007,12 @@ export function init() {
       console.log(`📦 Pozostało wyników: ${wszystkieWyniki.length}`);
     }
     
-    // Przelicz i odśwież tabele
-    const totalAll = wszystkieWyniki.reduce((sum, d) => {
-      const fe = files.find(f => f.name === d.file);
-      const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
-      return sum + d.price + scanPrice;
-    }, 0);
-    
+    // renderResultsTable() obliczy obie sumy automatycznie
     if (wszystkieWyniki.length === 0) {
       const container = document.getElementById('results-container');
       if (container) container.style.display = 'none';
     } else {
-      renderResultsTable(wszystkieWyniki, totalAll);
+      renderResultsTable(wszystkieWyniki, 0); // total jest obliczany w funkcji
     }
     
     renderObliczen(wszystkieWyniki);
@@ -1050,16 +1091,11 @@ export function init() {
         return w;
       });
     
-      // Renderuj WSZYSTKIE tabele z nowymi cenami
-      const totalAll = wszystkieWyniki.reduce((sum, d) => {
-        const fe = files.find(f => f.name === d.file);
-        const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
-        return sum + d.price + scanPrice;
-      }, 0);
-      renderResultsTable(wszystkieWyniki, totalAll);
+      // Renderuj WSZYSTKIE tabele z nowymi cenami (funkcja obliczy obie sumy)
+      renderResultsTable(wszystkieWyniki, 0);
       renderObliczen(wszystkieWyniki);
     
-      console.log(`✅ Recalculated: total ${totalAll.toFixed(2)}zł`);
+      console.log(`✅ Recalculated: showing both COLOR and B&W prices`);
     }
   
     /**
@@ -1114,13 +1150,8 @@ export function init() {
       console.log(`📦 AFTER: wszystkieWyniki.length = ${wszystkieWyniki.length}`);
       console.log(`📋 ALL RESULTS SO FAR:`, wszystkieWyniki);
       
-      // Renderuj WSZYSTKIE wyniki (nie tylko nowe!)
-      const totalAll = wszystkieWyniki.reduce((sum, d) => {
-        const fe = files.find(f => f.name === d.file);
-        const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
-        return sum + d.price + scanPrice;
-      }, 0);
-      renderResultsTable(wszystkieWyniki, totalAll);
+      // Renderuj WSZYSTKIE wyniki (nie tylko nowe!) - funkcja obliczy obie sumy
+      renderResultsTable(wszystkieWyniki, 0);
       
       // ✅ Renderuj ekran obliczeń!
       console.log('📊 Rendering calculation screen...');

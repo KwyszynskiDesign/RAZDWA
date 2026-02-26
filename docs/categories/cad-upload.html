@@ -389,9 +389,13 @@
       </thead>
       <tbody id="results-body"></tbody>
       <tfoot>
-        <tr>
-          <td colspan="8"><strong>RAZEM (PDF + pliki)</strong></td>
-          <td id="results-total-price">0,00 zł</td>
+        <tr style="background:#fff3e0;">
+          <td colspan="8"><strong>🎨 RAZEM KOLOR</strong></td>
+          <td id="results-total-color">0,00 zł</td>
+        </tr>
+        <tr style="background:#f5f5f5;">
+          <td colspan="8"><strong>⚫ RAZEM CZARNO-BIAŁE</strong></td>
+          <td id="results-total-bw">0,00 zł</td>
         </tr>
       </tfoot>
     </table>
@@ -408,7 +412,7 @@
 
   <!-- Tabela podsumowania -->
   <div class="results-controls" aria-label="Ustawienia wyceny">
-    <label>Tryb:
+    <label style="display:none;">Tryb:
       <select id="printMode">
         <option value="color">Kolor</option>
         <option value="bw">Cz/b</option>
