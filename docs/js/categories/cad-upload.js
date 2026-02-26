@@ -923,6 +923,7 @@ export function init() {
   /**
    * ✅ RENDER CALCULATION EXPLANATION SCREEN
    * Shows how each price is calculated (formatowe vs nieformatowy/metrowy)
+   * Displayed next to main table using CSS Grid
    * @param {Array} wyniki - calculation results from wszystkieWyniki
    */
   function renderObliczen(wyniki) {
@@ -935,42 +936,48 @@ export function init() {
     }
 
     if (!wyniki || wyniki.length === 0) {
-      ekranObliczen.style.display = 'none';
-      console.log('📊 No results to display, hiding calculation screen');
+      lista.innerHTML = '<div style="color:#999;">Brak danych</div>';
+      console.log('📊 No results to display');
       return;
     }
 
-    ekranObliczen.style.display = '';
-    console.log(`📊 Rendering ${wyniki.length} calculations`);
+    console.log(`📊 Rendering ${wyniki.length} calculations explanation`);
 
     // Render each calculation with detailed explanation
     let html = wyniki.map((w, idx) => {
       const cenaCalkkowita = fmtPLN(w.price);
       
-      // Use detailed pricing explanation from calculateCadCennik
+      // Use detailed pricing explanation
       const obliczenie = w.pricePerPage || 'Brak wyceny';
+      
+      // Extract pricing type (formatowe vs nieformatowe)
+      const isPricing = w.pricing || {};
+      const typ = isPricing.typ || 'unknown';
+      const icon = typ === 'formatowe' ? '📋' : typ === 'nieformatowe' ? '📐' : '❓';
 
-      console.log(`  📝 Calc ${idx + 1}: ${w.file} → ${obliczenie} = ${cenaCalkkowita}`);
+      console.log(`  📝 Calc ${idx + 1}: ${w.file} [${typ}] → ${obliczenie} = ${cenaCalkkowita}`);
 
       return `
-        <div class="obliczenie-row">
-          <strong>${escHtml(w.file)}:</strong> 
-          ${escHtml(obliczenie)}
-          <span style="float:right; font-weight:bold; color:#007bff;">${cenaCalkkowita}</span>
+        <div class="obliczenie-item">
+          <strong>${icon} ${escHtml(w.file)}</strong>
+          <div class="obliczenie-text">${escHtml(obliczenie)}</div>
+          <div class="obliczenie-cena">${cenaCalkkowita}</div>
         </div>
       `;
     }).join('');
 
-    // Add total
+    // Add total summary
     const suma = wyniki.reduce((s, w) => s + (w.price || 0), 0);
     html += `
-      <div style="font-size:16px; color:#28a745; margin-top:15px; padding-top:15px; border-top:2px solid #e0e0e0; font-weight:bold;">
-        💰 Łącznie: <span style="float:right;">${fmtPLN(suma)}</span>
+      <div style="margin-top:12px; padding-top:12px; border-top:2px solid #d0e8ff;">
+        <div style="font-size:14px; color:#28a745; font-weight:bold; text-align:right;">
+          💰 Razem: ${fmtPLN(suma)}
+        </div>
       </div>
     `;
 
     lista.innerHTML = html;
-    console.log(`✅ Calculations rendered: ${wyniki.length} items, total: ${fmtPLN(suma)}`);
+    console.log(`✅ Explanations rendered: ${wyniki.length} items, total: ${fmtPLN(suma)}`);
   }
 
   function recalculateAll() {
