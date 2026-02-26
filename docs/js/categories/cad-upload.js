@@ -738,7 +738,7 @@ export function renderResultsTable(details, total) {
     return;
   }
 
-  // Render table rows – WSZYSTKIE elementy z array (z kolumnami X, MB, Skan)
+  // Render table rows – WSZYSTKIE elementy z array (z kolumnami X, MB, Skan, Składanie)
   tbody.innerHTML = details.map((d, idx) => {
     const formatOrPages = d.type === 'PDF'
       ? `${d.pagesCount} str. (${d.pagesFormats})`
@@ -749,10 +749,18 @@ export function renderResultsTable(details, total) {
     const fileEntry = files.find(f => f.name === d.file);
     const fileSizeMB = fileEntry?.sizeMB || d.sizeMB || '-';
     const fileId = fileEntry?.id || d.id || idx;
+    
+    // Skanowanie
     const scanChecked = fileEntry?.scanCm ? 'checked' : '';
     const scanCm = fileEntry?.scanCm || 0;
     const scanPrice = scanCm * SCAN_PER_CM;
-    const totalWithScan = d.price + scanPrice;
+    
+    // Składanie
+    const skladChecked = fileEntry?.skladanieQty ? 'checked' : '';
+    const skladFormat = d.format || 'nieformat';
+    const skladPrice = (fileEntry?.skladanieQty || 0) * (SKLAD_CENY[skladFormat] || SKLAD_CENY['nieformat']);
+    
+    const totalWithExtras = d.price + scanPrice + skladPrice;
     
     console.log(`  📝 Row ${idx}: ${d.file} | ${formatOrPages} | ${d.dimensions} | ${pricePerPage}`);
     
@@ -765,23 +773,28 @@ export function renderResultsTable(details, total) {
         <td>
           <input type="checkbox" class="cad-scan-check" data-scanid="${fileId}" data-filename="${escHtml(d.file)}" ${scanChecked} />
         </td>
+        <td>
+          <input type="checkbox" class="cad-sklad-check" data-skladid="${fileId}" data-filename="${escHtml(d.file)}" data-format="${skladFormat}" ${skladChecked} />
+        </td>
         <td><strong>${escHtml(d.file)}</strong></td>
         <td>${d.type}</td>
         <td>${formatOrPages}</td>
         <td>${d.dimensions || '-'}</td>
         <td data-price-cell>${pricePerPage}</td>
-        <td data-total-cell style="text-align:right;"><strong>${fmtPLN(totalWithScan)}</strong></td>
+        <td data-total-cell style="text-align:right;"><strong>${fmtPLN(totalWithExtras)}</strong></td>
       </tr>
     `;
   }).join('');
 
-  // Oblicz obie sumy jednocześnie - KOLOR i CZARNO-BIAŁE
+  // Oblicz obie sumy jednocześnie - KOLOR i CZARNO-BIAŁE (+ skanowanie + składanie)
   let totalColor = 0;
   let totalBw = 0;
   
   details.forEach(d => {
     const fileEntry = files.find(f => f.name === d.file);
     const scanPrice = fileEntry?.scanCm ? fileEntry.scanCm * SCAN_PER_CM : 0;
+    const skladFormat = d.format || 'nieformat';
+    const skladPrice = (fileEntry?.skladanieQty || 0) * (SKLAD_CENY[skladFormat] || SKLAD_CENY['nieformat']);
     
     // Oblicz cenę dla koloru i B&W na podstawie wymiarów
     if (d.dimsCsv && d.dimsCsv.includes('x')) {
@@ -793,17 +806,17 @@ export function renderResultsTable(details, total) {
         const pricingColor = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'color');
         const pricingBw = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'bw');
         
-        totalColor += pricingColor.cena + scanPrice;
-        totalBw += pricingBw.cena + scanPrice;
+        totalColor += pricingColor.cena + scanPrice + skladPrice;
+        totalBw += pricingBw.cena + scanPrice + skladPrice;
       } else {
         // Fallback - użyj aktualnej ceny z d.price
-        totalColor += d.price + scanPrice;
-        totalBw += d.price + scanPrice;
+        totalColor += d.price + scanPrice + skladPrice;
+        totalBw += d.price + scanPrice + skladPrice;
       }
     } else {
       // Fallback - użyj aktualnej ceny z d.price
-      totalColor += d.price + scanPrice;
-      totalBw += d.price + scanPrice;
+      totalColor += d.price + scanPrice + skladPrice;
+      totalBw += d.price + scanPrice + skladPrice;
     }
   });
 
@@ -963,6 +976,8 @@ export function init() {
           wszystkieWyniki.forEach(d => {
             const fe = files.find(f => f.name === d.file);
             const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+            const skladFormat = d.format || 'nieformat';
+            const skladPrice = (fe?.skladanieQty || 0) * (SKLAD_CENY[skladFormat] || SKLAD_CENY['nieformat']);
             
             // Oblicz cenę dla koloru i B&W
             if (d.dimsCsv && d.dimsCsv.includes('x')) {
@@ -974,8 +989,61 @@ export function init() {
                 const pricingColor = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'color');
                 const pricingBw = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'bw');
                 
-                totalColor += pricingColor.cena + scanPrice;
-                totalBw += pricingBw.cena + scanPrice;
+                totalColor += pricingColor.cena + scanPrice + skladPrice;
+                totalBw += pricingBw.cena + scanPrice + skladPrice;
+              }
+            }
+          });
+          
+          renderResultsTable(wszystkieWyniki, totalColor); // total jest ignorowany, ale zachowujemy sygnaturę
+          renderObliczen(wszystkieWyniki);
+        }
+      }
+      
+      // Per-row składanie checkbox
+      if (el.classList.contains('cad-sklad-check')) {
+        const fileId = el.dataset.skladid;
+        const fileName = el.dataset.filename;
+        const format = el.dataset.format || 'nieformat';
+        const fileEntry = files.find(f => String(f.id) === String(fileId) || f.name === fileName);
+        
+        if (fileEntry) {
+          if (el.checked) {
+            // Algorytm składania: 1 składanie × cena formatu
+            const pagesCount = fileEntry.pagesCount || 1;
+            fileEntry.skladanieQty = pagesCount;
+            const cena = SKLAD_CENY[format] || SKLAD_CENY['nieformat'];
+            fileEntry.skladPrice = pagesCount * cena;
+            fileEntry.skladExpl = `Składanie ${format}: ${pagesCount} × ${fmtPLN(cena)} = ${fmtPLN(fileEntry.skladPrice)}`;
+            console.log(`📐 Składanie ${fileEntry.name}: ${fileEntry.skladExpl}`);
+          } else if (!el.checked) {
+            fileEntry.skladanieQty = 0;
+            fileEntry.skladPrice = 0;
+            fileEntry.skladExpl = '';
+          }
+          
+          // Przelicz obie sumy (kolor + B&W) i odśwież tabelę
+          let totalColor = 0;
+          let totalBw = 0;
+          
+          wszystkieWyniki.forEach(d => {
+            const fe = files.find(f => f.name === d.file);
+            const scanPrice = fe?.scanCm ? fe.scanCm * SCAN_PER_CM : 0;
+            const skladFormat = d.format || 'nieformat';
+            const skladPrice = (fe?.skladanieQty || 0) * (SKLAD_CENY[skladFormat] || SKLAD_CENY['nieformat']);
+            
+            // Oblicz cenę dla koloru i B&W
+            if (d.dimsCsv && d.dimsCsv.includes('x')) {
+              const dims = d.dimsCsv.split(',')[0].trim().split('x');
+              const widthMm = parseFloat(dims[0]);
+              const heightMm = parseFloat(dims[1]);
+              
+              if (widthMm > 0 && heightMm > 0) {
+                const pricingColor = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'color');
+                const pricingBw = calculateCadByDims(widthMm, heightMm, d.pagesCount || 1, 'bw');
+                
+                totalColor += pricingColor.cena + scanPrice + skladPrice;
+                totalBw += pricingBw.cena + scanPrice + skladPrice;
               }
             }
           });
