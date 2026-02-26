@@ -729,6 +729,7 @@ export function init() {
       setPrintMode(newMode);
       console.log(`🎨 Zmiana trybu druku na: ${newMode}`);
       renderFileList();   // ✅ Odśwież listę plików z nowymi cenami
+        recalculateAllResults();  // ✅ Przelicz tabelę wyników (dolna tabela)
       recalculateAll();   // Przelicz tabelę podsumowania
     });
     // Inicjalizuj z aktualnym PRINT_MODE
@@ -818,6 +819,8 @@ export function init() {
         const v = parseInt(el.value, 10);
         if (isNaN(v) || v < 1) { el.value = entry.qty; return; }
         entry.qty = Math.min(999, v);
+        // ✅ Odśwież wyświetlanie ceny po zmianie qty
+        renderFileList();
       } else if (el.classList.contains('sklad-qty')) {
         const entry = byId(el.dataset.skladid);
         if (entry) entry.skladanieQty = Math.max(0, parseInt(el.value, 10) || 0);
@@ -940,6 +943,44 @@ export function init() {
   }
 
   // ── Główna kalkulacja ─────────────────────────────────────────────────────
+     * ✅ Przelicz wszystkie wyniki z nowym trybem druku (kolor/B&W)
+     * Używane przy zmianie trybu printMode
+     */
+    function recalculateAllResults() {
+      if (wszystkieWyniki.length === 0) return;
+    
+      console.log(`🔄 Recalculating ${wszystkieWyniki.length} results with mode: ${PRINT_MODE}`);
+    
+      // Przelicz każdy wynik z nowym trybem
+      wszystkieWyniki = wszystkieWyniki.map(w => {
+        // Pobierz wymiary z dimsCsv (format: "297x420")
+        if (w.dimsCsv && w.dimsCsv.includes('x')) {
+          const dims = w.dimsCsv.split(',')[0].trim().split('x');
+          const widthMm = parseFloat(dims[0]);
+          const heightMm = parseFloat(dims[1]);
+        
+          if (widthMm > 0 && heightMm > 0) {
+            const pricing = calculateCadByDims(widthMm, heightMm, 1, PRINT_MODE);
+            return {
+              ...w,
+              price: pricing.cena,
+              pricePerPage: pricing.wyjasnenie,
+              pricing: pricing
+            };
+          }
+        }
+        return w;
+      });
+    
+      // Renderuj WSZYSTKIE tabele z nowymi cenami
+      const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
+      renderResultsTable(wszystkieWyniki, totalAll);
+      renderObliczen(wszystkieWyniki);
+    
+      console.log(`✅ Recalculated: total ${totalAll.toFixed(2)}zł`);
+    }
+  
+    /**
   
   /**
    * NEW: Analyze dropped files and render results table (CUMULATIVE)
