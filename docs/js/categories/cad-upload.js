@@ -227,29 +227,39 @@ function debounce(fn, ms) {
 }
 
 // ─── WYKRYWANIE FORMATU ──────────────────────────────────────────────────────
-/** Wykryj format z tolerancją ±15mm. A3: 297±15 × 420±15 = 282-312 × 405-435mm. */
+/** 
+ * Wykryj format z tolerancją ±15mm. 
+ * NOWA LOGIKA: Jeśli którykolwiek bok (krótszy LUB dłuższy) pasuje do standardowej szerokości,
+ * przypisz format na podstawie tego boku (np. 297×212 → A3, bo ma bok 297mm)
+ */
 function detectFormat(wMm, hMm) {
   const short = Math.min(wMm, hMm);
   const long = Math.max(wMm, hMm);
   const TOLERANCE = 15;
 
-  // A3: 297×420 ±15mm → 282-312 × 405-435mm (mapuj 597×842 na A3!)
+  // Najpierw próbuj dokładne dopasowanie (oba wymiary pasują)
   if (Math.abs(short - 297) <= TOLERANCE && Math.abs(long - 420) <= TOLERANCE) return 'A3';
-  // A2: 420×594 ±15mm
   if (Math.abs(short - 420) <= TOLERANCE && Math.abs(long - 594) <= TOLERANCE) return 'A2';
-  // A1: 594×841 ±15mm
   if (Math.abs(short - 594) <= TOLERANCE && Math.abs(long - 841) <= TOLERANCE) return 'A1';
-  // A0: 841×1189 ±15mm
   if (Math.abs(short - 841) <= TOLERANCE && Math.abs(long - 1189) <= TOLERANCE) return 'A0';
-  // A0+: 914×1292 ±15mm
   if (Math.abs(short - 914) <= TOLERANCE && Math.abs(long - 1292) <= TOLERANCE) return 'A0+';
 
+  // NOWE: Jeśli którykolwiek bok pasuje do standardowej szerokości, użyj tego formatu
+  // (np. 297×212mm → A3, bo ma bok 297mm)
+  if (Math.abs(wMm - 914) <= TOLERANCE || Math.abs(hMm - 914) <= TOLERANCE) return 'A0+';
+  if (Math.abs(wMm - 841) <= TOLERANCE || Math.abs(hMm - 841) <= TOLERANCE) return 'A0';
+  if (Math.abs(wMm - 594) <= TOLERANCE || Math.abs(hMm - 594) <= TOLERANCE) return 'A1';
+  if (Math.abs(wMm - 420) <= TOLERANCE || Math.abs(hMm - 420) <= TOLERANCE) return 'A2';
+  if (Math.abs(wMm - 297) <= TOLERANCE || Math.abs(hMm - 297) <= TOLERANCE) return 'A3';
+
+  // Fallback: szerokość >= próg → przypisz najbliższy format
   const shorter = Math.min(wMm, hMm);
-  if (shorter >= WIDTHS['A0+']) return 'A0+';
-  if (shorter >= WIDTHS['A0'])  return 'A0';
-  if (shorter >= WIDTHS['A1'])  return 'A1';
-  if (shorter >= WIDTHS['A2'])  return 'A2';
-  if (shorter >= WIDTHS['A3'])  return 'A3';
+  if (shorter >= WIDTHS['A0+'] - TOLERANCE) return 'A0+';
+  if (shorter >= WIDTHS['A0'] - TOLERANCE)  return 'A0';
+  if (shorter >= WIDTHS['A1'] - TOLERANCE)  return 'A1';
+  if (shorter >= WIDTHS['A2'] - TOLERANCE)  return 'A2';
+  if (shorter >= WIDTHS['A3'] - TOLERANCE)  return 'A3';
+  
   return 'nieformatowy';
 }
 
@@ -718,7 +728,8 @@ export function init() {
       const newMode = e.target.value || 'bw';
       setPrintMode(newMode);
       console.log(`🎨 Zmiana trybu druku na: ${newMode}`);
-      recalculateAll();  // Przelicz wszystkie ceny
+      renderFileList();   // ✅ Odśwież listę plików z nowymi cenami
+      recalculateAll();   // Przelicz tabelę podsumowania
     });
     // Inicjalizuj z aktualnym PRINT_MODE
     printModeEl.value = PRINT_MODE;
