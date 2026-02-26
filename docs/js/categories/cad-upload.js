@@ -3,34 +3,115 @@
 
 import { drukCad } from '../prices.js';
 
-console.log('✅ PRODUCTION READY');
+console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
 
-// ─── CENY (z prices.js – identyczne jak w druk-cad) ─────────────────────────
-const BASE_LENGTHS  = drukCad.baseLengthMm;          // { A3:420, A2:594, A1:841, A0:1189, 'A0+':1292 }
-const WIDTHS        = drukCad.widths;                 // { A3:297, A2:420, A1:594, A0:841, 'A0+':914 }
-const SKLAD_CENY    = { ...drukCad.skladanie, 'nieformat': 2.5 };
-const SCAN_PER_CM   = drukCad.skanowanie;             // 0.08 zł/cm (identycznie jak w druk-cad.js)
+// ─── PEŁNY SYSTEM CEN CAD WIELKOFORMATOWE (z prices.js) ─────────────────────
+const CAD_WIELKOFORMATOWE = {
+  // Ceny formatowe (jeden arkusz) – zł za sztukę
+  formatowe: drukCad.formatowe,           // {bw: {A3: 2.50, A2: 4.00, ...}, color: {...}}
+  
+  // Ceny nieformatowe (za metr bieżący rolki) – zł/mb
+  metrBiezacy: drukCad.metrBiezacy,       // {bw: {297: 3.50, 420: 4.50, ...}, color: {...}}
+  
+  // Bazowe długości formatów – mm
+  baseLengthMm: drukCad.baseLengthMm,     // {A3: 420, A2: 594, A1: 841, A0: 1189, 'A0+': 1292}
+  
+  // Szerokości rolek – mm
+  widths: drukCad.widths,                 // {A3: 297, A2: 420, A1: 594, A0: 841, 'A0+': 914}
+  
+  // Ceny składania – zł za operację
+  skladanie: drukCad.skladanie,           // {A3: 1.00, A2: 1.50, A1: 2.00, ...}
+  
+  // Cena skanowania – zł/cm bieżący
+  skanowanie: drukCad.skanowanie,         // 0.08
+};
+
+console.log('💰 CAD WIELKOFORMATOWE system załadowany:', CAD_WIELKOFORMATOWE);
+
+// ─── TRYB DRUKU (COLOR/BW) – domyślnie BW ─────────────────────────────────────
+let PRINT_MODE = 'bw';  // Globalny tryb druku: 'bw' lub 'color'
+
+function setPrintMode(mode) {
+  if (mode !== 'bw' && mode !== 'color') {
+    console.warn(`⚠️ Nieznany tryb: ${mode}, używam BW`);
+    mode = 'bw';
+  }
+  PRINT_MODE = mode;
+  console.log(`📋 Tryb druku zmieniony na: ${PRINT_MODE}`);
+}
+
+const BASE_LENGTHS  = CAD_WIELKOFORMATOWE.baseLengthMm;
+const WIDTHS        = CAD_WIELKOFORMATOWE.widths;
+const SKLAD_CENY    = { ...CAD_WIELKOFORMATOWE.skladanie, 'nieformat': 2.5 };
+const SCAN_PER_CM   = CAD_WIELKOFORMATOWE.skanowanie;
 const MAX_FILES_SOFT = 50;
 
-/** Tolerancja (mm) przy sprawdzaniu długości formatowej – identyczna jak w druk-cad.js */
+/** Tolerancja (mm) przy sprawdzaniu długości formatowej */
 const TOLERANCE_MM = 5;
 
 const CAD_FORMATS = ['A4', 'A3', 'A2', 'A1', 'A0', 'A0+'];
 
-function getPricesFromCadFile(mode = 'bw') {
-  const result = {};
-  CAD_FORMATS.forEach(fmt => {
-    const price = drukCad.formatowe?.[mode]?.[fmt];
-    if (price != null) result[fmt] = price;
-  });
-  console.log(`💰 CAD prices (${mode}):`, result);
-  return result;
+/**
+ * ✅ PEŁNY SYSTEM CEN CAD – oblicza cenę na podstawie formatu, trybów i liczby stron
+ * @param {string} format - format (A3, A2, A1, A0, A0+)
+ * @param {number} strony - liczba stron/arkuszy
+ * @param {string} mode - tryb ('bw' lub 'color'), jeśli undefined to PRINT_MODE
+ * @returns {string} - cena formatowana (zł)
+ */
+function calculateCadFull(format, strony = 1, mode = undefined) {
+  if (!mode) mode = PRINT_MODE;  // Use global PRINT_MODE if not specified
+  
+  const basePrice = CAD_WIELKOFORMATOWE.formatowe[mode]?.[format];
+  
+  if (basePrice === undefined) {
+    console.warn(`⚠️ Brak ceny dla ${format} (${mode})`);
+    return '0.00';
+  }
+  
+  const totalPrice = basePrice * strony;
+  console.log(`💲 CAD FULL: ${format} × ${strony}str × ${mode} = ${basePrice} × ${strony} = ${totalPrice.toFixed(2)} zł`);
+  return totalPrice.toFixed(2);
 }
 
-// Załaduj ceny z drukCad (domyślnie bw)
-const cenyCad = getPricesFromCadFile('bw');
-console.log('🔧 CAD ceny załadowane:', cenyCad);
-console.log('📊 drukCad.formatowe:', drukCad.formatowe);
+/**
+ * Oblicz cenę CAD z wymiarów – logika identyczna jak druk-cad.js
+ * @param {number} widthMm - szerokość (mm)
+ * @param {number} heightMm - wysokość (mm)
+ * @param {number} qty - ilość
+ * @param {string} mode - tryb ('bw' lub 'color'), jeśli undefined to PRINT_MODE
+ * @returns {string} - cena formatowana
+ */
+function calculateCadByDims(widthMm, heightMm, qty = 1, mode = undefined) {
+  if (!mode) mode = PRINT_MODE;  // Use global PRINT_MODE if not specified
+  
+  if (!widthMm || !heightMm || widthMm <= 0 || heightMm <= 0) return '0.00';
+  
+  const longer = Math.max(widthMm, heightMm);
+  const format = detectFormat(widthMm, heightMm);
+  
+  let unitPrice = 0;
+  
+  if (format === 'nieformatowy') {
+    // Format nierozpoznany – cena metrowa rolki A3
+    const width = WIDTHS['A3'];
+    unitPrice = (CAD_WIELKOFORMATOWE.metrBiezacy[mode]?.[width] || 0) * (longer / 1000);
+  } else {
+    const baseLen = BASE_LENGTHS[format];
+    
+    if (Math.abs(longer - baseLen) <= TOLERANCE_MM) {
+      // Format standardowy – cena formatowa
+      unitPrice = CAD_WIELKOFORMATOWE.formatowe[mode]?.[format] || 0;
+    } else {
+      // Nieformatowy – metrowy dla danej szerokości
+      const width = WIDTHS[format];
+      unitPrice = (CAD_WIELKOFORMATOWE.metrBiezacy[mode]?.[width] || 0) * (longer / 1000);
+    }
+  }
+  
+  const totalPrice = unitPrice * qty;
+  console.log(`📐 CAD BY DIMS: ${widthMm}×${heightMm}mm × ${qty} (${mode}) = ${totalPrice.toFixed(2)} zł`);
+  return totalPrice.toFixed(2);
+}
 
 // ─── GLOBAL STATE: KUMULACJA WYNIKÓW ─────────────────────────────────────────
 let wszystkieWyniki = [];  // KUMULUJ wszystkie analizy PDF/obrazów
@@ -290,19 +371,17 @@ export async function analyzePdf(file) {
  * Calculate CAD price from format – DIRECT CAD cena (no VAT split).
  */
 export function calculateCadPrice(format, strony = 1) {
-  const map = getPricesFromCadFile('bw');  // Always use BW (default CAD)
-  const base = map[format] ?? map.A4 ?? 0;
-  const cena = base * strony;
-  console.log(`💲 CAD: ${format} × ${strony}str = ${cena.toFixed(2)} zł`);
+  // Use full CAD system with current PRINT_MODE
+  const cena = parseFloat(calculateCadFull(format, strony, PRINT_MODE));
   return cena.toFixed(2);
 }
 
 /**
- * Calculate CAD price from dimensions – DIRECT CAD cena (no VAT split).
+ * Calculate CAD price from dimensions – uses full CAD WIELKOFORMATOWE system
+ * Uses current PRINT_MODE (color or bw)
  */
 export function calculateCadPriceByDims(widthMm, heightMm, qty = 1) {
-  const cena = obliczPlik({ wMm: widthMm, hMm: heightMm, qty }, 'bw');
-  console.log(`📐 CAD: ${widthMm}x${heightMm}mm × ${qty} = ${cena.toFixed(2)} zł`);
+  const cena = parseFloat(calculateCadByDims(widthMm, heightMm, qty, PRINT_MODE));
   return cena.toFixed(2);
 }
 
@@ -551,10 +630,21 @@ export function init() {
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
 
-  // Note: printMode/vatToggle disabled – using direct CAD prices now
+  // ✅ ENABLE printMode – use full CAD system with COLOR/BW selection!
   if (printModeEl) {
-    printModeEl.style.display = 'none';
+    printModeEl.style.display = '';  // SHOW (was hidden)
+    printModeEl.addEventListener('change', (e) => {
+      const newMode = e.target.value || 'bw';
+      setPrintMode(newMode);
+      console.log(`🎨 Zmiana trybu druku na: ${newMode}`);
+      recalculateAll();  // Przelicz wszystkie ceny
+    });
+    // Inicjalizuj z aktualnym PRINT_MODE
+    printModeEl.value = PRINT_MODE;
+    console.log(`✅ Print mode selector enabled: ${PRINT_MODE}`);
   }
+  
+  // HIDE vatToggle – not needed anymore
   if (vatToggleEl) {
     const label = vatToggleEl.closest('label');
     if (label) label.style.display = 'none';
@@ -923,6 +1013,7 @@ export function init() {
 
 window.updatePrices = updatePrices;
 window.exportCSV = exportCSV;
+window.setPrintMode = setPrintMode;  // ✅ Export global mode setter
 
 export function destroy() { /* no global listeners to remove */ }
 
