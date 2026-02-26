@@ -165,7 +165,17 @@ export async function analyzePdf(file) {
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjs.getDocument({data: arrayBuffer}).promise;
+    
+    console.log(`🔄 Loading PDF: ${file.name} (${(arrayBuffer.byteLength / 1024).toFixed(1)} KB)...`);
+    
+    const loadingTask = pdfjs.getDocument({
+      data: arrayBuffer,
+      verbosity: 0,
+      cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
+      cMapPacked: true
+    });
+    
+    const pdf = await loadingTask.promise;
     const pages = [];
     const maxPages = Math.min(5, pdf.numPages);
 
@@ -199,7 +209,8 @@ export async function analyzePdf(file) {
 
     return { pages, totalPrice, fileName: file.name };
   } catch (err) {
-    console.error('❌ PDF Analysis failed:', err);
+    console.error(`❌ PDF parse error (${file.name}):`, err.message || err);
+    console.error('Details:', { name: err.name, message: err.message, stack: err.stack?.split('\n').slice(0, 3).join('\n') });
     return { pages: [], totalPrice: 0, fileName: file.name };
   }
 }
