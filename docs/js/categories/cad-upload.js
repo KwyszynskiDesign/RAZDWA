@@ -339,6 +339,7 @@ function updateSkan() {
       if (f.scanExpl) scanExplanations.push(f.scanExpl);
     }
   });
+  lastScanExpl = scanExplanations;
   return { 
     total: totalCm * SCAN_PER_CM, 
     cm: totalCm,
@@ -716,6 +717,8 @@ let optEmailEl = null;
 let tableBody = null;
 let grandTotalEl = null;
 let fileCountEl = null;
+let files = []; // [{ id, name, sizeMB, qty, wMm, hMm, skladanieQty, scanCm, ... }]
+let lastScanExpl = [];
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
@@ -762,8 +765,6 @@ export function init() {
   // ✅ DOM elements for the old cad table system
   tableBody = document.querySelector('#resultsTable tbody') || document.getElementById('results-body');
   grandTotalEl = document.getElementById('results-total-live');
-
-  let files = []; // [{ id, name, sizeMB, qty, wMm, hMm, skladanieQty, blob }]
 
   // ── Drop zone ──────────────────────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
@@ -841,8 +842,23 @@ export function init() {
         return;
       }
       if (el.id === 'cadBulkScan') {
-        const v = parseFloat(el.value);
-        if (!isNaN(v) && v >= 0) files.forEach(f => { f.scanCm = Math.min(9999, v); });
+        if (el.checked) {
+          files.forEach(f => {
+            if (f.wMm > 0 && f.hMm > 0) {
+              const hosszDmm = Math.max(f.wMm, f.hMm);
+              const hosszCm = Math.round(hosszDmm / 10);
+              f.scanCm = hosszCm;
+              f.scanPrice = hosszCm * SCAN_PER_CM;
+              f.scanExpl = `Skan: ${hosszDmm}mm = ${hosszCm}cm x ${SCAN_PER_CM}zl/cm = ${fmtPLN(f.scanPrice)}`;
+            }
+          });
+        } else {
+          files.forEach(f => {
+            f.scanCm = 0;
+            f.scanPrice = 0;
+            f.scanExpl = '';
+          });
+        }
         renderFileList();
         debouncedRecalc();
         return;
@@ -985,7 +1001,7 @@ export function init() {
             <th colspan="6" style="font-weight:500;color:var(--text-secondary)">Ustawienia zbiorcze</th>
             <th><input type="number" class="cad-table-input" id="cadBulkQty" min="1" max="999" placeholder="1" /></th>
             <th><input type="number" class="cad-table-input" id="cadBulkSklad" min="0" max="999" placeholder="0" /></th>
-            <th><input type="number" class="cad-table-input" id="cadBulkScan" min="0" max="9999" placeholder="0" /></th>
+            <th style="text-align:center;"><input type="checkbox" class="cad-table-checkbox" id="cadBulkScan" /></th>
             <th></th>
           </tr>
         </thead>
@@ -998,8 +1014,11 @@ export function init() {
               : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : (f.dimensionsLabel || '—'));
             const drukPrice = obliczPlik(f, PRINT_MODE);
             // ✅ Przelicz pricePerPageLabel na podstawie aktualnego PRINT_MODE
-            const pricing = calculateCadByDims(f.wMm || 0, f.hMm || 0, 1, PRINT_MODE);
-            const pricePerPageLabel = pricing.wyjasnenie || f.pricePerPageLabel || '—';
+            let pricePerPageLabel = f.pricePerPageLabel || '—';
+            if (f.wMm > 0 && f.hMm > 0) {
+              const pricing = calculateCadByDims(f.wMm, f.hMm, 1, PRINT_MODE);
+              pricePerPageLabel = pricing.wyjasnenie || pricePerPageLabel;
+            }
             const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
             const skladPrice = (f.skladanieQty || 0) * skladUnit;
             const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
@@ -1200,6 +1219,16 @@ export function init() {
       `;
     }).join('');
 
+    // Add scan explanations if any
+    if (lastScanExpl && lastScanExpl.length > 0) {
+      html += `
+        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #d0e8ff;">
+          <div style="font-weight:600; margin-bottom:6px;">🖨 Skanowanie:</div>
+          ${lastScanExpl.map(e => `<div class="obliczenie-text">${escHtml(e)}</div>`).join('')}
+        </div>
+      `;
+    }
+
     // Add total summary
     const suma = wyniki.reduce((s, w) => s + (w.price || 0), 0);
     html += `
@@ -1274,6 +1303,11 @@ export function init() {
 
       if (safeGrandTotalEl) safeGrandTotalEl.textContent = fmtPLN(grandTotal);
       if (fileCountEl)  fileCountEl.textContent   = files.length;
+
+      // ✅ Odśwież ekran obliczeń (w tym skanowanie)
+      if (typeof renderObliczen === 'function') {
+        renderObliczen(wszystkieWyniki);
+      }
 
       dispatchPrice(grandTotal);
       console.log(`✅ recalculateAll: ${files.length} files, total ${grandTotal.toFixed(2)}zł`);
