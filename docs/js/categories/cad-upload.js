@@ -597,10 +597,20 @@ export function init() {
     
     // RESET: Wyczyść również globalny array wyników
     wszystkieWyniki = [];
-    console.log('🗑️ Wszystkie wyniki wyczyszczone, table hidden');
+    console.log('🗑️ Wszystkie wyniki wyczyszczone, OBIE tabele cleared');
     
     const container = document.getElementById('results-container');
     if (container) container.style.display = 'none';
+    
+    // ✅ SYNC: Wyczyść RÓWNIEŻ dolną tabelę
+    const dolnyTbody = document.getElementById('cadTableBody');
+    if (dolnyTbody) {
+      dolnyTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
+    }
+    const grandTotalEl = document.getElementById('grandTotal');
+    if (grandTotalEl) {
+      grandTotalEl.textContent = fmtPLN(0);
+    }
   });
 
   przeliczBtn?.addEventListener('click', () => recalculateAll());
@@ -752,6 +762,7 @@ export function init() {
    * NEW: Analyze dropped files and render results table (CUMULATIVE)
    * Handles PDF multi-page + single images
    * IMPORTANT: KUMULUJE do wszystkieWyniki (nie nadpisuje!)
+   * SYNC: Renderuje OBIE tabele (górna + dolna)
    */
   async function analyzeAndRenderResults(fileList) {
     if (!fileList || fileList.length === 0) {
@@ -774,8 +785,66 @@ export function init() {
       // Renderuj WSZYSTKIE wyniki (nie tylko nowe!)
       const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
       renderResultsTable(wszystkieWyniki, totalAll);
+      
+      // ✅ SYNC DÓŁ TABELA z góry!
+      console.log('🔗 SYNCING bottom table...');
+      renderDolnaTabela();
     } catch (err) {
       console.error('❌ Failed to analyze files:', err);
+    }
+  }
+
+  /**
+   * ✅ SYNC DÓŁ TABELA z GÓRY (wszystkieWyniki)
+   * Renderuje dolną tabelę (cadTableBody) z danymi z górnej (resultsTable)
+   * Wyświetla: Rozmiar | Format | Wymiary mm | Cena/str zł | RAZEM
+   */
+  function renderDolnaTabela() {
+    const dolnyTbody = document.getElementById('cadTableBody');
+    const grandTotalEl = document.getElementById('grandTotal');
+    
+    if (!dolnyTbody) {
+      console.warn('⚠️ cadTableBody not found');
+      return;
+    }
+
+    console.log(`📊 SYNC DÓŁ: renderujemy ${wszystkieWyniki.length} wierszy z globalneWyniki`);
+
+    if (wszystkieWyniki.length === 0) {
+      dolnyTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
+      if (grandTotalEl) grandTotalEl.textContent = fmtPLN(0);
+      return;
+    }
+
+    // Generuj wiersze z górnej tabeli
+    let html = wszystkieWyniki.map((w, idx) => {
+      const rozmiar = w.dimensions || '-';
+      const format = w.type === 'PDF' 
+        ? `${w.pagesCount} str. (${w.pagesFormats})`
+        : w.format || '-';
+      const pricePerPage = w.pricePerPage || '-';
+      const cenaCalkówita = fmtPLN(w.price);
+      
+      console.log(`  📝 Wiersz ${idx + 1}: ${w.file} | ${rozmiar} | ${format} | ${pricePerPage} | ${cenaCalkówita}`);
+      
+      return `
+        <tr>
+          <td><strong>${escHtml(w.file)}</strong><br><small style="color:var(--text-secondary)">${rozmiar}</small></td>
+          <td>${format}</td>
+          <td>${w.dimensions || '-'}</td>
+          <td>${pricePerPage}</td>
+          <td><strong>${cenaCalkówita}</strong></td>
+        </tr>
+      `;
+    }).join('');
+
+    dolnyTbody.innerHTML = html;
+
+    // PODSUMOWANIE: suma wszystkich cen
+    const suma = wszystkieWyniki.reduce((acc, w) => acc + (w.price || 0), 0);
+    if (grandTotalEl) {
+      grandTotalEl.textContent = fmtPLN(suma);
+      console.log(`✅ DÓŁ synced: ${wszystkieWyniki.length} wierszy, RAZEM: ${fmtPLN(suma)}`);
     }
   }
 
