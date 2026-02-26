@@ -146,14 +146,15 @@ function updateSkan() {
  * @returns {Promise} { pages: [{page, widthMm, heightMm, format}], totalPrice }
  */
 export async function analyzePdf(file) {
-  if (typeof pdfjsLib === 'undefined') {
-    console.warn('⚠️ PDF.js not loaded');
+  const pdfjs = window.pdfjsLib || (typeof pdfjsLib !== 'undefined' ? pdfjsLib : null);
+  if (!pdfjs) {
+    console.error('❌ PDF.js MISSING - check worker');
     return { pages: [], totalPrice: 0 };
   }
 
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
+    const pdf = await pdfjs.getDocument({data: arrayBuffer}).promise;
     const pages = [];
     const maxPages = Math.min(5, pdf.numPages);
 
