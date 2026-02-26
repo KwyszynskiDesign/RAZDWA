@@ -1,7 +1,7 @@
 // cad-upload.js – kalkulator uploadowania plików CAD z pełnym cennikiem
 // LEGACY JS (nie TypeScript) – docs/js/categories/cad-upload.js
 
-import { drukCad } from './prices.js';
+import { drukCad } from '../prices.js';
 
 console.log('✅ PRODUCTION READY');
 
@@ -14,6 +14,20 @@ const MAX_FILES_SOFT = 50;
 
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej – identyczna jak w druk-cad.js */
 const TOLERANCE_MM = 5;
+
+const CAD_FORMATS = ['A4', 'A3', 'A2', 'A1', 'A0', 'A0+'];
+
+function getPricesFromCadFile(mode = 'bw') {
+  const result = {};
+  CAD_FORMATS.forEach(fmt => {
+    const price = drukCad.formatowe?.[mode]?.[fmt];
+    if (price != null) result[fmt] = price;
+  });
+  return result;
+}
+
+const cenyCad = getPricesFromCadFile('bw');
+console.log('CAD ceny:', cenyCad);
 
 let _nextId = 1;
 
@@ -35,8 +49,23 @@ function debounce(fn, ms) {
 }
 
 // ─── WYKRYWANIE FORMATU ──────────────────────────────────────────────────────
-/** Wykryj format po KRÓTSZYM boku (szerokość rolki), identycznie jak w druk-cad. */
+/** Wykryj format z tolerancją ±15mm. A3: 297±15 × 420±15 = 282-312 × 405-435mm. */
 function detectFormat(wMm, hMm) {
+  const short = Math.min(wMm, hMm);
+  const long = Math.max(wMm, hMm);
+  const TOLERANCE = 15;
+
+  // A3: 297×420 ±15mm → 282-312 × 405-435mm (mapuj 597×842 na A3!)
+  if (Math.abs(short - 297) <= TOLERANCE && Math.abs(long - 420) <= TOLERANCE) return 'A3';
+  // A2: 420×594 ±15mm
+  if (Math.abs(short - 420) <= TOLERANCE && Math.abs(long - 594) <= TOLERANCE) return 'A2';
+  // A1: 594×841 ±15mm
+  if (Math.abs(short - 594) <= TOLERANCE && Math.abs(long - 841) <= TOLERANCE) return 'A1';
+  // A0: 841×1189 ±15mm
+  if (Math.abs(short - 841) <= TOLERANCE && Math.abs(long - 1189) <= TOLERANCE) return 'A0';
+  // A0+: 914×1292 ±15mm
+  if (Math.abs(short - 914) <= TOLERANCE && Math.abs(long - 1292) <= TOLERANCE) return 'A0+';
+
   const shorter = Math.min(wMm, hMm);
   if (shorter >= WIDTHS['A0+']) return 'A0+';
   if (shorter >= WIDTHS['A0'])  return 'A0';
@@ -57,12 +86,12 @@ function classifyFormat(widthMm, heightMm) {
   console.log(`Input: ${widthMm}x${heightMm}mm → Short:${short} Long:${long}`);
 
   let result;
-  // A-FORMATY z tolerancją ±15mm
-  if (inRange(short, 210, 297)) result = classifyA4(long);
-  else if (inRange(short, 297, 420)) result = classifyA3(long);
-  else if (inRange(short, 420, 594)) result = classifyA2(long);
-  else if (inRange(short, 594, 841)) result = classifyA1(long);
-  else if (inRange(short, 841, 1189)) result = classifyA0(long);
+  // A-FORMATY z tolerancją ±15mm (dokładne mapowanie wymiarów)
+  if (Math.abs(short - 210) <= CLASSIFY_TOLERANCE_MM && Math.abs(long - 297) <= CLASSIFY_TOLERANCE_MM) result = 'A4';
+  else if (Math.abs(short - 297) <= CLASSIFY_TOLERANCE_MM && Math.abs(long - 420) <= CLASSIFY_TOLERANCE_MM) result = 'A3';
+  else if (Math.abs(short - 420) <= CLASSIFY_TOLERANCE_MM && Math.abs(long - 594) <= CLASSIFY_TOLERANCE_MM) result = 'A2';
+  else if (Math.abs(short - 594) <= CLASSIFY_TOLERANCE_MM && Math.abs(long - 841) <= CLASSIFY_TOLERANCE_MM) result = 'A1';
+  else if (Math.abs(short - 841) <= CLASSIFY_TOLERANCE_MM && Math.abs(long - 1189) <= CLASSIFY_TOLERANCE_MM) result = 'A0';
   else result = classifyA0Plus(short, long);
 
   console.log('✅ PRODUCTION FORMAT READY');
@@ -237,7 +266,7 @@ export async function analyzePdf(file) {
     }
 
     // Calculate total price
-    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculatePagePrice(p.format, 'color')), 0);
+    const totalPrice = pages.reduce((sum, p) => sum + parseFloat(calculateCadPriceByDims(p.widthMm, p.heightMm, 'color', 1, true)), 0);
     
     console.log(`✅ Total PDF price: ${totalPrice.toFixed(2)} zł`);
     console.groupEnd();
@@ -251,17 +280,23 @@ export async function analyzePdf(file) {
 }
 
 /**
- * Calculate price for single format (using drukCad prices)
- * @param {string} format - e.g., 'A4', 'A3', 'nieformatowy'
- * @param {string} mode - 'bw' or 'color'
- * @returns {number} price
+ * Calculate CAD price from format (fallback when no dimensions available).
  */
-export function calculatePagePrice(format, mode = 'color', qty = 1, vat = true) {
-  const priceTable = drukCad.prices[format] || drukCad.prices.Custom;
-  const unit = priceTable?.[mode] ?? priceTable?.color ?? 2.5;
-  let price = unit * qty;
-  if (vat) price *= 1.23;
-  return price.toFixed(2);
+export function calculateCadPrice(format, strony = 1, vat = true, mode = 'bw') {
+  const map = getPricesFromCadFile(mode);
+  const base = map[format] ?? map.A4 ?? 0;
+  const netto = base * strony;
+  const brutto = vat ? netto * 1.23 : netto;
+  return brutto.toFixed(2);
+}
+
+/**
+ * Calculate CAD price from dimensions using CAD logic.
+ */
+export function calculateCadPriceByDims(widthMm, heightMm, mode = 'bw', qty = 1, vat = true) {
+  const netto = obliczPlik({ wMm: widthMm, hMm: heightMm, qty }, mode);
+  const brutto = vat ? netto * 1.23 : netto;
+  return brutto.toFixed(2);
 }
 
 export function updatePrices() {
@@ -278,6 +313,7 @@ export function updatePrices() {
   let total = 0;
 
   document.querySelectorAll('tr.data-row').forEach(row => {
+    const dimsCsv = row.dataset.dims;
     const formatsCsv = row.dataset.formats;
     const format = row.dataset.format;
     const priceCell = row.querySelector('[data-price-cell]');
@@ -286,13 +322,21 @@ export function updatePrices() {
     let rowTotal = 0;
     let pricePerPageText = '-';
 
-    if (formatsCsv) {
+    if (dimsCsv) {
+      const dims = dimsCsv.split(',').map(d => d.trim()).filter(Boolean);
+      const prices = dims.map(d => {
+        const [w, h] = d.split('x').map(v => parseFloat(v));
+        return calculateCadPriceByDims(w, h, mode, 1, vat);
+      });
+      pricePerPageText = prices.map(p => `${p} zł`).join(', ');
+      rowTotal = prices.reduce((sum, p) => sum + parseFloat(p), 0);
+    } else if (formatsCsv) {
       const formats = formatsCsv.split(',').map(f => f.trim()).filter(Boolean);
-      const prices = formats.map(f => calculatePagePrice(f, mode, 1, vat));
+      const prices = formats.map(f => calculateCadPrice(f, 1, vat, mode));
       pricePerPageText = prices.map(p => `${p} zł`).join(', ');
       rowTotal = prices.reduce((sum, p) => sum + parseFloat(p), 0);
     } else if (format) {
-      const price = calculatePagePrice(format, mode, 1, vat);
+      const price = calculateCadPrice(format, 1, vat, mode);
       pricePerPageText = `${price} zł`;
       rowTotal = parseFloat(price);
     }
@@ -356,7 +400,8 @@ export async function analyzeAllFiles(fileEntries) {
         total += pdfData.totalPrice;
         const pagesInfo = pdfData.pages.map(p => `${p.format}`).join(', ');
         const pagesSizes = pdfData.pages.map(p => p.mm).join(', ');
-        const pagesPrices = pdfData.pages.map(p => `${calculatePagePrice(p.format, 'color')} zł`).join(', ');
+        const pagesDimsCsv = pdfData.pages.map(p => `${p.widthMm}x${p.heightMm}`).join(', ');
+        const pagesPrices = pdfData.pages.map(p => `${calculateCadPriceByDims(p.widthMm, p.heightMm, 'color', 1, true)} zł`).join(', ');
         details.push({
           idx: fileIdx++,
           file: file.name,
@@ -364,6 +409,7 @@ export async function analyzeAllFiles(fileEntries) {
           pagesCount: pdfData.pages.length,
           pagesFormats: pagesInfo,
           dimensions: pagesSizes,
+          dimsCsv: pagesDimsCsv,
           formatsCsv: pdfData.pages.map(p => p.format).join(', '),
           pricePerPage: pagesPrices,
           price: pdfData.totalPrice
@@ -375,7 +421,7 @@ export async function analyzeAllFiles(fileEntries) {
       try {
         const dims = await detectImageDimensions(file);
         const format = detectFormat(dims.widthMm, dims.heightMm);
-        const price = parseFloat(calculatePagePrice(format, 'color'));
+        const price = parseFloat(calculateCadPriceByDims(dims.widthMm, dims.heightMm, 'color', 1, true));
         total += price;
         details.push({
           idx: fileIdx++,
@@ -383,7 +429,8 @@ export async function analyzeAllFiles(fileEntries) {
           type: 'Image',
           format: format,
           dimensions: `${dims.widthMm}x${dims.heightMm}mm`,
-          pricePerPage: `${calculatePagePrice(format, 'color')} zł`,
+          dimsCsv: `${dims.widthMm}x${dims.heightMm}`,
+          pricePerPage: `${calculateCadPriceByDims(dims.widthMm, dims.heightMm, 'color', 1, true)} zł`,
           price: price
         });
         console.log(`  ✅ Image: ${price.toFixed(2)} zł (${format})`);
@@ -450,7 +497,7 @@ export function renderResultsTable(details, total) {
     const pricePerPage = d.pricePerPage || '-';
     
     return `
-      <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
+      <tr class="data-row" data-format="${escHtml(d.format || '')}" data-formats="${escHtml(d.formatsCsv || '')}" data-dims="${escHtml(d.dimsCsv || '')}" data-file="${escHtml(d.file)}" data-size="${escHtml(d.dimensions || '')}">
         <td><strong>${escHtml(d.file)}</strong></td>
         <td>${d.type}</td>
         <td>${formatOrPages}</td>
