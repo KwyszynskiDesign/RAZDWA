@@ -12,6 +12,17 @@
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="assets/styles.css">
+  
+  <!-- PDF.js for CAD Upload (global, loaded once) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    if (typeof pdfjsLib !== 'undefined') {
+      pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.min.js';
+      window.pdfjsLib = pdfjsLib;
+      console.log('✅ PDF.js + LOCAL WORKER LOADED (global)');
+    }
+  </script>
+  
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
