@@ -827,20 +827,6 @@ export function init() {
       const byId = id => files.find(f => String(f.id) === id);
 
       // Bulk inputs
-      if (el.id === 'cadBulkQty') {
-        const v = parseInt(el.value, 10);
-        if (!isNaN(v) && v > 0) files.forEach(f => { f.qty = Math.min(999, v); });
-        renderFileList();
-        debouncedRecalc();
-        return;
-      }
-      if (el.id === 'cadBulkSklad') {
-        const v = parseInt(el.value, 10);
-        if (!isNaN(v) && v >= 0) files.forEach(f => { f.skladanieQty = Math.min(999, v); });
-        renderFileList();
-        debouncedRecalc();
-        return;
-      }
       if (el.id === 'cadBulkScan') {
         if (el.checked) {
           files.forEach(f => {
@@ -865,17 +851,7 @@ export function init() {
       }
 
       // Per-row inputs
-      if (el.classList.contains('cad-qty-input') && el.dataset.qtyid) {
-        const entry = byId(el.dataset.qtyid);
-        if (!entry) return;
-        const v = parseInt(el.value, 10);
-        if (isNaN(v) || v < 1) { el.value = entry.qty; return; }
-        entry.qty = Math.min(999, v);
-        renderFileList();
-      } else if (el.classList.contains('sklad-qty')) {
-        const entry = byId(el.dataset.skladid);
-        if (entry) entry.skladanieQty = Math.max(0, parseInt(el.value, 10) || 0);
-      } else if (el.classList.contains('cad-scan-check')) {
+      if (el.classList.contains('cad-scan-check')) {
         const entry = byId(el.dataset.scanid);
         if (entry) {
           if (el.checked && entry.wMm > 0 && entry.hMm > 0) {
@@ -985,24 +961,21 @@ export function init() {
         <thead>
           <tr>
             <th></th>
-            <th>Plik</th>
             <th>MB</th>
+            <th>Skan</th>
+            <th>Plik</th>
             <th>Typ</th>
             <th>Format / Strony</th>
-            <th>Rozmiar</th>
-            <th>Cena/str.</th>
-            <th>Kopie</th>
-            <th>Składanie</th>
-            <th>Skan (cm)</th>
-            <th>Razem</th>
+            <th>Rozmiar mm</th>
+            <th>Cena/str zł</th>
+            <th>Cena</th>
           </tr>
           <tr>
             <th></th>
-            <th colspan="6" style="font-weight:500;color:var(--text-secondary)">Ustawienia zbiorcze</th>
-            <th><input type="number" class="cad-table-input" id="cadBulkQty" min="1" max="999" placeholder="1" /></th>
-            <th><input type="number" class="cad-table-input" id="cadBulkSklad" min="0" max="999" placeholder="0" /></th>
-            <th style="text-align:center;"><input type="checkbox" class="cad-table-checkbox" id="cadBulkScan" /></th>
+            <th colspan="5" style="font-weight:500;color:var(--text-secondary)">Ustawienia zbiorcze</th>
             <th></th>
+            <th></th>
+            <th style="text-align:center;"><input type="checkbox" class="cad-table-checkbox" id="cadBulkScan" /></th>
           </tr>
         </thead>
         <tbody>
@@ -1013,38 +986,30 @@ export function init() {
               ? `${f.wMm}×${f.hMm} mm`
               : (f.blob?.type?.startsWith('image/') ? '⏳ wykrywanie…' : (f.dimensionsLabel || '—'));
             const drukPrice = obliczPlik(f, PRINT_MODE);
+            const basePrice = typeof f.totalPrice === 'number' && f.totalPrice > 0 ? f.totalPrice : drukPrice;
             // ✅ Przelicz pricePerPageLabel na podstawie aktualnego PRINT_MODE
             let pricePerPageLabel = f.pricePerPageLabel || '—';
             if (f.wMm > 0 && f.hMm > 0) {
               const pricing = calculateCadByDims(f.wMm, f.hMm, 1, PRINT_MODE);
               pricePerPageLabel = pricing.wyjasnenie || pricePerPageLabel;
             }
-            const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
-            const skladPrice = (f.skladanieQty || 0) * skladUnit;
             const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
-            const rowTotal = drukPrice + skladPrice + scanPrice;
+            const rowTotal = basePrice + scanPrice;
             const rowTotalLabel = rowTotal > 0 ? fmtPLN(rowTotal) : '—';
             return `
               <tr class="cad-file-row" data-fileid="${f.id}">
                 <td>
                   <button class="cad-delete-x" data-delete="${f.id}" aria-label="Usuń ${escHtml(f.name)}" title="Usuń plik">✕</button>
                 </td>
-                <td title="${escHtml(f.name)}">${escHtml(f.name)}</td>
                 <td>${f.sizeMB} MB</td>
+                <td>
+                  <input type="checkbox" class="cad-scan-check" data-scanid="${f.id}" ${f.scanCm ? 'checked' : ''} />
+                </td>
+                <td title="${escHtml(f.name)}">${escHtml(f.name)}</td>
                 <td>${escHtml(f.typeLabel || '—')}</td>
                 <td>${escHtml(f.formatLabel || fmt || '—')}</td>
                 <td>${escHtml(dimsLabel)}</td>
                 <td>${escHtml(pricePerPageLabel)}</td>
-                <td>
-                  <input type="number" class="cad-qty-input cad-table-input" data-qtyid="${f.id}" value="${f.qty}" min="1" max="999" />
-                </td>
-                <td>
-                  <input type="number" class="sklad-qty cad-table-input" data-skladid="${f.id}" data-format="${escHtml(skladFmt)}"
-                         value="${f.skladanieQty}" min="0" max="999" />
-                </td>
-                <td>
-                  <input type="checkbox" class="cad-scan-check" data-scanid="${f.id}" ${f.scanCm ? 'checked' : ''} />
-                </td>
                 <td><strong>${rowTotalLabel}</strong></td>
               </tr>
             `;
@@ -1054,14 +1019,13 @@ export function init() {
           <tr>
             <td colspan="2"><strong>Podsumowanie</strong></td>
             <td colspan="2">${totalSizeMb.toFixed(2)} MB</td>
-            <td colspan="6" style="text-align:right;"><strong>Razem:</strong></td>
+            <td colspan="4" style="text-align:right;"><strong>Razem:</strong></td>
             <td><strong>${fmtPLN(files.reduce((s, f) => {
-              const fmt = (f.wMm > 0 && f.hMm > 0) ? detectFormat(f.wMm, f.hMm) : '';
-              const skladFmt = (!fmt || fmt === 'nieformatowy') ? 'nieformat' : fmt;
-              const skladUnit = SKLAD_CENY[skladFmt] !== undefined ? SKLAD_CENY[skladFmt] : SKLAD_CENY['nieformat'];
-              const skladPrice = (f.skladanieQty || 0) * skladUnit;
+              const basePrice = typeof f.totalPrice === 'number' && f.totalPrice > 0
+                ? f.totalPrice
+                : obliczPlik(f, PRINT_MODE);
               const scanPrice = (f.scanCm || 0) * SCAN_PER_CM;
-              return s + obliczPlik(f, PRINT_MODE) + skladPrice + scanPrice;
+              return s + basePrice + scanPrice;
             }, 0))}</strong></td>
           </tr>
         </tfoot>
@@ -1143,6 +1107,7 @@ export function init() {
         entry.dimensionsLabel = d.dimensions || '—';
         entry.pricePerPageLabel = d.pricePerPage || '—';
         entry.pagesCount = d.pagesCount || 0;
+        entry.totalPrice = d.price || 0;
 
         // Zaktualizuj wymiary z dimsCsv (pierwsza strona)
         if (d.dimsCsv && d.dimsCsv.includes('x')) {

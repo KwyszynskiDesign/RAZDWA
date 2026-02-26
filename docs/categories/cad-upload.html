@@ -371,31 +371,6 @@
     ⚠️ Dodano ponad 50 plików – sprawdź listę przed wyceną.
   </div>
 
-  <div id="cadFileList" aria-live="polite" aria-label="Lista dodanych plików"></div>
-
-  <!-- Skanowanie wielkoformatowe -->
-  <div class="cad-scan-row cad-options">
-    <label for="skanCm">🖨 Skanowanie wielkoformatowe (cm):</label>
-    <input type="number" id="skanCm" min="0" step="0.1" placeholder="0"
-           aria-label="Długość skanowania w cm" />
-    <small style="color:var(--text-secondary)">× 0,08 zł/cm</small>
-  </div>
-
-  <!-- Tabela podsumowania -->
-  <div class="results-controls" aria-label="Ustawienia wyceny">
-    <label>Tryb:
-      <select id="printMode">
-        <option value="color">Kolor</option>
-        <option value="bw">Cz/b</option>
-      </select>
-    </label>
-    <label>VAT 23%:
-      <input type="checkbox" id="vatToggle" checked>
-    </label>
-    <button type="button" onclick="updatePrices()">Odśwież ceny</button>
-    <button type="button" onclick="exportCSV()">Eksport CSV</button>
-  </div>
-  
   <!-- ✅ GŁÓWNY EKRAN: Tabela + Ekran obliczeń (CSS Grid) -->
   <div id="results-container" class="results-table-container" style="display:none;">
     <div class="main-calc-layout">
@@ -429,6 +404,31 @@
         <div id="obliczeniaLista"></div>
       </div>
     </div>
+  </div>
+
+  <div id="cadFileList" aria-live="polite" aria-label="Lista dodanych plików"></div>
+
+  <!-- Skanowanie wielkoformatowe -->
+  <div class="cad-scan-row cad-options">
+    <label for="skanCm">🖨 Skanowanie wielkoformatowe (cm):</label>
+    <input type="number" id="skanCm" min="0" step="0.1" placeholder="0"
+           aria-label="Długość skanowania w cm" />
+    <small style="color:var(--text-secondary)">× 0,08 zł/cm</small>
+  </div>
+
+  <!-- Tabela podsumowania -->
+  <div class="results-controls" aria-label="Ustawienia wyceny">
+    <label>Tryb:
+      <select id="printMode">
+        <option value="color">Kolor</option>
+        <option value="bw">Cz/b</option>
+      </select>
+    </label>
+    <label>VAT 23%:
+      <input type="checkbox" id="vatToggle" checked>
+    </label>
+    <button type="button" onclick="updatePrices()">Odśwież ceny</button>
+    <button type="button" onclick="exportCSV()">Eksport CSV</button>
   </div>
 
   <!-- CSS Grid Layout -->
