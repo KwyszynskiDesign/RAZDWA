@@ -195,6 +195,7 @@ function calculateCadFull(format, strony = 1, mode = 'bw') {
 /**
  * Oblicz cenę CAD z wymiarów – używa nowego systemu cennikowego
  * LOGIKA: Jeden bok = szerokość (identyfikuje format), drugi bok = długość do obliczenia
+ * KLASYFIKACJA: Zaciąg do najmniejszej wystarczającej rolki na podstawie szerokości
  * @param {number} widthMm - szerokość (mm)
  * @param {number} heightMm - wysokość (mm)
  * @param {number} qty - ilość stron/arkuszy
@@ -207,70 +208,58 @@ function calculateCadByDims(widthMm, heightMm, qty = 1, mode = 'bw') {
   }
   
   const TOLERANCE = 15;
+  const standardWidths = [297, 420, 594, 841, 914, 1067];
+  const formatMap = { 297: 'A3', 420: 'A2', 594: 'A1', 841: 'A0', 914: 'A0+', 1067: 'A0+' }; // 1067 też A0+ ale inna cena
   
-  // Zidentyfikuj format na podstawie pasującego boku
-  // Standardowe szerokości: 297, 420, 594, 841, 914 (1067)
-  let format = null;
-  let usableLength = null;  // Drugi bok do obliczenia
-  let fixedWidth = null;    // Bok który pasuje do formatu
+  // Znajdź który bok jest szerokością, która identyfikuje format
+  let workingWidth = null;
+  let workingLength = null;
   
-  // Sprawdź czy widthMm pasuje do standardowej szerokości
-  if (Math.abs(widthMm - 297) <= TOLERANCE) {
-    format = 'A3';
-    fixedWidth = 297;
-    usableLength = heightMm;
-  } else if (Math.abs(widthMm - 420) <= TOLERANCE) {
-    format = 'A2';
-    fixedWidth = 420;
-    usableLength = heightMm;
-  } else if (Math.abs(widthMm - 594) <= TOLERANCE) {
-    format = 'A1';
-    fixedWidth = 594;
-    usableLength = heightMm;
-  } else if (Math.abs(widthMm - 841) <= TOLERANCE) {
-    format = 'A0';
-    fixedWidth = 841;
-    usableLength = heightMm;
-  } else if (Math.abs(widthMm - 914) <= TOLERANCE) {
-    format = 'A0+';
-    fixedWidth = 914;
-    usableLength = heightMm;
-  }
-  // Sprawdź czy heightMm pasuje do standardowej szerokości
-  else if (Math.abs(heightMm - 297) <= TOLERANCE) {
-    format = 'A3';
-    fixedWidth = 297;
-    usableLength = widthMm;
-  } else if (Math.abs(heightMm - 420) <= TOLERANCE) {
-    format = 'A2';
-    fixedWidth = 420;
-    usableLength = widthMm;
-  } else if (Math.abs(heightMm - 594) <= TOLERANCE) {
-    format = 'A1';
-    fixedWidth = 594;
-    usableLength = widthMm;
-  } else if (Math.abs(heightMm - 841) <= TOLERANCE) {
-    format = 'A0';
-    fixedWidth = 841;
-    usableLength = widthMm;
-  } else if (Math.abs(heightMm - 914) <= TOLERANCE) {
-    format = 'A0+';
-    fixedWidth = 914;
-    usableLength = widthMm;
+  // ─── KROK 1: Spróbuj dokładne dopasowanie (+/- tolerancja) ─────────────────
+  for (let std of standardWidths) {
+    if (Math.abs(widthMm - std) <= TOLERANCE) {
+      workingWidth = std;
+      workingLength = heightMm;
+      break;
+    }
+    if (Math.abs(heightMm - std) <= TOLERANCE) {
+      workingWidth = std;
+      workingLength = widthMm;
+      break;
+    }
   }
   
-  if (!format) {
-    console.warn(`📐 Format nierozpoznany: ${widthMm}×${heightMm}mm (żaden bok nie pasuje do standardowej szerokości)`);
-    return { cena: 0, typ: 'unknown', wyjasnenie: 'Format nierozpoznany' };
+  // ─── KROK 2: Jeśli nie ma dokładnego dopasowania, zaciągnij do najmniejszej wystarczającej rolki ────
+  if (!workingWidth) {
+    // Weź mniejszy bok (to będzie szerokość papieru)
+    const candidateWidth = Math.min(widthMm, heightMm);
+    const candidateLength = Math.max(widthMm, heightMm);
+    
+    // Znajdź najmniejszą rolkę, która zmieści tę szerokość
+    for (let std of standardWidths) {
+      if (candidateWidth <= std) {
+        workingWidth = std;
+        workingLength = candidateLength;
+        break;
+      }
+    }
+    
+    if (!workingWidth) {
+      console.warn(`📐 Format zbyt szeroki: ${widthMm}×${heightMm}mm (maksymalnie 1067mm)`);
+      return { cena: 0, typ: 'error', wyjasnenie: 'Wymiar zbyt szeroki dla dostępnych rolek' };
+    }
   }
   
-  console.log(`📐 WYMIARY IDENTYFIKACJA: ${widthMm}×${heightMm}mm → Format: ${format} (fixed: ${fixedWidth}, length: ${usableLength})`);
+  // Określ format
+  const format = formatMap[workingWidth] || 'A0+';
   
-  // Oblicz cenę z użyciem ustalnej szerokości i zmiennej długości
-  const result = calculateCadCennik(format, usableLength, qty, mode);
+  console.log(`📐 WYMIARY IDENTYFIKACJA: ${widthMm}×${heightMm}mm → Wybranie rolki: ${workingWidth}mm (${format}), długość: ${workingLength}mm`);
+  
+  // Oblicz cenę z użyciem wybranej szerokości i długości
+  const result = calculateCadCennik(format, workingLength, qty, mode);
   
   // Dodaj informację diagnostyczną
-  result.dimensions = { widthMm, heightMm, fixedWidth, usableLength };
+  result.dimensions = { widthMm, heightMm, workingWidth, workingLength, format };
   
   return result;
 }
