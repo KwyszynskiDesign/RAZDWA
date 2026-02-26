@@ -298,7 +298,31 @@
     <div id="results-total-live" class="results-total-live suma">Suma całkowita: 0,00 zł</div>
   </div>
 
-  <table class="cad-table" aria-live="polite" aria-label="Podsumowanie cenowe">
+  <!-- ✅ NOWY EKRAN OBLICZEŃ – wyjaśnia jak liczone ceny -->
+  <div id="ekranObliczen" style="display:none; background:#f8f9fa; padding:20px; border-radius:8px; margin-top:16px;">
+    <h3 style="margin-top:0; color:#333;">📊 Jak liczymy Twoją wycenę:</h3>
+    <div id="obliczeniaLista" style="font-size:0.95rem;"></div>
+  </div>
+
+  <style>
+    .obliczenie-row {
+      padding: 10px 12px;
+      margin: 8px 0;
+      background: white;
+      border-left: 4px solid #007bff;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+    .obliczenie-row strong {
+      color: #333;
+      margin-right: 10px;
+    }
+  </style>
+
+  <table class="cad-table" aria-live="polite" aria-label="Podsumowanie cenowe" style="display:none;">
     <thead>
       <tr>
         <th>Rozmiar</th>
@@ -320,9 +344,6 @@
   <div class="cad-summary" id="cadSummary" style="display:none">
     <p>Liczba plików: <strong id="cadFileCount">0</strong></p>
     <p>Suma: <span class="cad-total-val" id="cadTotal">0,00 zł</span></p>
-    <div class="cad-actions">
-      <button class="btn-primary" id="cadPrzelicz">✅ Przelicz</button>
-    </div>
   </div>
 </div>
 

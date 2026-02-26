@@ -623,9 +623,7 @@ export function init() {
   const fileCountEl = document.getElementById('cadFileCount');
   const totalEl     = document.getElementById('cadTotal');
   const warningEl   = document.getElementById('cadWarning');
-  const przeliczBtn = document.getElementById('cadPrzelicz');
-  const tableBody   = document.getElementById('cadTableBody');
-  const grandTotalEl = document.getElementById('grandTotal');
+  const ekranObliczen = document.getElementById('ekranObliczen');
   const modeEl      = document.getElementById('cadMode');
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
@@ -692,18 +690,11 @@ export function init() {
     const container = document.getElementById('results-container');
     if (container) container.style.display = 'none';
     
-    // ✅ SYNC: Wyczyść RÓWNIEŻ dolną tabelę
-    const dolnyTbody = document.getElementById('cadTableBody');
-    if (dolnyTbody) {
-      dolnyTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
-    }
-    const grandTotalEl = document.getElementById('grandTotal');
-    if (grandTotalEl) {
-      grandTotalEl.textContent = fmtPLN(0);
+    // ✅ Wyczyść ekran obliczeń
+    if (ekranObliczen) {
+      ekranObliczen.style.display = 'none';
     }
   });
-
-  przeliczBtn?.addEventListener('click', () => recalculateAll());
 
   // ── Global options triggers (.cad-options) ──────────────────────────────────
   const debouncedRecalc = debounce(recalculateAll, 200);
@@ -806,8 +797,6 @@ export function init() {
     if (files.length === 0) {
       fileListEl.innerHTML = '';
       if (summaryEl)     summaryEl.style.display  = 'none';
-      if (tableBody)     tableBody.innerHTML       = '';
-      if (grandTotalEl)  grandTotalEl.textContent  = '0,00 zł';
       dispatchPrice(0);
       return;
     }
@@ -876,66 +865,74 @@ export function init() {
       const totalAll = wszystkieWyniki.reduce((sum, d) => sum + d.price, 0);
       renderResultsTable(wszystkieWyniki, totalAll);
       
-      // ✅ SYNC DÓŁ TABELA z góry!
-      console.log('🔗 SYNCING bottom table...');
-      renderDolnaTabela();
+      // ✅ Renderuj ekran obliczeń!
+      console.log('📊 Rendering calculation screen...');
+      renderObliczen(wszystkieWyniki);
     } catch (err) {
       console.error('❌ Failed to analyze files:', err);
     }
   }
 
   /**
-   * ✅ SYNC DÓŁ TABELA z GÓRY (wszystkieWyniki)
-   * Renderuje dolną tabelę (cadTableBody) z danymi z górnej (resultsTable)
-   * Wyświetla: Rozmiar | Format | Wymiary mm | Cena/str zł | RAZEM
+   * ✅ RENDER CALCULATION EXPLANATION SCREEN
+   * Shows how each price is calculated (formatowe vs nieformatowy/metrowy)
+   * @param {Array} wyniki - calculation results from wszystkieWyniki
    */
-  function renderDolnaTabela() {
-    const dolnyTbody = document.getElementById('cadTableBody');
-    const grandTotalEl = document.getElementById('grandTotal');
+  function renderObliczen(wyniki) {
+    if (!ekranObliczen) return;
     
-    if (!dolnyTbody) {
-      console.warn('⚠️ cadTableBody not found');
+    const lista = document.getElementById('obliczeniaLista');
+    if (!lista) {
+      console.warn('⚠️ obliczeniaLista not found');
       return;
     }
 
-    console.log(`📊 SYNC DÓŁ: renderujemy ${wszystkieWyniki.length} wierszy z globalneWyniki`);
-
-    if (wszystkieWyniki.length === 0) {
-      dolnyTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary)">Brak plików</td></tr>';
-      if (grandTotalEl) grandTotalEl.textContent = fmtPLN(0);
+    if (!wyniki || wyniki.length === 0) {
+      ekranObliczen.style.display = 'none';
+      console.log('📊 No results to display, hiding calculation screen');
       return;
     }
 
-    // Generuj wiersze z górnej tabeli
-    let html = wszystkieWyniki.map((w, idx) => {
-      const rozmiar = w.dimensions || '-';
-      const format = w.type === 'PDF' 
-        ? `${w.pagesCount} str. (${w.pagesFormats})`
-        : w.format || '-';
-      const pricePerPage = w.pricePerPage || '-';
-      const cenaCalkówita = fmtPLN(w.price);
-      
-      console.log(`  📝 Wiersz ${idx + 1}: ${w.file} | ${rozmiar} | ${format} | ${pricePerPage} | ${cenaCalkówita}`);
-      
+    ekranObliczen.style.display = '';
+    console.log(`📊 Rendering ${wyniki.length} calculations`);
+
+    // Render each calculation with explanation
+    let html = wyniki.map((w, idx) => {
+      const format = w.format || 'nieznany';
+      const isNieformatowy = w.format === 'nieformatowy';
+      const strony = w.type === 'PDF' ? w.pagesCount : 1;
+      const cenaCalkkowita = fmtPLN(w.price);
+
+      let obliczenie;
+      if (isNieformatowy) {
+        // Explain metrowy pricing
+        obliczenie = `NIEFORMATOWE ${w.dimensions} = ${w.pricePerPage || '?'}/mb (${strony} str)`;
+      } else {
+        // Explain formatowe pricing
+        obliczenie = `Formatowe ${format} = ${w.pricePerPage || '?'} (${strony} str)`;
+      }
+
+      console.log(`  📝 Calc ${idx + 1}: ${w.file} → ${obliczenie} = ${cenaCalkkowita}`);
+
       return `
-        <tr>
-          <td><strong>${escHtml(w.file)}</strong><br><small style="color:var(--text-secondary)">${rozmiar}</small></td>
-          <td>${format}</td>
-          <td>${w.dimensions || '-'}</td>
-          <td>${pricePerPage}</td>
-          <td><strong>${cenaCalkówita}</strong></td>
-        </tr>
+        <div class="obliczenie-row">
+          <strong>${escHtml(w.file)}:</strong> 
+          ${obliczenie}
+          <span style="float:right; font-weight:bold; color:#007bff;">${cenaCalkkowita}</span>
+        </div>
       `;
     }).join('');
 
-    dolnyTbody.innerHTML = html;
+    // Add total
+    const suma = wyniki.reduce((s, w) => s + (w.price || 0), 0);
+    html += `
+      <div style="font-size:16px; color:#28a745; margin-top:15px; padding-top:15px; border-top:2px solid #e0e0e0; font-weight:bold;">
+        💰 Łącznie: <span style="float:right;">${fmtPLN(suma)}</span>
+      </div>
+    `;
 
-    // PODSUMOWANIE: suma wszystkich cen
-    const suma = wszystkieWyniki.reduce((acc, w) => acc + (w.price || 0), 0);
-    if (grandTotalEl) {
-      grandTotalEl.textContent = fmtPLN(suma);
-      console.log(`✅ DÓŁ synced: ${wszystkieWyniki.length} wierszy, RAZEM: ${fmtPLN(suma)}`);
-    }
+    lista.innerHTML = html;
+    console.log(`✅ Calculations rendered: ${wyniki.length} items, total: ${fmtPLN(suma)}`);
   }
 
   function recalculateAll() {
