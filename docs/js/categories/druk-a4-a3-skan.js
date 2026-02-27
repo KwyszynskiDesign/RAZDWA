@@ -62,7 +62,7 @@ export function init() {
     const totalScanPrice = unitScanPrice * scanQty;
 
     const emailChecked = emailChk ? emailChk.checked : false;
-    const emailPrice = emailChecked ? (printQty * drukA4A3.email) : 0;
+    const emailPrice = emailChecked ? drukA4A3.email : 0;
 
     const total = totalPrintPrice + surchargePrice + totalScanPrice + emailPrice;
 
