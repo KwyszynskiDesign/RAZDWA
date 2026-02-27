@@ -195,6 +195,57 @@ export const laminowanie = {
   A6: [[50, 3.00], [100, 2.50], [200, 2.00]],
 };
 
+// ─── BINDOWANIE ─────────────────────────────────────────────────────────────
+export const bindowanie = {
+  plastik: {
+    // [ilość sztuk, cena dla do20, cena dla 21-100, cena dla 100+]
+    '1-50':   { do20: 7.00, '21-100': 5.00, '100+': 4.00 },
+    '51-100': { do20: 9.00, '21-100': 8.00, '100+': 7.00 },
+    '101-200': { do20: 13.00, '21-100': 12.00, '100+': 11.00 },
+  },
+  metal: {
+    // [ilość sztuk, cena dla do40, do80, do120]
+    '1-50':   { do40: 11.00, do80: 13.00, do120: 15.00 },
+    '51-100': { do40: 10.00, do80: 11.00, do120: 13.00 },
+  },
+};
+
+// ─── OPRAWY ─────────────────────────────────────────────────────────────────
+export const oprawy = {
+  grzbietowa: {
+    // A4 / A3
+    do50:  { A4: 3.50, A3: 7.00 },
+    do60:  { A4: 4.50, A3: 8.00 },
+    do90:  { A4: 5.50, A3: 9.00 },
+    do150: { A4: 7.00, A3: 14.00 },
+  },
+  introBije: {
+    base: 50.00, // od 50 zł
+    do5cm: 60.00,
+    powyżej5cm: 10.00, // za każdy cm
+  },
+  introSkracane: {
+    base: 60.00,
+    do5cm: 60.00,
+    powyżej5cm: 10.00,
+  },
+  klient: {
+    zbijane: { base: 60.00, do5cm: 60.00, powyżej5cm: 12.00 },
+    skracane: { base: 70.00, do5cm: 70.00, powyżej5cm: 12.00 },
+  },
+  kanałowa: {
+    standard: 35.00,
+    kolory: 35.00,
+    bezNapisu: 20.00,
+    wkładka: 10.00,
+  },
+  zaciskowa: {
+    thermo: 8.00,
+    miękka: 15.00,
+    skoroszyt: 7.00,
+  },
+};
+
 // ─── ROLL-UP ─────────────────────────────────────────────────────────────────
 export const rollUp = {
   full: {

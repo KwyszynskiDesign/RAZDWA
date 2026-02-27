@@ -3,35 +3,124 @@
     window.location.href = "/#/laminowanie";
   }
 </script>
-<h2>Laminowanie</h2>
-<div class="form">
-  <div class="row">
-    <label for="lam-format">Format:</label>
-    <select id="lam-format">
-      <option value="A3">A3</option>
-      <option value="A4">A4</option>
-      <option value="A5">A5</option>
-      <option value="A6">A6</option>
-    </select>
-  </div>
+<h2>Laminowanie, Bindowanie, Oprawy</h2>
 
-  <div class="row">
-    <label for="lam-qty">Ilość (szt):</label>
-    <input type="number" id="lam-qty" value="1" min="1" max="200">
-  </div>
+<!-- TABS -->
+<div style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #ddd;">
+  <button class="tab-btn active" data-tab="laminowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid #2B8A3E;">Laminowanie</button>
+  <button class="tab-btn" data-tab="bindowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Bindowanie</button>
+  <button class="tab-btn" data-tab="oprawy" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Oprawy</button>
+</div>
 
-  <div class="actions">
-    <button id="lam-calculate" class="primary">Oblicz</button>
-    <button id="lam-add-to-cart" class="success" disabled>Dodaj do listy</button>
-  </div>
-
-  <div id="lam-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-    <div style="display: flex; justify-content: space-between;">
-      <span>Cena brutto:</span>
-      <span id="lam-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+<!-- TAB: LAMINOWANIE -->
+<div class="tab-content" id="tab-laminowanie" style="display:block;">
+  <h3>Laminowanie</h3>
+  <div class="form">
+    <div class="row">
+      <label for="lam-format">Format:</label>
+      <select id="lam-format">
+        <option value="A3">A3</option>
+        <option value="A4">A4</option>
+        <option value="A5">A5</option>
+        <option value="A6">A6</option>
+      </select>
     </div>
-    <div id="lam-express-hint" style="font-size: 12px; color: #f59e0b; display: none;">
-      Zawiera dopłatę EXPRESS +20%
+
+    <div class="row">
+      <label for="lam-qty">Ilość (szt):</label>
+      <input type="number" id="lam-qty" value="1" min="1" max="200">
+    </div>
+
+    <div class="actions">
+      <button id="lam-calculate" class="btn-primary">Oblicz</button>
+      <button id="lam-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+    </div>
+
+    <div id="lam-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena brutto:</span>
+        <span id="lam-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: BINDOWANIE -->
+<div class="tab-content" id="tab-bindowanie" style="display:none;">
+  <h3>Bindowanie</h3>
+  <div class="form">
+    <div class="row">
+      <label for="bind-type">Typ bindowania:</label>
+      <select id="bind-type">
+        <option value="plastik">Plastik (listwa/spirala)</option>
+        <option value="metal">Metal (spirala)</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="bind-qty">Ilość sztuk:</label>
+      <input type="number" id="bind-qty" value="1" min="1">
+    </div>
+    <div class="row">
+      <label for="bind-pages">Ilość kartek:</label>
+      <input type="number" id="bind-pages" value="20" min="1">
+    </div>
+    <div class="actions">
+      <button id="bind-calculate" class="btn-primary">Oblicz</button>
+      <button id="bind-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+    </div>
+    <div id="bind-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena jednostkowa:</span>
+        <span id="bind-unit-price" style="font-weight: 600;">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena brutto:</span>
+        <span id="bind-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: OPRAWY -->
+<div class="tab-content" id="tab-oprawy" style="display:none;">
+  <h3>Oprawy</h3>
+  <div class="form">
+    <div class="row">
+      <label for="opr-type">Typ oprawy:</label>
+      <select id="opr-type">
+        <option value="grzbietowa">Grzbietowa (listwa wsuwana)</option>
+        <option value="kanałowa">Kanałowa dyplomowa</option>
+        <option value="zaciskowa">Zaciskowa</option>
+      </select>
+    </div>
+    <div class="row" id="opr-format-row">
+      <label for="opr-format">Format:</label>
+      <select id="opr-format">
+        <option value="A4">A4</option>
+        <option value="A3">A3</option>
+      </select>
+    </div>
+    <div class="row" id="opr-pages-row">
+      <label for="opr-pages">Ilość stron:</label>
+      <input type="number" id="opr-pages" value="50" min="1">
+    </div>
+    <div class="row">
+      <label for="opr-qty">Ilość sztuk:</label>
+      <input type="number" id="opr-qty" value="1" min="1">
+    </div>
+    <div class="actions">
+      <button id="opr-calculate" class="btn-primary">Oblicz</button>
+      <button id="opr-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+    </div>
+    <div id="opr-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena jednostkowa:</span>
+        <span id="opr-unit-price" style="font-weight: 600;">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena brutto:</span>
+        <span id="opr-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      </div>
     </div>
   </div>
 </div>
