@@ -14,7 +14,7 @@ function getUnitPrice(mode, format, qty) {
 
 /** Pobierz cenę skanowania za stronę */
 function getScanUnitPrice(type, qty) {
-  const tiers = type === 'auto' ? drukA4A3.skanAuto : drukA4A3.skanReczne;
+  const tiers = type === 'automatic' ? drukA4A3.skanAuto : drukA4A3.skanReczne;
   for (const [maxQty, price] of tiers) {
     if (qty <= maxQty) return price;
   }
