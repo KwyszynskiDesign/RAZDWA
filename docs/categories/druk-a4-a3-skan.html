@@ -17,6 +17,10 @@
         <option value="A3">A3</option>
       </select>
     </div>
+    <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+      <label for="d-email" style="margin:0;">E-mail (+1 zł/str.):</label>
+      <input type="checkbox" id="d-email">
+    </div>
   </div>
 
   <!-- DRUK -->
@@ -25,27 +29,10 @@
     <input type="number" id="d-print-qty" min="0" value="1">
   </div>
 
-  <!-- OPCJE -->
-  <div class="form-row option-cards-row">
-    <div class="option-card" data-checked="false" id="d-email-card" role="checkbox" aria-checked="false" tabindex="0">
-      <span class="icon">📧</span>
-      <div>
-        <div>E-mail</div>
-        <div class="price">+1 zł/str.</div>
-      </div>
-      <input type="checkbox" id="d-email" hidden>
-    </div>
-    <div class="option-card" data-checked="false" id="d-surcharge-card" role="checkbox" aria-checked="false" tabindex="0">
-      <span class="icon">🎨</span>
-      <div>
-        <div>Zadruk &gt;25%</div>
-        <div class="price">+50%/str.</div>
-      </div>
-      <label class="qty-inline">
-        Ilość: <input type="number" class="qty-input" id="d-surcharge-qty" value="1" min="1"> stron
-      </label>
-      <input type="checkbox" id="d-surcharge" hidden>
-    </div>
+  <!-- ZADRUK >25% -->
+  <div class="form-group">
+    <label>Zadruk &gt;25% (liczba stron z dopłatą +50%):</label>
+    <input type="number" id="d-surcharge-qty" min="0" value="0">
   </div>
 
   <!-- SKANOWANIE -->

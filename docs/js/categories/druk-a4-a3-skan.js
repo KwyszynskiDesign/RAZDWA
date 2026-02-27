@@ -14,7 +14,7 @@ function getUnitPrice(mode, format, qty) {
 
 /** Pobierz cenę skanowania za stronę */
 function getScanUnitPrice(type, qty) {
-  const tiers = type === 'automatic' ? drukA4A3.skanAuto : drukA4A3.skanReczne;
+  const tiers = type === 'auto' ? drukA4A3.skanAuto : drukA4A3.skanReczne;
   for (const [maxQty, price] of tiers) {
     if (qty <= maxQty) return price;
   }
@@ -28,40 +28,13 @@ export function init() {
   const modeSelect    = document.getElementById('d-mode');
   const formatSelect  = document.getElementById('d-format');
   const printQtyInput = document.getElementById('d-print-qty');
-  const emailCard     = document.getElementById('d-email-card');
   const emailChk      = document.getElementById('d-email');
-  const emailQtyInput = document.getElementById('d-email-qty');
-  const surchargeCard = document.getElementById('d-surcharge-card');
-  const surchargeChk  = document.getElementById('d-surcharge');
   const surchargeQtyInput = document.getElementById('d-surcharge-qty');
   const scanTypeSelect = document.getElementById('d-scan-type');
   const scanQtyRow    = document.getElementById('scan-qty-row');
   const scanQtyInput  = document.getElementById('d-scan-qty');
   const addToCartBtn  = document.getElementById('d-add-to-cart');
   const resultDisplay = document.getElementById('d-result-display');
-
-  // Toggle option cards
-  [
-    { card: emailCard,     chk: emailChk },
-    { card: surchargeCard, chk: surchargeChk },
-  ].forEach(({ card, chk }) => {
-    if (!card || !chk) return;
-    card.addEventListener('click', () => {
-      chk.checked = !chk.checked;
-      card.dataset.checked = String(chk.checked);
-      card.setAttribute('aria-checked', String(chk.checked));
-    });
-    card.addEventListener('keydown', (e) => {
-      if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        card.click();
-      }
-    });
-    // Prevent qty input clicks from toggling the card
-    card.querySelectorAll('.qty-input, .qty-inline').forEach(el => {
-      el.addEventListener('click', (e) => e.stopPropagation());
-    });
-  });
 
   // Show/hide scan qty input
   if (scanTypeSelect && scanQtyRow) {
@@ -79,9 +52,8 @@ export function init() {
     const unitPrintPrice = printQty > 0 ? getUnitPrice(mode, format, printQty) : 0;
     const totalPrintPrice = unitPrintPrice * printQty;
 
-    const surchargeChecked = surchargeChk ? surchargeChk.checked : false;
-    const surchargeQty = surchargeChecked && surchargeQtyInput
-      ? (parseInt(surchargeQtyInput.value) || 0) : 0;
+    const rawSurchargeQty = surchargeQtyInput ? (parseInt(surchargeQtyInput.value) || 0) : 0;
+    const surchargeQty = Math.min(rawSurchargeQty, printQty);
     const surchargePrice = unitPrintPrice * 0.5 * surchargeQty;
 
     const scanType = scanTypeSelect ? scanTypeSelect.value : 'none';
@@ -90,8 +62,7 @@ export function init() {
     const totalScanPrice = unitScanPrice * scanQty;
 
     const emailChecked = emailChk ? emailChk.checked : false;
-    const emailQty = emailChecked && emailQtyInput ? (parseInt(emailQtyInput.value) || 1) : 0;
-    const emailPrice = emailQty * drukA4A3.email;
+    const emailPrice = emailChecked ? (printQty * drukA4A3.email) : 0;
 
     const total = totalPrintPrice + surchargePrice + totalScanPrice + emailPrice;
 
@@ -108,7 +79,7 @@ export function init() {
 
     show('d-scan-row', scanType !== 'none' && scanQty > 0);
     show('d-email-row', emailChecked);
-    show('d-surcharge-row', surchargeChecked);
+    show('d-surcharge-row', surchargeQty > 0);
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addToCartBtn)  addToCartBtn.disabled = (totalPrintPrice === 0);
@@ -131,9 +102,18 @@ export function init() {
   }
 
   // Live update when qty inputs change
-  document.querySelectorAll('.qty-input').forEach(input => {
+  [printQtyInput, surchargeQtyInput, scanQtyInput].forEach(input => {
+    if (!input) return;
     input.addEventListener('input', calculate);
   });
+
+  if (emailChk) {
+    emailChk.addEventListener('change', calculate);
+  }
+
+  if (scanTypeSelect) {
+    scanTypeSelect.addEventListener('change', calculate);
+  }
 }
 
 export function destroy() {}

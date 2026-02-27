@@ -234,8 +234,14 @@ export const oprawy = {
     skracane: { base: 70.00, do5cm: 70.00, powyżej5cm: 12.00 },
   },
   kanałowa: {
-    standard: 35.00,
-    kolory: 35.00,
+    standard: {
+      price: 35.00,
+      colors: ['czarny', 'granat', 'zielony', 'bordo'],
+    },
+    kolory: {
+      price: 35.00,
+      label: 'pozostałe kolory',
+    },
     bezNapisu: 20.00,
     wkładka: 10.00,
   },

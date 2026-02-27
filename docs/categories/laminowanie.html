@@ -93,6 +93,16 @@
         <option value="zaciskowa">Zaciskowa</option>
       </select>
     </div>
+    <div class="row" id="opr-color-row" style="display:none;">
+      <label for="opr-color">Kolor:</label>
+      <select id="opr-color">
+        <option value="czarny">Czarny</option>
+        <option value="granat">Granat</option>
+        <option value="zielony">Zielony</option>
+        <option value="bordo">Bordo</option>
+        <option value="pozostale">Pozostałe kolory</option>
+      </select>
+    </div>
     <div class="row" id="opr-format-row">
       <label for="opr-format">Format:</label>
       <select id="opr-format">
@@ -123,6 +133,12 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- PROCES OBLICZANIA -->
+<div id="lam-calc-breakdown" style="margin-top: 24px; padding: 14px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; display: none;">
+  <div style="font-weight: 700; margin-bottom: 8px;">Proces obliczania</div>
+  <div id="lam-calc-details" style="font-size: 14px; color: #495057;"></div>
 </div>
 
 <script type="module" src="../js/categories/laminowanie.js"></script>

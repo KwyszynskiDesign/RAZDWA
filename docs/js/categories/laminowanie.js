@@ -31,14 +31,15 @@ function getBindingPrice(type, qty, pages) {
   }
 }
 
-function getOprPrice(type, format, pages) {
+function getOprPrice(type, format, pages, color) {
   if (type === 'grzbietowa') {
     if (pages <= 50) return oprawy.grzbietowa.do50[format];
     if (pages <= 60) return oprawy.grzbietowa.do60[format];
     if (pages <= 90) return oprawy.grzbietowa.do90[format];
     return oprawy.grzbietowa.do150[format];
   } else if (type === 'kanałowa') {
-    return oprawy.kanałowa.standard;
+    if (color === 'pozostale') return oprawy.kanałowa.kolory.price;
+    return oprawy.kanałowa.standard.price;
   } else if (type === 'zaciskowa') {
     return oprawy.zaciskowa.miękka;
   }
@@ -49,6 +50,8 @@ export function init() {
   // TABS
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabContents = document.querySelectorAll('.tab-content');
+  const calcBox = document.getElementById('lam-calc-breakdown');
+  const calcDetails = document.getElementById('lam-calc-details');
   
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -88,6 +91,10 @@ export function init() {
       if (el) el.textContent = formatPLN(lastTotal);
       if (resultDisplay) resultDisplay.style.display = '';
       if (addBtn) addBtn.disabled = false;
+      if (calcBox && calcDetails) {
+        calcDetails.innerHTML = `Cena jednostkowa (${format}): ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
+        calcBox.style.display = '';
+      }
     });
 
     if (addBtn) {
@@ -122,6 +129,11 @@ export function init() {
       if (totalEl) totalEl.textContent = formatPLN(lastTotal);
       if (resultDisplay) resultDisplay.style.display = '';
       if (addBtn) addBtn.disabled = false;
+      if (calcBox && calcDetails) {
+        const typeLabel = type === 'plastik' ? 'Plastik' : 'Metal';
+        calcDetails.innerHTML = `Bindowanie (${typeLabel}), ${pages} kartek: ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
+        calcBox.style.display = '';
+      }
     });
 
     if (addBtn) {
@@ -140,10 +152,12 @@ export function init() {
     const formatSelect = document.getElementById('opr-format');
     const pagesInput = document.getElementById('opr-pages');
     const qtyInput = document.getElementById('opr-qty');
+    const colorSelect = document.getElementById('opr-color');
     const addBtn = document.getElementById('opr-add-to-cart');
     const resultDisplay = document.getElementById('opr-result-display');
     const formatRow = document.getElementById('opr-format-row');
     const pagesRow = document.getElementById('opr-pages-row');
+    const colorRow = document.getElementById('opr-color-row');
     let lastTotal = 0;
 
     // Toggle fields based on type
@@ -152,9 +166,11 @@ export function init() {
       if (type === 'grzbietowa') {
         formatRow.style.display = '';
         pagesRow.style.display = '';
+        colorRow.style.display = 'none';
       } else {
         formatRow.style.display = 'none';
         pagesRow.style.display = 'none';
+        colorRow.style.display = type === 'kanałowa' ? '' : 'none';
       }
     });
 
@@ -163,7 +179,8 @@ export function init() {
       const format = formatSelect?.value || 'A4';
       const pages = parseInt(pagesInput?.value || '50') || 50;
       const qty = parseInt(qtyInput?.value || '1') || 1;
-      const unitPrice = getOprPrice(type, format, pages);
+      const color = colorSelect?.value || 'czarny';
+      const unitPrice = getOprPrice(type, format, pages, color);
       lastTotal = parseFloat((unitPrice * qty).toFixed(2));
 
       const unitEl = document.getElementById('opr-unit-price');
@@ -172,6 +189,19 @@ export function init() {
       if (totalEl) totalEl.textContent = formatPLN(lastTotal);
       if (resultDisplay) resultDisplay.style.display = '';
       if (addBtn) addBtn.disabled = false;
+      if (calcBox && calcDetails) {
+        let details = '';
+        if (type === 'grzbietowa') {
+          details = `Oprawa grzbietowa (${format}, ${pages} str.): ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
+        } else if (type === 'kanałowa') {
+          const colorLabel = color === 'pozostale' ? 'Pozostałe kolory' : color;
+          details = `Oprawa kanałowa (${colorLabel}): ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
+        } else {
+          details = `Oprawa zaciskowa: ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
+        }
+        calcDetails.innerHTML = details;
+        calcBox.style.display = '';
+      }
     });
 
     if (addBtn) {

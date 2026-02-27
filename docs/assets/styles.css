@@ -147,9 +147,9 @@ h1 {
 }
 
 .tile {
-  background: #2B8A3E;
+  background: #5C8EBB;
   color: white;
-  border: 2px solid #2B8A3E;
+  border: 2px solid #4E7FA8;
   transition: all .2s ease;
   min-width: 50px;
   min-height: 50px;
@@ -167,11 +167,11 @@ h1 {
 .tile:hover,
 .tile:active,
 .tile.active {
-  background: #FFD700;
-  border-color: #FFD700;
-  color: #333;
+  background: #4A79A0;
+  border-color: #3E6A8F;
+  color: #FFFFFF;
   transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(74, 121, 160, 0.35);
 }
 
 /* ===== UKŁAD GŁÓWNY ===== */
@@ -720,10 +720,10 @@ button.ghost:hover {
   background: var(--primary);
   color: var(--primary-text);
   border: 2px solid var(--primary);
-  padding: 0 24px;
+  padding: 3px 27px;
   border-radius: 10px;
   font-weight: 600;
-  height: 44px;
+  height: 50px;
   cursor: pointer;
   transition: background 0.2s;
 }
@@ -736,10 +736,10 @@ button.ghost:hover {
   background: transparent;
   color: var(--primary);
   border: 2px solid var(--primary);
-  padding: 0 24px;
+  padding: 3px 27px;
   border-radius: 10px;
   font-weight: 600;
-  height: 44px;
+  height: 50px;
   cursor: pointer;
   transition: all 0.2s;
 }
