@@ -1,6 +1,6 @@
 // wizytowki-druk-cyfrowy.js – kalkulator wizytówek druk cyfrowy
 // Ceny BRUTTO (z VAT) – nie mnożymy przez VAT
-import { wizytowki as PRICES } from '../prices.js';
+import priceManager from '../price-manager.js';
 import { formatPLN } from '../utils/common.js';
 
 /** Zaokrąglij do najbliższego (wyższego) progu z tabeli */
@@ -11,6 +11,43 @@ function ceilToTableKey(table, qty) {
   const found = keys.find(k => qty <= k);
   return found != null ? found : keys[keys.length - 1];
 }
+
+/** Wczytaj ceny wizytówek z priceManager do struktury kompatybilnej ze starym kodem */
+function loadWizytowkiPrices() {
+  const standard85x55NoLam = priceManager.getPrice('wizytowki.cyfrowe.standardPrices.85x55.noLam') || {};
+  const standard85x55Lam = priceManager.getPrice('wizytowki.cyfrowe.standardPrices.85x55.lam') || {};
+  const standard90x50NoLam = priceManager.getPrice('wizytowki.cyfrowe.standardPrices.90x50.noLam') || {};
+  const standard90x50Lam = priceManager.getPrice('wizytowki.cyfrowe.standardPrices.90x50.lam') || {};
+
+  const softtouch85x55NoLam = priceManager.getPrice('wizytowki.cyfrowe.softtouchPrices.85x55.noLam') || {};
+  const softtouch85x55Lam = priceManager.getPrice('wizytowki.cyfrowe.softtouchPrices.85x55.lam') || {};
+  const softtouch90x50NoLam = priceManager.getPrice('wizytowki.cyfrowe.softtouchPrices.90x50.noLam') || {};
+  const softtouch90x50Lam = priceManager.getPrice('wizytowki.cyfrowe.softtouchPrices.90x50.lam') || {};
+
+  const deluxeUV3D = priceManager.getPrice('wizytowki.cyfrowe.deluxe.options.uv3d_softtouch.prices') || {};
+  const deluxeGold = priceManager.getPrice('wizytowki.cyfrowe.deluxe.options.uv3d_gold_softtouch.prices') || {};
+
+  return {
+    '85x55': {
+      none: standard85x55NoLam,
+      matt_gloss: standard85x55Lam
+    },
+    '90x50': {
+      none: standard90x50NoLam,
+      matt_gloss: standard90x50Lam
+    },
+    softtouch: {
+      '85x55': softtouch85x55NoLam,
+      '90x50': softtouch90x50NoLam
+    },
+    deluxe: {
+      uv3d_softtouch: deluxeUV3D,
+      uv3d_gold_softtouch: deluxeGold
+    }
+  };
+}
+
+let PRICES = loadWizytowkiPrices();
 
 export function init() {
   const calcBtn = document.getElementById('w-calculate');
@@ -42,7 +79,7 @@ export function init() {
 
   let lastBrutto = 0;
 
-  calcBtn.addEventListener('click', () => {
+  function calculate() {
     const family     = familySelect ? familySelect.value : 'standard';
     const finish     = finishSelect ? finishSelect.value : 'mat';
     const size       = sizeSelect ? sizeSelect.value : '85x55';
@@ -88,14 +125,30 @@ export function init() {
     params['Ilość'] = qty;
     const results = [`Naliczone: ${billedQty} szt`, `Razem brutto: ${formatPLN(lastBrutto)}`];
     document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
-  });
+  }
+
+  calcBtn.addEventListener('click', calculate);
 
   if (addBtn) {
     addBtn.addEventListener('click', () => {
       document.dispatchEvent(new CustomEvent('razdwa:addToCart', { detail: { category: 'Wizytówki', totalPrice: lastBrutto } }));
     });
   }
+
+  // ✅ Wyeksportuj calculate globalnie
+  window.recalculateWizytowki = () => {
+    PRICES = loadWizytowkiPrices();
+    calculate();
+  };
 }
+
+// ─── 🔄 NASŁUCHIWANIE NA ZMIANY CEN ──────────────────────────────
+window.addEventListener('razdwa:pricesUpdated', () => {
+  console.log('🔄 Ceny zmienione! Odświeżam wizytówki...');
+  if (window.recalculateWizytowki) {
+    window.recalculateWizytowki();
+  }
+});
 
 export function destroy() {}
 
