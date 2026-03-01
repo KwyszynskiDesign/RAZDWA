@@ -38,6 +38,13 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addBtn) addBtn.disabled = false;
+
+    // Monitor update
+    const materialLabel = material === 'powlekany' ? 'Powlekany' : material === 'eco' ? 'Eco' : 'Inny';
+    const params = { 'Materiał': materialLabel, 'Powierzchnia': area + ' m²', 'Oczko': oczk ? 'Tak' : 'Nie' };
+    const results = [`Cena za m²: ${formatPLN(tierPrice)}`, `Razem: ${formatPLN(total)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {

@@ -95,6 +95,12 @@ export function init() {
         calcDetails.innerHTML = `Cena jednostkowa (${format}): ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
         calcBox.style.display = '';
       }
+
+      // Monitor update
+      const params = { 'Format': format, 'Ilość (szt)': qty };
+      const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
+      const scope = resultDisplay?.closest('.category-view') || document.body;
+      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {
@@ -134,6 +140,13 @@ export function init() {
         calcDetails.innerHTML = `Bindowanie (${typeLabel}), ${pages} kartek: ${formatPLN(unitPrice)} × ${qty} szt. = <strong>${formatPLN(lastTotal)}</strong>`;
         calcBox.style.display = '';
       }
+
+      // Monitor update
+      const typeLabel = type === 'plastik' ? 'Plastik' : 'Metal';
+      const params = { 'Typ': typeLabel, 'Ilość sztuk': qty, 'Kartek': pages };
+      const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
+      const scope = resultDisplay?.closest('.category-view') || document.body;
+      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {
@@ -202,6 +215,24 @@ export function init() {
         calcDetails.innerHTML = details;
         calcBox.style.display = '';
       }
+
+      // Monitor update
+      let typeLabel = '';
+      const params = {};
+      if (type === 'grzbietowa') {
+        typeLabel = 'Oprawa grzbietowa';
+        params['Format'] = format;
+        params['Stron'] = pages;
+      } else if (type === 'kanałowa') {
+        typeLabel = 'Oprawa kanałowa';
+        params['Kolor'] = color === 'pozostale' ? 'Pozostałe kolory' : color;
+      } else {
+        typeLabel = 'Oprawa zaciskowa';
+      }
+      params['Ilość'] = qty;
+      const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
+      const scope = resultDisplay?.closest('.category-view') || document.body;
+      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {

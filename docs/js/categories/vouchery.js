@@ -49,6 +49,14 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addBtn) addBtn.disabled = false;
+
+    // Monitor update
+    const sidesLabel = isSingle ? 'Jednostronne' : 'Dwustronne';
+    const paperLabel = isSatin ? 'Satynowy' : 'Kreda';
+    const params = { 'Strony': sidesLabel, 'Papier': paperLabel, 'Ilość': qty };
+    const results = [`Cena netto: ${formatPLN(netto)}`, `Brutto (VAT): ${formatPLN(lastBrutto)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {

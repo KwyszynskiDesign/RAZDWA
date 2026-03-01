@@ -83,6 +83,27 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addToCartBtn)  addToCartBtn.disabled = (totalPrintPrice === 0);
+
+    // Send monitor update event
+    const modeLabel = mode === 'bw' ? 'Czarnobiały' : 'Kolorowy';
+    const scanLabel = scanType === 'auto' ? 'Automatyczne' : scanType === 'manual' ? 'Ręczne z szyby' : 'Brak';
+    const params = {
+      'Tryb': modeLabel,
+      'Format': format,
+      'Ilość stron': printQty,
+      'E-mail': emailChecked ? 'Tak' : 'Nie',
+      'Zadruk >25%': surchargeQty > 0 ? `${surchargeQty} stron` : 'Nie',
+      'Skanowanie': scanLabel + (scanQty > 0 ? ` (${scanQty} stron)` : ''),
+    };
+    const results = [];
+    if (totalPrintPrice > 0) results.push(`Druk: ${formatPLN(totalPrintPrice)}`);
+    if (surchargePrice > 0) results.push(`Dopłata zadruk: ${formatPLN(surchargePrice)}`);
+    if (totalScanPrice > 0) results.push(`Skanowanie: ${formatPLN(totalScanPrice)}`);
+    if (emailPrice > 0) results.push(`E-mail: ${formatPLN(emailPrice)}`);
+    results.push(`Razem: ${formatPLN(total)}`);
+
+    const scope = resultDisplay ? resultDisplay.closest('.category-template') || document.body : document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   }
 
   calcBtn.addEventListener('click', calculate);

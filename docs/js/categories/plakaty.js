@@ -95,6 +95,21 @@ export function init() {
         }
         if (resultBox) resultBox.style.display = 'block';
         if (addBtn)    addBtn.disabled = false;
+
+        // Monitor update
+        let params = {};
+        let results = [];
+        if (currentResult.type === 'm2') {
+          const mat = plakatyMaterialySolwent[currentResult.matId];
+          params = { 'Materiał': mat.name, 'Powierzchnia': currentResult.effectiveM2 + ' m²' };
+          results = [`Próg: ${currentResult.tierPrice} zł/m²`, `Razem: ${formatPLN(currentResult.totalPrice)}`];
+        } else {
+          const mat = plakatyMaterialyFormat[currentResult.matId];
+          params = { 'Materiał': mat.name, 'Format': currentResult.fmt, 'Ilość': currentResult.qty };
+          results = [`Cena jednostkowa: ${formatPLN(currentResult.pricePerPiece)}`, `Razem: ${formatPLN(currentResult.totalPrice)}`];
+        }
+        const scope = resultBox?.closest('.category-view') || document.body;
+        scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
       } catch (err) {
         alert('Błąd: ' + err.message);
       }

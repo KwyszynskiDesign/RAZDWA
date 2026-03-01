@@ -93,6 +93,13 @@ export function init() {
     if (totalPriceEl) totalPriceEl.textContent = formatPLN(totalPrice);
     if (resultDisplay) resultDisplay.style.display = '';
     if (addToCartBtn)  addToCartBtn.disabled = false;
+
+    // Monitor update
+    const modeLabel = mode === 'bw' ? 'Czarno-biały' : 'Kolor';
+    const params = { 'Tryb': modeLabel, 'Format': format, 'Wymiar': lengthMm + ' mm', 'Ilość': qty };
+    const results = [`Typ: ${formatowy ? 'Formatowy' : 'Nieformatowy'}`, `Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(totalPrice)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addToCartBtn) {

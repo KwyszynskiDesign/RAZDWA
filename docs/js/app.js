@@ -80,84 +80,35 @@ function createCalcMonitor() {
   return box;
 }
 
-function collectInputParams(scope) {
-  const params = [];
-  const inputs = scope.querySelectorAll('input[type="number"], input[type="text"], select');
-  
-  inputs.forEach(input => {
-    if (input.type === 'checkbox' || input.type === 'radio') return;
-    const label = scope.querySelector(`label[for="${input.id}"]`);
-    let labelText = label ? label.textContent.trim() : input.id;
-    if (labelText.length > 50) labelText = labelText.substring(0, 50) + '...';
-    
-    const value = input.type === 'number' ? (input.value || '0') : 
-                  (input.selectedOptions && input.selectedOptions[0] ? input.selectedOptions[0].text : input.value);
-    
-    if (value && value !== '0') {
-      params.push(`${labelText}: <strong>${value}</strong>`);
-    }
-  });
-  
-  // Checkboxes
-  const checkboxes = scope.querySelectorAll('input[type="checkbox"]:checked');
-  checkboxes.forEach(cb => {
-    const label = scope.querySelector(`label[for="${cb.id}"]`);
-    const labelText = label ? label.textContent.trim() : cb.id;
-    params.push(`✓ ${labelText}`);
-  });
-  
-  // Radio buttons
-  const radios = scope.querySelectorAll('input[type="radio"]:checked');
-  radios.forEach(radio => {
-    const label = radio.closest('label');
-    if (label) {
-      const span = label.querySelector('span');
-      const text = span ? span.textContent.trim() : label.textContent.trim();
-      params.push(`Rodzaj: <strong>${text}</strong>`);
-    }
-  });
-  
-  return params;
-}
-
-function collectMonitorText(scope) {
-  const areas = scope.querySelectorAll(
-    '.result-display, .result-area, [id$="result-display"], #ekranObliczen, #d-result-display, #lam-calc-breakdown'
-  );
-  const parts = [];
-  areas.forEach(el => {
-    const style = window.getComputedStyle(el);
-    if (style.display === 'none' || style.visibility === 'hidden') return;
-    const text = el.textContent ? el.textContent.trim() : '';
-    if (text) parts.push(text);
-  });
-  return parts;
-}
-
 function attachMonitor(categoryRoot) {
   const monitor = createCalcMonitor();
   categoryRoot.appendChild(monitor);
 
   const body = monitor.querySelector('.calc-monitor-body');
-  const update = () => {
-    const params = collectInputParams(categoryRoot);
-    const results = collectMonitorText(categoryRoot);
-    if (!body) return;
-    
+
+  // Listen for custom calc events from category calculators
+  const updateMonitor = (event) => {
+    const detail = event.detail || {};
     let html = '';
-    
-    if (params.length > 0) {
+
+    // Parameters section
+    if (detail.params && Object.keys(detail.params).length > 0) {
       html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">📋 Parametry:</div>';
-      html += params.map(p => `<div class="calc-monitor-param">${p}</div>`).join('');
+      for (const [key, value] of Object.entries(detail.params)) {
+        if (value !== null && value !== undefined && value !== '') {
+          html += `<div class="calc-monitor-param">${key}: <strong>${value}</strong></div>`;
+        }
+      }
       html += '</div>';
     }
-    
-    if (results.length > 0) {
+
+    // Results section
+    if (detail.results && detail.results.length > 0) {
       html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">💰 Wyniki:</div>';
-      html += results.map(r => `<div class="calc-monitor-block">${r.replace(/\n+/g, '<br>')}</div>`).join('');
+      html += detail.results.map(r => `<div class="calc-monitor-block">${r.replace(/\n+/g, '<br>')}</div>`).join('');
       html += '</div>';
     }
-    
+
     if (html === '') {
       body.textContent = 'Brak obliczeń';
     } else {
@@ -165,10 +116,7 @@ function attachMonitor(categoryRoot) {
     }
   };
 
-  update();
-
-  const observer = new MutationObserver(update);
-  observer.observe(categoryRoot, { subtree: true, childList: true, characterData: true, attributes: true });
+  categoryRoot.addEventListener('calcMonitorUpdate', updateMonitor);
 }
 
 async function loadCategory(hash) {

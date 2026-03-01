@@ -35,6 +35,13 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = '';
     if (addBtn) addBtn.disabled = false;
+
+    // Monitor update
+    const materialLabel = matId === '200g' ? '200g' : matId === '300g' ? '300g' : '400g';
+    const params = { 'Materiał': materialLabel, 'Powierzchnia': effArea + ' m²' };
+    const results = [`Cena za m²: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {

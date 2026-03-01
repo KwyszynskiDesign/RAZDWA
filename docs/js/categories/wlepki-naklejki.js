@@ -49,6 +49,15 @@ export function init() {
     set('total-price', formatPLN(lastTotal));
 
     if (resultDisplay) resultDisplay.style.display = 'block';
+
+    // Monitor update
+    const groupLabel = group === 'wlepki_obrys_folia' ? 'Wlepki obrys folia' : group === 'wlepki_full' ? 'Wlepki full' : 'Naklejki';
+    const modLabels = [...modCheckboxes].filter(cb => cb.checked).map(cb => cb.dataset.label || cb.value);
+    const params = { 'Typ': groupLabel, 'Powierzchnia': effArea + ' m²' };
+    if (modLabels.length) params['Modyfikatory'] = modLabels.join(', ');
+    const results = [`Cena za m²: ${formatPLN(totalUnitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {

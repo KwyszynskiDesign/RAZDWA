@@ -74,6 +74,21 @@ export function init() {
 
     if (resultDisplay) resultDisplay.style.display = 'block';
     if (addBtn) addBtn.disabled = false;
+
+    // Monitor update
+    let familyLabel = family === 'deluxe' ? 'Deluxe' : 'Standard';
+    let params = { 'Rodzina': familyLabel };
+    if (family === 'deluxe') {
+      params['Opcja'] = deluxeOpt;
+    } else {
+      params['Rozmiar'] = size;
+      params['Wykończenie'] = finish;
+      if (finish !== 'softtouch') params['Laminacja'] = lam === 'lam' ? 'Tak' : 'Nie';
+    }
+    params['Ilość'] = qty;
+    const results = [`Naliczone: ${billedQty} szt`, `Razem brutto: ${formatPLN(lastBrutto)}`];
+    const scope = resultDisplay?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {

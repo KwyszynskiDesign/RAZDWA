@@ -56,6 +56,14 @@ export function init() {
     show('resSatinHint', isSatin);
 
     if (addToCartBtn) addToCartBtn.disabled = false;
+
+    // Monitor update
+    const paperLabel = isSatin ? 'Satynowy' : 'Kreda';
+    const tier = PRICING.find(t => qty >= t.qty) || PRICING[0];
+    const params = { 'Papier': paperLabel, 'Ilość': qty };
+    const results = [`Próg: ${tier.qty}+ szt`, `Cena jednostkowa netto: ${formatPLN(unitNetto)}`, `Razem brutto: ${formatPLN(lastBrutto)}`];
+    const scope = resultArea?.closest('.category-view') || document.body;
+    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   }
 
   calcBtn.addEventListener('click', calculate);
