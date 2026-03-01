@@ -88,44 +88,57 @@ function attachMonitor(categoryRoot) {
 
 // Global monitor update listener (set up once, not per-category)
 let monitorSetup = false;
+let pendingMonitorUpdate = null;
+
 function setupGlobalMonitorListener() {
   if (monitorSetup) return;
   monitorSetup = true;
 
   document.addEventListener('calcMonitorUpdate', (event) => {
     const detail = event.detail || {};
-    // Find the currently visible monitor
-    const monitor = document.querySelector('.calc-monitor');
-    if (!monitor) return;
     
-    const body = monitor.querySelector('.calc-monitor-body');
-    if (!body) return;
+    // Store for asynchronous rendering - don't block the click handler
+    pendingMonitorUpdate = detail;
+    
+    // Schedule rendering for next frame to avoid blocking calculations
+    requestAnimationFrame(() => {
+      if (!pendingMonitorUpdate) return;
+      
+      const monitor = document.querySelector('.calc-monitor');
+      if (!monitor) return;
+      
+      const body = monitor.querySelector('.calc-monitor-body');
+      if (!body) return;
 
-    let html = '';
+      const detail = pendingMonitorUpdate;
+      let html = '';
 
-    // Parameters section
-    if (detail.params && Object.keys(detail.params).length > 0) {
-      html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">📋 Parametry:</div>';
-      for (const [key, value] of Object.entries(detail.params)) {
-        if (value !== null && value !== undefined && value !== '') {
-          html += `<div class="calc-monitor-param">${key}: <strong>${value}</strong></div>`;
+      // Parameters section
+      if (detail.params && Object.keys(detail.params).length > 0) {
+        html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">📋 Parametry:</div>';
+        for (const [key, value] of Object.entries(detail.params)) {
+          if (value !== null && value !== undefined && value !== '') {
+            html += `<div class="calc-monitor-param">${key}: <strong>${value}</strong></div>`;
+          }
         }
+        html += '</div>';
       }
-      html += '</div>';
-    }
 
-    // Results section
-    if (detail.results && detail.results.length > 0) {
-      html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">💰 Wyniki:</div>';
-      html += detail.results.map(r => `<div class="calc-monitor-block">${r.replace(/\n+/g, '<br>')}</div>`).join('');
-      html += '</div>';
-    }
+      // Results section
+      if (detail.results && detail.results.length > 0) {
+        html += '<div class="calc-monitor-section"><div class="calc-monitor-section-title">💰 Wyniki:</div>';
+        html += detail.results.map(r => `<div class="calc-monitor-block">${r.replace(/\n+/g, '<br>')}</div>`).join('');
+        html += '</div>';
+      }
 
-    if (html === '') {
-      body.textContent = 'Brak obliczeń';
-    } else {
-      body.innerHTML = html;
-    }
+      if (html === '') {
+        body.textContent = 'Brak obliczeń';
+      } else {
+        body.innerHTML = html;
+      }
+      
+      pendingMonitorUpdate = null;
+    });
   });
 }
 
