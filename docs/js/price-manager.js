@@ -15,7 +15,8 @@ class PriceManager {
 
   async init() {
     try {
-      const response = await fetch('../config/prices.json');
+      // GitHub Pages path includes repo name: /RAZDWA/config/prices.json
+      const response = await fetch('/RAZDWA/config/prices.json');
       this.prices = await response.json();
       console.log('✅ Prices loaded from config/prices.json', this.prices);
     } catch (err) {
