@@ -1,24 +1,34 @@
 // druk-a4-a3-skan.js – kalkulator druku A4/A3 + skanowanie
-import { drukA4A3 } from '../prices.js';
+import priceManager from '../price-manager.js';
 import { formatPLN } from '../utils/common.js';
 
 /** Pobierz cenę jednostkową dla danego trybu, formatu i ilości stron */
 function getUnitPrice(mode, format, qty) {
-  const tiers = drukA4A3[mode][format];
-  if (!tiers) return 0;
-  for (const [maxQty, price] of tiers) {
-    if (qty <= maxQty) return price;
+  const path = `drukA4A3.print.${mode}.${format}`;
+  const tiers = priceManager.getPrice(path);
+  if (!tiers || !Array.isArray(tiers)) return 0;
+  
+  for (const tier of tiers) {
+    if (qty >= tier.from && qty <= tier.to) {
+      return tier.unit;
+    }
   }
-  return tiers[tiers.length - 1][1];
+  // Fallback do ostatniego tier
+  return tiers.length > 0 ? tiers[tiers.length - 1].unit : 0;
 }
 
 /** Pobierz cenę skanowania za stronę */
 function getScanUnitPrice(type, qty) {
-  const tiers = type === 'auto' ? drukA4A3.skanAuto : drukA4A3.skanReczne;
-  for (const [maxQty, price] of tiers) {
-    if (qty <= maxQty) return price;
+  const path = type === 'auto' ? 'drukA4A3.scan.auto' : 'drukA4A3.scan.manual';
+  const tiers = priceManager.getPrice(path);
+  if (!tiers || !Array.isArray(tiers)) return 0;
+  
+  for (const tier of tiers) {
+    if (qty >= tier.from && qty <= tier.to) {
+      return tier.unit;
+    }
   }
-  return tiers[tiers.length - 1][1];
+  return tiers.length > 0 ? tiers[tiers.length - 1].unit : 0;
 }
 
 export function init() {
@@ -134,7 +144,18 @@ export function init() {
   if (scanTypeSelect) {
     scanTypeSelect.addEventListener('change', calculate);
   }
+
+  // ✅ Wyeksportuj calculate globalnie
+  window.recalculateDrukA4A3 = calculate;
 }
+
+// ─── 🔄 NASŁUCHIWANIE NA ZMIANY CEN ──────────────────────────────
+window.addEventListener('razdwa:pricesUpdated', () => {
+  console.log('🔄 Ceny zmienione! Odświeżam druk A4/A3...');
+  if (window.recalculateDrukA4A3) {
+    window.recalculateDrukA4A3();
+  }
+});
 
 export function destroy() {}
 

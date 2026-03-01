@@ -1,92 +1,92 @@
 // cad-upload.js – kalkulator uploadowania plików CAD z pełnym cennikiem
 // LEGACY JS (nie TypeScript) – docs/js/categories/cad-upload.js
 
-import { drukCad } from '../prices.js';
+import priceManager from '../price-manager.js';
 
 console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
+
+// ─── Pobierz ceny z centralizowanego price-manager ──────────────────────────────
+let CAD_CENNIK = null;
+
+async function initCadPrices() {
+  CAD_CENNIK = {
+    formatowe: {
+      kolor: {
+        'A3': priceManager.getPrice('drukCAD.price.color.formatowe.A3'),
+        'A2': priceManager.getPrice('drukCAD.price.color.formatowe.A2'),
+        'A1': priceManager.getPrice('drukCAD.price.color.formatowe.A1'),
+        'A0': priceManager.getPrice('drukCAD.price.color.formatowe.A0'),
+        'A0+': priceManager.getPrice('drukCAD.price.color.formatowe.A0p')
+      },
+      bw: {
+        'A3': priceManager.getPrice('drukCAD.price.bw.formatowe.A3'),
+        'A2': priceManager.getPrice('drukCAD.price.bw.formatowe.A2'),
+        'A1': priceManager.getPrice('drukCAD.price.bw.formatowe.A1'),
+        'A0': priceManager.getPrice('drukCAD.price.bw.formatowe.A0'),
+        'A0+': priceManager.getPrice('drukCAD.price.bw.formatowe.A0p')
+      }
+    },
+    nieformatowe_mb: {
+      kolor: {
+        'A3': priceManager.getPrice('drukCAD.price.color.mb.A3'),
+        'A2': priceManager.getPrice('drukCAD.price.color.mb.A2'),
+        'A1': priceManager.getPrice('drukCAD.price.color.mb.A1'),
+        'A0': priceManager.getPrice('drukCAD.price.color.mb.A0'),
+        'A0+': priceManager.getPrice('drukCAD.price.color.mb.A0p'),
+        '1067': priceManager.getPrice('drukCAD.price.color.mb.R1067')
+      },
+      bw: {
+        'A3': priceManager.getPrice('drukCAD.price.bw.mb.A3'),
+        'A2': priceManager.getPrice('drukCAD.price.bw.mb.A2'),
+        'A1': priceManager.getPrice('drukCAD.price.bw.mb.A1'),
+        'A0': priceManager.getPrice('drukCAD.price.bw.mb.A0'),
+        'A0+': priceManager.getPrice('drukCAD.price.bw.mb.A0p'),
+        '1067': priceManager.getPrice('drukCAD.price.bw.mb.R1067')
+      }
+    },
+    formatToWidth: {
+      'A3': 297,
+      'A2': 420,
+      'A1': 594,
+      'A0': 841,
+      'A0+': 914
+    },
+    baseLengthMm: {
+      'A3': 420,
+      'A2': 594,
+      'A1': 841,
+      'A0': 1189,
+      'A0+': 1292
+    }
+  };
+
+  console.log('💎 CENNIK CAD załadowany z price-manager:', CAD_CENNIK);
+}
+
+// Zainicjalizuj ceny zaraz
+await initCadPrices();
 
 // ─── 🎯 WSZYSTKIE GLOBALNE STAŁE – ZERO UNDEFINED! ──────────────────────────────
 
 /** Cena skanowania: 0,08 zł/cm */
-const SCAN_PER_CM = 0.08;
+const SCAN_PER_CM = priceManager.getPrice('drukCAD.wfScanPerCm') || 0.08;
 
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej */
 const TOLERANCJA_MM = 5;
 
 /** Ceny składania (złożenie) dla różnych formatów */
 const SKLAD_CENY = {
-  'A0+': 5.50,
-  'A0': 5.00,
-  'A1': 3.00,
-  'A2': 2.00,
-  'A3': 1.00,
-  'A4': 0.50,
+  'A0+': priceManager.getPrice('drukCAD.fold.A0p') || 4.0,
+  'A0': priceManager.getPrice('drukCAD.fold.A0') || 3.0,
+  'A1': priceManager.getPrice('drukCAD.fold.A1') || 2.0,
+  'A2': priceManager.getPrice('drukCAD.fold.A2') || 1.5,
+  'A3': priceManager.getPrice('drukCAD.fold.A3') || 1.0,
+  'A4': priceManager.getPrice('drukCAD.fold.A3L') || 0.7,
   'nieformat': 0.50
 };
 
 /** Global array do kumulacji wszystkich wyników */
 let globalneWyniki = [];
-
-// ─── FAKTYCZNY CENNIK CAD WIELKOFORMATOWE (KOLOR + CZARNO-BIAŁY) ────────────────
-const CAD_CENNIK = {
-  // FORMATOWE: Ceny za jeden arkusz/stronę – zł za sztukę (KOLOR + B/W)
-  formatowe: {
-    kolor: {
-      'A3': 5.30,     // 297×420mm
-      'A2': 8.50,     // 420×594mm
-      'A1': 12.00,    // 594×841mm
-      'A0': 24.00,    // 841×1189mm
-      'A0+': 26.00    // 914×1292mm
-    },
-    bw: {
-      'A3': 2.50,     // 297×420mm czarno-biały
-      'A2': 4.00,     // 420×594mm czarno-biały
-      'A1': 6.00,     // 594×841mm czarno-biały
-      'A0': 11.00,    // 841×1189mm czarno-biały
-      'A0+': 12.50    // 914×1292mm czarno-biały (rolka 1067)
-    }
-  },
-  
-  // NIEFORMATOWE: Ceny za metr bieżący roli – zł/mb dla każdej szerokości (KOLOR + B/W)
-  nieformatowe_mb: {
-    kolor: {
-      'A3': 12.00,    // 297mm szerokość rolki
-      'A2': 13.90,    // 420mm szerokość rolki
-      'A1': 14.50,    // 594mm szerokość rolki
-      'A0': 20.00,    // 841mm szerokość rolki
-      'A0+': 21.00,   // 914mm szerokość rolki
-      '1067': 30.00   // 1067mm szerokość rolki
-    },
-    bw: {
-      'A3': 3.50,     // 297mm szerokość rolki czarno-biały
-      'A2': 4.50,     // 420mm szerokość rolki czarno-biały
-      'A1': 5.00,     // 594mm szerokość rolki czarno-biały
-      'A0': 9.00,     // 841mm szerokość rolki czarno-biały
-      'A0+': 10.00,   // 914mm szerokość rolki czarno-biały
-      '1067': 12.50   // 1067mm szerokość rolki czarno-biały
-    }
-  },
-  
-  // Mapowanie format → szerokość rolki (do obliczania metrowych)
-  formatToWidth: {
-    'A3': 297,
-    'A2': 420,
-    'A1': 594,
-    'A0': 841,
-    'A0+': 914
-  },
-  
-  // Bazowe długości formatów (mm) – do rozpoznawania formatowych vs nieformatowych
-  baseLengthMm: {
-    'A3': 420,
-    'A2': 594,
-    'A1': 841,
-    'A0': 1189,
-    'A0+': 1292
-  }
-};
-
-console.log('💎 CENNIK CAD WIELKOFORMATOWE załadowany:', CAD_CENNIK);
 
 // ─── TRYB DRUKU (COLOR/BW) – domyślnie BW ─────────────────────────────────────
 let PRINT_MODE = 'bw';  // Globalny tryb druku: 'bw' lub 'color'
@@ -1665,7 +1665,22 @@ export function init() {
       }));
     }
   }
+
+  // ✅ Wyeksportuj recalculateAll globalnie
+  window.recalculateAllCAD = recalculateAll;
+  window.cadUploadFiles = files;
 }
+
+// ─── 🔄 NASŁUCHIWANIE NA ZMIANY CEN Z PRICE-MANAGER ──────────────────────────────
+window.addEventListener('razdwa:pricesUpdated', async () => {
+  console.log('🔄 Ceny zmienione! Reinicjalizuję CAD cennik...');
+  await initCadPrices();
+  // Odświeź obliczenia jeśli są aktywne pliki
+  const files = window.cadUploadFiles || [];
+  if (files.length > 0 && window.recalculateAllCAD) {
+    window.recalculateAllCAD();
+  }
+});
 
 window.updatePrices = updatePrices;
 window.exportCSV = exportCSV;
