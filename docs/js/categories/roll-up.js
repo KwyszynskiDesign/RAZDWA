@@ -52,8 +52,7 @@ export function init() {
     const typeLabel = type === 'full' ? 'Montaż pełny' : 'Wymiana wkładu';
     const params = { 'Typ': typeLabel, 'Format': format, 'Ilość': qty };
     const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(total)}`];
-    const scope = resultArea?.closest('.category-view') || document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {
@@ -64,3 +63,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

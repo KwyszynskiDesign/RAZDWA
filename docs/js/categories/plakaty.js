@@ -108,8 +108,7 @@ export function init() {
           params = { 'Materiał': mat.name, 'Format': currentResult.fmt, 'Ilość': currentResult.qty };
           results = [`Cena jednostkowa: ${formatPLN(currentResult.pricePerPiece)}`, `Razem: ${formatPLN(currentResult.totalPrice)}`];
         }
-        const scope = resultBox?.closest('.category-view') || document.body;
-        scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+        document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
       } catch (err) {
         alert('Błąd: ' + err.message);
       }
@@ -125,3 +124,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

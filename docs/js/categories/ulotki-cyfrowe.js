@@ -75,8 +75,7 @@ export function init() {
     const paperLabel = paper.startsWith('satyna') ? 'Satynowy' : 'Kreda';
     const params = { 'Strony': sideLabel, 'Format': format, 'Papier': paperLabel, 'Ilość': qty };
     const results = [`Próg: ${tier.qty} szt`, `Netto: ${formatPLN(netto)}`, `Brutto (VAT): ${formatPLN(brutto)}`];
-    const scope = resultDisplay?.closest('.category-view') || document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   }
 
   calcBtn.addEventListener('click', calculate);
@@ -118,3 +117,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

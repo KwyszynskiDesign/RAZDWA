@@ -83,12 +83,24 @@ function createCalcMonitor() {
 function attachMonitor(categoryRoot) {
   const monitor = createCalcMonitor();
   categoryRoot.appendChild(monitor);
+  // Note: Monitor updates are handled by the global document listener below
+}
 
-  const body = monitor.querySelector('.calc-monitor-body');
+// Global monitor update listener (set up once, not per-category)
+let monitorSetup = false;
+function setupGlobalMonitorListener() {
+  if (monitorSetup) return;
+  monitorSetup = true;
 
-  // Listen for custom calc events from category calculators
-  const updateMonitor = (event) => {
+  document.addEventListener('calcMonitorUpdate', (event) => {
     const detail = event.detail || {};
+    // Find the currently visible monitor
+    const monitor = document.querySelector('.calc-monitor');
+    if (!monitor) return;
+    
+    const body = monitor.querySelector('.calc-monitor-body');
+    if (!body) return;
+
     let html = '';
 
     // Parameters section
@@ -114,10 +126,11 @@ function attachMonitor(categoryRoot) {
     } else {
       body.innerHTML = html;
     }
-  };
-
-  categoryRoot.addEventListener('calcMonitorUpdate', updateMonitor);
+  });
 }
+
+// Set up the global listener once
+setupGlobalMonitorListener();
 
 async function loadCategory(hash) {
   const id = hash.replace(/^#?\//, '');

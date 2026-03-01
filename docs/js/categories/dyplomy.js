@@ -62,8 +62,7 @@ export function init() {
     const tier = PRICING.find(t => qty >= t.qty) || PRICING[0];
     const params = { 'Papier': paperLabel, 'Ilość': qty };
     const results = [`Próg: ${tier.qty}+ szt`, `Cena jednostkowa netto: ${formatPLN(unitNetto)}`, `Razem brutto: ${formatPLN(lastBrutto)}`];
-    const scope = resultArea?.closest('.category-view') || document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   }
 
   calcBtn.addEventListener('click', calculate);
@@ -84,3 +83,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

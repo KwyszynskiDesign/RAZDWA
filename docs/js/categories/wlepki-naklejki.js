@@ -56,8 +56,7 @@ export function init() {
     const params = { 'Typ': groupLabel, 'Powierzchnia': effArea + ' m²' };
     if (modLabels.length) params['Modyfikatory'] = modLabels.join(', ');
     const results = [`Cena za m²: ${formatPLN(totalUnitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
-    const scope = resultDisplay?.closest('.category-view') || document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {
@@ -68,3 +67,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

@@ -102,8 +102,7 @@ export function init() {
     if (emailPrice > 0) results.push(`E-mail: ${formatPLN(emailPrice)}`);
     results.push(`Razem: ${formatPLN(total)}`);
 
-    const scope = resultDisplay ? resultDisplay.closest('.category-template') || document.body : document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   }
 
   calcBtn.addEventListener('click', calculate);
@@ -138,3 +137,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

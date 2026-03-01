@@ -99,8 +99,7 @@ export function init() {
       // Monitor update
       const params = { 'Format': format, 'Ilość (szt)': qty };
       const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
-      const scope = resultDisplay?.closest('.category-view') || document.body;
-      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+      document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {
@@ -145,8 +144,7 @@ export function init() {
       const typeLabel = type === 'plastik' ? 'Plastik' : 'Metal';
       const params = { 'Typ': typeLabel, 'Ilość sztuk': qty, 'Kartek': pages };
       const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
-      const scope = resultDisplay?.closest('.category-view') || document.body;
-      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+      document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {
@@ -231,8 +229,7 @@ export function init() {
       }
       params['Ilość'] = qty;
       const results = [`Cena jednostkowa: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
-      const scope = resultDisplay?.closest('.category-view') || document.body;
-      scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+      document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
     });
 
     if (addBtn) {
@@ -246,3 +243,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+

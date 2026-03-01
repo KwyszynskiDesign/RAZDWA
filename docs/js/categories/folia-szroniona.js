@@ -54,8 +54,7 @@ export function init() {
     const serviceLabel = service === 'full-service' ? 'Pełny serwis' : 'Wydruk';
     const params = { 'Usługa': serviceLabel, 'Wymiary': `${wMm}×${hMm} mm`, 'Powierzchnia': area.toFixed(2) + ' m²' };
     const results = [`Cena za m²: ${formatPLN(unitPrice)}`, `Razem: ${formatPLN(lastTotal)}`];
-    const scope = resultDisplay?.closest('.category-view') || document.body;
-    scope.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
+    document.dispatchEvent(new CustomEvent('calcMonitorUpdate', { detail: { params, results } }));
   });
 
   if (addBtn) {
@@ -66,3 +65,5 @@ export function init() {
 }
 
 export function destroy() {}
+
+
