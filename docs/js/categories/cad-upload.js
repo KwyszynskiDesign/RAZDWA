@@ -1003,7 +1003,7 @@ export function init() {
         }
       });
 
-      alert(`Dodano ${itemsToAdd.length} pozycj${itemsToAdd.length === 1 ? 'ę' : 'e'} do koszyka`);
+      console.log(`✅ Dodano ${itemsToAdd.length} pozycj${itemsToAdd.length === 1 ? 'ę' : 'e'} do koszyka`);
     });
   }
 
@@ -1485,25 +1485,46 @@ export function init() {
 
     console.log(`📊 Rendering ${wyniki.length} calculations explanation`);
 
-    // Render each calculation with detailed explanation
+    // Render each calculation with BOTH color and B&W
     let html = wyniki.map((w, idx) => {
-      const cenaCalkkowita = fmtPLN(w.price);
-      
-      // Use detailed pricing explanation
-      const obliczenie = w.pricePerPage || 'Brak wyceny';
-      
-      // Extract pricing type (formatowe vs nieformatowe)
-      const isPricing = w.pricing || {};
-      const typ = isPricing.typ || 'unknown';
-      const icon = typ === 'formatowe' ? '📋' : typ === 'nieformatowe' ? '📐' : '❓';
+      // Extract dimensions
+      let widthMm = 0, heightMm = 0;
+      if (w.dimsCsv && w.dimsCsv.includes('x')) {
+        const dims = w.dimsCsv.split(',')[0].trim().split('x');
+        widthMm = parseFloat(dims[0]);
+        heightMm = parseFloat(dims[1]);
+      }
 
-      console.log(`  📝 Calc ${idx + 1}: ${w.file} [${typ}] → ${obliczenie} = ${cenaCalkkowita}`);
+      // Calculate both color and B&W prices
+      let pricingColor = null;
+      let pricingBw = null;
+      if (widthMm > 0 && heightMm > 0) {
+        pricingColor = calculateCadByDims(widthMm, heightMm, w.pagesCount || 1, 'color');
+        pricingBw = calculateCadByDims(widthMm, heightMm, w.pagesCount || 1, 'bw');
+      }
+
+      const cenaColor = pricingColor ? fmtPLN(pricingColor.cena) : '—';
+      const cenaBw = pricingBw ? fmtPLN(pricingBw.cena) : '—';
+      const wyjasnColor = pricingColor ? pricingColor.wyjasnienie : 'Brak wyceny';
+      const wyjasnBw = pricingBw ? pricingBw.wyjasnienie : 'Brak wyceny';
+
+      console.log(`  📝 Calc ${idx + 1}: ${w.file}`);
+      console.log(`     🎨 Kolor: ${cenaColor}`);
+      console.log(`     ⚫ B&W: ${cenaBw}`);
 
       return `
         <div class="obliczenie-item">
-          <strong>${icon} ${escHtml(w.file)}</strong>
-          <div class="obliczenie-text">${escHtml(obliczenie)}</div>
-          <div class="obliczenie-cena">${cenaCalkkowita}</div>
+          <strong>📄 ${escHtml(w.file)}</strong>
+          <div style="margin-top:8px; display:flex; flex-direction:column; gap:6px;">
+            <div style="padding:6px; background:#fff3cd; border-radius:4px; border-left:3px solid #ffc107;">
+              <div style="font-weight:600; color:#856404;">🎨 Kolor: ${cenaColor}</div>
+              <div class="obliczenie-text" style="font-size:0.75rem; color:#666; margin-top:2px;">${escHtml(wyjasnColor)}</div>
+            </div>
+            <div style="padding:6px; background:#f5f5f5; border-radius:4px; border-left:3px solid #424242;">
+              <div style="font-weight:600; color:#424242;">⚫ Czarno-białe: ${cenaBw}</div>
+              <div class="obliczenie-text" style="font-size:0.75rem; color:#666; margin-top:2px;">${escHtml(wyjasnBw)}</div>
+            </div>
+          </div>
         </div>
       `;
     }).join('');
@@ -1518,12 +1539,35 @@ export function init() {
       `;
     }
 
-    // Add total summary
-    const suma = wyniki.reduce((s, w) => s + (w.price || 0), 0);
+    // Add total summary (both colors)
+    let sumaColor = 0;
+    let sumaBw = 0;
+    wyniki.forEach(w => {
+      let widthMm = 0, heightMm = 0;
+      if (w.dimsCsv && w.dimsCsv.includes('x')) {
+        const dims = w.dimsCsv.split(',')[0].trim().split('x');
+        widthMm = parseFloat(dims[0]);
+        heightMm = parseFloat(dims[1]);
+      }
+      if (widthMm > 0 && heightMm > 0) {
+        const pColor = calculateCadByDims(widthMm, heightMm, w.pagesCount || 1, 'color');
+        const pBw = calculateCadByDims(widthMm, heightMm, w.pagesCount || 1, 'bw');
+        sumaColor += pColor?.cena || 0;
+        sumaBw += pBw?.cena || 0;
+      }
+    });
+
     html += `
       <div style="margin-top:12px; padding-top:12px; border-top:2px solid #d0e8ff;">
-        <div style="font-size:14px; color:#28a745; font-weight:bold; text-align:right;">
-          💰 Razem: ${fmtPLN(suma)}
+        <div style="display:flex; justify-content:space-between; gap:12px;">
+          <div style="flex:1; text-align:center; padding:8px; background:#fff3cd; border-radius:4px;">
+            <div style="font-size:12px; color:#856404;">🎨 Razem Kolor</div>
+            <div style="font-size:16px; color:#ffc107; font-weight:bold;">${fmtPLN(sumaColor)}</div>
+          </div>
+          <div style="flex:1; text-align:center; padding:8px; background:#f5f5f5; border-radius:4px;">
+            <div style="font-size:12px; color:#424242;">⚫ Razem B&W</div>
+            <div style="font-size:16px; color:#424242; font-weight:bold;">${fmtPLN(sumaBw)}</div>
+          </div>
         </div>
       </div>
     `;
