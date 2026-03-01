@@ -89,8 +89,8 @@ function setPrintMode(mode) {
   console.log(`📋 Tryb druku zmieniony na: ${PRINT_MODE}`);
 }
 
-const BASE_LENGTHS  = CAD_CENNIK.baseLengthMm;
-const WIDTHS        = CAD_CENNIK.formatToWidth;
+let BASE_LENGTHS = {};
+let WIDTHS = {};
 const MAX_FILES_SOFT = 50;
 
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej */
@@ -901,6 +901,12 @@ export function init() {
     'nieformat': 0.50
   };
   
+  // ✅ Inicjalizuj BASE_LENGTHS i WIDTHS z CAD_CENNIK
+  if (CAD_CENNIK) {
+    BASE_LENGTHS = CAD_CENNIK.baseLengthMm || {};
+    WIDTHS = CAD_CENNIK.formatToWidth || {};
+  }
+  
   const dropZone    = document.getElementById('cadDropZone');
   if (!dropZone) return;
   if (dropZone.dataset.cadInitDone === '1') return;
@@ -941,6 +947,8 @@ export function init() {
   // ── Price selection checkboxes ─────────────────────────────────────────────
   const selectColorCheckbox = document.getElementById('selectColor');
   const selectBwCheckbox = document.getElementById('selectBw');
+  const selectColorPrice = document.getElementById('selectColorPrice');
+  const selectBwPrice = document.getElementById('selectBwPrice');
   const cadAddToCartBtn = document.getElementById('cadAddToCart');
 
   function updatePriceSelection() {
@@ -1687,6 +1695,11 @@ window.addEventListener('razdwa:pricesUpdated', () => {
     'A4': priceManager.getPrice('drukCAD.fold.A3L') || 0.7,
     'nieformat': 0.50
   };
+  // ✅ Odśwież BASE_LENGTHS i WIDTHS
+  if (CAD_CENNIK) {
+    BASE_LENGTHS = CAD_CENNIK.baseLengthMm || {};
+    WIDTHS = CAD_CENNIK.formatToWidth || {};
+  }
   // Odświeź obliczenia jeśli są aktywne pliki
   const files = window.cadUploadFiles || [];
   if (files.length > 0 && window.recalculateAllCAD) {
