@@ -47,6 +47,7 @@ export function init() {
     set('resUnitPrice', formatPLN(unitPrice));
     set('resTotalPrice', formatPLN(total));
     if (resultArea) resultArea.style.display = '';
+    if (addBtn) addBtn.disabled = false;
 
     // Monitor update
     const typeLabel = type === 'full' ? 'Montaż pełny' : 'Wymiana wkładu';

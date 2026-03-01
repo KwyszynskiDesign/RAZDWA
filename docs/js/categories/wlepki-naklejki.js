@@ -49,6 +49,7 @@ export function init() {
     set('total-price', formatPLN(lastTotal));
 
     if (resultDisplay) resultDisplay.style.display = 'block';
+    if (addBtn) addBtn.disabled = false;
 
     // Monitor update
     const groupLabel = group === 'wlepki_obrys_folia' ? 'Wlepki obrys folia' : group === 'wlepki_full' ? 'Wlepki full' : 'Naklejki';

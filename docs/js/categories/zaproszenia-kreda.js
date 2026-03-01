@@ -52,6 +52,7 @@ export function init() {
     show('resSatinHint', isSatin);
 
     if (resultArea) resultArea.style.display = '';
+    if (addBtn) addBtn.disabled = false;
 
     // Monitor update
     const sidesLabel = sides === '2' ? 'Dwustronne' : 'Jednostronne';
