@@ -1,54 +1,47 @@
-// app.js – inicjalizacja wszystkich 17 kategorii kalkulatora RAZDWA
-// Importuje każdą kategorię i uruchamia jej init() po załadowaniu DOM.
+// app.js – router i lazy loading kategorii kalkulatora RAZDWA
 
-import { init as initCadUpload }        from './categories/cad-upload.js';
-import { init as initDrukA4A3Skan }     from './categories/druk-a4-a3-skan.js';
-import { init as initDrukCad }          from './categories/druk-cad.js';
-import { init as initDyplomy }          from './categories/dyplomy.js';
-import { init as initPlakaty }          from './categories/plakaty.js';
-import { init as initBanner }           from './categories/banner.js';
-import { init as initFoliaSzroniona }   from './categories/folia-szroniona.js';
-import { init as initLaminowanie }      from './categories/laminowanie.js';
-import { init as initRollUp }           from './categories/roll-up.js';
-import { init as initSolwentPlakaty }   from './categories/solwent-plakaty.js';
-import { init as initUlotki }           from './categories/ulotki-cyfrowe.js';
-import { init as initUploadKalkulator } from './categories/upload-kalkulator.js';
-import { init as initUstawienia }       from './categories/ustawienia.js';
-import { init as initVouchery }         from './categories/vouchery.js';
-import { init as initWizytowki }        from './categories/wizytowki-druk-cyfrowy.js';
-import { init as initWlepki }           from './categories/wlepki-naklejki.js';
-import { init as initZaproszenia }      from './categories/zaproszenia-kreda.js';
-
-
-
-/** Mapa id kategorii → funkcja inicjalizująca */
-const CATEGORY_INITS = {
-  'cad-upload':              initCadUpload,
-  'druk-a4-a3-skan':         initDrukA4A3Skan,
-  'druk-cad':                initDrukCad,
-  'dyplomy':                 initDyplomy,
-  'plakaty':                 initPlakaty,
-  'banner':                  initBanner,
-  'folia-szroniona':         initFoliaSzroniona,
-  'laminowanie':             initLaminowanie,
-  'roll-up':                 initRollUp,
-  'solwent-plakaty':         initSolwentPlakaty,
-  'ulotki-cyfrowe':          initUlotki,
-  'upload-kalkulator':       initUploadKalkulator,
-  'ustawienia':              initUstawienia,
-  'vouchery':                initVouchery,
-  'wizytowki-druk-cyfrowy':  initWizytowki,
-  'wlepki-naklejki':         initWlepki,
-  'zaproszenia-kreda':       initZaproszenia,
+/** Mapa id kategorii → ścieżka modułu (lazy import) */
+const CATEGORY_MODULES = {
+  'cad-upload':              './categories/cad-upload.js',
+  'druk-a4-a3-skan':         './categories/druk-a4-a3-skan.js',
+  'druk-cad':                './categories/druk-cad.js',
+  'dyplomy':                 './categories/dyplomy.js',
+  'plakaty':                 './categories/plakaty.js',
+  'banner':                  './categories/banner.js',
+  'folia-szroniona':         './categories/folia-szroniona.js',
+  'laminowanie':             './categories/laminowanie.js',
+  'roll-up':                 './categories/roll-up.js',
+  'solwent-plakaty':         './categories/solwent-plakaty.js',
+  'ulotki-cyfrowe':          './categories/ulotki-cyfrowe.js',
+  'upload-kalkulator':       './categories/upload-kalkulator.js',
+  'ustawienia':              './categories/ustawienia.js',
+  'vouchery':                './categories/vouchery.js',
+  'wizytowki-druk-cyfrowy':  './categories/wizytowki-druk-cyfrowy.js',
+  'wlepki-naklejki':         './categories/wlepki-naklejki.js',
+  'zaproszenia-kreda':       './categories/zaproszenia-kreda.js',
 };
+
+const CATEGORY_INIT_CACHE = new Map();
 
 /**
  * Uruchom inicjalizację dla podanej kategorii (jeśli jest zarejestrowana).
  * @param {string} categoryId
  */
-export function initCategory(categoryId) {
-  const fn = CATEGORY_INITS[categoryId];
-  if (fn) fn();
+export async function initCategory(categoryId) {
+  const modulePath = CATEGORY_MODULES[categoryId];
+  if (!modulePath) return;
+
+  try {
+    let initFn = CATEGORY_INIT_CACHE.get(categoryId);
+    if (!initFn) {
+      const mod = await import(modulePath);
+      initFn = typeof mod?.init === 'function' ? mod.init : null;
+      CATEGORY_INIT_CACHE.set(categoryId, initFn);
+    }
+    if (initFn) initFn();
+  } catch (err) {
+    console.error(`Błąd init kategorii ${categoryId}:`, err);
+  }
 }
 
 /**
@@ -56,13 +49,8 @@ export function initCategory(categoryId) {
  * są aktualnie obecne na stronie.
  */
 export function initAll() {
-  for (const [id, fn] of Object.entries(CATEGORY_INITS)) {
-    try {
-      fn();
-    } catch (err) {
-      // Nie przerywaj inicjalizacji pozostałych kategorii
-    }
-  }
+  // Pozostawione dla kompatybilności - inicjalizacja sekwencyjna lazy
+  return Promise.all(Object.keys(CATEGORY_MODULES).map(id => initCategory(id)));
 }
 
 // ─── SPA ROUTER ───────────────────────────────────────────────────────────────
@@ -145,7 +133,10 @@ function setupGlobalMonitorListener() {
 // Set up the global listener once
 setupGlobalMonitorListener();
 
+let loadRequestSeq = 0;
+
 async function loadCategory(hash) {
+  const requestId = ++loadRequestSeq;
   const id = hash.replace(/^#?\//, '');
   const container = document.getElementById('viewContainer');
   if (!container) return;
@@ -170,15 +161,20 @@ async function loadCategory(hash) {
     if (el.id !== 'emptyState' && el.id !== 'loadingSpinner') el.remove();
   });
 
+  let timeoutId;
   try {
-    const resp = await fetch(`categories/${id}.html`);
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), 12000);
+    const resp = await fetch(`categories/${id}.html`, { signal: controller.signal });
+    if (requestId !== loadRequestSeq) return;
     if (loadingSpinner) loadingSpinner.style.display = 'none';
     if (resp.ok) {
       const div = document.createElement('div');
       div.innerHTML = await resp.text();
+      if (requestId !== loadRequestSeq) return;
       container.appendChild(div);
       attachMonitor(div);
-      initCategory(id);
+      await initCategory(id);
     } else {
       const err = document.createElement('div');
       err.style.cssText = 'padding:20px;color:#f55;';
@@ -186,11 +182,16 @@ async function loadCategory(hash) {
       container.appendChild(err);
     }
   } catch (err) {
+    if (requestId !== loadRequestSeq) return;
     if (loadingSpinner) loadingSpinner.style.display = 'none';
     const errEl = document.createElement('div');
     errEl.style.cssText = 'padding:20px;color:#f55;';
-    errEl.textContent = `Błąd sieci: ${err.message}`;
+    errEl.textContent = err?.name === 'AbortError'
+      ? 'Przekroczono czas ładowania kategorii (12s). Spróbuj ponownie.'
+      : `Błąd sieci: ${err.message}`;
     container.appendChild(errEl);
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 
@@ -199,12 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize basket/calculator core
   const core = new KalkulatorCore();
   window.kalkulatorCore = core;
-
-  Promise.allSettled(
-    Object.entries(CATEGORY_INITS).map(([id, fn]) =>
-      Promise.resolve().then(() => fn()).then(() => id)
-    )
-  ).then(() => {});
 
   // SPA router: załaduj kategorię z hash przy starcie
   if (window.location.hash) loadCategory(window.location.hash);
