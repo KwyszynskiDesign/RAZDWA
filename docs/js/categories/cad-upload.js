@@ -1583,7 +1583,7 @@ export function init() {
     `;
 
     lista.innerHTML = html;
-    console.log(`✅ Explanations rendered: ${wyniki.length} items, total: ${fmtPLN(suma)}`);
+    console.log(`✅ Explanations rendered: ${wyniki.length} items, color: ${fmtPLN(sumaColor)}, bw: ${fmtPLN(sumaBw)}`);
   }
 
   function recalculateAll() {
