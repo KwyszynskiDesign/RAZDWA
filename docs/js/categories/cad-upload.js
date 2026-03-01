@@ -8,7 +8,7 @@ console.log('✅ CAD WIELKOFORMATOWE FULL SYSTEM IMPORTED');
 // ─── Pobierz ceny z centralizowanego price-manager ──────────────────────────────
 let CAD_CENNIK = null;
 
-async function initCadPrices() {
+function initCadPrices() {
   CAD_CENNIK = {
     formatowe: {
       kolor: {
@@ -63,27 +63,16 @@ async function initCadPrices() {
   console.log('💎 CENNIK CAD załadowany z price-manager:', CAD_CENNIK);
 }
 
-// Zainicjalizuj ceny zaraz
-await initCadPrices();
-
 // ─── 🎯 WSZYSTKIE GLOBALNE STAŁE – ZERO UNDEFINED! ──────────────────────────────
 
 /** Cena skanowania: 0,08 zł/cm */
-const SCAN_PER_CM = priceManager.getPrice('drukCAD.wfScanPerCm') || 0.08;
+let SCAN_PER_CM = 0.08;
 
 /** Tolerancja (mm) przy sprawdzaniu długości formatowej */
 const TOLERANCJA_MM = 5;
 
 /** Ceny składania (złożenie) dla różnych formatów */
-const SKLAD_CENY = {
-  'A0+': priceManager.getPrice('drukCAD.fold.A0p') || 4.0,
-  'A0': priceManager.getPrice('drukCAD.fold.A0') || 3.0,
-  'A1': priceManager.getPrice('drukCAD.fold.A1') || 2.0,
-  'A2': priceManager.getPrice('drukCAD.fold.A2') || 1.5,
-  'A3': priceManager.getPrice('drukCAD.fold.A3') || 1.0,
-  'A4': priceManager.getPrice('drukCAD.fold.A3L') || 0.7,
-  'nieformat': 0.50
-};
+let SKLAD_CENY = {};
 
 /** Global array do kumulacji wszystkich wyników */
 let globalneWyniki = [];
@@ -899,6 +888,19 @@ let lastScanExpl = [];
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
+  // ✅ Najpierw załaduj ceny z priceManager
+  initCadPrices();
+  SCAN_PER_CM = priceManager.getPrice('drukCAD.wfScanPerCm') || 0.08;
+  SKLAD_CENY = {
+    'A0+': priceManager.getPrice('drukCAD.fold.A0p') || 4.0,
+    'A0': priceManager.getPrice('drukCAD.fold.A0') || 3.0,
+    'A1': priceManager.getPrice('drukCAD.fold.A1') || 2.0,
+    'A2': priceManager.getPrice('drukCAD.fold.A2') || 1.5,
+    'A3': priceManager.getPrice('drukCAD.fold.A3') || 1.0,
+    'A4': priceManager.getPrice('drukCAD.fold.A3L') || 0.7,
+    'nieformat': 0.50
+  };
+  
   const dropZone    = document.getElementById('cadDropZone');
   if (!dropZone) return;
   if (dropZone.dataset.cadInitDone === '1') return;
@@ -1672,9 +1674,19 @@ export function init() {
 }
 
 // ─── 🔄 NASŁUCHIWANIE NA ZMIANY CEN Z PRICE-MANAGER ──────────────────────────────
-window.addEventListener('razdwa:pricesUpdated', async () => {
+window.addEventListener('razdwa:pricesUpdated', () => {
   console.log('🔄 Ceny zmienione! Reinicjalizuję CAD cennik...');
-  await initCadPrices();
+  initCadPrices();
+  SCAN_PER_CM = priceManager.getPrice('drukCAD.wfScanPerCm') || 0.08;
+  SKLAD_CENY = {
+    'A0+': priceManager.getPrice('drukCAD.fold.A0p') || 4.0,
+    'A0': priceManager.getPrice('drukCAD.fold.A0') || 3.0,
+    'A1': priceManager.getPrice('drukCAD.fold.A1') || 2.0,
+    'A2': priceManager.getPrice('drukCAD.fold.A2') || 1.5,
+    'A3': priceManager.getPrice('drukCAD.fold.A3') || 1.0,
+    'A4': priceManager.getPrice('drukCAD.fold.A3L') || 0.7,
+    'nieformat': 0.50
+  };
   // Odświeź obliczenia jeśli są aktywne pliki
   const files = window.cadUploadFiles || [];
   if (files.length > 0 && window.recalculateAllCAD) {

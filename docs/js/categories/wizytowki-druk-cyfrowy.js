@@ -47,9 +47,12 @@ function loadWizytowkiPrices() {
   };
 }
 
-let PRICES = loadWizytowkiPrices();
+let PRICES = {};
 
 export function init() {
+  // ✅ Najpierw załaduj ceny z priceManager
+  PRICES = loadWizytowkiPrices();
+  
   const calcBtn = document.getElementById('w-calculate');
   if (!calcBtn) return;
 
