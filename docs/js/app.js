@@ -1,5 +1,10 @@
 // app.js – router i lazy loading kategorii kalkulatora RAZDWA
 
+import priceManager from './price-manager.js';
+
+// Zainicjalizuj price manager na start
+await priceManager.init();
+
 /** Mapa id kategorii → ścieżka modułu (lazy import) */
 const CATEGORY_MODULES = {
   'cad-upload':              './categories/cad-upload.js',
