@@ -613,6 +613,41 @@ function download(content, filename) {
   URL.revokeObjectURL(url);
 }
 
+function isPdfFile(file) {
+  const name = String(file?.name || '').toLowerCase();
+  const type = String(file?.type || '').toLowerCase();
+  return name.endsWith('.pdf') || type === 'application/pdf';
+}
+
+function isImageFile(file) {
+  const name = String(file?.name || '').toLowerCase();
+  const type = String(file?.type || '').toLowerCase();
+  return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|gif|tiff|tif)$/i.test(name);
+}
+
+function showUploadStatus(message, type = 'warn') {
+  const statusEl = document.getElementById('cadUploadStatus');
+  if (!statusEl) return;
+
+  if (!message) {
+    statusEl.style.display = 'none';
+    statusEl.textContent = '';
+    return;
+  }
+
+  statusEl.style.display = '';
+  statusEl.textContent = message;
+  if (type === 'error') {
+    statusEl.style.background = '#ffe8e8';
+    statusEl.style.borderColor = '#ef4444';
+    statusEl.style.color = '#7f1d1d';
+  } else {
+    statusEl.style.background = '#fff3cd';
+    statusEl.style.borderColor = '#ffc107';
+    statusEl.style.color = '#856404';
+  }
+}
+
 /**
  * Analyze all dropped files (JPG/PNG + PDF multi-page)
  * @param {File[]} fileEntries - dropped files
@@ -623,13 +658,14 @@ export async function analyzeAllFiles(fileEntries) {
   
   let total = 0;
   const details = [];
+  const unsupported = [];
   let fileIdx = 1;
 
   for (const file of fileEntries) {
     const fileName = file.name.toLowerCase();
     console.log(`  📄 Processing: ${file.name} (${fileName})`);
     
-    if (fileName.endsWith('.pdf')) {
+    if (isPdfFile(file)) {
       // Analyze PDF multi-page
       const pdfData = await analyzePdf(file);
       if (pdfData.pages.length > 0) {
@@ -655,7 +691,7 @@ export async function analyzeAllFiles(fileEntries) {
       } else {
         console.warn(`  ⚠️ PDF has no pages: ${file.name}`);
       }
-    } else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) {
+    } else if (isImageFile(file)) {
       // Single image file
       try {
         const dims = await detectImageDimensions(file);
@@ -680,12 +716,13 @@ export async function analyzeAllFiles(fileEntries) {
       }
     } else {
       console.warn(`  ⚠️ Unsupported file type: ${file.name}`);
+      unsupported.push(file.name);
     }
   }
 
   console.log(`✅ Total: ${total.toFixed(2)} zł (${details.length} files)`);
   console.log('📋 FINAL DETAILS:', details);
-  return { total, details, count: details.length };
+  return { total, details, count: details.length, unsupported };
 }
 
 /**
@@ -866,6 +903,7 @@ export function init() {
   modeEl      = document.getElementById('cadMode');
   const printModeEl = document.getElementById('printMode');
   const vatToggleEl = document.getElementById('vatToggle');
+  showUploadStatus('');
 
   // ✅ DEPRECATED: printMode jest teraz ukryty - pokazujemy obie ceny jednocześnie
   if (printModeEl) {
@@ -1092,7 +1130,16 @@ export function init() {
 
   // ── File management ──────────────────────────────────────────────────────────
   function addFiles(fileList) {
+    if (!fileList || fileList.length === 0) return;
+
+    const unsupportedNames = [];
+
     for (const f of fileList) {
+      if (!isPdfFile(f) && !isImageFile(f)) {
+        unsupportedNames.push(f.name);
+        continue;
+      }
+
       const entry = {
         id: _nextId++,
         name: f.name,
@@ -1110,8 +1157,15 @@ export function init() {
         blob: f,
       };
       files.push(entry);
-      if (f.type.startsWith('image/')) autoDetectDims(entry);
+      if (isImageFile(f)) autoDetectDims(entry);
     }
+
+    if (unsupportedNames.length > 0) {
+      showUploadStatus(`Pominięto nieobsługiwane pliki (${unsupportedNames.length}): ${unsupportedNames.join(', ')}. Obsługiwane: PDF oraz obrazy.`);
+    } else {
+      showUploadStatus('');
+    }
+
     if (warningEl) warningEl.style.display = files.length > MAX_FILES_SOFT ? '' : 'none';
     renderFileList();
   }
@@ -1248,6 +1302,17 @@ export function init() {
     try {
       const result = await analyzeAllFiles(Array.from(fileList));
       console.log(`📊 Analysis complete: ${result.details.length} new items`);
+
+      if (result.unsupported?.length) {
+        showUploadStatus(`Pominięto nieobsługiwane pliki (${result.unsupported.length}): ${result.unsupported.join(', ')}. Obsługiwane: PDF oraz obrazy.`);
+      } else {
+        showUploadStatus('');
+      }
+
+      if (!result.details.length) {
+        console.warn('⚠️ No analyzable files in this batch');
+        return;
+      }
 
       // ✅ Uzupełnij dane w liście plików (format, wymiary, cena/strona)
       result.details.forEach(d => {
