@@ -760,14 +760,18 @@ export async function detectImageDimensions(file) {
 export function renderResultsTable(details, total) {
   const container = document.getElementById('results-container');
   const tbody = document.getElementById('results-body');
-  const totalColorEl = document.getElementById('results-total-color');
-  const totalBwEl = document.getElementById('results-total-bw');
+  const totalColorElLocal = document.getElementById('results-total-color');
+  const totalBwElLocal = document.getElementById('results-total-bw');
   const totalLiveEl = document.getElementById('results-total-live');
 
-  if (!container || !tbody || !totalColorEl || !totalBwEl) {
+  if (!container || !tbody || !totalColorElLocal || !totalBwElLocal) {
     console.warn('⚠️ Results table elements not found');
     return;
   }
+
+  // Update globals for syncPriceDisplay
+  totalColorEl = totalColorElLocal;
+  totalBwEl = totalBwElLocal;
 
   console.log(`🎨 RENDER TABLE: ${details.length} entries (CUMULATIVE)`);
   console.log('📋 Details:', details);
@@ -861,8 +865,8 @@ export function renderResultsTable(details, total) {
   });
 
   // Wyświetl obie sumy
-  totalColorEl.textContent = fmtPLN(totalColor);
-  totalBwEl.textContent = fmtPLN(totalBw);
+  totalColorElLocal.textContent = fmtPLN(totalColor);
+  totalBwElLocal.textContent = fmtPLN(totalBw);
   
   if (totalLiveEl) {
     totalLiveEl.innerHTML = `
