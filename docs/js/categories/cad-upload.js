@@ -1009,7 +1009,7 @@ export function init() {
           window.kalkulatorCore.addItem(item);
           console.log(`✅ Added to cart:`, item);
         } else {
-          window.dispatchEvent(new CustomEvent('razdwa:addToCart', { detail: item }));
+          document.dispatchEvent(new CustomEvent('razdwa:addToCart', { detail: item }));
         }
       });
 
