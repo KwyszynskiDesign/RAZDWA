@@ -769,10 +769,6 @@ export function renderResultsTable(details, total) {
     return;
   }
 
-  // Update globals for syncPriceDisplay
-  totalColorEl = totalColorElLocal;
-  totalBwEl = totalBwElLocal;
-
   console.log(`🎨 RENDER TABLE: ${details.length} entries (CUMULATIVE)`);
   console.log('📋 Details:', details);
 
@@ -877,7 +873,12 @@ export function renderResultsTable(details, total) {
   container.style.display = '';
 
   updatePrices();
-  syncPriceDisplay();  // 🔄 Synchronizuj ceny do checkboxów
+  
+  // ✅ BEZPOŚREDNIO aktualizuj ceny w checkboxach
+  const selectColorPriceEl = document.getElementById('selectColorPrice');
+  const selectBwPriceEl = document.getElementById('selectBwPrice');
+  if (selectColorPriceEl) selectColorPriceEl.textContent = fmtPLN(totalColor);
+  if (selectBwPriceEl) selectBwPriceEl.textContent = fmtPLN(totalBw);
 
   console.log(`✅ Results table rendered: ${details.length} ALL entries`);
   console.log(`   💰 KOLOR: ${fmtPLN(totalColor)} | B&W: ${fmtPLN(totalBw)}`);
@@ -894,22 +895,7 @@ let fileCountEl = null;
 let files = []; // [{ id, name, sizeMB, qty, wMm, hMm, skladanieQty, scanCm, ... }]
 let lastScanExpl = [];
 
-// ── Price selection globals ────────────────────────────────────────────────
-let selectColorCheckbox = null;
-let selectBwCheckbox = null;
-let selectColorPrice = null;
-let selectBwPrice = null;
-let totalColorEl = null;
-let totalBwEl = null;
 
-function syncPriceDisplay() {
-  if (selectColorPrice && totalColorEl) {
-    selectColorPrice.textContent = totalColorEl.textContent;
-  }
-  if (selectBwPrice && totalBwEl) {
-    selectBwPrice.textContent = totalBwEl.textContent;
-  }
-}
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
@@ -951,13 +937,9 @@ export function init() {
   grandTotalEl = document.getElementById('results-total-live');
 
   // ── Price selection checkboxes ─────────────────────────────────────────────
-  selectColorCheckbox = document.getElementById('selectColor');
-  selectBwCheckbox = document.getElementById('selectBw');
-  selectColorPrice = document.getElementById('selectColorPrice');
-  selectBwPrice = document.getElementById('selectBwPrice');
+  const selectColorCheckbox = document.getElementById('selectColor');
+  const selectBwCheckbox = document.getElementById('selectBw');
   const cadAddToCartBtn = document.getElementById('cadAddToCart');
-  totalColorEl = document.getElementById('results-total-color');
-  totalBwEl = document.getElementById('results-total-bw');
 
   function updatePriceSelection() {
     const colorChecked = selectColorCheckbox?.checked;
