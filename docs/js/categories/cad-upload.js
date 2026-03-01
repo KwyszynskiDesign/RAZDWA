@@ -622,7 +622,10 @@ function isPdfFile(file) {
 function isImageFile(file) {
   const name = String(file?.name || '').toLowerCase();
   const type = String(file?.type || '').toLowerCase();
-  return type.startsWith('image/') || /\.(jpg|jpeg|png|webp|bmp|gif|tiff|tif)$/i.test(name);
+  // Obsługiwane: JPG, PNG, TIFF (rozszerzenie lub MIME type image/*)
+  const supportedExt = /\.(jpg|jpeg|png|tiff|tif)$/i.test(name);
+  const supportedMime = type.startsWith('image/') && !/\.(webp|bmp|gif|svg)$/i.test(name);
+  return supportedExt || supportedMime;
 }
 
 function showUploadStatus(message, type = 'warn') {
@@ -1161,7 +1164,7 @@ export function init() {
     }
 
     if (unsupportedNames.length > 0) {
-      showUploadStatus(`Pominięto nieobsługiwane pliki (${unsupportedNames.length}): ${unsupportedNames.join(', ')}. Obsługiwane: PDF oraz obrazy.`);
+      showUploadStatus(`Pominięto nieobsługiwane pliki (${unsupportedNames.length}): ${unsupportedNames.join(', ')}. Obsługiwane: PDF, JPG, PNG, TIFF.`);
     } else {
       showUploadStatus('');
     }
@@ -1304,7 +1307,7 @@ export function init() {
       console.log(`📊 Analysis complete: ${result.details.length} new items`);
 
       if (result.unsupported?.length) {
-        showUploadStatus(`Pominięto nieobsługiwane pliki (${result.unsupported.length}): ${result.unsupported.join(', ')}. Obsługiwane: PDF oraz obrazy.`);
+        showUploadStatus(`Pominięto nieobsługiwane pliki (${result.unsupported.length}): ${result.unsupported.join(', ')}. Obsługiwane: PDF, JPG, PNG, TIFF.`);
       } else {
         showUploadStatus('');
       }
