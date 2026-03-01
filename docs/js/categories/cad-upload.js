@@ -853,6 +853,8 @@ let lastScanExpl = [];
 export function init() {
   const dropZone    = document.getElementById('cadDropZone');
   if (!dropZone) return;
+  if (dropZone.dataset.cadInitDone === '1') return;
+  dropZone.dataset.cadInitDone = '1';
 
   const fileInput   = document.getElementById('cadFileInput');
   const fileListEl  = document.getElementById('cadFileList');
@@ -1456,18 +1458,7 @@ window.setPrintMode = setPrintMode;  // ✅ Export global mode setter
 
 export function destroy() { /* no global listeners to remove */ }
 
-// ──────────────────────────────────────────────────────────────────────────────
-// INITIALIZATION
-// ──────────────────────────────────────────────────────────────────────────────
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log('📝 CAD Upload: DOMContentLoaded');
-    init();
-  });
-} else {
-  console.log('📝 CAD Upload: DOM already loaded');
-  init();
-}
+// Uwaga: inicjalizacja jest sterowana przez router (app.js -> initCategory)
+// żeby uniknąć podwójnego bindowania listenerów.
 
 
