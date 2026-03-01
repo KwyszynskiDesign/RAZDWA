@@ -890,6 +890,23 @@ let fileCountEl = null;
 let files = []; // [{ id, name, sizeMB, qty, wMm, hMm, skladanieQty, scanCm, ... }]
 let lastScanExpl = [];
 
+// ── Price selection globals ────────────────────────────────────────────────
+let selectColorCheckbox = null;
+let selectBwCheckbox = null;
+let selectColorPrice = null;
+let selectBwPrice = null;
+let totalColorEl = null;
+let totalBwEl = null;
+
+function syncPriceDisplay() {
+  if (selectColorPrice && totalColorEl) {
+    selectColorPrice.textContent = totalColorEl.textContent;
+  }
+  if (selectBwPrice && totalBwEl) {
+    selectBwPrice.textContent = totalBwEl.textContent;
+  }
+}
+
 // ─── INIT ────────────────────────────────────────────────────────────────────
 export function init() {
   const dropZone    = document.getElementById('cadDropZone');
@@ -930,13 +947,13 @@ export function init() {
   grandTotalEl = document.getElementById('results-total-live');
 
   // ── Price selection checkboxes ─────────────────────────────────────────────
-  const selectColorCheckbox = document.getElementById('selectColor');
-  const selectBwCheckbox = document.getElementById('selectBw');
-  const selectColorPrice = document.getElementById('selectColorPrice');
-  const selectBwPrice = document.getElementById('selectBwPrice');
+  selectColorCheckbox = document.getElementById('selectColor');
+  selectBwCheckbox = document.getElementById('selectBw');
+  selectColorPrice = document.getElementById('selectColorPrice');
+  selectBwPrice = document.getElementById('selectBwPrice');
   const cadAddToCartBtn = document.getElementById('cadAddToCart');
-  const totalColorEl = document.getElementById('results-total-color');
-  const totalBwEl = document.getElementById('results-total-bw');
+  totalColorEl = document.getElementById('results-total-color');
+  totalBwEl = document.getElementById('results-total-bw');
 
   function updatePriceSelection() {
     const colorChecked = selectColorCheckbox?.checked;
@@ -950,14 +967,6 @@ export function init() {
     console.log(`📍 Price selection: color=${colorChecked}, bw=${bwChecked}`);
   }
 
-  function syncPriceDisplay() {
-    if (selectColorPrice && totalColorEl) {
-      selectColorPrice.textContent = totalColorEl.textContent;
-    }
-    if (selectBwPrice && totalBwEl) {
-      selectBwPrice.textContent = totalBwEl.textContent;
-    }
-  }
 
   if (selectColorCheckbox) {
     selectColorCheckbox.addEventListener('change', updatePriceSelection);

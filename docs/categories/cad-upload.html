@@ -423,15 +423,13 @@
     </table>
     <div class="cad-summary-section">
       <div class="cad-price-options">
-        <label class="cad-price-option">
+        <label class="cad-price-option-inline">
           <input type="checkbox" id="selectColor" class="cad-price-select">
-          <span class="cad-option-label">🎨 Kolor</span>
-          <span class="cad-option-price" id="selectColorPrice">0,00 zł</span>
+          <span>🎨 Kolor: <strong id="selectColorPrice">0,00 zł</strong></span>
         </label>
-        <label class="cad-price-option">
+        <label class="cad-price-option-inline">
           <input type="checkbox" id="selectBw" class="cad-price-select">
-          <span class="cad-option-label">⚫ Czarno-białe</span>
-          <span class="cad-option-price" id="selectBwPrice">0,00 zł</span>
+          <span>⚫ Czarno-białe: <strong id="selectBwPrice">0,00 zł</strong></span>
         </label>
       </div>
       <button type="button" id="cadAddToCart" class="btn-add-cart" style="display:none;">Dodaj do koszyka</button>
@@ -461,43 +459,27 @@
     .cad-price-options {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      margin-bottom: 16px;
+      gap: 8px;
+      margin-bottom: 12px;
     }
 
-    .cad-price-option {
+    .cad-price-option-inline {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: white;
-      border: 2px solid var(--border);
-      border-radius: 6px;
+      gap: 10px;
       cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
+      font-size: 0.95rem;
     }
 
-    .cad-price-option input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
+    .cad-price-option-inline input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
       cursor: pointer;
     }
 
-    .cad-price-option:has(input:checked) {
-      border-color: var(--primary, #22c55e);
-      background: #f0fdf4;
-    }
-
-    .cad-option-label {
-      flex: 1;
-      font-weight: 600;
-      color: var(--text-primary);
-    }
-
-    .cad-option-price {
-      font-weight: 700;
+    .cad-price-option-inline strong {
       color: var(--primary, #22c55e);
-      font-size: 1.1rem;
+      font-weight: 700;
     }
 
     .btn-add-cart {
