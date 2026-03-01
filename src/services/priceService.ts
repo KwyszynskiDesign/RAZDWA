@@ -2,9 +2,9 @@
  * priceService – warstwa pośrednia dostępu do danych cenowych.
  *
  * Wszystkie moduły kalkulacyjne muszą korzystać z getPrice() / setPrice()
- * zamiast importować config/prices.json bezpośrednio.
+ * zamiast importować docs/config/prices.json bezpośrednio.
  */
-import _config from "../../config/prices.json";
+import _config from "../../docs/config/prices.json";
 
 export const PRICES_STORAGE_KEY = "razdwa_prices";
 
