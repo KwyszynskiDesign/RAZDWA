@@ -421,7 +421,21 @@
         </tr>
       </tfoot>
     </table>
-    <div id="results-total-live" class="results-total-live suma">Suma całkowita: 0,00 zł</div>
+    <div class="cad-summary-section">
+      <div class="cad-price-options">
+        <label class="cad-price-option">
+          <input type="checkbox" id="selectColor" class="cad-price-select">
+          <span class="cad-option-label">🎨 Kolor</span>
+          <span class="cad-option-price" id="selectColorPrice">0,00 zł</span>
+        </label>
+        <label class="cad-price-option">
+          <input type="checkbox" id="selectBw" class="cad-price-select">
+          <span class="cad-option-label">⚫ Czarno-białe</span>
+          <span class="cad-option-price" id="selectBwPrice">0,00 zł</span>
+        </label>
+      </div>
+      <button type="button" id="cadAddToCart" class="btn-add-cart" style="display:none;">Dodaj do koszyka</button>
+    </div>
   </div>
 
   <!-- Tabela podsumowania -->
@@ -430,10 +444,128 @@
       <input type="checkbox" id="vatToggle" checked>
     </label>
     <button type="button" onclick="exportCSV()">Eksport CSV</button>
+    <button type="button" id="clearBtn">Wyczyść</button>
+    <button type="button" id="submitBtn" class="btn-submit">✓ Wyślij</button>
   </div>
 
   <!-- CSS Grid Layout -->
   <style>
+    .cad-summary-section {
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .cad-price-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .cad-price-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: white;
+      border: 2px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .cad-price-option input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .cad-price-option:has(input:checked) {
+      border-color: var(--primary, #22c55e);
+      background: #f0fdf4;
+    }
+
+    .cad-option-label {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .cad-option-price {
+      font-weight: 700;
+      color: var(--primary, #22c55e);
+      font-size: 1.1rem;
+    }
+
+    .btn-add-cart {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--primary, #22c55e);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-add-cart:hover {
+      background: var(--primary-hover, #16a34a);
+    }
+
+    .results-controls {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .results-controls label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .results-controls button {
+      padding: 8px 16px;
+      border: 1px solid var(--border);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .results-controls button:hover {
+      background: var(--surface-alt);
+    }
+
+    #clearBtn {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #991b1b;
+    }
+
+    #clearBtn:hover {
+      background: #fecaca;
+    }
+
+    #submitBtn {
+      background: var(--primary, #22c55e);
+      color: white;
+      border-color: var(--primary, #22c55e);
+      margin-left: auto;
+    }
+
+    #submitBtn:hover {
+      background: var(--primary-hover, #16a34a);
+    }
+    
     .main-calc-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -486,6 +618,12 @@
     @media (max-width: 1200px) {
       .main-calc-layout {
         grid-template-columns: 1fr;
+      }
+      .cad-price-options {
+        flex-direction: row;
+      }
+      .cad-price-option {
+        flex: 1;
       }
     }
   </style>

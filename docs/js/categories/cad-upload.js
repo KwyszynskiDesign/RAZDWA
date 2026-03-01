@@ -873,6 +873,7 @@ export function renderResultsTable(details, total) {
   container.style.display = '';
 
   updatePrices();
+  syncPriceDisplay();  // 🔄 Synchronizuj ceny do checkboxów
 
   console.log(`✅ Results table rendered: ${details.length} ALL entries`);
   console.log(`   💰 KOLOR: ${fmtPLN(totalColor)} | B&W: ${fmtPLN(totalBw)}`);
@@ -927,6 +928,113 @@ export function init() {
   // ✅ DOM elements for the old cad table system
   tableBody = document.querySelector('#resultsTable tbody') || document.getElementById('results-body');
   grandTotalEl = document.getElementById('results-total-live');
+
+  // ── Price selection checkboxes ─────────────────────────────────────────────
+  const selectColorCheckbox = document.getElementById('selectColor');
+  const selectBwCheckbox = document.getElementById('selectBw');
+  const selectColorPrice = document.getElementById('selectColorPrice');
+  const selectBwPrice = document.getElementById('selectBwPrice');
+  const cadAddToCartBtn = document.getElementById('cadAddToCart');
+  const totalColorEl = document.getElementById('results-total-color');
+  const totalBwEl = document.getElementById('results-total-bw');
+
+  function updatePriceSelection() {
+    const colorChecked = selectColorCheckbox?.checked;
+    const bwChecked = selectBwCheckbox?.checked;
+    
+    // Pokaż przycisk tylko jeśli coś zaznaczono
+    if (cadAddToCartBtn) {
+      cadAddToCartBtn.style.display = (colorChecked || bwChecked) ? '' : 'none';
+    }
+    
+    console.log(`📍 Price selection: color=${colorChecked}, bw=${bwChecked}`);
+  }
+
+  function syncPriceDisplay() {
+    if (selectColorPrice && totalColorEl) {
+      selectColorPrice.textContent = totalColorEl.textContent;
+    }
+    if (selectBwPrice && totalBwEl) {
+      selectBwPrice.textContent = totalBwEl.textContent;
+    }
+  }
+
+  if (selectColorCheckbox) {
+    selectColorCheckbox.addEventListener('change', updatePriceSelection);
+  }
+  if (selectBwCheckbox) {
+    selectBwCheckbox.addEventListener('change', updatePriceSelection);
+  }
+
+  if (cadAddToCartBtn) {
+    cadAddToCartBtn.addEventListener('click', () => {
+      const colorChecked = selectColorCheckbox?.checked;
+      const bwChecked = selectBwCheckbox?.checked;
+      
+      if (!colorChecked && !bwChecked) {
+        alert('Wybierz conajmniej jedną opcję (kolor lub czarno-białe)');
+        return;
+      }
+
+      // Wyślij do koszyka
+      const itemsToAdd = [];
+      
+      if (colorChecked && selectColorPrice) {
+        const price = parseFloat(selectColorPrice.textContent.replace(/[^\d.,]/g, '').replace(',', '.'));
+        itemsToAdd.push({
+          id: 'cad-upload-color-' + Date.now(),
+          price: price,
+          name: `CAD Upload - 🎨 Kolor (${files.length} plik${files.length !== 1 ? 'i/ów' : ''})`,
+          cat: 'CAD Upload'
+        });
+      }
+
+      if (bwChecked && selectBwPrice) {
+        const price = parseFloat(selectBwPrice.textContent.replace(/[^\d.,]/g, '').replace(',', '.'));
+        itemsToAdd.push({
+          id: 'cad-upload-bw-' + Date.now(),
+          price: price,
+          name: `CAD Upload - ⚫ Czarno-białe (${files.length} plik${files.length !== 1 ? 'i/ów' : ''})`,
+          cat: 'CAD Upload'
+        });
+      }
+
+      itemsToAdd.forEach(item => {
+        if (window.kalkulatorCore) {
+          window.kalkulatorCore.addItem(item);
+          console.log(`✅ Added to cart:`, item);
+        } else {
+          window.dispatchEvent(new CustomEvent('razdwa:addToCart', { detail: item }));
+        }
+      });
+
+      alert(`Dodano ${itemsToAdd.length} pozycj${itemsToAdd.length === 1 ? 'ę' : 'e'} do koszyka`);
+    });
+  }
+
+  // ── Submit button ──────────────────────────────────────────────────────────
+  document.getElementById('submitBtn')?.addEventListener('click', () => {
+    const colorChecked = selectColorCheckbox?.checked;
+    const bwChecked = selectBwCheckbox?.checked;
+
+    if (!colorChecked && !bwChecked) {
+      alert('Wybierz opcję do wysłania');
+      return;
+    }
+
+    // Przygotuj dane do wysłania
+    const submitData = {
+      timestamp: new Date().toISOString(),
+      files: files.map(f => ({ name: f.name, size: f.sizeMB, format: f.formatLabel })),
+      selectedOptions: {
+        color: colorChecked ? selectColorPrice?.textContent : null,
+        bw: bwChecked ? selectBwPrice?.textContent : null
+      }
+    };
+
+    console.log('📧 Submitting:', submitData);
+    alert(`Wysłano${colorChecked ? ' (Kolor)' : ''}${bwChecked ? ' (Czarno-białe)' : ''}`);
+  })
 
   // ── Drop zone ──────────────────────────────────────────────────────────────
   dropZone.addEventListener('click', () => fileInput.click());
