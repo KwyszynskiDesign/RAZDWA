@@ -377,9 +377,11 @@ class KalkulatorCore {
     document.addEventListener('razdwa:addToCart', (e) => {
       const d = e.detail || {};
       const cat = d.category || 'Inne';
-      const namePart = (d.name || cat).toLowerCase().replace(/[^\w]+/g, '-');
-      const id = namePart.slice(0, 60);
-      this.addItem({ id, price: d.totalPrice || 0, name: d.name || cat, cat });
+      const name = d.name || cat;
+      const namePart = name.toLowerCase().replace(/[^\w]+/g, '-');
+      const timestamp = Date.now();
+      const id = `${namePart.slice(0, 40)}-${timestamp}`;
+      this.addItem({ id, price: d.totalPrice || 0, name: name, cat });
     });
   }
 }
