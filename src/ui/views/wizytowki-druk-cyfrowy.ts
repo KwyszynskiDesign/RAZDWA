@@ -71,9 +71,9 @@ export const WizytowkiView: View = {
         const bruttoPrice = parseFloat((nettoPrice * VAT).toFixed(2));
         currentResult = { ...result, nettoPrice, bruttoPrice, isSatin };
 
-        nettoSpan.innerText = formatPLN(nettoPrice);
-        totalPriceSpan.innerText = formatPLN(bruttoPrice);
-        billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
+        if (nettoSpan) nettoSpan.innerText = formatPLN(nettoPrice);
+        if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(bruttoPrice);
+        if (billedQtyHint) billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
         if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny ${(result.totalPrice).toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";

@@ -161,14 +161,27 @@ export function calculateBusinessCards(options: {
 }) {
   let table: any;
   if (options.family === "deluxe") {
-    const optObj = BIZ.cyfrowe.deluxe.options[options.deluxeOpt!];
+    if (!options.deluxeOpt) {
+      throw new Error("Wybierz opcję dla wizytówek DELUXE");
+    }
+    const optObj = BIZ?.cyfrowe?.deluxe?.options?.[options.deluxeOpt];
+    if (!optObj) {
+      throw new Error("Błąd: brak danych cenowych dla wybranej opcji DELUXE");
+    }
     table = optObj.prices;
   } else {
     const tablesByFinish =
       options.finish === "softtouch"
-        ? BIZ.cyfrowe.softtouchPrices
-        : BIZ.cyfrowe.standardPrices;
-    table = tablesByFinish[options.size!][options.lam!];
+        ? BIZ?.cyfrowe?.softtouchPrices
+        : BIZ?.cyfrowe?.standardPrices;
+    if (!tablesByFinish || !options.size || !options.lam) {
+      throw new Error("Błąd: brak danych cenowych dla wybranej konfiguracji");
+    }
+    table = tablesByFinish[options.size]?.[options.lam];
+  }
+
+  if (!table) {
+    throw new Error("Błąd: brak tabeli cenowej");
   }
 
   const qtyBilled = pickNearestCeilKey(table, options.qty);

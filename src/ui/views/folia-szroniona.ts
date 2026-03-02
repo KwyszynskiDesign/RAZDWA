@@ -55,9 +55,9 @@ export const FoliaSzronionaView: View = {
             normalResult.style.display = "block";
             customQuote.style.display = "none";
             const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1000000;
-            areaValSpan.innerText = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? ' (min. 1m2)' : ''}`;
-            unitPriceSpan.innerText = formatPLN(result.tierPrice);
-            totalPriceSpan.innerText = formatPLN(result.totalPrice);
+            if (areaValSpan) areaValSpan.innerText = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? ' (min. 1m2)' : ''}`;
+            if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
+            if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
             addToCartBtn.disabled = false;
             ctx.updateLastCalculated(result.totalPrice, "Folia szroniona");
         }

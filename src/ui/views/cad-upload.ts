@@ -31,6 +31,7 @@ export const CadUploadView: View = {
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
+    const resultsContainer = container.querySelector<HTMLElement>("#results-container");
     const tableBody = container.querySelector<HTMLElement>("#results-body") ||
                      container.querySelector<HTMLElement>("#filesTableBody") ||
                      container.querySelector<HTMLElement>("#cadTableBody");
@@ -39,6 +40,7 @@ export const CadUploadView: View = {
     const summaryGrid = container.querySelector<HTMLElement>("#summaryGrid");
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
     const clearBtn = container.querySelector<HTMLButtonElement>("#clearBtn");
+    const addToCartBtn = container.querySelector<HTMLButtonElement>("#cadAddToCart");
 
     if (!dropZone || !fileInput || !tableBody) {
       console.error("❌ CAD Upload: Missing required elements");
@@ -85,8 +87,11 @@ export const CadUploadView: View = {
       if (files.length === 0) {
         tableBody.innerHTML = "";
         if (summaryPanel) summaryPanel.style.display = "none";
+        if (resultsContainer) resultsContainer.style.display = "none";
         return;
       }
+
+      if (resultsContainer) resultsContainer.style.display = "block";
 
       tableBody.innerHTML = files
         .map((file) => {
@@ -140,6 +145,11 @@ export const CadUploadView: View = {
       const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
       const grandTotalPrice = totalPrint + totalFolding + totalScan;
 
+      // Show/hide add to cart button
+      if (addToCartBtn) {
+        addToCartBtn.style.display = files.length > 0 ? "inline-block" : "none";
+      }
+
       summaryGrid.innerHTML = `
         <div class="summary-item">
           <span>Wydruki (${files.length} plik${files.length !== 1 ? "i/ów" : ""}):</span>
@@ -167,16 +177,18 @@ export const CadUploadView: View = {
     }
 
     async function addFiles(fileList: FileList): Promise<void> {
-      console.log("CAD FILES:", fileList);
+      console.log("CAD FILES:", fileList.length, "plików");
 
-      for (const file of Array.from(fileList)) {
-        console.log("Processing file:", file);
-
-        const fileEntry = await updateCadFileEntry(file);
+      const promises = Array.from(fileList).map(async (file) => {
+        console.log("Processing file:", file.name);
+        const fileEntry = await updateCadFileEntry(file, isColor);
         fileEntry.id = nextId++;
-        files.push(fileEntry);
-        renderFiles();
-      }
+        return fileEntry;
+      });
+
+      const newFiles = await Promise.all(promises);
+      files.push(...newFiles);
+      renderFiles();
     }
 
     // Event listeners
@@ -246,6 +258,44 @@ export const CadUploadView: View = {
         files = [];
         fileInput.value = "";
         renderFiles();
+      });
+    }
+
+    // Add to cart button
+    if (addToCartBtn) {
+      addToCartBtn.addEventListener("click", () => {
+        if (files.length === 0) {
+          alert("Nie dodano żadnych plików do wyceny");
+          return;
+        }
+
+        const totalPrint = files.reduce((sum, f) => sum + f.printPrice, 0);
+        const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
+        const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
+        const grandTotalPrice = totalPrint + totalFolding + totalScan;
+
+        const modeLabel = isColor ? "KOLOR" : "CZ-B";
+        const opts = [
+          `${files.length} plik${files.length !== 1 ? "i/ów" : ""}`,
+          modeLabel,
+          totalFolding > 0 ? "ze składaniem" : "",
+          totalScan > 0 ? "ze skanowaniem" : ""
+        ].filter(Boolean).join(", ");
+
+        ctx.cart.addItem({
+          id: `cad-upload-${Date.now()}`,
+          category: "CAD Upload",
+          name: `Wydruk wielkoformatowy (${files.length} plik${files.length !== 1 ? "i/ów" : ""})`,
+          quantity: files.length,
+          unit: "plik",
+          unitPrice: grandTotalPrice / files.length,
+          isExpress: ctx.expressMode,
+          totalPrice: grandTotalPrice,
+          optionsHint: opts,
+          payload: { files, totalPrint, totalFolding, totalScan }
+        });
+
+        ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
       });
     }
 
