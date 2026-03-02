@@ -32,6 +32,9 @@ export class Router {
     const hash = window.location.hash || "#/";
     let path = hash.startsWith("#/") ? hash.slice(2) : "";
     path = path.replace(/^\/+/, "");
+    
+    console.log("🔀 Router handling:", path);
+    
     if (!path) {
       this.renderHome();
       return;
@@ -44,8 +47,15 @@ export class Router {
 
     const view = this.routes.get(path);
     if (view) {
+      console.log("✅ Found view:", view.name);
       this.currentView = view;
-      await view.mount(this.container, this.getCtx());
+      try {
+        await view.mount(this.container, this.getCtx());
+        console.log("✅ View mounted successfully");
+      } catch (err) {
+        console.error("❌ View mount error:", err);
+        this.container.innerHTML = `<div class="error">Błąd ładowania widoku: ${err}</div>`;
+      }
     } else {
       try {
         const resp = await fetch(`categories/${path}.html`);
