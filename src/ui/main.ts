@@ -94,12 +94,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle old razdwa:addToCart event from legacy JS categories
   document.addEventListener("razdwa:addToCart", (e: Event) => {
-    console.log("🎯 razdwa:addToCart event received:", e);
     const customEvent = e as CustomEvent;
     const detail = customEvent.detail || {};
     const category = detail.category || "Inne";
     const totalPrice = detail.totalPrice || 0;
-    console.log(`📦 Adding: ${category} - ${totalPrice} zł`);
     
     const cartItem: CartItem = {
       id: `${category.toLowerCase().replace(/[^\w]+/g, "-")}-${Date.now()}`,
@@ -119,23 +117,17 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("✓ Dodano do listy");
   });
 
-  if (!viewContainer || !globalExpress || !categorySearch) {
-    console.error("❌ Missing required elements:", { viewContainer, globalExpress, categorySearch });
-    return;
-  }
+  if (!viewContainer || !globalExpress || !categorySearch) return;
 
   const getCtx = (): ViewContext => ({
     cart: {
       addItem: (item) => {
-        console.log("🛒 cart.addItem called:", item);
         cart.addItem(item);
-        console.log("📋 Updating cart UI...");
         updateCartUI();
         showToast("✓ Dodano do listy");
       }
     },
     addToBasket: (item) => {
-      console.log("📌 addToBasket called:", item);
       const cartItem: CartItem = {
         id: `${item.category}-${Date.now()}`,
         category: item.category,
