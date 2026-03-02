@@ -17,6 +17,8 @@ export interface CadUploadFileEntry {
   format: string;
   isFormatowy: boolean;
   isStandardWidth: boolean;
+  pageCount: number;
+  mode: 'color' | 'bw';
   folding: boolean;
   scanning: boolean;
   printPrice: number;
@@ -221,8 +223,8 @@ export function updateCadFileEntry(
     console.log("🟡 Processing file mode:", mode);
 
     return loadImageDimensions(file)
-      .then(({ widthPx, heightPx }) => {
-        console.log("🟡 Image dimensions:", widthPx, heightPx);
+      .then(({ widthPx, heightPx, pageCount }) => {
+        console.log("🟡 Image dimensions:", widthPx, heightPx, "pageCount:", pageCount);
         const widthMm = pxToMm(widthPx);
         const heightMm = pxToMm(heightPx);
         console.log("🟡 Dimensions in mm:", widthMm, heightMm);
@@ -234,9 +236,9 @@ export function updateCadFileEntry(
           fmt.format,
           fmt.isFormatowy,
           mode,
-          1
+          pageCount
         );
-        console.log("🟡 Calculated print price:", printPrice);
+        console.log("🟡 Calculated print price for", pageCount, "pages:", printPrice);
 
         return {
           id: Date.now(),
@@ -248,6 +250,8 @@ export function updateCadFileEntry(
           format: fmt.format,
           isFormatowy: fmt.isFormatowy,
           isStandardWidth: fmt.isStandardWidth,
+          pageCount,
+          mode,
           folding: false,
           scanning: false,
           printPrice,
@@ -268,6 +272,8 @@ export function updateCadFileEntry(
           format: "unknown",
           isFormatowy: false,
           isStandardWidth: false,
+          pageCount: 0,
+          mode,
           folding: false,
           scanning: false,
           printPrice: 0,
@@ -284,9 +290,9 @@ export function updateCadFileEntry(
   const heightMm = entry.heightMm || 0;
   const format = entry.format || 'unknown';
   const isFormatowy = entry.isFormatowy || false;
-  const qty = 1;
+  const qty = entry.pageCount || 1;
 
-  console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning });
+  console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning, pageCount: qty });
 
   const printPrice = calculateCadPrintPriceWithDimensions(widthMm, heightMm, format, isFormatowy, mode, qty);
   const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, qty);
@@ -304,6 +310,8 @@ export function updateCadFileEntry(
     format,
     isFormatowy,
     isStandardWidth: entry.isStandardWidth || false,
+    pageCount: entry.pageCount || 1,
+    mode: entry.mode || mode,
     folding: entry.folding || false,
     scanning: entry.scanning || false,
     printPrice,
@@ -317,14 +325,15 @@ function pxToMm(px: number): number {
   return px * PX_TO_MM_300DPI;
 }
 
-function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number }>{
+function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number; pageCount: number }>{
   return new Promise(async (resolve, reject) => {
     if (file.type === "application/pdf") {
       try {
         const bytes = await file.arrayBuffer();
         console.log("PDF bytes:", bytes.byteLength);
         const pdfDoc = await PDFDocument.load(bytes);
-        console.log("PDF loaded:", pdfDoc.getPageCount());
+        const pageCount = pdfDoc.getPageCount();
+        console.log("PDF loaded:", pageCount, "stron");
         const page = pdfDoc.getPage(0);
         const { width, height } = page.getSize(); // points (1/72 inch)
         console.log("Page size:", { width, height });
@@ -335,7 +344,7 @@ function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: n
         const heightPx = Math.round(height * pxPerPoint);
         console.log("Final px:", { widthPx, heightPx });
         
-        resolve({ widthPx, heightPx });
+        resolve({ widthPx, heightPx, pageCount });
       } catch (err) {
         reject(new Error("Failed to load PDF"));
       }
@@ -353,7 +362,8 @@ function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: n
       img.onload = () => {
         resolve({
           widthPx: img.naturalWidth || img.width,
-          heightPx: img.naturalHeight || img.height
+          heightPx: img.naturalHeight || img.height,
+          pageCount: 1
         });
       };
       img.onerror = () => reject(new Error("Failed to load image"));

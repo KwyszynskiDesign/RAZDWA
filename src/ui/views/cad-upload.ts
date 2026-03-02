@@ -129,8 +129,8 @@ export const CadUploadView: View = {
           <td>
             <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
           </td>
-          <td><strong>${escapeHtml(file.name)}</strong></td>
-          <td>${getMode() === "color" ? "Kolor" : "Czarno-biały"}</td>
+          <td><strong>${escapeHtml(file.name)}</strong>${file.pageCount > 1 ? ` <span style="color: #666;">(${file.pageCount} stron)</span>` : ''}</td>
+          <td>${file.mode === "color" ? "Kolor" : "Czarno-biały"}</td>
           <td><strong>${formatLabel(file.format)} / 1</strong></td>
           <td>${file.widthMm?.toFixed(1) || "—"} × ${file.heightMm?.toFixed(1) || "—"}</td>
           <td>${(adjustedPrint || 0).toFixed(2)}</td>
@@ -166,21 +166,31 @@ export const CadUploadView: View = {
       if (!summaryPanel || !summaryGrid) return;
 
       const surcharge = calcSurchargeMultiplier();
-      const totalPrint = files.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
+      
+      // Osobno dla koloru i czarnobiałego
+      const colorFiles = files.filter(f => f.mode === 'color');
+      const bwFiles = files.filter(f => f.mode === 'bw');
+      
+      const totalPrintColor = colorFiles.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
+      const totalPrintBw = bwFiles.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
+      const totalPrint = totalPrintColor + totalPrintBw;
+      
       const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
       const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
       const emailFee = optEmail?.checked ? 1 : 0;
+      const grandTotalColor = totalPrintColor + (colorFiles.length / files.length) * (totalFolding + totalScan + emailFee);
+      const grandTotalBw = totalPrintBw + (bwFiles.length / files.length) * (totalFolding + totalScan + emailFee);
       const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
-      if (totalColorEl) totalColorEl.textContent = isColor ? formatPLN(grandTotalPrice) : formatPLN(0);
-      if (totalBwEl) totalBwEl.textContent = isColor ? formatPLN(0) : formatPLN(grandTotalPrice);
+      if (totalColorEl) totalColorEl.textContent = formatPLN(grandTotalColor);
+      if (totalBwEl) totalBwEl.textContent = formatPLN(grandTotalBw);
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
       const selectBwPrice = container.querySelector<HTMLElement>("#selectBwPrice");
-      if (selectColorPrice) selectColorPrice.textContent = isColor ? formatPLN(grandTotalPrice) : formatPLN(0);
-      if (selectBwPrice) selectBwPrice.textContent = isColor ? formatPLN(0) : formatPLN(grandTotalPrice);
+      if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColor);
+      if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBw);
 
       // Show/hide add to cart button
       if (addToCartBtn) {
@@ -192,6 +202,16 @@ export const CadUploadView: View = {
           <span>Wydruki (${files.length} plik${files.length !== 1 ? "i/ów" : ""}):</span>
           <span>${formatPLN(totalPrint)}</span>
         </div>
+        ${colorFiles.length > 0 ? `
+        <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
+          <span>↳ Kolor (${colorFiles.length}):</span>
+          <span>${formatPLN(totalPrintColor)}</span>
+        </div>` : ''}
+        ${bwFiles.length > 0 ? `
+        <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
+          <span>↳ Czarno-biały (${bwFiles.length}):</span>
+          <span>${formatPLN(totalPrintBw)}</span>
+        </div>` : ''}
         <div class="summary-item">
           <span>Składanie:</span>
           <span>${formatPLN(totalFolding)}</span>
