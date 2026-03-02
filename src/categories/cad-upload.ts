@@ -46,18 +46,9 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
     return Math.abs(value - target) <= FORMAT_TOLERANCE_CLASSIFY;
   }
   
-  // Klasyfikacja A-formatów: 210, 297, 420, 594, 841mm
-  if (inRange(shorter, 210)) {
-    const fmt = inRange(longer, 297) ? 'A4' : (inRange(longer, 210) ? 'A4-landscape' : null);
-    if (fmt) {
-      console.log(`✅ ${fmt}`);
-      console.groupEnd();
-      return { format: fmt, isFormatowy: true, isStandardWidth: true };
-    }
-  }
-  
+  // CAD pricing starts at A3 – smaller formats are treated as A3
   if (inRange(shorter, 297)) {
-    const fmt = inRange(longer, 420) ? 'A3' : (inRange(longer, 297) ? 'A3-landscape' : null);
+    const fmt = 'A3';
     if (fmt) {
       console.log(`✅ ${fmt}`);
       console.groupEnd();
@@ -66,7 +57,7 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   }
   
   if (inRange(shorter, 420)) {
-    const fmt = inRange(longer, 594) ? 'A2' : (inRange(longer, 420) ? 'A2-landscape' : null);
+    const fmt = 'A2';
     if (fmt) {
       console.log(`✅ ${fmt}`);
       console.groupEnd();
@@ -75,7 +66,7 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   }
   
   if (inRange(shorter, 594)) {
-    const fmt = inRange(longer, 841) ? 'A1' : (inRange(longer, 594) ? 'A1-landscape' : null);
+    const fmt = 'A1';
     if (fmt) {
       console.log(`✅ ${fmt}`);
       console.groupEnd();
@@ -84,26 +75,37 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   }
   
   if (inRange(shorter, 841)) {
-    const fmt = inRange(longer, 1189) ? 'A0' : (inRange(longer, 841) ? 'A0-landscape' : null);
+    const fmt = 'A0';
     if (fmt) {
       console.log(`✅ ${fmt}`);
       console.groupEnd();
       return { format: fmt, isFormatowy: true, isStandardWidth: true };
     }
   }
+
+  if (inRange(shorter, 914)) {
+    const fmt = 'A0p';
+    console.log(`✅ ${fmt}`);
+    console.groupEnd();
+    return { format: fmt, isFormatowy: true, isStandardWidth: true };
+  }
   
   // A0+ i Custom: rozmiary niestandarowe
-  const customLabel = shorter > 1189
-    ? `A0+ (${Math.round(shorter/10)}×${Math.round(longer/10)}cm)`
-    : `Custom (${Math.round(shorter/10)}×${Math.round(longer/10)}cm)`;
+  let rollKey = 'A3';
+  if (shorter <= 297 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A3';
+  else if (shorter <= 420 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A2';
+  else if (shorter <= 594 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A1';
+  else if (shorter <= 841 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0';
+  else if (shorter <= 914 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0p';
+  else rollKey = 'R1067';
   
-  console.log(`✅ ${customLabel}`);
+  console.log(`✅ MB ${rollKey}`);
   console.groupEnd();
   
   return {
-    format: customLabel,
+    format: rollKey,
     isFormatowy: false,
-    isStandardWidth: false
+    isStandardWidth: rollKey !== 'R1067'
   };
 }
 
@@ -217,7 +219,14 @@ export function updateCadFileEntry(
         const widthMm = pxToMm(widthPx);
         const heightMm = pxToMm(heightPx);
         const fmt = detectFormatFromDimensions(widthMm, heightMm);
-        const printPrice = calculateCadPrintPrice(fmt.format, isColor);
+        const printPrice = calculateCadPrintPriceWithDimensions(
+          widthMm,
+          heightMm,
+          fmt.format,
+          fmt.isFormatowy,
+          mode,
+          1
+        );
 
         return {
           id: Date.now(),

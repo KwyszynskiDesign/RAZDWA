@@ -28,6 +28,10 @@ export const CadUploadView: View = {
     const fileInput = container.querySelector<HTMLInputElement>("#cadFileInput") ||
                      container.querySelector<HTMLInputElement>("#fileInput");
     const dpiInput = container.querySelector<HTMLInputElement>("#dpiInput");
+    const modeSelect = container.querySelector<HTMLSelectElement>("#cadMode");
+    const optFill = container.querySelector<HTMLInputElement>("#optZapelnienie");
+    const optScale = container.querySelector<HTMLInputElement>("#optPowieksz");
+    const optEmail = container.querySelector<HTMLInputElement>("#optEmail");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -49,7 +53,7 @@ export const CadUploadView: View = {
 
     // State
     let files: CadUploadFileEntry[] = [];
-    let isColor = false;
+    let isColor = (modeSelect?.value || "color") === "color";
     let dpi = 300;
     let nextId = 1;
 
@@ -60,6 +64,19 @@ export const CadUploadView: View = {
 
     function getMode(): 'bw' | 'color' {
       return isColor ? 'color' : 'bw';
+    }
+
+    function formatLabel(fmt: string): string {
+      if (fmt === "A0p") return "A0+";
+      if (fmt === "R1067") return "Rolka 1067";
+      return fmt;
+    }
+
+    function calcSurchargeMultiplier(): number {
+      let m = 1;
+      if (optFill?.checked) m += 0.5;
+      if (optScale?.checked) m += 0.5;
+      return m;
     }
 
     function recalculateFile(file: CadUploadFileEntry): CadUploadFileEntry {
@@ -95,21 +112,25 @@ export const CadUploadView: View = {
 
       tableBody.innerHTML = files
         .map((file) => {
-          const row = { ...file, price: file.totalPrice };
+          const surcharge = calcSurchargeMultiplier();
+          const adjustedPrint = file.printPrice * surcharge;
+          const rowTotal = adjustedPrint + file.foldingPrice + file.scanPrice;
           return `
         <tr data-file-id="${file.id}">
-          <td><strong>${escapeHtml(file.name)}</strong></td>
-          <td>${file.widthPx} × ${file.heightPx}</td>
-          <td>${row.widthMm?.toFixed(1) || "—"} × ${row.heightMm?.toFixed(1) || "—"} cm</td>
-          <td><strong>${file.format}</strong></td>
-          <td>${file.isFormatowy ? "Formatowy" : "Metr-bieżący"}</td>
-          <td>
-            <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
-          </td>
+          <td>${file.id}</td>
+          <td>${file.isFormatowy ? "—" : "MB"}</td>
           <td>
             <input type="checkbox" class="scan-check" ${file.scanning ? "checked" : ""} />
           </td>
-          <td><strong>Cena: ${row.price?.toFixed(2) || "0,00"} zł</strong></td>
+          <td>
+            <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
+          </td>
+          <td><strong>${escapeHtml(file.name)}</strong></td>
+          <td>${getMode() === "color" ? "Kolor" : "Czarno-biały"}</td>
+          <td><strong>${formatLabel(file.format)} / 1</strong></td>
+          <td>${file.widthMm?.toFixed(1) || "—"} × ${file.heightMm?.toFixed(1) || "—"}</td>
+          <td>${(adjustedPrint || 0).toFixed(2)}</td>
+          <td><strong>${(rowTotal || 0).toFixed(2)} zł</strong></td>
         </tr>
       `;
         })
@@ -140,10 +161,22 @@ export const CadUploadView: View = {
     function renderSummary(): void {
       if (!summaryPanel || !summaryGrid) return;
 
-      const totalPrint = files.reduce((sum, f) => sum + f.printPrice, 0);
+      const surcharge = calcSurchargeMultiplier();
+      const totalPrint = files.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
       const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
       const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
-      const grandTotalPrice = totalPrint + totalFolding + totalScan;
+      const emailFee = optEmail?.checked ? 1 : 0;
+      const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
+
+      const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
+      const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
+      if (totalColorEl) totalColorEl.textContent = isColor ? formatPLN(grandTotalPrice) : formatPLN(0);
+      if (totalBwEl) totalBwEl.textContent = isColor ? formatPLN(0) : formatPLN(grandTotalPrice);
+
+      const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
+      const selectBwPrice = container.querySelector<HTMLElement>("#selectBwPrice");
+      if (selectColorPrice) selectColorPrice.textContent = isColor ? formatPLN(grandTotalPrice) : formatPLN(0);
+      if (selectBwPrice) selectBwPrice.textContent = isColor ? formatPLN(0) : formatPLN(grandTotalPrice);
 
       // Show/hide add to cart button
       if (addToCartBtn) {
@@ -162,6 +195,10 @@ export const CadUploadView: View = {
         <div class="summary-item">
           <span>Skanowanie:</span>
           <span>${formatPLN(totalScan)}</span>
+        </div>
+        <div class="summary-item">
+          <span>Email:</span>
+          <span>${formatPLN(emailFee)}</span>
         </div>
         <div class="summary-item">
           <span><strong>RAZEM:</strong></span>
@@ -235,6 +272,18 @@ export const CadUploadView: View = {
       });
     }
 
+    if (modeSelect) {
+      modeSelect.addEventListener("change", (e) => {
+        isColor = ((e.target as HTMLSelectElement).value || "color") === "color";
+        files = files.map(recalculateFile);
+        renderFiles();
+      });
+    }
+
+    [optFill, optScale, optEmail].forEach((el) => {
+      el?.addEventListener("change", () => renderFiles());
+    });
+
     // DPI change
     if (dpiInput) {
       dpiInput.addEventListener("change", (e) => {
@@ -269,10 +318,12 @@ export const CadUploadView: View = {
           return;
         }
 
-        const totalPrint = files.reduce((sum, f) => sum + f.printPrice, 0);
+        const surcharge = calcSurchargeMultiplier();
+        const totalPrint = files.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
         const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
         const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
-        const grandTotalPrice = totalPrint + totalFolding + totalScan;
+        const emailFee = optEmail?.checked ? 1 : 0;
+        const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
 
         const modeLabel = isColor ? "KOLOR" : "CZ-B";
         const opts = [
