@@ -23,14 +23,16 @@ export const CadUploadView: View = {
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
     // DOM elements
-    const dropZone = container.querySelector<HTMLElement>("#uploadZone");
+    const dropZone = container.querySelector<HTMLElement>("#cadDropZone") ||
+                     container.querySelector<HTMLElement>("#uploadZone");
     const fileInput = container.querySelector<HTMLInputElement>("#cadFileInput") ||
                      container.querySelector<HTMLInputElement>("#fileInput");
     const dpiInput = container.querySelector<HTMLInputElement>("#dpiInput");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
-    const tableBody = container.querySelector<HTMLElement>("#filesTableBody") ||
+    const tableBody = container.querySelector<HTMLElement>("#results-body") ||
+                     container.querySelector<HTMLElement>("#filesTableBody") ||
                      container.querySelector<HTMLElement>("#cadTableBody");
     const summaryPanel = container.querySelector<HTMLElement>("#summaryPanel") ||
                         container.querySelector<HTMLElement>("#cadSummary");
@@ -38,7 +40,10 @@ export const CadUploadView: View = {
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
     const clearBtn = container.querySelector<HTMLButtonElement>("#clearBtn");
 
-    if (!dropZone || !fileInput || !tableBody) return;
+    if (!dropZone || !fileInput || !tableBody) {
+      console.error("❌ CAD Upload: Missing required elements");
+      return;
+    }
 
     // State
     let files: CadUploadFileEntry[] = [];

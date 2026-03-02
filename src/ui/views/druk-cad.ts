@@ -1,7 +1,7 @@
 import { View, ViewContext } from "../types";
 import { calculateDrukCAD } from "../../categories/druk-cad";
 import { formatPLN } from "../../core/money";
-import categories from "../../../data/categories.json";
+import { getPrice } from "../../services/priceService";
 
 export const DrukCADView: View = {
   id: "druk-cad",
@@ -19,8 +19,11 @@ export const DrukCADView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const catData = categories.find(c => c.id === "druk-cad") as any;
-    if (!catData) return;
+    const data = getPrice("drukCAD");
+    if (!data?.price || !data?.base) {
+      container.innerHTML = `<div class="error">Błąd: brak danych cennika CAD</div>`;
+      return;
+    }
 
     const modeSelect = container.querySelector("#cad-mode") as HTMLSelectElement;
     const formatSelect = container.querySelector("#cad-format") as HTMLSelectElement;
@@ -40,7 +43,7 @@ export const DrukCADView: View = {
     const updateUI = () => {
       const format = formatSelect.value;
       const mode = modeSelect.value;
-      const baseLen = catData.format_prices[mode][format].length;
+      const baseLen = data.base[format]?.l;
       baseInfo.innerText = `Wymiar bazowy: ${baseLen} mm`;
 
       const currentLen = parseInt(lengthInput.value) || 0;
@@ -74,7 +77,7 @@ export const DrukCADView: View = {
       };
 
       try {
-        const result = calculateDrukCAD(currentOptions, catData);
+        const result = calculateDrukCAD(currentOptions, data);
         currentResult = result;
 
         priceTypeSpan.innerText = result.isMeter ? "Cena metrowa:" : "Cena formatowa:";
