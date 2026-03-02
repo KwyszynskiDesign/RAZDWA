@@ -160,11 +160,17 @@ export const CadUploadView: View = {
         });
       });
 
+      console.log("🟢 About to call renderSummary()");
       renderSummary();
+      console.log("🟢 renderSummary() completed");
     }
 
     function renderSummary(): void {
-      if (!summaryPanel || !summaryGrid) return;
+      console.log("💰 renderSummary() START");
+      if (!summaryPanel || !summaryGrid) {
+        console.log("💰 Missing elements:", { summaryPanel: !!summaryPanel, summaryGrid: !!summaryGrid });
+        return;
+      }
 
       const surcharge = calcSurchargeMultiplier();
       
