@@ -99,6 +99,8 @@ export const CadUploadView: View = {
     }
 
     function renderFiles(): void {
+      console.log("🟢 renderFiles called, files count:", files.length);
+      
       if (!tableBody) return;
 
       if (files.length === 0) {
@@ -110,11 +112,13 @@ export const CadUploadView: View = {
 
       if (resultsContainer) resultsContainer.style.display = "block";
 
+      console.log("🟢 Rendering files to table");
       tableBody.innerHTML = files
         .map((file) => {
           const surcharge = calcSurchargeMultiplier();
           const adjustedPrint = file.printPrice * surcharge;
           const rowTotal = adjustedPrint + file.foldingPrice + file.scanPrice;
+          console.log(`🟢 File ${file.name}: printPrice=${file.printPrice}, adjusted=${adjustedPrint}, total=${rowTotal}`);
           return `
         <tr data-file-id="${file.id}">
           <td>${file.id}</td>
@@ -214,17 +218,21 @@ export const CadUploadView: View = {
     }
 
     async function addFiles(fileList: FileList): Promise<void> {
-      console.log("CAD FILES:", fileList.length, "plików");
+      console.log("🔵 CAD UPLOAD: addFiles called with", fileList.length, "plików");
+      console.log("🔵 Current isColor mode:", isColor);
 
       const promises = Array.from(fileList).map(async (file) => {
-        console.log("Processing file:", file.name);
+        console.log("🔵 Processing file:", file.name);
         const fileEntry = await updateCadFileEntry(file, isColor);
+        console.log("🔵 File entry result:", fileEntry);
         fileEntry.id = nextId++;
         return fileEntry;
       });
 
       const newFiles = await Promise.all(promises);
+      console.log("🔵 All files processed:", newFiles.length);
       files.push(...newFiles);
+      console.log("🔵 Total files in state:", files.length);
       renderFiles();
     }
 

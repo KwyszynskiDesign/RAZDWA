@@ -1,6 +1,7 @@
 import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
 import { getFileDimensions, detectPaperFormat, formatDimensionOutput, pixelsToMm as pxToMmUtil } from "../utils/fileDimensionReader";
+import { PDFDocument } from "pdf-lib";
 
 /** Pixel to millimeters conversion at 300 DPI */
 export const PX_TO_MM_300DPI = 25.4 / 300;
@@ -209,16 +210,24 @@ export function updateCadFileEntry(
   arg1: Partial<CadUploadFileEntry> | File,
   arg2?: 'bw' | 'color' | boolean
 ): CadUploadFileEntry | Promise<CadUploadFileEntry> {
+  console.log("🟡 updateCadFileEntry called with:", arg1 instanceof File ? "File" : "Entry", arg2);
+  console.log("🟡 CAD_PRICE value:", CAD_PRICE);
+  
   if (arg1 instanceof File) {
     const file = arg1;
     const isColor = typeof arg2 === "boolean" ? arg2 : false;
     const mode: 'bw' | 'color' = isColor ? 'color' : 'bw';
 
+    console.log("🟡 Processing file mode:", mode);
+
     return loadImageDimensions(file)
       .then(({ widthPx, heightPx }) => {
+        console.log("🟡 Image dimensions:", widthPx, heightPx);
         const widthMm = pxToMm(widthPx);
         const heightMm = pxToMm(heightPx);
+        console.log("🟡 Dimensions in mm:", widthMm, heightMm);
         const fmt = detectFormatFromDimensions(widthMm, heightMm);
+        console.log("🟡 Detected format:", fmt);
         const printPrice = calculateCadPrintPriceWithDimensions(
           widthMm,
           heightMm,
@@ -227,6 +236,7 @@ export function updateCadFileEntry(
           mode,
           1
         );
+        console.log("🟡 Calculated print price:", printPrice);
 
         return {
           id: Date.now(),
@@ -247,6 +257,7 @@ export function updateCadFileEntry(
         };
       })
       .catch(() => {
+        console.error("🔴 Error loading image dimensions");
         return {
           id: Date.now(),
           name: file.name,
@@ -275,9 +286,13 @@ export function updateCadFileEntry(
   const isFormatowy = entry.isFormatowy || false;
   const qty = 1;
 
+  console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning });
+
   const printPrice = calculateCadPrintPriceWithDimensions(widthMm, heightMm, format, isFormatowy, mode, qty);
   const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, qty);
   const scanPrice = calculateCadScanningPrice(widthMm, heightMm, entry.scanning || false, qty);
+
+  console.log("🟡 Recalculated prices:", { printPrice, foldingPrice, scanPrice });
 
   return {
     id: entry.id || 0,
