@@ -117,6 +117,7 @@ export const CadUploadView: View = {
         .map((file) => {
           const surcharge = calcSurchargeMultiplier();
           const adjustedPrint = file.printPrice * surcharge;
+          const pricePerPage = file.pageCount > 0 ? adjustedPrint / file.pageCount : adjustedPrint;
           const rowTotal = adjustedPrint + file.foldingPrice + file.scanPrice;
           console.log(`🟢 File ${file.name}: printPrice=${file.printPrice}, adjusted=${adjustedPrint}, total=${rowTotal}`);
           return `
@@ -129,12 +130,12 @@ export const CadUploadView: View = {
           <td>
             <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
           </td>
-          <td><strong>${escapeHtml(file.name)}</strong>${file.pageCount > 1 ? ` <span style="color: #666;">(${file.pageCount} stron)</span>` : ''}</td>
-          <td>${file.mode === "color" ? "Kolor" : "Czarno-biały"}</td>
-          <td><strong>${formatLabel(file.format)} / 1</strong></td>
-          <td>${file.widthMm?.toFixed(1) || "—"} × ${file.heightMm?.toFixed(1) || "—"}</td>
-          <td>${(adjustedPrint || 0).toFixed(2)}</td>
-          <td><strong>${(rowTotal || 0).toFixed(2)} zł</strong></td>
+          <td><strong>${escapeHtml(file.name)}</strong></td>
+          <td>${file.mode === "color" ? "🎨 Kolor" : "⚫ Cz-B"}</td>
+          <td><strong>${formatLabel(file.format)} / ${file.pageCount}</strong></td>
+          <td>${file.widthMm?.toFixed(0) || "—"} × ${file.heightMm?.toFixed(0) || "—"} mm</td>
+          <td>${pricePerPage.toFixed(2)} zł</td>
+          <td><strong>${rowTotal.toFixed(2)} zł</strong></td>
         </tr>
       `;
         })
@@ -199,13 +200,28 @@ export const CadUploadView: View = {
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
-      if (totalColorEl) totalColorEl.textContent = formatPLN(grandTotalColor);
-      if (totalBwEl) totalBwEl.textContent = formatPLN(grandTotalBw);
+      if (totalColorEl) {
+        totalColorEl.textContent = formatPLN(grandTotalColor);
+        const colorRow = totalColorEl.closest('tr') as HTMLElement;
+        if (colorRow) colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
+      }
+      if (totalBwEl) {
+        totalBwEl.textContent = formatPLN(grandTotalBw);
+        const bwRow = totalBwEl.closest('tr') as HTMLElement;
+        if (bwRow) bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
+      }
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
       const selectBwPrice = container.querySelector<HTMLElement>("#selectBwPrice");
+      const selectColorLabel = container.querySelector<HTMLLabelElement>('label:has(#selectColor)');
+      const selectBwLabel = container.querySelector<HTMLLabelElement>('label:has(#selectBw)');
+      
       if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColor);
       if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBw);
+      
+      // Pokazuj/ukrywaj opcje w zależności od tego co jest
+      if (selectColorLabel) (selectColorLabel as HTMLElement).style.display = colorFiles.length > 0 ? '' : 'none';
+      if (selectBwLabel) (selectBwLabel as HTMLElement).style.display = bwFiles.length > 0 ? '' : 'none';
 
       // Show/hide add to cart button
       if (addToCartBtn) {
@@ -219,27 +235,39 @@ export const CadUploadView: View = {
         </div>
         ${colorFiles.length > 0 ? `
         <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
-          <span>↳ Kolor (${colorFiles.length}):</span>
+          <span>↳ 🎨 Kolor (${colorFiles.length} plik${colorFiles.length !== 1 ? 'i/ów' : ''}):</span>
           <span>${formatPLN(totalPrintColor)}</span>
         </div>` : ''}
         ${bwFiles.length > 0 ? `
         <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
-          <span>↳ Czarno-biały (${bwFiles.length}):</span>
+          <span>↳ ⚫ Czarno-biały (${bwFiles.length} plik${bwFiles.length !== 1 ? 'i/ów' : ''}):</span>
           <span>${formatPLN(totalPrintBw)}</span>
         </div>` : ''}
+        ${totalFolding > 0 ? `
         <div class="summary-item">
           <span>Składanie:</span>
           <span>${formatPLN(totalFolding)}</span>
-        </div>
+        </div>` : ''}
+        ${totalScan > 0 ? `
         <div class="summary-item">
           <span>Skanowanie:</span>
           <span>${formatPLN(totalScan)}</span>
-        </div>
+        </div>` : ''}
+        ${emailFee > 0 ? `
         <div class="summary-item">
           <span>Email:</span>
           <span>${formatPLN(emailFee)}</span>
+        </div>` : ''}
+        ${colorFiles.length > 0 && bwFiles.length > 0 ? `
+        <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
+          <span><strong>🎨 RAZEM KOLOR:</strong></span>
+          <span><strong>${formatPLN(grandTotalColor)}</strong></span>
         </div>
         <div class="summary-item">
+          <span><strong>⚫ RAZEM CZARNO-BIAŁY:</strong></span>
+          <span><strong>${formatPLN(grandTotalBw)}</strong></span>
+        </div>` : ''}
+        <div class="summary-item" style="border-top: 2px solid #333; margin-top: 8px; padding-top: 8px;">
           <span><strong>RAZEM:</strong></span>
           <span><strong>${formatPLN(grandTotalPrice)}</strong></span>
         </div>
