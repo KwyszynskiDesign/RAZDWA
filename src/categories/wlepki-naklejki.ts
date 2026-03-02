@@ -14,7 +14,10 @@ export interface WlepkiCalculation {
 
 export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
   const tableData = getPrice('wlepki-naklejki') as any;
-  const groupData = tableData.groups.find((g: any) => g.id === input.groupId);
+  console.log('🔴 WLEPKI DEBUG: tableData =', tableData);
+  console.log('🔴 WLEPKI DEBUG: trying key "wlepki-naklejki"');
+  console.log('🔴 WLEPKI DEBUG: also trying "wlepkiNaklejki" =', getPrice('wlepkiNaklejki'));
+  const groupData = tableData?.groups?.find((g: any) => g.id === input.groupId);
 
   if (!groupData) {
     throw new Error(`Unknown group: ${input.groupId}`);
