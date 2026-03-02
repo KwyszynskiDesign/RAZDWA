@@ -93,6 +93,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Handle old razdwa:addToCart event from legacy JS categories
+  document.addEventListener("razdwa:addToCart", (e: Event) => {
+    const customEvent = e as CustomEvent;
+    const detail = customEvent.detail || {};
+    const category = detail.category || "Inne";
+    const totalPrice = detail.totalPrice || 0;
+    
+    const cartItem: CartItem = {
+      id: `${category.toLowerCase().replace(/[^\w]+/g, "-")}-${Date.now()}`,
+      category: category,
+      name: category,
+      quantity: 1,
+      unit: "szt",
+      unitPrice: totalPrice,
+      isExpress: globalExpress?.checked || false,
+      totalPrice: totalPrice * (globalExpress?.checked ? 1.2 : 1),
+      optionsHint: detail.description || "",
+      payload: detail
+    };
+    
+    cart.addItem(cartItem);
+    updateCartUI();
+    showToast("✓ Dodano do listy");
+  });
+
   if (!viewContainer || !categorySelector || !globalExpress || !categorySearch) return;
 
   const getCtx = (): ViewContext => ({
