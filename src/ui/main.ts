@@ -18,8 +18,8 @@ import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
+import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { CustomerData } from "../core/types";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
@@ -102,6 +102,23 @@ document.addEventListener("DOMContentLoaded", () => {
         updateCartUI();
         showToast("✓ Dodano do listy");
       }
+    },
+    addToBasket: (item) => {
+      const cartItem: CartItem = {
+        id: `${item.category}-${Date.now()}`,
+        category: item.category,
+        name: item.category,
+        quantity: 1,
+        unit: "szt",
+        unitPrice: item.price,
+        isExpress: globalExpress.checked,
+        totalPrice: item.price * (globalExpress.checked ? 1.2 : 1),
+        optionsHint: item.description,
+        payload: { originalPrice: item.price, description: item.description }
+      };
+      cart.addItem(cartItem);
+      updateCartUI();
+      showToast("✓ Dodano do listy");
     },
     expressMode: globalExpress.checked,
     updateLastCalculated: (price, hint) => {
