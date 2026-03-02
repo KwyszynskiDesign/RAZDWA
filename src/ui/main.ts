@@ -77,7 +77,6 @@ function updateCartUI() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
-  const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement;
   const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
@@ -120,7 +119,10 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("✓ Dodano do listy");
   });
 
-  if (!viewContainer || !categorySelector || !globalExpress || !categorySearch) return;
+  if (!viewContainer || !globalExpress || !categorySearch) {
+    console.error("❌ Missing required elements:", { viewContainer, globalExpress, categorySearch });
+    return;
+  }
 
   const getCtx = (): ViewContext => ({
     cart: {
@@ -178,56 +180,63 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
 
-  // Populate category selector
-  categories.forEach(cat => {
-    const opt = document.createElement("option");
-    opt.value = cat.id;
-    opt.innerText = `${cat.icon} ${cat.name}`;
-    if (!cat.implemented) {
-      opt.disabled = true;
-      opt.innerText += " (wkrótce)";
-    }
-    categorySelector.appendChild(opt);
-  });
+  // Populate category selector (if exists)
+  const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement | null;
+  if (categorySelector) {
+    categories.forEach(cat => {
+      const opt = document.createElement("option");
+      opt.value = cat.id;
+      opt.innerText = `${cat.icon} ${cat.name}`;
+      if (!cat.implemented) {
+        opt.disabled = true;
+        opt.innerText += " (wkrótce)";
+      }
+      categorySelector.appendChild(opt);
+    });
 
-  categorySelector.addEventListener("change", () => {
-    const val = categorySelector.value;
-    if (val) {
-      window.location.hash = `#/${val}`;
-    } else {
-      window.location.hash = "#/";
-    }
-  });
+    categorySelector.addEventListener("change", () => {
+      const val = categorySelector.value;
+      if (val) {
+        window.location.hash = `#/${val}`;
+      } else {
+        window.location.hash = "#/";
+      }
+    });
+
+    // Keep selector in sync with hash
+    window.addEventListener("hashchange", () => {
+      const hash = window.location.hash || "#/";
+      const path = hash.slice(2); // remove #/
+      categorySelector.value = path;
+    });
+  }
 
   categorySearch.addEventListener("input", () => {
     const filter = categorySearch.value.toLowerCase();
-    const options = Array.from(categorySelector.options);
-    options.forEach((opt, idx) => {
-      if (idx === 0) return; // Skip "Wybierz kategorię..."
-      const text = opt.text.toLowerCase();
-      (opt as any).hidden = !text.includes(filter);
-    });
+    if (categorySelector) {
+      const options = Array.from(categorySelector.options);
+      options.forEach((opt, idx) => {
+        if (idx === 0) return; // Skip "Wybierz kategorię..."
+        const text = opt.text.toLowerCase();
+        (opt as any).hidden = !text.includes(filter);
+      });
+    }
   });
 
   categorySearch.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       const filter = categorySearch.value.toLowerCase();
-      const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
-        return idx > 0 && !(opt as any).hidden && !(opt as any).disabled;
-      });
-      if (firstVisible) {
-        categorySelector.value = firstVisible.value;
-        window.location.hash = `#/${firstVisible.value}`;
-        categorySearch.value = "";
+      if (categorySelector) {
+        const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
+          return idx > 0 && !(opt as any).hidden && !(opt as any).disabled;
+        });
+        if (firstVisible) {
+          categorySelector.value = firstVisible.value;
+          window.location.hash = `#/${firstVisible.value}`;
+          categorySearch.value = "";
+        }
       }
     }
-  });
-
-  // Keep selector in sync with hash
-  window.addEventListener("hashchange", () => {
-    const hash = window.location.hash || "#/";
-    const path = hash.slice(2); // remove #/
-    categorySelector.value = path;
   });
 
   // Re-render view when express mode changes
