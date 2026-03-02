@@ -277,6 +277,23 @@ document.addEventListener("DOMContentLoaded", () => {
   router.start();
 });
 
+// Global functions for HTML onclick handlers
+(window as any).clearSearch = () => {
+  const searchInput = document.getElementById('categorySearch') as HTMLInputElement;
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input'));
+  }
+};
+
+(window as any).scrollToTopTiles = () => {
+  const grid = document.querySelector('.category-sticky');
+  if (grid) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    grid.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+  }
+};
+
 // Service Worker Registration
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
