@@ -13,10 +13,7 @@ export interface FoliaSzronionaOptions {
 }
 
 export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): CalculationResult & { isCustom: boolean } {
-  const tableData = getPrice('folia-szroniona') as any;
-  console.log('🔴 FOLIA DEBUG: tableData =', tableData);
-  console.log('🔴 FOLIA DEBUG: trying key "folia-szroniona"');
-  console.log('🔴 FOLIA DEBUG: also trying "foliaSzroniona" =', getPrice('foliaSzroniona'));
+  const tableData = getPrice('foliaSzroniona') as any;
   const materialData = tableData?.materials?.find((m: any) => m.id === options.serviceId);
 
   if (!materialData) {

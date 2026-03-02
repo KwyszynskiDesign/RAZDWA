@@ -13,10 +13,7 @@ export interface UlotkiJednostronneOptions {
 }
 
 export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
-  const prices = getPrice('ulotki-cyfrowe-jednostronne');
-  console.log('🔴 ULOTKI DEBUG: prices =', prices);
-  console.log('🔴 ULOTKI DEBUG: trying key "ulotki-cyfrowe-jednostronne"');
-  console.log('🔴 ULOTKI DEBUG: also trying "ulotkiJednostronne" =', getPrice('ulotkiJednostronne'));
+  const prices = getPrice("ulotkiJednostronne") as any;
   const formatData = (prices?.formats as any)?.[formatKey];
   if (!formatData) {
     throw new Error(`Invalid format: ${formatKey}`);
