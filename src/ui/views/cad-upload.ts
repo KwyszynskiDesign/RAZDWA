@@ -175,11 +175,26 @@ export const CadUploadView: View = {
       const totalPrintBw = bwFiles.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
       const totalPrint = totalPrintColor + totalPrintBw;
       
-      const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
-      const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
+      const totalFoldingColor = colorFiles.reduce((sum, f) => sum + f.foldingPrice, 0);
+      const totalFoldingBw = bwFiles.reduce((sum, f) => sum + f.foldingPrice, 0);
+      const totalFolding = totalFoldingColor + totalFoldingBw;
+      
+      const totalScanColor = colorFiles.reduce((sum, f) => sum + f.scanPrice, 0);
+      const totalScanBw = bwFiles.reduce((sum, f) => sum + f.scanPrice, 0);
+      const totalScan = totalScanColor + totalScanBw;
+      
       const emailFee = optEmail?.checked ? 1 : 0;
-      const grandTotalColor = totalPrintColor + (colorFiles.length / files.length) * (totalFolding + totalScan + emailFee);
-      const grandTotalBw = totalPrintBw + (bwFiles.length / files.length) * (totalFolding + totalScan + emailFee);
+      
+      // Dzielimy email proporcjonalnie jeśli są oba typy
+      const emailFeeColor = colorFiles.length > 0 && bwFiles.length > 0 
+        ? emailFee * (colorFiles.length / files.length)
+        : (colorFiles.length > 0 ? emailFee : 0);
+      const emailFeeBw = colorFiles.length > 0 && bwFiles.length > 0
+        ? emailFee * (bwFiles.length / files.length)
+        : (bwFiles.length > 0 ? emailFee : 0);
+      
+      const grandTotalColor = totalPrintColor + totalFoldingColor + totalScanColor + emailFeeColor;
+      const grandTotalBw = totalPrintBw + totalFoldingBw + totalScanBw + emailFeeBw;
       const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
