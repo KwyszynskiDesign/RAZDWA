@@ -198,17 +198,41 @@ export const CadUploadView: View = {
       const grandTotalBw = totalPrintBw + totalFoldingBw + totalScanBw + emailFeeBw;
       const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
 
+      console.log("💰 Totals:", {
+        colorFiles: colorFiles.length,
+        bwFiles: bwFiles.length,
+        grandTotalColor,
+        grandTotalBw,
+        grandTotalPrice
+      });
+
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
+      
+      console.log("💰 Elements found:", {
+        totalColorEl: !!totalColorEl,
+        totalBwEl: !!totalBwEl
+      });
+      
       if (totalColorEl) {
-        totalColorEl.textContent = formatPLN(grandTotalColor);
+        const priceText = formatPLN(grandTotalColor);
+        console.log("💰 Setting color price:", priceText);
+        totalColorEl.textContent = priceText;
         const colorRow = totalColorEl.closest('tr') as HTMLElement;
-        if (colorRow) colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
+        if (colorRow) {
+          colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
+          console.log("💰 Color row display:", colorRow.style.display);
+        }
       }
       if (totalBwEl) {
-        totalBwEl.textContent = formatPLN(grandTotalBw);
+        const priceText = formatPLN(grandTotalBw);
+        console.log("💰 Setting bw price:", priceText);
+        totalBwEl.textContent = priceText;
         const bwRow = totalBwEl.closest('tr') as HTMLElement;
-        if (bwRow) bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
+        if (bwRow) {
+          bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
+          console.log("💰 BW row display:", bwRow.style.display);
+        }
       }
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
