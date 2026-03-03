@@ -92,6 +92,8 @@ export const CadUploadView: View = {
           format: file.format,
           isFormatowy: file.isFormatowy,
           isStandardWidth: file.isStandardWidth,
+          pageCount: file.pageCount,
+          mode: file.mode,
           folding: file.folding,
           scanning: file.scanning,
         },
