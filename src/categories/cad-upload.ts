@@ -192,9 +192,27 @@ export function calculateCadScanningPrice(
 ): number {
   if (!scanning) return 0;
 
-  // Skanowanie: dłuższy bok w cm * 0.08 zł/cm
-  const longerSideCm = Math.max(widthMm, heightMm) / 10;
-  return qty * longerSideCm * 0.08;
+  // Skanowanie WF:
+  // - jeden bok traktujemy jako szerokość rolki i normalizujemy do najbliższego standardu
+  //   (A3..1067 mm),
+  // - drugi bok to długość rozliczana w cm * 0.08,
+  // - mnożymy przez liczbę stron.
+  const STANDARD_WIDTHS_MM = [297, 420, 594, 841, 914, 1067];
+
+  const shorterSideMm = Math.min(widthMm, heightMm);
+  const longerSideMm = Math.max(widthMm, heightMm);
+
+  const normalizedWidthMm = STANDARD_WIDTHS_MM.reduce((closest, current) => {
+    return Math.abs(current - shorterSideMm) < Math.abs(closest - shorterSideMm)
+      ? current
+      : closest;
+  }, STANDARD_WIDTHS_MM[0]);
+
+  // W rozliczeniu skanu liczy się długość (drugi bok), szerokość jest tylko normalizowana.
+  const lengthMm = Math.max(longerSideMm, normalizedWidthMm);
+  const lengthCm = lengthMm / 10;
+
+  return qty * lengthCm * 0.08;
 }
 
 /**
