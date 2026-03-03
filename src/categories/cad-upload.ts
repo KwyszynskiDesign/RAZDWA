@@ -192,9 +192,9 @@ export function calculateCadScanningPrice(
 ): number {
   if (!scanning) return 0;
 
-  // Scanning: longer side in mm × price per cm
-  const longerSide = Math.max(widthMm, heightMm);
-  return qty * longerSide * WF_SCAN_PRICE_PER_CM;
+  // Skanowanie: dłuższy bok w cm * 0.08 zł/cm
+  const longerSideCm = Math.max(widthMm, heightMm) / 10;
+  return qty * longerSideCm * 0.08;
 }
 
 /**
