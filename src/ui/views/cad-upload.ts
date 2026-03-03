@@ -160,17 +160,11 @@ export const CadUploadView: View = {
         });
       });
 
-      console.log("🟢 About to call renderSummary()");
       renderSummary();
-      console.log("🟢 renderSummary() completed");
     }
 
     function renderSummary(): void {
-      console.log("💰 renderSummary() START");
-      if (!summaryPanel || !summaryGrid) {
-        console.log("💰 Missing elements:", { summaryPanel: !!summaryPanel, summaryGrid: !!summaryGrid });
-        return;
-      }
+      if (!summaryPanel || !summaryGrid) return;
 
       const surcharge = calcSurchargeMultiplier();
       
@@ -204,41 +198,18 @@ export const CadUploadView: View = {
       const grandTotalBw = totalPrintBw + totalFoldingBw + totalScanBw + emailFeeBw;
       const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
 
-      console.log("💰 Totals:", {
-        colorFiles: colorFiles.length,
-        bwFiles: bwFiles.length,
-        grandTotalColor,
-        grandTotalBw,
-        grandTotalPrice
-      });
-
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
       
-      console.log("💰 Elements found:", {
-        totalColorEl: !!totalColorEl,
-        totalBwEl: !!totalBwEl
-      });
-      
       if (totalColorEl) {
-        const priceText = formatPLN(grandTotalColor);
-        console.log("💰 Setting color price:", priceText);
-        totalColorEl.textContent = priceText;
+        totalColorEl.textContent = formatPLN(grandTotalColor);
         const colorRow = totalColorEl.closest('tr') as HTMLElement;
-        if (colorRow) {
-          colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
-          console.log("💰 Color row display:", colorRow.style.display);
-        }
+        if (colorRow) colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
       }
       if (totalBwEl) {
-        const priceText = formatPLN(grandTotalBw);
-        console.log("💰 Setting bw price:", priceText);
-        totalBwEl.textContent = priceText;
+        totalBwEl.textContent = formatPLN(grandTotalBw);
         const bwRow = totalBwEl.closest('tr') as HTMLElement;
-        if (bwRow) {
-          bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
-          console.log("💰 BW row display:", bwRow.style.display);
-        }
+        if (bwRow) bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
       }
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
