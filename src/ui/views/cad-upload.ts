@@ -230,19 +230,15 @@ export const CadUploadView: View = {
       }
 
       summaryGrid.innerHTML = `
-        <div class="summary-item">
-          <span>Wydruki (${files.length} plik${files.length !== 1 ? "i/ów" : ""}):</span>
-          <span>${formatPLN(totalPrint)}</span>
-        </div>
-        ${colorFiles.length > 0 ? `
-        <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
-          <span>↳ 🎨 Kolor (${colorFiles.length} plik${colorFiles.length !== 1 ? 'i/ów' : ''}):</span>
-          <span>${formatPLN(totalPrintColor)}</span>
-        </div>` : ''}
         ${bwFiles.length > 0 ? `
-        <div class="summary-item" style="padding-left: 1rem; font-size: 0.9em;">
-          <span>↳ ⚫ Czarno-biały (${bwFiles.length} plik${bwFiles.length !== 1 ? 'i/ów' : ''}):</span>
-          <span>${formatPLN(totalPrintBw)}</span>
+        <div class="summary-item">
+          <span>⚫ Czarno-biały (${bwFiles.length} plik${bwFiles.length !== 1 ? 'i/ów' : ''}):</span>
+          <span><strong>${formatPLN(totalPrintBw)}</strong></span>
+        </div>` : ''}
+        ${colorFiles.length > 0 ? `
+        <div class="summary-item">
+          <span>🎨 Kolor (${colorFiles.length} plik${colorFiles.length !== 1 ? 'i/ów' : ''}):</span>
+          <span><strong>${formatPLN(totalPrintColor)}</strong></span>
         </div>` : ''}
         ${totalFolding > 0 ? `
         <div class="summary-item">
