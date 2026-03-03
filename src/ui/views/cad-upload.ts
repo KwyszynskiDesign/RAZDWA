@@ -181,7 +181,14 @@ export const CadUploadView: View = {
       let totalScanColorVariant = 0;
       
       for (const file of files) {
-        totalPrintColorVariant += CAD_PRICE.color.formatowe[file.format] || 0; // Cena za jedną stronę w kolorze
+        // Obliczaj cenę druku osobno dla każdej ilości stron
+        if (file.isFormatowy) {
+          totalPrintColorVariant += (CAD_PRICE.color.formatowe[file.format] || 0) * file.pageCount;
+        } else {
+          // Metr bieżący: dłuższy bok w cm * 0.08 * ilość stron
+          const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
+          totalPrintColorVariant += longerSideCm * 0.08 * file.pageCount;
+        }
         totalFoldingColorVariant += file.foldingPrice;
         totalScanColorVariant += file.scanPrice;
       }
@@ -193,7 +200,14 @@ export const CadUploadView: View = {
       let totalScanBwVariant = 0;
       
       for (const file of files) {
-        totalPrintBwVariant += CAD_PRICE.bw.formatowe[file.format] || 0; // Cena za jedną stronę w CZ-B
+        // Obliczaj cenę druku osobno dla każdej ilości stron
+        if (file.isFormatowy) {
+          totalPrintBwVariant += (CAD_PRICE.bw.formatowe[file.format] || 0) * file.pageCount;
+        } else {
+          // Metr bieżący: dłuższy bok w cm * 0.08 * ilość stron
+          const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
+          totalPrintBwVariant += longerSideCm * 0.08 * file.pageCount;
+        }
         totalFoldingBwVariant += file.foldingPrice;
         totalScanBwVariant += file.scanPrice;
       }
