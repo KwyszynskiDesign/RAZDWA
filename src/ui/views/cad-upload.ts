@@ -177,16 +177,25 @@ export const CadUploadView: View = {
       let totalPrintColorVariant = 0;
       let totalFoldingColorVariant = 0;
       let totalScanColorVariant = 0;
+
+      const calculateVariantPrint = (file: CadUploadFileEntry, mode: "color" | "bw"): number => {
+        if (file.isFormatowy) {
+          return (CAD_PRICE[mode]?.formatowe?.[file.format] || 0) * file.pageCount;
+        }
+
+        const mbPrice = CAD_PRICE[mode]?.mb?.[file.format];
+        if (typeof mbPrice === "number" && mbPrice > 0) {
+          const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
+          return lengthMeters * mbPrice * file.pageCount;
+        }
+
+        // Fallback zgodny z dotychczasową logiką (cm * 0.08)
+        const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
+        return longerSideCm * 0.08 * file.pageCount;
+      };
       
       for (const file of files) {
-        // Obliczaj cenę druku osobno dla każdej ilości stron
-        if (file.isFormatowy) {
-          totalPrintColorVariant += (CAD_PRICE.color.formatowe[file.format] || 0) * file.pageCount;
-        } else {
-          // Metr bieżący: dłuższy bok w cm * 0.08 * ilość stron
-          const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
-          totalPrintColorVariant += longerSideCm * 0.08 * file.pageCount;
-        }
+        totalPrintColorVariant += calculateVariantPrint(file, "color");
         totalFoldingColorVariant += file.foldingPrice;
         totalScanColorVariant += file.scanPrice;
       }
@@ -198,14 +207,7 @@ export const CadUploadView: View = {
       let totalScanBwVariant = 0;
       
       for (const file of files) {
-        // Obliczaj cenę druku osobno dla każdej ilości stron
-        if (file.isFormatowy) {
-          totalPrintBwVariant += (CAD_PRICE.bw.formatowe[file.format] || 0) * file.pageCount;
-        } else {
-          // Metr bieżący: dłuższy bok w cm * 0.08 * ilość stron
-          const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
-          totalPrintBwVariant += longerSideCm * 0.08 * file.pageCount;
-        }
+        totalPrintBwVariant += calculateVariantPrint(file, "bw");
         totalFoldingBwVariant += file.foldingPrice;
         totalScanBwVariant += file.scanPrice;
       }
@@ -243,11 +245,6 @@ export const CadUploadView: View = {
       // Zawsze pokazuj obie opcje jeśli są jakieś pliki
       if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? '' : 'none';
       if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? '' : 'none';
-
-      // Show/hide add to cart button
-      if (addToCartBtn) {
-        addToCartBtn.style.display = files.length > 0 ? "inline-block" : "none";
-      }
 
       summaryGrid.innerHTML = `
         ${files.length > 0 ? `
@@ -387,7 +384,7 @@ export const CadUploadView: View = {
     const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
     const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
     
-    const handleCartButton = (btn: HTMLButtonElement | null, mode: 'color' | 'bw', price: number) => {
+    const handleCartButton = (btn: HTMLButtonElement | null, mode: 'color' | 'bw') => {
       if (!btn) return;
       
       btn.addEventListener("click", () => {
@@ -396,10 +393,9 @@ export const CadUploadView: View = {
           return;
         }
 
+        const grandTotalPrice = mode === "color" ? grandTotalColorVariant : grandTotalBwVariant;
         const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
         const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
-        const emailFee = optEmail?.checked ? 1 : 0;
-        const grandTotalPrice = price + totalFolding + totalScan + emailFee;
 
         const modeLabel = mode === 'color' ? "KOLOR" : "CZ-B";
         const opts = [
@@ -419,15 +415,15 @@ export const CadUploadView: View = {
           isExpress: ctx.expressMode,
           totalPrice: grandTotalPrice,
           optionsHint: opts,
-          payload: { files, mode, price }
+          payload: { files, mode, price: grandTotalPrice }
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
       });
     };
     
-    handleCartButton(selectColorBtn, 'color', grandTotalColorVariant);
-    handleCartButton(selectBwBtn, 'bw', grandTotalBwVariant);
+    handleCartButton(selectColorBtn, 'color');
+    handleCartButton(selectBwBtn, 'bw');
 
     // Initial render
     renderFiles();
