@@ -5,6 +5,7 @@ import {
   CadUploadFileEntry,
 } from "../../categories/cad-upload";
 import { formatPLN } from "../../core/money";
+import { CAD_PRICE } from "../../core/compat";
 
 export const CadUploadView: View = {
   id: "cad-upload",
@@ -168,48 +169,52 @@ export const CadUploadView: View = {
 
       const surcharge = calcSurchargeMultiplier();
       
-      // Osobno dla koloru i czarnobiałego
-      const colorFiles = files.filter(f => f.mode === 'color');
-      const bwFiles = files.filter(f => f.mode === 'bw');
+      // Obliczamy dwa warianty cenowe dla WSZYSTKICH plików:
+      // 1. Jakby wszystko było kolorowe
+      // 2. Jakby wszystko było czarno-białe
       
-      const totalPrintColor = colorFiles.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
-      const totalPrintBw = bwFiles.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
-      const totalPrint = totalPrintColor + totalPrintBw;
+      // Wariant 1: wszystkie pliki jako KOLOR
+      let totalPrintColorVariant = 0;
+      let totalFoldingColorVariant = 0;
+      let totalScanColorVariant = 0;
       
-      const totalFoldingColor = colorFiles.reduce((sum, f) => sum + f.foldingPrice, 0);
-      const totalFoldingBw = bwFiles.reduce((sum, f) => sum + f.foldingPrice, 0);
-      const totalFolding = totalFoldingColor + totalFoldingBw;
+      for (const file of files) {
+        totalPrintColorVariant += CAD_PRICE.color.formatowe[file.format] || 0; // Cena za jedną stronę w kolorze
+        totalFoldingColorVariant += file.foldingPrice;
+        totalScanColorVariant += file.scanPrice;
+      }
+      totalPrintColorVariant *= surcharge;
       
-      const totalScanColor = colorFiles.reduce((sum, f) => sum + f.scanPrice, 0);
-      const totalScanBw = bwFiles.reduce((sum, f) => sum + f.scanPrice, 0);
-      const totalScan = totalScanColor + totalScanBw;
+      // Wariant 2: wszystkie pliki jako CZARNO-BIAŁE
+      let totalPrintBwVariant = 0;
+      let totalFoldingBwVariant = 0;
+      let totalScanBwVariant = 0;
+      
+      for (const file of files) {
+        totalPrintBwVariant += CAD_PRICE.bw.formatowe[file.format] || 0; // Cena za jedną stronę w CZ-B
+        totalFoldingBwVariant += file.foldingPrice;
+        totalScanBwVariant += file.scanPrice;
+      }
+      totalPrintBwVariant *= surcharge;
       
       const emailFee = optEmail?.checked ? 1 : 0;
       
-      // Dzielimy email proporcjonalnie jeśli są oba typy
-      const emailFeeColor = colorFiles.length > 0 && bwFiles.length > 0 
-        ? emailFee * (colorFiles.length / files.length)
-        : (colorFiles.length > 0 ? emailFee : 0);
-      const emailFeeBw = colorFiles.length > 0 && bwFiles.length > 0
-        ? emailFee * (bwFiles.length / files.length)
-        : (bwFiles.length > 0 ? emailFee : 0);
-      
-      const grandTotalColor = totalPrintColor + totalFoldingColor + totalScanColor + emailFeeColor;
-      const grandTotalBw = totalPrintBw + totalFoldingBw + totalScanBw + emailFeeBw;
-      const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
+      const grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
+      const grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
+      const grandTotalPrice = grandTotalColorVariant + grandTotalBwVariant;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
       
       if (totalColorEl) {
-        totalColorEl.textContent = formatPLN(grandTotalColor);
+        totalColorEl.textContent = formatPLN(grandTotalColorVariant);
         const colorRow = totalColorEl.closest('tr') as HTMLElement;
-        if (colorRow) colorRow.style.display = colorFiles.length > 0 ? '' : 'none';
+        if (colorRow) colorRow.style.display = files.length > 0 ? '' : 'none';
       }
       if (totalBwEl) {
-        totalBwEl.textContent = formatPLN(grandTotalBw);
+        totalBwEl.textContent = formatPLN(grandTotalBwVariant);
         const bwRow = totalBwEl.closest('tr') as HTMLElement;
-        if (bwRow) bwRow.style.display = bwFiles.length > 0 ? '' : 'none';
+        if (bwRow) bwRow.style.display = files.length > 0 ? '' : 'none';
       }
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
@@ -217,12 +222,12 @@ export const CadUploadView: View = {
       const selectColorLabel = container.querySelector<HTMLLabelElement>('label:has(#selectColor)');
       const selectBwLabel = container.querySelector<HTMLLabelElement>('label:has(#selectBw)');
       
-      if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColor);
-      if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBw);
+      if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColorVariant);
+      if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBwVariant);
       
-      // Pokazuj/ukrywaj opcje w zależności od tego co jest
-      if (selectColorLabel) (selectColorLabel as HTMLElement).style.display = colorFiles.length > 0 ? '' : 'none';
-      if (selectBwLabel) (selectBwLabel as HTMLElement).style.display = bwFiles.length > 0 ? '' : 'none';
+      // Zawsze pokazuj obie opcje jeśli są jakieś pliki
+      if (selectColorLabel) (selectColorLabel as HTMLElement).style.display = files.length > 0 ? '' : 'none';
+      if (selectBwLabel) (selectBwLabel as HTMLElement).style.display = files.length > 0 ? '' : 'none';
 
       // Show/hide add to cart button
       if (addToCartBtn) {
@@ -230,43 +235,37 @@ export const CadUploadView: View = {
       }
 
       summaryGrid.innerHTML = `
-        ${bwFiles.length > 0 ? `
+        ${files.length > 0 ? `
         <div class="summary-item">
-          <span>⚫ Czarno-biały (${bwFiles.length} plik${bwFiles.length !== 1 ? 'i/ów' : ''}):</span>
-          <span><strong>${formatPLN(totalPrintBw)}</strong></span>
-        </div>` : ''}
-        ${colorFiles.length > 0 ? `
+          <span>⚫ Czarno-biały (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+          <span><strong>${formatPLN(totalPrintBwVariant)}</strong></span>
+        </div>
         <div class="summary-item">
-          <span>🎨 Kolor (${colorFiles.length} plik${colorFiles.length !== 1 ? 'i/ów' : ''}):</span>
-          <span><strong>${formatPLN(totalPrintColor)}</strong></span>
+          <span>🎨 Kolor (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+          <span><strong>${formatPLN(totalPrintColorVariant)}</strong></span>
         </div>` : ''}
-        ${totalFolding > 0 ? `
+        ${totalFoldingColorVariant > 0 ? `
         <div class="summary-item">
           <span>Składanie:</span>
-          <span>${formatPLN(totalFolding)}</span>
+          <span>${formatPLN(totalFoldingColorVariant)}</span>
         </div>` : ''}
-        ${totalScan > 0 ? `
+        ${totalScanColorVariant > 0 ? `
         <div class="summary-item">
           <span>Skanowanie:</span>
-          <span>${formatPLN(totalScan)}</span>
+          <span>${formatPLN(totalScanColorVariant)}</span>
         </div>` : ''}
         ${emailFee > 0 ? `
         <div class="summary-item">
           <span>Email:</span>
           <span>${formatPLN(emailFee)}</span>
         </div>` : ''}
-        ${colorFiles.length > 0 && bwFiles.length > 0 ? `
         <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
           <span><strong>🎨 RAZEM KOLOR:</strong></span>
-          <span><strong>${formatPLN(grandTotalColor)}</strong></span>
+          <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>
         </div>
         <div class="summary-item">
           <span><strong>⚫ RAZEM CZARNO-BIAŁY:</strong></span>
-          <span><strong>${formatPLN(grandTotalBw)}</strong></span>
-        </div>` : ''}
-        <div class="summary-item" style="border-top: 2px solid #333; margin-top: 8px; padding-top: 8px;">
-          <span><strong>RAZEM:</strong></span>
-          <span><strong>${formatPLN(grandTotalPrice)}</strong></span>
+          <span><strong>${formatPLN(grandTotalBwVariant)}</strong></span>
         </div>
       `;
 
