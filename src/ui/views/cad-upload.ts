@@ -57,6 +57,8 @@ export const CadUploadView: View = {
     let isColor = (modeSelect?.value || "color") === "color";
     let dpi = 300;
     let nextId = 1;
+    let grandTotalColorVariant = 0;
+    let grandTotalBwVariant = 0;
 
     // Helpers
     function pxToMm(px: number): number {
@@ -199,8 +201,9 @@ export const CadUploadView: View = {
       
       const emailFee = optEmail?.checked ? 1 : 0;
       
-      const grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
-      const grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
+      // Zapisz do zmiennych globalnych dla event listenerów
+      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
+      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
       const grandTotalPrice = grandTotalColorVariant + grandTotalBwVariant;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
@@ -378,21 +381,31 @@ export const CadUploadView: View = {
     }
 
     // Add to cart button
-    if (addToCartBtn) {
-      addToCartBtn.addEventListener("click", () => {
+    const selectColorCheckbox = container.querySelector<HTMLInputElement>("#selectColor");
+    const selectBwCheckbox = container.querySelector<HTMLInputElement>("#selectBw");
+    
+    const handleCartCheckbox = (checkbox: HTMLInputElement | null, mode: 'color' | 'bw', price: number) => {
+      if (!checkbox) return;
+      
+      checkbox.addEventListener("change", () => {
+        if (!checkbox.checked) return;
+        
+        // Odznacz drugi checkbox
+        if (mode === 'color' && selectBwCheckbox) selectBwCheckbox.checked = false;
+        if (mode === 'bw' && selectColorCheckbox) selectColorCheckbox.checked = false;
+
         if (files.length === 0) {
           alert("Nie dodano żadnych plików do wyceny");
+          checkbox.checked = false;
           return;
         }
 
-        const surcharge = calcSurchargeMultiplier();
-        const totalPrint = files.reduce((sum, f) => sum + (f.printPrice * surcharge), 0);
         const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
         const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
         const emailFee = optEmail?.checked ? 1 : 0;
-        const grandTotalPrice = totalPrint + totalFolding + totalScan + emailFee;
+        const grandTotalPrice = price + totalFolding + totalScan + emailFee;
 
-        const modeLabel = isColor ? "KOLOR" : "CZ-B";
+        const modeLabel = mode === 'color' ? "KOLOR" : "CZ-B";
         const opts = [
           `${files.length} plik${files.length !== 1 ? "i/ów" : ""}`,
           modeLabel,
@@ -401,21 +414,25 @@ export const CadUploadView: View = {
         ].filter(Boolean).join(", ");
 
         ctx.cart.addItem({
-          id: `cad-upload-${Date.now()}`,
+          id: `cad-upload-${mode}-${Date.now()}`,
           category: "CAD Upload",
-          name: `Wydruk wielkoformatowy (${files.length} plik${files.length !== 1 ? "i/ów" : ""})`,
+          name: `Wydruk CAD (${files.length} plik${files.length !== 1 ? "i/ów" : ""}) - ${modeLabel}`,
           quantity: files.length,
           unit: "plik",
           unitPrice: grandTotalPrice / files.length,
           isExpress: ctx.expressMode,
           totalPrice: grandTotalPrice,
           optionsHint: opts,
-          payload: { files, totalPrint, totalFolding, totalScan }
+          payload: { files, mode, price }
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
+        checkbox.checked = false; // Odznacz po dodaniu
       });
-    }
+    };
+    
+    handleCartCheckbox(selectColorCheckbox, 'color', grandTotalColorVariant);
+    handleCartCheckbox(selectBwCheckbox, 'bw', grandTotalBwVariant);
 
     // Initial render
     renderFiles();
