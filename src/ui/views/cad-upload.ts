@@ -128,9 +128,6 @@ export const CadUploadView: View = {
           <td>${file.id}</td>
           <td>${file.isFormatowy ? "—" : "MB"}</td>
           <td>
-            <input type="checkbox" class="scan-check" ${file.scanning ? "checked" : ""} />
-          </td>
-          <td>
             <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
           </td>
           <td><strong>${escapeHtml(file.name)}</strong></td>
@@ -148,15 +145,6 @@ export const CadUploadView: View = {
       tableBody.querySelectorAll(".fold-check").forEach((el, idx) => {
         (el as HTMLInputElement).addEventListener("change", (e) => {
           files[idx].folding = (e.target as HTMLInputElement).checked;
-          files[idx] = recalculateFile(files[idx]);
-          renderFiles();
-          renderSummary();
-        });
-      });
-
-      tableBody.querySelectorAll(".scan-check").forEach((el, idx) => {
-        (el as HTMLInputElement).addEventListener("change", (e) => {
-          files[idx].scanning = (e.target as HTMLInputElement).checked;
           files[idx] = recalculateFile(files[idx]);
           renderFiles();
           renderSummary();
@@ -251,11 +239,6 @@ export const CadUploadView: View = {
         <div class="summary-item">
           <span>Składanie:</span>
           <span>${formatPLN(totalFoldingColorVariant)}</span>
-        </div>` : ''}
-        ${totalScanColorVariant > 0 ? `
-        <div class="summary-item">
-          <span>Skanowanie:</span>
-          <span>${formatPLN(totalScanColorVariant)}</span>
         </div>` : ''}
         ${emailFee > 0 ? `
         <div class="summary-item">

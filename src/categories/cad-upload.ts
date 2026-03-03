@@ -143,10 +143,10 @@ function calculateCadPrintPriceWithDimensions(
     return qty * price;
   }
 
-  const price = prices.mb[format];
-  if (!price) return 0;
-  const lengthMeters = Math.max(widthMm, heightMm) / 1000;
-  return qty * lengthMeters * price;
+  // Dla metr bieżącego: drugi bok (dłuższy) w cm * 0.08 zł
+  const lengthCm = Math.max(widthMm, heightMm) / 10;
+  const pricePerCm = 0.08;
+  return qty * lengthCm * pricePerCm;
 }
 
 /**
@@ -190,11 +190,8 @@ export function calculateCadScanningPrice(
   scanning: boolean,
   qty: number
 ): number {
-  if (!scanning) return 0;
-
-  // Scanning: longer side in mm × price per cm
-  const longerSide = Math.max(widthMm, heightMm);
-  return qty * longerSide * WF_SCAN_PRICE_PER_CM;
+  // Skanowanie jest wyłączone dla CAD Upload
+  return 0;
 }
 
 /**
