@@ -439,23 +439,19 @@
     </div>
     
     <div class="cad-summary-section">
-      <div class="cad-price-options">
-        <label class="cad-price-option-inline">
-          <input type="checkbox" id="selectColor" class="cad-price-select">
-          <span>🎨 Kolor: <strong id="selectColorPrice">0,00 zł</strong></span>
-        </label>
-        <label class="cad-price-option-inline">
-          <input type="checkbox" id="selectBw" class="cad-price-select">
-          <span>⚫ Czarno-białe: <strong id="selectBwPrice">0,00 zł</strong></span>
-        </label>
+      <div class="cad-price-options" style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button type="button" id="selectColor" class="btn-primary" style="display:none;">
+          🎨 Dodaj do koszyka - Kolor: <strong id="selectColorPrice">0,00 zł</strong>
+        </button>
+        <button type="button" id="selectBw" class="btn-primary" style="display:none;">
+          ⚫ Dodaj do koszyka - CZ-B: <strong id="selectBwPrice">0,00 zł</strong>
+        </button>
       </div>
-      <button type="button" id="cadAddToCart" class="btn-add-cart" style="display:none;">Dodaj do koszyka</button>
     </div>
   </div>
 
   <!-- Tabela podsumowania -->
   <div class="results-controls" aria-label="Ustawienia wyceny">
-    <button type="button" id="clearBtn">Wyczyść</button>
     <button type="button" id="submitBtn" class="btn-submit">✓ Wyślij</button>
   </div>
 
@@ -540,14 +536,21 @@
       background: var(--surface-alt);
     }
 
-    #clearBtn {
-      background: #fee2e2;
-      border-color: #fecaca;
-      color: #991b1b;
+    #selectColor,
+    #selectBw {
+      background: var(--primary, #22c55e);
+      color: white;
+      border-color: var(--primary, #22c55e);
+      padding: 10px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
     }
 
-    #clearBtn:hover {
-      background: #fecaca;
+    #selectColor:hover,
+    #selectBw:hover {
+      background: var(--primary-hover, #16a34a);
     }
 
     #submitBtn {

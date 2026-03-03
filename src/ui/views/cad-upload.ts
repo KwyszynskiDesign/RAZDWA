@@ -44,8 +44,6 @@ export const CadUploadView: View = {
                         container.querySelector<HTMLElement>("#cadSummary");
     const summaryGrid = container.querySelector<HTMLElement>("#summaryGrid");
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
-    const clearBtn = container.querySelector<HTMLButtonElement>("#clearBtn");
-    const addToCartBtn = container.querySelector<HTMLButtonElement>("#cadAddToCart");
 
     if (!dropZone || !fileInput || !tableBody) {
       console.error("❌ CAD Upload: Missing required elements");
@@ -236,15 +234,15 @@ export const CadUploadView: View = {
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
       const selectBwPrice = container.querySelector<HTMLElement>("#selectBwPrice");
-      const selectColorLabel = container.querySelector<HTMLLabelElement>('label:has(#selectColor)');
-      const selectBwLabel = container.querySelector<HTMLLabelElement>('label:has(#selectBw)');
+      const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
+      const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
       
       if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColorVariant);
       if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBwVariant);
       
       // Zawsze pokazuj obie opcje jeśli są jakieś pliki
-      if (selectColorLabel) (selectColorLabel as HTMLElement).style.display = files.length > 0 ? '' : 'none';
-      if (selectBwLabel) (selectBwLabel as HTMLElement).style.display = files.length > 0 ? '' : 'none';
+      if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? '' : 'none';
+      if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? '' : 'none';
 
       // Show/hide add to cart button
       if (addToCartBtn) {
@@ -385,32 +383,16 @@ export const CadUploadView: View = {
       });
     }
 
-    // Clear button
-    if (clearBtn) {
-      clearBtn.addEventListener("click", () => {
-        files = [];
-        fileInput.value = "";
-        renderFiles();
-      });
-    }
-
-    // Add to cart button
-    const selectColorCheckbox = container.querySelector<HTMLInputElement>("#selectColor");
-    const selectBwCheckbox = container.querySelector<HTMLInputElement>("#selectBw");
+    // Add to cart buttons (Color and BW)
+    const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
+    const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
     
-    const handleCartCheckbox = (checkbox: HTMLInputElement | null, mode: 'color' | 'bw', price: number) => {
-      if (!checkbox) return;
+    const handleCartButton = (btn: HTMLButtonElement | null, mode: 'color' | 'bw', price: number) => {
+      if (!btn) return;
       
-      checkbox.addEventListener("change", () => {
-        if (!checkbox.checked) return;
-        
-        // Odznacz drugi checkbox
-        if (mode === 'color' && selectBwCheckbox) selectBwCheckbox.checked = false;
-        if (mode === 'bw' && selectColorCheckbox) selectColorCheckbox.checked = false;
-
+      btn.addEventListener("click", () => {
         if (files.length === 0) {
           alert("Nie dodano żadnych plików do wyceny");
-          checkbox.checked = false;
           return;
         }
 
@@ -441,12 +423,11 @@ export const CadUploadView: View = {
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
-        checkbox.checked = false; // Odznacz po dodaniu
       });
     };
     
-    handleCartCheckbox(selectColorCheckbox, 'color', grandTotalColorVariant);
-    handleCartCheckbox(selectBwCheckbox, 'bw', grandTotalBwVariant);
+    handleCartButton(selectColorBtn, 'color', grandTotalColorVariant);
+    handleCartButton(selectBwBtn, 'bw', grandTotalBwVariant);
 
     // Initial render
     renderFiles();
