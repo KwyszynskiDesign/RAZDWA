@@ -372,7 +372,7 @@ export const CadUploadView: View = {
         files = files.map((f) => {
           f.widthMm = pxToMm(f.widthPx);
           f.heightMm = pxToMm(f.heightPx);
-          const fmt = detectFormatFromDimensions(f.widthMm, f.heightMm);
+          const fmt = detectFormatFromDimensions(f.widthMm, f.heightMm, true);
           f.format = fmt.format;
           f.isFormatowy = fmt.isFormatowy;
           f.isStandardWidth = fmt.isStandardWidth;

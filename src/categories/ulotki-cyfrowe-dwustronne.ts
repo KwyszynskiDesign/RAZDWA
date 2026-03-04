@@ -13,7 +13,7 @@ export interface UlotkiDwustronneOptions {
 }
 
 export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
-  const prices = getPrice('ulotki-cyfrowe-dwustronne');
+  const prices = getPrice('ulotkiDwustronne');
   const formatData = (prices.formats as any)[formatKey];
   if (!formatData) {
     throw new Error(`Invalid format: ${formatKey}`);

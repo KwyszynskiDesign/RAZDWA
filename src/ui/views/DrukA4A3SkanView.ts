@@ -19,16 +19,16 @@ export const DrukA4A3SkanView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const pricing = categories.find(c => c.id === "druk-a4-a3-skan")?.pricing;
+    const pricing = categories.find(c => c.id === "druk-a4-a3-skan" || c.id === "druk-a4-a3")?.pricing;
     if (!pricing) return;
 
     const modeSelect = container.querySelector("#d-mode") as HTMLSelectElement;
     const formatSelect = container.querySelector("#d-format") as HTMLSelectElement;
     const printQtyInput = container.querySelector("#d-print-qty") as HTMLInputElement;
     const emailCheck = container.querySelector("#d-email") as HTMLInputElement;
-    const surchargeCheck = container.querySelector("#d-surcharge") as HTMLInputElement;
+    const surchargeCheck = container.querySelector("#d-surcharge") as HTMLInputElement | null;
     const surchargeQtyInput = container.querySelector("#d-surcharge-qty") as HTMLInputElement;
-    const surchargeQtyRow = container.querySelector("#surcharge-qty-row") as HTMLElement;
+    const surchargeQtyRow = container.querySelector("#surcharge-qty-row") as HTMLElement | null;
     const scanTypeSelect = container.querySelector("#d-scan-type") as HTMLSelectElement;
     const scanQtyInput = container.querySelector("#d-scan-qty") as HTMLInputElement;
     const scanQtyRow = container.querySelector("#scan-qty-row") as HTMLElement;
@@ -48,7 +48,7 @@ export const DrukA4A3SkanView: View = {
         card.setAttribute("aria-checked", String(!isChecked));
         const checkbox = card.querySelector<HTMLInputElement>("input[type='checkbox']");
         if (checkbox) checkbox.checked = !isChecked;
-        if (card.id === "d-surcharge-card") {
+        if (card.id === "d-surcharge-card" && surchargeQtyRow) {
           surchargeQtyRow.style.display = !isChecked ? "flex" : "none";
         }
       };
@@ -66,13 +66,16 @@ export const DrukA4A3SkanView: View = {
     let currentOptions: any = null;
 
     calculateBtn.onclick = () => {
+      const surchargeQty = parseInt(surchargeQtyInput.value) || 0;
+      const surcharge = surchargeCheck ? surchargeCheck.checked : surchargeQty > 0;
+
       currentOptions = {
         mode: modeSelect.value,
         format: formatSelect.value,
         printQty: parseInt(printQtyInput.value) || 0,
         email: emailCheck.checked,
-        surcharge: surchargeCheck.checked,
-        surchargeQty: parseInt(surchargeQtyInput.value) || 0,
+        surcharge,
+        surchargeQty,
         scanType: scanTypeSelect.value,
         scanQty: parseInt(scanQtyInput.value) || 0,
         express: ctx.expressMode
@@ -81,6 +84,24 @@ export const DrukA4A3SkanView: View = {
       try {
         const result = calculateDrukA4A3Skan(currentOptions, pricing);
         currentResult = result;
+
+        const unitPrint = container.querySelector("#d-unit-print-price") as HTMLElement | null;
+        const totalPrint = container.querySelector("#d-total-print-price") as HTMLElement | null;
+        const totalScan = container.querySelector("#d-total-scan-price") as HTMLElement | null;
+        const emailPrice = container.querySelector("#d-email-price") as HTMLElement | null;
+        const surchargePrice = container.querySelector("#d-surcharge-price") as HTMLElement | null;
+        const scanRow = container.querySelector("#d-scan-row") as HTMLElement | null;
+        const emailRow = container.querySelector("#d-email-row") as HTMLElement | null;
+        const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
+
+        if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
+        if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
+        if (scanRow) scanRow.style.display = result.totalScanPrice > 0 ? "" : "none";
+        if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
+        if (emailRow) emailRow.style.display = result.emailPrice > 0 ? "" : "none";
+        if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
+        if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
+        if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";

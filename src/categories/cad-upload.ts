@@ -27,16 +27,18 @@ export interface CadUploadFileEntry {
   totalPrice: number;
 }
 
-/**
- * Detect CAD format from dimensions (mm).
- * Based on SHORTER side (= paper/roll width).
- * FIXED: Inteligentna klasyfikacja A4-A0+ z ±15mm tolerancją
- */
-export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
+export interface CadFormatDetection {
   format: string;
   isFormatowy: boolean;
   isStandardWidth: boolean;
-} {
+}
+
+/**
+ * Detect CAD format from dimensions (mm).
+ * Legacy API (tests): returns format string or "nieformatowy".
+ * Use detectFormatFromDimensions(width, height, true) for full details.
+ */
+function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): CadFormatDetection {
   const FORMAT_TOLERANCE_CLASSIFY = 15; // ±15mm dla klasyfikacji A-formatów
   
   const shorter = Math.min(widthMm, heightMm);
@@ -48,49 +50,24 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
   function inRange(value: number, target: number): boolean {
     return Math.abs(value - target) <= FORMAT_TOLERANCE_CLASSIFY;
   }
-  
-  // CAD pricing starts at A3 – smaller formats are treated as A3
-  if (inRange(shorter, 297)) {
-    const fmt = 'A3';
-    if (fmt) {
-      console.log(`✅ ${fmt}`);
-      console.groupEnd();
-      return { format: fmt, isFormatowy: true, isStandardWidth: true };
-    }
-  }
-  
-  if (inRange(shorter, 420)) {
-    const fmt = 'A2';
-    if (fmt) {
-      console.log(`✅ ${fmt}`);
-      console.groupEnd();
-      return { format: fmt, isFormatowy: true, isStandardWidth: true };
-    }
-  }
-  
-  if (inRange(shorter, 594)) {
-    const fmt = 'A1';
-    if (fmt) {
-      console.log(`✅ ${fmt}`);
-      console.groupEnd();
-      return { format: fmt, isFormatowy: true, isStandardWidth: true };
-    }
-  }
-  
-  if (inRange(shorter, 841)) {
-    const fmt = 'A0';
-    if (fmt) {
-      console.log(`✅ ${fmt}`);
-      console.groupEnd();
-      return { format: fmt, isFormatowy: true, isStandardWidth: true };
-    }
-  }
 
-  if (inRange(shorter, 914)) {
-    const fmt = 'A0p';
-    console.log(`✅ ${fmt}`);
+  let matchedFormat: string | null = null;
+  // CAD pricing starts at A3 – smaller formats are treated as A3
+  if (inRange(shorter, 297)) matchedFormat = 'A3';
+  else if (inRange(shorter, 420)) matchedFormat = 'A2';
+  else if (inRange(shorter, 594)) matchedFormat = 'A1';
+  else if (inRange(shorter, 841)) matchedFormat = 'A0';
+  else if (inRange(shorter, 914)) matchedFormat = 'A0p';
+
+  if (matchedFormat) {
+    const baseLength = CAD_BASE[matchedFormat]?.l;
+    const isFormatowy = typeof baseLength === "number"
+      ? Math.abs(longer - baseLength) <= FORMAT_TOLERANCE_CLASSIFY
+      : false;
+
+    console.log(`✅ ${matchedFormat}${isFormatowy ? "" : " (MB)"}`);
     console.groupEnd();
-    return { format: fmt, isFormatowy: true, isStandardWidth: true };
+    return { format: matchedFormat, isFormatowy, isStandardWidth: true };
   }
   
   // A0+ i Custom: rozmiary niestandarowe
@@ -109,6 +86,67 @@ export function detectFormatFromDimensions(widthMm: number, heightMm: number): {
     format: rollKey,
     isFormatowy: false,
     isStandardWidth: rollKey !== 'R1067'
+  };
+}
+
+export function detectFormatFromDimensions(widthMm: number, heightMm: number): string;
+export function detectFormatFromDimensions(widthMm: number, heightMm: number, details: true): CadFormatDetection;
+export function detectFormatFromDimensions(widthMm: number, heightMm: number, details?: true): string | CadFormatDetection {
+  const result = detectFormatDetailsFromDimensions(widthMm, heightMm);
+  if (details) return result;
+  return result.isFormatowy ? result.format : "nieformatowy";
+}
+
+export function calculatePriceFromDimensions(
+  widthMm: number,
+  heightMm: number,
+  mode: 'bw' | 'color' = 'color',
+  qty: number = 1
+): number {
+  if (widthMm <= 0 || heightMm <= 0) return 0;
+  if (qty < 1) throw new Error("qty must be >= 1");
+
+  const fmt = detectFormatFromDimensions(widthMm, heightMm, true);
+  const total = calculateCadPrintPriceWithDimensions(
+    widthMm,
+    heightMm,
+    fmt.format,
+    fmt.isFormatowy,
+    mode,
+    qty
+  );
+
+  return parseFloat(money(total));
+}
+
+export function calculateCadUpload(options: {
+  wMm: number;
+  hMm: number;
+  mode?: 'bw' | 'color';
+  qty?: number;
+}) {
+  const { wMm, hMm, mode = 'color', qty = 1 } = options;
+
+  if (wMm < 0 || hMm < 0) throw new Error("Wymiary nie mogą być ujemne");
+  if (qty < 1) throw new Error("qty must be >= 1");
+
+  if (wMm === 0 || hMm === 0) {
+    return {
+      totalPrice: 0,
+      detectedFormat: "nieformatowy",
+      mode,
+      qty
+    };
+  }
+
+  const fmt = detectFormatFromDimensions(wMm, hMm, true);
+  const totalPrice = calculatePriceFromDimensions(wMm, hMm, mode, qty);
+
+  return {
+    totalPrice,
+    detectedFormat: fmt.format,
+    mode,
+    qty
   };
 }
 
@@ -242,7 +280,7 @@ export function updateCadFileEntry(
         const widthMm = pxToMm(widthPx);
         const heightMm = pxToMm(heightPx);
         console.log("🟡 Dimensions in mm:", widthMm, heightMm);
-        const fmt = detectFormatFromDimensions(widthMm, heightMm);
+        const fmt = detectFormatFromDimensions(widthMm, heightMm, true);
         console.log("🟡 Detected format:", fmt);
         const printPrice = calculateCadPrintPriceWithDimensions(
           widthMm,
