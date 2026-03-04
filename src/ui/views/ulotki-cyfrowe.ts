@@ -33,18 +33,53 @@ export const UlotkiCyfroweView: View = {
     const tierHint = container.querySelector("#u-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
+    const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
+
+    if (!formatSelect || !qtySelect || !paperSelect || !calculateBtn || !addToCartBtn || !resultDisplay || !nettoSpan || !totalPriceSpan) {
+      container.innerHTML = `<div class="error">Błąd: brak elementów formularza ulotek.</div>`;
+      return;
+    }
 
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
-      const sides = (container.querySelector('input[name="sides"]:checked') as HTMLInputElement).value;
+    const getSelectedSides = () => {
+      const selected = sidesInputs.find(i => i.checked);
+      return (selected?.value === "dwustronne" ? "dwustronne" : "jednostronne") as "jednostronne" | "dwustronne";
+    };
+
+    const populateTables = () => {
+      const singleTbody = container.querySelector("#u-table-single tbody") as HTMLElement | null;
+      const doubleTbody = container.querySelector("#u-table-double tbody") as HTMLElement | null;
+      const qtyValues = Array.from(qtySelect.options)
+        .map(o => parseInt(o.value, 10))
+        .filter(v => !isNaN(v));
+
+      if (singleTbody) {
+        singleTbody.innerHTML = qtyValues.map(qty => {
+          const res = quoteJednostronne({ format: "A5", qty, express: false });
+          const brutto = parseFloat((res.totalPrice * VAT).toFixed(2));
+          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td><td>${formatPLN(brutto)}</td></tr>`;
+        }).join("");
+      }
+
+      if (doubleTbody) {
+        doubleTbody.innerHTML = qtyValues.map(qty => {
+          const res = quoteUlotkiDwustronne({ format: "A5", qty, express: false });
+          const brutto = parseFloat((res.totalPrice * VAT).toFixed(2));
+          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td><td>${formatPLN(brutto)}</td></tr>`;
+        }).join("");
+      }
+    };
+
+    const performCalculation = () => {
+      const sides = getSelectedSides();
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
 
       currentOptions = {
         format: formatSelect.value,
-        qty: parseInt(qtySelect.value),
+        qty: parseInt(qtySelect.value, 10),
         express: ctx.expressMode,
         sides
       };
@@ -68,9 +103,13 @@ export const UlotkiCyfroweView: View = {
 
         ctx.updateLastCalculated(bruttoPrice, "Ulotki");
       } catch (err) {
+        addToCartBtn.disabled = true;
+        resultDisplay.style.display = "none";
         alert("Błąd: " + (err as Error).message);
       }
     };
+
+    calculateBtn.onclick = performCalculation;
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
@@ -93,5 +132,13 @@ export const UlotkiCyfroweView: View = {
         });
       }
     };
+
+    [formatSelect, qtySelect, paperSelect].forEach(el => {
+      el.addEventListener("change", performCalculation);
+    });
+    sidesInputs.forEach(input => input.addEventListener("change", performCalculation));
+
+    populateTables();
+    performCalculation();
   }
 };
