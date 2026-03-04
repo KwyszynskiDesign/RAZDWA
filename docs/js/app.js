@@ -8,7 +8,8 @@ await priceManager.init();
 /** Mapa id kategorii → ścieżka modułu (lazy import) */
 const CATEGORY_MODULES = {
   'cad-upload':              './categories/cad-upload.js',
-  'druk-a4-a3-skan':         './categories/druk-a4-a3-skan.js',
+  'druk-a4-a3':              './categories/druk-a4-a3-skan.js',
+  'druk-a4-a3-skan':         './categories/druk-a4-a3-skan.js', // alias backward compatibility
   'druk-cad':                './categories/druk-cad.js',
   'dyplomy':                 './categories/dyplomy.js',
   'plakaty':                 './categories/plakaty.js',

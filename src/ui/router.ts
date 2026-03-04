@@ -32,6 +32,13 @@ export class Router {
     const hash = window.location.hash || "#/";
     let path = hash.startsWith("#/") ? hash.slice(2) : "";
     path = path.replace(/^\/+/, "");
+
+    // Backward-compatible aliases for renamed category IDs
+    if (path === "druk-a4-a3-skan") {
+      path = "druk-a4-a3";
+      window.history.replaceState(null, "", "#/druk-a4-a3");
+    }
+
     if (!path) {
       this.renderHome();
       return;

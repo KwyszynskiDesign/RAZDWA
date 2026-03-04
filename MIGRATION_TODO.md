@@ -133,9 +133,9 @@ window.addEventListener('razdwa:pricesUpdated', () => {
 - [ ] Wszystkie 16 kategorii używają `priceManager.getPrice()`
 - [ ] Wszystkie kategorie mają event listener `razdwa:pricesUpdated`
 - [ ] Zmiana ceny w Settings → automatyczny przelicznik we wszystkich kategoriach
-- [ ] Testy: zmiana ceny A4 kolorowy → druk-a4-a3-skan pokazuje nową cenę
+- [ ] Testy: zmiana ceny A4 kolorowy → druk-a4-a3 pokazuje nową cenę
 - [ ] Dokumentacja: update AGENTS.md z informacją o priceManager
 
 ---
 
-**Ostatnia aktualizacja**: 2025-01-XX (po commit 68c9ccf)
+**Ostatnia aktualizacja**: 2026-03-04

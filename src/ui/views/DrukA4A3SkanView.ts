@@ -4,7 +4,7 @@ import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
 
 export const DrukA4A3SkanView: View = {
-  id: "druk-a4-a3-skan",
+  id: "druk-a4-a3",
   name: "Druk A4/A3 + skan",
   async mount(container, ctx) {
     try {
