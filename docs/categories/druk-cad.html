@@ -14,21 +14,21 @@
         <option value="color">Kolorowy</option>
       </select>
     </div>
-    <div>
-      <label for="cad-format">Format:</label>
-      <select id="cad-format">
-        <option value="A0p">A0+ (914 mm)</option>
-        <option value="A0">A0 (841 mm)</option>
-        <option value="A1">A1 (594 mm)</option>
-        <option value="A2">A2 (420 mm)</option>
-        <option value="A3">A3 (297 mm)</option>
-      </select>
-    </div>
   </div>
 
   <div class="row">
     <label for="cad-length">Długość (mm):</label>
-    <div style="display: flex; gap: 24px; align-items: center;">
+    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <label for="cad-format" style="margin:0; white-space:nowrap;">Format:</label>
+        <select id="cad-format">
+          <option value="A0p">A0+ (914 mm)</option>
+          <option value="A0">A0 (841 mm)</option>
+          <option value="A1">A1 (594 mm)</option>
+          <option value="A2">A2 (420 mm)</option>
+          <option value="A3">A3 (297 mm)</option>
+        </select>
+      </div>
       <input type="number" id="cad-length" value="1292" min="1">
       <button id="cad-use-base" class="secondary btn-use-base" style="white-space: nowrap; min-width: 120px;">Użyj bazowej</button>
     </div>
@@ -61,7 +61,7 @@
           <label for="cad-fold-qty">Ilość (szt):</label>
           <input type="number" id="cad-fold-qty" value="1" min="1" />
         </div>
-        <button id="cad-fold-add" class="secondary" style="margin-top:8px;">Dodaj składanie</button>
+        <button id="cad-fold-add" class="secondary" style="margin-top:8px; margin-bottom:12px;">Dodaj składanie</button>
       </div>
       <div style="flex:1;min-width:200px;">
         <strong>Skanowanie wielkoformatowe</strong>
@@ -73,7 +73,7 @@
           <label for="cad-wf-scan-qty">Ilość (szt):</label>
           <input type="number" id="cad-wf-scan-qty" value="1" min="1" />
         </div>
-        <button id="cad-wf-scan-add" class="secondary" style="margin-top:8px;">Dodaj skan</button>
+        <button id="cad-wf-scan-add" class="secondary" style="margin-top:8px; margin-bottom:12px;">Dodaj skan</button>
       </div>
     </div>
   </div>
