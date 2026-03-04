@@ -39,6 +39,7 @@ export const DrukCADView: View = {
     const resultDisplay = container.querySelector("#cad-result-display") as HTMLElement;
     const priceTypeSpan = container.querySelector("#cad-price-type") as HTMLElement;
     const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement;
+    const grandTotalSpan = container.querySelector("#cad-grand-total") as HTMLElement | null;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
 
     const foldFormatSelect = container.querySelector("#cad-fold-format") as HTMLSelectElement | null;
@@ -86,6 +87,15 @@ export const DrukCADView: View = {
       cadOpsTotal.innerText = formatPLN(total);
     };
 
+    const getCadOpsTotal = () => cadOps.reduce((sum, op) => sum + op.totalPrice, 0);
+
+    const updateGrandTotal = () => {
+      if (!grandTotalSpan) return;
+      const printTotal = currentResult?.totalPrice ?? 0;
+      const opsTotal = getCadOpsTotal();
+      grandTotalSpan.innerText = formatPLN(printTotal + opsTotal);
+    };
+
     foldAddBtn?.addEventListener("click", () => {
       if (!foldFormatSelect || !foldQtyInput) return;
       const qty = parseInt(foldQtyInput.value, 10);
@@ -106,6 +116,7 @@ export const DrukCADView: View = {
           payload: result
         });
         updateCadOpsSummary();
+        updateGrandTotal();
       } catch (err) {
         alert((err as Error).message);
       }
@@ -131,6 +142,7 @@ export const DrukCADView: View = {
           payload: result
         });
         updateCadOpsSummary();
+        updateGrandTotal();
       } catch (err) {
         alert((err as Error).message);
       }
@@ -182,7 +194,9 @@ export const DrukCADView: View = {
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Druk CAD");
+        updateGrandTotal();
+
+        ctx.updateLastCalculated(result.totalPrice + getCadOpsTotal(), "Druk CAD + usługi");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
@@ -228,8 +242,11 @@ export const DrukCADView: View = {
         if (cadOps.length > 0) {
           cadOps.splice(0, cadOps.length);
           updateCadOpsSummary();
+          updateGrandTotal();
         }
       }
     };
+
+    updateGrandTotal();
   }
 };
