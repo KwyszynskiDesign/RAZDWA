@@ -385,6 +385,7 @@ export const CadUploadView: View = {
     // Add to cart buttons (Color and BW)
     const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
     const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
+    const submitBtn = container.querySelector<HTMLButtonElement>("#submitBtn");
     
     const handleCartButton = (btn: HTMLButtonElement | null, mode: 'color' | 'bw') => {
       if (!btn) return;
@@ -426,6 +427,22 @@ export const CadUploadView: View = {
     
     handleCartButton(selectColorBtn, 'color');
     handleCartButton(selectBwBtn, 'bw');
+
+    if (submitBtn) {
+      submitBtn.addEventListener("click", () => {
+        if (files.length === 0) {
+          alert("Nie dodano żadnych plików do wyceny");
+          return;
+        }
+
+        const selectedMode = (modeSelect?.value || (isColor ? "color" : "bw")) as "color" | "bw";
+        if (selectedMode === "color") {
+          selectColorBtn?.click();
+        } else {
+          selectBwBtn?.click();
+        }
+      });
+    }
 
     // Initial render
     renderFiles();
