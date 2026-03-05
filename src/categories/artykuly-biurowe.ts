@@ -1,8 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
+import artykulyData from "../../data/normalized/artykuly-biurowe.json";
 
-const artykulyData: any = getPrice("artykuly-biurowe") as any;
+const artykulyBiuroweData: any = artykulyData as any;
 
 export interface ArtykulyBiuroweOptions {
   selectedItems: Array<{
@@ -65,7 +65,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
     const itemsList = container.querySelector('#items-list') as HTMLElement;
     let itemId = 0;
 
-    for (const category of artykulyData.categories) {
+    for (const category of artykulyBiuroweData.categories) {
       const categoryDiv = document.createElement('div');
       categoryDiv.style.marginBottom = '20px';
       categoryDiv.innerHTML = `<h3 style="color: #333; margin-bottom: 10px;">${category.name}</h3>`;

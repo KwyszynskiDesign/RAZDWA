@@ -1,8 +1,8 @@
 import { CategoryModule } from "../ui/router";
-import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
+import uslugiData from "../../data/normalized/uslugi.json";
 
-const uslugiData: any = getPrice("uslugi") as any;
+const uslugiCategoryData: any = uslugiData as any;
 
 export interface UslugiOptions {
   selectedServices: Array<{
@@ -60,7 +60,7 @@ export const uslugiCategory: CategoryModule = {
     // Build services list
     const servicesList = container.querySelector('#services-list') as HTMLElement;
 
-    for (const category of uslugiData.categories) {
+    for (const category of uslugiCategoryData.categories) {
       const categoryDiv = document.createElement('div');
       categoryDiv.style.marginBottom = '20px';
       categoryDiv.innerHTML = `<h3 style="color: #333; margin-bottom: 10px;">${category.name}</h3>`;
