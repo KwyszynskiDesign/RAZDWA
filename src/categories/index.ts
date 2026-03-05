@@ -12,6 +12,8 @@ import { RollUpView as rollupCategory } from "../ui/views/roll-up";
 import { createHTMLCategory } from "./loader";
 import { drukCADCategory } from "./druk-cad";
 import { drukA4A3Category } from "./druk-a4-a3-skan";
+import { artykulyBiuroweCategory } from "./artykuly-biurowe";
+import { uslugiCategory } from "./uslugi";
 
 export const categories = [
   // Istniejące kategorie JS
@@ -30,6 +32,8 @@ export const categories = [
   // Nowe kategorie z pełną logiką
   drukCADCategory,
   drukA4A3Category,
+  artykulyBiuroweCategory,
+  uslugiCategory,
 
   // Pozostałe kategorie HTML
   createHTMLCategory('folia-szroniona', '✨ Folia Szroniona', 'folia-szroniona.html'),

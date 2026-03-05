@@ -102,5 +102,17 @@
     "name": "CAD: składanie / skan",
     "icon": "📏",
     "implemented": true
+  },
+  {
+    "id": "artykuly-biurowe",
+    "name": "Artykuły Biurowe",
+    "icon": "📎",
+    "implemented": true
+  },
+  {
+    "id": "uslugi",
+    "name": "Usługi",
+    "icon": "🛠️",
+    "implemented": true
   }
 ]

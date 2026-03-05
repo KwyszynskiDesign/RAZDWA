@@ -1,0 +1,163 @@
+{
+  "id": "artykuly-biurowe",
+  "title": "Artykuły Biurowe",
+  "unit": "szt",
+  "pricing": "flat",
+  "categories": [
+    {
+      "name": "TECZKI",
+      "items": [
+        {
+          "id": "teczka-biala-gumka",
+          "name": "Teczka biała z gumką",
+          "price": 4.00
+        },
+        {
+          "id": "teczka-niebieska-twarda",
+          "name": "Teczka niebieska twarda",
+          "price": 15.00
+        },
+        {
+          "id": "teczka-kolor-gumka",
+          "name": "Teczka KOLOR z gumką",
+          "price": 5.50
+        },
+        {
+          "id": "teczka-biala-wiezanka",
+          "name": "Teczka biała z wiązanką",
+          "price": 5.00
+        }
+      ]
+    },
+    {
+      "name": "SKOROSZYT",
+      "items": [
+        {
+          "id": "skoroszyt-durable",
+          "name": "Skoroszyt DURABLE",
+          "price": 10.00
+        },
+        {
+          "id": "skoroszyt-wasm",
+          "name": "Skoroszyt z wąsem",
+          "price": 4.50
+        },
+        {
+          "id": "skoroszyt-wasm-wpinanie",
+          "name": "Skoroszyt z wąsem do wpinania",
+          "price": 4.50
+        }
+      ]
+    },
+    {
+      "name": "SEGREGATORY I AKCESORIA",
+      "items": [
+        {
+          "id": "segregator-7cm",
+          "name": "SEGREGATOR 7 cm",
+          "price": 13.00
+        },
+        {
+          "id": "koszulka-dokumenty",
+          "name": "KOSZULKA na dokumenty (1 szt / 10 szt)",
+          "prices": [0.30, 0.80]
+        },
+        {
+          "id": "papier-ryza-a4",
+          "name": "Papier RYZA A4",
+          "price": 19.00
+        },
+        {
+          "id": "papier-ryza-a3",
+          "name": "Papier RYZA A3",
+          "price": 35.00
+        }
+      ]
+    },
+    {
+      "name": "ARTYKUŁY PISZCZE",
+      "items": [
+        {
+          "id": "dugopis",
+          "name": "Długopis",
+          "price": 6.00
+        },
+        {
+          "id": "olowek",
+          "name": "Ołówek",
+          "price": 4.00
+        }
+      ]
+    },
+    {
+      "name": "NOŚNIKI DANYCH",
+      "items": [
+        {
+          "id": "pendrive-32gb",
+          "name": "PENDRIVE 32GB",
+          "price": 28.00
+        },
+        {
+          "id": "pendrive-4gb",
+          "name": "PENDRIVE 4GB",
+          "price": 22.00
+        }
+      ]
+    },
+    {
+      "name": "KOPERTY",
+      "items": [
+        {
+          "id": "koperta-zwykla",
+          "name": "KOPERTY zwykłe",
+          "price": 0.65
+        },
+        {
+          "id": "koperta-rozszerzona",
+          "name": "Koperta rozszerzona",
+          "price": 3.00
+        },
+        {
+          "id": "koperta-wysylkowa",
+          "name": "Koperta wysyłkowa",
+          "price": 3.00
+        },
+        {
+          "id": "koperta-ozdobna",
+          "name": "KOPERTY ozdobne/V",
+          "price": 1.40
+        }
+      ]
+    },
+    {
+      "name": "PUDEŁKA I NOŚNIKI",
+      "items": [
+        {
+          "id": "pudelko-pakowe-80",
+          "name": "Pudełko pakowe 80cm",
+          "price": 4.50
+        },
+        {
+          "id": "pudelko-pakowe-100",
+          "name": "Pudełko pakowe 100cm",
+          "price": 5.00
+        },
+        {
+          "id": "pudelko-pakowe-120",
+          "name": "Pudełko pakowe 120cm",
+          "price": 6.00
+        },
+        {
+          "id": "plyty-cd",
+          "name": "Płyty CD",
+          "price": 3.20
+        },
+        {
+          "id": "plyty-dvd",
+          "name": "Płyty DVD",
+          "price": 5.20
+        }
+      ]
+    }
+  ]
+}
