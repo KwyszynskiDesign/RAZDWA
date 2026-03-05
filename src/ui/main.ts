@@ -16,6 +16,8 @@ import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
+import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
+import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
@@ -171,6 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(FoliaSzronionaView);
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
+  router.addRoute(artykulyBiuroweCategory);
+  router.addRoute(uslugiCategory);
 
   // Populate category selector (if exists)
   const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement | null;
