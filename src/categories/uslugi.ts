@@ -10,6 +10,7 @@ export interface UslugiOptions {
     serviceName: string;
     price: number;
     quantity?: number;
+    hours?: number;
   }>;
 }
 
@@ -20,7 +21,8 @@ export function quoteUslugi(options: UslugiOptions): any {
     const storageKey = `uslugi-${service.serviceId}`;
     const price = resolveStoredPrice(storageKey, service.price);
     const qty = service.quantity || 1;
-    totalPrice += price * qty;
+    const hours = service.hours || 1;
+    totalPrice += price * qty * hours;
   }
 
   return {
@@ -33,26 +35,30 @@ export const uslugiCategory: CategoryModule = {
   id: 'uslugi',
   name: '🛠️ Usługi',
   mount: (container, ctx) => {
+    const isTimeBasedService = (serviceId: string): boolean => {
+      return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
+    };
+
     container.innerHTML = `
       <div class="category-form">
         <h2>Usługi Dodatkowe</h2>
-        <p style="color: #999; margin-bottom: 20px;">
+        <p style="color: #999; margin-bottom: 10px; font-size: 0.92em;">
           Formatowanie, grafika, archiwizacja, obróbka plików.
         </p>
 
-        <div id="services-list" style="margin-bottom: 30px;"></div>
+        <div id="services-list" style="margin-bottom: 14px;"></div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 10px;">
           <button id="calculate-btn" class="btn btn-primary">Oblicz</button>
         </div>
 
-        <div id="summary" style="display: none; margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
-          <h3>Podsumowanie</h3>
-          <p>Liczba usług: <strong id="services-count">0</strong></p>
-          <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #999;">
+        <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
+          <h3 style="margin: 0 0 8px 0; font-size: 1rem;">Podsumowanie</h3>
+          <p style="margin: 2px 0;">Liczba usług: <strong id="services-count">0</strong></p>
+          <p style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #999;">
             Razem: <strong id="total-price">0,00 zł</strong>
           </p>
-          <div id="details-info" style="margin-top: 10px; font-size: 0.9em; color: #666;"></div>
+          <div id="details-info" style="margin-top: 8px; font-size: 0.86em; color: #666;"></div>
         </div>
       </div>
     `;
@@ -62,10 +68,16 @@ export const uslugiCategory: CategoryModule = {
 
     for (const category of uslugiCategoryData.categories) {
       const categoryDiv = document.createElement('div');
-      categoryDiv.style.marginBottom = '20px';
-      categoryDiv.innerHTML = `<h3 style="color: #333; margin-bottom: 10px;">${category.name}</h3>`;
+      categoryDiv.style.marginBottom = '10px';
+      categoryDiv.style.padding = '8px 10px';
+      categoryDiv.style.backgroundColor = '#f7f9fb';
+      categoryDiv.style.border = '1px solid #e3e8ef';
+      categoryDiv.style.borderRadius = '8px';
+      categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${category.name}</h3>`;
 
       const servicesDiv = document.createElement('div');
+      servicesDiv.style.display = 'grid';
+      servicesDiv.style.gap = '6px';
 
       for (const service of category.items) {
         const servicePrice = service.price || service.priceMin || 0;
@@ -74,30 +86,41 @@ export const uslugiCategory: CategoryModule = {
           : `${servicePrice.toFixed(2)} zł`;
 
         const serviceDiv = document.createElement('div');
-        serviceDiv.style.display = 'flex';
-        serviceDiv.style.flexDirection = 'column';
-        serviceDiv.style.gap = '5px';
-        serviceDiv.style.marginBottom = '10px';
-        serviceDiv.style.padding = '10px';
-        serviceDiv.style.backgroundColor = '#f9f9f9';
-        serviceDiv.style.borderRadius = '3px';
+        serviceDiv.style.display = 'grid';
+        serviceDiv.style.gridTemplateColumns = '1fr auto';
+        serviceDiv.style.columnGap = '10px';
+        serviceDiv.style.rowGap = '5px';
+        serviceDiv.style.padding = '8px';
+        serviceDiv.style.backgroundColor = '#ffffff';
+        serviceDiv.style.border = '1px solid #e7edf5';
+        serviceDiv.style.borderRadius = '6px';
 
-        const hasQty = service.name.includes('(1-9') || service.name.includes('(9-19') || service.name.includes('(powyżej');
+        const hasQty = true;
+        const isTimeBased = isTimeBasedService(service.id);
         const hasNote = service.note ? true : false;
 
         serviceDiv.innerHTML = `
-          <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0;">
-            <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="margin-top: 3px;">
-            <div style="flex: 1;">
-              <span style="font-weight: 500;">${service.name}</span>
+          <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
+            <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="margin-top: 2px;">
+            <div style="min-width: 0;">
+              <span style="font-weight: 500; font-size: 0.93em; line-height: 1.25;">${service.name}</span>
               ${hasNote ? `<div style="color: #666; font-size: 0.85em; margin-top: 3px;">ℹ️ ${service.note}</div>` : ''}
             </div>
-            <span style="font-weight: bold; color: #0066cc; white-space: nowrap;">${priceDisplay}</span>
           </label>
-          ${hasQty ? `
-            <div style="display: flex; gap: 10px; align-items: center; margin-left: 28px;">
-              <label style="font-size: 0.9em; color: #666;">Ilość:</label>
-              <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 50px; padding: 4px;" class="service-quantity">
+          <div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
+            <span style="font-weight: bold; color: #0066cc; white-space: nowrap; font-size: 0.9em;">${priceDisplay}</span>
+            ${hasQty ? `
+              <label style="font-size: 0.82em; color: #666;">Ilość:</label>
+              <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 56px; padding: 4px; font-size: 0.88em;" class="service-quantity">
+            ` : ''}
+            ${isTimeBased ? `
+              <label style="font-size: 0.82em; color: #666;">Czas (h):</label>
+              <input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width: 64px; padding: 4px; font-size: 0.88em;" class="service-hours">
+            ` : ''}
+          </div>
+          ${isTimeBased ? `
+            <div style="grid-column: 1 / -1; margin-left: 24px; font-size: 0.8em; color: #7d8793;">
+              * Dla tej usługi możesz wpisać ilość czasu w godzinach.
             </div>
           ` : ''}
         `;
@@ -126,13 +149,16 @@ export const uslugiCategory: CategoryModule = {
         const serviceName = checkbox.getAttribute('data-service-name') || '';
         const price = parseFloat(checkbox.getAttribute('data-price') || '0');
         const qtyInput = container.querySelector(`input[data-qty-for="${serviceId}"]`) as HTMLInputElement;
+        const hoursInput = container.querySelector(`input[data-hours-for="${serviceId}"]`) as HTMLInputElement;
         const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
+        const hours = hoursInput ? parseFloat(hoursInput.value || '1') : 1;
 
         return {
           serviceId,
           serviceName,
           price,
-          quantity
+          quantity,
+          hours
         };
       });
 
@@ -144,7 +170,12 @@ export const uslugiCategory: CategoryModule = {
       // Build details
       const detailsDiv = container.querySelector('#details-info') as HTMLElement;
       const detailsHTML = selectedServices
-        .map(s => `<div>• ${s.serviceName}: ${(s.price * (s.quantity || 1)).toFixed(2)} zł</div>`)
+        .map(s => {
+          const qty = s.quantity || 1;
+          const hours = s.hours || 1;
+          const extra = hours !== 1 ? ` (${hours}h)` : '';
+          return `<div>• ${s.serviceName}${extra}: ${(s.price * qty * hours).toFixed(2)} zł</div>`;
+        })
         .join('');
       detailsDiv.innerHTML = detailsHTML;
 

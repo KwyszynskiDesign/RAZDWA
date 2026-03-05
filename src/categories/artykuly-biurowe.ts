@@ -40,21 +40,21 @@ export const artykulyBiuroweCategory: CategoryModule = {
     container.innerHTML = `
       <div class="category-form">
         <h2>Artykuły Biurowe</h2>
-        <p style="color: #999; margin-bottom: 20px;">
+        <p style="color: #999; margin-bottom: 10px; font-size: 0.92em;">
           Artykuły biurowe i akcesoria. Cena za sztukę.
         </p>
 
-        <div id="items-list" style="margin-bottom: 30px;"></div>
+        <div id="items-list" style="margin-bottom: 14px;"></div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-bottom: 10px;">
           <button id="calculate-btn" class="btn btn-primary">Oblicz</button>
         </div>
 
-        <div id="summary" style="display: none; margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
-          <h3>Podsumowanie</h3>
-          <p>Liczba pozycji: <strong id="items-count">0</strong></p>
-          <p>Ilość sztuk: <strong id="total-qty">0</strong></p>
-          <p style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #999;">
+        <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
+          <h3 style="margin: 0 0 8px 0; font-size: 1rem;">Podsumowanie</h3>
+          <p style="margin: 2px 0;">Liczba pozycji: <strong id="items-count">0</strong></p>
+          <p style="margin: 2px 0;">Ilość sztuk: <strong id="total-qty">0</strong></p>
+          <p style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #999;">
             Razem: <strong id="total-price">0,00 zł</strong>
           </p>
         </div>
@@ -67,35 +67,40 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
     for (const category of artykulyBiuroweData.categories) {
       const categoryDiv = document.createElement('div');
-      categoryDiv.style.marginBottom = '20px';
-      categoryDiv.innerHTML = `<h3 style="color: #333; margin-bottom: 10px;">${category.name}</h3>`;
+      categoryDiv.style.marginBottom = '10px';
+      categoryDiv.style.padding = '8px 10px';
+      categoryDiv.style.backgroundColor = '#f7f9fb';
+      categoryDiv.style.border = '1px solid #e3e8ef';
+      categoryDiv.style.borderRadius = '8px';
+      categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${category.name}</h3>`;
 
       const itemsDiv = document.createElement('div');
+      itemsDiv.style.display = 'grid';
+      itemsDiv.style.gap = '5px';
 
       for (const item of category.items) {
         const itemPrice = item.price || (item.prices ? item.prices[0] : 0);
         itemId++;
 
         const itemDiv = document.createElement('div');
-        itemDiv.style.display = 'flex';
+        itemDiv.style.display = 'grid';
+        itemDiv.style.gridTemplateColumns = '1fr auto auto';
         itemDiv.style.alignItems = 'center';
-        itemDiv.style.gap = '10px';
-        itemDiv.style.marginBottom = '8px';
-        itemDiv.style.padding = '8px';
-        itemDiv.style.backgroundColor = '#f9f9f9';
-        itemDiv.style.borderRadius = '3px';
+        itemDiv.style.columnGap = '8px';
+        itemDiv.style.padding = '6px 8px';
+        itemDiv.style.backgroundColor = '#ffffff';
+        itemDiv.style.border = '1px solid #e7edf5';
+        itemDiv.style.borderRadius = '6px';
 
         itemDiv.innerHTML = `
-          <div style="flex: 1;">
+          <div style="min-width: 0;">
             <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
               <input type="checkbox" data-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="item-checkbox">
-              <span>${item.name}</span>
+              <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
             </label>
           </div>
-          <div style="display: flex; gap: 5px; align-items: center;">
-            <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 50px; padding: 5px;" class="item-quantity">
-            <span style="font-weight: bold; color: #0066cc; min-width: 60px; text-align: right;">${itemPrice.toFixed(2)} zł</span>
-          </div>
+          <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 58px; padding: 4px; font-size: 0.9em;" class="item-quantity">
+          <span style="font-weight: bold; color: #0066cc; min-width: 72px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
         `;
 
         itemsDiv.appendChild(itemDiv);
