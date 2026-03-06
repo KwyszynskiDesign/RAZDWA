@@ -68,8 +68,8 @@ export const uslugiCategory: CategoryModule = {
 
     for (const category of uslugiCategoryData.categories) {
       const categoryDiv = document.createElement('div');
-      categoryDiv.style.marginBottom = '10px';
-      categoryDiv.style.padding = '8px 10px';
+      categoryDiv.style.marginBottom = '8px';
+      categoryDiv.style.padding = '8px';
       categoryDiv.style.backgroundColor = '#f7f9fb';
       categoryDiv.style.border = '1px solid #e3e8ef';
       categoryDiv.style.borderRadius = '8px';
@@ -87,42 +87,22 @@ export const uslugiCategory: CategoryModule = {
 
         const serviceDiv = document.createElement('div');
         serviceDiv.style.display = 'grid';
-        serviceDiv.style.gridTemplateColumns = '1fr auto';
-        serviceDiv.style.columnGap = '10px';
-        serviceDiv.style.rowGap = '5px';
-        serviceDiv.style.padding = '8px';
+        serviceDiv.style.gridTemplateColumns = 'auto 1fr auto auto auto';
+        serviceDiv.style.alignItems = 'center';
+        serviceDiv.style.columnGap = '6px';
+        serviceDiv.style.padding = '5px 8px';
         serviceDiv.style.backgroundColor = '#ffffff';
         serviceDiv.style.border = '1px solid #e7edf5';
         serviceDiv.style.borderRadius = '6px';
 
-        const hasQty = true;
         const isTimeBased = isTimeBasedService(service.id);
-        const hasNote = service.note ? true : false;
 
         serviceDiv.innerHTML = `
-          <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
-            <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="margin-top: 2px;">
-            <div style="min-width: 0;">
-              <span style="font-weight: 500; font-size: 0.93em; line-height: 1.25;">${service.name}</span>
-              ${hasNote ? `<div style="color: #666; font-size: 0.85em; margin-top: 3px;">ℹ️ ${service.note}</div>` : ''}
-            </div>
-          </label>
-          <div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap;">
-            <span style="font-weight: bold; color: #0066cc; white-space: nowrap; font-size: 0.9em;">${priceDisplay}</span>
-            ${hasQty ? `
-              <label style="font-size: 0.82em; color: #666;">Ilość:</label>
-              <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 56px; padding: 4px; font-size: 0.88em;" class="service-quantity">
-            ` : ''}
-            ${isTimeBased ? `
-              <label style="font-size: 0.82em; color: #666;">Czas (h):</label>
-              <input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width: 64px; padding: 4px; font-size: 0.88em;" class="service-hours">
-            ` : ''}
-          </div>
-          ${isTimeBased ? `
-            <div style="grid-column: 1 / -1; margin-left: 24px; font-size: 0.8em; color: #7d8793;">
-              * Dla tej usługi możesz wpisać ilość czasu w godzinach.
-            </div>
-          ` : ''}
+          <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${service.name}</label>
+          <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity">
+          ${isTimeBased ? `<input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-hours" placeholder="h">` : '<span style="width: 48px;"></span>'}
+          <span style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
+          <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
         `;
 
         servicesDiv.appendChild(serviceDiv);

@@ -54,6 +54,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
           <h3 style="margin: 0 0 8px 0; font-size: 1rem;">Podsumowanie</h3>
           <p style="margin: 2px 0;">Liczba pozycji: <strong id="items-count">0</strong></p>
           <p style="margin: 2px 0;">Ilość sztuk: <strong id="total-qty">0</strong></p>
+          <div id="details-info" style="margin-top: 8px; font-size: 0.86em; color: #555; max-height: 120px; overflow-y: auto;"></div>
           <p style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #999;">
             Razem: <strong id="total-price">0,00 zł</strong>
           </p>
@@ -84,23 +85,21 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
         const itemDiv = document.createElement('div');
         itemDiv.style.display = 'grid';
-        itemDiv.style.gridTemplateColumns = '1fr auto auto';
+        itemDiv.style.gridTemplateColumns = '1fr auto auto auto';
         itemDiv.style.alignItems = 'center';
         itemDiv.style.columnGap = '8px';
-        itemDiv.style.padding = '6px 8px';
+        itemDiv.style.padding = '5px 8px';
         itemDiv.style.backgroundColor = '#ffffff';
         itemDiv.style.border = '1px solid #e7edf5';
         itemDiv.style.borderRadius = '6px';
 
         itemDiv.innerHTML = `
-          <div style="min-width: 0;">
-            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0;">
-              <input type="checkbox" data-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="item-checkbox">
-              <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
-            </label>
-          </div>
-          <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 58px; padding: 4px; font-size: 0.9em;" class="item-quantity">
-          <span style="font-weight: bold; color: #0066cc; min-width: 72px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
+            <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
+          </label>
+          <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
+          <span style="font-weight: bold; color: #0066cc; min-width: 68px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
+          <input type="checkbox" data-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="item-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
         `;
 
         itemsDiv.appendChild(itemDiv);
@@ -143,6 +142,13 @@ export const artykulyBiuroweCategory: CategoryModule = {
       (container.querySelector('#items-count') as HTMLElement).textContent = result.itemsCount.toString();
       (container.querySelector('#total-qty') as HTMLElement).textContent = result.totalQuantity.toString();
       (container.querySelector('#total-price') as HTMLElement).textContent = result.totalPrice.toFixed(2) + ' zł';
+
+      // Build details
+      const detailsDiv = container.querySelector('#details-info') as HTMLElement;
+      const detailsHTML = selectedItems
+        .map(s => `<div>• ${s.itemName} × ${s.quantity} szt: ${(s.price * s.quantity).toFixed(2)} zł</div>`)
+        .join('');
+      detailsDiv.innerHTML = detailsHTML;
 
       summaryDiv.style.display = 'block';
 
