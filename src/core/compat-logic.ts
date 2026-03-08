@@ -50,7 +50,16 @@ export function calculateSimplePrint(options: {
   const fmtKey = options.format.toLowerCase();
   const printStorageKey = `druk-${modeKey}-${fmtKey}-${tierRange(tier.from, tier.to)}`;
   const unitPrice = storedPrice(printStorageKey, tier.unit);
-  let total = options.pages * unitPrice;
+  const surchargeFactor = storedPrice("modifier-druk-zadruk25", 0.5);
+
+  const requestedSurchargeQty = Number.isFinite(options.ink25Qty) ? Math.max(0, options.ink25Qty) : 0;
+  const surchargeQty = options.ink25 ? Math.min(options.pages, requestedSurchargeQty) : 0;
+  const normalQty = Math.max(0, options.pages - surchargeQty);
+
+  const surchargeUnitPrice = unitPrice * (1 + surchargeFactor);
+  const normalTotal = normalQty * unitPrice;
+  const surchargePagesTotal = surchargeQty * surchargeUnitPrice;
+  const total = normalTotal + surchargePagesTotal;
 
   let emailItemTotal = 0;
   if (options.email) {
@@ -59,7 +68,7 @@ export function calculateSimplePrint(options: {
 
   let inkItemTotal = 0;
   if (options.ink25) {
-    inkItemTotal = storedPrice("modifier-druk-zadruk25", 0.5) * unitPrice * options.ink25Qty;
+    inkItemTotal = surchargeQty * (surchargeUnitPrice - unitPrice);
   }
 
   return {
@@ -67,7 +76,7 @@ export function calculateSimplePrint(options: {
     printTotal: total,
     emailTotal: emailItemTotal,
     inkTotal: inkItemTotal,
-    grandTotal: total + emailItemTotal + inkItemTotal,
+    grandTotal: total + emailItemTotal,
   };
 }
 

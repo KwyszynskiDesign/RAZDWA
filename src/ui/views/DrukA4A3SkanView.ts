@@ -66,13 +66,18 @@ export const DrukA4A3SkanView: View = {
     let currentOptions: any = null;
 
     calculateBtn.onclick = () => {
-      const surchargeQty = parseInt(surchargeQtyInput.value) || 0;
-      const surcharge = surchargeCheck ? surchargeCheck.checked : surchargeQty > 0;
+      const printQty = parseInt(printQtyInput.value) || 0;
+      const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
+      const surchargeQty = Math.min(Math.max(requestedSurchargeQty, 0), Math.max(printQty, 0));
+      if (requestedSurchargeQty !== surchargeQty) {
+        surchargeQtyInput.value = String(surchargeQty);
+      }
+      const surcharge = (surchargeCheck ? surchargeCheck.checked : requestedSurchargeQty > 0) && printQty > 0 && surchargeQty > 0;
 
       currentOptions = {
         mode: modeSelect.value,
         format: formatSelect.value,
-        printQty: parseInt(printQtyInput.value) || 0,
+        printQty,
         email: emailCheck.checked,
         surcharge,
         surchargeQty,

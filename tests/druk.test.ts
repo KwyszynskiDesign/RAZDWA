@@ -86,6 +86,46 @@ describe("Druk A4/A3 + skan", () => {
     expect(result.totalPrice).toBe(7.50);
   });
 
+  it("should charge +50% only for selected surcharge pages", () => {
+    const result = calculateDrukA4A3Skan({
+      mode: "bw",
+      format: "a4",
+      printQty: 20,
+      email: false,
+      surcharge: true,
+      surchargeQty: 10,
+      scanType: "none",
+      scanQty: 0,
+      express: false
+    }, pricing);
+
+    // Tier for 20 pages: 0.60 zł/str
+    // 10 normal pages: 10 * 0.60 = 6.00
+    // 10 surcharge pages: 10 * 0.90 = 9.00
+    // Total: 15.00
+    expect(result.totalPrice).toBe(15.00);
+    expect(result.totalPrintPrice).toBe(15.00);
+    expect(result.surchargePrice).toBeCloseTo(3.00, 2);
+  });
+
+  it("should clamp surcharge pages to total print pages", () => {
+    const result = calculateDrukA4A3Skan({
+      mode: "bw",
+      format: "a4",
+      printQty: 10,
+      email: false,
+      surcharge: true,
+      surchargeQty: 99,
+      scanType: "none",
+      scanQty: 0,
+      express: false
+    }, pricing);
+
+    // All 10 pages become surcharge pages: 10 * 0.90 = 9.00
+    expect(result.totalPrintPrice).toBe(9.00);
+    expect(result.totalPrice).toBe(9.00);
+  });
+
   it("should handle scanning", () => {
     const result = calculateDrukA4A3Skan({
       mode: "bw",
