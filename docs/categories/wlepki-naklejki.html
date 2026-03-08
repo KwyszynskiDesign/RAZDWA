@@ -23,14 +23,15 @@
             <label>Opcje dodatkowe:</label>
             <div class="checkbox-group">
                 <label><input type="checkbox" value="mocny_klej" class="wlepki-mod"> Mocny klej (+12%)</label>
-                <label><input type="checkbox" value="arkusze" class="wlepki-mod"> Cięte na arkusze (+2 zł/m2)</label>
-                <label><input type="checkbox" value="pojedyncze" class="wlepki-mod"> Cięte na pojedyncze sztuki (+10 zł/m2)</label>
+                <label><input type="checkbox" value="arkusze" class="wlepki-mod"> Cięte na arkusze (+2,00 zł/m²)</label>
+                <label><input type="checkbox" value="pojedyncze" class="wlepki-mod"> Cięte na pojedyncze sztuki (+10,00 zł/m²)</label>
             </div>
+            <small class="form-text">Najpierw liczona jest cena bazowa za m², potem dopłaty (np. +12%, +2 zł/m²).</small>
         </div>
 
         <div class="form-actions">
             <button id="btn-calculate" class="btn-primary">Oblicz</button>
-            <button id="btn-add-to-cart" class="btn-success">Dodaj do koszyka</button>
+            <button id="btn-add-to-cart" class="btn-success" disabled>Dodaj do koszyka</button>
         </div>
     </div>
 
@@ -39,6 +40,11 @@
             <span>Cena za m2:</span>
             <span id="unit-price" class="price-value">0,00 zł</span>
         </div>
+        <div class="result-row">
+            <span>Baza (rozliczone m²):</span>
+            <span id="base-price" class="price-value">0,00 zł</span>
+        </div>
+        <div id="modifiers-breakdown" style="margin-top: 8px;"></div>
         <div class="result-row total">
             <span>Cena całkowita:</span>
             <span id="total-price" class="price-value">0,00 zł</span>
