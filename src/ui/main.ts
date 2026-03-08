@@ -16,12 +16,14 @@ import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
+import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
 import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
+import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript } from "../services/orderExportService";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
@@ -173,6 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(FoliaSzronionaView);
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
+  router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);
 
@@ -261,13 +264,14 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCartUI();
   });
 
-  // Excel download
-  document.getElementById("sendBtn")?.addEventListener("click", () => {
+  // Send order: Apps Script (if configured) or local Excel fallback
+  document.getElementById("sendBtn")?.addEventListener("click", async () => {
     const customer: CustomerData = {
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
-      priority: (document.getElementById("custPriority") as HTMLSelectElement).value
+      priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
+      notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
     };
 
     if (cart.isEmpty()) {
@@ -275,7 +279,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    downloadExcel(cart.getItems(), customer);
+    const items = cart.getItems();
+    const exportConfig = getOrderExportConfig();
+
+    if (exportConfig.enabled && exportConfig.appsScriptUrl) {
+      const payload = buildOrderExportPayload(items, customer);
+      const result = await sendOrderToAppsScript(payload, exportConfig);
+
+      if (result.ok) {
+        showToast("✓ Wysłano do bazy (Google Sheets)");
+        alert("Zamówienie wysłane do bazy (Google Sheets).\n\nMożesz dalej pracować z listą albo ją wyczyścić.");
+        return;
+      }
+
+      alert(`Nie udało się wysłać do bazy: ${result.message || "nieznany błąd"}\n\nPobieram plik Excel lokalnie jako kopię zapasową.`);
+      downloadExcel(items, customer);
+      return;
+    }
+
+    downloadExcel(items, customer);
+    alert("Brak aktywnej integracji Apps Script. Zapisano lokalny plik Excel.");
   });
 
   updateCartUI();

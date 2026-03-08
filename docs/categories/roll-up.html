@@ -24,16 +24,15 @@
     <input type="number" id="rollUpQty" value="1" min="1" step="1">
   </div>
 
-  <div class="actions">
-    <button id="calcBtn" class="primary">Oblicz</button>
-    <button id="addToCartBtn">Dodaj do koszyka</button>
+  <div class="form-actions">
+    <button id="calcBtn" class="btn-primary">Oblicz</button>
+    <button id="addToCartBtn" class="btn-success">Dodaj do koszyka</button>
   </div>
 
   <div id="rollUpResult" class="result-area" style="margin-top: 20px; display: none;">
     <div class="price-line">Cena za szt: <span id="resUnitPrice">0.00</span></div>
-    <div class="price-line highlight">Cena brutto: <span id="resTotalPrice">0.00</span></div>
+    <div class="price-line highlight">Cena: <span id="resTotalPrice">0.00</span></div>
     <div id="resExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
   </div>
 </div>
 
-<!-- <script type="module" src="../js/categories/roll-up.js"></script> -->

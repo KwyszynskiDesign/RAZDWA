@@ -2,8 +2,6 @@ import { View, ViewContext } from "../types";
 import { quoteVouchery } from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
 
-const VAT = 1.23;
-
 export const VoucheryView: View = {
   id: "vouchery",
   name: "Vouchery",
@@ -28,7 +26,6 @@ export const VoucheryView: View = {
     const basePriceSpan = container.querySelector("#v-base-price") as HTMLElement;
     const modifiersRow = container.querySelector("#v-modifiers-row") as HTMLElement;
     const modifiersTotalSpan = container.querySelector("#v-modifiers-total") as HTMLElement;
-    const nettoPriceSpan = container.querySelector("#v-netto-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#v-total-price") as HTMLElement;
     const tierHint = container.querySelector("#v-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#v-express-hint") as HTMLElement;
@@ -52,8 +49,8 @@ export const VoucheryView: View = {
 
       try {
         const result = quoteVouchery(currentOptions);
-        const bruttoPrice = parseFloat((result.totalPrice * VAT).toFixed(2));
-        currentResult = { ...result, bruttoPrice, isSatin };
+        const totalPrice = result.totalPrice;
+        currentResult = { ...result, totalPrice, isSatin };
 
         basePriceSpan.innerText = formatPLN(result.basePrice);
 
@@ -64,15 +61,14 @@ export const VoucheryView: View = {
           modifiersRow.style.display = "none";
         }
 
-        if (nettoPriceSpan) nettoPriceSpan.innerText = formatPLN(result.totalPrice);
-        totalPriceSpan.innerText = formatPLN(bruttoPrice);
+        totalPriceSpan.innerText = formatPLN(totalPrice);
         if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(bruttoPrice, "Vouchery");
+        ctx.updateLastCalculated(totalPrice, "Vouchery");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
@@ -91,9 +87,9 @@ export const VoucheryView: View = {
           name: `Vouchery A4 ${sidesLabel}`,
           quantity: currentOptions.qty,
           unit: "szt",
-          unitPrice: currentResult.bruttoPrice / currentOptions.qty,
+          unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
-          totalPrice: currentResult.bruttoPrice,
+          totalPrice: currentResult.totalPrice,
           optionsHint: `${currentOptions.qty} szt${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
           payload: currentResult
         });

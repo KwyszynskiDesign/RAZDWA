@@ -65,6 +65,7 @@ Znormalizowane pliki JSON z cenami, progami ilościowymi, modyfikatorami.
 
 - **[AGENTS.md](AGENTS.md)** - Zasady rozwoju projektu
 - **[REFACTORING_PRICE_SERVICE.md](docs/REFACTORING_PRICE_SERVICE.md)** - Szczegóły refaktoryzacji
+- **[GOOGLE_APPS_SCRIPT_SETUP.md](docs/GOOGLE_APPS_SCRIPT_SETUP.md)** - Konfiguracja wysyłki zamówień do Google Sheets
 - **[Przykłady użycia](docs/examples/priceService-examples.ts)** - Przykładowy kod
 
 ## 🔧 Weryfikacja

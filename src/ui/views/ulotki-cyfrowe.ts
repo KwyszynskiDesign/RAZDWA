@@ -3,7 +3,6 @@ import { quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronn
 import { quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
 
-const VAT = 1.23;
 const SATIN_MULTIPLIER = 1.12;
 
 export const UlotkiCyfroweView: View = {
@@ -28,14 +27,13 @@ export const UlotkiCyfroweView: View = {
     const calculateBtn = container.querySelector("#u-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#u-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#u-result-display") as HTMLElement;
-    const nettoSpan = container.querySelector("#u-netto-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#u-total-price") as HTMLElement;
     const tierHint = container.querySelector("#u-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
     const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
 
-    if (!formatSelect || !qtySelect || !paperSelect || !calculateBtn || !addToCartBtn || !resultDisplay || !nettoSpan || !totalPriceSpan) {
+    if (!formatSelect || !qtySelect || !paperSelect || !calculateBtn || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
       container.innerHTML = `<div class="error">Błąd: brak elementów formularza ulotek.</div>`;
       return;
     }
@@ -58,16 +56,14 @@ export const UlotkiCyfroweView: View = {
       if (singleTbody) {
         singleTbody.innerHTML = qtyValues.map(qty => {
           const res = quoteJednostronne({ format: "A5", qty, express: false });
-          const brutto = parseFloat((res.totalPrice * VAT).toFixed(2));
-          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td><td>${formatPLN(brutto)}</td></tr>`;
+          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td></tr>`;
         }).join("");
       }
 
       if (doubleTbody) {
         doubleTbody.innerHTML = qtyValues.map(qty => {
           const res = quoteUlotkiDwustronne({ format: "A5", qty, express: false });
-          const brutto = parseFloat((res.totalPrice * VAT).toFixed(2));
-          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td><td>${formatPLN(brutto)}</td></tr>`;
+          return `<tr><td>${qty}</td><td>${formatPLN(res.totalPrice)}</td></tr>`;
         }).join("");
       }
     };
@@ -89,19 +85,17 @@ export const UlotkiCyfroweView: View = {
           ? quoteUlotkiDwustronne(currentOptions)
           : quoteJednostronne(currentOptions);
 
-        const nettoPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
-        const bruttoPrice = parseFloat((nettoPrice * VAT).toFixed(2));
-        currentResult = { ...result, nettoPrice, bruttoPrice, isSatin };
+        const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+        currentResult = { ...result, totalPrice, isSatin };
 
-        nettoSpan.innerText = formatPLN(nettoPrice);
-        totalPriceSpan.innerText = formatPLN(bruttoPrice);
-        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt użyto ceny ${result.totalPrice.toFixed(2)} zł netto (papier: ${paperVal.replace("_", " ")})`;
+        totalPriceSpan.innerText = formatPLN(totalPrice);
+        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt użyto ceny ${result.totalPrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(bruttoPrice, "Ulotki");
+        ctx.updateLastCalculated(totalPrice, "Ulotki");
       } catch (err) {
         addToCartBtn.disabled = true;
         resultDisplay.style.display = "none";
@@ -124,9 +118,9 @@ export const UlotkiCyfroweView: View = {
           name: `Ulotki ${sidesLabel} ${currentOptions.format}`,
           quantity: currentOptions.qty,
           unit: "szt",
-          unitPrice: currentResult.bruttoPrice / currentOptions.qty,
+          unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
-          totalPrice: currentResult.bruttoPrice,
+          totalPrice: currentResult.totalPrice,
           optionsHint: `${currentOptions.qty} szt, ${sidesLabel}${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
           payload: currentResult
         });

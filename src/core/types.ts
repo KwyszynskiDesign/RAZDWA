@@ -73,6 +73,7 @@ export interface CustomerData {
   phone: string
   email: string
   priority: string
+  notes?: string
 }
 
 export class PricingError extends Error {

@@ -75,18 +75,14 @@
         </div>
 
         <div class="form-actions">
-            <button id="u-calculate" class="btn btn-primary">Oblicz</button>
-            <button id="u-add-to-cart" class="btn btn-success" disabled>Dodaj do koszyka</button>
+            <button id="u-calculate" class="btn-primary">Oblicz</button>
+            <button id="u-add-to-cart" class="btn-success" disabled>Dodaj do koszyka</button>
         </div>
     </div>
 
     <div id="u-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Netto:</span>
-            <span id="u-netto-price" class="price-value">-</span>
-        </div>
-        <div class="result-row">
-            <span>Cena brutto (z VAT 23%):</span>
+            <span>Cena:</span>
             <span id="u-total-price" class="price-value">-</span>
         </div>
         <div id="u-tier-hint" class="hint" style="color: #555;"></div>
@@ -101,20 +97,19 @@
     <div class="cennik-table">
         <h4>CENNIK ULOTKI JEDNOSTRONNE</h4>
         <table id="u-table-single">
-            <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>
+            <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
             <tbody></tbody>
         </table>
-        <p class="cennik-note">* Ceny netto. Satyna +12%. EXPRESS +20%.</p>
+        <p class="cennik-note">* Satyna +12%. EXPRESS +20%.</p>
     </div>
 
     <div class="cennik-table">
         <h4>CENNIK ULOTKI DWUSTRONNE</h4>
         <table id="u-table-double">
-            <thead><tr><th>Ilość (szt)</th><th>Cena netto</th><th>Cena brutto</th></tr></thead>
+            <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
             <tbody></tbody>
         </table>
-        <p class="cennik-note">* Ceny netto. Satyna +12%. EXPRESS +20%.</p>
+        <p class="cennik-note">* Satyna +12%. EXPRESS +20%.</p>
     </div>
 </div>
 
-<!-- <script type="module" src="../js/categories/ulotki-cyfrowe.js"></script> -->

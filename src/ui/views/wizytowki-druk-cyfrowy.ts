@@ -2,7 +2,6 @@ import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 
-const VAT = 1.23;
 const SATIN_MULTIPLIER = 1.12;
 
 export const WizytowkiView: View = {
@@ -35,7 +34,6 @@ export const WizytowkiView: View = {
     const calculateBtn = container.querySelector("#w-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
-    const nettoSpan = container.querySelector("#w-netto-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
     const billedQtyHint = container.querySelector("#w-billed-qty-hint") as HTMLElement;
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
@@ -67,12 +65,10 @@ export const WizytowkiView: View = {
 
       try {
         const result = quoteWizytowki(currentOptions);
-        const nettoPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
-        const bruttoPrice = parseFloat((nettoPrice * VAT).toFixed(2));
-        currentResult = { ...result, nettoPrice, bruttoPrice, isSatin };
+        const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+        currentResult = { ...result, totalPrice, isSatin };
 
-        if (nettoSpan) nettoSpan.innerText = formatPLN(nettoPrice);
-        if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(bruttoPrice);
+        if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(totalPrice);
         if (billedQtyHint) billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
         if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny ${(result.totalPrice).toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
@@ -80,7 +76,7 @@ export const WizytowkiView: View = {
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(bruttoPrice, "Wizytówki");
+        ctx.updateLastCalculated(totalPrice, "Wizytówki");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
@@ -99,9 +95,9 @@ export const WizytowkiView: View = {
           name: name,
           quantity: currentResult.qtyBilled,
           unit: "szt",
-          unitPrice: currentResult.bruttoPrice / currentResult.qtyBilled,
+          unitPrice: currentResult.totalPrice / currentResult.qtyBilled,
           isExpress: currentOptions.express,
-          totalPrice: currentResult.bruttoPrice,
+          totalPrice: currentResult.totalPrice,
           optionsHint: `${currentOptions.qty} szt (rozliczono ${currentResult.qtyBilled})${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
           payload: currentResult
         });

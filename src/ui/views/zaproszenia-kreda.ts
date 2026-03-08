@@ -2,8 +2,6 @@ import { View, ViewContext } from "../types";
 import { calculateZaproszeniaKreda, ZaproszeniaKredaOptions } from "../../categories/zaproszenia-kreda";
 import { formatPLN } from "../../core/money";
 
-const VAT = 1.23;
-
 export const ZaproszeniaKredaView: View = {
   id: "zaproszenia-kreda",
   name: "Zaproszenia KREDA",
@@ -33,12 +31,11 @@ export const ZaproszeniaKredaView: View = {
       };
 
       const result = calculateZaproszeniaKreda(options);
-      const brutto = parseFloat((result.totalPrice * VAT).toFixed(2));
+      const totalPrice = result.totalPrice;
 
       resultArea.style.display = "block";
-      (container.querySelector("#resNettoPrice") as HTMLElement).textContent = formatPLN(result.totalPrice);
-      (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(result.totalPrice / options.qty);
-      (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(brutto);
+      (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(totalPrice / options.qty);
+      (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(totalPrice);
       const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
       if (tierHintEl) {
         tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
@@ -46,7 +43,7 @@ export const ZaproszeniaKredaView: View = {
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
       (container.querySelector("#resSatinHint") as HTMLElement).style.display = options.isSatin ? "block" : "none";
 
-      ctx.updateLastCalculated(brutto, "Zaproszenia");
+      ctx.updateLastCalculated(totalPrice, "Zaproszenia");
       return { options, result };
     };
 
@@ -54,7 +51,6 @@ export const ZaproszeniaKredaView: View = {
 
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();
-      const brutto = parseFloat((result.totalPrice * VAT).toFixed(2));
 
       ctx.cart.addItem({
         id: `zap-${Date.now()}`,
@@ -62,9 +58,9 @@ export const ZaproszeniaKredaView: View = {
         name: `Zaproszenia ${options.format} ${options.sides === 1 ? '1-str' : '2-str'}${options.isFolded ? ' składane' : ''}`,
         quantity: options.qty,
         unit: "szt",
-        unitPrice: brutto / options.qty,
+        unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
-        totalPrice: brutto,
+        totalPrice: result.totalPrice,
         optionsHint: `${options.qty} szt, ${paperSel.value.replace("_", " ")}`,
         payload: options
       });

@@ -1,5 +1,6 @@
 import { View, ViewContext } from "../types";
 import { getPrice, setPrice, resetPrices, PRICES_STORAGE_KEY } from "../../services/priceService";
+import { getOrderExportConfig, setOrderExportConfig } from "../../services/orderExportService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -18,6 +19,7 @@ export const UstawieniaView: View = {
     // Remove any previous storage listener from an earlier mount
     if (_cleanup) { _cleanup(); _cleanup = null; }
     let prices = loadPrices();
+    let exportCfg = getOrderExportConfig();
 
     function render() {
       const sortedKeys = Object.keys(prices).sort();
@@ -58,6 +60,23 @@ export const UstawieniaView: View = {
               ${rowsHtml}
             </tbody>
           </table>
+
+          <div style="border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:12px; margin: 0 0 16px;">
+            <h3 style="margin:0 0 8px; font-size:16px;">🔗 Integracja Google Sheets (Apps Script)</h3>
+            <p style="margin:0 0 10px; font-size:12px; color: rgba(255,255,255,0.7);">
+              Wklej URL Web App z Apps Script. Przycisk „Wyślij” będzie zapisywał rekordy zamówienia bezpośrednio do arkusza.
+            </p>
+            <div style="display:grid; grid-template-columns: 1fr 140px; gap:8px; align-items:center;">
+              <input id="apps-script-url" type="url" value="${escapeHtml(exportCfg.appsScriptUrl || "")}" placeholder="https://script.google.com/macros/s/.../exec"
+                style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:inherit;padding:6px 8px;width:100%;font-size:12px;">
+              <input id="apps-script-timeout" type="number" min="1000" step="500" value="${Number(exportCfg.timeoutMs || 15000)}"
+                style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:4px;color:inherit;padding:6px 8px;width:100%;font-size:12px;text-align:right;">
+            </div>
+            <label style="display:flex; gap:8px; align-items:center; margin-top:10px; font-size:13px; cursor:pointer;">
+              <input id="apps-script-enabled" type="checkbox" ${exportCfg.enabled ? "checked" : ""}>
+              Aktywuj wysyłkę do Apps Script
+            </label>
+          </div>
 
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <button id="btn-add-row"
@@ -113,9 +132,24 @@ export const UstawieniaView: View = {
         });
         prices = updated;
         setPrice("defaultPrices", prices);
+
+        const appsScriptUrl = (container.querySelector("#apps-script-url") as HTMLInputElement | null)?.value?.trim() || "";
+        const timeoutMs = parseInt((container.querySelector("#apps-script-timeout") as HTMLInputElement | null)?.value || "15000", 10);
+        const enabled = Boolean((container.querySelector("#apps-script-enabled") as HTMLInputElement | null)?.checked);
+
+        exportCfg = setOrderExportConfig({
+          appsScriptUrl,
+          timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 15000,
+          enabled,
+        });
+
         window.dispatchEvent(new StorageEvent("storage", { key: STORAGE_KEY }));
         const msg = container.querySelector<HTMLElement>("#save-msg");
-        if (msg) { msg.style.display = "block"; setTimeout(() => { msg.style.display = "none"; }, 3000); }
+        if (msg) {
+          msg.innerText = "✓ Zapisano ustawienia cen i integracji Apps Script.";
+          msg.style.display = "block";
+          setTimeout(() => { msg.style.display = "none"; }, 3000);
+        }
       });
 
       // Reset to defaults
