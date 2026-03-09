@@ -176,6 +176,64 @@ const DEFAULT_PRICES = {
   "modifier-vouchery-300g": 0.25,
 };
 
+// === DEFINICJA KATEGORII ===
+const CATEGORIES = {
+  "druk-a4-a3": {
+    label: "📄 Druk A4/A3",
+    prefixes: ["druk-bw-", "druk-kolor-", "druk-email", "modifier-druk-zadruk25"]
+  },
+  "druk-cad": {
+    label: "🖨️ Druk CAD",
+    prefixes: ["druk-cad-"]
+  },
+  "skanowanie": {
+    label: "📸 Skanowanie",
+    prefixes: ["skan-"]
+  },
+  "laminowanie": {
+    label: "🔲 Laminowanie",
+    prefixes: ["laminowanie-"]
+  },
+  "solwent": {
+    label: "🖼️ Solwent - Plakaty",
+    prefixes: ["solwent-"]
+  },
+  "banner": {
+    label: "🎌 Banner",
+    prefixes: ["banner-"]
+  },
+  "rollup": {
+    label: "📜 Roll-up",
+    prefixes: ["rollup-"]
+  },
+  "folia": {
+    label: "❄️ Folia szroniona",
+    prefixes: ["folia-szroniona-"]
+  },
+  "wlepki": {
+    label: "🏷️ Wlepki / Naklejki",
+    prefixes: ["wlepki-"]
+  },
+  "wizytowki": {
+    label: "💼 Wizytówki",
+    prefixes: ["wizytowki-"]
+  },
+  "vouchery": {
+    label: "🎟️ Vouchery",
+    prefixes: ["vouchery-"]
+  },
+  "modyfikatory": {
+    label: "⚙️ Modyfikatory globalne",
+    prefixes: ["modifier-"]
+  },
+  "wszystkie": {
+    label: "📋 Wszystkie",
+    prefixes: []  // pusty = wszystkie
+  }
+};
+
+let currentCategory = "wszystkie";
+
 let prices = (function() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -197,11 +255,89 @@ function escAttr(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
 }
 
+function getCategoryForKey(key) {
+  // Znajdź kategorię dla danego klucza
+  for (const [catId, catData] of Object.entries(CATEGORIES)) {
+    if (catId === "wszystkie") continue;
+    if (catData.prefixes.some(prefix => key.startsWith(prefix))) {
+      return catId;
+    }
+  }
+  return "inne";  // fallback dla nieznanych kluczy
+}
+
+function getFilteredPrices() {
+  if (currentCategory === "wszystkie") {
+    return Object.keys(prices).sort();
+  }
+  
+  const catData = CATEGORIES[currentCategory];
+  if (!catData) return [];
+  
+  return Object.keys(prices)
+    .filter(key => catData.prefixes.some(prefix => key.startsWith(prefix)))
+    .sort();
+}
+
+function renderCategoryTabs() {
+  const tabsContainer = document.getElementById('categoryTabs');
+  if (!tabsContainer) return;
+  
+  tabsContainer.innerHTML = Object.entries(CATEGORIES).map(([catId, catData]) => {
+    const isActive = catId === currentCategory;
+    const count = catId === "wszystkie" 
+      ? Object.keys(prices).length 
+      : Object.keys(prices).filter(key => catData.prefixes.some(p => key.startsWith(p))).length;
+    
+    return `
+      <button data-category="${catId}" 
+        style="
+          padding: 8px 16px;
+          border: 2px solid ${isActive ? 'var(--primary, #667eea)' : 'var(--border, #ccc)'};
+          background: ${isActive ? 'var(--primary, #667eea)' : 'var(--surface, #fff)'};
+          color: ${isActive ? '#fff' : 'var(--text-primary, #000)'};
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 13px;
+          font-weight: ${isActive ? '600' : '400'};
+          transition: all 0.2s;
+        "
+        onmouseover="if(this.dataset.category !== '${currentCategory}') this.style.background='var(--surface-hover, #f5f5f5)'"
+        onmouseout="if(this.dataset.category !== '${currentCategory}') this.style.background='var(--surface, #fff)'"
+      >
+        ${catData.label} <span style="opacity: 0.7; font-size: 11px;">(${count})</span>
+      </button>
+    `;
+  }).join('');
+  
+  // Dodaj event listeners
+  tabsContainer.querySelectorAll('button[data-category]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentCategory = btn.dataset.category;
+      renderCategoryTabs();
+      updateTable();
+    });
+  });
+}
+
 function updateTable() {
   const tbody = document.querySelector('#pricesTable tbody');
   if (!tbody) return;
-  const sortedKeys = Object.keys(prices).sort();
-  tbody.innerHTML = sortedKeys.map(key => `
+  const filteredKeys = getFilteredPrices();
+  
+  if (filteredKeys.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="3" style="padding: 40px; text-align: center; color: var(--text-secondary);">
+          <div style="font-size: 48px; margin-bottom: 10px;">📭</div>
+          <div>Brak pozycji w tej kategorii</div>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+  
+  tbody.innerHTML = filteredKeys.map(key => `
     <tr style="border-bottom: 1px solid var(--border);">
       <td style="padding: 6px 10px;">
         <input value="${escAttr(key)}" data-key="${escAttr(key)}" data-field="key"
@@ -230,6 +366,7 @@ function updateTable() {
         if (newKey && newKey !== oldKey) {
           prices[newKey] = prices[oldKey];
           delete prices[oldKey];
+          renderCategoryTabs();  // Update counters
           updateTable();
         }
       }
@@ -240,6 +377,7 @@ function updateTable() {
   tbody.querySelectorAll('button[data-remove]').forEach(btn => {
     btn.addEventListener('click', () => {
       delete prices[btn.dataset.remove];
+      renderCategoryTabs();  // Update counters
       updateTable();
     });
   });
@@ -257,8 +395,16 @@ function showMsg(text, isError = false) {
 }
 
 document.getElementById('addPriceBtn').addEventListener('click', () => {
-  const newKey = 'nowa-pozycja-' + Date.now();
+  let prefix = '';
+  if (currentCategory !== 'wszystkie' && currentCategory !== 'modyfikatory') {
+    const catData = CATEGORIES[currentCategory];
+    if (catData && catData.prefixes.length > 0) {
+      prefix = catData.prefixes[0];
+    }
+  }
+  const newKey = prefix + 'nowa-pozycja-' + Date.now();
   prices[newKey] = 0;
+  renderCategoryTabs();  // Update counters
   updateTable();
   // Scroll to new row (last after sort – find by key)
   const tbody = document.querySelector('#pricesTable tbody');
@@ -276,9 +422,11 @@ document.getElementById('resetPricesBtn').addEventListener('click', () => {
   if (!confirm('Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.')) return;
   prices = Object.assign({}, DEFAULT_PRICES);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+  renderCategoryTabs();
   updateTable();
   showMsg('🔄 Przywrócono domyślne ceny.');
 });
 
 // Initial render
+renderCategoryTabs();
 updateTable();
