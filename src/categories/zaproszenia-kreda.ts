@@ -8,6 +8,7 @@ export interface ZaproszeniaKredaOptions {
   sides: number;
   isFolded: boolean;
   isSatin: boolean;
+  isModigliani: boolean;
   express: boolean;
 }
 
@@ -45,7 +46,12 @@ export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): Zap
   const basePrice = getBasePrice(options.format, options.qty, options.sides, options.isFolded);
 
   let multiplier = 1;
-  if (options.isSatin) multiplier += pricingData.modifiers.satin;
+  if (options.isModigliani) {
+    // Modigliani = Satyna * 1.20, czyli bazowa * 1.344
+    multiplier += 0.344;
+  } else if (options.isSatin) {
+    multiplier += pricingData.modifiers.satin;
+  }
   if (options.express) multiplier += pricingData.modifiers.express;
 
   const totalPrice = parseFloat((basePrice * multiplier).toFixed(2));

@@ -25,6 +25,7 @@ export interface VoucheryOptions {
   qty: number;
   sides: "single" | "double";
   satin: boolean;
+  modigliani: boolean;
   express: boolean;
 }
 
@@ -32,7 +33,10 @@ export function quoteVouchery(options: VoucheryOptions): any {
   const basePrice = getPriceForQuantity(options.qty, options.sides === 'single');
   let percentageSum = 0;
 
-  if (options.satin) {
+  if (options.modigliani) {
+    // Modigliani = Satyna * 1.20, czyli bazowa * 1.344
+    percentageSum += resolveStoredPrice("modifier-modigliani", 0.344);
+  } else if (options.satin) {
     percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
   }
   if (options.express) {

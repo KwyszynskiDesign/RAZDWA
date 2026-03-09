@@ -21,12 +21,14 @@ export const ZaproszeniaKredaView: View = {
     const calculate = () => {
       const paperVal = paperSel.value;
       const isSatin = paperVal.startsWith("satyna");
+      const isModigliani = paperVal === "modigliani";
       const options: ZaproszeniaKredaOptions = {
         format: formatSel.value,
         qty: parseInt(qtyInput.value) || 10,
         sides: parseInt(sidesSel.value) || 1,
         isFolded: foldedCheck.checked,
         isSatin,
+        isModigliani,
         express: ctx.expressMode
       };
 
@@ -40,8 +42,10 @@ export const ZaproszeniaKredaView: View = {
       if (tierHintEl) {
         tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
       }
-      (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
+      (
+container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
       (container.querySelector("#resSatinHint") as HTMLElement).style.display = options.isSatin ? "block" : "none";
+      (container.querySelector("#resModiglianiHint") as HTMLElement).style.display = options.isModigliani ? "block" : "none";
 
       ctx.updateLastCalculated(totalPrice, "Zaproszenia");
       return { options, result };

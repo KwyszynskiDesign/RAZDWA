@@ -10,6 +10,7 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: false,
       isSatin: false,
+      isModigliani: false,
       express: false
     });
     expect(result.totalPrice).toBe(35.00);
@@ -23,6 +24,7 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: true,
       isSatin: false,
+      isModigliani: false,
       express: false
     });
     expect(result.totalPrice).toBe(149.00);
@@ -36,6 +38,7 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: false,
       isSatin: false,
+      isModigliani: false,
       express: false
     });
     expect(result.totalPrice).toBe(79.00);
@@ -49,6 +52,7 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: false,
       isSatin: true,
+      isModigliani: false,
       express: false
     });
     expect(result.totalPrice).toBe(39.20);
@@ -62,6 +66,7 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: false,
       isSatin: false,
+      isModigliani: false,
       express: true
     });
     expect(result.totalPrice).toBe(42.00);
@@ -75,8 +80,23 @@ describe("Zaproszenia KREDA logic", () => {
       sides: 2,
       isFolded: false,
       isSatin: true,
+      isModigliani: false,
       express: true
     });
     expect(result.totalPrice).toBe(46.20);
+  });
+
+  it("should apply Modigliani modifier (+34%)", () => {
+    // A6 Double-sided Normal 10szt = 35.00. 35 * 1.344 = 47.04
+    const result = calculateZaproszeniaKreda({
+      format: "A6",
+      qty: 10,
+      sides: 2,
+      isFolded: false,
+      isSatin: false,
+      isModigliani: true,
+      express: false
+    });
+    expect(result.totalPrice).toBe(47.04);
   });
 });
