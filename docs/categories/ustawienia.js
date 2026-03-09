@@ -356,21 +356,32 @@ function updateTable() {
 
   // Inline edit listeners
   tbody.querySelectorAll('input[data-key]').forEach(input => {
-    input.addEventListener('change', () => {
+    // Handle both 'input' and 'blur' events for immediate and committed changes
+    const handleChange = () => {
       const oldKey = input.dataset.key;
       const field = input.dataset.field;
       if (field === 'unitPrice') {
-        prices[oldKey] = parseFloat(input.value) || 0;
+        const newVal = parseFloat(input.value) || 0;
+        if (prices[oldKey] !== newVal) {
+          prices[oldKey] = newVal;
+          // Show confirmation
+          showMsg(`✏️ Cena zaktualizowana: ${oldKey}`);
+        }
       } else {
         const newKey = input.value.trim();
         if (newKey && newKey !== oldKey) {
           prices[newKey] = prices[oldKey];
           delete prices[oldKey];
+          input.dataset.key = newKey;  // Update the data attribute
           renderCategoryTabs();  // Update counters
           updateTable();
+          showMsg(`✏️ Klucz zmieniony: ${oldKey} → ${newKey}`);
         }
       }
-    });
+    };
+    
+    input.addEventListener('input', handleChange);
+    input.addEventListener('blur', handleChange);
   });
 
   // Remove listeners
@@ -394,39 +405,75 @@ function showMsg(text, isError = false) {
   setTimeout(() => { el.style.display = 'none'; }, 3000);
 }
 
-document.getElementById('addPriceBtn').addEventListener('click', () => {
-  let prefix = '';
-  if (currentCategory !== 'wszystkie' && currentCategory !== 'modyfikatory') {
-    const catData = CATEGORIES[currentCategory];
-    if (catData && catData.prefixes.length > 0) {
-      prefix = catData.prefixes[0];
-    }
+// Initial render - wait for DOM to be ready
+function initializeSettingsPanel() {
+  console.log('🔍 Attempting to initialize settings panel...');
+  
+  const tabsContainer = document.getElementById('categoryTabs');
+  const pricesTable = document.getElementById('pricesTable');
+  const addBtn = document.getElementById('addPriceBtn');
+  const saveBtn = document.getElementById('saveAllBtn');
+  const resetBtn = document.getElementById('resetPricesBtn');
+  
+  console.log('DOM elements found:', {
+    categoryTabs: !!tabsContainer,
+    pricesTable: !!pricesTable,
+    addPriceBtn: !!addBtn,
+    saveAllBtn: !!saveBtn,
+    resetPricesBtn: !!resetBtn
+  });
+  
+  if (!tabsContainer || !pricesTable || !addBtn || !saveBtn || !resetBtn) {
+    console.warn('⚠️ Settings panel DOM elements not found. Retrying in 100ms...');
+    setTimeout(initializeSettingsPanel, 100);
+    return;
   }
-  const newKey = prefix + 'nowa-pozycja-' + Date.now();
-  prices[newKey] = 0;
-  renderCategoryTabs();  // Update counters
-  updateTable();
-  // Scroll to new row (last after sort – find by key)
-  const tbody = document.querySelector('#pricesTable tbody');
-  if (tbody) tbody.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-});
+  
+  // Setup event listeners
+  addBtn.onclick = () => {
+    let prefix = '';
+    if (currentCategory !== 'wszystkie' && currentCategory !== 'modyfikatory') {
+      const catData = CATEGORIES[currentCategory];
+      if (catData && catData.prefixes.length > 0) {
+        prefix = catData.prefixes[0];
+      }
+    }
+    const newKey = prefix + 'nowa-pozycja-' + Date.now();
+    prices[newKey] = 0;
+    renderCategoryTabs();
+    updateTable();
+    const tbody = document.querySelector('#pricesTable tbody');
+    if (tbody) tbody.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
 
-document.getElementById('saveAllBtn').addEventListener('click', () => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
-  showMsg('✅ Zapisano! Ceny zaktualizowane.');
-  // Notify other calculators via storage event
-  window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
-});
+  saveBtn.onclick = () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+    showMsg('✅ Zapisano! Ceny zaktualizowane.');
+    window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
+  };
 
-document.getElementById('resetPricesBtn').addEventListener('click', () => {
-  if (!confirm('Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.')) return;
-  prices = Object.assign({}, DEFAULT_PRICES);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+  resetBtn.onclick = () => {
+    if (!confirm('Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.')) return;
+    prices = Object.assign({}, DEFAULT_PRICES);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+    renderCategoryTabs();
+    updateTable();
+    showMsg('🔄 Przywrócono domyślne ceny.');
+  };
+  
   renderCategoryTabs();
   updateTable();
-  showMsg('🔄 Przywrócono domyślne ceny.');
-});
+  console.log('✅ Settings panel initialized successfully');
+}
 
-// Initial render
-renderCategoryTabs();
-updateTable();
+// Wait for DOM ready
+if (document.readyState === 'loading') {
+  console.log('⏳ DOM loading, attaching DOMContentLoaded listener...');
+  document.addEventListener('DOMContentLoaded', initializeSettingsPanel);
+} else {
+  console.log('✅ DOM already loaded, initializing immediately...');
+  initializeSettingsPanel();
+}
+
+// Also try to initialize when script loads (fallback for dynamic content)
+setTimeout(initializeSettingsPanel, 50);
