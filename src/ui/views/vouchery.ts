@@ -35,7 +35,7 @@ export const VoucheryView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
+    const performCalculation = (): boolean => {
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement;
       const sides = (sidesInput ? sidesInput.value : 'single') as 'single' | 'double';
       const paperVal = paperSelect.value;
@@ -46,6 +46,7 @@ export const VoucheryView: View = {
       currentOptions = {
         qty: parseInt(qtyInput.value),
         sides,
+        paper: paperVal,
         satin: isSatin,
         modigliani: isModigliani,
         express: ctx.expressMode
@@ -74,14 +75,21 @@ export const VoucheryView: View = {
         addToCartBtn.disabled = false;
 
         ctx.updateLastCalculated(totalPrice, "Vouchery");
+        return true;
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
+        return false;
       }
     };
 
+    calculateBtn.onclick = () => {
+      performCalculation();
+    };
+
     addToCartBtn.onclick = () => {
+      if (!performCalculation()) return;
       if (currentResult && currentOptions) {
-        const pv = paperSelect.value;
+        const pv = currentOptions.paper;
         const paperLabel = pv === 'modigliani'
           ? 'Modigliani'
           : pv.startsWith('satyna_')
