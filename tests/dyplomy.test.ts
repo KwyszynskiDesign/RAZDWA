@@ -64,6 +64,39 @@ describe("Dyplomy logic", () => {
     expect(result.appliedModifiers).not.toContain("satin");
   });
 
+  it("should apply Modigliani as Satin +20% from satin subtotal", () => {
+    // baza 20.00
+    // satyna +12% = 2.40 -> 22.40
+    // modigliani +20% od satyny = 4.48
+    // razem dopłaty = 6.88, suma = 26.88
+    const result = calculateDyplomy({
+      qty: 1,
+      isSatin: false,
+      isModigliani: true,
+      express: false
+    });
+    expect(result.modifiersTotal).toBe(6.88);
+    expect(result.totalPrice).toBe(26.88);
+    expect(result.appliedModifiers).toContain("satin");
+    expect(result.appliedModifiers).toContain("modigliani");
+  });
+
+  it("should apply Modigliani and Express with express on base price", () => {
+    // baza 20.00
+    // modigliani (satyna+20%) = 6.88
+    // express +20% od bazy = 4.00
+    // razem = 30.88
+    const result = calculateDyplomy({
+      qty: 1,
+      isSatin: false,
+      isModigliani: true,
+      express: true
+    });
+    expect(result.modifiersTotal).toBe(10.88);
+    expect(result.totalPrice).toBe(30.88);
+    expect(result.appliedModifiers).toContain("express");
+  });
+
   it("should have empty appliedModifiers when no modifiers active", () => {
     const result = calculateDyplomy({ qty: 1, isSatin: false, express: false });
     expect(result.appliedModifiers).toEqual([]);

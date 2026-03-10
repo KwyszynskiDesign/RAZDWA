@@ -22,30 +22,43 @@ export interface DyplomyOptions {
   qty: number;
   sides?: number;
   isSatin: boolean;
+  isModigliani?: boolean;
   express: boolean;
 }
 
 export function calculateDyplomy(options: DyplomyOptions) {
   const basePrice = getPriceForQuantity(options.qty);
-  let percentageSum = 0;
+  const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+  const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+  let materialModifiersTotal = 0;
   const appliedModifiers: string[] = [];
 
-  if (options.isSatin) {
-    percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
+  if (options.isModigliani) {
+    const satinModifier = basePrice * satinRate;
+    const satinSubtotal = basePrice + satinModifier;
+    const modiglianiModifier = satinSubtotal * modiglianiRate;
+    materialModifiersTotal = satinModifier + modiglianiModifier;
+    appliedModifiers.push("satin");
+    appliedModifiers.push("modigliani");
+  } else if (options.isSatin) {
+    materialModifiersTotal = basePrice * satinRate;
     appliedModifiers.push("satin");
   }
+
+  const expressModifier = options.express ? basePrice * expressRate : 0;
   if (options.express) {
-    percentageSum += resolveStoredPrice("modifier-express", 0.20);
     appliedModifiers.push("express");
   }
 
-  const modifiersTotal = basePrice * percentageSum;
-  const totalPrice = basePrice + modifiersTotal;
+  const modifiersTotal = parseFloat((materialModifiersTotal + expressModifier).toFixed(2));
+  const totalPrice = parseFloat((basePrice + modifiersTotal).toFixed(2));
 
   return {
     basePrice,
     modifiersTotal,
-    totalPrice: Math.round(totalPrice * 100) / 100,
+    totalPrice,
     appliedModifiers
   };
 }

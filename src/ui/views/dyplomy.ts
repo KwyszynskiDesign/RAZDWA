@@ -19,10 +19,13 @@ export const DyplomyView: View = {
     const calculate = () => {
       const paperVal = paperSel.value;
       const isSatin = paperVal.startsWith("satyna");
+      const isModigliani = paperVal === "modigliani";
+      const usesSatinBase = isSatin || isModigliani;
       const options: DyplomyOptions = {
         qty: parseInt(qtyInput.value) || 1,
         sides: parseInt(sidesSel.value) || 1,
         isSatin,
+        isModigliani,
         express: ctx.expressMode
       };
 
@@ -38,7 +41,8 @@ export const DyplomyView: View = {
       }
       (container.querySelector("#resDiscountHint") as HTMLElement).style.display = result.appliedModifiers.includes("bulk-discount") ? "block" : "none";
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
-      (container.querySelector("#resSatinHint") as HTMLElement).style.display = options.isSatin ? "block" : "none";
+      (container.querySelector("#resSatinHint") as HTMLElement).style.display = usesSatinBase ? "block" : "none";
+      (container.querySelector("#resModiglianiHint") as HTMLElement).style.display = options.isModigliani ? "block" : "none";
 
       ctx.updateLastCalculated(totalPrice, "Dyplomy");
       return { options, result };
@@ -50,7 +54,9 @@ export const DyplomyView: View = {
       const { options, result } = calculate();
 
       const dpv = paperSel.value;
-      const dPaperLabel = dpv.startsWith('satyna_')
+      const dPaperLabel = dpv === 'modigliani'
+        ? 'Modigliani'
+        : dpv.startsWith('satyna_')
         ? `Satyna ${dpv.slice(7)}g (+12%)`
         : `Kreda ${dpv.slice(6)}g`;
 
