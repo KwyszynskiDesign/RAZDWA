@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'razdwa-v8';
+const CACHE_VERSION = 'razdwa-v9';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting(); // Force new SW to activate immediately
@@ -29,6 +29,23 @@ self.addEventListener('fetch', (event) => {
   // NEVER cache HTML - always fetch fresh
   if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/')) {
     return event.respondWith(fetch(request));
+  }
+
+  // Prefer fresh JS/CSS to avoid stale UI after deployments
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
+    return event.respondWith(
+      fetch(request)
+        .then(response => {
+          const clone = response.clone();
+          caches.open(CACHE_VERSION).then(cache => {
+            const u = new URL(request.url);
+            if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
+            cache.put(request, clone);
+          });
+          return response;
+        })
+        .catch(() => caches.match(request))
+    );
   }
 
   // Cache other assets normally
