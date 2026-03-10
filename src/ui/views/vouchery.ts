@@ -81,21 +81,26 @@ export const VoucheryView: View = {
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
+        const pv = paperSelect.value;
+        const paperLabel = pv === 'modigliani'
+          ? 'Modigliani'
+          : pv.startsWith('satyna_')
+            ? `Satyna ${pv.slice(7)}g (+12%)`
+            : `Kreda ${pv.slice(6)}g`;
         const sidesLabel = currentOptions.sides === 'single' ? 'Jednostronne' : 'Dwustronne';
-        const satinLabel = currentResult.usesSatinBase ? ', Satyna' : '';
-        const expressLabel = currentOptions.express ? ', EXPRESS' : '';
-        const paperVal = paperSelect.value;
+        const parts: string[] = [`${currentOptions.qty} szt`, sidesLabel, paperLabel];
+        if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
         ctx.cart.addItem({
           id: `vouchery-${Date.now()}`,
           category: "Vouchery",
-          name: `Vouchery A4 ${sidesLabel}`,
+          name: 'Vouchery A4',
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
+          optionsHint: parts.join(', '),
           payload: currentResult
         });
       }

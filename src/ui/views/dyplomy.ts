@@ -49,6 +49,11 @@ export const DyplomyView: View = {
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();
 
+      const dpv = paperSel.value;
+      const dPaperLabel = dpv.startsWith('satyna_')
+        ? `Satyna ${dpv.slice(7)}g (+12%)`
+        : `Kreda ${dpv.slice(6)}g`;
+
       ctx.cart.addItem({
         id: `dyp-${Date.now()}`,
         category: "Dyplomy",
@@ -58,7 +63,7 @@ export const DyplomyView: View = {
         unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
         totalPrice: result.totalPrice,
-        optionsHint: `${options.qty} szt, ${paperSel.value.replace("_", " ")}`,
+        optionsHint: [`${options.qty} szt`, dPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
         payload: options
       });
     });

@@ -133,7 +133,7 @@ export const WlepkiView: View = {
         unitPrice: currentResult.tierPrice,
         isExpress: !!currentInput.express,
         totalPrice: currentResult.totalPrice,
-        optionsHint: modsLabel.join(", ") || "Standard",
+        optionsHint: [`${currentInput.area} m²`, ...(modsLabel.length ? modsLabel : ['Standard'])].join(', '),
         payload: currentResult
       });
     });

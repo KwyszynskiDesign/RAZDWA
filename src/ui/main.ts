@@ -61,11 +61,11 @@ function updateCartUI() {
   } else {
     listEl.innerHTML = items.map((item, idx) => `
       <div class="basketItem">
-        <div style="min-width:0;">
-          <div class="basketTitle">${item.category}: ${item.name}</div>
-          <div class="basketMeta">${item.optionsHint} (${item.quantity} ${item.unit})</div>
+        <div class="basketItemContent">
+          <div class="basketName">${item.name}</div>
+          <div class="basketMeta">${item.optionsHint}</div>
         </div>
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div class="basketItemRight">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
           <button class="iconBtn" data-remove-idx="${idx}" title="Usuń">×</button>
         </div>

@@ -56,6 +56,13 @@ container.querySelector("#resExpressHint") as HTMLElement).style.display = optio
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();
 
+      const zpv = paperSel.value;
+      const zPaperLabel = zpv === 'modigliani'
+        ? 'Modigliani'
+        : zpv.startsWith('satyna_')
+          ? `Satyna ${zpv.slice(7)}g (+12%)`
+          : `Kreda ${zpv.slice(6)}g`;
+
       ctx.cart.addItem({
         id: `zap-${Date.now()}`,
         category: "Zaproszenia Kreda",
@@ -65,7 +72,7 @@ container.querySelector("#resExpressHint") as HTMLElement).style.display = optio
         unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
         totalPrice: result.totalPrice,
-        optionsHint: `${options.qty} szt, ${paperSel.value.replace("_", " ")}`,
+        optionsHint: [`${options.qty} szt`, zPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
         payload: options
       });
     });

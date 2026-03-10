@@ -107,21 +107,29 @@ export const UlotkiCyfroweView: View = {
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
-        const expressLabel = currentOptions.express ? ', EXPRESS' : '';
-        const satinLabel = currentResult.isSatin ? ', SATYNA' : '';
+        const pv = paperSelect.value;
+        const paperLabel = pv.startsWith('satyna_')
+          ? `Satyna ${pv.slice(7)}g (+12%)`
+          : `Kreda ${pv.slice(6)}g`;
         const sidesLabel = currentOptions.sides === 'dwustronne' ? 'Dwustronne' : 'Jednostronne';
-        const paperVal = paperSelect.value;
+        const parts: string[] = [
+          `${currentOptions.qty} szt`,
+          currentOptions.format,
+          sidesLabel,
+          paperLabel
+        ];
+        if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
         ctx.cart.addItem({
           id: `ulotki-${Date.now()}`,
           category: "Ulotki",
-          name: `Ulotki ${sidesLabel} ${currentOptions.format}`,
+          name: `Ulotki ${currentOptions.format}`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt, ${sidesLabel}${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
+          optionsHint: parts.join(', '),
           payload: currentResult
         });
       }

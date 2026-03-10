@@ -84,21 +84,34 @@ export const WizytowkiView: View = {
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
-        const name = currentOptions.family === 'deluxe' ? 'Wizytówki DELUXE' : 'Wizytówki Standard';
-        const expressLabel = currentOptions.express ? ', EXPRESS' : '';
-        const satinLabel = currentResult.isSatin ? ', SATYNA' : '';
-        const paperVal = paperSelect.value;
+        const pv = paperSelect.value;
+        const paperLabel = pv.startsWith('satyna_')
+          ? `Satyna ${pv.slice(7)}g (+12%)`
+          : `Kreda ${pv.slice(6)}g`;
+        const isDeluxe = currentOptions.family === 'deluxe';
+        const parts: string[] = [`${currentOptions.qty} szt (rozliczono ${currentResult.qtyBilled})`];
+        if (!isDeluxe) {
+          parts.push(`${sizeSelect.value} mm`);
+          const finishText = finishSelect.options[finishSelect.selectedIndex]?.text;
+          if (finishText) parts.push(finishText);
+          if (currentOptions.folia !== 'none') parts.push('Foliowane');
+        } else {
+          const deluxeText = deluxeOptSelect.options[deluxeOptSelect.selectedIndex]?.text;
+          if (deluxeText) parts.push(deluxeText);
+        }
+        parts.push(paperLabel);
+        if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
         ctx.cart.addItem({
           id: `wizytowki-${Date.now()}`,
           category: "Wizytówki",
-          name: name,
+          name: isDeluxe ? 'Wizytówki DELUXE' : 'Wizytówki Standard',
           quantity: currentResult.qtyBilled,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentResult.qtyBilled,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentOptions.qty} szt (rozliczono ${currentResult.qtyBilled})${satinLabel}${expressLabel}, ${paperVal.replace("_", " ")}`,
+          optionsHint: parts.join(', '),
           payload: currentResult
         });
       }

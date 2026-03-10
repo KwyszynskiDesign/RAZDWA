@@ -335,11 +335,64 @@ tbody tr:hover {
 
 /* ===== PODSUMOWANIE ===== */
 
-.summary, .basketItem {
+.summary {
   background: var(--surface-alt);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
+}
+
+.basketList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.basketItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+}
+
+.basketItemContent {
+  min-width: 0;
+  flex: 1;
+}
+
+.basketName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.basketMeta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+.basketPrice {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  white-space: nowrap;
+  padding-top: 1px;
+}
+
+.basketItemRight {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
 .sumRow.total {
