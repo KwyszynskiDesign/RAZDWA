@@ -88,11 +88,15 @@ export const plakatyCategory: CategoryModule = {
 export interface PlakatyM2Input {
   materialId: string;
   areaM2: number;
+  qty?: number;
   express?: boolean;
 }
 
 export interface PlakatyM2Result {
   materialName: string;
+  qty: number;
+  areaPerPieceM2: number;
+  totalAreaM2: number;
   effectiveM2: number;
   tierPrice: number;
   basePrice: number;
@@ -107,7 +111,10 @@ export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
   if (!mat) throw new Error(`Unknown solwent material: ${input.materialId}`);
 
   const minM2: number = data.solwent.minimumM2 ?? 1;
-  const effectiveM2 = Math.max(input.areaM2, minM2);
+  const qty = Math.max(1, Math.floor(input.qty ?? 1));
+  const areaPerPieceM2 = Math.max(0, input.areaM2);
+  const totalAreaM2 = parseFloat((areaPerPieceM2 * qty).toFixed(4));
+  const effectiveM2 = Math.max(totalAreaM2, minM2);
 
   // Find tier
   const tier = mat.tiers.find(
@@ -129,6 +136,9 @@ export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
 
   return {
     materialName: mat.name,
+    qty,
+    areaPerPieceM2,
+    totalAreaM2,
     effectiveM2,
     tierPrice: tier.price,
     basePrice,
@@ -146,6 +156,7 @@ export interface PlakatyFormatInput {
   materialId: string;
   formatKey: string;
   qty: number;
+  customLengthMm?: number;
   express?: boolean;
 }
 
@@ -154,6 +165,10 @@ export interface PlakatyFormatResult {
   formatKey: string;
   qty: number;
   unitPrice: number;
+  baseLengthMm: number | null;
+  customLengthMm: number | null;
+  lengthFactor: number;
+  effectiveUnitPrice: number;
   discountFactor: number;
   pricePerPiece: number;
   basePrice: number;
@@ -170,6 +185,18 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
   const unitPrice: number = mat.prices[input.formatKey];
   if (unitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
 
+  const dimsMatch = input.formatKey.match(/^(\d+)x(\d+)$/);
+  const baseLengthMm = dimsMatch ? parseInt(dimsMatch[2], 10) : null;
+  const customLengthMm =
+    baseLengthMm !== null && input.customLengthMm && input.customLengthMm > 0
+      ? input.customLengthMm
+      : baseLengthMm;
+  const lengthFactor =
+    baseLengthMm !== null && customLengthMm !== null
+      ? parseFloat((customLengthMm / baseLengthMm).toFixed(6))
+      : 1;
+  const effectiveUnitPrice = parseFloat((unitPrice * lengthFactor).toFixed(2));
+
   // Find discount factor
   const discountGroup: string = mat.discountGroup;
   const discountTiers: any[] = data.formatowe.discounts[discountGroup] ?? [];
@@ -177,7 +204,7 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     (d: any) => input.qty >= d.min && (d.max === null || input.qty <= d.max)
   );
   const discountFactor: number = discountTier ? discountTier.factor : 1.0;
-  const pricePerPiece = parseFloat((unitPrice * discountFactor).toFixed(2));
+  const pricePerPiece = parseFloat((effectiveUnitPrice * discountFactor).toFixed(2));
   const basePrice = parseFloat((pricePerPiece * input.qty).toFixed(2));
 
   let modifiersTotal = 0;
@@ -195,6 +222,10 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     formatKey: input.formatKey,
     qty: input.qty,
     unitPrice,
+    baseLengthMm,
+    customLengthMm,
+    lengthFactor,
+    effectiveUnitPrice,
     discountFactor,
     pricePerPiece,
     basePrice,

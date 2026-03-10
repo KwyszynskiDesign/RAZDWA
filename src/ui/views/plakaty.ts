@@ -28,8 +28,12 @@ export const PlakatyView: View = {
     const formatGroup   = container.querySelector("#p-format-group") as HTMLElement;
     const m2Group       = container.querySelector("#p-m2-group") as HTMLElement;
     const formatSelect  = container.querySelector("#p-format") as HTMLSelectElement;
+    const lengthGroup   = container.querySelector("#p-length-group") as HTMLElement;
+    const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
+    const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
     const qtyInput      = container.querySelector("#p-qty") as HTMLInputElement;
     const areaInput     = container.querySelector("#p-area") as HTMLInputElement;
+    const solwentQtyInput = container.querySelector("#p-solwent-qty") as HTMLInputElement;
     const calcBtn       = container.querySelector("#p-calculate") as HTMLButtonElement;
     const addBtn        = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox     = container.querySelector("#p-result-display") as HTMLElement;
@@ -55,6 +59,33 @@ export const PlakatyView: View = {
       formatSelect.innerHTML = keys.map(k => `<option value="${k}">${k}</option>`).join("");
     }
 
+    function parseFormatDimensions(formatKey: string) {
+      const match = formatKey.match(/^(\d+)x(\d+)$/);
+      if (!match) return null;
+      return {
+        widthMm: parseInt(match[1], 10),
+        lengthMm: parseInt(match[2], 10),
+      };
+    }
+
+    function updateLengthInput(matId: string) {
+      const dims = parseFormatDimensions(formatSelect.value);
+      if (!lengthGroup || !lengthInput || !lengthLabel) return;
+
+      if (!dims) {
+        lengthGroup.style.display = "none";
+        return;
+      }
+
+      lengthGroup.style.display = "";
+      lengthInput.value = String(dims.lengthMm);
+      if (matId.includes("nieformatowe")) {
+        lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
+      } else {
+        lengthLabel.innerText = `Długość dla ${dims.widthMm} mm (mm):`;
+      }
+    }
+
     function updateVisibility() {
       const matId = materialSelect.value;
       if (isSolwent(matId)) {
@@ -64,10 +95,14 @@ export const PlakatyView: View = {
         formatGroup.style.display = "";
         m2Group.style.display = "none";
         updateFormatOptions(matId);
+        updateLengthInput(matId);
       }
     }
 
     materialSelect.addEventListener("change", updateVisibility);
+    formatSelect.addEventListener("change", () => {
+      updateLengthInput(materialSelect.value);
+    });
     updateVisibility();
 
     let currentResult: any = null;
@@ -78,17 +113,21 @@ export const PlakatyView: View = {
       try {
         if (isSolwent(matId)) {
           const area = parseFloat(areaInput.value) || 1;
-          const res = calculatePlakatyM2({ materialId: matId, areaM2: area, express: ctx.expressMode });
+          const qty = Math.max(1, parseInt(solwentQtyInput.value, 10) || 1);
+          const res = calculatePlakatyM2({ materialId: matId, areaM2: area, qty, express: ctx.expressMode });
           currentResult = res;
-          currentOptions = { type: "m2", matId, area };
+          currentOptions = { type: "m2", matId, area, qty };
           unitPriceEl.innerText = formatPLN(res.tierPrice);
           totalPriceEl.innerText = formatPLN(res.totalPrice);
         } else {
           const fmt = formatSelect.value;
           const qty = parseInt(qtyInput.value, 10) || 1;
-          const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, express: ctx.expressMode });
+          const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
+            ? (parseFloat(lengthInput.value) || undefined)
+            : undefined;
+          const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
           currentResult = res;
-          currentOptions = { type: "format", matId, fmt, qty };
+          currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
           unitPriceEl.innerText = formatPLN(res.pricePerPiece);
           totalPriceEl.innerText = formatPLN(res.totalPrice);
         }
@@ -105,12 +144,12 @@ export const PlakatyView: View = {
       if (!currentResult || !currentOptions) return;
       const matName = materialSelect.options[materialSelect.selectedIndex].text;
       if (currentOptions.type === "m2") {
-        const hint = `${currentOptions.area} m2${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.qty} szt × ${currentOptions.area} m2/szt${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
           name: matName,
-          quantity: currentOptions.area,
+          quantity: currentResult.effectiveM2,
           unit: "m2",
           unitPrice: currentResult.tierPrice,
           isExpress: ctx.expressMode,
@@ -119,7 +158,8 @@ export const PlakatyView: View = {
           payload: currentResult,
         });
       } else {
-        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const lengthHint = currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "";
+        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",

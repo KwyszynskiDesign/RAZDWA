@@ -10,7 +10,8 @@
   --primary-hover: #004F7A;
   --primary-text: #FFFFFF;
   
-  --success: #2B8A3E;
+  --success: #2C8C40;
+  --success-hover: #267A37;
   --danger: #C92A2A;
   --danger-hover: #A52020;
   
@@ -827,7 +828,7 @@ button.ghost:hover {
 }
 
 .btn-success:hover:not(:disabled) {
-  background: #229834;
+  background: var(--success-hover);
   box-shadow: 0 4px 12px rgba(43, 138, 62, 0.2);
 }
 
@@ -904,7 +905,6 @@ button:focus-visible,
 .btn-primary, .btn-secondary, .btn-settings,
 .order-btn--primary, .order-btn--ghost { 
   text-decoration: none !important; 
-  border-bottom: none !important;
 }
 
 button:focus-visible { 

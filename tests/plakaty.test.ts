@@ -38,6 +38,14 @@ describe("calculatePlakatyM2 – solwent m² materials", () => {
     expect(res.totalPrice).toBe(84);
     expect(res.appliedModifiers).toContain("TRYB EXPRESS (+20%)");
   });
+
+  it("supports qty for solwent: 0.5 m² × 3 szt → 1.5 m² @ 70 = 105 zł", () => {
+    const res = calculatePlakatyM2({ materialId: "200g-polysk", areaM2: 0.5, qty: 3 });
+    expect(res.qty).toBe(3);
+    expect(res.totalAreaM2).toBe(1.5);
+    expect(res.effectiveM2).toBe(1.5);
+    expect(res.totalPrice).toBe(105);
+  });
 });
 
 describe("calculatePlakatyFormat – per-format szt materials", () => {
@@ -102,5 +110,31 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
 
   it("throws for unknown format key", () => {
     expect(() => calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "bogus", qty: 1 })).toThrow();
+  });
+
+  it("supports custom length mm for formatowe", () => {
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "297x420",
+      customLengthMm: 840,
+      qty: 1,
+    });
+    expect(res.baseLengthMm).toBe(420);
+    expect(res.customLengthMm).toBe(840);
+    expect(res.lengthFactor).toBe(2);
+    expect(res.effectiveUnitPrice).toBe(18);
+    expect(res.totalPrice).toBe(18);
+  });
+
+  it("supports custom length mm for nieformatowe", () => {
+    const res = calculatePlakatyFormat({
+      materialId: "120g-nieformatowe",
+      formatKey: "297x420",
+      customLengthMm: 210,
+      qty: 1,
+    });
+    expect(res.lengthFactor).toBe(0.5);
+    expect(res.effectiveUnitPrice).toBe(14);
+    expect(res.totalPrice).toBe(14);
   });
 });
