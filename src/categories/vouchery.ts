@@ -31,19 +31,23 @@ export interface VoucheryOptions {
 
 export function quoteVouchery(options: VoucheryOptions): any {
   const basePrice = getPriceForQuantity(options.qty, options.sides === 'single');
-  let percentageSum = 0;
+  const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+  const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+  let materialModifiersTotal = 0;
 
   if (options.modigliani) {
-    // Modigliani = Satyna * 1.20, czyli bazowa * 1.344
-    percentageSum += resolveStoredPrice("modifier-modigliani", 0.344);
+    const satinModifier = basePrice * satinRate;
+    const satinSubtotal = basePrice + satinModifier;
+    const modiglianiModifier = satinSubtotal * modiglianiRate;
+    materialModifiersTotal = satinModifier + modiglianiModifier;
   } else if (options.satin) {
-    percentageSum += resolveStoredPrice("modifier-satyna", 0.12);
-  }
-  if (options.express) {
-    percentageSum += resolveStoredPrice("modifier-express", 0.20);
+    materialModifiersTotal = basePrice * satinRate;
   }
 
-  const modifiersTotal = basePrice * percentageSum;
+  const expressModifier = options.express ? basePrice * expressRate : 0;
+  const modifiersTotal = materialModifiersTotal + expressModifier;
   const total = basePrice + modifiersTotal;
 
   return {

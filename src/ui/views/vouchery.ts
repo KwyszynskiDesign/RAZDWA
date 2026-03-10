@@ -41,6 +41,7 @@ export const VoucheryView: View = {
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
       const isModigliani = paperVal === "modigliani";
+      const usesSatinBase = isSatin || isModigliani;
 
       currentOptions = {
         qty: parseInt(qtyInput.value),
@@ -53,7 +54,7 @@ export const VoucheryView: View = {
       try {
         const result = quoteVouchery(currentOptions);
         const totalPrice = result.totalPrice;
-        currentResult = { ...result, totalPrice, isSatin };
+        currentResult = { ...result, totalPrice, usesSatinBase, isModigliani };
 
         basePriceSpan.innerText = formatPLN(result.basePrice);
 
@@ -67,7 +68,7 @@ export const VoucheryView: View = {
         totalPriceSpan.innerText = formatPLN(totalPrice);
         if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
+        if (satinHint) satinHint.style.display = usesSatinBase ? "block" : "none";
         if (modiglianiHint) modiglianiHint.style.display = isModigliani ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
@@ -81,7 +82,7 @@ export const VoucheryView: View = {
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const sidesLabel = currentOptions.sides === 'single' ? 'Jednostronne' : 'Dwustronne';
-        const satinLabel = currentResult.isSatin ? ', Satyna' : '';
+        const satinLabel = currentResult.usesSatinBase ? ', Satyna' : '';
         const expressLabel = currentOptions.express ? ', EXPRESS' : '';
         const paperVal = paperSelect.value;
 

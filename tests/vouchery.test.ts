@@ -26,9 +26,16 @@ describe("Vouchery Category", () => {
     expect(result.totalPrice).toBe(52);
   });
 
-  it("should calculate with Modigliani (+34%)", () => {
+  it("should calculate with Modigliani as Satin +20%", () => {
     const result = quoteVouchery({ qty: 5, sides: 'double', satin: false, modigliani: true, express: false });
-    // 43 * 1.344 = 57.79 (zaokrąglone)
+    // 43 * 1.12 = 48.16; 48.16 * 1.20 = 57.792 -> 57.79
     expect(result.totalPrice).toBe(57.79);
+  });
+
+  it("should calculate Modigliani with express while keeping express on base price", () => {
+    const result = quoteVouchery({ qty: 5, sides: 'double', satin: false, modigliani: true, express: true });
+    // baza 43; Modigliani = 14.79; express = 8.60; razem 66.39
+    expect(result.modifiersTotal).toBe(23.39);
+    expect(result.totalPrice).toBe(66.39);
   });
 });
