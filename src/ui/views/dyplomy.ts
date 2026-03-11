@@ -10,6 +10,7 @@ export const DyplomyView: View = {
     container.innerHTML = await response.text();
 
     const sidesSel = container.querySelector("#dypSides") as HTMLSelectElement;
+    const formatSel = container.querySelector("#dypFormat") as HTMLSelectElement;
     const qtyInput = container.querySelector("#dypQty") as HTMLInputElement;
     const paperSel = container.querySelector("#dypPaper") as HTMLSelectElement;
     const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
@@ -22,6 +23,7 @@ export const DyplomyView: View = {
       const isModigliani = paperVal === "modigliani";
       const usesSatinBase = isSatin || isModigliani;
       const options: DyplomyOptions = {
+        format: (formatSel.value === "A5" ? "A5" : "A4"),
         qty: parseInt(qtyInput.value) || 1,
         sides: parseInt(sidesSel.value) || 1,
         isSatin,
@@ -37,14 +39,14 @@ export const DyplomyView: View = {
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(totalPrice);
       const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
       if (tierHintEl) {
-        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
+        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (format: ${options.format}, papier: ${paperVal.replace("_", " ")})`;
       }
       (container.querySelector("#resDiscountHint") as HTMLElement).style.display = result.appliedModifiers.includes("bulk-discount") ? "block" : "none";
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
       (container.querySelector("#resSatinHint") as HTMLElement).style.display = usesSatinBase ? "block" : "none";
       (container.querySelector("#resModiglianiHint") as HTMLElement).style.display = options.isModigliani ? "block" : "none";
 
-      ctx.updateLastCalculated(totalPrice, "Dyplomy");
+      ctx.updateLastCalculated(totalPrice, `Dyplomy ${options.format}`);
       return { options, result };
     };
 
@@ -63,13 +65,13 @@ export const DyplomyView: View = {
       ctx.cart.addItem({
         id: `dyp-${Date.now()}`,
         category: "Dyplomy",
-        name: `Dyplomy DL ${options.sides === 1 ? '1-str' : '2-str'}`,
+        name: `Dyplomy ${options.format} ${options.sides === 1 ? '1-str' : '2-str'}`,
         quantity: options.qty,
         unit: "szt",
         unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
         totalPrice: result.totalPrice,
-        optionsHint: [`${options.qty} szt`, dPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
+        optionsHint: [`${options.qty} szt`, `${options.format}`, dPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
         payload: options
       });
     });

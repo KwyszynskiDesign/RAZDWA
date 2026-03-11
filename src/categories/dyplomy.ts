@@ -19,6 +19,7 @@ function getPriceForQuantity(qty: number): number {
 }
 
 export interface DyplomyOptions {
+  format?: "A4" | "A5";
   qty: number;
   sides?: number;
   isSatin: boolean;
