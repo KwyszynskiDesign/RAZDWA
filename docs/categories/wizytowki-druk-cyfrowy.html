@@ -81,6 +81,38 @@
             <span id="w-total-price" class="price-value">-</span>
         </div>
         <div id="w-billed-qty-hint" class="hint"></div>
+        <div id="w-tier-hint" class="hint" style="margin-top: 6px;"></div>
+        <div id="w-express-hint" class="express-hint" style="display:none;">W tym dopłata EXPRESS +20%</div>
+        <div id="w-satin-hint" class="modifier-hint" style="display:none;">W tym dopłata SATYNA +12%</div>
+
+        <div style="margin-top: 10px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 10px;">
+            <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--text-secondary);">Szczegóły obliczenia</div>
+            <table style="width:100%; border-collapse: collapse; font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th style="text-align:left; padding:6px 4px; border-bottom:1px solid rgba(0,0,0,0.08);">Ilość</th>
+                        <th style="text-align:left; padding:6px 4px; border-bottom:1px solid rgba(0,0,0,0.08);">Rozmiar</th>
+                        <th style="text-align:left; padding:6px 4px; border-bottom:1px solid rgba(0,0,0,0.08);">Papier</th>
+                        <th style="text-align:right; padding:6px 4px; border-bottom:1px solid rgba(0,0,0,0.08);">Cena końcowa</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="w-calc-qty" style="padding:6px 4px;">-</td>
+                        <td id="w-calc-size" style="padding:6px 4px;">-</td>
+                        <td id="w-calc-paper" style="padding:6px 4px;">-</td>
+                        <td id="w-calc-final" style="padding:6px 4px; text-align:right; font-weight:700;">-</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="display:grid; grid-template-columns: 1fr auto; gap:4px 10px; margin-top:8px; font-size:12px;">
+                <span style="color:var(--text-secondary);">Cena bazowa</span>
+                <strong id="w-calc-base">-</strong>
+                <span style="color:var(--text-secondary);">Dopłaty (papier/express)</span>
+                <strong id="w-calc-surcharges">-</strong>
+            </div>
+        </div>
     </div>
 
     <div class="cennik-table" style="display:none;">
