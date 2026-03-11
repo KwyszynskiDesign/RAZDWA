@@ -56,6 +56,7 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding: 12px 20px;
   background: #004080;
   color: white;
@@ -81,6 +82,72 @@ header {
   flex: 1;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.category-search-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-search-input {
+  width: 180px;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.14);
+  color: white;
+  font-size: 14px;
+}
+
+.category-search-input::placeholder {
+  color: rgba(255,255,255,0.78);
+}
+
+.category-search-input:focus {
+  outline: var(--focus-outline);
+  outline-offset: 2px;
+  border-color: rgba(255,255,255,0.75);
+}
+
+.category-search-button {
+  height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  color: white;
+  border-color: rgba(255,255,255,0.35);
+}
+
+.category-search-button:hover {
+  color: white;
+  border-color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.16);
+}
+
 .btn-settings {
   background: rgba(255,255,255,0.2);
   border: 2px solid rgba(255,255,255,0.3);
@@ -101,7 +168,20 @@ header {
 }
 
 @media (max-width: 768px) {
-  .site-header { padding: 12px; }
+  .site-header {
+    padding: 12px;
+    align-items: stretch;
+  }
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .category-search-toolbar {
+    flex: 1;
+  }
+  .category-search-input {
+    width: 100%;
+  }
   .btn-settings {
     padding: 6px 12px;
     font-size: 14px;
@@ -521,6 +601,9 @@ button.ghost {
   background: transparent;
   color: var(--text-secondary);
   border: 1px solid var(--border);
+  height: 44px;
+  border-radius: 8px;
+  padding: 0 14px;
 }
 
 button.ghost:hover {

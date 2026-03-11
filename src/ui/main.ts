@@ -82,6 +82,7 @@ function updateCartUI() {
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
   const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
+  const categorySearchButton = document.getElementById("categorySearchButton") as HTMLButtonElement | null;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
   // Event delegation for remove buttons rendered inside basket list
@@ -122,6 +123,53 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (!viewContainer || !globalExpress || !categorySearch) return;
+
+  const categoryTiles = Array.from(document.querySelectorAll<HTMLAnchorElement>(".tile-grid .tile"));
+
+  const getVisibleCategoryTiles = () => categoryTiles.filter((tile) => !tile.hidden && tile.offsetParent !== null);
+
+  const filterCategoryTiles = () => {
+    const filter = categorySearch.value.trim().toLowerCase();
+
+    categoryTiles.forEach((tile) => {
+      const tileTitle = tile.querySelector(".tile-title")?.textContent?.toLowerCase() ?? "";
+      const tileLabel = tile.getAttribute("aria-label")?.toLowerCase() ?? "";
+      const matches = !filter || tileTitle.includes(filter) || tileLabel.includes(filter);
+      tile.hidden = !matches;
+    });
+
+    if (categorySelector) {
+      const options = Array.from(categorySelector.options);
+      options.forEach((opt, idx) => {
+        if (idx === 0) return;
+        const text = opt.text.toLowerCase();
+        (opt as HTMLOptionElement & { hidden?: boolean }).hidden = !!filter && !text.includes(filter);
+      });
+    }
+  };
+
+  const navigateToFirstMatchedCategory = () => {
+    const firstVisibleTile = getVisibleCategoryTiles()[0];
+    if (firstVisibleTile) {
+      const targetHash = firstVisibleTile.getAttribute("href");
+      if (targetHash) {
+        window.location.hash = targetHash;
+      }
+      categorySearch.blur();
+      return;
+    }
+
+    if (categorySelector) {
+      const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
+        return idx > 0 && !(opt as HTMLOptionElement & { hidden?: boolean }).hidden && !opt.disabled;
+      });
+      if (firstVisible) {
+        categorySelector.value = firstVisible.value;
+        window.location.hash = `#/${firstVisible.value}`;
+        categorySearch.blur();
+      }
+    }
+  };
 
   const getCtx = (): ViewContext => ({
     cart: {
@@ -210,32 +258,22 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  categorySearch.addEventListener("input", () => {
-    const filter = categorySearch.value.toLowerCase();
-    if (categorySelector) {
-      const options = Array.from(categorySelector.options);
-      options.forEach((opt, idx) => {
-        if (idx === 0) return; // Skip "Wybierz kategorię..."
-        const text = opt.text.toLowerCase();
-        (opt as any).hidden = !text.includes(filter);
-      });
-    }
-  });
+  categorySearch.addEventListener("input", filterCategoryTiles);
 
   categorySearch.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
-      const filter = categorySearch.value.toLowerCase();
-      if (categorySelector) {
-        const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
-          return idx > 0 && !(opt as any).hidden && !(opt as any).disabled;
-        });
-        if (firstVisible) {
-          categorySelector.value = firstVisible.value;
-          window.location.hash = `#/${firstVisible.value}`;
-          categorySearch.value = "";
-        }
-      }
+      e.preventDefault();
+      navigateToFirstMatchedCategory();
     }
+  });
+
+  categorySearchButton?.addEventListener("click", () => {
+    if (categorySearch.value.trim()) {
+      navigateToFirstMatchedCategory();
+      return;
+    }
+
+    categorySearch.focus();
   });
 
   // Re-render view when express mode changes
@@ -302,17 +340,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   updateCartUI();
+  filterCategoryTiles();
   router.start();
 });
-
-// Global functions for HTML onclick handlers
-(window as any).clearSearch = () => {
-  const searchInput = document.getElementById('categorySearch') as HTMLInputElement;
-  if (searchInput) {
-    searchInput.value = '';
-    searchInput.dispatchEvent(new Event('input'));
-  }
-};
 
 (window as any).scrollToTopTiles = () => {
   const grid = document.querySelector('.category-sticky');

@@ -36,10 +36,17 @@
         <h1>Kalkulator – Studio Raz Druku Dwa</h1>
         <p class="small">Studio poligraficzne: Szybko • Tanio • Profesjonalnie</p>
       </div>
+      <div class="header-actions">
+        <div class="category-search-toolbar" role="search" aria-label="Szukaj kategorii">
+          <label for="categorySearch" class="visually-hidden">Szukaj kategorii</label>
+          <input id="categorySearch" class="category-search-input" type="search" placeholder="szukam..." autocomplete="off">
+          <button id="categorySearchButton" type="button" class="ghost category-search-button" aria-label="Szukaj kategorii">🔍</button>
+        </div>
         <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ustawienia cen">
               <span class="tile-icon">⚙️</span>
               <span class="tile-title">Ustawienia cen</span> 
             </a>
+      </div>
     </header>
 
  
@@ -115,12 +122,6 @@
             </a>
           </div>
         </div>
-        <div class="card" style="display:flex;gap:12px;align-items:center;margin-bottom:16px">
-          <label for="categorySearch" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap">Szukaj</label>
-          <input id="categorySearch" type="search" placeholder="🔍 Szukaj kategorii (wizytówki...)" style="flex:1;padding:12px;border-radius:8px">
-          <button class="btn-secondary" onclick="clearSearch()" style="white-space:nowrap">Wyczyść</button>
-        </div>
-
         <div class="card">
           <div id="viewContainer">
             <div id="emptyState" style="display:block;text-align:center;padding:60px;background:var(--surface-alt);border-radius:12px;margin:20px 0">
