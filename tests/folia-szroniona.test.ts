@@ -82,4 +82,25 @@ describe("Folia Szroniona Category", () => {
     // 65 * 1.2 = 78
     expect(result.totalPrice).toBe(78);
   });
+
+  it("should calculate OWV material-only for 10m2", () => {
+    const result = calculateFoliaSzroniona({
+      widthMm: 2000,
+      heightMm: 5000,
+      serviceId: "owv-material-only",
+      express: false
+    });
+    // 10m2 -> tier 10-20 -> 55 zł/m2
+    expect(result.totalPrice).toBe(550);
+  });
+
+  it("should mark OWV full-service as custom above 20m2", () => {
+    const result = calculateFoliaSzroniona({
+      widthMm: 5000,
+      heightMm: 5000,
+      serviceId: "owv-full-service",
+      express: false
+    });
+    expect(result.isCustom).toBe(true);
+  });
 });

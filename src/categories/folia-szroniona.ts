@@ -41,7 +41,8 @@ export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): Calcula
   }
 
   const result = calculatePrice(priceTable, areaM2, activeModifiers);
-  const isCustom = options.serviceId === "full-service" && areaM2 > 20;
+  const isCustomService = options.serviceId === "full-service" || options.serviceId === "owv-full-service";
+  const isCustom = isCustomService && areaM2 > 20;
 
   return {
     ...result,

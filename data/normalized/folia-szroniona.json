@@ -1,6 +1,6 @@
 {
   "id": "folia-szroniona",
-  "title": "Folia szroniona",
+  "title": "Folia szroniona / OWV",
   "unit": "m2",
   "pricing": "per_unit",
   "rules": [
@@ -10,7 +10,7 @@
     {
       "id": "material-only",
       "storageId": "wydruk",
-      "name": "Tylko wydruk",
+      "name": "Szroniona — tylko wydruk",
       "tiers": [
         { "min": 1, "max": 5, "price": 65.0 },
         { "min": 6, "max": 25, "price": 60.0 },
@@ -21,7 +21,30 @@
     {
       "id": "full-service",
       "storageId": "oklejanie",
-      "name": "Wydruk z oklejaniem",
+      "name": "Szroniona — wydruk z oklejaniem",
+      "tiers": [
+        { "min": 1, "max": 5, "price": 140.0 },
+        { "min": 6, "max": 10, "price": 130.0 },
+        { "min": 11, "max": 20, "price": 120.0 },
+        { "min": 21, "max": null, "price": 0 }
+      ]
+    },
+    {
+      "id": "owv-material-only",
+      "storageId": "owv-wydruk",
+      "name": "OWV — tylko wydruk",
+      "tiers": [
+        { "min": 1, "max": 3, "price": 65.0 },
+        { "min": 4, "max": 9, "price": 60.0 },
+        { "min": 10, "max": 20, "price": 55.0 },
+        { "min": 21, "max": 40, "price": 50.0 },
+        { "min": 41, "max": null, "price": 45.0 }
+      ]
+    },
+    {
+      "id": "owv-full-service",
+      "storageId": "owv-oklejanie",
+      "name": "OWV — wydruk z oklejaniem",
       "tiers": [
         { "min": 1, "max": 5, "price": 140.0 },
         { "min": 6, "max": 10, "price": 130.0 },

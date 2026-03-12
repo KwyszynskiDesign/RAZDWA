@@ -92,6 +92,18 @@
     "implemented": true
   },
   {
+    "id": "wycinanie-folii",
+    "name": "Wycinanie z folii",
+    "icon": "✂️",
+    "implemented": true
+  },
+  {
+    "id": "canvas",
+    "name": "Canvas / Płótno",
+    "icon": "🖼️",
+    "implemented": true
+  },
+  {
     "id": "laminowanie",
     "name": "Laminowanie",
     "icon": "✨",

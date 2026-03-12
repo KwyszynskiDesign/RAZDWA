@@ -14,6 +14,8 @@ import { DrukA4A3SkanView } from "./views/DrukA4A3SkanView";
 import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
+import { WycinanieFoliiView } from "./views/wycinanie-folii";
+import { CanvasView } from "./views/canvas";
 import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
 import { UstawieniaView } from "./views/ustawienia";
@@ -251,6 +253,8 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
   router.addRoute(FoliaSzronionaView);
+  router.addRoute(WycinanieFoliiView);
+  router.addRoute(CanvasView);
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
   router.addRoute(UstawieniaView);

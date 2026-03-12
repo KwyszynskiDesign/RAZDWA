@@ -259,7 +259,7 @@
   },
   "foliaSzroniona": {
     "id": "folia-szroniona",
-    "title": "Folia szroniona",
+    "title": "Folia szroniona / OWV",
     "unit": "m2",
     "pricing": "per_unit",
     "rules": [
@@ -269,7 +269,7 @@
       {
         "id": "material-only",
         "storageId": "wydruk",
-        "name": "Tylko wydruk",
+        "name": "Szroniona — tylko wydruk",
         "tiers": [
           { "min": 1, "max": 5, "price": 65.0 },
           { "min": 6, "max": 25, "price": 60.0 },
@@ -280,13 +280,104 @@
       {
         "id": "full-service",
         "storageId": "oklejanie",
-        "name": "Wydruk z oklejaniem",
+        "name": "Szroniona — wydruk z oklejaniem",
         "tiers": [
           { "min": 1, "max": 5, "price": 140.0 },
           { "min": 6, "max": 10, "price": 130.0 },
           { "min": 11, "max": 20, "price": 120.0 },
           { "min": 21, "max": null, "price": 0 }
         ]
+      },
+      {
+        "id": "owv-material-only",
+        "storageId": "owv-wydruk",
+        "name": "OWV — tylko wydruk",
+        "tiers": [
+          { "min": 1, "max": 3, "price": 65.0 },
+          { "min": 4, "max": 9, "price": 60.0 },
+          { "min": 10, "max": 20, "price": 55.0 },
+          { "min": 21, "max": 40, "price": 50.0 },
+          { "min": 41, "max": null, "price": 45.0 }
+        ]
+      },
+      {
+        "id": "owv-full-service",
+        "storageId": "owv-oklejanie",
+        "name": "OWV — wydruk z oklejaniem",
+        "tiers": [
+          { "min": 1, "max": 5, "price": 140.0 },
+          { "min": 6, "max": 10, "price": 130.0 },
+          { "min": 11, "max": 20, "price": 120.0 },
+          { "min": 21, "max": null, "price": 0 }
+        ]
+      }
+    ],
+    "modifiers": [
+      { "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+    ]
+  },
+  "wycinanieFolii": {
+    "id": "wycinanie-folii",
+    "title": "Wycinanie z folii",
+    "unit": "m2",
+    "pricing": "per_unit",
+    "variants": [
+      {
+        "id": "kolorowa",
+        "name": "Folia kolorowa",
+        "rates": {
+          "below1m2": 200,
+          "aboveOrEqual1m2": 125
+        }
+      },
+      {
+        "id": "zloto-srebro",
+        "name": "Folia złoto / srebro",
+        "rates": {
+          "below1m2": 220,
+          "aboveOrEqual1m2": 150
+        }
+      }
+    ],
+    "rules": [
+      { "type": "minimum", "unit": "pln", "value": 30 }
+    ],
+    "modifiers": [
+      { "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+    ]
+  },
+  "canvas": {
+    "id": "canvas",
+    "title": "Canvas / Płótno",
+    "modes": [
+      {
+        "id": "framed",
+        "name": "Płótno Canvas z oprawą 240g",
+        "formats": [
+          { "id": "50x40-a", "label": "50x40", "price": 69 },
+          { "id": "50x40-b", "label": "50x40 (wariant 2)", "price": 78 },
+          { "id": "70x50", "label": "70x50", "price": 120 },
+          { "id": "100x70", "label": "100x70", "price": 210 },
+          { "id": "120x80", "label": "120x80", "price": 270 },
+          { "id": "custom", "label": "Niestandardowy", "customQuote": true }
+        ]
+      },
+      {
+        "id": "unframed",
+        "name": "Płótno Canvas bez oprawy (ramki) 240g",
+        "formats": [
+          { "id": "50x40-a", "label": "50x40", "price": 39 },
+          { "id": "50x40-b", "label": "50x40 (wariant 2)", "price": 48 },
+          { "id": "70x50", "label": "70x50", "price": 62 },
+          { "id": "100x70", "label": "100x70", "price": 120 },
+          { "id": "120x80", "label": "120x80", "price": 172 },
+          { "id": "custom", "label": "Niestandardowy", "customQuote": true }
+        ]
+      },
+      {
+        "id": "m2-unframed",
+        "name": "Sam wydruk (cena za m2)",
+        "pricePerM2": 180
       }
     ],
     "modifiers": [
@@ -896,6 +987,29 @@
     "folia-szroniona-oklejanie-1-5": 140.00,
     "folia-szroniona-oklejanie-6-10": 130.00,
     "folia-szroniona-oklejanie-11-20": 120.00,
+    "folia-szroniona-owv-wydruk-1-3": 65.00,
+    "folia-szroniona-owv-wydruk-4-9": 60.00,
+    "folia-szroniona-owv-wydruk-10-20": 55.00,
+    "folia-szroniona-owv-wydruk-21-40": 50.00,
+    "folia-szroniona-owv-wydruk-41+": 45.00,
+    "folia-szroniona-owv-oklejanie-1-5": 140.00,
+    "folia-szroniona-owv-oklejanie-6-10": 130.00,
+    "folia-szroniona-owv-oklejanie-11-20": 120.00,
+    "wycinanie-folii-kolorowa-ponizej-1m2": 200.00,
+    "wycinanie-folii-kolorowa-powyzej-1m2": 125.00,
+    "wycinanie-folii-zloto-srebro-ponizej-1m2": 220.00,
+    "wycinanie-folii-zloto-srebro-powyzej-1m2": 150.00,
+    "canvas-framed-50x40-a": 69.00,
+    "canvas-framed-50x40-b": 78.00,
+    "canvas-framed-70x50": 120.00,
+    "canvas-framed-100x70": 210.00,
+    "canvas-framed-120x80": 270.00,
+    "canvas-unframed-50x40-a": 39.00,
+    "canvas-unframed-50x40-b": 48.00,
+    "canvas-unframed-70x50": 62.00,
+    "canvas-unframed-100x70": 120.00,
+    "canvas-unframed-120x80": 172.00,
+    "canvas-m2-unframed": 180.00,
     "wlepki-obrys-folia-1-5": 67.00,
     "wlepki-obrys-folia-6-25": 60.00,
     "wlepki-obrys-folia-26-50": 52.00,

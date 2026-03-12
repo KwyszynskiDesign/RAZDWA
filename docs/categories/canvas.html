@@ -1,0 +1,70 @@
+<h2>Canvas / Płótno</h2>
+<div class="form">
+  <div class="row">
+    <label for="cv-mode">Tryb:</label>
+    <select id="cv-mode">
+      <option value="framed">Płótno z oprawą</option>
+      <option value="unframed">Płótno bez oprawy</option>
+      <option value="m2-unframed">Sam wydruk (za m2)</option>
+    </select>
+  </div>
+
+  <div class="row" id="cv-format-row">
+    <label for="cv-format">Format:</label>
+    <select id="cv-format"></select>
+  </div>
+
+  <div class="row" id="cv-size-row" style="display:none;">
+    <label>Wymiary (mm):</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <input type="number" id="cv-width" value="1000" min="1">
+      <span style="color: var(--muted);">×</span>
+      <input type="number" id="cv-height" value="700" min="1">
+    </div>
+  </div>
+
+  <div class="row">
+    <label for="cv-qty">Ilość:</label>
+    <input type="number" id="cv-qty" value="1" min="1">
+  </div>
+
+  <div class="form-actions">
+    <button id="cv-calculate" class="btn-primary">Oblicz</button>
+    <button id="cv-add" class="btn-success" disabled>Dodaj do listy</button>
+  </div>
+
+  <div id="cv-result" style="display:none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+    <div id="cv-normal">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Tryb:</span>
+        <span id="cv-mode-label">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Format:</span>
+        <span id="cv-format-label">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;" id="cv-area-row" hidden>
+        <span>Powierzchnia:</span>
+        <span id="cv-area">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Cena jednostkowa:</span>
+        <span id="cv-unit">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+        <span>Ilość:</span>
+        <span id="cv-qty-val">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-weight: 900; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+        <span>Cena całkowita:</span>
+        <span id="cv-total" style="font-size: 18px; color: #22c55e;">-</span>
+      </div>
+      <div id="cv-express" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
+    </div>
+
+    <div id="cv-custom" style="display:none; text-align: center; padding: 10px;">
+      <p style="color: #f59e0b; font-weight: bold; margin: 0;">Format niestandardowy — wycena indywidualna</p>
+      <p style="font-size: 12px; margin: 5px 0 0 0;">Prosimy o kontakt mailowy lub telefoniczny.</p>
+    </div>
+  </div>
+</div>

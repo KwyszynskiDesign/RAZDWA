@@ -1,0 +1,33 @@
+{
+  "id": "wycinanie-folii",
+  "title": "Wycinanie z folii",
+  "unit": "m2",
+  "pricing": "per_unit",
+  "variants": [
+    {
+      "id": "kolorowa",
+      "name": "Folia kolorowa",
+      "rates": {
+        "below1m2": 200,
+        "aboveOrEqual1m2": 125
+      }
+    },
+    {
+      "id": "zloto-srebro",
+      "name": "Folia złoto / srebro",
+      "rates": {
+        "below1m2": 220,
+        "aboveOrEqual1m2": 150
+      }
+    }
+  ],
+  "rules": [
+    { "type": "minimum", "unit": "pln", "value": 30 }
+  ],
+  "modifiers": [
+    { "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+  ],
+  "notes": [
+    "Cena zawiera: folia + wycinanie + wybieranie + transport"
+  ]
+}

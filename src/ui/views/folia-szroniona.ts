@@ -50,7 +50,7 @@ export const FoliaSzronionaView: View = {
             normalResult.style.display = "none";
             customQuote.style.display = "block";
             addToCartBtn.disabled = true;
-            ctx.updateLastCalculated(0, "Folia szroniona (wycena ind.)");
+          ctx.updateLastCalculated(0, "Folia szroniona / OWV (wycena ind.)");
         } else {
             normalResult.style.display = "block";
             customQuote.style.display = "none";
@@ -59,7 +59,7 @@ export const FoliaSzronionaView: View = {
             if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
             if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
             addToCartBtn.disabled = false;
-            ctx.updateLastCalculated(result.totalPrice, "Folia szroniona");
+            ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
         }
 
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
@@ -73,6 +73,7 @@ export const FoliaSzronionaView: View = {
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const serviceName = serviceSelect.options[serviceSelect.selectedIndex].text;
+        const isOWV = currentOptions.serviceId.includes("owv");
         const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1000000;
         const opts = [
             `${currentOptions.widthMm}x${currentOptions.heightMm} mm`,
@@ -82,7 +83,7 @@ export const FoliaSzronionaView: View = {
 
         ctx.cart.addItem({
           id: `fs-${Date.now()}`,
-          category: "Folia szroniona",
+          category: isOWV ? "Folia OWV" : "Folia szroniona",
           name: serviceName,
           quantity: areaM2,
           unit: "m2",

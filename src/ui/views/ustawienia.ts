@@ -188,6 +188,31 @@ const PRICE_LABELS: Record<string, string> = {
   "folia-szroniona-oklejanie-1-5": "Folia szroniona oklejanie – 1–5 m²",
   "folia-szroniona-oklejanie-6-10": "Folia szroniona oklejanie – 6–10 m²",
   "folia-szroniona-oklejanie-11-20": "Folia szroniona oklejanie – 11–20 m²",
+  "folia-szroniona-owv-wydruk-1-3": "Folia OWV wydruk – 1–3 m²",
+  "folia-szroniona-owv-wydruk-4-9": "Folia OWV wydruk – 4–9 m²",
+  "folia-szroniona-owv-wydruk-10-20": "Folia OWV wydruk – 10–20 m²",
+  "folia-szroniona-owv-wydruk-21-40": "Folia OWV wydruk – 21–40 m²",
+  "folia-szroniona-owv-wydruk-41+": "Folia OWV wydruk – 41+ m²",
+  "folia-szroniona-owv-oklejanie-1-5": "Folia OWV oklejanie – 1–5 m²",
+  "folia-szroniona-owv-oklejanie-6-10": "Folia OWV oklejanie – 6–10 m²",
+  "folia-szroniona-owv-oklejanie-11-20": "Folia OWV oklejanie – 11–20 m²",
+  // Wycinanie z folii
+  "wycinanie-folii-kolorowa-ponizej-1m2": "Wycinanie folii kolorowej – poniżej 1 m²",
+  "wycinanie-folii-kolorowa-powyzej-1m2": "Wycinanie folii kolorowej – powyżej 1 m²",
+  "wycinanie-folii-zloto-srebro-ponizej-1m2": "Wycinanie folii złoto/srebro – poniżej 1 m²",
+  "wycinanie-folii-zloto-srebro-powyzej-1m2": "Wycinanie folii złoto/srebro – powyżej 1 m²",
+  // Canvas
+  "canvas-framed-50x40-a": "Canvas z oprawą – 50×40 (wariant 1)",
+  "canvas-framed-50x40-b": "Canvas z oprawą – 50×40 (wariant 2)",
+  "canvas-framed-70x50": "Canvas z oprawą – 70×50",
+  "canvas-framed-100x70": "Canvas z oprawą – 100×70",
+  "canvas-framed-120x80": "Canvas z oprawą – 120×80",
+  "canvas-unframed-50x40-a": "Canvas bez oprawy – 50×40 (wariant 1)",
+  "canvas-unframed-50x40-b": "Canvas bez oprawy – 50×40 (wariant 2)",
+  "canvas-unframed-70x50": "Canvas bez oprawy – 70×50",
+  "canvas-unframed-100x70": "Canvas bez oprawy – 100×70",
+  "canvas-unframed-120x80": "Canvas bez oprawy – 120×80",
+  "canvas-m2-unframed": "Canvas bez oprawy – cena za m²",
   // Wlepki / naklejki
   "wlepki-obrys-folia-1-5": "Naklejki wycinane po obrysie – 1–5 m²",
   "wlepki-obrys-folia-6-25": "Naklejki wycinane po obrysie – 6–25 m²",
@@ -334,11 +359,27 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   },
   {
     id: "folia",
-    label: "Folia szroniona",
+    label: "Folia szroniona / OWV",
     icon: "❄️",
     prefixes: ["folia-szroniona-"],
-    description: "Wydruk i oklejanie folii szronionej.",
+    description: "Wydruk i oklejanie folii szronionej oraz OWV.",
     newKeyPrefix: "folia-szroniona-wydruk-"
+  },
+  {
+    id: "wycinanie-folii",
+    label: "Wycinanie z folii",
+    icon: "✂️",
+    prefixes: ["wycinanie-folii-"],
+    description: "Stawki wycinania folii kolorowej i złoto/srebro.",
+    newKeyPrefix: "wycinanie-folii-kolorowa-"
+  },
+  {
+    id: "canvas",
+    label: "Canvas / Płótno",
+    icon: "🖼️",
+    prefixes: ["canvas-"],
+    description: "Canvas z oprawą, bez oprawy i stawka za m².",
+    newKeyPrefix: "canvas-framed-"
   },
   {
     id: "wlepki",
