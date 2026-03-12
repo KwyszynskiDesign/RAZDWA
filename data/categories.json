@@ -75,13 +75,11 @@
       }
     }
   },
-  { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
   { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
   { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
   { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
   { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
-  { "id": "ulotki-cyfrowe-dwustronne", "name": "Ulotki - Cyfrowe Dwustronne", "icon": "📄", "implemented": true },
-  { "id": "ulotki-cyfrowe-jednostronne", "name": "Ulotki – cyfrowe jednostronne", "icon": "📄", "implemented": true },
+  { "id": "ulotki-cyfrowe", "name": "Ulotki cyfrowe", "icon": "📄", "implemented": true },
   { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
   { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
   { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
@@ -110,9 +108,15 @@
     "implemented": true
   },
   {
-    "id": "cad-ops",
-    "name": "CAD: składanie / skan",
-    "icon": "📏",
+    "id": "cad-upload",
+    "name": "CAD Upload plików",
+    "icon": "📁",
+    "implemented": true
+  },
+  {
+    "id": "plakaty",
+    "name": "Plakaty",
+    "icon": "⚙️",
     "implemented": true
   },
   {
