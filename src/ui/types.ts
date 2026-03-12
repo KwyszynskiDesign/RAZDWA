@@ -7,6 +7,8 @@ export interface ViewContext {
   addToBasket: (item: { category: string; price: number; description: string }) => void;
   expressMode: boolean;
   updateLastCalculated: (price: number, hint?: string) => void;
+  on?: (event: string, callback: (data?: any) => void) => void;
+  emit?: (event: string, data?: any) => void;
 }
 
 export interface View {

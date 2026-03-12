@@ -98,7 +98,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
             <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
           </label>
           <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
-          <span style="font-weight: bold; color: #0066cc; min-width: 68px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
+          <span class="item-price" data-item-id="${item.id}" data-base-price="${itemPrice}" style="font-weight: bold; color: #0066cc; min-width: 68px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
           <input type="checkbox" data-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="item-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
         `;
 
@@ -113,6 +113,40 @@ export const artykulyBiuroweCategory: CategoryModule = {
     const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
     const summaryDiv = container.querySelector('#summary') as HTMLElement;
 
+    // Function to get current price dynamically
+    const getCurrentPrice = (itemId: string, basePrice: number): number => {
+      const storageKey = `artykuly-${itemId}`;
+      return resolveStoredPrice(storageKey, basePrice);
+    };
+
+    // Update price displays dynamically when prices change
+    const updatePriceDisplay = (itemId: string) => {
+      const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
+      const checkbox = container.querySelector(`input[data-item-id="${itemId}"]`) as HTMLInputElement | null;
+      if (!priceSpan || !checkbox) return;
+
+      const basePrice = parseFloat(priceSpan.getAttribute('data-base-price') || '0');
+      const currentPrice = getCurrentPrice(itemId, basePrice);
+      
+      priceSpan.textContent = currentPrice.toFixed(2) + ' zł';
+      checkbox.setAttribute('data-price', currentPrice.toString());
+    };
+
+    // Update all prices on mount and listen for price changes
+    const priceSpans = container.querySelectorAll('span.item-price') as NodeListOf<HTMLElement>;
+    priceSpans.forEach(span => {
+      const itemId = span.getAttribute('data-item-id') || '';
+      updatePriceDisplay(itemId);
+    });
+
+    // Listen for price update events
+    ctx?.on?.('prices-updated', () => {
+      priceSpans.forEach(span => {
+        const itemId = span.getAttribute('data-item-id') || '';
+        updatePriceDisplay(itemId);
+      });
+    });
+
     calculateBtn.addEventListener('click', () => {
       const checked = Array.from(container.querySelectorAll('.item-checkbox:checked')) as HTMLInputElement[];
       
@@ -124,7 +158,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
       const selectedItems = checked.map(checkbox => {
         const itemId = checkbox.getAttribute('data-item-id') || '';
         const itemName = checkbox.getAttribute('data-item-name') || '';
-        const price = parseFloat(checkbox.getAttribute('data-price') || '0');
+        const basePrice = parseFloat(checkbox.getAttribute('data-price') || '0');
+        // Get current dynamic price instead of static data-price
+        const price = getCurrentPrice(itemId, basePrice);
         const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement;
         const quantity = parseInt(qtyInput?.value || '1');
 

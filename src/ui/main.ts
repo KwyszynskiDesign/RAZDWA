@@ -29,6 +29,29 @@ import categories from "../../data/categories.json";
 
 const cart = new Cart();
 
+class SimpleEventEmitter {
+  private listeners: Map<string, Set<(data?: any) => void>> = new Map();
+
+  on(event: string, callback: (data?: any) => void) {
+    if (!this.listeners.has(event)) {
+      this.listeners.set(event, new Set());
+    }
+    this.listeners.get(event)?.add(callback);
+  }
+
+  emit(event: string, data?: any) {
+    this.listeners.get(event)?.forEach(callback => {
+      try {
+        callback(data);
+      } catch (err) {
+        console.error(`Error in event listener for "${event}":`, err);
+      }
+    });
+  }
+}
+
+const eventEmitter = new SimpleEventEmitter();
+
 function showToast(message: string) {
   const toast = document.createElement("div");
   toast.className = "toast";
@@ -203,6 +226,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const currentHintEl = document.getElementById("currentHint");
       if (currentPriceEl) currentPriceEl.innerText = formatPLN(price);
       if (currentHintEl) currentHintEl.innerText = hint ? `(${hint})` : "";
+    },
+    on: (event, callback) => {
+      eventEmitter.on(event, callback);
+    },
+    emit: (event, data) => {
+      eventEmitter.emit(event, data);
     }
   });
 

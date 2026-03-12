@@ -657,6 +657,8 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       showStatus("✓ Zapisano ceny.");
+      // Emit event to notify all views about price changes
+      ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
@@ -669,6 +671,8 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       showStatus("✓ Przywrócono domyślne ceny.");
+      // Emit event to notify all views about price changes
+      ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 
     const onStorage = (event: StorageEvent) => {
@@ -679,6 +683,8 @@ export const UstawieniaView: View = {
       prices = loadPrices();
       renderTabs();
       renderTable();
+      // Emit event to notify all views about price changes
+      ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     };
 
     window.addEventListener("storage", onStorage);
