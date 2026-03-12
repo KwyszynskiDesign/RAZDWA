@@ -19,12 +19,18 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
     throw new Error(`Invalid format: ${formatKey}`);
   }
 
+  const fk = formatKey.toLowerCase();
+  const tiersWithOverrides = formatData.tiers.map((tier: any) => ({
+    ...tier,
+    price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price)
+  }));
+
   return {
     id: `ulotki-cyfrowe-dwustronne-${formatKey.toLowerCase()}`,
     title: `Ulotki Cyfrowe Dwustronne ${formatData.name}`,
     unit: "szt",
     pricing: "flat",
-    tiers: formatData.tiers,
+    tiers: tiersWithOverrides,
     modifiers: [
       { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
     ]

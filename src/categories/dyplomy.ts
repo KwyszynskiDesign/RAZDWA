@@ -15,7 +15,7 @@ function getPriceForQuantity(qty: number): number {
     }
   }
 
-  return selectedTier.price;
+  return resolveStoredPrice(`dyplomy-qty-${selectedTier.qty}`, selectedTier.price);
 }
 
 export interface DyplomyOptions {

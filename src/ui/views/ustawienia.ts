@@ -15,7 +15,28 @@ type PriceCategory = {
 let _cleanup: (() => void) | null = null;
 
 function loadPrices(): Record<string, number> {
-  return { ...(getPrice("defaultPrices") as Record<string, number>) };
+  const base = { ...(getPrice("defaultPrices") as Record<string, number>) };
+  const zaproszenia = getPrice("zaproszeniaKreda") as any;
+  const formats = zaproszenia?.formats as Record<string, any> | undefined;
+
+  if (formats) {
+    Object.entries(formats).forEach(([formatKey, formatData]) => {
+      ["single", "double"].forEach((sidesKey) => {
+        ["normal", "folded"].forEach((foldKey) => {
+          const tiers = formatData?.[sidesKey]?.[foldKey] as Record<string, number> | undefined;
+          if (!tiers) return;
+          Object.entries(tiers).forEach(([qty, price]) => {
+            const key = `zaproszenia-${formatKey.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`;
+            if (!(key in base)) {
+              base[key] = Number(price);
+            }
+          });
+        });
+      });
+    });
+  }
+
+  return base;
 }
 
 /** Czytelne opisy polskie dla każdego klucza cennika */
@@ -206,10 +227,51 @@ const PRICE_LABELS: Record<string, string> = {
   // Dopłaty globalne
   "modifier-satyna": "Dopłata papier satynowy (mnożnik, 0.12 = +12%)",
   "modifier-express": "Dopłata tryb express (mnożnik, 0.20 = +20%)",
+  "modifier-modigliani": "Dopłata papier Modigliani (mnożnik, 0.20 = +20%)",
 };
+
+function humanizeSegment(value: string): string {
+  return value
+    .replace(/\+/g, " plus")
+    .split("-")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
 
 function getPriceLabel(key: string): string {
   if (PRICE_LABELS[key]) return PRICE_LABELS[key];
+
+  const dyplomyMatch = key.match(/^dyplomy-qty-(\d+)$/);
+  if (dyplomyMatch) {
+    return `Dyplomy – ${dyplomyMatch[1]} szt.`;
+  }
+
+  const ulotkiJedMatch = key.match(/^ulotki-jed-(a6|a5|dl)-(\d+)$/);
+  if (ulotkiJedMatch) {
+    return `Ulotki jednostronne ${ulotkiJedMatch[1].toUpperCase()} – ${ulotkiJedMatch[2]} szt.`;
+  }
+
+  const ulotkiDwuMatch = key.match(/^ulotki-dwu-(a6|a5|dl)-(\d+)$/);
+  if (ulotkiDwuMatch) {
+    return `Ulotki dwustronne ${ulotkiDwuMatch[1].toUpperCase()} – ${ulotkiDwuMatch[2]} szt.`;
+  }
+
+  const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|folded)-(\d+)$/);
+  if (zaproszeniaMatch) {
+    const sidesLabel = zaproszeniaMatch[2] === "single" ? "jednostronne" : "dwustronne";
+    const foldLabel = zaproszeniaMatch[3] === "folded" ? "łamane" : "bez łamania";
+    return `Zaproszenia KREDA ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel}, ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
+  }
+
+  if (key.startsWith("artykuly-")) {
+    return `Artykuły biurowe – ${humanizeSegment(key.replace("artykuly-", ""))}`;
+  }
+
+  if (key.startsWith("uslugi-")) {
+    return `Usługi – ${humanizeSegment(key.replace("uslugi-", ""))}`;
+  }
+
   return key.replace(/-/g, " ");
 }
 
@@ -293,6 +355,30 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     prefixes: ["wizytowki-"],
     description: "Ceny wizytówek standard i z folią dla obu formatów.",
     newKeyPrefix: "wizytowki-85x55-none-"
+  },
+  {
+    id: "zaproszenia",
+    label: "Zaproszenia KREDA",
+    icon: "💌",
+    prefixes: ["zaproszenia-"],
+    description: "Ceny zaproszeń KREDA (format, strony, łamanie, ilość).",
+    newKeyPrefix: "zaproszenia-a6-single-normal-"
+  },
+  {
+    id: "ulotki",
+    label: "Ulotki cyfrowe",
+    icon: "📄",
+    prefixes: ["ulotki-jed-", "ulotki-dwu-"],
+    description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",
+    newKeyPrefix: "ulotki-jed-a6-"
+  },
+  {
+    id: "dyplomy",
+    label: "Dyplomy",
+    icon: "🎓",
+    prefixes: ["dyplomy-qty-"],
+    description: "Ceny dyplomów wg progów ilościowych.",
+    newKeyPrefix: "dyplomy-qty-"
   },
   {
     id: "artykuly",

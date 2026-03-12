@@ -1,4 +1,5 @@
 import { getPrice } from "../services/priceService";
+import { resolveStoredPrice } from "../core/compat";
 
 const pricingData: any = getPrice("zaproszeniaKreda");
 
@@ -30,29 +31,33 @@ function getBasePrice(format: string, qty: number, sides: number, isFolded: bool
     .map(Number)
     .sort((a, b) => a - b);
 
-  let selectedPrice = tiers[String(sortedKeys[0])];
+  let selectedTierQty = sortedKeys[0];
+  let selectedPrice = tiers[String(selectedTierQty)];
   for (const tier of sortedKeys) {
     if (qty >= tier) {
+      selectedTierQty = tier;
       selectedPrice = tiers[String(tier)];
     } else {
       break;
     }
   }
 
-  return selectedPrice;
+  return resolveStoredPrice(`zaproszenia-${format.toLowerCase()}-${sidesKey}-${foldKey}-${selectedTierQty}`, selectedPrice);
 }
 
 export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): ZaproszeniaKredaResult {
   const basePrice = getBasePrice(options.format, options.qty, options.sides, options.isFolded);
+  const satinRate = resolveStoredPrice("modifier-satyna", pricingData.modifiers.satin);
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+  const expressRate = resolveStoredPrice("modifier-express", pricingData.modifiers.express);
 
   let multiplier = 1;
   if (options.isModigliani) {
-    // Modigliani = Satyna * 1.20, czyli bazowa * 1.344
-    multiplier += 0.344;
+    multiplier += satinRate + (1 + satinRate) * modiglianiRate;
   } else if (options.isSatin) {
-    multiplier += pricingData.modifiers.satin;
+    multiplier += satinRate;
   }
-  if (options.express) multiplier += pricingData.modifiers.express;
+  if (options.express) multiplier += expressRate;
 
   const totalPrice = parseFloat((basePrice * multiplier).toFixed(2));
   return { basePrice, totalPrice };
