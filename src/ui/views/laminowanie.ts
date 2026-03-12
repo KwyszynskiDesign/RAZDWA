@@ -106,7 +106,9 @@ export const LaminowanieView: View = {
     const calculateBtn = container.querySelector("#lam-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#lam-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#lam-result-display") as HTMLElement;
+    const unitPriceSpan = container.querySelector("#lam-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#lam-total-price") as HTMLElement;
+    const qtyHintSpan = container.querySelector("#lam-qty-hint") as HTMLElement;
     const expressHint = container.querySelector("#lam-express-hint") as HTMLElement;
 
     let currentResult: any = null;
@@ -127,6 +129,8 @@ export const LaminowanieView: View = {
           currentResult = result;
 
           totalPriceSpan.innerText = formatPLN(result.totalPrice);
+          if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.totalPrice / qty);
+          if (qtyHintSpan) qtyHintSpan.innerText = `${qty} szt × ${formatPLN(result.totalPrice / qty)}, format: ${currentOptions.format}`;
           if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
           resultDisplay.style.display = "block";
           addToCartBtn.disabled = false;

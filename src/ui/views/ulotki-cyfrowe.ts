@@ -28,6 +28,7 @@ export const UlotkiCyfroweView: View = {
     const addToCartBtn = container.querySelector("#u-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#u-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#u-total-price") as HTMLElement;
+    const unitPriceSpan = container.querySelector("#u-unit-price") as HTMLElement | null;
     const tierHint = container.querySelector("#u-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
@@ -89,7 +90,8 @@ export const UlotkiCyfroweView: View = {
         currentResult = { ...result, totalPrice, isSatin };
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
-        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt użyto ceny ${result.totalPrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
+        if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
+        if (tierHint) tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${result.totalPrice.toFixed(2)} zł`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         resultDisplay.style.display = "block";

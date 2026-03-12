@@ -39,6 +39,8 @@ export const DrukCADView: View = {
     const resultDisplay = container.querySelector("#cad-result-display") as HTMLElement;
     const priceTypeSpan = container.querySelector("#cad-price-type") as HTMLElement;
     const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement;
+    const unitPriceSpan = container.querySelector("#cad-unit-price") as HTMLElement | null;
+    const qtyHintSpan = container.querySelector("#cad-qty-hint") as HTMLElement | null;
     const grandTotalSpan = container.querySelector("#cad-grand-total") as HTMLElement | null;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
 
@@ -188,7 +190,13 @@ export const DrukCADView: View = {
         const result = calculateDrukCAD(currentOptions, data);
         currentResult = result;
 
-        priceTypeSpan.innerText = result.isMeter ? "Cena metrowa:" : "Cena formatowa:";
+        priceTypeSpan.innerText = result.isMeter ? "Cena za mb:" : "Cena za szt:";
+        if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.rate ?? 0);
+        if (qtyHintSpan) {
+          const qty = currentOptions.qty || 1;
+          const unit = result.isMeter ? "mb" : "szt";
+          qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${currentOptions.format}`;
+        }
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";

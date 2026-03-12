@@ -39,6 +39,8 @@ export const PlakatyView: View = {
     const resultBox     = container.querySelector("#p-result-display") as HTMLElement;
     const unitPriceEl   = container.querySelector("#p-unit-price") as HTMLElement;
     const totalPriceEl  = container.querySelector("#p-total-price") as HTMLElement;
+    const qtyLabel      = container.querySelector("#p-qty-label") as HTMLElement | null;
+    const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
 
     // Populate material select
@@ -119,6 +121,8 @@ export const PlakatyView: View = {
           currentOptions = { type: "m2", matId, area, qty };
           unitPriceEl.innerText = formatPLN(res.tierPrice);
           totalPriceEl.innerText = formatPLN(res.totalPrice);
+          if (qtyLabel) qtyLabel.innerText = "Powierzchnia:";
+          if (qtyValEl) qtyValEl.innerText = `${qty} szt × ${area} m²${res.effectiveM2 > area * qty ? " (min.)" : ""}`;
         } else {
           const fmt = formatSelect.value;
           const qty = parseInt(qtyInput.value, 10) || 1;
@@ -130,6 +134,8 @@ export const PlakatyView: View = {
           currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
           unitPriceEl.innerText = formatPLN(res.pricePerPiece);
           totalPriceEl.innerText = formatPLN(res.totalPrice);
+          if (qtyLabel) qtyLabel.innerText = "Ilość:";
+          if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
         }
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultBox.style.display = "block";

@@ -26,6 +26,7 @@ export const BannerView: View = {
     const resultDisplay = container.querySelector("#b-result-display") as HTMLElement;
     const unitPriceSpan = container.querySelector("#b-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#b-total-price") as HTMLElement;
+    const areaValSpan = container.querySelector("#b-area-val") as HTMLElement | null;
     const expressHint = container.querySelector("#b-express-hint") as HTMLElement;
 
     let currentResult: any = null;
@@ -45,6 +46,7 @@ export const BannerView: View = {
 
         unitPriceSpan.innerText = formatPLN(result.tierPrice);
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
+        if (areaValSpan) areaValSpan.innerText = `${currentOptions.areaM2} m²`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;

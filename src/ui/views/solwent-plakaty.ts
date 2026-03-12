@@ -33,6 +33,7 @@ export const SolwentPlakatyView: View = {
     const resultDisplay = container.querySelector("#result-display") as HTMLElement;
     const unitPriceSpan = container.querySelector("#unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#total-price") as HTMLElement;
+    const areaValSpan = container.querySelector("#area-val") as HTMLElement | null;
     const expressHint = container.querySelector("#express-hint") as HTMLElement;
 
     let currentResult: any = null;
@@ -50,6 +51,7 @@ export const SolwentPlakatyView: View = {
 
         unitPriceSpan.innerText = formatPLN(result.tierPrice);
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
+        if (areaValSpan) areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
