@@ -1176,7 +1176,19 @@ button.ghost:hover {
 }
 
 .settings-th-key {
-  min-width: 360px;
+  min-width: 160px;
+  width: 200px;
+}
+
+.settings-th-product,
+.settings-td-product {
+  min-width: 240px;
+}
+
+.settings-product-label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.4;
 }
 
 .settings-th-price,

@@ -1,6 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
 import { getPrice, setPrice, resetPrices, PRICES_STORAGE_KEY } from "../../services/priceService";
-import { getOrderExportConfig, setOrderExportConfig } from "../../services/orderExportService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -17,6 +16,201 @@ let _cleanup: (() => void) | null = null;
 
 function loadPrices(): Record<string, number> {
   return { ...(getPrice("defaultPrices") as Record<string, number>) };
+}
+
+/** Czytelne opisy polskie dla każdego klucza cennika */
+const PRICE_LABELS: Record<string, string> = {
+  // Druk A4/A3 czarno-biały
+  "druk-bw-a4-1-5": "Druk czarno-biały A4 – 1–5 szt.",
+  "druk-bw-a4-6-20": "Druk czarno-biały A4 – 6–20 szt.",
+  "druk-bw-a4-21-100": "Druk czarno-biały A4 – 21–100 szt.",
+  "druk-bw-a4-101-500": "Druk czarno-biały A4 – 101–500 szt.",
+  "druk-bw-a4-501-999": "Druk czarno-biały A4 – 501–999 szt.",
+  "druk-bw-a4-1000-4999": "Druk czarno-biały A4 – 1 000–4 999 szt.",
+  "druk-bw-a4-5000+": "Druk czarno-biały A4 – 5 000+ szt.",
+  "druk-bw-a3-1-5": "Druk czarno-biały A3 – 1–5 szt.",
+  "druk-bw-a3-6-20": "Druk czarno-biały A3 – 6–20 szt.",
+  "druk-bw-a3-21-100": "Druk czarno-biały A3 – 21–100 szt.",
+  "druk-bw-a3-101-500": "Druk czarno-biały A3 – 101–500 szt.",
+  "druk-bw-a3-501-999": "Druk czarno-biały A3 – 501–999 szt.",
+  "druk-bw-a3-1000-4999": "Druk czarno-biały A3 – 1 000–4 999 szt.",
+  "druk-bw-a3-5000+": "Druk czarno-biały A3 – 5 000+ szt.",
+  // Druk A4/A3 kolor
+  "druk-kolor-a4-1-10": "Druk kolor A4 – 1–10 szt.",
+  "druk-kolor-a4-11-40": "Druk kolor A4 – 11–40 szt.",
+  "druk-kolor-a4-41-100": "Druk kolor A4 – 41–100 szt.",
+  "druk-kolor-a4-101-250": "Druk kolor A4 – 101–250 szt.",
+  "druk-kolor-a4-251-500": "Druk kolor A4 – 251–500 szt.",
+  "druk-kolor-a4-501-999": "Druk kolor A4 – 501–999 szt.",
+  "druk-kolor-a4-1000+": "Druk kolor A4 – 1 000+ szt.",
+  "druk-kolor-a3-1-10": "Druk kolor A3 – 1–10 szt.",
+  "druk-kolor-a3-11-40": "Druk kolor A3 – 11–40 szt.",
+  "druk-kolor-a3-41-100": "Druk kolor A3 – 41–100 szt.",
+  "druk-kolor-a3-101-250": "Druk kolor A3 – 101–250 szt.",
+  "druk-kolor-a3-251-500": "Druk kolor A3 – 251–500 szt.",
+  "druk-kolor-a3-501-999": "Druk kolor A3 – 501–999 szt.",
+  "druk-kolor-a3-1000+": "Druk kolor A3 – 1 000+ szt.",
+  // Skanowanie
+  "skan-auto-1-9": "Skanowanie automatyczne – 1–9 stron",
+  "skan-auto-10-49": "Skanowanie automatyczne – 10–49 stron",
+  "skan-auto-50-99": "Skanowanie automatyczne – 50–99 stron",
+  "skan-auto-100+": "Skanowanie automatyczne – 100+ stron",
+  "skan-reczne-1-4": "Skanowanie ręczne – 1–4 strony",
+  "skan-reczne-5+": "Skanowanie ręczne – 5+ stron",
+  "druk-email": "Dopłata za wysłanie pliku e-mailem",
+  "modifier-druk-zadruk25": "Dopłata za duże plamy koloru (zadruk >25%)",
+  // CAD wielkoformatowy kolor
+  "druk-cad-kolor-fmt-a3": "CAD kolor formatowy – A3",
+  "druk-cad-kolor-fmt-a2": "CAD kolor formatowy – A2",
+  "druk-cad-kolor-fmt-a1": "CAD kolor formatowy – A1",
+  "druk-cad-kolor-fmt-a0": "CAD kolor formatowy – A0",
+  "druk-cad-kolor-fmt-a0plus": "CAD kolor formatowy – A0+",
+  "druk-cad-kolor-mb-a3": "CAD kolor metr bieżący – A3",
+  "druk-cad-kolor-mb-a2": "CAD kolor metr bieżący – A2",
+  "druk-cad-kolor-mb-a1": "CAD kolor metr bieżący – A1",
+  "druk-cad-kolor-mb-a0": "CAD kolor metr bieżący – A0",
+  "druk-cad-kolor-mb-a0plus": "CAD kolor metr bieżący – A0+",
+  "druk-cad-kolor-mb-mb1067": "CAD kolor metr bieżący – rolka 1067 mm",
+  // CAD wielkoformatowy czarno-biały
+  "druk-cad-bw-fmt-a3": "CAD czarno-biały formatowy – A3",
+  "druk-cad-bw-fmt-a2": "CAD czarno-biały formatowy – A2",
+  "druk-cad-bw-fmt-a1": "CAD czarno-biały formatowy – A1",
+  "druk-cad-bw-fmt-a0": "CAD czarno-biały formatowy – A0",
+  "druk-cad-bw-fmt-a0plus": "CAD czarno-biały formatowy – A0+",
+  "druk-cad-bw-mb-a3": "CAD czarno-biały metr bieżący – A3",
+  "druk-cad-bw-mb-a2": "CAD czarno-biały metr bieżący – A2",
+  "druk-cad-bw-mb-a1": "CAD czarno-biały metr bieżący – A1",
+  "druk-cad-bw-mb-a0": "CAD czarno-biały metr bieżący – A0",
+  "druk-cad-bw-mb-a0plus": "CAD czarno-biały metr bieżący – A0+",
+  "druk-cad-bw-mb-mb1067": "CAD czarno-biały metr bieżący – rolka 1067 mm",
+  // Laminowanie
+  "laminowanie-a3-1-50": "Laminowanie A3 – 1–50 szt.",
+  "laminowanie-a3-51-100": "Laminowanie A3 – 51–100 szt.",
+  "laminowanie-a3-101-200": "Laminowanie A3 – 101–200 szt.",
+  "laminowanie-a4-1-50": "Laminowanie A4 – 1–50 szt.",
+  "laminowanie-a4-51-100": "Laminowanie A4 – 51–100 szt.",
+  "laminowanie-a4-101-200": "Laminowanie A4 – 101–200 szt.",
+  "laminowanie-a5-1-50": "Laminowanie A5 – 1–50 szt.",
+  "laminowanie-a5-51-100": "Laminowanie A5 – 51–100 szt.",
+  "laminowanie-a5-101-200": "Laminowanie A5 – 101–200 szt.",
+  "laminowanie-a6-1-50": "Laminowanie A6 – 1–50 szt.",
+  "laminowanie-a6-51-100": "Laminowanie A6 – 51–100 szt.",
+  "laminowanie-a6-101-200": "Laminowanie A6 – 101–200 szt.",
+  // Solwent / plakaty
+  "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",
+  "solwent-150g-4-9": "Solwent 150g półmat – 4–9 m²",
+  "solwent-150g-10-20": "Solwent 150g półmat – 10–20 m²",
+  "solwent-150g-21-40": "Solwent 150g półmat – 21–40 m²",
+  "solwent-150g-41+": "Solwent 150g półmat – 41+ m²",
+  "solwent-200g-1-3": "Solwent 200g połysk – 1–3 m²",
+  "solwent-200g-4-9": "Solwent 200g połysk – 4–9 m²",
+  "solwent-200g-10-20": "Solwent 200g połysk – 10–20 m²",
+  "solwent-200g-21-40": "Solwent 200g połysk – 21–40 m²",
+  "solwent-200g-41+": "Solwent 200g połysk – 41+ m²",
+  "solwent-115g-1-3": "Solwent 115g matowy – 1–3 m²",
+  "solwent-115g-4-19": "Solwent 115g matowy – 4–19 m²",
+  "solwent-115g-20+": "Solwent 115g matowy – 20+ m²",
+  // Vouchery jednostronne
+  "vouchery-1-jed": "Voucher jednostronny – 1 szt.",
+  "vouchery-2-jed": "Voucher jednostronny – 2 szt.",
+  "vouchery-3-jed": "Voucher jednostronny – 3 szt.",
+  "vouchery-4-jed": "Voucher jednostronny – 4 szt.",
+  "vouchery-5-jed": "Voucher jednostronny – 5 szt.",
+  "vouchery-6-jed": "Voucher jednostronny – 6 szt.",
+  "vouchery-7-jed": "Voucher jednostronny – 7 szt.",
+  "vouchery-8-jed": "Voucher jednostronny – 8 szt.",
+  "vouchery-9-jed": "Voucher jednostronny – 9 szt.",
+  "vouchery-10-jed": "Voucher jednostronny – 10 szt.",
+  "vouchery-15-jed": "Voucher jednostronny – 15 szt.",
+  "vouchery-20-jed": "Voucher jednostronny – 20 szt.",
+  "vouchery-25-jed": "Voucher jednostronny – 25 szt.",
+  "vouchery-30-jed": "Voucher jednostronny – 30 szt.",
+  // Vouchery dwustronne
+  "vouchery-1-dwu": "Voucher dwustronny – 1 szt.",
+  "vouchery-2-dwu": "Voucher dwustronny – 2 szt.",
+  "vouchery-3-dwu": "Voucher dwustronny – 3 szt.",
+  "vouchery-4-dwu": "Voucher dwustronny – 4 szt.",
+  "vouchery-5-dwu": "Voucher dwustronny – 5 szt.",
+  "vouchery-6-dwu": "Voucher dwustronny – 6 szt.",
+  "vouchery-7-dwu": "Voucher dwustronny – 7 szt.",
+  "vouchery-8-dwu": "Voucher dwustronny – 8 szt.",
+  "vouchery-9-dwu": "Voucher dwustronny – 9 szt.",
+  "vouchery-10-dwu": "Voucher dwustronny – 10 szt.",
+  "vouchery-15-dwu": "Voucher dwustronny – 15 szt.",
+  "vouchery-20-dwu": "Voucher dwustronny – 20 szt.",
+  "vouchery-25-dwu": "Voucher dwustronny – 25 szt.",
+  "vouchery-30-dwu": "Voucher dwustronny – 30 szt.",
+  // Banner
+  "banner-powlekany-1-25": "Banner powlekany (standardowy) – 1–25 m²",
+  "banner-powlekany-26-50": "Banner powlekany (standardowy) – 26–50 m²",
+  "banner-powlekany-51+": "Banner powlekany (standardowy) – 51+ m²",
+  "banner-blockout-1-25": "Banner blockout (nieprzeźroczysty) – 1–25 m²",
+  "banner-blockout-26-50": "Banner blockout (nieprzeźroczysty) – 26–50 m²",
+  "banner-blockout-51+": "Banner blockout (nieprzeźroczysty) – 51+ m²",
+  "banner-oczkowanie": "Dopłata za oczkowanie (cena za oczko)",
+  // Roll-up
+  "rollup-85x200-1-5": "Roll-up 85×200 cm – 1–5 szt.",
+  "rollup-85x200-6-10": "Roll-up 85×200 cm – 6–10 szt.",
+  "rollup-100x200-1-5": "Roll-up 100×200 cm – 1–5 szt.",
+  "rollup-100x200-6-10": "Roll-up 100×200 cm – 6–10 szt.",
+  "rollup-120x200-1-5": "Roll-up 120×200 cm – 1–5 szt.",
+  "rollup-120x200-6-10": "Roll-up 120×200 cm – 6–10 szt.",
+  "rollup-150x200-1-5": "Roll-up 150×200 cm – 1–5 szt.",
+  "rollup-150x200-6-10": "Roll-up 150×200 cm – 6–10 szt.",
+  "rollup-wymiana-labor": "Wymiana wkładu roll-up – robocizna",
+  "rollup-wymiana-m2": "Wymiana wkładu roll-up – druk za m²",
+  // Folia szroniona
+  "folia-szroniona-wydruk-1-5": "Folia szroniona wydruk – 1–5 m²",
+  "folia-szroniona-wydruk-6-25": "Folia szroniona wydruk – 6–25 m²",
+  "folia-szroniona-wydruk-26-50": "Folia szroniona wydruk – 26–50 m²",
+  "folia-szroniona-wydruk-51+": "Folia szroniona wydruk – 51+ m²",
+  "folia-szroniona-oklejanie-1-5": "Folia szroniona oklejanie – 1–5 m²",
+  "folia-szroniona-oklejanie-6-10": "Folia szroniona oklejanie – 6–10 m²",
+  "folia-szroniona-oklejanie-11-20": "Folia szroniona oklejanie – 11–20 m²",
+  // Wlepki / naklejki
+  "wlepki-obrys-folia-1-5": "Naklejki wycinane po obrysie – 1–5 m²",
+  "wlepki-obrys-folia-6-25": "Naklejki wycinane po obrysie – 6–25 m²",
+  "wlepki-obrys-folia-26-50": "Naklejki wycinane po obrysie – 26–50 m²",
+  "wlepki-obrys-folia-51+": "Naklejki wycinane po obrysie – 51+ m²",
+  "wlepki-polipropylen-1-10": "Naklejki polipropylenowe – 1–10 m²",
+  "wlepki-polipropylen-11+": "Naklejki polipropylenowe – 11+ m²",
+  "wlepki-standard-folia-1-5": "Naklejki standardowe folia – 1–5 m²",
+  "wlepki-standard-folia-6-25": "Naklejki standardowe folia – 6–25 m²",
+  "wlepki-standard-folia-26-50": "Naklejki standardowe folia – 26–50 m²",
+  "wlepki-standard-folia-51+": "Naklejki standardowe folia – 51+ m²",
+  "wlepki-modifier-arkusze": "Naklejki – cena za arkusz (m²)",
+  "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
+  "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
+  // Wizytówki 85×55
+  "wizytowki-85x55-none-50szt": "Wizytówki 85×55 mm bez laminatu – 50 szt.",
+  "wizytowki-85x55-none-100szt": "Wizytówki 85×55 mm bez laminatu – 100 szt.",
+  "wizytowki-85x55-none-250szt": "Wizytówki 85×55 mm bez laminatu – 250 szt.",
+  "wizytowki-85x55-none-500szt": "Wizytówki 85×55 mm bez laminatu – 500 szt.",
+  "wizytowki-85x55-none-1000szt": "Wizytówki 85×55 mm bez laminatu – 1 000 szt.",
+  "wizytowki-85x55-matt_gloss-50szt": "Wizytówki 85×55 mm z laminatem mat/błysk – 50 szt.",
+  "wizytowki-85x55-matt_gloss-100szt": "Wizytówki 85×55 mm z laminatem mat/błysk – 100 szt.",
+  "wizytowki-85x55-matt_gloss-250szt": "Wizytówki 85×55 mm z laminatem mat/błysk – 250 szt.",
+  "wizytowki-85x55-matt_gloss-500szt": "Wizytówki 85×55 mm z laminatem mat/błysk – 500 szt.",
+  "wizytowki-85x55-matt_gloss-1000szt": "Wizytówki 85×55 mm z laminatem mat/błysk – 1 000 szt.",
+  // Wizytówki 90×50
+  "wizytowki-90x50-none-50szt": "Wizytówki 90×50 mm bez laminatu – 50 szt.",
+  "wizytowki-90x50-none-100szt": "Wizytówki 90×50 mm bez laminatu – 100 szt.",
+  "wizytowki-90x50-none-250szt": "Wizytówki 90×50 mm bez laminatu – 250 szt.",
+  "wizytowki-90x50-none-500szt": "Wizytówki 90×50 mm bez laminatu – 500 szt.",
+  "wizytowki-90x50-none-1000szt": "Wizytówki 90×50 mm bez laminatu – 1 000 szt.",
+  "wizytowki-90x50-matt_gloss-50szt": "Wizytówki 90×50 mm z laminatem mat/błysk – 50 szt.",
+  "wizytowki-90x50-matt_gloss-100szt": "Wizytówki 90×50 mm z laminatem mat/błysk – 100 szt.",
+  "wizytowki-90x50-matt_gloss-250szt": "Wizytówki 90×50 mm z laminatem mat/błysk – 250 szt.",
+  "wizytowki-90x50-matt_gloss-500szt": "Wizytówki 90×50 mm z laminatem mat/błysk – 500 szt.",
+  "wizytowki-90x50-matt_gloss-1000szt": "Wizytówki 90×50 mm z laminatem mat/błysk – 1 000 szt.",
+  // Dopłaty globalne
+  "modifier-satyna": "Dopłata papier satynowy (mnożnik, 0.12 = +12%)",
+  "modifier-express": "Dopłata tryb express (mnożnik, 0.20 = +20%)",
+};
+
+function getPriceLabel(key: string): string {
+  if (PRICE_LABELS[key]) return PRICE_LABELS[key];
+  return key.replace(/-/g, " ");
 }
 
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
@@ -175,7 +369,6 @@ export const UstawieniaView: View = {
     }
 
     let prices = loadPrices();
-    let exportCfg = getOrderExportConfig();
     let renderedCategories = getRenderedCategories(prices);
     let activeCategory = renderedCategories[0]?.id ?? "druk-a4-a3";
 
@@ -271,7 +464,7 @@ export const UstawieniaView: View = {
       if (keys.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="3" class="settings-empty-state">
+            <td colspan="4" class="settings-empty-state">
               W tej kategorii nie ma jeszcze pozycji. Możesz dodać nową cenę przyciskiem poniżej.
             </td>
           </tr>
@@ -283,6 +476,9 @@ export const UstawieniaView: View = {
         <tr data-key="${escapeHtml(key)}">
           <td class="settings-td-key">
             <input data-field="key" value="${escapeHtml(key)}" class="settings-input settings-input--mono">
+          </td>
+          <td class="settings-td-product">
+            <span class="settings-product-label">${escapeHtml(getPriceLabel(key))}</span>
           </td>
           <td class="settings-td-price">
             <input data-field="unitPrice" type="number" step="0.01" min="0" value="${Number(prices[key]).toFixed(2)}" class="settings-input settings-input--price">
@@ -332,6 +528,7 @@ export const UstawieniaView: View = {
             <thead>
               <tr>
                 <th class="settings-th-key">Klucz cennika</th>
+                <th class="settings-th-product">Produkt / opis</th>
                 <th class="settings-th-price">Cena (zł)</th>
                 <th class="settings-th-del">Usuń</th>
               </tr>
@@ -340,18 +537,6 @@ export const UstawieniaView: View = {
           </table>
         </div>
 
-        <div class="settings-apps-panel">
-          <h3 class="settings-apps-title">🔗 Integracja Google Sheets (Apps Script)</h3>
-          <p class="settings-apps-desc">Wklej URL Web App z Apps Script. Przycisk „Wyślij” zapisze zamówienie bezpośrednio do arkusza.</p>
-          <div class="settings-apps-grid">
-            <input id="apps-script-url" type="url" value="${escapeHtml(exportCfg.appsScriptUrl || "")}" placeholder="https://script.google.com/macros/s/.../exec" class="settings-input">
-            <input id="apps-script-timeout" type="number" min="1000" step="500" value="${Number(exportCfg.timeoutMs || 15000)}" class="settings-input settings-input--price" placeholder="Timeout ms">
-          </div>
-          <label class="settings-apps-check">
-            <input id="apps-script-enabled" type="checkbox" ${exportCfg.enabled ? "checked" : ""}>
-            Aktywuj wysyłkę do Apps Script
-          </label>
-        </div>
 
         <div class="settings-actions">
           <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj pozycję</button>
@@ -383,20 +568,9 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-save")?.addEventListener("click", () => {
       flushInputs();
       setPrice("defaultPrices", prices);
-
-      const appsScriptUrl = (container.querySelector("#apps-script-url") as HTMLInputElement | null)?.value?.trim() || "";
-      const timeoutMs = Number.parseInt((container.querySelector("#apps-script-timeout") as HTMLInputElement | null)?.value || "15000", 10);
-      const enabled = Boolean((container.querySelector("#apps-script-enabled") as HTMLInputElement | null)?.checked);
-
-      exportCfg = setOrderExportConfig({
-        appsScriptUrl,
-        timeoutMs: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 15000,
-        enabled,
-      });
-
       renderTabs();
       renderTable();
-      showStatus("✓ Zapisano ustawienia cen i integracji Apps Script.");
+      showStatus("✓ Zapisano ceny.");
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
