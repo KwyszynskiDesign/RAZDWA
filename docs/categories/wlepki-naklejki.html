@@ -5,6 +5,14 @@
 
     <div class="calculator-form card">
         <div class="form-group">
+            <label for="wlepki-mode">Tryb wyceny:</label>
+            <select id="wlepki-mode" class="form-control">
+                <option value="m2">Wlepki / naklejki (m²)</option>
+                <option value="szt">Folia/Papier samoprzylepne (szt)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="wlepki-group">Rodzaj:</label>
             <select id="wlepki-group" class="form-control">
                 <option value="wlepki_obrys_folia">Wlepki po obrysie (Folia Biała/Trans)</option>
@@ -13,13 +21,26 @@
             </select>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" id="wlepki-piece-group" style="display:none;">
+            <label for="wlepki-piece-table">Tabela sztukowa:</label>
+            <select id="wlepki-piece-table" class="form-control">
+                <option value="papier-sra3">Papier SRA3 (papier z klejem mat/błysk)</option>
+                <option value="folia-sra3">Folia SRA3 (folia biała / bezbarwna)</option>
+                <option value="plotowane-papier">Plotowane + cięte na sztuki (papier)</option>
+                <option value="plotowane-folia">Plotowane + cięte na sztuki (folia)</option>
+            </select>
+            <label for="wlepki-piece-qty" style="margin-top:10px;">Ilość (szt):</label>
+            <input type="number" id="wlepki-piece-qty" class="form-control" value="1" min="1" step="1">
+            <small class="form-text">Dostępne progi: 1-10, 15, 20, 25, 30 szt.</small>
+        </div>
+
+        <div class="form-group" id="wlepki-area-group">
             <label for="wlepki-area">Powierzchnia (m2):</label>
             <input type="number" id="wlepki-area" class="form-control" value="1" min="0.1" step="0.1">
             <small class="form-text">Minimalnie 1m2 (minimalka).</small>
         </div>
 
-        <div class="form-group modifiers-list">
+        <div class="form-group modifiers-list" id="wlepki-modifiers-group">
             <label>Opcje dodatkowe:</label>
             <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
                 <label class="wlepki-option">
@@ -46,11 +67,11 @@
 
     <div id="wlepki-result" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span>Cena za m2:</span>
+            <span id="wlepki-unit-label">Cena za m2:</span>
             <span id="unit-price" class="price-value">0,00 zł</span>
         </div>
         <div class="result-row">
-            <span>Baza (rozliczone m²):</span>
+            <span id="wlepki-base-label">Baza (rozliczone m²):</span>
             <span id="base-price" class="price-value">0,00 zł</span>
         </div>
         <div id="modifiers-breakdown" style="margin-top: 8px;"></div>

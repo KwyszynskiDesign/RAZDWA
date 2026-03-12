@@ -10,6 +10,7 @@
   <button class="tab-btn active" data-tab="laminowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid #2B8A3E;">Laminowanie</button>
   <button class="tab-btn" data-tab="bindowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Bindowanie</button>
   <button class="tab-btn" data-tab="oprawy" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Oprawy</button>
+  <button class="tab-btn" data-tab="introligatornia" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Introligatornia</button>
 </div>
 
 <!-- TAB: LAMINOWANIE -->
@@ -137,6 +138,43 @@
         <span>Cena:</span>
         <span id="opr-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: INTROLIGATORNIA -->
+<div class="tab-content" id="tab-introligatornia" style="display:none;">
+  <h3>Introligatornia</h3>
+  <div class="form">
+    <div class="row">
+      <label for="intro-service">Usługa:</label>
+      <select id="intro-service">
+        <option value="gilotyna">Cięcie na gilotynie</option>
+        <option value="trymer">Cięcie ręczne (trymer)</option>
+        <option value="druk-powyzej-20">Drukowanie powyżej 20 kartek</option>
+        <option value="zszywanie">Zszywanie kartek</option>
+        <option value="broszurowanie">Broszurowanie / docnianie</option>
+        <option value="bigowanie">Bigowanie</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="intro-qty">Ilość operacji:</label>
+      <input type="number" id="intro-qty" value="1" min="1">
+    </div>
+    <div class="form-actions">
+      <button id="intro-calculate" class="btn-primary">Oblicz</button>
+      <button id="intro-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+    </div>
+    <div id="intro-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena jednostkowa:</span>
+        <span id="intro-unit-price" style="font-weight: 600;">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena całkowita:</span>
+        <span id="intro-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      </div>
+      <div id="intro-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
     </div>
   </div>
 </div>

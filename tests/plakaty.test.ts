@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculatePlakatyM2, calculatePlakatyFormat } from "../src/categories/plakaty";
+import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon } from "../src/categories/plakaty";
 
 describe("calculatePlakatyM2 – solwent m² materials", () => {
   it("applies minimalka: 0.5 m² → 1 m²  @ 70 zł (200g Połysk, tier 1-3)", () => {
@@ -136,5 +136,29 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.lengthFactor).toBe(0.5);
     expect(res.effectiveUnitPrice).toBe(14);
     expect(res.totalPrice).toBe(14);
+  });
+});
+
+describe("calculatePlakatyMalyCanon – do 9 szt", () => {
+  it("z marginesem 170g, 1-3 szt -> 7 zł/szt", () => {
+    const res = calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 3 });
+    expect(res.tierPrice).toBe(7);
+    expect(res.totalPrice).toBe(21);
+  });
+
+  it("bez marginesu 200g, 4-9 szt -> 9 zł/szt", () => {
+    const res = calculatePlakatyMalyCanon({ variantId: "no-margin-200", format: "A3", qty: 9 });
+    expect(res.tierPrice).toBe(9);
+    expect(res.totalPrice).toBe(81);
+  });
+
+  it("applies express +20%", () => {
+    const res = calculatePlakatyMalyCanon({ variantId: "margin-200", format: "A4", qty: 2, express: true });
+    // 2 * 8 = 16; +20% = 19.2
+    expect(res.totalPrice).toBe(19.2);
+  });
+
+  it("throws above 9 szt", () => {
+    expect(() => calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 10 })).toThrow();
   });
 });

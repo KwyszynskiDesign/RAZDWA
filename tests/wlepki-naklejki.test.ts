@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateWlepki } from '../src/categories/wlepki-naklejki';
+import { calculateWlepki, calculateWlepkiSzt } from '../src/categories/wlepki-naklejki';
 
 describe('Wlepki / Naklejki Category', () => {
   it('should calculate Folia biała po obrysie 1-5m2 at 67zł/m2', () => {
@@ -72,5 +72,24 @@ describe('Wlepki / Naklejki Category', () => {
     // 12m2 * 42 = 504
     expect(result.tierPrice).toBe(42);
     expect(result.totalPrice).toBe(504);
+  });
+
+  it('should calculate sztukowe papier SRA3', () => {
+    const result = calculateWlepkiSzt({ tableId: 'papier-sra3', qty: 3 });
+    expect(result.unitPrice).toBe(29);
+    expect(result.totalPrice).toBe(29);
+  });
+
+  it('should calculate sztukowe with nearest higher threshold', () => {
+    const result = calculateWlepkiSzt({ tableId: 'folia-sra3', qty: 11 });
+    // next threshold is 15
+    expect(result.chargedQty).toBe(15);
+    expect(result.totalPrice).toBe(295);
+  });
+
+  it('should apply express in sztukowe mode', () => {
+    const result = calculateWlepkiSzt({ tableId: 'plotowane-folia', qty: 1, express: true });
+    // 50 * 1.2 = 60
+    expect(result.totalPrice).toBe(60);
   });
 });

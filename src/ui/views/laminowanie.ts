@@ -1,5 +1,5 @@
 import { View, ViewContext } from "../types";
-import { quoteLaminowanie } from "../../categories/laminowanie";
+import { quoteLaminowanie, quoteIntroligatornia } from "../../categories/laminowanie";
 import { formatPLN } from "../../core/money";
 
 const BINDOWANIE_PRICES = {
@@ -301,5 +301,53 @@ export const LaminowanieView: View = {
         el.addEventListener('change', performCalculation);
     });
     qtyInput.addEventListener('input', performCalculation);
+
+    const introService = container.querySelector("#intro-service") as HTMLSelectElement | null;
+    const introQty = container.querySelector("#intro-qty") as HTMLInputElement | null;
+    const introCalcBtn = container.querySelector("#intro-calculate") as HTMLButtonElement | null;
+    const introAddBtn = container.querySelector("#intro-add-to-cart") as HTMLButtonElement | null;
+    const introResultDisplay = container.querySelector("#intro-result-display") as HTMLElement | null;
+    const introUnitPrice = container.querySelector("#intro-unit-price") as HTMLElement | null;
+    const introTotalPrice = container.querySelector("#intro-total-price") as HTMLElement | null;
+    const introExpressHint = container.querySelector("#intro-express-hint") as HTMLElement | null;
+
+    let introState: ReturnType<typeof quoteIntroligatornia> | null = null;
+
+    introCalcBtn?.addEventListener("click", () => {
+      if (!introService || !introQty) return;
+      try {
+        const result = quoteIntroligatornia({
+          serviceId: introService.value,
+          qty: parseInt(introQty.value, 10) || 1,
+          express: ctx.expressMode,
+        });
+
+        introState = result;
+        if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
+        if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
+        if (introExpressHint) introExpressHint.style.display = ctx.expressMode ? "block" : "none";
+        if (introResultDisplay) introResultDisplay.style.display = "block";
+        if (introAddBtn) introAddBtn.disabled = false;
+        ctx.updateLastCalculated(result.totalPrice, "Introligatornia");
+      } catch {
+        // noop
+      }
+    });
+
+    introAddBtn?.addEventListener("click", () => {
+      if (!introState) return;
+      ctx.cart.addItem({
+        id: `intro-${Date.now()}`,
+        category: "Laminowanie",
+        name: `Introligatornia: ${introState.serviceName}`,
+        quantity: introState.qty,
+        unit: "szt",
+        unitPrice: introState.totalPrice / introState.qty,
+        isExpress: ctx.expressMode,
+        totalPrice: introState.totalPrice,
+        optionsHint: `${introState.qty} operacji${ctx.expressMode ? ", EXPRESS" : ""}`,
+        payload: introState
+      });
+    });
   }
 };

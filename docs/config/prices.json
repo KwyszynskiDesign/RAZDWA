@@ -198,6 +198,17 @@
         { "min": 51, "max": 100, "price": 2.50 },
         { "min": 101, "max": 200, "price": 2.00 }
       ]
+    },
+    "introligatornia": {
+      "unit": "szt",
+      "items": [
+        { "id": "gilotyna", "name": "Cięcie na gilotynie", "price": 0.07 },
+        { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.50 },
+        { "id": "druk-powyzej-20", "name": "Drukowanie powyżej 20 kartek", "price": 0.05 },
+        { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.30 },
+        { "id": "broszurowanie", "name": "Broszurowanie / docnianie", "price": 0.50 },
+        { "id": "bigowanie", "name": "Bigowanie", "price": 0.50 }
+      ]
     }
   },
   "vouchery": [
@@ -428,6 +439,56 @@
         ],
         "rules": [
           { "type": "minimum", "unit": "m2", "value": 1 }
+        ]
+      }
+    ],
+    "pieceTables": [
+      {
+        "id": "papier-sra3",
+        "title": "Papier SRA3 (papier z klejem mat/błysk)",
+        "unit": "szt",
+        "tiers": [
+          { "qty": 1, "price": 20 }, { "qty": 2, "price": 25 }, { "qty": 3, "price": 29 },
+          { "qty": 4, "price": 33 }, { "qty": 5, "price": 36 }, { "qty": 6, "price": 40 },
+          { "qty": 7, "price": 44 }, { "qty": 8, "price": 47 }, { "qty": 9, "price": 51 },
+          { "qty": 10, "price": 54 }, { "qty": 15, "price": 75 }, { "qty": 20, "price": 79 },
+          { "qty": 25, "price": 105 }, { "qty": 30, "price": 119 }
+        ]
+      },
+      {
+        "id": "folia-sra3",
+        "title": "Folia SRA3 (folia biała / bezbarwna)",
+        "unit": "szt",
+        "tiers": [
+          { "qty": 1, "price": 59 }, { "qty": 2, "price": 81 }, { "qty": 3, "price": 102 },
+          { "qty": 4, "price": 124 }, { "qty": 5, "price": 145 }, { "qty": 6, "price": 166 },
+          { "qty": 7, "price": 188 }, { "qty": 8, "price": 206 }, { "qty": 9, "price": 226 },
+          { "qty": 10, "price": 245 }, { "qty": 15, "price": 295 }, { "qty": 20, "price": 340 },
+          { "qty": 25, "price": 380 }, { "qty": 30, "price": 420 }
+        ]
+      },
+      {
+        "id": "plotowane-papier",
+        "title": "Plotowane + cięte na sztuki (papier)",
+        "unit": "szt",
+        "tiers": [
+          { "qty": 1, "price": 40 }, { "qty": 2, "price": 55 }, { "qty": 3, "price": 70 },
+          { "qty": 4, "price": 85 }, { "qty": 5, "price": 95 }, { "qty": 6, "price": 110 },
+          { "qty": 7, "price": 115 }, { "qty": 8, "price": 129 }, { "qty": 9, "price": 145 },
+          { "qty": 10, "price": 150 }, { "qty": 15, "price": 189 }, { "qty": 20, "price": 169 },
+          { "qty": 25, "price": 210 }, { "qty": 30, "price": 249 }
+        ]
+      },
+      {
+        "id": "plotowane-folia",
+        "title": "Plotowane + cięte na sztuki (folia)",
+        "unit": "szt",
+        "tiers": [
+          { "qty": 1, "price": 50 }, { "qty": 2, "price": 75 }, { "qty": 3, "price": 99 },
+          { "qty": 4, "price": 123 }, { "qty": 5, "price": 145 }, { "qty": 6, "price": 170 },
+          { "qty": 7, "price": 190 }, { "qty": 8, "price": 210 }, { "qty": 9, "price": 240 },
+          { "qty": 10, "price": 250 }, { "qty": 15, "price": 330 }, { "qty": 20, "price": 399 },
+          { "qty": 25, "price": 490 }, { "qty": 30, "price": 580 }
         ]
       }
     ],
@@ -810,6 +871,45 @@
         ]
       }
     },
+    "malyCanon": {
+      "unit": "szt",
+      "maxQty": 9,
+      "formats": ["A4", "A3"],
+      "variants": [
+        {
+          "id": "margin-170",
+          "name": "Z marginesem 170g",
+          "tiers": [
+            { "min": 1, "max": 3, "price": 7 },
+            { "min": 4, "max": 9, "price": 6 }
+          ]
+        },
+        {
+          "id": "margin-200",
+          "name": "Z marginesem 200g",
+          "tiers": [
+            { "min": 1, "max": 3, "price": 8 },
+            { "min": 4, "max": 9, "price": 7 }
+          ]
+        },
+        {
+          "id": "no-margin-170",
+          "name": "Bez marginesu 170g",
+          "tiers": [
+            { "min": 1, "max": 3, "price": 10 },
+            { "min": 4, "max": 9, "price": 8 }
+          ]
+        },
+        {
+          "id": "no-margin-200",
+          "name": "Bez marginesu 200g",
+          "tiers": [
+            { "min": 1, "max": 3, "price": 11 },
+            { "min": 4, "max": 9, "price": 9 }
+          ]
+        }
+      ]
+    },
     "modifiers": [
       { "id": "express", "name": "TRYB EXPRESS (+20%)", "type": "percent", "value": 0.20 }
     ],
@@ -922,6 +1022,12 @@
     "laminowanie-a6-1-50": 3.00,
     "laminowanie-a6-51-100": 2.50,
     "laminowanie-a6-101-200": 2.00,
+    "laminowanie-intro-gilotyna": 0.07,
+    "laminowanie-intro-trymer": 0.50,
+    "laminowanie-intro-druk-powyzej-20": 0.05,
+    "laminowanie-intro-zszywanie": 0.30,
+    "laminowanie-intro-broszurowanie": 0.50,
+    "laminowanie-intro-bigowanie": 0.50,
     "solwent-150g-1-3": 65.00,
     "solwent-150g-4-9": 60.00,
     "solwent-150g-10-20": 55.00,
@@ -935,6 +1041,14 @@
     "solwent-115g-1-3": 45.00,
     "solwent-115g-4-19": 40.00,
     "solwent-115g-20+": 35.00,
+    "plakaty-maly-canon-margin-170-1-3": 7.00,
+    "plakaty-maly-canon-margin-170-4-9": 6.00,
+    "plakaty-maly-canon-margin-200-1-3": 8.00,
+    "plakaty-maly-canon-margin-200-4-9": 7.00,
+    "plakaty-maly-canon-no-margin-170-1-3": 10.00,
+    "plakaty-maly-canon-no-margin-170-4-9": 8.00,
+    "plakaty-maly-canon-no-margin-200-1-3": 11.00,
+    "plakaty-maly-canon-no-margin-200-4-9": 9.00,
     "vouchery-1-jed": 20.00,
     "vouchery-2-jed": 29.00,
     "vouchery-3-jed": 30.00,
@@ -1020,6 +1134,62 @@
     "wlepki-standard-folia-6-25": 50.00,
     "wlepki-standard-folia-26-50": 46.00,
     "wlepki-standard-folia-51+": 42.00,
+    "wlepki-szt-papier-sra3-1": 20.00,
+    "wlepki-szt-papier-sra3-2": 25.00,
+    "wlepki-szt-papier-sra3-3": 29.00,
+    "wlepki-szt-papier-sra3-4": 33.00,
+    "wlepki-szt-papier-sra3-5": 36.00,
+    "wlepki-szt-papier-sra3-6": 40.00,
+    "wlepki-szt-papier-sra3-7": 44.00,
+    "wlepki-szt-papier-sra3-8": 47.00,
+    "wlepki-szt-papier-sra3-9": 51.00,
+    "wlepki-szt-papier-sra3-10": 54.00,
+    "wlepki-szt-papier-sra3-15": 75.00,
+    "wlepki-szt-papier-sra3-20": 79.00,
+    "wlepki-szt-papier-sra3-25": 105.00,
+    "wlepki-szt-papier-sra3-30": 119.00,
+    "wlepki-szt-folia-sra3-1": 59.00,
+    "wlepki-szt-folia-sra3-2": 81.00,
+    "wlepki-szt-folia-sra3-3": 102.00,
+    "wlepki-szt-folia-sra3-4": 124.00,
+    "wlepki-szt-folia-sra3-5": 145.00,
+    "wlepki-szt-folia-sra3-6": 166.00,
+    "wlepki-szt-folia-sra3-7": 188.00,
+    "wlepki-szt-folia-sra3-8": 206.00,
+    "wlepki-szt-folia-sra3-9": 226.00,
+    "wlepki-szt-folia-sra3-10": 245.00,
+    "wlepki-szt-folia-sra3-15": 295.00,
+    "wlepki-szt-folia-sra3-20": 340.00,
+    "wlepki-szt-folia-sra3-25": 380.00,
+    "wlepki-szt-folia-sra3-30": 420.00,
+    "wlepki-szt-plotowane-papier-1": 40.00,
+    "wlepki-szt-plotowane-papier-2": 55.00,
+    "wlepki-szt-plotowane-papier-3": 70.00,
+    "wlepki-szt-plotowane-papier-4": 85.00,
+    "wlepki-szt-plotowane-papier-5": 95.00,
+    "wlepki-szt-plotowane-papier-6": 110.00,
+    "wlepki-szt-plotowane-papier-7": 115.00,
+    "wlepki-szt-plotowane-papier-8": 129.00,
+    "wlepki-szt-plotowane-papier-9": 145.00,
+    "wlepki-szt-plotowane-papier-10": 150.00,
+    "wlepki-szt-plotowane-papier-15": 189.00,
+    "wlepki-szt-plotowane-papier-20": 169.00,
+    "wlepki-szt-plotowane-papier-25": 210.00,
+    "wlepki-szt-plotowane-papier-30": 249.00,
+    "wlepki-szt-plotowane-folia-1": 50.00,
+    "wlepki-szt-plotowane-folia-2": 75.00,
+    "wlepki-szt-plotowane-folia-3": 99.00,
+    "wlepki-szt-plotowane-folia-4": 123.00,
+    "wlepki-szt-plotowane-folia-5": 145.00,
+    "wlepki-szt-plotowane-folia-6": 170.00,
+    "wlepki-szt-plotowane-folia-7": 190.00,
+    "wlepki-szt-plotowane-folia-8": 210.00,
+    "wlepki-szt-plotowane-folia-9": 240.00,
+    "wlepki-szt-plotowane-folia-10": 250.00,
+    "wlepki-szt-plotowane-folia-15": 330.00,
+    "wlepki-szt-plotowane-folia-20": 399.00,
+    "wlepki-szt-plotowane-folia-25": 490.00,
+    "wlepki-szt-plotowane-folia-30": 580.00,
     "wlepki-modifier-arkusze": 2.00,
     "wlepki-modifier-pojedyncze": 10.00,
     "wlepki-modifier-mocny-klej": 0.12,

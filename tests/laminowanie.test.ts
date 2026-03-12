@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { quoteLaminowanie } from "../src/categories/laminowanie";
+import { quoteLaminowanie, quoteIntroligatornia } from "../src/categories/laminowanie";
 
 describe("Laminowanie", () => {
   it("should calculate price for A3 (1-50szt) = 7 PLN/szt", () => {
@@ -57,5 +57,32 @@ describe("Laminowanie", () => {
         qty: 10,
         express: false
     })).toThrow("Invalid format: INVALID");
+  });
+
+  it("should calculate introligatornia: gilotyna", () => {
+    const result = quoteIntroligatornia({
+      serviceId: "gilotyna",
+      qty: 10,
+      express: false
+    });
+    expect(result.totalPrice).toBe(0.7);
+  });
+
+  it("should apply express for introligatornia", () => {
+    const result = quoteIntroligatornia({
+      serviceId: "bigowanie",
+      qty: 2,
+      express: true
+    });
+    // 2 * 0.5 * 1.2 = 1.2
+    expect(result.totalPrice).toBe(1.2);
+  });
+
+  it("should throw for invalid introligatornia service", () => {
+    expect(() => quoteIntroligatornia({
+      serviceId: "invalid",
+      qty: 1,
+      express: false
+    })).toThrow();
   });
 });

@@ -1,11 +1,12 @@
 import { View, ViewContext } from "../types";
-import { calculatePlakatyM2, calculatePlakatyFormat } from "../../categories/plakaty";
+import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 
 const data: any = getPrice("plakaty");
 
 const SOLWENT_IDS = new Set(["200g-polysk", "blockout200g", "150g-polmat", "115g-mat"]);
+const CANON_IDS = new Set(["margin-170", "margin-200", "no-margin-170", "no-margin-200"]);
 
 export const PlakatyView: View = {
   id: "plakaty",
@@ -27,7 +28,10 @@ export const PlakatyView: View = {
     const materialSelect = container.querySelector("#p-material") as HTMLSelectElement;
     const formatGroup   = container.querySelector("#p-format-group") as HTMLElement;
     const m2Group       = container.querySelector("#p-m2-group") as HTMLElement;
+    const canonGroup    = container.querySelector("#p-canon-group") as HTMLElement;
     const formatSelect  = container.querySelector("#p-format") as HTMLSelectElement;
+    const canonFormatSelect = container.querySelector("#p-canon-format") as HTMLSelectElement;
+    const canonQtyInput = container.querySelector("#p-canon-qty") as HTMLInputElement;
     const lengthGroup   = container.querySelector("#p-length-group") as HTMLElement;
     const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
@@ -47,12 +51,14 @@ export const PlakatyView: View = {
     const allMaterials = [
       ...tableData.solwent.materials,
       ...tableData.formatowe.materials,
+      ...tableData.malyCanon.variants,
     ];
     materialSelect.innerHTML = allMaterials.map((m: any) =>
       `<option value="${m.id}">${m.name}</option>`
     ).join("");
 
     function isSolwent(id: string) { return SOLWENT_IDS.has(id); }
+    function isCanon(id: string) { return CANON_IDS.has(id); }
 
     function updateFormatOptions(matId: string) {
       const mat = tableData.formatowe.materials.find((m: any) => m.id === matId);
@@ -92,9 +98,15 @@ export const PlakatyView: View = {
       const matId = materialSelect.value;
       if (isSolwent(matId)) {
         formatGroup.style.display = "none";
+        canonGroup.style.display = "none";
         m2Group.style.display = "";
+      } else if (isCanon(matId)) {
+        formatGroup.style.display = "none";
+        m2Group.style.display = "none";
+        canonGroup.style.display = "";
       } else {
         formatGroup.style.display = "";
+        canonGroup.style.display = "none";
         m2Group.style.display = "none";
         updateFormatOptions(matId);
         updateLengthInput(matId);
@@ -123,6 +135,16 @@ export const PlakatyView: View = {
           totalPriceEl.innerText = formatPLN(res.totalPrice);
           if (qtyLabel) qtyLabel.innerText = "Powierzchnia:";
           if (qtyValEl) qtyValEl.innerText = `${qty} szt × ${area} m²${res.effectiveM2 > area * qty ? " (min.)" : ""}`;
+        } else if (isCanon(matId)) {
+          const qty = Math.max(1, parseInt(canonQtyInput.value, 10) || 1);
+          const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
+          const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
+          currentResult = res;
+          currentOptions = { type: "canon", matId, fmt, qty };
+          unitPriceEl.innerText = formatPLN(res.tierPrice);
+          totalPriceEl.innerText = formatPLN(res.totalPrice);
+          if (qtyLabel) qtyLabel.innerText = "Ilość:";
+          if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
         } else {
           const fmt = formatSelect.value;
           const qty = parseInt(qtyInput.value, 10) || 1;
@@ -157,6 +179,20 @@ export const PlakatyView: View = {
           name: matName,
           quantity: currentResult.effectiveM2,
           unit: "m2",
+          unitPrice: currentResult.tierPrice,
+          isExpress: ctx.expressMode,
+          totalPrice: currentResult.totalPrice,
+          optionsHint: hint,
+          payload: currentResult,
+        });
+      } else if (currentOptions.type === "canon") {
+        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+        ctx.cart.addItem({
+          id: `plakaty-${Date.now()}`,
+          category: "Plakaty",
+          name: `${matName} (mały Canon)`,
+          quantity: currentOptions.qty,
+          unit: "szt",
           unitPrice: currentResult.tierPrice,
           isExpress: ctx.expressMode,
           totalPrice: currentResult.totalPrice,

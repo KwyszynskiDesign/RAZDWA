@@ -3,6 +3,7 @@ import { calculatePrice } from "../core/pricing";
 import { formatPLN } from "../core/money";
 import { getPrice } from "../services/priceService";
 import { PriceTable } from "../core/types";
+import { resolveStoredPrice } from "../core/compat";
 
 const plakatyData: any = (getPrice("plakaty") as any).legacy200g;
 const fullData: any = getPrice("plakaty") as any;
@@ -105,6 +106,18 @@ export interface PlakatyM2Result {
   appliedModifiers: string[];
 }
 
+function resolveSolwentTierPrice(materialId: string, tier: { min: number; max: number | null; price: number }): number {
+  const suffix = tier.max === null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+  const knownPrefix: Record<string, string> = {
+    "200g-polysk": "solwent-200g",
+    "150g-polmat": "solwent-150g",
+    "115g-mat": "solwent-115g",
+    "blockout200g": "plakaty-blockout200g",
+  };
+  const key = `${knownPrefix[materialId] ?? `plakaty-${materialId}`}-${suffix}`;
+  return resolveStoredPrice(key, tier.price);
+}
+
 export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
   const data = fullData as any;
   const mat = data.solwent.materials.find((m: any) => m.id === input.materialId);
@@ -122,7 +135,9 @@ export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
   );
   if (!tier) throw new Error(`No tier for ${effectiveM2} m2`);
 
-  const basePrice = parseFloat((effectiveM2 * tier.price).toFixed(2));
+  const tierPrice = resolveSolwentTierPrice(input.materialId, tier);
+
+  const basePrice = parseFloat((effectiveM2 * tierPrice).toFixed(2));
 
   let modifiersTotal = 0;
   const appliedModifiers: string[] = [];
@@ -140,7 +155,7 @@ export function calculatePlakatyM2(input: PlakatyM2Input): PlakatyM2Result {
     areaPerPieceM2,
     totalAreaM2,
     effectiveM2,
-    tierPrice: tier.price,
+    tierPrice,
     basePrice,
     modifiersTotal,
     totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
@@ -182,8 +197,12 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
   const mat = data.formatowe.materials.find((m: any) => m.id === input.materialId);
   if (!mat) throw new Error(`Unknown format material: ${input.materialId}`);
 
-  const unitPrice: number = mat.prices[input.formatKey];
-  if (unitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
+  const baseUnitPrice: number = mat.prices[input.formatKey];
+  if (baseUnitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
+  const unitPrice = resolveStoredPrice(
+    `plakaty-format-${input.materialId}-${input.formatKey}`,
+    baseUnitPrice
+  );
 
   const dimsMatch = input.formatKey.match(/^(\d+)x(\d+)$/);
   const baseLengthMm = dimsMatch ? parseInt(dimsMatch[2], 10) : null;
@@ -228,6 +247,64 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     effectiveUnitPrice,
     discountFactor,
     pricePerPiece,
+    basePrice,
+    modifiersTotal,
+    totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
+    appliedModifiers,
+  };
+}
+
+export interface PlakatyMalyCanonInput {
+  variantId: string;
+  format: "A4" | "A3";
+  qty: number;
+  express?: boolean;
+}
+
+export interface PlakatyMalyCanonResult {
+  variantName: string;
+  format: "A4" | "A3";
+  qty: number;
+  tierPrice: number;
+  basePrice: number;
+  modifiersTotal: number;
+  totalPrice: number;
+  appliedModifiers: string[];
+}
+
+export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): PlakatyMalyCanonResult {
+  const data = fullData as any;
+  const canon = data.malyCanon;
+  const variant = canon?.variants?.find((v: any) => v.id === input.variantId);
+  if (!variant) throw new Error(`Unknown mały canon variant: ${input.variantId}`);
+
+  const qty = Math.max(1, Math.floor(input.qty));
+  if (qty > (canon.maxQty ?? 9)) {
+    throw new Error(`Maksymalna ilość dla małego Canon: ${canon.maxQty ?? 9} szt.`);
+  }
+
+  const tier = variant.tiers.find((t: any) => qty >= t.min && (t.max === null || qty <= t.max));
+  if (!tier) throw new Error(`Brak progu dla ${qty} szt.`);
+
+  const suffix = tier.max === null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+  const tierPrice = resolveStoredPrice(`plakaty-maly-canon-${input.variantId}-${suffix}`, tier.price);
+  const basePrice = parseFloat((qty * tierPrice).toFixed(2));
+
+  let modifiersTotal = 0;
+  const appliedModifiers: string[] = [];
+  if (input.express) {
+    const mod = data.modifiers.find((m: any) => m.id === "express");
+    if (mod) {
+      modifiersTotal = parseFloat((basePrice * mod.value).toFixed(2));
+      appliedModifiers.push(mod.name);
+    }
+  }
+
+  return {
+    variantName: variant.name,
+    format: input.format,
+    qty,
+    tierPrice,
     basePrice,
     modifiersTotal,
     totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),

@@ -20,5 +20,16 @@
       { "min": 51, "max": 100, "price": 2.50 },
       { "min": 101, "max": 200, "price": 2.00 }
     ]
+  },
+  "introligatornia": {
+    "unit": "szt",
+    "items": [
+      { "id": "gilotyna", "name": "Cięcie na gilotynie", "price": 0.07 },
+      { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.50 },
+      { "id": "druk-powyzej-20", "name": "Drukowanie powyżej 20 kartek", "price": 0.05 },
+      { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.30 },
+      { "id": "broszurowanie", "name": "Broszurowanie / docnianie", "price": 0.50 },
+      { "id": "bigowanie", "name": "Bigowanie", "price": 0.50 }
+    ]
   }
 }
