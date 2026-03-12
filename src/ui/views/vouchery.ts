@@ -1,6 +1,7 @@
 import { View, ViewContext } from "../types";
 import { quoteVouchery } from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const VoucheryView: View = {
   id: "vouchery",
@@ -27,6 +28,8 @@ export const VoucheryView: View = {
     const modifiersRow = container.querySelector("#v-modifiers-row") as HTMLElement;
     const modifiersTotalSpan = container.querySelector("#v-modifiers-total") as HTMLElement;
     const totalPriceSpan = container.querySelector("#v-total-price") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#v-breakdown-display") as HTMLElement;
+    const breakdownLines = container.querySelector("#v-breakdown-lines") as HTMLElement;
     const tierHint = container.querySelector("#v-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#v-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#v-satin-hint") as HTMLElement;
@@ -34,6 +37,54 @@ export const VoucheryView: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+
+    const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+    const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+    const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+    const renderBreakdown = (result: any, options: any) => {
+      const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
+      const basePrice = result.basePrice;
+
+      let satinAmount = 0;
+      let modiglianiAmount = 0;
+
+      if (options.modigliani) {
+        satinAmount = parseFloat((basePrice * satinRate).toFixed(2));
+        const satinSubtotal = basePrice + satinAmount;
+        modiglianiAmount = parseFloat((satinSubtotal * modiglianiRate).toFixed(2));
+      } else if (options.satin) {
+        satinAmount = parseFloat((basePrice * satinRate).toFixed(2));
+      }
+
+      const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
+      const materialTotal = parseFloat((satinAmount + modiglianiAmount).toFixed(2));
+
+      const lines = [
+        `<div><strong>Nakład i typ:</strong> ${options.qty} szt, ${materialLabel}</div>`,
+        `<div><strong>Cena z tabeli:</strong> ${formatPLN(basePrice)}</div>`,
+      ];
+
+      if (options.modigliani) {
+        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+        lines.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`);
+      } else if (options.satin) {
+        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`);
+      }
+
+      if (options.express) {
+        lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
+      }
+
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(materialTotal)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+
+      breakdownLines.innerHTML = lines.join("");
+      breakdownDisplay.style.display = "block";
+    };
 
     const performCalculation = (): boolean => {
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement;
@@ -71,6 +122,7 @@ export const VoucheryView: View = {
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = usesSatinBase ? "block" : "none";
         if (modiglianiHint) modiglianiHint.style.display = isModigliani ? "block" : "none";
+        renderBreakdown(currentResult, currentOptions);
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 

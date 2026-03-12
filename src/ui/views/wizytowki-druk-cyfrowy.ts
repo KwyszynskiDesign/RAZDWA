@@ -1,6 +1,7 @@
 import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
+import { resolveStoredPrice } from "../../core/compat";
 
 const SATIN_MULTIPLIER = 1.12;
 
@@ -35,6 +36,8 @@ export const WizytowkiView: View = {
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#w-breakdown-display") as HTMLElement;
+    const breakdownLines = container.querySelector("#w-breakdown-lines") as HTMLElement;
     const unitPriceSpan = container.querySelector("#w-unit-price") as HTMLElement | null;
     const billedQtyHint = container.querySelector("#w-billed-qty-hint") as HTMLElement;
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
@@ -49,6 +52,38 @@ export const WizytowkiView: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+
+    const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+    const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+    const renderBreakdown = (result: any, options: any, isSatin: boolean) => {
+      const basePrice = result.basePrice;
+      const satinAmount = isSatin ? parseFloat((basePrice * satinRate).toFixed(2)) : 0;
+      const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
+
+      const lines = [
+        `<div><strong>Nakład podany:</strong> ${options.qty} szt</div>`,
+        `<div><strong>Próg rozliczeniowy:</strong> ${result.qtyBilled} szt</div>`,
+        `<div><strong>Cena z cennika (próg):</strong> ${formatPLN(basePrice)}</div>`,
+      ];
+
+      if (isSatin) {
+        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`);
+      }
+
+      if (options.express) {
+        lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
+      }
+
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+
+      breakdownLines.innerHTML = lines.join("");
+      breakdownDisplay.style.display = "block";
+    };
 
     calculateBtn.onclick = () => {
       const paperVal = paperSelect.value;
@@ -75,6 +110,7 @@ export const WizytowkiView: View = {
         if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny bazowej ${result.basePrice.toFixed(2)} zł`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
+        renderBreakdown(currentResult, currentOptions, isSatin);
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 

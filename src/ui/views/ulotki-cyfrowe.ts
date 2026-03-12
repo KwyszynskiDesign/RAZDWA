@@ -27,6 +27,8 @@ export const UlotkiCyfroweView: View = {
     const calculateBtn = container.querySelector("#u-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#u-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#u-result-display") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#u-breakdown-display") as HTMLElement;
+    const breakdownLines = container.querySelector("#u-breakdown-lines") as HTMLElement;
     const totalPriceSpan = container.querySelector("#u-total-price") as HTMLElement;
     const unitPriceSpan = container.querySelector("#u-unit-price") as HTMLElement | null;
     const tierHint = container.querySelector("#u-tier-hint") as HTMLElement;
@@ -41,6 +43,34 @@ export const UlotkiCyfroweView: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+
+    const renderBreakdown = (result: any, options: any, paperVal: string) => {
+      const basePrice = result.basePrice;
+      const satinAmount = result.isSatin ? parseFloat((basePrice * 0.12).toFixed(2)) : 0;
+      const expressAmount = options.express ? parseFloat((basePrice * 0.20).toFixed(2)) : 0;
+
+      const lines = [
+        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.format}, ${options.sides}</div>`,
+        `<div><strong>Cena z tabeli:</strong> ${formatPLN(basePrice)}</div>`,
+      ];
+
+      if (result.isSatin) {
+        lines.push(`<div><strong>Satyna:</strong> 12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`);
+      }
+
+      if (options.express) {
+        lines.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
+      } else {
+        lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
+      }
+
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+
+      breakdownLines.innerHTML = lines.join("");
+      breakdownDisplay.style.display = "block";
+    };
 
     const getSelectedSides = () => {
       const selected = sidesInputs.find(i => i.checked);
@@ -94,6 +124,7 @@ export const UlotkiCyfroweView: View = {
         if (tierHint) tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${result.totalPrice.toFixed(2)} zł`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
+        renderBreakdown(currentResult, currentOptions, paperVal);
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
