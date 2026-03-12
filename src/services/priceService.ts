@@ -7,8 +7,17 @@
 import _config from "../../docs/config/prices.json";
 
 export const PRICES_STORAGE_KEY = "razdwa_prices";
+export const PRICES_UPDATED_EVENT = "razdwa:prices-updated";
 
 let _prices: any = JSON.parse(JSON.stringify(_config));
+
+function notifyPricesUpdated(path: string): void {
+  try {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path } }));
+    }
+  } catch { /* ignore */ }
+}
 
 // On startup: merge user overrides from localStorage into defaultPrices.
 (function _loadFromStorage() {
@@ -71,6 +80,7 @@ export function setPrice(path: string, value: any): void {
         localStorage.setItem(PRICES_STORAGE_KEY, JSON.stringify(_prices.defaultPrices));
       }
     } catch { /* ignore */ }
+    notifyPricesUpdated(path);
   }
 }
 
@@ -85,4 +95,5 @@ export function resetPrices(): void {
       localStorage.removeItem(PRICES_STORAGE_KEY);
     }
   } catch { /* ignore */ }
+  notifyPricesUpdated("defaultPrices");
 }

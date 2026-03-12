@@ -24,6 +24,7 @@ import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
 import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript } from "../services/orderExportService";
+import { PRICES_UPDATED_EVENT } from "../services/priceService";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
@@ -226,6 +227,15 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);
+
+  window.addEventListener(PRICES_UPDATED_EVENT, () => {
+    const currentHash = window.location.hash || "#/";
+    if (!currentHash || currentHash === "#/" || currentHash === "#/ustawienia") {
+      return;
+    }
+
+    router.handleRoute().catch(() => {});
+  });
 
   // Populate category selector (if exists)
   const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement | null;
