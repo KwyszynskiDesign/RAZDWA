@@ -20,6 +20,7 @@ export const WycinanieFoliiView: View = {
     const variantSelect = container.querySelector("#wf-variant") as HTMLSelectElement;
     const widthInput = container.querySelector("#wf-width") as HTMLInputElement;
     const heightInput = container.querySelector("#wf-height") as HTMLInputElement;
+    const colorInput = container.querySelector("#wf-color") as HTMLInputElement;
     const calcBtn = container.querySelector("#wf-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
@@ -29,7 +30,7 @@ export const WycinanieFoliiView: View = {
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wf-express") as HTMLElement;
 
-    let currentOptions: WycinanieFoliiOptions | null = null;
+    let currentOptions: (WycinanieFoliiOptions & { color?: string }) | null = null;
     let currentResult: any = null;
 
     const calculate = () => {
@@ -39,6 +40,7 @@ export const WycinanieFoliiView: View = {
         heightMm: parseInt(heightInput.value) || 0,
         express: ctx.expressMode
       };
+      const color = (colorInput?.value || "").trim();
 
       const result = calculateWycinanieFolii(options);
       const areaM2 = (options.widthMm * options.heightMm) / 1_000_000;
@@ -50,7 +52,10 @@ export const WycinanieFoliiView: View = {
       resultEl.style.display = "block";
       addBtn.disabled = false;
 
-      currentOptions = options;
+      currentOptions = {
+        ...options,
+        color: color || undefined
+      };
       currentResult = result;
       ctx.updateLastCalculated(result.totalPrice, "Wycinanie z folii");
     };
@@ -68,6 +73,7 @@ export const WycinanieFoliiView: View = {
 
       const variantLabel = variantSelect.options[variantSelect.selectedIndex]?.text || currentOptions.variantId;
       const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1_000_000;
+      const colorHint = currentOptions.color ? `, kolor: ${currentOptions.color}` : "";
 
       ctx.cart.addItem({
         id: `wycinanie-${Date.now()}`,
@@ -78,7 +84,7 @@ export const WycinanieFoliiView: View = {
         unitPrice: currentResult.tierPrice,
         isExpress: currentOptions.express,
         totalPrice: currentResult.totalPrice,
-        optionsHint: `${currentOptions.widthMm}x${currentOptions.heightMm} mm, ${areaM2.toFixed(2)} m2${currentOptions.express ? ", EXPRESS" : ""}`,
+        optionsHint: `${currentOptions.widthMm}x${currentOptions.heightMm} mm, ${areaM2.toFixed(2)} m2${colorHint}${currentOptions.express ? ", EXPRESS" : ""}`,
         payload: {
           ...currentOptions,
           ...currentResult

@@ -5,7 +5,6 @@ import { getPrice } from "../../services/priceService";
 
 const data: any = getPrice("plakaty");
 
-const SOLWENT_IDS = new Set(["200g-polysk", "blockout200g", "150g-polmat", "115g-mat"]);
 const FORMAT_LABELS: Record<string, string> = {
   "297x420": "A3 (297x420)",
   "420x594": "A2 (420x594)",
@@ -32,8 +31,6 @@ export const PlakatyView: View = {
 
     const materialSelect = container.querySelector("#p-material") as HTMLSelectElement;
     const formatGroup   = container.querySelector("#p-format-group") as HTMLElement;
-    const m2Group       = container.querySelector("#p-m2-group") as HTMLElement;
-    const canonGroup    = container.querySelector("#p-canon-group") as HTMLElement;
     const formatSelect  = container.querySelector("#p-format") as HTMLSelectElement;
     const canonVariantSelect = container.querySelector("#p-canon-variant") as HTMLSelectElement;
     const canonFormatSelect = container.querySelector("#p-canon-format") as HTMLSelectElement;
@@ -43,8 +40,6 @@ export const PlakatyView: View = {
     const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
     const qtyInput      = container.querySelector("#p-qty") as HTMLInputElement;
-    const areaInput     = container.querySelector("#p-area") as HTMLInputElement;
-    const solwentQtyInput = container.querySelector("#p-solwent-qty") as HTMLInputElement;
     const calcBtn       = container.querySelector("#p-calculate") as HTMLButtonElement;
     const addBtn        = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox     = container.querySelector("#p-result-display") as HTMLElement;
@@ -54,8 +49,8 @@ export const PlakatyView: View = {
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
 
-    // Populate material select (wielkoformatowe + solwent)
-    const allMaterials = [...tableData.solwent.materials, ...tableData.formatowe.materials];
+    // Populate material select (tylko wielkoformatowe)
+    const allMaterials = [...tableData.formatowe.materials];
     materialSelect.innerHTML = allMaterials.map((m: any) =>
       `<option value="${m.id}">${m.name}</option>`
     ).join("");
@@ -64,13 +59,6 @@ export const PlakatyView: View = {
     canonVariantSelect.innerHTML = tableData.malyCanon.variants.map((v: any) =>
       `<option value="${v.id}">${v.name}</option>`
     ).join("");
-
-    function isSolwent(id: string) { return SOLWENT_IDS.has(id); }
-
-    const parsePositiveNumber = (value: string): number | null => {
-      const parsed = Number(value);
-      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
-    };
 
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
@@ -112,20 +100,12 @@ export const PlakatyView: View = {
       }
     }
 
-    function updateVisibility() {
+    const updateVisibility = () => {
       const matId = materialSelect.value;
-      if (isSolwent(matId)) {
-        formatGroup.style.display = "none";
-        m2Group.style.display = "";
-      } else {
-        formatGroup.style.display = "";
-        m2Group.style.display = "none";
-        updateFormatOptions(matId);
-        updateLengthInput(matId);
-      }
-
-      canonGroup.style.display = "";
-    }
+      formatGroup.style.display = "";
+      updateFormatOptions(matId);
+      updateLengthInput(matId);
+    };
 
     materialSelect.addEventListener("change", updateVisibility);
     formatSelect.addEventListener("change", () => {
@@ -139,43 +119,20 @@ export const PlakatyView: View = {
     calcBtn.onclick = () => {
       const matId = materialSelect.value;
       try {
-        if (isSolwent(matId)) {
-          const area = parsePositiveNumber(areaInput.value);
-          const qty = parsePositiveInt(solwentQtyInput.value);
-          if (!area) throw new Error("Podaj powierzchnię (m²) dla plakatu wielkoformatowego.");
-          if (!qty) throw new Error("Podaj ilość sztuk.");
-          const res = calculatePlakatyM2({ materialId: matId, areaM2: area, qty, express: ctx.expressMode });
-          currentResult = res;
-          currentOptions = { type: "m2", matId, area, qty };
-          unitPriceEl.innerText = formatPLN(res.tierPrice);
-          totalPriceEl.innerText = formatPLN(res.totalPrice);
-          if (qtyLabel) qtyLabel.innerText = "Powierzchnia:";
-          if (qtyValEl) qtyValEl.innerText = `${qty} szt × ${area} m²${res.effectiveM2 > area * qty ? " (min.)" : ""}`;
-        } else if (isCanon(matId)) {
-          const qty = Math.max(1, parseInt(canonQtyInput.value, 10) || 1);
-          const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
-          const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
-          currentResult = res;
-          currentOptions = { type: "canon", matId, fmt, qty };
-          unitPriceEl.innerText = formatPLN(res.tierPrice);
-          totalPriceEl.innerText = formatPLN(res.totalPrice);
-          if (qtyLabel) qtyLabel.innerText = "Ilość:";
-          if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
-        } else {
-          const fmt = formatSelect.value;
-          const qty = parsePositiveInt(qtyInput.value);
-          if (!qty) throw new Error("Podaj ilość sztuk.");
-          const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
-            ? (parseFloat(lengthInput.value) || undefined)
-            : undefined;
-          const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
-          currentResult = res;
-          currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
-          unitPriceEl.innerText = formatPLN(res.pricePerPiece);
-          totalPriceEl.innerText = formatPLN(res.totalPrice);
-          if (qtyLabel) qtyLabel.innerText = "Ilość:";
-          if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
-        }
+        const fmt = formatSelect.value;
+        const qty = parsePositiveInt(qtyInput.value);
+        if (!qty) throw new Error("Podaj ilość sztuk.");
+        const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
+          ? (parseFloat(lengthInput.value) || undefined)
+          : undefined;
+        const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
+        currentResult = res;
+        currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
+        unitPriceEl.innerText = formatPLN(res.pricePerPiece);
+        totalPriceEl.innerText = formatPLN(res.totalPrice);
+        if (qtyLabel) qtyLabel.innerText = "Ilość:";
+        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
+
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultBox.style.display = "block";
         addBtn.disabled = false;
@@ -210,21 +167,7 @@ export const PlakatyView: View = {
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
       const matName = materialSelect.options[materialSelect.selectedIndex].text;
-      if (currentOptions.type === "m2") {
-        const hint = `${currentOptions.qty} szt × ${currentOptions.area} m2/szt${ctx.expressMode ? ", EXPRESS" : ""}`;
-        ctx.cart.addItem({
-          id: `plakaty-${Date.now()}`,
-          category: "Plakaty",
-          name: matName,
-          quantity: currentResult.effectiveM2,
-          unit: "m2",
-          unitPrice: currentResult.tierPrice,
-          isExpress: ctx.expressMode,
-          totalPrice: currentResult.totalPrice,
-          optionsHint: hint,
-          payload: currentResult,
-        });
-      } else if (currentOptions.type === "canon") {
+      if (currentOptions.type === "canon") {
         const canonName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
         const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
