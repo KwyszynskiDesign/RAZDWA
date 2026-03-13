@@ -34,7 +34,7 @@ export const BannerView: View = {
     const breakdownLines = container.querySelector("#b-breakdown-lines") as HTMLElement;
     const unitPriceSpan = container.querySelector("#b-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#b-total-price") as HTMLElement;
-    const areaValSpan = container.querySelector("#b-area-val") as HTMLElement | null;
+    const computedAreaInfo = container.querySelector("#b-computed-area-info") as HTMLElement | null;
     const expressHint = container.querySelector("#b-express-hint") as HTMLElement;
 
     let currentResult: any = null;
@@ -53,6 +53,9 @@ export const BannerView: View = {
       if (widthCm && heightCm) {
         const computedArea = parseFloat(((widthCm * heightCm) / 10_000).toFixed(4));
         areaInput.value = String(computedArea);
+        if (computedAreaInfo) {
+          computedAreaInfo.innerText = `Wyliczona powierzchnia: ${computedArea} m² (${widthCm} cm × ${heightCm} cm)`;
+        }
         return {
           areaM2: computedArea,
           widthCm,
@@ -61,6 +64,9 @@ export const BannerView: View = {
       }
 
       areaInput.value = "";
+      if (computedAreaInfo) {
+        computedAreaInfo.innerText = "Wyliczona powierzchnia: -";
+      }
       return {
         areaM2: 0,
         widthCm: null,
@@ -138,11 +144,6 @@ export const BannerView: View = {
 
         unitPriceSpan.innerText = formatPLN(result.tierPrice);
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (areaValSpan) {
-          areaValSpan.innerText = currentOptions.widthCm && currentOptions.heightCm
-            ? `${currentOptions.widthCm} cm × ${currentOptions.heightCm} cm = ${currentOptions.areaM2} m²`
-            : `${currentOptions.areaM2} m²`;
-        }
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         renderBreakdown(result, currentOptions);
         resultDisplay.style.display = "block";
