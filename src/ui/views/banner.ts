@@ -23,6 +23,8 @@ export const BannerView: View = {
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
     const materialSelect = container.querySelector("#b-material") as HTMLSelectElement;
+    const widthInput = container.querySelector("#b-width") as HTMLInputElement | null;
+    const heightInput = container.querySelector("#b-height") as HTMLInputElement | null;
     const areaInput = container.querySelector("#b-area") as HTMLInputElement;
     const oczkowanieCheckbox = container.querySelector("#b-oczkowanie") as HTMLInputElement;
     const calculateBtn = container.querySelector("#b-calculate") as HTMLButtonElement;
@@ -37,6 +39,46 @@ export const BannerView: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+
+    const parsePositive = (value: string): number | null => {
+      const parsed = parseFloat(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+
+    const computeAreaFromInputs = () => {
+      const widthM = parsePositive(widthInput?.value ?? "");
+      const heightM = parsePositive(heightInput?.value ?? "");
+
+      if (widthM && heightM) {
+        const computedArea = parseFloat((widthM * heightM).toFixed(4));
+        areaInput.value = String(computedArea);
+        return {
+          areaM2: computedArea,
+          widthM,
+          heightM
+        };
+      }
+
+      const manualArea = parsePositive(areaInput.value);
+      return {
+        areaM2: manualArea ?? 0,
+        widthM: null,
+        heightM: null
+      };
+    };
+
+    if (widthInput && heightInput) {
+      const syncAreaFromDimensions = () => {
+        const widthM = parsePositive(widthInput.value);
+        const heightM = parsePositive(heightInput.value);
+        if (widthM && heightM) {
+          areaInput.value = String(parseFloat((widthM * heightM).toFixed(4)));
+        }
+      };
+
+      widthInput.addEventListener("input", syncAreaFromDimensions);
+      heightInput.addEventListener("input", syncAreaFromDimensions);
+    }
 
     const renderBreakdown = (result: any, options: any) => {
       const materialData = bannerData.materials.find((m: any) => m.id === options.material);
@@ -80,9 +122,13 @@ export const BannerView: View = {
     };
 
     calculateBtn.onclick = () => {
+      const { areaM2, widthM, heightM } = computeAreaFromInputs();
+
       currentOptions = {
         material: materialSelect.value,
-        areaM2: parseFloat(areaInput.value),
+        areaM2,
+        widthM,
+        heightM,
         oczkowanie: oczkowanieCheckbox.checked,
         express: ctx.expressMode
       };
@@ -93,7 +139,11 @@ export const BannerView: View = {
 
         unitPriceSpan.innerText = formatPLN(result.tierPrice);
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (areaValSpan) areaValSpan.innerText = `${currentOptions.areaM2} m²`;
+        if (areaValSpan) {
+          areaValSpan.innerText = currentOptions.widthM && currentOptions.heightM
+            ? `${currentOptions.widthM} m × ${currentOptions.heightM} m = ${currentOptions.areaM2} m²`
+            : `${currentOptions.areaM2} m²`;
+        }
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         renderBreakdown(result, currentOptions);
         resultDisplay.style.display = "block";
@@ -109,7 +159,9 @@ export const BannerView: View = {
       if (currentResult && currentOptions) {
         const matName = materialSelect.options[materialSelect.selectedIndex].text;
         const opts = [
-            `${currentOptions.areaM2} m2`,
+            currentOptions.widthM && currentOptions.heightM
+              ? `${currentOptions.widthM}m x ${currentOptions.heightM}m (${currentOptions.areaM2} m2)`
+              : `${currentOptions.areaM2} m2`,
             currentOptions.oczkowanie ? "z oczkowaniem" : "bez oczkowania",
             currentOptions.express ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");

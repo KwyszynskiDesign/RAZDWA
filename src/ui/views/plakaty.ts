@@ -6,7 +6,12 @@ import { getPrice } from "../../services/priceService";
 const data: any = getPrice("plakaty");
 
 const SOLWENT_IDS = new Set(["200g-polysk", "blockout200g", "150g-polmat", "115g-mat"]);
-const CANON_IDS = new Set(["margin-170", "margin-200", "no-margin-170", "no-margin-200"]);
+const FORMAT_LABELS: Record<string, string> = {
+  "297x420": "A3 (297x420)",
+  "420x594": "A2 (420x594)",
+  "594x841": "A1 (594x841)",
+  "841x1189": "A0 (841x1189)",
+};
 
 export const PlakatyView: View = {
   id: "plakaty",
@@ -30,8 +35,10 @@ export const PlakatyView: View = {
     const m2Group       = container.querySelector("#p-m2-group") as HTMLElement;
     const canonGroup    = container.querySelector("#p-canon-group") as HTMLElement;
     const formatSelect  = container.querySelector("#p-format") as HTMLSelectElement;
+    const canonVariantSelect = container.querySelector("#p-canon-variant") as HTMLSelectElement;
     const canonFormatSelect = container.querySelector("#p-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#p-canon-qty") as HTMLInputElement;
+    const canonCalcBtn   = container.querySelector("#p-canon-calculate") as HTMLButtonElement;
     const lengthGroup   = container.querySelector("#p-length-group") as HTMLElement;
     const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
@@ -47,24 +54,34 @@ export const PlakatyView: View = {
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
 
-    // Populate material select
-    const allMaterials = [
-      ...tableData.solwent.materials,
-      ...tableData.formatowe.materials,
-      ...tableData.malyCanon.variants,
-    ];
+    // Populate material select (wielkoformatowe + solwent)
+    const allMaterials = [...tableData.solwent.materials, ...tableData.formatowe.materials];
     materialSelect.innerHTML = allMaterials.map((m: any) =>
       `<option value="${m.id}">${m.name}</option>`
     ).join("");
 
+    // Populate mały Canon variants (z marginesem / bez marginesu, gramatury)
+    canonVariantSelect.innerHTML = tableData.malyCanon.variants.map((v: any) =>
+      `<option value="${v.id}">${v.name}</option>`
+    ).join("");
+
     function isSolwent(id: string) { return SOLWENT_IDS.has(id); }
-    function isCanon(id: string) { return CANON_IDS.has(id); }
+
+    const parsePositiveNumber = (value: string): number | null => {
+      const parsed = Number(value);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
+
+    const parsePositiveInt = (value: string): number | null => {
+      const parsed = Number.parseInt(value, 10);
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    };
 
     function updateFormatOptions(matId: string) {
       const mat = tableData.formatowe.materials.find((m: any) => m.id === matId);
       if (!mat) return;
       const keys = Object.keys(mat.prices);
-      formatSelect.innerHTML = keys.map(k => `<option value="${k}">${k}</option>`).join("");
+      formatSelect.innerHTML = keys.map((k: string) => `<option value="${k}">${FORMAT_LABELS[k] ?? k}</option>`).join("");
     }
 
     function parseFormatDimensions(formatKey: string) {
@@ -86,7 +103,8 @@ export const PlakatyView: View = {
       }
 
       lengthGroup.style.display = "";
-      lengthInput.value = String(dims.lengthMm);
+      lengthInput.value = "";
+      lengthInput.placeholder = `np. ${dims.lengthMm}`;
       if (matId.includes("nieformatowe")) {
         lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
       } else {
@@ -98,19 +116,15 @@ export const PlakatyView: View = {
       const matId = materialSelect.value;
       if (isSolwent(matId)) {
         formatGroup.style.display = "none";
-        canonGroup.style.display = "none";
         m2Group.style.display = "";
-      } else if (isCanon(matId)) {
-        formatGroup.style.display = "none";
-        m2Group.style.display = "none";
-        canonGroup.style.display = "";
       } else {
         formatGroup.style.display = "";
-        canonGroup.style.display = "none";
         m2Group.style.display = "none";
         updateFormatOptions(matId);
         updateLengthInput(matId);
       }
+
+      canonGroup.style.display = "";
     }
 
     materialSelect.addEventListener("change", updateVisibility);
@@ -126,8 +140,10 @@ export const PlakatyView: View = {
       const matId = materialSelect.value;
       try {
         if (isSolwent(matId)) {
-          const area = parseFloat(areaInput.value) || 1;
-          const qty = Math.max(1, parseInt(solwentQtyInput.value, 10) || 1);
+          const area = parsePositiveNumber(areaInput.value);
+          const qty = parsePositiveInt(solwentQtyInput.value);
+          if (!area) throw new Error("Podaj powierzchnię (m²) dla plakatu wielkoformatowego.");
+          if (!qty) throw new Error("Podaj ilość sztuk.");
           const res = calculatePlakatyM2({ materialId: matId, areaM2: area, qty, express: ctx.expressMode });
           currentResult = res;
           currentOptions = { type: "m2", matId, area, qty };
@@ -147,7 +163,8 @@ export const PlakatyView: View = {
           if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
         } else {
           const fmt = formatSelect.value;
-          const qty = parseInt(qtyInput.value, 10) || 1;
+          const qty = parsePositiveInt(qtyInput.value);
+          if (!qty) throw new Error("Podaj ilość sztuk.");
           const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
             ? (parseFloat(lengthInput.value) || undefined)
             : undefined;
@@ -163,6 +180,28 @@ export const PlakatyView: View = {
         resultBox.style.display = "block";
         addBtn.disabled = false;
         ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty");
+      } catch (err) {
+        alert("Błąd: " + (err as Error).message);
+      }
+    };
+
+    canonCalcBtn.onclick = () => {
+      try {
+        const qty = parsePositiveInt(canonQtyInput.value);
+        if (!qty) throw new Error("Podaj ilość sztuk dla Małego Canon.");
+        const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
+        const matId = canonVariantSelect.value;
+        const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
+        currentResult = res;
+        currentOptions = { type: "canon", matId, fmt, qty };
+        unitPriceEl.innerText = formatPLN(res.tierPrice);
+        totalPriceEl.innerText = formatPLN(res.totalPrice);
+        if (qtyLabel) qtyLabel.innerText = "Ilość:";
+        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
+        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+        resultBox.style.display = "block";
+        addBtn.disabled = false;
+        ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty (Mały Canon)");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
@@ -186,11 +225,12 @@ export const PlakatyView: View = {
           payload: currentResult,
         });
       } else if (currentOptions.type === "canon") {
+        const canonName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
         const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
-          name: `${matName} (mały Canon)`,
+          name: `${canonName} (mały Canon)`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.tierPrice,

@@ -4,52 +4,70 @@
     </div>
 
     <div class="calculator-form card">
-        <div class="form-group">
-            <label for="p-material">Papier / Materiał:</label>
-            <select id="p-material" class="form-control">
-                <!-- populated by JS -->
-            </select>
-        </div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; align-items:start;">
+            <div class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Wielkoformatowe (A3-A0)</h3>
+                <div class="form-group">
+                    <label for="p-material">Papier / Materiał:</label>
+                    <select id="p-material" class="form-control">
+                        <!-- populated by JS -->
+                    </select>
+                </div>
 
-        <!-- m² input (solwent materials) -->
-        <div id="p-m2-group" class="form-group">
-            <label for="p-area">Powierzchnia (m²):</label>
-            <input type="number" id="p-area" class="form-control" value="1" min="0.1" step="0.1">
-            <label for="p-solwent-qty" style="margin-top:10px;">Ilość (szt):</label>
-            <input type="number" id="p-solwent-qty" class="form-control" value="1" min="1" step="1">
-            <div class="hint">MINIMALKA 1 m²</div>
-        </div>
+                <div id="p-m2-group" class="form-group">
+                    <label for="p-area">Powierzchnia (m²):</label>
+                    <input type="number" id="p-area" class="form-control" placeholder="np. 1.5" min="0.1" step="0.1" inputmode="decimal" autocomplete="off">
+                    <label for="p-solwent-qty" style="margin-top:10px;">Ilość (szt):</label>
+                    <input type="number" id="p-solwent-qty" class="form-control" placeholder="np. 2" min="1" step="1" inputmode="numeric" autocomplete="off">
+                    <div class="hint">MINIMALKA 1 m²</div>
+                </div>
 
-        <!-- format + qty input (formatowe/nieformatowe) -->
-        <div id="p-format-group" class="form-group" style="display:none;">
-            <label for="p-format">Format:</label>
-            <select id="p-format" class="form-control">
-                <!-- populated by JS -->
-            </select>
-            <label for="p-qty" style="margin-top:10px;">Ilość (szt):</label>
-            <input type="number" id="p-qty" class="form-control" value="1" min="1" step="1">
-            <div id="p-length-group" style="margin-top:10px;">
-                <label for="p-length-mm" id="p-length-label">Długość (mm):</label>
-                <input type="number" id="p-length-mm" class="form-control" value="420" min="1" step="1">
-                <div class="hint">Możesz wpisać własną długość w mm.</div>
+                <div id="p-format-group" class="form-group" style="display:none;">
+                    <label for="p-format">Format:</label>
+                    <select id="p-format" class="form-control">
+                        <!-- populated by JS -->
+                    </select>
+                    <label for="p-qty" style="margin-top:10px;">Ilość (szt):</label>
+                    <input type="number" id="p-qty" class="form-control" placeholder="np. 10" min="1" step="1" inputmode="numeric" autocomplete="off">
+                    <div id="p-length-group" style="margin-top:10px;">
+                        <label for="p-length-mm" id="p-length-label">Długość (mm):</label>
+                        <input type="number" id="p-length-mm" class="form-control" placeholder="np. 420" min="1" step="1" inputmode="numeric" autocomplete="off">
+                        <div class="hint">Możesz wpisać własną długość w mm (opcjonalnie).</div>
+                    </div>
+                    <div class="hint">Rabat: 2-5 szt (120g: -5%), 6-20 szt (120g: -8%), 21-30 szt (120g: -13%); 9-20 szt (260g: -7%), 21-30 szt (260g: -12%)</div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="p-calculate" class="btn-primary">Oblicz wielkoformatowe</button>
+                </div>
             </div>
-            <div class="hint">Rabat: 2-5 szt (120g: -5%), 6-20 szt (120g: -8%), 21-30 szt (120g: -13%); 9-20 szt (260g: -7%), 21-30 szt (260g: -12%)</div>
+
+            <div id="p-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Mały Canon</h3>
+                <div class="hint" style="margin-bottom:10px;">Wybierz wariant: z marginesem / bez marginesu, gramaturę i format.</div>
+
+                <label for="p-canon-variant">Wariant:</label>
+                <select id="p-canon-variant" class="form-control">
+                    <!-- populated by JS -->
+                </select>
+
+                <label for="p-canon-format" style="margin-top:10px;">Format:</label>
+                <select id="p-canon-format" class="form-control">
+                    <option value="A4">A4</option>
+                    <option value="A3">A3</option>
+                </select>
+
+                <label for="p-canon-qty" style="margin-top:10px;">Ilość (szt):</label>
+                <input type="number" id="p-canon-qty" class="form-control" placeholder="np. 3" min="1" max="9" step="1" inputmode="numeric" autocomplete="off">
+                <div class="hint">Plakaty do 9 szt. (mały Canon), czas realizacji 1-2 dni robocze.</div>
+
+                <div class="form-actions">
+                    <button id="p-canon-calculate" class="btn-primary">Oblicz Mały Canon</button>
+                </div>
+            </div>
         </div>
 
-        <!-- small canon do 9 szt -->
-        <div id="p-canon-group" class="form-group" style="display:none;">
-            <label for="p-canon-format">Format:</label>
-            <select id="p-canon-format" class="form-control">
-                <option value="A4">A4</option>
-                <option value="A3">A3</option>
-            </select>
-            <label for="p-canon-qty" style="margin-top:10px;">Ilość (szt):</label>
-            <input type="number" id="p-canon-qty" class="form-control" value="1" min="1" max="9" step="1">
-            <div class="hint">Plakaty do 9 szt. (mały Canon), czas realizacji 1-2 dni robocze.</div>
-        </div>
-
-        <div class="form-actions">
-            <button id="p-calculate" class="btn-primary">Oblicz</button>
+        <div class="form-actions" style="margin-top: 12px;">
             <button id="p-add-to-cart" class="btn-success" disabled>Dodaj do koszyka</button>
         </div>
     </div>
