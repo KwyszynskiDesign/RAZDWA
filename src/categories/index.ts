@@ -2,10 +2,11 @@ import { BannerView } from "../ui/views/banner";
 import { CadUploadView } from "../ui/views/cad-upload";
 import { CanvasView } from "../ui/views/canvas";
 import { DrukCADView } from "../ui/views/druk-cad";
-import { DrukA4A3SkanView } from "../ui/views/DrukA4A3SkanView";
+import { DrukA4A3SkanView } from "../ui/views/druk-a4-a3-skan-view";
 import { DyplomyView } from "../ui/views/dyplomy";
 import { FoliaSzronionaView } from "../ui/views/folia-szroniona";
 import { LaminowanieView } from "../ui/views/laminowanie";
+import { WydrukiSpecjalneView } from "../ui/views/wydruki-specjalne";
 import { PlakatyView } from "../ui/views/plakaty";
 import { RollUpView } from "../ui/views/roll-up";
 import { UlotkiCyfroweView } from "../ui/views/ulotki-cyfrowe";
@@ -22,6 +23,7 @@ export const categories = [
   DrukCADView,
   CadUploadView,
   LaminowanieView,
+  WydrukiSpecjalneView,
   BannerView,
   WizytowkiView,
   UlotkiCyfroweView,
