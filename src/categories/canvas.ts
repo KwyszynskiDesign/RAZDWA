@@ -79,7 +79,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       const qty = Math.max(1, options.quantity);
       const expressMultiplier = options.express ? 1.20 : 1;
       const totalPrice = parseFloat((unitPrice * qty * expressMultiplier).toFixed(2));
-      formatLabel = "Niestandardowy (" + width + "x" + height + " mm)";
+      formatLabel = "Własny rozmiar (" + width + "x" + height + " mm)";
       return {
         basePrice: unitPrice * qty,
         tierPrice: unitPrice,

@@ -940,7 +940,7 @@
                                                      },
                                                      {
                                                          "id":  "custom",
-                                                         "label":  "Niestandardowy",
+                                                         "label":  "Własny rozmiar",
                                                          "customSize":  true
                                                      }
                                                  ],
@@ -978,7 +978,7 @@
                                                      },
                                                      {
                                                          "id":  "custom",
-                                                         "label":  "Niestandardowy",
+                                                         "label":  "Własny rozmiar",
                                                          "customSize":  true
                                                      }
                                                  ],
