@@ -90,14 +90,15 @@ export const PlakatyView: View = {
         return;
       }
 
+      if (!matId.includes("nieformatowe")) {
+        lengthGroup.style.display = "none";
+        return;
+      }
+
       lengthGroup.style.display = "";
       lengthInput.value = "";
       lengthInput.placeholder = `np. ${dims.lengthMm}`;
-      if (matId.includes("nieformatowe")) {
-        lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
-      } else {
-        lengthLabel.innerText = `Długość dla ${dims.widthMm} mm (mm):`;
-      }
+      lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
     }
 
     const updateVisibility = () => {
