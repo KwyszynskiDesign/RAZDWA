@@ -45,6 +45,9 @@ export const PlakatyView: View = {
     const resultBox     = container.querySelector("#p-result-display") as HTMLElement;
     const unitPriceEl   = container.querySelector("#p-unit-price") as HTMLElement;
     const totalPriceEl  = container.querySelector("#p-total-price") as HTMLElement;
+    const discountRow   = container.querySelector("#p-discount-row") as HTMLElement | null;
+    const discountLabel = container.querySelector("#p-discount-label") as HTMLElement | null;
+    const discountVal   = container.querySelector("#p-discount-val") as HTMLElement | null;
     const qtyLabel      = container.querySelector("#p-qty-label") as HTMLElement | null;
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
@@ -131,6 +134,18 @@ export const PlakatyView: View = {
         currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
         unitPriceEl.innerText = formatPLN(res.pricePerPiece);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
+
+        if (discountRow && discountLabel && discountVal) {
+          if (res.discountFactor < 1) {
+            const pct = Math.round((1 - res.discountFactor) * 100);
+            const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
+            discountLabel.innerText = `Rabat ilościowy ${pct}%:`;
+            discountVal.innerText = `-${formatPLN(saved)}`;
+            discountRow.style.display = "";
+          } else {
+            discountRow.style.display = "none";
+          }
+        }
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
         if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
 
@@ -154,6 +169,7 @@ export const PlakatyView: View = {
         currentOptions = { type: "canon", matId, fmt, qty };
         unitPriceEl.innerText = formatPLN(res.tierPrice);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
+        if (discountRow) discountRow.style.display = "none";
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
         if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
