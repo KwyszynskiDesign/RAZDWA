@@ -29,7 +29,7 @@ const OPRAWY_PRICES = {
     miękka: 15.00
   },
   zbijana: {
-    standard: 15.00
+    standard: 50.00
   }
 } as const;
 
@@ -263,6 +263,9 @@ export const LaminowanieView: View = {
     const oprResultDisplay = container.querySelector("#opr-result-display") as HTMLElement | null;
     const oprUnitPrice = container.querySelector("#opr-unit-price") as HTMLElement | null;
     const oprTotalPrice = container.querySelector("#opr-total-price") as HTMLElement | null;
+    const oprRozszycieRow = container.querySelector("#opr-rozszycie-row") as HTMLElement | null;
+    const oprRozszycieCheck = container.querySelector("#opr-rozszycie-check") as HTMLInputElement | null;
+    const oprRozsycieInput = container.querySelector("#opr-rozszycie-price") as HTMLInputElement | null;
 
     let oprState: {
       type: "grzbietowa" | "kanałowa" | "zaciskowa" | "zbijana";
@@ -273,6 +276,8 @@ export const LaminowanieView: View = {
       customColor?: string;
       unitPrice: number;
       total: number;
+      rozszycie: boolean;
+      rozszyciePrice: number;
     } | null = null;
 
     const syncOprCustomColorRow = () => {
@@ -288,16 +293,25 @@ export const LaminowanieView: View = {
         oprPagesRow.style.display = "";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
+        if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
       } else if (type === "kanałowa") {
         oprFormatRow.style.display = "none";
         oprPagesRow.style.display = "none";
         oprColorRow.style.display = "";
         syncOprCustomColorRow();
+        if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
+      } else if (type === "zaciskowa") {
+        oprFormatRow.style.display = "none";
+        oprPagesRow.style.display = "none";
+        oprColorRow.style.display = "none";
+        oprCustomColorRow.style.display = "none";
+        if (oprRozszycieRow) oprRozszycieRow.style.display = "";
       } else {
         oprFormatRow.style.display = "none";
         oprPagesRow.style.display = "none";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
+        if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
       }
     };
 
@@ -318,9 +332,11 @@ export const LaminowanieView: View = {
       const customColor = color === "pozostale" ? (oprCustomColor?.value?.trim() || "") : "";
       const unitPrice = getOprUnitPrice(type, format, pages, color);
       const expressFactor = ctx.expressMode ? 1.2 : 1;
-      const total = parseFloat((unitPrice * qty * expressFactor).toFixed(2));
+      const rozszycie = type === "zaciskowa" && (oprRozszycieCheck?.checked ?? false);
+      const rozszyciePrice = rozszycie ? (parseFloat(oprRozsycieInput?.value || "7") || 7) : 0;
+      const total = parseFloat(((unitPrice * qty + rozszyciePrice) * expressFactor).toFixed(2));
 
-      oprState = { type, format, pages, qty, color, customColor, unitPrice, total };
+      oprState = { type, format, pages, qty, color, customColor, unitPrice, total, rozszycie, rozszyciePrice };
       if (oprUnitPrice) oprUnitPrice.innerText = formatPLN(unitPrice * expressFactor);
       if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
       if (oprResultDisplay) oprResultDisplay.style.display = "block";
@@ -345,7 +361,9 @@ export const LaminowanieView: View = {
           ? `${oprState.format}, ${oprState.pages} str.`
           : oprState.type === "kanałowa"
             ? `kolor: ${oprState.color === "pozostale" ? (oprState.customColor || "pozostałe") : oprState.color}`
-            : oprState.type,
+            : oprState.type === "zaciskowa" && oprState.rozszycie
+              ? `zaciskowa + rozszycie/zszycie (+${formatPLN(oprState.rozszyciePrice)})`
+              : oprState.type,
         payload: oprState
       });
     });
