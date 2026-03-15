@@ -28,6 +28,837 @@
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
     }
   </script>
+
+  <style>
+    #viewContainer .form .row {
+      margin-top: 10px;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    #viewContainer .form .row > label:first-child {
+      margin: 0;
+    }
+
+    #viewContainer .form .row > input[type="number"],
+    #viewContainer .form .row > input[type="text"],
+    #viewContainer .form .row > input[type="email"],
+    #viewContainer .form .row > select,
+    #viewContainer .form .row > textarea {
+      margin-left: auto;
+    }
+
+    #viewContainer .calculator-form .form-group {
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    #viewContainer .calculator-form .form-group > label {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    #viewContainer .calculator-form .form-group > input[type="number"],
+    #viewContainer .calculator-form .form-group > input[type="text"],
+    #viewContainer .calculator-form .form-group > input[type="email"],
+    #viewContainer .calculator-form .form-group > select,
+    #viewContainer .calculator-form .form-group > textarea {
+      display: block;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    #viewContainer input[type="number"] {
+      min-height: 38px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card {
+      box-sizing: border-box;
+    }
+
+    .site-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(15,32,53,0.96), rgba(37,99,235,0.88));
+      box-shadow: 0 18px 50px rgba(15, 23, 42, 0.24);
+    }
+
+    .site-header h1,
+    .site-header .small {
+      color: #f8fafc;
+      margin: 0;
+    }
+
+    .site-header .small {
+      margin-top: 6px;
+      color: rgba(226, 232, 240, 0.82);
+    }
+
+    .sidebar-toggle {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      border-radius: 10px;
+      background: rgba(15, 32, 53, 0.85);
+      color: #e2e8f0;
+      font-size: 20px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .sidebar-toggle:hover,
+    .sidebar-toggle:focus-visible {
+      background: rgba(30, 58, 95, 0.95);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.24);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .app-grid {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: 24px;
+    }
+
+    .category-sidebar {
+      width: 260px;
+      min-width: 260px;
+      background: #0f2035;
+      border-radius: 18px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
+      z-index: 20;
+    }
+
+    .category-sidebar-inner {
+      padding: 16px 0 24px;
+    }
+
+    .category-search-wrap {
+      padding: 0 16px;
+      margin-bottom: 12px;
+    }
+
+    .category-sidebar-search {
+      width: 100%;
+      box-sizing: border-box;
+      background: #1e3a5f;
+      color: #e2e8f0;
+      border: 1px solid #2d4f7a;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+
+    .category-sidebar-search::placeholder {
+      color: #94a3b8;
+    }
+
+    .category-group {
+      padding-bottom: 4px;
+    }
+
+    .category-group-divider {
+      border-top: 1px solid #1e3a5f;
+      margin: 8px 0;
+    }
+
+    .category-group-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #64748b;
+      text-transform: uppercase;
+      padding: 16px 16px 6px;
+    }
+
+    .category-nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .category-nav-button {
+      display: block;
+      width: calc(100% - 8px);
+      margin-right: 8px;
+      background: transparent;
+      color: #e2e8f0;
+      font-size: 14px;
+      padding: 10px 16px;
+      text-align: left;
+      text-decoration: none;
+      border: none;
+      border-left: 4px solid var(--group-accent, #3b82f6);
+      border-radius: 0 6px 6px 0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    .category-nav-button:hover,
+    .category-nav-button:focus-visible {
+      background: #1e3a5f;
+      outline: none;
+    }
+
+    .category-nav-button.is-active {
+      background: #2563eb;
+      color: #ffffff;
+      font-weight: 600;
+      border-left-color: #93c5fd;
+    }
+
+    .left-col {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .right-col {
+      width: min(360px, 100%);
+    }
+
+    .main-content-card {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      background: #f8fafc !important;
+      color: #0f172a;
+      border: 1px solid #dbe7f3;
+      border-radius: 20px;
+      box-shadow: 0 20px 50px rgba(148, 163, 184, 0.16);
+      padding: 24px;
+    }
+
+    .main-content-card #viewContainer {
+      display: grid;
+      gap: 18px;
+    }
+
+    .main-content-card #emptyState {
+      background: #e2e8f0 !important;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+    }
+
+    .main-content-card #emptyState h2 {
+      color: #1d4ed8 !important;
+    }
+
+    .main-content-card details {
+      background: #eef4fb !important;
+      border-color: #d6dfeb !important;
+      color: #334155;
+    }
+
+    .main-content-card pre {
+      color: #0f172a;
+    }
+
+    #viewContainer .form,
+    #viewContainer .calculator-form,
+    #orderSummary .order-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    #viewContainer .form .row,
+    #viewContainer .calculator-form .form-group,
+    #orderSummary .order-row {
+      margin: 0;
+      display: grid;
+      gap: 8px;
+    }
+
+    #viewContainer .form label,
+    #viewContainer .calculator-form label,
+    #orderSummary label {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    #viewContainer .form .row > input[type="number"],
+    #viewContainer .form .row > input[type="text"],
+    #viewContainer .form .row > input[type="email"],
+    #viewContainer .form .row > select,
+    #viewContainer .form .row > textarea,
+    #viewContainer .calculator-form .form-group > input[type="number"],
+    #viewContainer .calculator-form .form-group > input[type="text"],
+    #viewContainer .calculator-form .form-group > input[type="email"],
+    #viewContainer .calculator-form .form-group > select,
+    #viewContainer .calculator-form .form-group > textarea,
+    #orderSummary input,
+    #orderSummary select,
+    #orderSummary textarea {
+      width: 100%;
+      min-height: 46px;
+      padding: 11px 14px;
+      margin: 0;
+      box-sizing: border-box;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.35;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    #viewContainer textarea,
+    #orderSummary textarea {
+      min-height: 108px;
+      resize: vertical;
+    }
+
+    #viewContainer .form .row > input[type="number"],
+    #viewContainer .form .row > input[type="text"],
+    #viewContainer .form .row > input[type="email"],
+    #viewContainer .form .row > select,
+    #viewContainer .form .row > textarea,
+    #viewContainer .calculator-form .form-group > input[type="number"],
+    #viewContainer .calculator-form .form-group > input[type="text"],
+    #viewContainer .calculator-form .form-group > input[type="email"],
+    #viewContainer .calculator-form .form-group > select,
+    #viewContainer .calculator-form .form-group > textarea {
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+
+    #viewContainer .form .row > input:focus,
+    #viewContainer .form .row > select:focus,
+    #viewContainer .form .row > textarea:focus,
+    #viewContainer .calculator-form .form-group > input:focus,
+    #viewContainer .calculator-form .form-group > select:focus,
+    #viewContainer .calculator-form .form-group > textarea:focus,
+    #orderSummary input:focus,
+    #orderSummary select:focus,
+    #orderSummary textarea:focus {
+      outline: none;
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.15);
+    }
+
+    .tile,
+    .btn-primary,
+    .primary,
+    .danger,
+    .ghost,
+    #orderSummary button {
+      min-height: 46px;
+      border-radius: 12px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+
+    .tile:hover,
+    .btn-primary:hover,
+    .primary:hover,
+    .danger:hover,
+    .ghost:hover,
+    #orderSummary button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(15, 23, 42, 0.14);
+    }
+
+    .btn-primary,
+    .primary {
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
+    }
+
+    .ghost,
+    .order-btn--ghost {
+      border: 1px solid rgba(148, 163, 184, 0.24);
+    }
+
+    #viewContainer {
+      color: #0f172a;
+    }
+
+    #viewContainer .category-view,
+    #viewContainer .category-template,
+    #viewContainer .category-form,
+    #viewContainer .cad-upload,
+    #viewContainer .container,
+    #viewContainer .content {
+      display: grid;
+      gap: 20px;
+    }
+
+    #viewContainer .view-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid #dbe7f3;
+      margin-bottom: 6px;
+    }
+
+    #viewContainer h2,
+    #viewContainer h3 {
+      margin: 0;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      color: #0f172a;
+    }
+
+    #viewContainer p,
+    #viewContainer .hint,
+    #viewContainer .form-text,
+    #viewContainer .cennik-note,
+    #viewContainer .modifier-hint,
+    #viewContainer .express-hint,
+    #viewContainer .label-sub {
+      color: #475569 !important;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    #viewContainer .calculator-form.card,
+    #viewContainer .result-display.card,
+    #viewContainer .result-area,
+    #viewContainer .pricing-table,
+    #viewContainer .cennik-table,
+    #viewContainer .settings-panel,
+    #viewContainer .summary-panel,
+    #viewContainer .cad-summary-section,
+    #viewContainer .warning-alert,
+    #viewContainer .rolls-summary,
+    #viewContainer .files-table-wrapper,
+    #viewContainer .results-table-container,
+    #viewContainer #dypBreakdown,
+    #viewContainer #zapBreakdown,
+    #viewContainer #rollUpBreakdown,
+    #viewContainer #w-breakdown-display,
+    #viewContainer #v-breakdown-display,
+    #viewContainer #u-breakdown-display,
+    #viewContainer #b-breakdown-display,
+    #viewContainer #p-result-display,
+    #viewContainer #result-display,
+    #viewContainer #u-result-display,
+    #viewContainer #v-result-display,
+    #viewContainer #w-result-display,
+    #viewContainer #b-result-display,
+    #viewContainer #dypResult,
+    #viewContainer #zapResult,
+    #viewContainer #rollUpResult {
+      background: #ffffff !important;
+      border: 1px solid #dbe7f3 !important;
+      border-radius: 18px !important;
+      box-shadow: 0 14px 34px rgba(148, 163, 184, 0.12) !important;
+    }
+
+    #viewContainer .calculator-form.card,
+    #viewContainer .result-display.card,
+    #viewContainer .result-area,
+    #viewContainer .pricing-table,
+    #viewContainer .cennik-table,
+    #viewContainer .settings-panel,
+    #viewContainer .summary-panel,
+    #viewContainer .cad-summary-section,
+    #viewContainer .warning-alert,
+    #viewContainer .rolls-summary,
+    #viewContainer .files-table-wrapper,
+    #viewContainer .results-table-container {
+      padding: 20px !important;
+    }
+
+    #viewContainer .form-row,
+    #viewContainer .cad-mode-format-row,
+    #viewContainer .results-controls,
+    #viewContainer .summary-grid,
+    #viewContainer .toggle-group,
+    #viewContainer .checkbox-group {
+      display: grid;
+      gap: 14px;
+    }
+
+    #viewContainer .form-row,
+    #viewContainer .cad-mode-format-row,
+    #viewContainer .summary-grid {
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    #viewContainer .form-actions,
+    #viewContainer .order-actions,
+    #viewContainer .cad-price-options {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    #viewContainer .form-actions > button,
+    #viewContainer .cad-price-options > button,
+    #viewContainer .results-controls > button {
+      min-width: 180px;
+    }
+
+    #viewContainer .toggle-group {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    #viewContainer .toggle-btn,
+    #viewContainer .wlepki-option,
+    #viewContainer .mini-check,
+    #viewContainer .order-row--express,
+    #viewContainer .summary-item,
+    #viewContainer .roll-item,
+    #viewContainer .bind-type-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid #dbe7f3;
+      border-radius: 12px;
+      background: #f8fafc;
+      box-sizing: border-box;
+    }
+
+    #viewContainer .toggle-btn input,
+    #viewContainer .wlepki-option input,
+    #viewContainer .mini-check input,
+    #viewContainer input[type="checkbox"],
+    #viewContainer input[type="radio"] {
+      accent-color: #2563eb;
+    }
+
+    #viewContainer .tab-btn,
+    #viewContainer .settings-tab {
+      min-height: 42px;
+      padding: 10px 14px !important;
+      border-radius: 12px 12px 0 0;
+      transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+    }
+
+    #viewContainer .tab-btn.active,
+    #viewContainer .settings-tab--active,
+    #viewContainer .settings-tab[aria-selected="true"] {
+      background: #eff6ff !important;
+      color: #1d4ed8 !important;
+      border-color: #93c5fd !important;
+    }
+
+    #viewContainer table {
+      width: 100% !important;
+      border-collapse: separate !important;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 14px;
+      border: 1px solid #dbe7f3;
+      background: #ffffff;
+    }
+
+    #viewContainer th,
+    #viewContainer td {
+      padding: 12px 14px !important;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: middle;
+      font-size: 14px;
+    }
+
+    #viewContainer th {
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    #viewContainer tr:last-child td {
+      border-bottom: none;
+    }
+
+    #viewContainer .result-row,
+    #viewContainer .price-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    #viewContainer .result-row:last-child,
+    #viewContainer .price-line:last-child {
+      border-bottom: none;
+    }
+
+    #viewContainer .result-row.total,
+    #viewContainer .price-line.highlight,
+    #viewContainer .price-value {
+      color: #0f766e !important;
+      font-weight: 700;
+    }
+
+    #viewContainer .price-unit,
+    #viewContainer .price-value,
+    #viewContainer #resUnitPrice,
+    #viewContainer #resTotalPrice {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    #viewContainer .upload-zone,
+    #viewContainer .cad-drop-zone {
+      padding: 24px !important;
+      border-radius: 16px !important;
+      border: 2px dashed #93c5fd !important;
+      background: linear-gradient(180deg, #f8fbff, #eff6ff) !important;
+    }
+
+    #viewContainer .settings-tabs,
+    #viewContainer #category-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    #viewContainer .settings-active-label,
+    #viewContainer #active-category-label {
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    #viewContainer .settings-active-desc,
+    #viewContainer #active-category-desc {
+      color: #475569;
+      font-size: 13px;
+    }
+
+    #viewContainer .settings-input,
+    #viewContainer .form-control,
+    #viewContainer .item-quantity,
+    #viewContainer .service-quantity,
+    #viewContainer .service-hours,
+    #viewContainer .qty-input {
+      min-height: 42px !important;
+      border-radius: 10px !important;
+      box-sizing: border-box;
+    }
+
+    #viewContainer .bind-type-wrap,
+    #viewContainer .bind-color-wrap,
+    #viewContainer .modifiers-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    #viewContainer .warning-alert,
+    #viewContainer .cad-warning {
+      color: #92400e !important;
+      background: #fff7ed !important;
+      border-color: #fdba74 !important;
+    }
+
+    #orderSummary {
+      border-radius: 20px;
+      border: 1px solid rgba(59, 130, 246, 0.14);
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+      background: linear-gradient(180deg, rgba(15,32,53,0.98), rgba(22,46,77,0.98));
+      padding: 24px;
+    }
+
+    #orderSummary h2,
+    #orderSummary h3 {
+      color: #f8fafc;
+    }
+
+    #orderSummary .summary {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px 14px;
+    }
+
+    #orderSummary .sumRow + .sumRow {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    #orderSummary .pill {
+      background: rgba(37, 99, 235, 0.22);
+      color: #bfdbfe;
+    }
+
+    #orderSummary .basketList {
+      max-height: 320px;
+      overflow-y: auto;
+      padding-right: 4px;
+      display: grid;
+      gap: 10px;
+    }
+
+    #orderSummary .order-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    #orderSummary input,
+    #orderSummary select,
+    #orderSummary textarea {
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+    }
+
+    #orderSummary .order-row--express {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    #orderSummary .order-row--express input[type="checkbox"] {
+      width: 18px;
+      min-height: 18px;
+      height: 18px;
+      padding: 0;
+      margin: 0;
+      accent-color: #60a5fa;
+      box-shadow: none;
+      border-radius: 6px;
+    }
+
+    #orderSummary .order-row--express label {
+      margin: 0;
+    }
+
+    #orderSummary .order-actions {
+      margin-top: 18px;
+      display: grid;
+      gap: 12px;
+    }
+
+    #orderSummary .order-actions button,
+    #clearBtn,
+    #sendBtn,
+    #copyBtn {
+      width: 100%;
+    }
+
+    #orderSummary input::placeholder,
+    #orderSummary textarea::placeholder {
+      color: rgba(226, 232, 240, 0.6);
+    }
+
+    #orderSummary label,
+    #orderSummary .k {
+      color: #cbd5e1;
+    }
+
+    #orderSummary .v {
+      color: #ffffff;
+    }
+
+    .mobile-sidebar-backdrop {
+      display: none;
+    }
+
+    @media (max-width: 767px) {
+      .sidebar-toggle {
+        display: inline-flex;
+      }
+
+      .app-grid {
+        flex-direction: column;
+      }
+
+      .site-header {
+        flex-wrap: wrap;
+        padding: 16px 18px;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .main-content-card,
+      #orderSummary {
+        padding: 18px;
+      }
+
+      #viewContainer .form-actions > button,
+      #viewContainer .cad-price-options > button,
+      #viewContainer .results-controls > button {
+        width: 100%;
+      }
+
+      #viewContainer .result-row,
+      #viewContainer .price-line,
+      #viewContainer .toggle-btn,
+      #viewContainer .wlepki-option,
+      #viewContainer .mini-check,
+      #viewContainer .summary-item,
+      #viewContainer .roll-item,
+      #viewContainer .bind-type-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .category-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        border-radius: 0 18px 18px 0;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+      }
+
+      body.sidebar-open .category-sidebar {
+        transform: translateX(0);
+      }
+
+      .mobile-sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 10;
+      }
+
+      body.sidebar-open .mobile-sidebar-backdrop {
+        display: block;
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .right-col {
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -37,11 +868,7 @@
         <p class="small">Studio poligraficzne: Szybko • Tanio • Profesjonalnie</p>
       </div>
       <div class="header-actions">
-        <div class="category-search-toolbar" role="search" aria-label="Szukaj kategorii">
-          <label for="categorySearch" class="visually-hidden">Szukaj kategorii</label>
-          <input id="categorySearch" class="category-search-input" type="search" placeholder="szukam..." autocomplete="off">
-          <button id="categorySearchButton" type="button" class="ghost category-search-button" aria-label="Szukaj kategorii">🔍</button>
-        </div>
+        <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Otwórz menu kategorii" aria-controls="categorySidebar" aria-expanded="false">☰</button>
         <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ustawienia cen">
               <span class="tile-icon">⚙️</span>
               <span class="tile-title">Ustawienia cen</span> 
@@ -51,99 +878,73 @@
 
  
     <div class="app-grid">
-      <!-- Left column: category tiles + selector + main calculator -->
-      <div class="left-col">
-        <div class="category-sticky">
-          <div class="tile-grid">
-            <a href="#/druk-a4-a3" class="tile" role="button" tabindex="0" aria-label="Przejdź do Druk A4/A3 + skan">
-              <span class="tile-icon">🖨️</span>
-              <span class="tile-title">Druk A4/A3 + skan</span>
-            </a>
-            <a href="#/druk-cad" class="tile" role="button" tabindex="0" aria-label="Przejdź do CAD wielkoformatowy">
-              <span class="tile-icon">📐</span>
-              <span class="tile-title">CAD wielkoformatowy</span>
-            </a>
-            <a href="#/cad-upload" class="tile" role="button" tabindex="0" aria-label="Przejdź do CAD Upload plików">
-              <span class="tile-icon">📁</span>
-              <span class="tile-title">CAD Upload plików</span>
-            </a>
-            <a href="#/laminowanie" class="tile" role="button" tabindex="0" aria-label="Przejdź do Introligatornia">
-              <span class="tile-icon">✨</span>
-              <span class="tile-title">Introligatornia</span>
-            </a>
-            <a href="#/banner" class="tile" role="button" tabindex="0" aria-label="Przejdź do Banner">
-              <span class="tile-icon">🏁</span>
-              <span class="tile-title">Banner</span>
-            </a>
-            <a href="#/wizytowki-druk-cyfrowy" class="tile" role="button" tabindex="0" aria-label="Przejdź do Wizytówki">
-              <span class="tile-icon">📇</span>
-              <span class="tile-title">Wizytówki</span>
-            </a>
-            <a href="#/ulotki-cyfrowe" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ulotki cyfrowe">
-              <span class="tile-icon">📄</span>
-              <span class="tile-title">Ulotki cyfrowe</span>
-            </a>
-            <a href="#/wlepki-naklejki" class="tile" role="button" tabindex="0" aria-label="Przejdź do Wlepki / Naklejki">
-              <span class="tile-icon">🏷️</span>
-              <span class="tile-title">Wlepki / Naklejki</span>
-            </a>
-            <a href="#/roll-up" class="tile" role="button" tabindex="0" aria-label="Przejdź do Roll-up">
-              <span class="tile-icon">↕️</span>
-              <span class="tile-title">Roll-up</span>
-            </a>
-            <a href="#/dyplomy" class="tile" role="button" tabindex="0" aria-label="Przejdź do Dyplomy">
-              <span class="tile-icon">📜</span>
-              <span class="tile-title">Dyplomy</span>
-            </a>
-            <a href="#/zaproszenia-kreda" class="tile" role="button" tabindex="0" aria-label="Przejdź do Zaproszenia KREDA">
-              <span class="tile-icon">✉️</span>
-              <span class="tile-title">Zaproszenia KREDA</span>
-            </a>
-            <a href="#/folia-szroniona" class="tile" role="button" tabindex="0" aria-label="Przejdź do Folia szroniona">
-              <span class="tile-icon">❄️</span>
-              <span class="tile-title">Folia szroniona</span>
-            </a>
-            <a href="#/wycinanie-folii" class="tile" role="button" tabindex="0" aria-label="Przejdź do Wycinanie z folii">
-              <span class="tile-icon">✂️</span>
-              <span class="tile-title">Wycinanie z folii</span>
-            </a>
-            <a href="#/canvas" class="tile" role="button" tabindex="0" aria-label="Przejdź do Canvas / Płótno">
-              <span class="tile-icon">🖼️</span>
-              <span class="tile-title">Canvas / Płótno</span>
-            </a>
-            <a href="#/vouchery" class="tile" role="button" tabindex="0" aria-label="Przejdź do Vouchery">
-              <span class="tile-icon"></span>
-              <span class="tile-title">Vouchery</span>
-            </a>
-     
-            <a href="#/plakaty" class="tile" role="button" tabindex="0" aria-label="Przejdź do Plakaty">
-              <span class="tile-icon">⚙️</span>
-              <span class="tile-title">Plakaty </span> 
-            </a>
-            <a href="#/artykuly-biurowe" class="tile" role="button" tabindex="0" aria-label="Przejdź do Artykuły Biurowe">
-              <span class="tile-icon">📎</span>
-              <span class="tile-title">Artykuły Biurowe</span>
-            </a>
-            <a href="#/uslugi" class="tile" role="button" tabindex="0" aria-label="Przejdź do Usługi">
-              <span class="tile-icon">🛠️</span>
-              <span class="tile-title">Usługi</span>
-            </a>
+      <aside class="category-sidebar" id="categorySidebar" aria-label="Kategorie kalkulatora">
+        <div class="category-sidebar-inner">
+          <div class="category-search-wrap" role="search" aria-label="Szukaj kategorii">
+            <label for="sidebarCategorySearch" class="visually-hidden">Szukaj kategorii</label>
+            <input id="sidebarCategorySearch" class="category-sidebar-search" type="search" placeholder="Szukaj kategorii..." autocomplete="off">
+          </div>
+
+          <div class="category-group" data-group="druk" style="--group-accent:#3b82f6;">
+            <span class="category-group-label">Druk</span>
+            <div class="category-nav-list">
+              <a href="#/druk-a4-a3" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Druk A4/A3 + skan">Druk A4/A3 + skan</a>
+              <a href="#/druk-cad" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do CAD wielkoformatowy">CAD wielkoformatowy</a>
+              <a href="#/cad-upload" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do CAD Upload plików">CAD Upload plików</a>
+              <a href="#/banner" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Banner">Banner</a>
+              <a href="#/ulotki-cyfrowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Ulotki cyfrowe">Ulotki cyfrowe</a>
+              <a href="#/wlepki-naklejki" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Wlepki / Naklejki">Wlepki / Naklejki</a>
+              <a href="#/plakaty" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Plakaty">Plakaty</a>
+            </div>
+          </div>
+
+          <div class="category-group-divider" aria-hidden="true"></div>
+
+          <div class="category-group" data-group="wykonczenia" style="--group-accent:#10b981;">
+            <span class="category-group-label">Wykończenia</span>
+            <div class="category-nav-list">
+              <a href="#/laminowanie" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Introligatornia">Introligatornia (Laminowanie, Bindowanie, Oprawy, Wydruki specjalne)</a>
+              <a href="#/folia-szroniona" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Folia szroniona">Folia szroniona</a>
+              <a href="#/wycinanie-folii" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Wycinanie z folii">Wycinanie z folii</a>
+              <a href="#/canvas" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Canvas / Płótno">Canvas / Płótno</a>
+              <a href="#/roll-up" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Roll-up">Roll-up</a>
+            </div>
+          </div>
+
+          <div class="category-group-divider" aria-hidden="true"></div>
+
+          <div class="category-group" data-group="pozostale" style="--group-accent:#f59e0b;">
+            <span class="category-group-label">Pozostałe</span>
+            <div class="category-nav-list">
+              <a href="#/wizytowki-druk-cyfrowy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Wizytówki">Wizytówki</a>
+              <a href="#/dyplomy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Dyplomy">Dyplomy</a>
+              <a href="#/zaproszenia-kreda" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Zaproszenia KREDA">Zaproszenia KREDA</a>
+              <a href="#/vouchery" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Vouchery">Vouchery</a>
+              <a href="#/artykuly-biurowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Artykuły Biurowe">Artykuły Biurowe</a>
+              <a href="#/uslugi" class="category-nav-button" role="button" tabindex="0" aria-label="Przejdź do Usługi">Usługi</a>
+            </div>
           </div>
         </div>
-        <div class="card">
+      </aside>
+
+      <div class="mobile-sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
+
+      <!-- Left column: main calculator -->
+      <div class="left-col">
+        <div class="card main-content-card">
           <div id="viewContainer">
-            <div id="emptyState" style="display:block;text-align:center;padding:60px;background:var(--surface-alt);border-radius:12px;margin:20px 0">
+            <div id="emptyState" style="display:block;text-align:center;padding:60px;border-radius:12px;margin:20px 0">
               <h2 style="color:var(--primary)">🖨️ Wybierz kategorię</h2>
-              <p>Wpisz usługę lub kliknij tile. Wycena + Excel w 1 klik!</p>
-              <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px">📂 Przeglądaj kategorie</button>
+              <p>Wybierz kategorię z lewego panelu lub wyszukaj usługę. Wycena + Excel w 1 klik.</p>
+              <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px">📂 Otwórz kategorie</button>
             </div>
             <div id="loadingSpinner" style="display:none;text-align:center;padding:40px">
               ⏳ Ładowanie kategorii... <div style="animation:dots 1s infinite"></div>
             </div>
           </div>
 
-          <div style="margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
-            <details style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px;">
+          <div style="margin-top: 40px; border-top: 1px solid rgba(15,32,53,0.1); padding-top: 20px;">
+            <details style="border: 1px solid rgba(15,32,53,0.1); border-radius: 8px; padding: 10px;">
               <summary style="cursor: pointer; font-size: 13px; font-weight: 700;">Debug Data (JSON)</summary>
               <pre id="basketDebug" style="font-size: 11px; margin-top: 10px; overflow: auto; max-height: 200px;">{}</pre>
             </details>
@@ -217,6 +1018,126 @@
       </div>
     </div>
   </div>
+
+ <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const body = document.body;
+  const sidebar = document.getElementById('categorySidebar');
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  const searchInput = document.getElementById('sidebarCategorySearch');
+  const navButtons = Array.from(document.querySelectorAll('.category-nav-button'));
+  const groups = Array.from(document.querySelectorAll('.category-group'));
+
+  const normalizeText = (value) => value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const setSidebarState = (isOpen) => {
+    body.classList.toggle('sidebar-open', isOpen);
+    if (sidebarToggle) {
+      sidebarToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+  };
+
+  const closeSidebarIfMobile = () => {
+    if (window.innerWidth < 768) {
+      setSidebarState(false);
+    }
+  };
+
+  const updateActiveCategory = () => {
+    const currentHash = window.location.hash || '';
+    navButtons.forEach((button) => {
+      button.classList.toggle('is-active', currentHash === button.getAttribute('href'));
+    });
+  };
+
+  const filterCategories = () => {
+    const query = normalizeText(searchInput ? searchInput.value.trim() : '');
+
+    groups.forEach((group) => {
+      const buttons = Array.from(group.querySelectorAll('.category-nav-button'));
+      let visibleCount = 0;
+
+      buttons.forEach((button) => {
+        const matches = !query || normalizeText(button.textContent).includes(query);
+        button.style.display = matches ? '' : 'none';
+        if (matches) {
+          visibleCount += 1;
+        }
+      });
+
+      group.style.display = visibleCount > 0 ? '' : 'none';
+
+      const divider = group.previousElementSibling;
+      if (divider && divider.classList.contains('category-group-divider')) {
+        divider.style.display = visibleCount > 0 ? '' : 'none';
+      }
+    });
+
+    const visibleGroups = groups.filter((group) => group.style.display !== 'none');
+    visibleGroups.forEach((group, index) => {
+      const divider = group.previousElementSibling;
+      if (divider && divider.classList.contains('category-group-divider')) {
+        divider.style.display = index === 0 ? 'none' : '';
+      }
+    });
+  };
+
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', () => {
+      const isOpen = !body.classList.contains('sidebar-open');
+      setSidebarState(isOpen);
+    });
+  }
+
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener('click', () => setSidebarState(false));
+  }
+
+  navButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      window.requestAnimationFrame(updateActiveCategory);
+      closeSidebarIfMobile();
+    });
+  });
+
+  if (searchInput) {
+    searchInput.addEventListener('input', filterCategories);
+    searchInput.addEventListener('focus', () => {
+      if (window.innerWidth < 768) {
+        setSidebarState(true);
+      }
+    });
+  }
+
+  window.addEventListener('hashchange', updateActiveCategory);
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 768) {
+      setSidebarState(false);
+    }
+  });
+
+  window.scrollToTopTiles = () => {
+    if (window.innerWidth < 768) {
+      setSidebarState(true);
+    }
+
+    if (sidebar) {
+      sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    if (searchInput) {
+      searchInput.focus();
+    }
+  };
+
+  filterCategories();
+  updateActiveCategory();
+});
+ </script>
 
  <script src="assets/app.js" type="module"></script>
  <!-- <script>
