@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { quoteLaminowanie, quoteIntroligatornia } from "../src/categories/laminowanie";
+import { quoteLaminowanie, quoteIntroligatornia, quoteWydrukiSpecjalne } from "../src/categories/laminowanie";
 
 describe("Laminowanie", () => {
   it("should calculate price for A3 (1-50szt) = 7 PLN/szt", () => {
@@ -84,5 +84,40 @@ describe("Laminowanie", () => {
       qty: 1,
       express: false
     })).toThrow();
+  });
+
+  it("should calculate wydruki specjalne: Modigliani A4", () => {
+    const result = quoteWydrukiSpecjalne({
+      variantId: "modigliani-a4",
+      qty: 2,
+      doubleSided: false,
+      express: false,
+    });
+
+    expect(result.totalPrice).toBe(24);
+  });
+
+  it("should apply +50% for double-sided special print", () => {
+    const result = quoteWydrukiSpecjalne({
+      variantId: "modigliani-a3",
+      qty: 2,
+      doubleSided: true,
+      express: false,
+    });
+
+    // 2 * 15 * 1.5 = 45
+    expect(result.totalPrice).toBe(45);
+  });
+
+  it("should apply express for special prints", () => {
+    const result = quoteWydrukiSpecjalne({
+      variantId: "modigliani-a4",
+      qty: 1,
+      doubleSided: true,
+      express: true,
+    });
+
+    // 12 * 1.5 * 1.2 = 21.6
+    expect(result.totalPrice).toBe(21.6);
   });
 });

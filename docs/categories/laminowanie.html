@@ -3,7 +3,7 @@
     window.location.href = "/#/laminowanie";
   }
 </script> -->
-<h2>Laminowanie, Bindowanie, Oprawy</h2>
+<h2>Introligatornia</h2>
 
 <!-- TABS -->
 <div style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #ddd;">
@@ -11,6 +11,7 @@
   <button class="tab-btn" data-tab="bindowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Bindowanie</button>
   <button class="tab-btn" data-tab="oprawy" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Oprawy</button>
   <button class="tab-btn" data-tab="introligatornia" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Introligatornia</button>
+  <button class="tab-btn" data-tab="wydruki-specjalne" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Wydruki specjalne / dodruki</button>
 </div>
 
 <!-- TAB: LAMINOWANIE -->
@@ -175,6 +176,44 @@
         <span id="intro-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
       </div>
       <div id="intro-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
+    </div>
+  </div>
+</div>
+
+<!-- TAB: WYDRUKI SPECJALNE / DODRUKI -->
+<div class="tab-content" id="tab-wydruki-specjalne" style="display:none;">
+  <h3>Wydruki specjalne / dodruki</h3>
+  <div class="form">
+    <div class="row">
+      <label for="special-variant">Rodzaj:</label>
+      <select id="special-variant">
+        <option value="modigliani-a4">Modigliani 260g A4</option>
+        <option value="modigliani-a3">Modigliani 260g A3</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="special-qty">Ilość (szt):</label>
+      <input type="number" id="special-qty" value="1" min="1" max="3">
+    </div>
+    <div class="row">
+      <label for="special-double">Druk dwustronny:</label>
+      <input type="checkbox" id="special-double" style="width:18px;height:18px;">
+      <small style="margin-left:10px; color:#666;">Dwustronnie: +50%</small>
+    </div>
+    <div class="form-actions">
+      <button id="special-calculate" class="btn-primary">Oblicz</button>
+      <button id="special-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+    </div>
+    <div id="special-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena jednostkowa:</span>
+        <span id="special-unit-price" style="font-weight: 600;">-</span>
+      </div>
+      <div style="display: flex; justify-content: space-between;">
+        <span>Cena całkowita:</span>
+        <span id="special-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      </div>
+      <div id="special-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
     </div>
   </div>
 </div>

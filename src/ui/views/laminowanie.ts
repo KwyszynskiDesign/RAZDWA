@@ -1,5 +1,5 @@
 import { View, ViewContext } from "../types";
-import { quoteLaminowanie, quoteIntroligatornia } from "../../categories/laminowanie";
+import { quoteLaminowanie, quoteIntroligatornia, quoteWydrukiSpecjalne } from "../../categories/laminowanie";
 import { formatPLN } from "../../core/money";
 
 const BINDOWANIE_PRICES = {
@@ -68,7 +68,7 @@ function getOprUnitPrice(
 
 export const LaminowanieView: View = {
   id: "laminowanie",
-  name: "Laminowanie",
+  name: "Introligatornia",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/laminowanie.html");
@@ -135,7 +135,7 @@ export const LaminowanieView: View = {
           resultDisplay.style.display = "block";
           addToCartBtn.disabled = false;
 
-          ctx.updateLastCalculated(result.totalPrice, "Laminowanie");
+          ctx.updateLastCalculated(result.totalPrice, "Introligatornia - laminowanie");
         } catch {
           // calculation error — result remains unchanged
         }
@@ -149,7 +149,7 @@ export const LaminowanieView: View = {
 
         ctx.cart.addItem({
           id: `laminowanie-${Date.now()}`,
-          category: "Laminowanie",
+          category: "Introligatornia",
           name: `Laminowanie ${currentOptions.format}`,
           quantity: currentOptions.qty,
           unit: "szt",
@@ -196,7 +196,7 @@ export const LaminowanieView: View = {
 
       ctx.cart.addItem({
         id: `bindowanie-${Date.now()}`,
-        category: "Laminowanie",
+        category: "Introligatornia",
         name: `Bindowanie ${bindState.type === "plastik" ? "plastik" : "metal"}`,
         quantity: bindState.qty,
         unit: "szt",
@@ -280,7 +280,7 @@ export const LaminowanieView: View = {
 
       ctx.cart.addItem({
         id: `oprawa-${Date.now()}`,
-        category: "Laminowanie",
+        category: "Introligatornia",
         name: `Oprawa ${oprState.type}`,
         quantity: oprState.qty,
         unit: "szt",
@@ -338,7 +338,7 @@ export const LaminowanieView: View = {
       if (!introState) return;
       ctx.cart.addItem({
         id: `intro-${Date.now()}`,
-        category: "Laminowanie",
+        category: "Introligatornia",
         name: `Introligatornia: ${introState.serviceName}`,
         quantity: introState.qty,
         unit: "szt",
@@ -347,6 +347,59 @@ export const LaminowanieView: View = {
         totalPrice: introState.totalPrice,
         optionsHint: `${introState.qty} operacji${ctx.expressMode ? ", EXPRESS" : ""}`,
         payload: introState
+      });
+    });
+
+    const specialVariant = container.querySelector("#special-variant") as HTMLSelectElement | null;
+    const specialQty = container.querySelector("#special-qty") as HTMLInputElement | null;
+    const specialDouble = container.querySelector("#special-double") as HTMLInputElement | null;
+    const specialCalcBtn = container.querySelector("#special-calculate") as HTMLButtonElement | null;
+    const specialAddBtn = container.querySelector("#special-add-to-cart") as HTMLButtonElement | null;
+    const specialResultDisplay = container.querySelector("#special-result-display") as HTMLElement | null;
+    const specialUnitPrice = container.querySelector("#special-unit-price") as HTMLElement | null;
+    const specialTotalPrice = container.querySelector("#special-total-price") as HTMLElement | null;
+    const specialExpressHint = container.querySelector("#special-express-hint") as HTMLElement | null;
+
+    let specialState: ReturnType<typeof quoteWydrukiSpecjalne> | null = null;
+
+    specialCalcBtn?.addEventListener("click", () => {
+      if (!specialVariant || !specialQty || !specialDouble) return;
+
+      try {
+        const result = quoteWydrukiSpecjalne({
+          variantId: specialVariant.value,
+          qty: parseInt(specialQty.value, 10) || 1,
+          doubleSided: specialDouble.checked,
+          express: ctx.expressMode,
+        });
+
+        specialState = result;
+        if (specialUnitPrice) specialUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
+        if (specialTotalPrice) specialTotalPrice.innerText = formatPLN(result.totalPrice);
+        if (specialExpressHint) specialExpressHint.style.display = ctx.expressMode ? "block" : "none";
+        if (specialResultDisplay) specialResultDisplay.style.display = "block";
+        if (specialAddBtn) specialAddBtn.disabled = false;
+
+        ctx.updateLastCalculated(result.totalPrice, "Introligatornia - wydruki specjalne/dodruki");
+      } catch {
+        // noop
+      }
+    });
+
+    specialAddBtn?.addEventListener("click", () => {
+      if (!specialState) return;
+
+      ctx.cart.addItem({
+        id: `special-print-${Date.now()}`,
+        category: "Introligatornia",
+        name: `Wydruki specjalne / dodruki: ${specialState.variantName}`,
+        quantity: specialState.qty,
+        unit: "szt",
+        unitPrice: specialState.totalPrice / specialState.qty,
+        isExpress: ctx.expressMode,
+        totalPrice: specialState.totalPrice,
+        optionsHint: `${specialState.qty} szt${specialState.doubleSided ? ", dwustronnie (+50%)" : ", jednostronnie"}${ctx.expressMode ? ", EXPRESS" : ""}`,
+        payload: specialState,
       });
     });
   }

@@ -123,6 +123,9 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-intro-zszywanie": "Introligatornia – zszywanie kartek (za zszywkę)",
   "laminowanie-intro-broszurowanie": "Introligatornia – broszurowanie/docnianie (za cięcie)",
   "laminowanie-intro-bigowanie": "Introligatornia – bigowanie (za big)",
+  "laminowanie-special-modigliani-a4": "Wydruki specjalne / dodruki – Modigliani 260g A4",
+  "laminowanie-special-modigliani-a3": "Wydruki specjalne / dodruki – Modigliani 260g A3",
+  "laminowanie-special-double-sided-factor": "Wydruki specjalne / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",
   "solwent-150g-4-9": "Solwent 150g półmat – 4–9 m²",

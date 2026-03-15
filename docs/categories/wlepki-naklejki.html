@@ -29,9 +29,53 @@
                 <option value="plotowane-papier">Plotowane + cięte na sztuki (papier)</option>
                 <option value="plotowane-folia">Plotowane + cięte na sztuki (folia)</option>
             </select>
+
+            <div id="wlepki-piece-paper-group" style="display:none; margin-top: 12px;">
+                <label>Wykończenie papieru:</label>
+                <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
+                    <label class="wlepki-option">
+                        <input type="checkbox" value="mat" class="wlepki-piece-paper wlepki-option-input">
+                        <span class="wlepki-option-text">Papier mat</span>
+                    </label>
+                    <label class="wlepki-option">
+                        <input type="checkbox" value="blysk" class="wlepki-piece-paper wlepki-option-input">
+                        <span class="wlepki-option-text">Papier błysk</span>
+                    </label>
+                </div>
+            </div>
+
+            <div id="wlepki-piece-foil-group" style="display:none; margin-top: 12px;">
+                <label>Rodzaj folii:</label>
+                <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
+                    <label class="wlepki-option">
+                        <input type="checkbox" value="biala" class="wlepki-piece-foil wlepki-option-input">
+                        <span class="wlepki-option-text">Folia biała</span>
+                    </label>
+                    <label class="wlepki-option">
+                        <input type="checkbox" value="transparentna" class="wlepki-piece-foil wlepki-option-input">
+                        <span class="wlepki-option-text">Folia transparentna</span>
+                    </label>
+                </div>
+            </div>
+
             <label for="wlepki-piece-qty" style="margin-top:10px;">Ilość (szt):</label>
             <input type="number" id="wlepki-piece-qty" class="form-control" value="1" min="1" step="1">
             <small class="form-text">Dostępne progi: 1-10, 15, 20, 25, 30 szt.</small>
+        </div>
+
+        <div class="form-group" id="wlepki-area-foil-group" style="display:none;">
+            <label>Rodzaj folii:</label>
+            <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 10px;">
+                <label class="wlepki-option">
+                    <input type="checkbox" value="biala" class="wlepki-area-foil wlepki-option-input">
+                    <span class="wlepki-option-text">Folia biała</span>
+                </label>
+                <label class="wlepki-option">
+                    <input type="checkbox" value="transparentna" class="wlepki-area-foil wlepki-option-input">
+                    <span class="wlepki-option-text">Folia transparentna</span>
+                </label>
+            </div>
+            <small class="form-text" style="display: block; margin-top: 10px;">Informacja techniczna do zamówienia (nie zmienia ceny).</small>
         </div>
 
         <div class="form-group" id="wlepki-area-group">

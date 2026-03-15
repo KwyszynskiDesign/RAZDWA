@@ -44,14 +44,63 @@ export const WlepkiView: View = {
       return { ...m, value: resolveStoredPrice(modKey, m.value) };
     });
 
+    const piecePaperGroup = container.querySelector("#wlepki-piece-paper-group") as HTMLElement;
+    const pieceFoilGroup = container.querySelector("#wlepki-piece-foil-group") as HTMLElement;
+    const areaFoilGroup = container.querySelector("#wlepki-area-foil-group") as HTMLElement;
+
+    const singleChoiceCheckboxes = (selector: string) =>
+      Array.from(container.querySelectorAll(selector) as NodeListOf<HTMLInputElement>);
+
+    const enforceSingleChoice = (selector: string) => {
+      const checkboxes = singleChoiceCheckboxes(selector);
+      checkboxes.forEach((checkbox) => {
+        checkbox.addEventListener("change", () => {
+          if (!checkbox.checked) return;
+          checkboxes.forEach((other) => {
+            if (other !== checkbox) other.checked = false;
+          });
+        });
+      });
+    };
+
+    enforceSingleChoice(".wlepki-piece-paper");
+    enforceSingleChoice(".wlepki-piece-foil");
+    enforceSingleChoice(".wlepki-area-foil");
+
+    const getSelectedValue = (selector: string): string | undefined => {
+      const checked = container.querySelector(`${selector}:checked`) as HTMLInputElement | null;
+      return checked?.value;
+    };
+
     let currentResult: any = null;
-    let currentInput: (WlepkiCalculation & { mode: "m2" }) | ({ mode: "szt"; tableId: string; qty: number; express?: boolean }) | null = null;
+    let currentInput:
+      | (WlepkiCalculation & { mode: "m2"; foilType?: "biala" | "transparentna" })
+      | ({
+          mode: "szt";
+          tableId: string;
+          qty: number;
+          express?: boolean;
+          paperFinish?: "mat" | "blysk";
+          foilType?: "biala" | "transparentna";
+        })
+      | null = null;
 
     const syncMode = () => {
       const mode = modeSelect.value === "szt" ? "szt" : "m2";
       pieceGroup.style.display = mode === "szt" ? "" : "none";
       areaGroup.style.display = mode === "m2" ? "" : "none";
       modifiersGroup.style.display = mode === "m2" ? "" : "none";
+
+      const selectedTable = pieceTableSelect.value;
+      const requiresPaperFinish = selectedTable === "papier-sra3";
+      const requiresPieceFoilType = selectedTable.includes("folia");
+      const selectedGroup = groupSelect.value;
+      const requiresAreaFoilType = selectedGroup.includes("folia");
+
+      piecePaperGroup.style.display = mode === "szt" && requiresPaperFinish ? "" : "none";
+      pieceFoilGroup.style.display = mode === "szt" && requiresPieceFoilType ? "" : "none";
+      areaFoilGroup.style.display = mode === "m2" && requiresAreaFoilType ? "" : "none";
+
       if (mode === "szt") {
         unitLabelEl.textContent = "Cena wg progu:";
         baseLabelEl.textContent = "Ilość rozliczona:";
@@ -62,6 +111,8 @@ export const WlepkiView: View = {
     };
 
     modeSelect.addEventListener("change", syncMode);
+  pieceTableSelect.addEventListener("change", syncMode);
+  groupSelect.addEventListener("change", syncMode);
     syncMode();
 
     const calculate = () => {
@@ -69,11 +120,25 @@ export const WlepkiView: View = {
 
       try {
         if (mode === "szt") {
+          const selectedTable = pieceTableSelect.value;
+          const paperFinish = getSelectedValue(".wlepki-piece-paper") as "mat" | "blysk" | undefined;
+          const foilType = getSelectedValue(".wlepki-piece-foil") as "biala" | "transparentna" | undefined;
+
+          if (selectedTable === "papier-sra3" && !paperFinish) {
+            throw new Error("Dla Papier SRA3 wybierz: mat albo błysk.");
+          }
+
+          if (selectedTable.includes("folia") && !foilType) {
+            throw new Error("Dla opcji foliowej wybierz: folia biała albo transparentna.");
+          }
+
           const input = {
             mode: "szt" as const,
-            tableId: pieceTableSelect.value,
+            tableId: selectedTable,
             qty: parseInt(pieceQtyInput.value, 10) || 1,
             express: ctx.expressMode,
+            paperFinish,
+            foilType,
           };
           const result = calculateWlepkiSzt(input);
           currentInput = input;
@@ -81,19 +146,30 @@ export const WlepkiView: View = {
 
           unitPriceEl.textContent = formatPLN(result.unitPrice);
           basePriceEl.textContent = `${result.requestedQty} szt (próg: ${result.chargedQty} szt)`;
+
+          const technicalDetails: string[] = [];
+          if (input.paperFinish) technicalDetails.push(`Papier: ${input.paperFinish === "mat" ? "mat" : "błysk"}`);
+          if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
+
           modifiersBreakdownEl.innerHTML = result.modifiersTotal > 0
-            ? `<div class="result-row"><span>Dopłata EXPRESS:</span><span class="price-value">+${formatPLN(result.modifiersTotal)}</span></div>`
-            : `<div class="result-row"><span>Opcje dodatkowe:</span><span class="price-value">brak dopłat</span></div>`;
+            ? `<div class="result-row"><span>Dopłata EXPRESS:</span><span class="price-value">+${formatPLN(result.modifiersTotal)}</span></div>${technicalDetails.length ? `<div class="result-row"><span>Specyfikacja:</span><span class="price-value">${technicalDetails.join(", ")}</span></div>` : ""}`
+            : `<div class="result-row"><span>Opcje dodatkowe:</span><span class="price-value">${technicalDetails.length ? technicalDetails.join(", ") : "brak dopłat"}</span></div>`;
         } else {
           const modCheckboxes = container.querySelectorAll(".wlepki-mod:checked") as NodeListOf<HTMLInputElement>;
           const modifiers = Array.from(modCheckboxes).map(cb => cb.value);
+          const foilType = getSelectedValue(".wlepki-area-foil") as "biala" | "transparentna" | undefined;
+
+          if (groupSelect.value.includes("folia") && !foilType) {
+            throw new Error("Dla opcji foliowej wybierz: folia biała albo transparentna.");
+          }
 
           const input = {
             mode: "m2" as const,
             groupId: groupSelect.value,
             area: parseFloat(areaInput.value) || 0,
             express: ctx.expressMode,
-            modifiers
+            modifiers,
+            foilType,
           };
 
           const result = calculateWlepki(input);
@@ -135,8 +211,11 @@ export const WlepkiView: View = {
             .filter(Boolean)
             .join("");
 
-          if (modifierLines) {
+          const foilDetails = input.foilType ? `<div class="result-row"><span>Rodzaj folii:</span><span class="price-value">${input.foilType === "biala" ? "biała" : "transparentna"}</span></div>` : "";
+
+          if (modifierLines || foilDetails) {
             modifiersBreakdownEl.innerHTML = modifierLines;
+            modifiersBreakdownEl.innerHTML += foilDetails;
           } else {
             modifiersBreakdownEl.innerHTML = `
               <div class="result-row">
@@ -164,6 +243,9 @@ export const WlepkiView: View = {
 
       if (currentInput.mode === "szt") {
         const selectedTitle = pieceTableSelect.options[pieceTableSelect.selectedIndex]?.text ?? "Naklejki sztukowe";
+        const technical: string[] = [];
+        if (currentInput.paperFinish) technical.push(`Papier: ${currentInput.paperFinish === "mat" ? "mat" : "błysk"}`);
+        if (currentInput.foilType) technical.push(`Folia: ${currentInput.foilType === "biala" ? "biała" : "transparentna"}`);
         ctx.cart.addItem({
           id: `wlepki-${Date.now()}`,
           category: "Wlepki / Naklejki",
@@ -173,8 +255,13 @@ export const WlepkiView: View = {
           unitPrice: currentResult.unitPrice,
           isExpress: !!currentInput.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: `${currentResult.requestedQty} szt (próg ${currentResult.chargedQty} szt)${currentInput.express ? ", EXPRESS" : ""}`,
-          payload: currentResult
+          optionsHint: `${currentResult.requestedQty} szt (próg ${currentResult.chargedQty} szt)${technical.length ? `, ${technical.join(", ")}` : ""}${currentInput.express ? ", EXPRESS" : ""}`,
+          payload: {
+            ...currentResult,
+            pieceTableId: currentInput.tableId,
+            paperFinish: currentInput.paperFinish,
+            foilType: currentInput.foilType,
+          }
         });
       } else {
         const group = tableData.groups.find((g: any) => g.id === currentInput.groupId);
@@ -183,6 +270,10 @@ export const WlepkiView: View = {
           const m = tableData.modifiers.find((mod: any) => mod.id === mId);
           return m ? m.name : mId;
         });
+
+        if (currentInput.foilType) {
+          modsLabel.push(`Folia: ${currentInput.foilType === "biala" ? "biała" : "transparentna"}`);
+        }
 
         if (currentInput.express) modsLabel.unshift("EXPRESS (+20%)");
 
@@ -196,7 +287,11 @@ export const WlepkiView: View = {
           isExpress: !!currentInput.express,
           totalPrice: currentResult.totalPrice,
           optionsHint: [`${currentInput.area} m²`, ...(modsLabel.length ? modsLabel : ['Standard'])].join(', '),
-          payload: currentResult
+          payload: {
+            ...currentResult,
+            groupId: currentInput.groupId,
+            foilType: currentInput.foilType,
+          }
         });
       }
     });

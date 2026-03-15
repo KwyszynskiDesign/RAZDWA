@@ -25,6 +25,22 @@ export interface IntroligatorniaResult {
   totalPrice: number;
 }
 
+export interface WydrukiSpecjalneOptions {
+  variantId: string;
+  qty: number;
+  doubleSided: boolean;
+  express: boolean;
+}
+
+export interface WydrukiSpecjalneResult {
+  variantId: string;
+  variantName: string;
+  qty: number;
+  unitPrice: number;
+  doubleSided: boolean;
+  totalPrice: number;
+}
+
 export function getLaminowanieTable(formatKey: string): PriceTable {
   const prices = getPrice('laminowanie');
   const tiers = (prices.formats as any)[formatKey];
@@ -71,5 +87,35 @@ export function quoteIntroligatornia(options: IntroligatorniaOptions): Introliga
     qty,
     unitPrice,
     totalPrice,
+  };
+}
+
+export function quoteWydrukiSpecjalne(options: WydrukiSpecjalneOptions): WydrukiSpecjalneResult {
+  const laminowanieData = getPrice('laminowanie') as any;
+  const variant = laminowanieData?.specialPrints?.items?.find((i: any) => i.id === options.variantId);
+
+  if (!variant) {
+    throw new Error(`Invalid special print variant: ${options.variantId}`);
+  }
+
+  const qty = Math.max(1, Math.floor(options.qty));
+  const unitPrice = resolveStoredPrice(`laminowanie-special-${variant.id}`, variant.price);
+  const doubleSidedFactor = resolveStoredPrice("laminowanie-special-double-sided-factor", 0.5);
+
+  let totalPrice = unitPrice * qty;
+  if (options.doubleSided) {
+    totalPrice *= (1 + doubleSidedFactor);
+  }
+  if (options.express) {
+    totalPrice *= 1.2;
+  }
+
+  return {
+    variantId: variant.id,
+    variantName: variant.name,
+    qty,
+    unitPrice,
+    doubleSided: options.doubleSided,
+    totalPrice: parseFloat(totalPrice.toFixed(2)),
   };
 }

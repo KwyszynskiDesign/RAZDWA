@@ -19,7 +19,7 @@ Dodano system zakładek/kategorii w panelu ustawień cen, który pozwala na łat
 - Skanowanie automatyczne (podajnik)
 - Skanowanie ręczne (szyba)
 
-### 🔲 Laminowanie
+### 🔲 Introligatornia
 - Laminowanie A3, A4, A5, A6
 - Wszystkie przedziały ilościowe
 

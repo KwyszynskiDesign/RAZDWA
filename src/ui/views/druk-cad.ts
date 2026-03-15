@@ -3,6 +3,7 @@ import { calculateDrukCAD } from "../../categories/druk-cad";
 import { quoteCadFold, quoteCadWfScan } from "../../categories/cad-ops";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const DrukCADView: View = {
   id: "druk-cad",
@@ -43,6 +44,14 @@ export const DrukCADView: View = {
     const qtyHintSpan = container.querySelector("#cad-qty-hint") as HTMLElement | null;
     const grandTotalSpan = container.querySelector("#cad-grand-total") as HTMLElement | null;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
+    const optZadruk25 = container.querySelector("#cad-opt-zadruk25") as HTMLInputElement | null;
+    const optScale = container.querySelector("#cad-opt-scale") as HTMLInputElement | null;
+    const optEmail = container.querySelector("#cad-opt-email") as HTMLInputElement | null;
+    const optionsSummary = container.querySelector("#cad-options-summary") as HTMLElement | null;
+    const optZadruk25PriceSpan = container.querySelector("#cad-opt-zadruk25-price") as HTMLElement | null;
+    const optScalePriceSpan = container.querySelector("#cad-opt-scale-price") as HTMLElement | null;
+    const optEmailPriceSpan = container.querySelector("#cad-opt-email-price") as HTMLElement | null;
+    const totalWithOptionsSpan = container.querySelector("#cad-total-with-options") as HTMLElement | null;
 
     const foldFormatSelect = container.querySelector("#cad-fold-format") as HTMLSelectElement | null;
     const foldQtyInput = container.querySelector("#cad-fold-qty") as HTMLInputElement | null;
@@ -91,11 +100,40 @@ export const DrukCADView: View = {
 
     const getCadOpsTotal = () => cadOps.reduce((sum, op) => sum + op.totalPrice, 0);
 
+    const zadrukFactor = resolveStoredPrice("modifier-druk-zadruk25", 0.5);
+    const emailFeeUnit = resolveStoredPrice("druk-email", 1);
+
+    const getPrintOptionsBreakdown = (printTotal: number) => {
+      const zadruk25 = optZadruk25?.checked ? printTotal * zadrukFactor : 0;
+      const scale = optScale?.checked ? printTotal * 0.5 : 0;
+      const email = optEmail?.checked ? emailFeeUnit : 0;
+      const total = zadruk25 + scale + email;
+
+      return {
+        zadruk25: parseFloat(zadruk25.toFixed(2)),
+        scale: parseFloat(scale.toFixed(2)),
+        email: parseFloat(email.toFixed(2)),
+        total: parseFloat(total.toFixed(2)),
+      };
+    };
+
+    const updateOptionsSummary = () => {
+      const printTotal = currentResult?.totalPrice ?? 0;
+      const breakdown = getPrintOptionsBreakdown(printTotal);
+
+      if (optZadruk25PriceSpan) optZadruk25PriceSpan.innerText = formatPLN(breakdown.zadruk25);
+      if (optScalePriceSpan) optScalePriceSpan.innerText = formatPLN(breakdown.scale);
+      if (optEmailPriceSpan) optEmailPriceSpan.innerText = formatPLN(breakdown.email);
+      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total);
+      if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
+    };
+
     const updateGrandTotal = () => {
       if (!grandTotalSpan) return;
       const printTotal = currentResult?.totalPrice ?? 0;
+      const optionsTotal = getPrintOptionsBreakdown(printTotal).total;
       const opsTotal = getCadOpsTotal();
-      grandTotalSpan.innerText = formatPLN(printTotal + opsTotal);
+      grandTotalSpan.innerText = formatPLN(printTotal + optionsTotal + opsTotal);
     };
 
     foldAddBtn?.addEventListener("click", () => {
@@ -121,6 +159,13 @@ export const DrukCADView: View = {
         updateGrandTotal();
       } catch (err) {
         alert((err as Error).message);
+      }
+    });
+
+    foldQtyInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        foldAddBtn?.click();
       }
     });
 
@@ -202,20 +247,34 @@ export const DrukCADView: View = {
         resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
+        updateOptionsSummary();
         updateGrandTotal();
 
-        ctx.updateLastCalculated(result.totalPrice + getCadOpsTotal(), "Druk CAD + usługi");
+        const optionsTotal = getPrintOptionsBreakdown(result.totalPrice).total;
+        ctx.updateLastCalculated(result.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
     };
 
+    qtySheetsInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        calculateBtn.click();
+      }
+    });
+
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;
+        const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
+        const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
         const opts = [
             `${currentOptions.format} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
             `${qtyLabel}${currentOptions.lengthMm} mm`,
+          optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
+          optScale?.checked ? "Skalowanie (+50%)" : "",
+          optEmail?.checked ? `Wysyłka e-mail (+${formatPLN(emailFeeUnit)})` : "",
             ctx.expressMode ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");
 
@@ -225,11 +284,23 @@ export const DrukCADView: View = {
           name: `${currentOptions.format} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
           quantity: currentOptions.lengthMm,
           unit: "mm",
-          unitPrice: currentResult.basePrice / currentOptions.lengthMm,
+          unitPrice: printTotalWithOptions / currentOptions.lengthMm,
           isExpress: ctx.expressMode,
-          totalPrice: currentResult.totalPrice,
+          totalPrice: printTotalWithOptions,
           optionsHint: opts,
-          payload: currentResult
+          payload: {
+            ...currentResult,
+            options: {
+              zadruk25: optZadruk25?.checked || false,
+              scale: optScale?.checked || false,
+              email: optEmail?.checked || false,
+              zadruk25Price: printOptions.zadruk25,
+              scalePrice: printOptions.scale,
+              emailPrice: printOptions.email,
+              optionsTotal: printOptions.total,
+            },
+            totalWithOptions: printTotalWithOptions,
+          }
         });
 
         for (const op of cadOps) {
@@ -252,9 +323,23 @@ export const DrukCADView: View = {
           updateCadOpsSummary();
           updateGrandTotal();
         }
+
+        ctx.updateLastCalculated(printTotalWithOptions + getCadOpsTotal(), "Druk CAD + usługi");
       }
     };
 
+    [optZadruk25, optScale, optEmail].forEach((el) => {
+      el?.addEventListener("change", () => {
+        updateOptionsSummary();
+        updateGrandTotal();
+        if (currentResult) {
+          const optionsTotal = getPrintOptionsBreakdown(currentResult.totalPrice).total;
+          ctx.updateLastCalculated(currentResult.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
+        }
+      });
+    });
+
+    updateOptionsSummary();
     updateGrandTotal();
   }
 };
