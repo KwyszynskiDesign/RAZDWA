@@ -23,7 +23,9 @@ const OPRAWY_PRICES = {
   },
   kanałowa: {
     standard: 35.00,
-    pozostale: 35.00
+    pozostale: 35.00,
+    bezNapisu: 20.00,
+    wkarta: 10.00
   },
   zaciskowa: {
     miękka: 15.00
@@ -63,6 +65,8 @@ function getOprUnitPrice(
   }
 
   if (type === "kanałowa") {
+    if (color === "bezNapisu") return OPRAWY_PRICES.kanałowa.bezNapisu;
+    if (color === "wkarta") return OPRAWY_PRICES.kanałowa.wkarta;
     return color === "pozostale" ? OPRAWY_PRICES.kanałowa.pozostale : OPRAWY_PRICES.kanałowa.standard;
   }
 
@@ -282,7 +286,9 @@ export const LaminowanieView: View = {
 
     const syncOprCustomColorRow = () => {
       if (!oprColor || !oprCustomColorRow) return;
-      oprCustomColorRow.style.display = oprColor.value === "pozostale" ? "" : "none";
+      const noColorVariants = ["bezNapisu", "wkarta"];
+      oprCustomColorRow.style.display =
+        !noColorVariants.includes(oprColor.value) && oprColor.value === "pozostale" ? "" : "none";
     };
 
     const syncOprRows = () => {
@@ -360,7 +366,9 @@ export const LaminowanieView: View = {
         optionsHint: oprState.type === "grzbietowa"
           ? `${oprState.format}, ${oprState.pages} str.`
           : oprState.type === "kanałowa"
-            ? `kolor: ${oprState.color === "pozostale" ? (oprState.customColor || "pozostałe") : oprState.color}`
+            ? (oprState.color === "bezNapisu" ? "bez napisu"
+              : oprState.color === "wkarta" ? "wkarta okładka"
+              : `kolor: ${oprState.color === "pozostale" ? (oprState.customColor || "pozostałe") : oprState.color}`)
             : oprState.type === "zaciskowa" && oprState.rozszycie
               ? `zaciskowa + rozszycie/zszycie (+${formatPLN(oprState.rozszyciePrice)})`
               : oprState.type,

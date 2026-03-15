@@ -295,13 +295,19 @@
       </select>
     </div>
     <div class="row is-hidden" id="opr-color-row">
-      <label for="opr-color">Kolor:</label>
+      <label for="opr-color">Wariant / kolor:</label>
       <select id="opr-color">
-        <option value="czarny">Czarny</option>
-        <option value="granat">Granat</option>
-        <option value="zielony">Zielony</option>
-        <option value="bordo">Bordo</option>
-        <option value="pozostale">Pozostałe kolory</option>
+        <optgroup label="z napisem (35 zł)">
+          <option value="czarny">Czarny</option>
+          <option value="granat">Granat</option>
+          <option value="zielony">Zielony</option>
+          <option value="bordo">Bordo</option>
+          <option value="pozostale">Pozostałe kolory</option>
+        </optgroup>
+        <optgroup label="inne warianty">
+          <option value="bezNapisu">Bez napisu Standard (20 zł)</option>
+          <option value="wkarta">Wkarta okładka (10 zł)</option>
+        </optgroup>
       </select>
     </div>
     <div class="row is-hidden" id="opr-custom-color-row">
