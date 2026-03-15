@@ -169,7 +169,16 @@ export const PlakatyView: View = {
         currentOptions = { type: "canon", matId, fmt, qty };
         unitPriceEl.innerText = formatPLN(res.tierPrice);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
-        if (discountRow) discountRow.style.display = "none";
+        if (discountRow && discountLabel && discountVal) {
+          if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
+            const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
+            discountLabel.innerText = `Rabat ilościowy (${res.qty} szt):`;
+            discountVal.innerText = `-${formatPLN(saved)}`;
+            discountRow.style.display = "";
+          } else {
+            discountRow.style.display = "none";
+          }
+        }
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
         if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";

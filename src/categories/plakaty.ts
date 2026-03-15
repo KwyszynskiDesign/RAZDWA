@@ -266,6 +266,7 @@ export interface PlakatyMalyCanonResult {
   format: "A4" | "A3";
   qty: number;
   tierPrice: number;
+  singleTierPrice: number;
   basePrice: number;
   modifiersTotal: number;
   totalPrice: number;
@@ -288,6 +289,13 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
 
   const suffix = tier.max === null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
   const tierPrice = resolveStoredPrice(`plakaty-maly-canon-${input.variantId}-${suffix}`, tier.price);
+
+  const singleTier = variant.tiers.find((t: any) => 1 >= t.min && (t.max === null || 1 <= t.max));
+  const singleSuffix = singleTier ? (singleTier.max === null ? `${singleTier.min}+` : `${singleTier.min}-${singleTier.max}`) : suffix;
+  const singleTierPrice = singleTier
+    ? resolveStoredPrice(`plakaty-maly-canon-${input.variantId}-${singleSuffix}`, singleTier.price)
+    : tierPrice;
+
   const basePrice = parseFloat((qty * tierPrice).toFixed(2));
 
   let modifiersTotal = 0;
@@ -305,6 +313,7 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
     format: input.format,
     qty,
     tierPrice,
+    singleTierPrice,
     basePrice,
     modifiersTotal,
     totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
