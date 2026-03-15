@@ -4,6 +4,206 @@
     window.location.href = "/#/druk-cad";
   }
 </script> 
+<style>
+  .cad-inline-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .cad-format-pair {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cad-format-pair label {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .cad-use-base-btn {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .cad-qty-row {
+    max-width: 360px;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cad-qty-input {
+    max-width: 120px;
+  }
+
+  .cad-options-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cad-options-title { margin: 0; }
+
+  .cad-options-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .cad-option-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+  }
+
+  .cad-ops-section {
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 8px;
+  }
+
+  .cad-ops-header {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .cad-ops-columns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .cad-ops-col {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .cad-row-tight { margin-top: 8px; }
+
+  .cad-fold-add,
+  .cad-scan-add {
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+
+  .cad-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cad-grand-total-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 10px;
+    min-width: 220px;
+  }
+
+  .cad-grand-total-value {
+    font-size: 18px;
+    font-weight: 900;
+    color: #22c55e;
+  }
+
+  .cad-result-box {
+    display: none;
+    margin-top: 20px;
+    padding: 14px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+  }
+
+  .cad-qty-hint {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .cad-result-line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .cad-result-line-top { margin-bottom: 4px; }
+
+  .cad-result-line-total {
+    border-top: 1px solid rgba(34, 197, 94, 0.3);
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+
+  .cad-unit-price { font-weight: 700; }
+
+  .cad-total-price {
+    font-size: 18px;
+    font-weight: 950;
+    color: #22c55e;
+  }
+
+  .cad-options-summary {
+    display: none;
+    margin-top: 8px;
+  }
+
+  .cad-option-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .cad-option-line-total {
+    border-top: 1px dashed rgba(34, 197, 94, 0.3);
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .cad-option-total {
+    font-weight: 800;
+    color: #16a34a;
+  }
+
+  .cad-express-hint {
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+  }
+
+  .cad-ops-list {
+    display: none;
+    margin-top: 10px;
+    padding: 12px;
+    background: rgba(59, 130, 246, 0.09);
+    border: 1px solid rgba(59, 130, 246, 0.32);
+    border-radius: 10px;
+  }
+
+  .cad-ops-list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+
+  .cad-ops-total {
+    font-weight: 900;
+    color: #3b82f6;
+  }
+
+  .cad-ops-items {
+    margin-top: 6px;
+  }
+</style>
 <h2>Druk CAD wielkoformatowy</h2>
 <div class="form">
   <div class="cad-mode-format-row">
@@ -18,9 +218,9 @@
 
   <div class="row">
     <label for="cad-length">Długość (mm):</label>
-    <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <label for="cad-format" style="margin:0; white-space:nowrap;">Format:</label>
+    <div class="cad-inline-row">
+      <div class="cad-format-pair">
+        <label for="cad-format">Format:</label>
         <select id="cad-format">
           <option value="A0p">A0+ (914 mm)</option>
           <option value="A0">A0 (841 mm)</option>
@@ -30,28 +230,28 @@
         </select>
       </div>
       <input type="number" id="cad-length" value="1292" min="1">
-      <button id="cad-use-base" class="secondary btn-use-base" style="white-space: nowrap; min-width: 120px;">Użyj bazowej</button>
+      <button id="cad-use-base" class="secondary btn-use-base cad-use-base-btn">Użyj bazowej</button>
     </div>
     <div id="cad-base-info" class="hint">Wymiar bazowy: 1292 mm</div>
   </div>
 
-  <div class="row" id="qty-sheets-group" style="max-width: 360px; align-items: center; gap: 10px;">
+  <div class="row cad-qty-row" id="qty-sheets-group">
     <label for="qty-sheets">Ilość arkuszy:</label>
-    <input type="number" id="qty-sheets" value="1" min="1" inputmode="numeric" placeholder="np. 10" style="max-width: 120px;">
+    <input type="number" id="qty-sheets" value="1" min="1" inputmode="numeric" placeholder="np. 10" class="cad-qty-input">
   </div>
 
-  <div class="row" id="cad-options-group" style="flex-direction:column; gap:10px;">
-    <label style="margin:0;">Opcje dodatkowe:</label>
-    <div style="display:flex; flex-wrap:wrap; gap:14px; align-items:center;">
-      <label style="display:flex; align-items:center; gap:6px; margin:0;">
+  <div class="row cad-options-group" id="cad-options-group">
+    <label class="cad-options-title">Opcje dodatkowe:</label>
+    <div class="cad-options-list">
+      <label class="cad-option-item">
         <input type="checkbox" id="cad-opt-zadruk25">
         <span>Zadruk &gt;25% (+50%)</span>
       </label>
-      <label style="display:flex; align-items:center; gap:6px; margin:0;">
+      <label class="cad-option-item">
         <input type="checkbox" id="cad-opt-scale">
         <span>Skalowanie (+50%)</span>
       </label>
-      <label style="display:flex; align-items:center; gap:6px; margin:0;">
+      <label class="cad-option-item">
         <input type="checkbox" id="cad-opt-email">
         <span>Wysyłka e-mail (+1 zł)</span>
       </label>
@@ -59,12 +259,12 @@
   </div>
 
   <!-- CAD Ops: składanie + skan wielkoformat -->
-  <div class="row" id="cad-ops-section" style="flex-direction:column;gap:24px;margin-top:8px;">
-    <h3 style="margin:0;font-size:1rem;font-weight:700;">🗂️ CAD Ops: Składanie / Skan wielkoformat</h3>
-    <div style="display:flex;flex-wrap:wrap;gap:24px;">
-      <div style="flex:1;min-width:200px;">
+  <div class="row cad-ops-section" id="cad-ops-section">
+    <h3 class="cad-ops-header">🗂️ CAD Ops: Składanie / Skan wielkoformat</h3>
+    <div class="cad-ops-columns">
+      <div class="cad-ops-col">
         <strong>Składanie</strong>
-        <div class="row" style="margin-top:8px;">
+        <div class="row cad-row-tight">
           <label for="cad-fold-format">Format:</label>
           <select id="cad-fold-format">
             <option value="A0+">A0+</option>
@@ -75,74 +275,74 @@
             <option value="A3-poprzeczne">A3-poprzeczne</option>
           </select>
         </div>
-        <div class="row" style="margin-top:8px; max-width: 320px; align-items: center; gap: 10px;">
+        <div class="row cad-row-tight cad-qty-row">
           <label for="cad-fold-qty">Ilość (szt):</label>
-          <input type="number" id="cad-fold-qty" value="1" min="1" inputmode="numeric" placeholder="np. 10" style="max-width: 120px;" />
+          <input type="number" id="cad-fold-qty" value="1" min="1" inputmode="numeric" placeholder="np. 10" class="cad-qty-input" />
         </div>
-        <button id="cad-fold-add" class="secondary" style="margin-top:8px; margin-bottom:12px;">Dodaj składanie</button>
+        <button id="cad-fold-add" class="secondary cad-fold-add">Dodaj składanie</button>
       </div>
-      <div style="flex:1;min-width:200px;">
+      <div class="cad-ops-col">
         <strong>Skanowanie wielkoformatowe</strong>
-        <div class="row" style="margin-top:8px;">
+        <div class="row cad-row-tight">
           <label for="cad-wf-scan-cm">Długość (cm):</label>
           <input type="number" id="cad-wf-scan-cm" placeholder="np. 110" min="1" step="0.1" />
         </div>
-        <div class="row" style="margin-top:8px;">
+        <div class="row cad-row-tight">
           <label for="cad-wf-scan-qty">Ilość (szt):</label>
           <input type="number" id="cad-wf-scan-qty" value="1" min="1" />
         </div>
-        <button id="cad-wf-scan-add" class="secondary" style="margin-top:8px; margin-bottom:12px;">Dodaj skan</button>
+        <button id="cad-wf-scan-add" class="secondary cad-scan-add">Dodaj skan</button>
       </div>
     </div>
   </div>
 
-  <div class="form-actions" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+  <div class="form-actions cad-actions">
     <button id="cad-calculate" class="btn-primary">Oblicz</button>
-    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);border-radius:10px;min-width:220px;">
+    <div class="cad-grand-total-box">
       <strong>RAZEM:</strong>
-      <span id="cad-grand-total" style="font-size:18px;font-weight:900;color:#22c55e;">0.00 zł</span>
+      <span id="cad-grand-total" class="cad-grand-total-value">0.00 zł</span>
     </div>
     <button id="cad-add-to-cart" class="btn-success" disabled>Dodaj do listy</button>
   </div>
 
-  <div id="cad-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-    <div id="cad-qty-hint" style="font-size: 12px; color: #888; margin-bottom: 6px;"></div>
-    <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+  <div id="cad-result-display" class="cad-result-box">
+    <div id="cad-qty-hint" class="cad-qty-hint"></div>
+    <div class="cad-result-line cad-result-line-top">
       <span id="cad-price-type">Cena formatowa:</span>
-      <span id="cad-unit-price" style="font-weight: 700;">-</span>
+      <span id="cad-unit-price" class="cad-unit-price">-</span>
     </div>
-    <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(34,197,94,0.3); padding-top: 6px; margin-top: 4px;">
+    <div class="cad-result-line cad-result-line-total">
       <span>Cena łączna (druk):</span>
-      <span id="cad-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+      <span id="cad-total-price" class="cad-total-price">-</span>
     </div>
-    <div id="cad-options-summary" style="display:none; margin-top:8px;">
-      <div style="display:flex; justify-content: space-between; font-size: 13px; color:#666;">
+    <div id="cad-options-summary" class="cad-options-summary">
+      <div class="cad-option-line">
         <span>Zadruk &gt;25% (+50%):</span>
         <span id="cad-opt-zadruk25-price">0,00 zł</span>
       </div>
-      <div style="display:flex; justify-content: space-between; font-size: 13px; color:#666;">
+      <div class="cad-option-line">
         <span>Skalowanie (+50%):</span>
         <span id="cad-opt-scale-price">0,00 zł</span>
       </div>
-      <div style="display:flex; justify-content: space-between; font-size: 13px; color:#666;">
+      <div class="cad-option-line">
         <span>Wysyłka e-mail:</span>
         <span id="cad-opt-email-price">0,00 zł</span>
       </div>
-      <div style="display:flex; justify-content: space-between; border-top:1px dashed rgba(34,197,94,0.3); margin-top:6px; padding-top:6px;">
+      <div class="cad-result-line cad-option-line-total">
         <span>Cena łączna (druk + opcje):</span>
-        <span id="cad-total-with-options" style="font-weight:800; color:#16a34a;">-</span>
+        <span id="cad-total-with-options" class="cad-option-total">-</span>
       </div>
     </div>
-    <div id="cad-express-hint" style="font-size: 12px; color: #f59e0b; display: none;">Zawiera dopłatę EXPRESS +20%</div>
+    <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
   </div>
 
-  <div id="cad-ops-list" style="display:none;margin-top:10px;padding:12px;background:rgba(59,130,246,0.09);border:1px solid rgba(59,130,246,0.32);border-radius:10px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+  <div id="cad-ops-list" class="cad-ops-list">
+    <div class="cad-ops-list-head">
       <strong>Suma usług:</strong>
-      <span id="cad-ops-total" style="font-weight:900;color:#3b82f6;">0.00 zł</span>
+      <span id="cad-ops-total" class="cad-ops-total">0.00 zł</span>
     </div>
     <strong>Dodane usługi:</strong>
-    <div id="cad-ops-list-items" style="margin-top:6px;"></div>
+    <div id="cad-ops-list-items" class="cad-ops-items"></div>
   </div>
 </div>
 

@@ -3,19 +3,182 @@
     window.location.href = "/#/laminowanie";
   }
 </script> -->
+
+<style>
+  #tab-laminowanie .row,
+  #tab-bindowanie .row,
+  #tab-oprawy .row,
+  #tab-introligatornia .row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  #tab-laminowanie .row label,
+  #tab-bindowanie .row label,
+  #tab-oprawy .row label,
+  #tab-introligatornia .row label {
+    min-width: 140px;
+    margin: 0;
+  }
+
+  #tab-laminowanie .row select,
+  #tab-laminowanie .row input,
+  #tab-bindowanie .row select,
+  #tab-bindowanie .row input,
+  #tab-oprawy .row select,
+  #tab-oprawy .row input,
+  #tab-introligatornia .row select,
+  #tab-introligatornia .row input {
+    margin-left: auto;
+    max-width: 220px;
+  }
+
+  .bind-type-wrap {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 260px;
+  }
+
+  .bind-type-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bind-type-label {
+    min-width: 56px;
+    font-weight: 600;
+    color: #555;
+  }
+
+  .mini-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .mini-check input {
+    margin: 0;
+    width: 14px;
+    height: 14px;
+  }
+
+  .bind-color-wrap {
+    margin-left: auto;
+    display: inline-flex;
+    gap: 10px;
+  }
+
+  .lam-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+  }
+
+  .lam-tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+  }
+
+  .lam-tab-btn.active {
+    border-bottom-color: #2B8A3E;
+  }
+
+  .is-hidden { display: none; }
+
+  .lam-result-box {
+    display: none;
+    margin-top: 20px;
+    padding: 14px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+  }
+
+  .lam-result-line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .lam-result-line-gap {
+    margin-bottom: 4px;
+  }
+
+  .lam-result-line-total {
+    border-top: 1px solid rgba(34,197,94,0.3);
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+
+  .lam-qty-hint {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .lam-unit-price { font-weight: 700; }
+
+  .lam-total-price {
+    font-size: 18px;
+    font-weight: 950;
+    color: #22c55e;
+  }
+
+  .lam-express-hint {
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+    margin-top: 5px;
+  }
+
+  .lam-calc-box {
+    margin-top: 24px;
+    padding: 14px;
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    display: none;
+  }
+
+  .lam-calc-title {
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .lam-calc-details {
+    font-size: 14px;
+    color: #495057;
+  }
+</style>
+
 <h2>Introligatornia</h2>
 
 <!-- TABS -->
-<div style="display:flex; gap:8px; margin-bottom:20px; border-bottom:2px solid #ddd;">
-  <button class="tab-btn active" data-tab="laminowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid #2B8A3E;">Laminowanie</button>
-  <button class="tab-btn" data-tab="bindowanie" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Bindowanie</button>
-  <button class="tab-btn" data-tab="oprawy" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Oprawy</button>
-  <button class="tab-btn" data-tab="introligatornia" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Introligatornia</button>
-  <button class="tab-btn" data-tab="wydruki-specjalne" style="padding:10px 20px; border:none; background:transparent; cursor:pointer; font-weight:600; border-bottom:3px solid transparent;">Wydruki specjalne / dodruki</button>
+<div class="lam-tabs">
+  <button class="tab-btn lam-tab-btn active" data-tab="laminowanie">Laminowanie</button>
+  <button class="tab-btn lam-tab-btn" data-tab="bindowanie">Bindowanie</button>
+  <button class="tab-btn lam-tab-btn" data-tab="oprawy">Oprawy</button>
+  <button class="tab-btn lam-tab-btn" data-tab="introligatornia">Introligatornia</button>
 </div>
 
 <!-- TAB: LAMINOWANIE -->
-<div class="tab-content" id="tab-laminowanie" style="display:block;">
+<div class="tab-content" id="tab-laminowanie">
   <h3>Laminowanie</h3>
   <div class="form">
     <div class="row">
@@ -38,59 +201,88 @@
       <button id="lam-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
     </div>
 
-    <div id="lam-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-      <div id="lam-qty-hint" style="font-size: 12px; color: #888; margin-bottom: 6px;"></div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+    <div id="lam-result-display" class="lam-result-box">
+      <div id="lam-qty-hint" class="lam-qty-hint"></div>
+      <div class="lam-result-line lam-result-line-gap">
         <span>Cena za szt:</span>
-        <span id="lam-unit-price" style="font-weight: 700;">-</span>
+        <span id="lam-unit-price" class="lam-unit-price">-</span>
       </div>
-      <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(34,197,94,0.3); padding-top: 6px; margin-top: 4px;">
+      <div class="lam-result-line lam-result-line-total">
         <span>Cena łączna:</span>
-        <span id="lam-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+        <span id="lam-total-price" class="lam-total-price">-</span>
       </div>
-      <div id="lam-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
+      <div id="lam-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
     </div>
   </div>
 </div>
 
 <!-- TAB: BINDOWANIE -->
-<div class="tab-content" id="tab-bindowanie" style="display:none;">
+<div class="tab-content is-hidden" id="tab-bindowanie">
   <h3>Bindowanie</h3>
   <div class="form">
     <div class="row">
-      <label for="bind-type">Typ bindowania:</label>
-      <select id="bind-type">
-        <option value="plastik">Plastik (listwa/spirala)</option>
-        <option value="metal">Metal (spirala)</option>
-      </select>
+      <label>Typ bindowania:</label>
+      <div class="bind-type-wrap" id="bind-type-wrap">
+        <div class="bind-type-line">
+          <span class="bind-type-label">Plastik</span>
+          <label class="mini-check" title="Plastik - spirala">
+            <input type="checkbox" class="bind-type-check" data-type="plastik" data-subtype="spirala" checked>
+            <span>Spirala</span>
+          </label>
+          <label class="mini-check" title="Plastik - listwa">
+            <input type="checkbox" class="bind-type-check" data-type="plastik" data-subtype="listwa">
+            <span>Listwa</span>
+          </label>
+        </div>
+        <div class="bind-type-line">
+          <span class="bind-type-label">Metal</span>
+          <label class="mini-check" title="Metal - spirala">
+            <input type="checkbox" class="bind-type-check" data-type="metal" data-subtype="spirala">
+            <span>Spirala</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <label>Kolor:</label>
+      <div class="bind-color-wrap" id="bind-color-wrap">
+        <label class="mini-check">
+          <input type="checkbox" class="bind-color-check" value="czarny" checked>
+          <span>Czarny</span>
+        </label>
+        <label class="mini-check">
+          <input type="checkbox" class="bind-color-check" value="biały">
+          <span>Biały</span>
+        </label>
+      </div>
     </div>
     <div class="row">
       <label for="bind-qty">Ilość sztuk:</label>
-      <input type="number" id="bind-qty" value="1" min="1">
+      <input type="number" id="bind-qty" value="1" min="1" placeholder="np. 10">
     </div>
     <div class="row">
       <label for="bind-pages">Ilość kartek:</label>
-      <input type="number" id="bind-pages" value="20" min="1">
+      <input type="number" id="bind-pages" value="20" min="1" placeholder="np. 50">
     </div>
     <div class="form-actions">
       <button id="bind-calculate" class="btn-primary">Oblicz</button>
       <button id="bind-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
     </div>
-    <div id="bind-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-      <div style="display: flex; justify-content: space-between;">
+    <div id="bind-result-display" class="lam-result-box">
+      <div class="lam-result-line">
         <span>Cena jednostkowa:</span>
-        <span id="bind-unit-price" style="font-weight: 600;">-</span>
+        <span id="bind-unit-price" class="lam-unit-price">-</span>
       </div>
-      <div style="display: flex; justify-content: space-between;">
+      <div class="lam-result-line">
         <span>Cena:</span>
-        <span id="bind-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+        <span id="bind-total-price" class="lam-total-price">-</span>
       </div>
     </div>
   </div>
 </div>
 
 <!-- TAB: OPRAWY -->
-<div class="tab-content" id="tab-oprawy" style="display:none;">
+<div class="tab-content is-hidden" id="tab-oprawy">
   <h3>Oprawy</h3>
   <div class="form">
     <div class="row">
@@ -101,7 +293,7 @@
         <option value="zaciskowa">Zaciskowa</option>
       </select>
     </div>
-    <div class="row" id="opr-color-row" style="display:none;">
+    <div class="row is-hidden" id="opr-color-row">
       <label for="opr-color">Kolor:</label>
       <select id="opr-color">
         <option value="czarny">Czarny</option>
@@ -110,6 +302,10 @@
         <option value="bordo">Bordo</option>
         <option value="pozostale">Pozostałe kolory</option>
       </select>
+    </div>
+    <div class="row is-hidden" id="opr-custom-color-row">
+      <label for="opr-custom-color">Wpisz kolor:</label>
+      <input type="text" id="opr-custom-color" placeholder="np. czerwony" />
     </div>
     <div class="row" id="opr-format-row">
       <label for="opr-format">Format:</label>
@@ -130,21 +326,21 @@
       <button id="opr-calculate" class="btn-primary">Oblicz</button>
       <button id="opr-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
     </div>
-    <div id="opr-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-      <div style="display: flex; justify-content: space-between;">
+    <div id="opr-result-display" class="lam-result-box">
+      <div class="lam-result-line">
         <span>Cena jednostkowa:</span>
-        <span id="opr-unit-price" style="font-weight: 600;">-</span>
+        <span id="opr-unit-price" class="lam-unit-price">-</span>
       </div>
-      <div style="display: flex; justify-content: space-between;">
+      <div class="lam-result-line">
         <span>Cena:</span>
-        <span id="opr-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+        <span id="opr-total-price" class="lam-total-price">-</span>
       </div>
     </div>
   </div>
 </div>
 
 <!-- TAB: INTROLIGATORNIA -->
-<div class="tab-content" id="tab-introligatornia" style="display:none;">
+<div class="tab-content is-hidden" id="tab-introligatornia">
   <h3>Introligatornia</h3>
   <div class="form">
     <div class="row">
@@ -166,61 +362,23 @@
       <button id="intro-calculate" class="btn-primary">Oblicz</button>
       <button id="intro-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
     </div>
-    <div id="intro-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-      <div style="display: flex; justify-content: space-between;">
+    <div id="intro-result-display" class="lam-result-box">
+      <div class="lam-result-line">
         <span>Cena jednostkowa:</span>
-        <span id="intro-unit-price" style="font-weight: 600;">-</span>
+        <span id="intro-unit-price" class="lam-unit-price">-</span>
       </div>
-      <div style="display: flex; justify-content: space-between;">
+      <div class="lam-result-line">
         <span>Cena całkowita:</span>
-        <span id="intro-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
+        <span id="intro-total-price" class="lam-total-price">-</span>
       </div>
-      <div id="intro-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
-    </div>
-  </div>
-</div>
-
-<!-- TAB: WYDRUKI SPECJALNE / DODRUKI -->
-<div class="tab-content" id="tab-wydruki-specjalne" style="display:none;">
-  <h3>Wydruki specjalne / dodruki</h3>
-  <div class="form">
-    <div class="row">
-      <label for="special-variant">Rodzaj:</label>
-      <select id="special-variant">
-        <option value="modigliani-a4">Modigliani 260g A4</option>
-        <option value="modigliani-a3">Modigliani 260g A3</option>
-      </select>
-    </div>
-    <div class="row">
-      <label for="special-qty">Ilość (szt):</label>
-      <input type="number" id="special-qty" value="1" min="1" max="3">
-    </div>
-    <div class="row">
-      <label for="special-double">Druk dwustronny:</label>
-      <input type="checkbox" id="special-double" style="width:18px;height:18px;">
-      <small style="margin-left:10px; color:#666;">Dwustronnie: +50%</small>
-    </div>
-    <div class="form-actions">
-      <button id="special-calculate" class="btn-primary">Oblicz</button>
-      <button id="special-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
-    </div>
-    <div id="special-result-display" style="display: none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-      <div style="display: flex; justify-content: space-between;">
-        <span>Cena jednostkowa:</span>
-        <span id="special-unit-price" style="font-weight: 600;">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between;">
-        <span>Cena całkowita:</span>
-        <span id="special-total-price" style="font-size: 18px; font-weight: 950; color: #22c55e;">-</span>
-      </div>
-      <div id="special-express-hint" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
+      <div id="intro-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
     </div>
   </div>
 </div>
 
 <!-- PROCES OBLICZANIA -->
-<div id="lam-calc-breakdown" style="margin-top: 24px; padding: 14px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 12px; display: none;">
-  <div style="font-weight: 700; margin-bottom: 8px;">Proces obliczania</div>
-  <div id="lam-calc-details" style="font-size: 14px; color: #495057;"></div>
+<div id="lam-calc-breakdown" class="lam-calc-box">
+  <div class="lam-calc-title">Proces obliczania</div>
+  <div id="lam-calc-details" class="lam-calc-details"></div>
 </div>
 

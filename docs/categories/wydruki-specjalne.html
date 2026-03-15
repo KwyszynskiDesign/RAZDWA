@@ -1,0 +1,118 @@
+<script>
+  if (window.location.pathname.includes('/categories/')) {
+    window.location.href = "/#/wydruki-specjalne";
+  }
+</script>
+
+<style>
+  .special-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .special-label {
+    min-width: 140px;
+    margin: 0;
+  }
+
+  .special-control-wide {
+    margin-left: auto;
+    max-width: 240px;
+  }
+
+  .special-control-narrow {
+    margin-left: auto;
+    max-width: 120px;
+  }
+
+  .special-check-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .special-check {
+    width: 18px;
+    height: 18px;
+  }
+
+  .special-help {
+    color: #666;
+    font-size: 12px;
+  }
+
+  .special-result {
+    display: none;
+    margin-top: 20px;
+    padding: 14px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+  }
+
+  .special-line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .special-unit {
+    font-weight: 600;
+  }
+
+  .special-total {
+    font-size: 18px;
+    font-weight: 950;
+    color: #22c55e;
+  }
+
+  .special-express {
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+    margin-top: 5px;
+  }
+</style>
+
+<h2>Wydruki specjalne / dodruki</h2>
+<div class="form">
+  <div class="row special-row">
+    <label for="special-variant" class="special-label">Rodzaj:</label>
+    <select id="special-variant" class="special-control-wide">
+      <option value="modigliani-a4">Modigliani 260g A4</option>
+      <option value="modigliani-a3">Modigliani 260g A3</option>
+    </select>
+  </div>
+
+  <div class="row special-row">
+    <label for="special-qty" class="special-label">Ilość (szt):</label>
+    <input type="number" id="special-qty" value="1" min="1" max="3" placeholder="np. 2" class="special-control-narrow">
+  </div>
+
+  <div class="row special-row">
+    <label for="special-double" class="special-label">Druk dwustronny:</label>
+    <div class="special-check-wrap">
+      <input type="checkbox" id="special-double" class="special-check">
+      <small class="special-help">+50%</small>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button id="special-calculate" class="btn-primary">Oblicz</button>
+    <button id="special-add-to-cart" class="btn-secondary" disabled>Dodaj do listy</button>
+  </div>
+
+  <div id="special-result-display" class="special-result">
+    <div class="special-line">
+      <span>Cena jednostkowa:</span>
+      <span id="special-unit-price" class="special-unit">-</span>
+    </div>
+    <div class="special-line">
+      <span>Cena całkowita:</span>
+      <span id="special-total-price" class="special-total">-</span>
+    </div>
+    <div id="special-express-hint" class="special-express">Zawiera dopłatę EXPRESS +20%</div>
+  </div>
+</div>
