@@ -195,6 +195,7 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding-left: 15px;
     }
 
     .category-nav-button {
@@ -782,6 +783,10 @@
       display: none;
     }
 
+    .legacy-category-search {
+      display: none !important;
+    }
+
     @media (max-width: 767px) {
       .sidebar-toggle {
         display: inline-flex;
@@ -869,6 +874,11 @@
       </div>
       <div class="header-actions">
         <button id="sidebarToggle" class="sidebar-toggle" type="button" aria-label="Otwórz menu kategorii" aria-controls="categorySidebar" aria-expanded="false">☰</button>
+        <div class="legacy-category-search" aria-hidden="true">
+          <label for="categorySearch">Szukaj kategorii</label>
+          <input id="categorySearch" type="search" autocomplete="off">
+          <button id="categorySearchButton" type="button">Szukaj</button>
+        </div>
         <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejdź do Ustawienia cen">
               <span class="tile-icon">⚙️</span>
               <span class="tile-title">Ustawienia cen</span> 
@@ -1140,6 +1150,24 @@ document.addEventListener('DOMContentLoaded', () => {
  </script>
 
  <script src="assets/app.js" type="module"></script>
+ <script>
+window.scrollToTopTiles = () => {
+  const sidebar = document.getElementById('categorySidebar');
+  const searchInput = document.getElementById('sidebarCategorySearch');
+
+  if (window.innerWidth < 768) {
+    document.body.classList.add('sidebar-open');
+  }
+
+  if (sidebar) {
+    sidebar.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (searchInput) {
+    searchInput.focus();
+  }
+};
+ </script>
  <!-- <script>
 document.addEventListener('DOMContentLoaded', () => {
   const tiles = document.querySelectorAll('.tile-grid a');
