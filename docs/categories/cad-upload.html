@@ -189,7 +189,7 @@
   .cad-table th,
   .cad-table td {
     border: 1px solid var(--border);
-    padding: 7px 10px;
+    padding: 6px 8px;
     text-align: left;
     vertical-align: top;
   }
@@ -216,14 +216,20 @@
     background: var(--surface-alt);
     color: var(--text-primary);
     font-weight: 600;
-    padding: 10px 12px;
+    padding: 8px 8px;
     text-align: left;
     border-bottom: 2px solid var(--border);
   }
   .results-table td {
-    padding: 8px 12px;
+    padding: 6px 8px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+  }
+  .results-table td:nth-child(5),
+  .results-table th:nth-child(5) {
+    min-width: 170px;
+    white-space: normal;
+    word-break: break-word;
   }
   .results-table tbody tr:hover {
     background: var(--surface-alt);
@@ -286,7 +292,7 @@
   .main-calc-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px;
+    gap: 12px;
     margin-top: 16px;
   }
   
@@ -567,7 +573,7 @@
     .main-calc-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 12px;
       margin-top: 16px;
     }
     
