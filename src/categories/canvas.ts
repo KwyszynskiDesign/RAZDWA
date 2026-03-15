@@ -1,4 +1,4 @@
-import { calculatePrice } from "../core/pricing";
+﻿import { calculatePrice } from "../core/pricing";
 import { CalculationResult, PriceTable } from "../core/types";
 import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
@@ -17,6 +17,8 @@ export type CanvasResult = CalculationResult & {
   modeLabel: string;
   formatLabel: string;
   areaM2?: number;
+  printCost?: number;
+  frameCost?: number;
 };
 
 export function calculateCanvas(options: CanvasOptions): CanvasResult {
@@ -58,18 +60,41 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       throw new Error("Wybierz format canvas");
     }
 
-    if (selectedFormat.customQuote) {
-      isCustom = true;
-      table = {
-        id: `canvas-${options.modeId}-custom`,
-        title: data?.title ?? "Canvas",
-        unit: "szt",
-        pricing: "flat",
-        tiers: [{ min: 1, max: null, price: 0 }],
-        modifiers: []
+    if (selectedFormat.customSize) {
+      const width = Number(options.widthMm) || 0;
+      const height = Number(options.heightMm) || 0;
+      areaM2 = (width * height) / 1_000_000;
+      if (!isFinite(areaM2) || areaM2 <= 0) {
+        throw new Error("Podaj poprawne wymiary dla formatu niestandardowego");
+      }
+      const perimeterCm = 2 * (width + height) / 10;
+      const m2rate = resolveStoredPrice("canvas-" + options.modeId + "-custom-m2", mode.customPricePerM2 ?? 180);
+      const printCostUnit = parseFloat((areaM2 * m2rate).toFixed(2));
+      let frameCostUnit = 0;
+      if (options.modeId === "framed" && mode.customPricePerCmBorder) {
+        const borderRate = resolveStoredPrice("canvas-framed-custom-border", mode.customPricePerCmBorder);
+        frameCostUnit = parseFloat((perimeterCm * borderRate).toFixed(2));
+      }
+      const unitPrice = parseFloat((printCostUnit + frameCostUnit).toFixed(2));
+      const qty = Math.max(1, options.quantity);
+      const expressMultiplier = options.express ? 1.20 : 1;
+      const totalPrice = parseFloat((unitPrice * qty * expressMultiplier).toFixed(2));
+      formatLabel = "Niestandardowy (" + width + "x" + height + " mm)";
+      return {
+        basePrice: unitPrice * qty,
+        tierPrice: unitPrice,
+        totalPrice,
+        discountFactor: 1,
+        appliedModifiers: options.express ? ["express"] : [],
+        isCustom: false,
+        modeLabel: mode.name,
+        formatLabel,
+        areaM2,
+        printCost: printCostUnit,
+        frameCost: frameCostUnit > 0 ? frameCostUnit : undefined
       };
     } else {
-      const key = `canvas-${options.modeId}-${selectedFormat.id}`;
+      const key = "canvas-" + options.modeId + "-" + selectedFormat.id;
       const unitPrice = resolveStoredPrice(key, selectedFormat.price);
       table = {
         id: key,
@@ -79,9 +104,8 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         tiers: [{ min: 1, max: null, price: unitPrice }],
         modifiers: data?.modifiers
       };
+      formatLabel = selectedFormat.label;
     }
-
-    formatLabel = selectedFormat.label;
   }
 
   const activeModifiers: string[] = [];

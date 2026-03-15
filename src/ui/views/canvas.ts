@@ -39,6 +39,10 @@ export const CanvasView: View = {
     const areaRowEl = container.querySelector("#cv-area-row") as HTMLElement;
     const areaEl = container.querySelector("#cv-area") as HTMLElement;
     const unitEl = container.querySelector("#cv-unit") as HTMLElement;
+    const printCostRowEl = container.querySelector("#cv-print-cost-row") as HTMLElement;
+    const printCostEl = container.querySelector("#cv-print-cost") as HTMLElement;
+    const frameCostRowEl = container.querySelector("#cv-frame-cost-row") as HTMLElement;
+    const frameCostEl = container.querySelector("#cv-frame-cost") as HTMLElement;
     const qtyEl = container.querySelector("#cv-qty-val") as HTMLElement;
     const totalEl = container.querySelector("#cv-total") as HTMLElement;
     const expressEl = container.querySelector("#cv-express") as HTMLElement;
@@ -66,6 +70,12 @@ export const CanvasView: View = {
           formatSel.appendChild(opt);
         });
       }
+      formatSel.onchange = () => {
+        const isCustom = formatSel.value === "custom";
+        sizeRow.style.display = isCustom ? "" : "none";
+      };
+      // trigger for already-selected value
+      sizeRow.style.display = formatSel.value === "custom" ? "" : "none";
     };
 
     const calculate = () => {
@@ -99,6 +109,19 @@ export const CanvasView: View = {
         } else {
           areaRowEl.hidden = true;
           areaEl.innerText = "-";
+        }
+
+        if (result.printCost !== undefined) {
+          printCostRowEl.hidden = false;
+          printCostEl.innerText = formatPLN(result.printCost);
+        } else {
+          printCostRowEl.hidden = true;
+        }
+        if (result.frameCost !== undefined) {
+          frameCostRowEl.hidden = false;
+          frameCostEl.innerText = formatPLN(result.frameCost);
+        } else {
+          frameCostRowEl.hidden = true;
         }
 
         const unitQty = options.modeId === "m2-unframed"
