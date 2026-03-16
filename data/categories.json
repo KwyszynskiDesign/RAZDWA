@@ -108,6 +108,12 @@
     "implemented": true
   },
   {
+    "id": "wydruki-specjalne",
+    "name": "Wydruki specjalne / dodruki",
+    "icon": "🧾",
+    "implemented": true
+  },
+  {
     "id": "cad-upload",
     "name": "CAD Upload plików",
     "icon": "📁",

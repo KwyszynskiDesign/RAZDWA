@@ -81,6 +81,12 @@
     "icon": "✨",
     "implemented": true
   },
+  {
+    "id": "wydruki-specjalne",
+    "name": "Wydruki specjalne / dodruki",
+    "icon": "🧾",
+    "implemented": true
+  },
   { "id": "solwent-plakaty", "name": "Solwent - Plakaty", "icon": "🖼️", "implemented": true },
   { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
   { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
