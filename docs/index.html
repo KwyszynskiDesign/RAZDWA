@@ -675,6 +675,131 @@
       border-color: #fdba74 !important;
     }
 
+    /* CAD Upload Files Table Styles */
+    #viewContainer .cad-files-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      border-radius: 14px;
+      border: 1px solid #dbe7f3;
+      overflow: hidden;
+    }
+
+    #viewContainer .cad-files-table thead {
+      background: #eff6ff;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    #viewContainer .cad-files-table th {
+      padding: 12px 14px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid #dbe7f3;
+    }
+
+    #viewContainer .cad-files-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+
+    #viewContainer .cad-files-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    #viewContainer .cad-files-table tbody tr:hover {
+      background: #f8fbff;
+    }
+
+    #viewContainer .cad-file-name {
+      font-weight: 500;
+      color: #0f172a;
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-word;
+    }
+
+    #viewContainer .cad-file-size {
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      color: #475569;
+    }
+
+    #viewContainer .cad-file-type,
+    #viewContainer .cad-file-scan {
+      text-align: center;
+      color: #475569;
+    }
+
+    #viewContainer .cad-file-delete {
+      text-align: center;
+    }
+
+    #viewContainer .cad-delete-btn {
+      background: none;
+      border: none;
+      color: #dc2626;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s ease, transform 0.1s ease;
+    }
+
+    #viewContainer .cad-delete-btn:hover {
+      background: #fee2e2;
+      transform: scale(1.1);
+    }
+
+    #viewContainer .cad-files-container {
+      margin: 20px 0;
+    }
+
+    #viewContainer .cad-actions-bar {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    #viewContainer .cad-actions-bar button {
+      min-width: 160px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid #dbe7f3;
+      background: #ffffff;
+      color: #0f172a;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    #viewContainer .cad-actions-bar button:hover {
+      background: #f8fafc;
+      border-color: #93c5fd;
+    }
+
+    #viewContainer .cad-clear-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border-color: #fca5a5;
+    }
+
+    #viewContainer .cad-clear-btn:hover {
+      background: #fecaca;
+      border-color: #f87171;
+    }
+
+    #viewContainer .cad-empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
     #orderSummary {
       border-radius: 20px;
       border: 1px solid rgba(15, 32, 53, 0.16);
@@ -916,6 +1041,27 @@
         width: 100%;
         min-width: 0;
       }
+
+      #viewContainer .cad-file-name {
+        max-width: 100%;
+      }
+
+      #viewContainer .cad-files-table {
+        font-size: 12px;
+      }
+
+      #viewContainer .cad-files-table th,
+      #viewContainer .cad-files-table td {
+        padding: 8px 10px;
+      }
+
+      #viewContainer .cad-actions-bar {
+        flex-direction: column;
+      }
+
+      #viewContainer .cad-actions-bar button {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -1004,6 +1150,74 @@
             </div>
             <div id="loadingSpinner" style="display:none;text-align:center;padding:40px">
               ⏳ Ładowanie kategorii... <div style="animation:dots 1s infinite"></div>
+            </div>
+
+            <!-- CAD Upload Section -->
+            <div id="cadUploadSection" style="display:none;">
+              <div class="view-header">
+                <h2>📁 CAD Upload plików</h2>
+                <p class="hint">Prześlij pliki CAD, PDF lub obrazy do automatycznego wyliczenia kosztów druku</p>
+              </div>
+
+              <!-- Upload Zone -->
+              <div class="cad-drop-zone">
+                <div style="text-align:center;padding:30px;">
+                  <p style="font-size:16px;color:#0f172a;margin:0 0 16px;font-weight:500;">📁 Przeciągnij pliki tutaj lub kliknij aby wybrać</p>
+                  <input type="file" id="cadFileInput" class="cad-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf" style="display:none" />
+                  <button type="button" id="cadBrowseBtn" style="background:#2563eb;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s ease;">Wybierz pliki</button>
+                </div>
+              </div>
+
+              <!-- File List Table -->
+              <div class="cad-files-container" style="margin-top:20px;">
+                <div id="cadEmptyState" class="cad-empty-state">
+                  Brak dodanych plików. Dodaj pliki do listy, aby zobaczyć wycenę.
+                </div>
+                
+                <table class="cad-files-table" id="cadFilesTable" style="display:none;width:100%;">
+                  <thead>
+                    <tr>
+                      <th style="width:50px;text-align:center;">Lp.</th>
+                      <th>Nazwa pliku</th>
+                      <th>Rozmiar</th>
+                      <th>Składanie</th>
+                      <th>Skan</th>
+                      <th style="width:50px;text-align:center;">Usuń</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cadTableBody">
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="cad-actions-bar" style="margin-top:24px;">
+                <button type="button" id="cadAddBtn" class="primary" style="background:#2563eb;color:white;border:none;min-width:160px;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:500;transition:all 0.2s ease;">+ Dodaj do listy</button>
+                <button type="button" id="cadClearBtn" class="cad-clear-btn" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;min-width:160px;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:500;transition:all 0.2s ease;">🗑️ Wyczyść listę</button>
+              </div>
+
+              <!-- Summary -->
+              <div class="cad-summary-section" style="margin-top:24px;">
+                <h3 style="margin-top:0;">📊 Podsumowanie</h3>
+                <div id="cadSummaryGrid" class="summary-grid">
+                  <div class="summary-item">
+                    <span>⚫ Czarno-białe:</span>
+                    <span id="summaryBW" class="price-value">0,00 zł</span>
+                  </div>
+                  <div class="summary-item">
+                    <span>🎨 Kolor:</span>
+                    <span id="summaryColor" class="price-value">0,00 zł</span>
+                  </div>
+                  <div class="summary-item" style="border-top: 2px solid #dbe7f3; margin-top: 12px; padding-top: 12px; grid-column: 1/-1;">
+                    <span><strong>🎨 RAZEM KOLOR:</strong></span>
+                    <span id="totalColor" class="price-value" style="color:#0f766e;font-weight:700;">0,00 zł</span>
+                  </div>
+                  <div class="summary-item">
+                    <span><strong>⚫ RAZEM CZARNO-BIAŁE:</strong></span>
+                    <span id="totalBW" class="price-value" style="color:#0f766e;font-weight:700;">0,00 zł</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1194,6 +1408,194 @@ document.addEventListener('DOMContentLoaded', () => {
 
   filterCategories();
   updateActiveCategory();
+
+  // CAD Upload Logic
+  const cadSection = document.getElementById('cadUploadSection');
+  const cadDropZone = document.querySelector('.cad-drop-zone');
+  const cadFileInput = document.getElementById('cadFileInput');
+  const cadBrowseBtn = document.getElementById('cadBrowseBtn');
+  const cadAddBtn = document.getElementById('cadAddBtn');
+  const cadClearBtn = document.getElementById('cadClearBtn');
+  const cadTableBody = document.getElementById('cadTableBody');
+  const cadFilesTable = document.getElementById('cadFilesTable');
+  const cadEmptyState = document.getElementById('cadEmptyState');
+  const summaryBW = document.getElementById('summaryBW');
+  const summaryColor = document.getElementById('summaryColor');
+  const totalBW = document.getElementById('totalBW');
+  const totalColor = document.getElementById('totalColor');
+
+  let cadFiles = [];
+
+  // Show CAD Upload when hash is #/cad-upload
+  window.addEventListener('hashchange', () => {
+    const hash = window.location.hash;
+    const isCADUpload = hash === '#/cad-upload';
+    if (cadSection) {
+      cadSection.style.display = isCADUpload ? 'block' : 'none';
+      document.getElementById('emptyState').style.display = isCADUpload ? 'none' : 'block';
+    }
+  });
+
+  // Handle browse button
+  if (cadBrowseBtn) {
+    cadBrowseBtn.addEventListener('click', () => {
+      cadFileInput.click();
+    });
+  }
+
+  // Handle file input change
+  if (cadFileInput) {
+    cadFileInput.addEventListener('change', (e) => {
+      const files = Array.from(e.target.files || []);
+      files.forEach(file => {
+        const newFile = {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          size: file.size,
+          width: 297,  // Default A4
+          height: 210,
+          folding: false,
+          scanning: false
+        };
+        cadFiles.push(newFile);
+      });
+      updateCADTable();
+      cadFileInput.value = '';
+    });
+  }
+
+  // Handle drag and drop
+  if (cadDropZone) {
+    cadDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      cadDropZone.style.background = '#eff6ff';
+      cadDropZone.style.borderColor = '#2563eb';
+    });
+
+    cadDropZone.addEventListener('dragleave', () => {
+      cadDropZone.style.background = 'linear-gradient(180deg, #f8fbff, #eff6ff)';
+      cadDropZone.style.borderColor = '#93c5fd';
+    });
+
+    cadDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      cadDropZone.style.background = 'linear-gradient(180deg, #f8fbff, #eff6ff)';
+      cadDropZone.style.borderColor = '#93c5fd';
+      
+      const files = Array.from(e.dataTransfer.files || []);
+      files.forEach(file => {
+        const newFile = {
+          id: Date.now() + Math.random(),
+          name: file.name,
+          size: file.size,
+          width: 297,
+          height: 210,
+          folding: false,
+          scanning: false
+        };
+        cadFiles.push(newFile);
+      });
+      updateCADTable();
+    });
+  }
+
+  // Format file size
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  }
+
+  // Update CAD Files Table
+  function updateCADTable() {
+    if (cadFiles.length === 0) {
+      cadEmptyState.style.display = 'block';
+      cadFilesTable.style.display = 'none';
+      updateSummary();
+      return;
+    }
+
+    cadEmptyState.style.display = 'none';
+    cadFilesTable.style.display = 'table';
+
+    cadTableBody.innerHTML = cadFiles.map((file, index) => `
+      <tr data-file-id="${file.id}">
+        <td style="text-align:center;font-weight:bold;color:#475569;">${index + 1}</td>
+        <td class="cad-file-name" title="${file.name}">
+          <strong>${file.name}</strong>
+        </td>
+        <td class="cad-file-size" style="white-space:nowrap;">${file.width.toFixed(0)} × ${file.height.toFixed(0)} mm</td>
+        <td class="cad-file-type" style="text-align:center;">
+          <input type="checkbox" class="fold-check" ${file.folding ? 'checked' : ''} />
+        </td>
+        <td class="cad-file-scan" style="text-align:center;">
+          <input type="checkbox" class="scan-check" ${file.scanning ? 'checked' : ''} />
+        </td>
+        <td class="cad-file-delete" style="text-align:center;">
+          <button class="cad-delete-btn" title="Usuń plik">❌</button>
+        </td>
+      </tr>
+    `).join('');
+
+    // Add event listeners
+    cadTableBody.querySelectorAll('.fold-check').forEach((cb, idx) => {
+      cb.addEventListener('change', (e) => {
+        cadFiles[idx].folding = e.target.checked;
+        updateSummary();
+      });
+    });
+
+    cadTableBody.querySelectorAll('.scan-check').forEach((cb, idx) => {
+      cb.addEventListener('change', (e) => {
+        cadFiles[idx].scanning = e.target.checked;
+        updateSummary();
+      });
+    });
+
+    cadTableBody.querySelectorAll('.cad-delete-btn').forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        cadFiles.splice(idx, 1);
+        updateCADTable();
+      });
+    });
+
+    updateSummary();
+  }
+
+  // Update Summary
+  function updateSummary() {
+    const bwPrice = cadFiles.reduce((sum, f) => sum + (f.width * f.height / 1000000 * 2.5), 0);
+    const colorPrice = cadFiles.reduce((sum, f) => sum + (f.width * f.height / 1000000 * 5), 0);
+    const foldingPrice = cadFiles.filter(f => f.folding).reduce((sum) => sum + 5, 0);
+    const scanPrice = cadFiles.filter(f => f.scanning).reduce((sum) => sum + 3, 0);
+
+    const totalBWPrice = bwPrice + scanPrice;
+    const totalColorPrice = colorPrice + foldingPrice + scanPrice;
+
+    summaryBW.textContent = totalBWPrice.toFixed(2) + ' zł';
+    summaryColor.textContent = totalColorPrice.toFixed(2) + ' zł';
+    totalBW.textContent = totalBWPrice.toFixed(2) + ' zł';
+    totalColor.textContent = totalColorPrice.toFixed(2) + ' zł';
+  }
+
+  // Add button
+  if (cadAddBtn) {
+    cadAddBtn.addEventListener('click', () => {
+      cadFileInput.click();
+    });
+  }
+
+  // Clear button
+  if (cadClearBtn) {
+    cadClearBtn.addEventListener('click', () => {
+      if (confirm('Czy na pewno chcesz usunąć wszystkie pliki?')) {
+        cadFiles = [];
+        updateCADTable();
+      }
+    });
+  }
 });
  </script>
 
