@@ -35,6 +35,22 @@
     max-width: 220px;
   }
 
+  #tab-bindowanie .row select,
+  #tab-bindowanie .row input {
+    margin-left: 0;
+  }
+
+  #tab-bindowanie .bind-type-wrap,
+  #tab-bindowanie .bind-color-wrap {
+    margin-left: 0;
+  }
+
+  #tab-oprawy .row select,
+  #tab-oprawy .row input {
+    max-width: 230px;
+    width: 230px;
+  }
+
   .bind-type-wrap {
     margin-left: auto;
     display: flex;
@@ -308,6 +324,10 @@
           <option value="bezNapisu">Bez napisu Standard (20 zł)</option>
           <option value="wkarta">Wkarta okładka (10 zł)</option>
         </optgroup>
+        <optgroup label="zbijana (50 zł)">
+          <option value="zbijana-czarny">Czarny</option>
+          <option value="zbijana-bialy">Biały</option>
+        </optgroup>
       </select>
     </div>
     <div class="row is-hidden" id="opr-custom-color-row">
@@ -327,7 +347,7 @@
     </div>
     <div class="row is-hidden" id="opr-rozszycie-row">
       <label>Rozszycie i zszycie:</label>
-      <div class="bind-type-wrap" style="min-width:auto; flex-direction:row; align-items:center; gap:8px;">
+      <div class="bind-type-wrap" style="margin-left:0; min-width:auto; flex-direction:row; align-items:center; gap:8px;">
         <label class="mini-check">
           <input type="checkbox" id="opr-rozszycie-check">
           <span>Dodaj usługę</span>
