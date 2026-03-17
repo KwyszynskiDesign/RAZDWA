@@ -71,7 +71,7 @@ function updateCartUI() {
   const totalEl = document.getElementById("basketTotal");
   const debugEl = document.getElementById("basketDebug");
 
-  if (!listEl || !totalEl || !debugEl) return;
+  if (!listEl || !totalEl) return;
 
   const items = cart.getItems();
 
@@ -80,7 +80,7 @@ function updateCartUI() {
       <div class="basketItem">
         <div>
           <div class="basketTitle">Brak pozycji</div>
-          <div class="basketMeta">Kliknij „Dodaj”, aby zbudować listę.</div>
+          <div class="basketMeta">Kliknij „DODAJ DO KOSZYKA”, aby zbudować koszyk.</div>
         </div>
         <div class="basketPrice">—</div>
       </div>
@@ -102,7 +102,9 @@ function updateCartUI() {
 
   const total = cart.getGrandTotal();
   totalEl.innerText = formatPLN(total);
-  debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
+  if (debugEl) {
+    debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
+  }
 }
 
 
@@ -146,7 +148,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     cart.addItem(cartItem);
     updateCartUI();
-    showToast("✓ Dodano do listy");
+    showToast("✓ Dodano do koszyka");
   });
 
   if (!viewContainer || !globalExpress || !categorySearch) return;
@@ -203,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addItem: (item) => {
         cart.addItem(item);
         updateCartUI();
-        showToast("✓ Dodano do listy");
+        showToast("✓ Dodano do koszyka");
       }
     },
     addToBasket: (item) => {
@@ -221,7 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       cart.addItem(cartItem);
       updateCartUI();
-      showToast("✓ Dodano do listy");
+      showToast("✓ Dodano do koszyka");
     },
     expressMode: globalExpress.checked,
     updateLastCalculated: (price, hint) => {
@@ -358,7 +360,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (cart.isEmpty()) {
-      alert("Lista jest pusta!");
+      alert("Koszyk jest pusty!");
       return;
     }
 

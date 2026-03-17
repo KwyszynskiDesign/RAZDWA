@@ -40,7 +40,7 @@ export const plakatyCategory: CategoryModule = {
           </div>
 
           <div class="actions">
-            <button id="addPlakatyBtn" class="primary" style="width: 100%;">Dodaj do zamówienia</button>
+            <button id="addPlakatyBtn" class="primary" style="width: 100%;">DODAJ DO KOSZYKA</button>
           </div>
         </div>
       </div>

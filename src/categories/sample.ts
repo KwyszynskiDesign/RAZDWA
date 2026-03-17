@@ -18,7 +18,7 @@ export const sampleCategory: CategoryModule = {
             <span>10,00 zł</span>
           </div>
           <div class="actions" style="margin-top: 20px;">
-            <button id="addSampleBtn" class="primary">Dodaj do koszyka</button>
+            <button id="addSampleBtn" class="primary">DODAJ DO KOSZYKA</button>
           </div>
         </div>
       </div>

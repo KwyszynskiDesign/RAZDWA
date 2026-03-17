@@ -169,7 +169,7 @@ export const drukA4A3Category: CategoryModule = {
 
         <div style="display: flex; gap: 10px;">
           <button id="calculate" class="btn-primary" style="flex: 1;">Oblicz cenę</button>
-          <button id="addToBasket" class="btn-success" style="flex: 1;">Dodaj do listy</button>
+          <button id="addToBasket" class="btn-success" style="flex: 1;">DODAJ DO KOSZYKA</button>
         </div>
       </div>
     `;

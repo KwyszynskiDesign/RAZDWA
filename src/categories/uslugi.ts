@@ -39,6 +39,9 @@ export const uslugiCategory: CategoryModule = {
       return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
     };
 
+    let currentResult: { servicesCount: number; totalPrice: number } | null = null;
+    let currentSelection: UslugiOptions['selectedServices'] = [];
+
     container.innerHTML = `
       <div class="category-form">
         <h2>Usługi Dodatkowe</h2>
@@ -48,8 +51,9 @@ export const uslugiCategory: CategoryModule = {
 
         <div id="services-list" style="margin-bottom: 14px;"></div>
 
-        <div class="form-group" style="margin-bottom: 10px;">
-          <button id="calculate-btn" class="btn btn-primary">Oblicz</button>
+        <div class="form-group" style="margin-bottom: 10px; display: flex; gap: 10px;">
+          <button id="calculate-btn" class="btn btn-primary" style="flex: 1;">Oblicz</button>
+          <button id="add-to-cart-btn" class="btn btn-success" style="flex: 1;" disabled>DODAJ DO KOSZYKA</button>
         </div>
 
         <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
@@ -114,6 +118,7 @@ export const uslugiCategory: CategoryModule = {
 
     // Calculate button handler
     const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
+    const addToCartBtn = container.querySelector('#add-to-cart-btn') as HTMLButtonElement;
     const summaryDiv = container.querySelector('#summary') as HTMLElement;
 
     calculateBtn.addEventListener('click', () => {
@@ -142,7 +147,9 @@ export const uslugiCategory: CategoryModule = {
         };
       });
 
+      currentSelection = selectedServices;
       const result = quoteUslugi({ selectedServices });
+      currentResult = result;
 
       (container.querySelector('#services-count') as HTMLElement).textContent = result.servicesCount.toString();
       (container.querySelector('#total-price') as HTMLElement).textContent = result.totalPrice.toFixed(2) + ' zł';
@@ -160,12 +167,36 @@ export const uslugiCategory: CategoryModule = {
       detailsDiv.innerHTML = detailsHTML;
 
       summaryDiv.style.display = 'block';
+      addToCartBtn.disabled = false;
+
+      ctx.updateLastCalculated(result.totalPrice, `Usługi - ${result.servicesCount} poz.`);
 
       // Emit event
       ctx?.emit?.('price-calculated', {
         categoryId: 'uslugi',
         totalPrice: result.totalPrice,
         details: result
+      });
+    });
+
+    addToCartBtn.addEventListener('click', () => {
+      if (!currentResult || currentSelection.length === 0) {
+        alert('Najpierw oblicz wybrane usługi.');
+        return;
+      }
+
+      ctx.addToBasket({
+        category: 'Usługi',
+        price: currentResult.totalPrice,
+        description: currentSelection
+          .map(service => {
+            const qty = service.quantity || 1;
+            const hours = service.hours || 1;
+            return hours !== 1
+              ? `${service.serviceName} × ${qty} (${hours}h)`
+              : `${service.serviceName} × ${qty}`;
+          })
+          .join(', ')
       });
     });
   }

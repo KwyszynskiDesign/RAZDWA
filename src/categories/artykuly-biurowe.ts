@@ -37,6 +37,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
   id: 'artykuly-biurowe',
   name: '📎 Artykuły Biurowe',
   mount: (container, ctx) => {
+    let currentResult: { itemsCount: number; totalQuantity: number; totalPrice: number } | null = null;
+    let currentSelection: ArtykulyBiuroweOptions['selectedItems'] = [];
+
     container.innerHTML = `
       <div class="category-form">
         <h2>Artykuły Biurowe</h2>
@@ -46,8 +49,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
         <div id="items-list" style="margin-bottom: 14px;"></div>
 
-        <div class="form-group" style="margin-bottom: 10px;">
-          <button id="calculate-btn" class="btn btn-primary">Oblicz</button>
+        <div class="form-group" style="margin-bottom: 10px; display: flex; gap: 10px;">
+          <button id="calculate-btn" class="btn btn-primary" style="flex: 1;">Oblicz</button>
+          <button id="add-to-cart-btn" class="btn btn-success" style="flex: 1;" disabled>DODAJ DO KOSZYKA</button>
         </div>
 
         <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
@@ -111,6 +115,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
     // Calculate button handler
     const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
+    const addToCartBtn = container.querySelector('#add-to-cart-btn') as HTMLButtonElement;
     const summaryDiv = container.querySelector('#summary') as HTMLElement;
 
     // Function to get current price dynamically
@@ -173,7 +178,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
         };
       });
 
+      currentSelection = selectedItems;
       const result = quoteArtykulyBiurowe({ selectedItems });
+      currentResult = result;
 
       (container.querySelector('#items-count') as HTMLElement).textContent = result.itemsCount.toString();
       (container.querySelector('#total-qty') as HTMLElement).textContent = result.totalQuantity.toString();
@@ -187,12 +194,30 @@ export const artykulyBiuroweCategory: CategoryModule = {
       detailsDiv.innerHTML = detailsHTML;
 
       summaryDiv.style.display = 'block';
+      addToCartBtn.disabled = false;
+
+      ctx.updateLastCalculated(result.totalPrice, `Artykuły biurowe - ${result.itemsCount} poz.`);
 
       // Emit event
       ctx?.emit?.('price-calculated', {
         categoryId: 'artykuly-biurowe',
         totalPrice: result.totalPrice,
         details: result
+      });
+    });
+
+    addToCartBtn.addEventListener('click', () => {
+      if (!currentResult || currentSelection.length === 0) {
+        alert('Najpierw oblicz wybrane artykuły.');
+        return;
+      }
+
+      ctx.addToBasket({
+        category: 'Artykuły biurowe',
+        price: currentResult.totalPrice,
+        description: currentSelection
+          .map(item => `${item.itemName} × ${item.quantity}`)
+          .join(', ')
       });
     });
   }

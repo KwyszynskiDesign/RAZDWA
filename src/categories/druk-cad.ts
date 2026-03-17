@@ -159,7 +159,7 @@ export const drukCADCategory: CategoryModule = {
         </div>
 
         <button id="addToBasket" class="btn-success" style="width: 100%; padding: 15px; font-size: 16px;">
-          Dodaj do listy
+          DODAJ DO KOSZYKA
         </button>
       </div>
     `;
