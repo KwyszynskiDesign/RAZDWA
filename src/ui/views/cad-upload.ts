@@ -73,6 +73,14 @@ export const CadUploadView: View = {
       return fmt;
     }
 
+    function wrapFileName(name: string, chunkSize = 10): string {
+      const chunks: string[] = [];
+      for (let i = 0; i < name.length; i += chunkSize) {
+        chunks.push(escapeHtml(name.slice(i, i + chunkSize)));
+      }
+      return chunks.join("<wbr>");
+    }
+
     function calcSurchargeMultiplier(): number {
       let m = 1;
       if (optFill?.checked) m += 0.5;
@@ -133,7 +141,7 @@ export const CadUploadView: View = {
           <td>
             <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
           </td>
-          <td><strong>${escapeHtml(file.name)}</strong></td>
+          <td style="word-break: break-word; overflow-wrap: anywhere; white-space: normal;"><strong>${wrapFileName(file.name)}</strong></td>
           <td>${file.mode === "color" ? "🎨 Kolor" : "⚫ Cz-B"}</td>
           <td><strong>${formatLabel(file.format)} / ${file.pageCount}</strong></td>
           <td>${file.widthMm?.toFixed(0) || "—"} × ${file.heightMm?.toFixed(0) || "—"} mm</td>

@@ -66,9 +66,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
       </div>
     `;
 
-    // Build items list
     const itemsList = container.querySelector('#items-list') as HTMLElement;
-    let itemId = 0;
 
     for (const category of artykulyBiuroweData.categories) {
       const categoryDiv = document.createElement('div');
@@ -85,7 +83,6 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
       for (const item of category.items) {
         const itemPrice = item.price || (item.prices ? item.prices[0] : 0);
-        itemId++;
 
         const itemDiv = document.createElement('div');
         itemDiv.style.display = 'grid';
@@ -113,18 +110,15 @@ export const artykulyBiuroweCategory: CategoryModule = {
       itemsList.appendChild(categoryDiv);
     }
 
-    // Calculate button handler
     const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
     const addToCartBtn = container.querySelector('#add-to-cart-btn') as HTMLButtonElement;
     const summaryDiv = container.querySelector('#summary') as HTMLElement;
 
-    // Function to get current price dynamically
     const getCurrentPrice = (itemId: string, basePrice: number): number => {
       const storageKey = `artykuly-${itemId}`;
       return resolveStoredPrice(storageKey, basePrice);
     };
 
-    // Update price displays dynamically when prices change
     const updatePriceDisplay = (itemId: string) => {
       const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
       const checkbox = container.querySelector(`input[data-item-id="${itemId}"]`) as HTMLInputElement | null;
@@ -132,42 +126,20 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
       const basePrice = parseFloat(priceSpan.getAttribute('data-base-price') || '0');
       const currentPrice = getCurrentPrice(itemId, basePrice);
-      
-      priceSpan.textContent = currentPrice.toFixed(2) + ' zł';
+
+      priceSpan.textContent = `${currentPrice.toFixed(2)} zł`;
       checkbox.setAttribute('data-price', currentPrice.toString());
     };
 
-    // Update all prices on mount and listen for price changes
-    const priceSpans = container.querySelectorAll('span.item-price') as NodeListOf<HTMLElement>;
-    priceSpans.forEach(span => {
-      const itemId = span.getAttribute('data-item-id') || '';
-      updatePriceDisplay(itemId);
-    });
-
-    // Listen for price update events
-    ctx?.on?.('prices-updated', () => {
-      priceSpans.forEach(span => {
-        const itemId = span.getAttribute('data-item-id') || '';
-        updatePriceDisplay(itemId);
-      });
-    });
-
-    calculateBtn.addEventListener('click', () => {
+    const collectSelectedItems = (): ArtykulyBiuroweOptions['selectedItems'] => {
       const checked = Array.from(container.querySelectorAll('.item-checkbox:checked')) as HTMLInputElement[];
-      
-      if (checked.length === 0) {
-        alert('Proszę wybrać co najmniej jeden artykuł');
-        return;
-      }
-
-      const selectedItems = checked.map(checkbox => {
+      return checked.map((checkbox) => {
         const itemId = checkbox.getAttribute('data-item-id') || '';
         const itemName = checkbox.getAttribute('data-item-name') || '';
         const basePrice = parseFloat(checkbox.getAttribute('data-price') || '0');
-        // Get current dynamic price instead of static data-price
         const price = getCurrentPrice(itemId, basePrice);
         const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement;
-        const quantity = parseInt(qtyInput?.value || '1');
+        const quantity = parseInt(qtyInput?.value || '1', 10);
 
         return {
           categoryName: '',
@@ -177,48 +149,88 @@ export const artykulyBiuroweCategory: CategoryModule = {
           price
         };
       });
+    };
 
+    const updateAddButtonState = () => {
+      addToCartBtn.disabled = collectSelectedItems().length === 0;
+    };
+
+    const renderCalculation = (selectedItems: ArtykulyBiuroweOptions['selectedItems']) => {
       currentSelection = selectedItems;
       const result = quoteArtykulyBiurowe({ selectedItems });
       currentResult = result;
 
       (container.querySelector('#items-count') as HTMLElement).textContent = result.itemsCount.toString();
       (container.querySelector('#total-qty') as HTMLElement).textContent = result.totalQuantity.toString();
-      (container.querySelector('#total-price') as HTMLElement).textContent = result.totalPrice.toFixed(2) + ' zł';
+      (container.querySelector('#total-price') as HTMLElement).textContent = `${result.totalPrice.toFixed(2)} zł`;
 
-      // Build details
       const detailsDiv = container.querySelector('#details-info') as HTMLElement;
-      const detailsHTML = selectedItems
-        .map(s => `<div>• ${s.itemName} × ${s.quantity} szt: ${(s.price * s.quantity).toFixed(2)} zł</div>`)
+      detailsDiv.innerHTML = selectedItems
+        .map((s) => `<div>• ${s.itemName} × ${s.quantity} szt: ${(s.price * s.quantity).toFixed(2)} zł</div>`)
         .join('');
-      detailsDiv.innerHTML = detailsHTML;
 
       summaryDiv.style.display = 'block';
       addToCartBtn.disabled = false;
 
       ctx.updateLastCalculated(result.totalPrice, `Artykuły biurowe - ${result.itemsCount} poz.`);
-
-      // Emit event
       ctx?.emit?.('price-calculated', {
         categoryId: 'artykuly-biurowe',
         totalPrice: result.totalPrice,
         details: result
       });
+    };
+
+    const priceSpans = container.querySelectorAll('span.item-price') as NodeListOf<HTMLElement>;
+    priceSpans.forEach((span) => {
+      const itemId = span.getAttribute('data-item-id') || '';
+      updatePriceDisplay(itemId);
+    });
+
+    ctx?.on?.('prices-updated', () => {
+      priceSpans.forEach((span) => {
+        const itemId = span.getAttribute('data-item-id') || '';
+        updatePriceDisplay(itemId);
+      });
+    });
+
+    calculateBtn.addEventListener('click', () => {
+      const selectedItems = collectSelectedItems();
+      if (selectedItems.length === 0) {
+        alert('Proszę wybrać co najmniej jeden artykuł');
+        return;
+      }
+      renderCalculation(selectedItems);
     });
 
     addToCartBtn.addEventListener('click', () => {
-      if (!currentResult || currentSelection.length === 0) {
-        alert('Najpierw oblicz wybrane artykuły.');
+      const selectedItems = collectSelectedItems();
+      if (selectedItems.length === 0) {
+        alert('Wybierz co najmniej jeden artykuł.');
         return;
       }
 
+      renderCalculation(selectedItems);
       ctx.addToBasket({
         category: 'Artykuły biurowe',
-        price: currentResult.totalPrice,
-        description: currentSelection
-          .map(item => `${item.itemName} × ${item.quantity}`)
-          .join(', ')
+        price: currentResult?.totalPrice ?? 0,
+        description: selectedItems.map((item) => `${item.itemName} × ${item.quantity}`).join(', ')
       });
     });
+
+    container.addEventListener('change', (e) => {
+      const target = e.target as HTMLElement;
+      if (target?.classList.contains('item-checkbox') || target?.classList.contains('item-quantity')) {
+        updateAddButtonState();
+      }
+    });
+
+    container.addEventListener('input', (e) => {
+      const target = e.target as HTMLElement;
+      if (target?.classList.contains('item-quantity')) {
+        updateAddButtonState();
+      }
+    });
+
+    updateAddButtonState();
   }
 };
