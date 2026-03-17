@@ -1,0 +1,191 @@
+<div class="category-template">
+  <style>
+    .d-inline-check {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .d-inline-check label {
+      margin: 0;
+    }
+
+    .d-result-box {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #bbf7d0;
+      border-radius: 12px;
+      background: #f0fdf4;
+    }
+
+    .d-result-total {
+      font-size: 1.2em;
+      color: #15803d;
+      font-weight: 700;
+    }
+
+    .d-hidden { display: none; }
+
+    .d-note {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 10px;
+      padding: 10px;
+      background: #eef2f7;
+      border-radius: 8px;
+      border: 1px solid #dbe7f3;
+    }
+
+    .d-pricing-block { margin-top: 24px; }
+    .d-pricing-block h4 { margin: 12px 0 8px; }
+
+    .d-price-table-head-dark th {
+      background: #1f2937;
+      color: #fff;
+    }
+
+    .d-price-table-head-blue th {
+      background: #1d4ed8;
+      color: #fff;
+    }
+
+    .d-price-table-head-green th {
+      background: #15803d;
+      color: #fff;
+    }
+  </style>
+  <h2>Druk A4/A3 + skan</h2>
+  
+  <!-- TRYB + FORMAT -->
+  <div class="form-row">
+    <div class="form-group">
+      <label>Tryb:</label>
+      <select id="d-mode">
+        <option value="bw">Czarnobiały</option>
+        <option value="color">Kolorowy</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Format:</label>
+      <select id="d-format">
+        <option value="A4">A4</option>
+        <option value="A3">A3</option>
+      </select>
+    </div>
+    <div class="form-group d-inline-check">
+      <label for="d-email">E-mail (+1 zł)</label>
+      <input type="checkbox" id="d-email">
+    </div>
+  </div>
+
+  <!-- DRUK -->
+  <div class="form-group">
+    <label>Ilość stron do druku:</label>
+    <input type="number" id="d-print-qty" min="0" value="1">
+  </div>
+
+  <!-- ZADRUK >25% -->
+  <div class="form-group">
+    <label>
+      <span class="label-title">Zadruk &gt;25%</span>
+      <span class="label-sub">Liczba stron z dopłatą +50%</span>
+    </label>
+    <input type="number" id="d-surcharge-qty" min="0" value="0">
+  </div>
+
+  <!-- SKANOWANIE -->
+  <div class="form-group">
+    <label>Rodzaj skanowania:</label>
+    <select id="d-scan-type">
+      <option value="none">Brak</option>
+      <option value="auto">Automatyczne</option>
+      <option value="manual">Ręczne z szyby</option>
+    </select>
+  </div>
+
+  <div class="form-row d-hidden" id="scan-qty-row">
+    <div class="form-group">
+      <label>Ilość stron do skanowania:</label>
+      <input type="number" id="d-scan-qty" min="0" value="1">
+    </div>
+  </div>
+
+  <!-- PRZYCISKI -->
+  <div class="form-actions">
+    <button id="d-calculate" class="btn-primary">Oblicz</button>
+    <button id="d-add-to-cart" class="btn-secondary" disabled>DODAJ DO KOSZYKA</button>
+  </div>
+
+  <!-- WYNIKI -->
+  <div id="d-result-display" class="d-result-box">
+    <div class="result-row">💰 Cena druku/str.: <span id="d-unit-print-price">-</span></div>
+    <div class="result-row">📄 Koszt druku (strony zwykłe): <span id="d-total-print-price">-</span></div>
+    <div class="result-row d-hidden" id="d-scan-row">📷 Skanowanie: <span id="d-total-scan-price">-</span></div>
+    <div class="result-row d-hidden" id="d-email-row">📧 E-mail: <span id="d-email-price">-</span></div>
+    <div class="result-row d-hidden" id="d-surcharge-row">🎨 Dopłata (zadruk &gt;25%): <span id="d-surcharge-price">-</span></div>
+    <hr>
+    <div class="result-row total d-result-total">
+      💎 SUMA za wszystko: <span id="d-total-price">-</span>
+    </div>
+  </div>
+
+  <!-- EXPRESS HINT -->
+  <div id="d-express-hint" class="d-hidden"><strong>⚡ TRYB EXPRESS +20%</strong></div>
+
+  <!-- CENNİK - POPRAWNE CENY Z TWOJEGO KODU + Tabele UX -->
+  <div class="pricing-table d-pricing-block">
+    <h3>📋 Cennik Studio Raz Dwa</h3>
+    
+    <!-- DRUK CZARNO-BIAŁY -->
+    <h4>🖨️ DRUK CZARNO-BIAŁY</h4>
+    <table>
+      <tr class="d-price-table-head-dark">
+        <th>Nakład</th>
+        <th>A4</th>
+        <th>A3</th>
+      </tr>
+      <tr><td>1-5 str.</td><td>0,90 zł</td><td>1,70 zł</td></tr>
+      <tr><td>6-20 str.</td><td>0,60 zł</td><td>1,10 zł</td></tr>
+      <tr><td>21-100 str.</td><td>0,35 zł</td><td>0,70 zł</td></tr>
+      <tr><td>101-500 str.</td><td>0,30 zł</td><td>0,60 zł</td></tr>
+      <tr><td>501-999 str.</td><td>0,23 zł</td><td>0,45 zł</td></tr>
+      <tr><td>1000+ str.</td><td>0,15 zł</td><td>0,33 zł</td></tr>
+    </table>
+
+    <!-- DRUK KOLOROWY -->
+    <h4>🌈 DRUK KOLOROWY</h4>
+    <table>
+      <tr class="d-price-table-head-blue">
+        <th>Nakład</th>
+        <th>A4</th>
+        <th>A3</th>
+      </tr>
+      <tr><td>1-10 str.</td><td>2,40 zł</td><td>4,80 zł</td></tr>
+      <tr><td>11-40 str.</td><td>2,20 zł</td><td>4,20 zł</td></tr>
+      <tr><td>41-100 str.</td><td>2,00 zł</td><td>3,80 zł</td></tr>
+      <tr><td>101-250 str.</td><td>1,80 zł</td><td>3,00 zł</td></tr>
+      <tr><td>251-500 str.</td><td>1,60 zł</td><td>2,50 zł</td></tr>
+      <tr><td>501+ str.</td><td>1,10 zł</td><td>1,60 zł</td></tr>
+    </table>
+
+    <!-- SKANOWANIE -->
+    <h4>📷 SKANOWANIE</h4>
+    <table>
+      <tr class="d-price-table-head-green">
+        <th>Automatyczne</th>
+        <th>Ręczne (z szyby)</th>
+      </tr>
+      <tr>
+        <td>1-9: 1,00 zł<br>10-49: 0,50 zł<br>50-99: 0,40 zł<br>100+: 0,25 zł</td>
+        <td>1-4: 2,00 zł<br>5+: 1,00 zł<br><small>(+20% kopie z szyby)</small></td>
+      </tr>
+    </table>
+
+    <div class="d-note">
+      ⚠️ <strong>Zadruk >25% powierzchni:</strong> +50% ceny podstawowej<br>
+      📧 <strong>E-mail:</strong> 1,00 zł
+    </div>
+  </div>
+</div>
+

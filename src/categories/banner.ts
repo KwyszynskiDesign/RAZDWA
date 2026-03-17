@@ -24,11 +24,18 @@ export function calculateBanner(options: BannerOptions): CalculationResult {
     unit: tableData.unit,
     pricing: tableData.pricing,
     tiers: overrideTiersWithStoredPrices(`banner-${options.material}`, materialData.tiers),
-    modifiers: tableData.modifiers.map((m: any) =>
-      m.id === "oczkowanie"
-        ? { ...m, value: resolveStoredPrice("banner-oczkowanie", m.value) }
-        : m
-    )
+    modifiers: tableData.modifiers.map((m: any) => {
+      if (m.id === "oczkowanie") {
+        const value = resolveStoredPrice("banner-oczkowanie", m.value);
+        return {
+          ...m,
+          name: `Oczkowanie (+${value.toFixed(2)} zł/m2)`,
+          value
+        };
+      }
+
+      return m;
+    })
   };
 
   const activeModifiers: string[] = [];

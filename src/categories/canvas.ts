@@ -60,7 +60,22 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       throw new Error("Wybierz format canvas");
     }
 
-    if (selectedFormat.customSize) {
+    if ((selectedFormat.customSize || selectedFormat.customQuote) && (!options.widthMm || !options.heightMm)) {
+      formatLabel = selectedFormat.label;
+      return {
+        basePrice: 0,
+        tierPrice: 0,
+        totalPrice: 0,
+        modifiersTotal: 0,
+        effectiveQuantity: Math.max(1, options.quantity),
+        appliedModifiers: [],
+        isCustom: true,
+        modeLabel: mode.name,
+        formatLabel
+      };
+    }
+
+    if (selectedFormat.customSize || selectedFormat.customQuote) {
       const width = Number(options.widthMm) || 0;
       const height = Number(options.heightMm) || 0;
       areaM2 = (width * height) / 1_000_000;
@@ -83,10 +98,12 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       return {
         basePrice: unitPrice * qty,
         tierPrice: unitPrice,
+        modifiersTotal: 0,
+        effectiveQuantity: qty,
         totalPrice,
         discountFactor: 1,
         appliedModifiers: options.express ? ["express"] : [],
-        isCustom: false,
+        isCustom: true,
         modeLabel: mode.name,
         formatLabel,
         areaM2,

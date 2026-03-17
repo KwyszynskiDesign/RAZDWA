@@ -11,11 +11,40 @@ export interface SolwentPlakatyInput {
   express?: boolean;
 }
 
+function repairMojibake(value: string): string {
+  try {
+    return decodeURIComponent(escape(value));
+  } catch {
+    return value;
+  }
+}
+
+function normalizeMaterialKey(value: string): string {
+  return repairMojibake(String(value ?? ""))
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[łŁ]/g, "l")
+    .replace(/[śŚ]/g, "s")
+    .replace(/[żŻźŹ]/g, "z")
+    .replace(/[ćĆ]/g, "c")
+    .replace(/[ńŃ]/g, "n")
+    .replace(/[ąĄ]/g, "a")
+    .replace(/[ęĘ]/g, "e")
+    .toLowerCase()
+    .trim();
+}
+
 export function calculateSolwentPlakaty(input: SolwentPlakatyInput): CalculationResult {
   const tableData = getPrice('solwentPlakaty') as any;
+  const materialKey = normalizeMaterialKey(input.material);
+  const gsmToken = String(input.material ?? "").match(/(\d{2,3}g)/i)?.[1]?.toLowerCase();
 
-  // Find material by name in the list
-  const materialData = tableData.materials.find((m: any) => m.name === input.material);
+  const materialData = tableData.materials.find((m: any) => {
+    return m.id === input.material
+      || (gsmToken ? String(m.id).toLowerCase() === gsmToken : false)
+      || normalizeMaterialKey(m.name) === materialKey
+      || normalizeMaterialKey(m.id) === materialKey;
+  });
 
   if (!materialData) {
     throw new Error(`Unknown material: ${input.material}`);
