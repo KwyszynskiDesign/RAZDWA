@@ -230,7 +230,7 @@ export const WlepkiView: View = {
         resultDiv.style.display = "block";
         addBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Wlepki");
+        ctx.updateLastCalculated(currentResult.totalPrice, "Wlepki");
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }

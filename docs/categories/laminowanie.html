@@ -51,6 +51,46 @@
     width: 230px;
   }
 
+  #opr-rozszycie-row {
+    align-items: flex-start;
+  }
+
+  #opr-rozszycie-row > label {
+    padding-top: 6px;
+  }
+
+  .opr-clamp-options {
+    margin-left: auto;
+    min-width: 230px;
+    max-width: 260px;
+    width: 100%;
+    display: grid;
+    gap: 8px;
+  }
+
+  .opr-clamp-option {
+    width: fit-content;
+  }
+
+  .opr-clamp-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .opr-clamp-price input {
+    width: 74px !important;
+    max-width: 74px !important;
+    min-height: 32px !important;
+    margin-left: 0 !important;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
   .bind-type-wrap {
     margin-left: auto;
     display: flex;
@@ -306,7 +346,7 @@
       <select id="opr-type">
         <option value="grzbietowa">Grzbietowa (listwa wsuwana)</option>
         <option value="kanałowa">Kanałowa dyplomowa</option>
-        <option value="zaciskowa">Zaciskowa</option>
+        <option value="zaciskowa">Zaciskowa (miękka)</option>
         <option value="zbijana">Zbijana</option>
       </select>
     </div>
@@ -346,16 +386,18 @@
       <input type="number" id="opr-pages" value="50" min="1">
     </div>
     <div class="row is-hidden" id="opr-rozszycie-row">
-      <label>Rozszycie i zszycie:</label>
-      <div class="bind-type-wrap" style="margin-left:0; min-width:auto; flex-direction:row; align-items:center; gap:8px;">
-        <label class="mini-check">
+      <label>Opcje zaciskowej:</label>
+      <div class="opr-clamp-options">
+        <label class="mini-check opr-clamp-option">
           <input type="checkbox" id="opr-rozszycie-check">
-          <span>Dodaj usługę</span>
+          <span>Rozszycie i zszycie</span>
         </label>
-        <span style="color:#888;">+</span>
-        <input type="number" id="opr-rozszycie-price" value="7" min="5" max="10" step="0.5"
-          style="width:60px; padding:4px 8px; border:1px solid #d9d9d9; border-radius:8px; font-size:12px;">
-        <span style="font-size:12px; color:#555;">zł</span>
+        <div class="opr-clamp-price">
+          <span>Dopłata:</span>
+          <input type="number" id="opr-rozszycie-price" value="7" min="5" max="10" step="0.5">
+          <span>zł</span>
+        </div>
+        <small class="hint">Dopłata naliczana jednorazowo do pozycji.</small>
       </div>
     </div>
     <div class="row">

@@ -11,6 +11,20 @@ export const PRICES_UPDATED_EVENT = "razdwa:prices-updated";
 
 let _prices: any = JSON.parse(JSON.stringify(_config));
 
+function getConfigRoot(): any {
+  if (
+    _prices &&
+    typeof _prices === "object" &&
+    _prices.default &&
+    typeof _prices.default === "object" &&
+    !_prices.defaultPrices &&
+    !_prices.drukA4A3
+  ) {
+    return _prices.default;
+  }
+  return _prices;
+}
+
 function notifyPricesUpdated(path: string): void {
   try {
     if (typeof window !== "undefined") {
@@ -34,66 +48,68 @@ function notifyPricesUpdated(path: string): void {
         }
       }
       if (Object.keys(validated).length > 0) {
-        _prices.defaultPrices = { ..._prices.defaultPrices, ...validated };
+        const root = getConfigRoot();
+        root.defaultPrices = { ...(root.defaultPrices ?? {}), ...validated };
       }
     }
   } catch { /* ignore */ }
 })();
 
 /**
- * Pobierz wartość cennika po ścieżce z notacją kropkową,
- * np. getPrice("banner"), getPrice("drukCAD.price.color").
- * Zwraca undefined gdy ścieżka nie istnieje.
- */
-export function getPrice(path: string): any {
-  const keys = path.split(".");
-  let obj: any = _prices;
-  for (const key of keys) {
-    if (obj == null || typeof obj !== "object") return undefined;
-    obj = obj[key];
-  }
-  return obj;
-}
-
-/**
- * Ustaw wartość cennika po ścieżce z notacją kropkową.
- * Tworzy pośrednie obiekty w razie potrzeby.
- * Gdy ścieżka dotyczy sekcji defaultPrices, zmiana jest automatycznie
- * utrwalana w localStorage.
- */
-export function setPrice(path: string, value: any): void {
-  const keys = path.split(".");
-  let obj: any = _prices;
-  for (let i = 0; i < keys.length - 1; i++) {
-    const key = keys[i];
-    if (obj[key] == null || typeof obj[key] !== "object") {
-      obj[key] = {};
+   * Pobierz wartość cennika po ścieżce z notacją kropkową,
+   * np. getPrice("banner"), getPrice("drukCAD.price.color").
+   * Zwraca undefined gdy ścieżka nie istnieje.
+   */
+  export function getPrice(path: string): any {
+    const keys = path.split(".");
+    let obj: any = getConfigRoot();
+    for (const key of keys) {
+      if (obj == null || typeof obj !== "object") return undefined;
+      obj = obj[key];
     }
-    obj = obj[key];
+    return obj;
   }
-  obj[keys[keys.length - 1]] = value;
 
-  // Persist when defaultPrices section changes
-  if (path === "defaultPrices" || path.startsWith("defaultPrices.")) {
+  /**
+   * Ustaw wartość cennika po ścieżce z notacją kropkową.
+   * Tworzy pośrednie obiekty w razie potrzeby.
+   * Gdy ścieżka dotyczy sekcji defaultPrices, zmiana jest automatycznie
+   * utrwalana w localStorage.
+   */
+  export function setPrice(path: string, value: any): void {
+    const keys = path.split(".");
+    const root = getConfigRoot();
+    let obj: any = root;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const key = keys[i];
+      if (obj[key] == null || typeof obj[key] !== "object") {
+        obj[key] = {};
+      }
+      obj = obj[key];
+    }
+    obj[keys[keys.length - 1]] = value;
+
+    // Persist when defaultPrices section changes
+    if (path === "defaultPrices" || path.startsWith("defaultPrices.")) {
+      try {
+        if (typeof localStorage !== "undefined") {
+          localStorage.setItem(PRICES_STORAGE_KEY, JSON.stringify(root.defaultPrices ?? {}));
+        }
+      } catch { /* ignore */ }
+      notifyPricesUpdated(path);
+    }
+  }
+
+  /**
+   * Przywróć wszystkie ceny do wartości domyślnych z pliku konfiguracyjnego
+   * i usuń nadpisania z localStorage.
+   */
+  export function resetPrices(): void {
+    _prices = JSON.parse(JSON.stringify(_config));
     try {
       if (typeof localStorage !== "undefined") {
-        localStorage.setItem(PRICES_STORAGE_KEY, JSON.stringify(_prices.defaultPrices));
+        localStorage.removeItem(PRICES_STORAGE_KEY);
       }
     } catch { /* ignore */ }
-    notifyPricesUpdated(path);
+    notifyPricesUpdated("defaultPrices");
   }
-}
-
-/**
- * Przywróć wszystkie ceny do wartości domyślnych z pliku konfiguracyjnego
- * i usuń nadpisania z localStorage.
- */
-export function resetPrices(): void {
-  _prices = JSON.parse(JSON.stringify(_config));
-  try {
-    if (typeof localStorage !== "undefined") {
-      localStorage.removeItem(PRICES_STORAGE_KEY);
-    }
-  } catch { /* ignore */ }
-  notifyPricesUpdated("defaultPrices");
-}

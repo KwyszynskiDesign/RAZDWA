@@ -562,7 +562,7 @@ export const UstawieniaView: View = {
   id: "ustawienia",
   name: "Ustawienia cen",
 
-  mount(container: HTMLElement, _ctx: ViewContext) {
+  mount(container: HTMLElement, ctx: ViewContext) {
     if (_cleanup) {
       _cleanup();
       _cleanup = null;

@@ -70,11 +70,12 @@ export const CanvasView: View = {
           formatSel.appendChild(opt);
         });
       }
+
       formatSel.onchange = () => {
         const isCustom = formatSel.value === "custom";
         sizeRow.style.display = isCustom ? "" : "none";
       };
-      // trigger for already-selected value
+
       sizeRow.style.display = formatSel.value === "custom" ? "" : "none";
     };
 
@@ -82,9 +83,9 @@ export const CanvasView: View = {
       const options: CanvasOptions = {
         modeId: modeSel.value as CanvasOptions["modeId"],
         formatId: formatSel.value,
-        quantity: parseInt(qtyInput.value) || 1,
-        widthMm: parseInt(widthInput.value) || 0,
-        heightMm: parseInt(heightInput.value) || 0,
+        quantity: parseInt(qtyInput.value, 10) || 1,
+        widthMm: parseInt(widthInput.value, 10) || 0,
+        heightMm: parseInt(heightInput.value, 10) || 0,
         express: ctx.expressMode
       };
 
@@ -117,6 +118,7 @@ export const CanvasView: View = {
         } else {
           printCostRowEl.hidden = true;
         }
+
         if (result.frameCost !== undefined) {
           frameCostRowEl.hidden = false;
           frameCostEl.innerText = formatPLN(result.frameCost);
@@ -134,7 +136,6 @@ export const CanvasView: View = {
         expressEl.style.display = options.express ? "block" : "none";
 
         addBtn.disabled = false;
-        ctx.updateLastCalculated(result.totalPrice, "Canvas / Płótno");
         ctx.updateLastCalculated(result.totalPrice, "Canvas / P\u0142\u00F3tno");
       }
 
@@ -148,7 +149,6 @@ export const CanvasView: View = {
       try {
         calculate();
       } catch (err) {
-        alert("Błąd: " + (err as Error).message);
         alert("B\u0142\u0105d: " + (err as Error).message);
       }
     };
@@ -166,7 +166,6 @@ export const CanvasView: View = {
         currentOptions.express ? "EXPRESS" : ""
       ].filter(Boolean);
 
-      ctx.cart.addItem({
       ctx.cart.addItem({
         id: `canvas-${Date.now()}`,
         category: "Canvas / P\u0142\u00F3tno",

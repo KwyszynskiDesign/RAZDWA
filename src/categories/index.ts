@@ -1,6 +1,6 @@
 import { BannerView } from "../ui/views/banner";
 import { CadUploadView } from "../ui/views/cad-upload";
-import { CanvasView } from "../ui/views/canvas";
+import { CanvasView } from "../ui/views/canvas-fixed";
 import { DrukCADView } from "../ui/views/druk-cad";
 import { DrukA4A3SkanView } from "../ui/views/druk-a4-a3-skan-view";
 import { DyplomyView } from "../ui/views/dyplomy";
