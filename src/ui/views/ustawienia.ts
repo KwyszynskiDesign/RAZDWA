@@ -15,7 +15,17 @@ type PriceCategory = {
 let _cleanup: (() => void) | null = null;
 
 function loadPrices(): Record<string, number> {
-  const base = { ...(getPrice("defaultPrices") as Record<string, number>) };
+  const loaded = getPrice("defaultPrices") as Record<string, unknown> | undefined;
+  const base: Record<string, number> = {};
+
+  if (loaded && typeof loaded === "object") {
+    Object.entries(loaded).forEach(([key, value]) => {
+      const numeric = typeof value === "number" ? value : Number.parseFloat(String(value));
+      if (Number.isFinite(numeric)) {
+        base[key] = numeric;
+      }
+    });
+  }
   const zaproszenia = getPrice("zaproszeniaKreda") as any;
   const formats = zaproszenia?.formats as Record<string, any> | undefined;
 
@@ -373,6 +383,12 @@ function getPriceLabel(key: string): string {
   return key.replace(/-/g, " ");
 }
 
+function getProductGroupLabel(label: string): string {
+  return label
+    .replace(/\s+[–-]\s+\d[\d\s]*(?:[–-]\d[\d\s]*|\+)?\s*(szt\.?|str\.?|stron)\.?$/i, "")
+    .trim();
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -589,21 +605,13 @@ export const UstawieniaView: View = {
 
     function flushInputs(): void {
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
-        const keyInput = row.querySelector<HTMLInputElement>("input[data-field='key']");
         const priceInput = row.querySelector<HTMLInputElement>("input[data-field='unitPrice']");
-        const originalKey = row.dataset.key ?? "";
-        const proposedKey = keyInput?.value.trim() || originalKey;
+        const key = row.dataset.key ?? "";
         const parsedPrice = Number.parseFloat(priceInput?.value ?? "0");
         const nextPrice = Number.isFinite(parsedPrice) ? parsedPrice : 0;
 
-        if (originalKey && originalKey !== proposedKey) {
-          delete prices[originalKey];
-        }
-
-        prices[proposedKey] = nextPrice;
-        row.dataset.key = proposedKey;
-        if (keyInput) {
-          keyInput.value = proposedKey;
+        if (key) {
+          prices[key] = nextPrice;
         }
       });
     }
@@ -664,7 +672,7 @@ export const UstawieniaView: View = {
       if (keys.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="4" class="settings-empty-state">
+            <td colspan="3" class="settings-empty-state">
               W tej kategorii nie ma jeszcze pozycji. Możesz dodać nową cenę przyciskiem poniżej.
             </td>
           </tr>
@@ -672,22 +680,34 @@ export const UstawieniaView: View = {
         return;
       }
 
-      tbody.innerHTML = keys.map((key) => `
+      let previousGroup = "";
+      let isBoldGroup = false;
+
+      tbody.innerHTML = keys.map((key) => {
+        const label = getPriceLabel(key);
+        const groupLabel = getProductGroupLabel(label);
+        if (groupLabel !== previousGroup) {
+          isBoldGroup = !isBoldGroup;
+          previousGroup = groupLabel;
+        }
+
+        const numericPrice = Number(prices[key]);
+        const displayPrice = Number.isFinite(numericPrice) ? numericPrice : 0;
+
+        return `
         <tr data-key="${escapeHtml(key)}">
-          <td class="settings-td-key">
-            <input data-field="key" value="${escapeHtml(key)}" class="settings-input settings-input--mono">
-          </td>
           <td class="settings-td-product">
-            <span class="settings-product-label">${escapeHtml(getPriceLabel(key))}</span>
+            <span class="settings-product-label${isBoldGroup ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
           </td>
           <td class="settings-td-price">
-            <input data-field="unitPrice" type="number" step="0.01" min="0" value="${Number(prices[key]).toFixed(2)}" class="settings-input settings-input--price">
+            <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice.toFixed(2)}" class="settings-input settings-input--price">
           </td>
           <td class="settings-td-del">
             <button type="button" data-action="delete" data-key="${escapeHtml(key)}" class="settings-btn-del" title="Usuń pozycję">✕</button>
           </td>
         </tr>
-      `).join("");
+      `;
+      }).join("");
 
       tbody.querySelectorAll<HTMLButtonElement>("[data-action='delete']").forEach((button) => {
         button.addEventListener("click", () => {
@@ -727,7 +747,6 @@ export const UstawieniaView: View = {
           <table class="settings-table">
             <thead>
               <tr>
-                <th class="settings-th-key">Klucz cennika</th>
                 <th class="settings-th-product">Produkt / opis</th>
                 <th class="settings-th-price">Cena (zł)</th>
                 <th class="settings-th-del">Usuń</th>
@@ -760,9 +779,10 @@ export const UstawieniaView: View = {
       prices[newKey] = 0;
       renderTabs();
       renderTable();
-      const keyInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='key']");
-      keyInputs[keyInputs.length - 1]?.focus();
-      keyInputs[keyInputs.length - 1]?.select();
+      const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");
+      const lastPriceInput = priceInputs[priceInputs.length - 1];
+      lastPriceInput?.focus();
+      lastPriceInput?.select();
     });
 
     container.querySelector("#btn-save")?.addEventListener("click", () => {

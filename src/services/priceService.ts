@@ -25,91 +25,94 @@ function getConfigRoot(): any {
   return _prices;
 }
 
-function notifyPricesUpdated(path: string): void {
-  try {
-    if (typeof window !== "undefined") {
-      window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path } }));
-    }
-  } catch { /* ignore */ }
-}
-
-// On startup: merge user overrides from localStorage into defaultPrices.
-(function _loadFromStorage() {
-  try {
-    if (typeof localStorage === "undefined") return;
-    const raw = localStorage.getItem(PRICES_STORAGE_KEY);
-    if (!raw) return;
-    const overrides = JSON.parse(raw);
-    if (overrides && typeof overrides === "object" && !Array.isArray(overrides)) {
-      const validated: Record<string, number> = {};
-      for (const [k, v] of Object.entries(overrides)) {
-        if (k && typeof v === "number" && isFinite(v as number)) {
-          validated[k] = v as number;
+    function notifyPricesUpdated(path: string): void {
+      try {
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path } }));
         }
-      }
-      if (Object.keys(validated).length > 0) {
-        const root = getConfigRoot();
-        root.defaultPrices = { ...(root.defaultPrices ?? {}), ...validated };
+      } catch {
+        // ignore
       }
     }
-  } catch { /* ignore */ }
-})();
 
-/**
-   * Pobierz wartość cennika po ścieżce z notacją kropkową,
-   * np. getPrice("banner"), getPrice("drukCAD.price.color").
-   * Zwraca undefined gdy ścieżka nie istnieje.
-   */
-  export function getPrice(path: string): any {
-    const keys = path.split(".");
-    let obj: any = getConfigRoot();
-    for (const key of keys) {
-      if (obj == null || typeof obj !== "object") return undefined;
-      obj = obj[key];
-    }
-    return obj;
-  }
+    (function loadFromStorage() {
+      try {
+        if (typeof localStorage === "undefined") return;
 
-  /**
-   * Ustaw wartość cennika po ścieżce z notacją kropkową.
-   * Tworzy pośrednie obiekty w razie potrzeby.
-   * Gdy ścieżka dotyczy sekcji defaultPrices, zmiana jest automatycznie
-   * utrwalana w localStorage.
-   */
-  export function setPrice(path: string, value: any): void {
-    const keys = path.split(".");
-    const root = getConfigRoot();
-    let obj: any = root;
-    for (let i = 0; i < keys.length - 1; i++) {
-      const key = keys[i];
-      if (obj[key] == null || typeof obj[key] !== "object") {
-        obj[key] = {};
+        const raw = localStorage.getItem(PRICES_STORAGE_KEY);
+        if (!raw) return;
+
+        const overrides = JSON.parse(raw);
+        if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) return;
+
+        const validated: Record<string, number> = {};
+        for (const [key, value] of Object.entries(overrides)) {
+          if (!key) continue;
+          const n = typeof value === "number" ? value : Number.parseFloat(String(value));
+          if (Number.isFinite(n)) {
+            validated[key] = n;
+          }
+        }
+
+        if (Object.keys(validated).length > 0) {
+          const root = getConfigRoot();
+          root.defaultPrices = { ...(root.defaultPrices ?? {}), ...validated };
+        }
+      } catch {
+        // ignore
       }
-      obj = obj[key];
-    }
-    obj[keys[keys.length - 1]] = value;
+    })();
 
-    // Persist when defaultPrices section changes
-    if (path === "defaultPrices" || path.startsWith("defaultPrices.")) {
+    export function getPrice(path: string): any {
+      const keys = path.split(".");
+      let obj: any = getConfigRoot();
+
+      for (const key of keys) {
+        if (obj == null || typeof obj !== "object") return undefined;
+        obj = obj[key];
+      }
+
+      return obj;
+    }
+
+    export function setPrice(path: string, value: any): void {
+      const keys = path.split(".");
+      const root = getConfigRoot();
+      let obj: any = root;
+
+      for (let i = 0; i < keys.length - 1; i++) {
+        const key = keys[i];
+        if (obj[key] == null || typeof obj[key] !== "object") {
+          obj[key] = {};
+        }
+        obj = obj[key];
+      }
+
+      obj[keys[keys.length - 1]] = value;
+
+      if (path === "defaultPrices" || path.startsWith("defaultPrices.")) {
+        try {
+          if (typeof localStorage !== "undefined") {
+            localStorage.setItem(PRICES_STORAGE_KEY, JSON.stringify(root.defaultPrices ?? {}));
+          }
+        } catch {
+          // ignore
+        }
+
+        notifyPricesUpdated(path);
+      }
+    }
+
+    export function resetPrices(): void {
+      _prices = JSON.parse(JSON.stringify(_config));
+
       try {
         if (typeof localStorage !== "undefined") {
-          localStorage.setItem(PRICES_STORAGE_KEY, JSON.stringify(root.defaultPrices ?? {}));
+          localStorage.removeItem(PRICES_STORAGE_KEY);
         }
-      } catch { /* ignore */ }
-      notifyPricesUpdated(path);
-    }
-  }
-
-  /**
-   * Przywróć wszystkie ceny do wartości domyślnych z pliku konfiguracyjnego
-   * i usuń nadpisania z localStorage.
-   */
-  export function resetPrices(): void {
-    _prices = JSON.parse(JSON.stringify(_config));
-    try {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem(PRICES_STORAGE_KEY);
+      } catch {
+        // ignore
       }
-    } catch { /* ignore */ }
-    notifyPricesUpdated("defaultPrices");
-  }
+
+      notifyPricesUpdated("defaultPrices");
+    }

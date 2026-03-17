@@ -1194,6 +1194,10 @@ button.ghost:hover {
   line-height: 1.4;
 }
 
+.settings-product-label--alt {
+  font-weight: 700;
+}
+
 .settings-th-price,
 .settings-td-price {
   width: 180px;
