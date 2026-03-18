@@ -267,9 +267,12 @@ export const LaminowanieView: View = {
     const oprResultDisplay = container.querySelector("#opr-result-display") as HTMLElement | null;
     const oprUnitPrice = container.querySelector("#opr-unit-price") as HTMLElement | null;
     const oprTotalPrice = container.querySelector("#opr-total-price") as HTMLElement | null;
+    const oprExpressHint = container.querySelector("#opr-express-hint") as HTMLElement | null;
     const oprRozszycieRow = container.querySelector("#opr-rozszycie-row") as HTMLElement | null;
     const oprRozszycieCheck = container.querySelector("#opr-rozszycie-check") as HTMLInputElement | null;
     const oprRozsycieInput = container.querySelector("#opr-rozszycie-price") as HTMLInputElement | null;
+    const oprServiceExtraInput = container.querySelector("#opr-service-extra-input") as HTMLInputElement | null;
+    const oprExtraButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".opr-extra-btn"));
 
     let oprState: {
       type: "grzbietowa" | "kanałowa" | "zaciskowa" | "zbijana";
@@ -282,7 +285,45 @@ export const LaminowanieView: View = {
       total: number;
       rozszycie: boolean;
       rozszyciePrice: number;
+      serviceExtra: number;
     } | null = null;
+
+    const parseServiceExtra = (value: string | undefined | null): number => {
+      const normalized = (value ?? "").replace(",", ".").trim();
+      const parsed = parseFloat(normalized);
+      if (!Number.isFinite(parsed) || parsed < 0) return 0;
+      return parseFloat(parsed.toFixed(2));
+    };
+
+    let oprServiceExtra = parseServiceExtra(oprServiceExtraInput?.value);
+
+    const updateExtraButtonsState = () => {
+      oprExtraButtons.forEach(btn => {
+        const value = parseFloat(btn.dataset.extra || "0") || 0;
+        btn.classList.toggle("is-active", value === oprServiceExtra);
+      });
+    };
+
+    const applyServiceExtraToSummary = () => {
+      if (oprServiceExtraInput) {
+        oprServiceExtraInput.value = oprServiceExtra.toString();
+      }
+      updateExtraButtonsState();
+
+      if (!oprState) return;
+
+      const expressFactor = ctx.expressMode ? 1.2 : 1;
+      const baseTotal = (oprState.unitPrice * oprState.qty + (oprState.rozszycie ? oprState.rozszyciePrice : 0)) * expressFactor;
+      const total = parseFloat((baseTotal + oprServiceExtra).toFixed(2));
+
+      oprState.total = total;
+      oprState.serviceExtra = oprServiceExtra;
+
+      if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
+      if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
+
+      ctx.updateLastCalculated(total, "Oprawy");
+    };
 
     const syncOprCustomColorRow = () => {
       if (!oprColor || !oprCustomColorRow) return;
@@ -340,13 +381,17 @@ export const LaminowanieView: View = {
       const expressFactor = ctx.expressMode ? 1.2 : 1;
       const rozszycie = type === "zaciskowa" && (oprRozszycieCheck?.checked ?? false);
       const rozszyciePrice = rozszycie ? (parseFloat(oprRozsycieInput?.value || "7") || 7) : 0;
-      const total = parseFloat(((unitPrice * qty + rozszyciePrice) * expressFactor).toFixed(2));
+      const total = parseFloat((((unitPrice * qty + rozszyciePrice) * expressFactor) + oprServiceExtra).toFixed(2));
 
       oprState = { type, format, pages, qty, color, customColor, unitPrice, total, rozszycie, rozszyciePrice };
       if (oprUnitPrice) oprUnitPrice.innerText = formatPLN(unitPrice * expressFactor);
       if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
+      if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
       if (oprResultDisplay) oprResultDisplay.style.display = "block";
       if (oprAddBtn) oprAddBtn.disabled = false;
+
+      oprState.serviceExtra = oprServiceExtra;
+      applyServiceExtraToSummary();
 
       ctx.updateLastCalculated(total, "Oprawy");
     });
@@ -375,6 +420,25 @@ export const LaminowanieView: View = {
         payload: oprState
       });
     });
+
+    oprServiceExtraInput?.addEventListener("input", () => {
+      oprServiceExtra = parseServiceExtra(oprServiceExtraInput.value);
+      applyServiceExtraToSummary();
+    });
+
+    oprServiceExtraInput?.addEventListener("blur", () => {
+      oprServiceExtra = parseServiceExtra(oprServiceExtraInput.value);
+      applyServiceExtraToSummary();
+    });
+
+    oprExtraButtons.forEach(btn => {
+      btn.addEventListener("click", () => {
+        oprServiceExtra = parseServiceExtra(btn.dataset.extra);
+        applyServiceExtraToSummary();
+      });
+    });
+
+    updateExtraButtonsState();
 
     // Auto update on input change
     [formatSelect, qtyInput].forEach(el => {

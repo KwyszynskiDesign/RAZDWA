@@ -91,10 +91,58 @@ export class Router {
   }
 
   private renderHome() {
+    const categoriesById = new Map(this.categories.map((cat: any) => [cat.id, cat]));
+    const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
+      {
+        title: "Druk",
+        ids: ["druk-a4-a3", "druk-cad", "cad-upload", "banner", "ulotki-cyfrowe", "wlepki-naklejki", "plakaty"]
+      },
+      {
+        title: "Wykończenia",
+        ids: ["laminowanie", "folia-szroniona", "wycinanie-folii", "canvas", "roll-up"]
+      },
+      {
+        title: "Pozostałe",
+        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi"]
+      }
+    ];
+
+    const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
+      uslugi: { id: "uslugi", name: "Usługi", icon: "🛠️", implemented: true }
+    };
+
+    const groupHtml = groupedHomeTiles.map((group) => {
+      const tiles = group.ids
+        .map((id) => categoriesById.get(id) ?? fallbackMeta[id])
+        .filter(Boolean)
+        .filter((cat: any) => cat.implemented !== false)
+        .map((cat: any) => {
+          const id = String(cat.id ?? "");
+          const icon = String(cat.icon ?? "📁");
+          const name = String(cat.name ?? id);
+          return `
+            <a href="#/${id}" class="home-mini-tile" aria-label="Przejdź do ${name}">
+              <span class="home-mini-icon">${icon}</span>
+              <span class="home-mini-label">${name}</span>
+            </a>
+          `;
+        })
+        .join("");
+
+      return `
+        <section class="home-mini-group">
+          <h3 class="home-mini-group-title">${group.title}</h3>
+          <div class="home-mini-grid">${tiles}</div>
+        </section>
+      `;
+    }).join("");
+
     this.container.innerHTML = `
-      <div style="text-align: center; padding: 40px; color: rgba(255,255,255,0.8);">
-        <h2 style="margin:0; font-size: 24px;">Witaj w kalkulatorze Raz Druku Dwa</h2>
-        <p style="margin-top: 10px;">Wybierz kategorię z panelu powyżej, aby rozpocząć obliczenia.</p>
+      <div class="home-categories-shell">
+        <h2 class="home-categories-title">Witaj w kalkulatorze — wybierz kategorię poniżej</h2>
+        <div class="home-mini-groups">
+          ${groupHtml}
+        </div>
       </div>
     `;
   }

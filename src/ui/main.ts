@@ -114,6 +114,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const categorySearchButton = document.getElementById("categorySearchButton") as HTMLButtonElement | null;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
+  const syncHomeLayoutMode = () => {
+    const hash = window.location.hash || "#/";
+    const isHome = hash === "#/" || hash === "#" || hash.trim() === "";
+    document.body.classList.toggle("home-compact-layout", isHome);
+  };
+
+  window.addEventListener("hashchange", syncHomeLayoutMode);
+  syncHomeLayoutMode();
+
   // Event delegation for remove buttons rendered inside basket list
   document.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest("[data-remove-idx]");

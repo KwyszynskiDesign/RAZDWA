@@ -53,23 +53,28 @@
 
   #opr-rozszycie-row {
     align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
   }
 
   #opr-rozszycie-row > label {
-    padding-top: 6px;
+    padding-top: 0;
+    min-width: 0;
   }
 
   .opr-clamp-options {
-    margin-left: auto;
+    margin-left: 0;
     min-width: 230px;
-    max-width: 260px;
+    max-width: 320px;
     width: 100%;
     display: grid;
     gap: 8px;
+    justify-items: start;
   }
 
   .opr-clamp-option {
     width: fit-content;
+    margin-left: 0;
   }
 
   .opr-clamp-price {
@@ -201,6 +206,67 @@
     color: #f59e0b;
     display: none;
     margin-top: 5px;
+  }
+
+  #opr-result-display .lam-result-line {
+    align-items: center;
+    gap: 10px;
+  }
+
+  #opr-result-display .lam-result-line > span:first-child {
+    flex: 1;
+  }
+
+  #opr-result-display .lam-result-line > span:last-child,
+  #opr-result-display .opr-extra-input-wrap {
+    min-width: 170px;
+    text-align: right;
+  }
+
+  #opr-result-display .opr-extra-input-wrap {
+    display: inline-flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #opr-service-extra-input {
+    width: 90px;
+    min-height: 30px;
+    padding: 4px 8px;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    text-align: right;
+  }
+
+  #opr-result-display .lam-express-hint,
+  #opr-result-display .opr-extra-buttons {
+    width: 100%;
+  }
+
+  .opr-extra-buttons {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .opr-extra-btn {
+    min-height: 28px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #334155;
+    font-size: 12px;
+    cursor: pointer;
+    padding: 2px 4px;
+  }
+
+  .opr-extra-btn.is-active {
+    border-color: #16a34a;
+    background: rgba(34, 197, 94, 0.15);
+    color: #166534;
+    font-weight: 700;
   }
 
   .lam-calc-box {
@@ -416,6 +482,22 @@
       <div class="lam-result-line">
         <span>Cena:</span>
         <span id="opr-total-price" class="lam-total-price">-</span>
+      </div>
+      <div id="opr-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+      <div class="lam-result-line lam-result-line-gap">
+        <span>Doliczenie za obsługę:</span>
+        <span class="opr-extra-input-wrap">
+          <input type="number" id="opr-service-extra-input" value="0" min="0" step="1">
+          <span>zł</span>
+        </span>
+      </div>
+      <div class="opr-extra-buttons" id="opr-extra-buttons">
+        <button type="button" class="opr-extra-btn" data-extra="5">5 zł</button>
+        <button type="button" class="opr-extra-btn" data-extra="10">10 zł</button>
+        <button type="button" class="opr-extra-btn" data-extra="15">15 zł</button>
+        <button type="button" class="opr-extra-btn" data-extra="20">20 zł</button>
+        <button type="button" class="opr-extra-btn" data-extra="25">25 zł</button>
+        <button type="button" class="opr-extra-btn" data-extra="30">30 zł</button>
       </div>
     </div>
   </div>

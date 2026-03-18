@@ -88,6 +88,7 @@ export const uslugiCategory: CategoryModule = {
         const priceDisplay = service.priceMin && service.priceMax 
           ? `${service.priceMin.toFixed(2)} - ${service.priceMax.toFixed(2)} zł`
           : `${servicePrice.toFixed(2)} zł`;
+        const hoursPlaceholder = service.id === 'poprawki-graficzne' ? 'ile godzin' : 'h';
 
         const serviceDiv = document.createElement('div');
         serviceDiv.style.display = 'grid';
@@ -104,7 +105,7 @@ export const uslugiCategory: CategoryModule = {
         serviceDiv.innerHTML = `
           <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${service.name}</label>
           <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity">
-          ${isTimeBased ? `<input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-hours" placeholder="h">` : '<span style="width: 48px;"></span>'}
+          ${isTimeBased ? `<input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width: 84px; padding: 4px; font-size: 0.9em;" class="service-hours" placeholder="${hoursPlaceholder}" title="Podaj liczbę godzin" aria-label="Liczba godzin">` : '<span style="width: 84px;"></span>'}
           <span style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
           <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
         `;
