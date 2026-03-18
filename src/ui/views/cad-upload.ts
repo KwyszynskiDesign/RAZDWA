@@ -7,6 +7,9 @@ import {
 import { formatPLN } from "../../core/money";
 import { CAD_PRICE } from "../../core/compat";
 
+const MAX_CAD_FILES = 50;
+const CAD_UPLOAD_CONCURRENCY = 4;
+
 export const CadUploadView: View = {
   id: "cad-upload",
   name: "CAD Upload plików",
@@ -44,6 +47,8 @@ export const CadUploadView: View = {
                         container.querySelector<HTMLElement>("#cadSummary");
     const summaryGrid = container.querySelector<HTMLElement>("#summaryGrid");
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
+    const warningEl = container.querySelector<HTMLElement>("#cadWarning");
+    const statusEl = container.querySelector<HTMLElement>("#cadUploadStatus");
 
     if (!dropZone || !fileInput || !tableBody) {
       console.error("❌ CAD Upload: Missing required elements");
@@ -54,7 +59,6 @@ export const CadUploadView: View = {
     let files: CadUploadFileEntry[] = [];
     let isColor = (modeSelect?.value || "color") === "color";
     let dpi = 300;
-    let nextId = 1;
     let grandTotalColorVariant = 0;
     let grandTotalBwVariant = 0;
 
@@ -88,6 +92,96 @@ export const CadUploadView: View = {
       return m;
     }
 
+    function showStatus(message: string, isWarning = false): void {
+      if (!statusEl) return;
+      statusEl.textContent = message;
+      statusEl.style.display = message ? "block" : "none";
+      statusEl.style.background = isWarning ? "#fff3cd" : "#e8f5e9";
+      statusEl.style.border = isWarning ? "2px solid #ffc107" : "2px solid #4caf50";
+      statusEl.style.color = isWarning ? "#856404" : "#1b5e20";
+    }
+
+    function syncSequentialIds(): void {
+      files = files.map((file, index) => ({ ...file, id: index + 1 }));
+    }
+
+    function getAllowedFiles(fileList: FileList): File[] {
+      const remainingSlots = Math.max(0, MAX_CAD_FILES - files.length);
+      if (warningEl) {
+        warningEl.style.display = files.length >= MAX_CAD_FILES ? "block" : "none";
+      }
+
+      if (remainingSlots <= 0) {
+        showStatus(`Można dodać maksymalnie ${MAX_CAD_FILES} plików.`, true);
+        return [];
+      }
+
+      const incoming = Array.from(fileList);
+      const accepted = incoming.slice(0, remainingSlots);
+      const skipped = incoming.length - accepted.length;
+
+      if (skipped > 0) {
+        showStatus(`Dodano ${accepted.length} plików. Pominięto ${skipped} (limit ${MAX_CAD_FILES}).`, true);
+      } else {
+        showStatus("");
+      }
+
+      return accepted;
+    }
+
+    async function mapWithConcurrency<T, U>(
+      items: T[],
+      concurrency: number,
+      worker: (item: T, index: number) => Promise<U>
+    ): Promise<U[]> {
+      if (items.length === 0) return [];
+      const results: U[] = new Array(items.length);
+      let nextIndex = 0;
+
+      const runWorker = async () => {
+        while (nextIndex < items.length) {
+          const current = nextIndex++;
+          results[current] = await worker(items[current], current);
+        }
+      };
+
+      const workers = Array.from(
+        { length: Math.min(concurrency, items.length) },
+        () => runWorker()
+      );
+
+      await Promise.all(workers);
+      return results;
+    }
+
+    function calculateVariantPrint(file: CadUploadFileEntry, mode: "color" | "bw"): number {
+      if (file.isFormatowy) {
+        return (CAD_PRICE[mode]?.formatowe?.[file.format] || 0) * file.pageCount;
+      }
+
+      const mbPrice = CAD_PRICE[mode]?.mb?.[file.format];
+      if (typeof mbPrice === "number" && mbPrice > 0) {
+        const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
+        return lengthMeters * mbPrice * file.pageCount;
+      }
+
+      // Fallback zgodny z legacy
+      const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
+      return longerSideCm * 0.08 * file.pageCount;
+    }
+
+    function calculateRowTotal(file: CadUploadFileEntry, mode: "color" | "bw", surcharge: number): number {
+      const print = calculateVariantPrint(file, mode) * surcharge;
+      return print + file.foldingPrice + file.scanPrice;
+    }
+
+    function formatSizeLabel(file: CadUploadFileEntry): string {
+      const w = Number.isFinite(file.widthMm) ? Math.round(file.widthMm) : 0;
+      const h = Number.isFinite(file.heightMm) ? Math.round(file.heightMm) : 0;
+      const pages = Math.max(1, file.pageCount || 1);
+      return `${formatLabel(file.format)} • ${w} × ${h} mm • ${pages} str.`;
+    }
+
     function recalculateFile(file: CadUploadFileEntry): CadUploadFileEntry {
       return updateCadFileEntry(
         {
@@ -101,7 +195,7 @@ export const CadUploadView: View = {
           isFormatowy: file.isFormatowy,
           isStandardWidth: file.isStandardWidth,
           pageCount: file.pageCount,
-          mode: file.mode,
+          mode: getMode(),
           folding: file.folding,
           scanning: file.scanning,
         },
@@ -110,8 +204,6 @@ export const CadUploadView: View = {
     }
 
     function renderFiles(): void {
-      console.log("🟢 renderFiles called, files count:", files.length);
-      
       if (!tableBody) return;
 
       if (files.length === 0) {
@@ -122,87 +214,45 @@ export const CadUploadView: View = {
       }
 
       if (resultsContainer) resultsContainer.style.display = "block";
-
-      console.log("🟢 Rendering files to table");
+      const surcharge = calcSurchargeMultiplier();
       tableBody.innerHTML = files
         .map((file) => {
-          const surcharge = calcSurchargeMultiplier();
-          const adjustedPrint = file.printPrice * surcharge;
-          const pricePerPage = file.pageCount > 0 ? adjustedPrint / file.pageCount : adjustedPrint;
-          const rowTotal = adjustedPrint + file.foldingPrice + file.scanPrice;
-          console.log(`🟢 File ${file.name}: printPrice=${file.printPrice}, adjusted=${adjustedPrint}, total=${rowTotal}`);
+          const rowColor = calculateRowTotal(file, "color", surcharge);
+          const rowBw = calculateRowTotal(file, "bw", surcharge);
+
           return `
         <tr data-file-id="${file.id}">
-          <td>${file.id}</td>
-          <td>${file.isFormatowy ? "—" : "MB"}</td>
-          <td>
-            <input type="checkbox" class="scan-check" ${file.scanning ? "checked" : ""} />
+          <td style="text-align:center">${file.id}</td>
+          <td style="word-break: break-word; overflow-wrap: anywhere; white-space: normal;">
+            <strong>${escapeHtml(file.name)}</strong>
           </td>
           <td>
-            <input type="checkbox" class="fold-check" ${file.folding ? "checked" : ""} />
+            <div><strong>${escapeHtml(formatSizeLabel(file))}</strong></div>
+            <small>🎨 ${formatPLN(rowColor)} • ⚫ ${formatPLN(rowBw)}</small>
           </td>
-          <td style="word-break: break-word; overflow-wrap: anywhere; white-space: normal;"><strong>${wrapFileName(file.name)}</strong></td>
-          <td>${file.mode === "color" ? "🎨 Kolor" : "⚫ Cz-B"}</td>
-          <td><strong>${formatLabel(file.format)} / ${file.pageCount}</strong></td>
-          <td>${file.widthMm?.toFixed(0) || "—"} × ${file.heightMm?.toFixed(0) || "—"} mm</td>
-          <td>${pricePerPage.toFixed(2)} zł</td>
-          <td><strong>${rowTotal.toFixed(2)} zł</strong></td>
+          <td>
+            <input type="checkbox" class="fold-check" data-action="fold" ${file.folding ? "checked" : ""} />
+          </td>
+          <td>
+            <input type="checkbox" class="scan-check" data-action="scan" ${file.scanning ? "checked" : ""} />
+          </td>
+          <td style="text-align:center">
+            <button type="button" class="cad-delete-x" data-action="delete" aria-label="Usuń plik">×</button>
+          </td>
         </tr>
       `;
         })
         .join("");
 
-      // Attach event listeners
-      tableBody.querySelectorAll(".fold-check").forEach((el, idx) => {
-        (el as HTMLInputElement).addEventListener("change", (e) => {
-          files[idx].folding = (e.target as HTMLInputElement).checked;
-          files[idx] = recalculateFile(files[idx]);
-          renderFiles();
-          renderSummary();
-        });
-      });
-
-      tableBody.querySelectorAll(".scan-check").forEach((el, idx) => {
-        (el as HTMLInputElement).addEventListener("change", (e) => {
-          files[idx].scanning = (e.target as HTMLInputElement).checked;
-          files[idx] = recalculateFile(files[idx]);
-          renderFiles();
-          renderSummary();
-        });
-      });
-
       renderSummary();
     }
 
     function renderSummary(): void {
-      if (!summaryPanel || !summaryGrid) return;
-
       const surcharge = calcSurchargeMultiplier();
       
-      // Obliczamy dwa warianty cenowe dla WSZYSTKICH plików:
-      // 1. Jakby wszystko było kolorowe
-      // 2. Jakby wszystko było czarno-białe
-      
-      // Wariant 1: wszystkie pliki jako KOLOR
       let totalPrintColorVariant = 0;
       let totalFoldingColorVariant = 0;
       let totalScanColorVariant = 0;
-
-      const calculateVariantPrint = (file: CadUploadFileEntry, mode: "color" | "bw"): number => {
-        if (file.isFormatowy) {
-          return (CAD_PRICE[mode]?.formatowe?.[file.format] || 0) * file.pageCount;
-        }
-
-        const mbPrice = CAD_PRICE[mode]?.mb?.[file.format];
-        if (typeof mbPrice === "number" && mbPrice > 0) {
-          const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
-          return lengthMeters * mbPrice * file.pageCount;
-        }
-
-        // Fallback zgodny z dotychczasową logiką (cm * 0.08)
-        const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
-        return longerSideCm * 0.08 * file.pageCount;
-      };
       
       for (const file of files) {
         totalPrintColorVariant += calculateVariantPrint(file, "color");
@@ -211,7 +261,6 @@ export const CadUploadView: View = {
       }
       totalPrintColorVariant *= surcharge;
       
-      // Wariant 2: wszystkie pliki jako CZARNO-BIAŁE
       let totalPrintBwVariant = 0;
       let totalFoldingBwVariant = 0;
       let totalScanBwVariant = 0;
@@ -225,10 +274,8 @@ export const CadUploadView: View = {
       
       const emailFee = optEmail?.checked ? 1 : 0;
       
-      // Zapisz do zmiennych globalnych dla event listenerów
       grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
       grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
-      const grandTotalPrice = grandTotalColorVariant + grandTotalBwVariant;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
@@ -252,68 +299,85 @@ export const CadUploadView: View = {
       if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColorVariant);
       if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBwVariant);
       
-      // Zawsze pokazuj obie opcje jeśli są jakieś pliki
       if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? '' : 'none';
       if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? '' : 'none';
 
-      summaryGrid.innerHTML = `
-        ${files.length > 0 ? `
-        <div class="summary-item">
-          <span>⚫ Czarno-biały (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
-          <span><strong>${formatPLN(totalPrintBwVariant)}</strong></span>
-        </div>
-        <div class="summary-item">
-          <span>🎨 Kolor (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
-          <span><strong>${formatPLN(totalPrintColorVariant)}</strong></span>
-        </div>` : ''}
-        ${totalFoldingColorVariant > 0 ? `
-        <div class="summary-item">
-          <span>Składanie:</span>
-          <span>${formatPLN(totalFoldingColorVariant)}</span>
-        </div>` : ''}
-        ${totalScanColorVariant > 0 ? `
-        <div class="summary-item">
-          <span>Skanowanie:</span>
-          <span>${formatPLN(totalScanColorVariant)}</span>
-        </div>` : ''}
-        ${emailFee > 0 ? `
-        <div class="summary-item">
-          <span>Email:</span>
-          <span>${formatPLN(emailFee)}</span>
-        </div>` : ''}
-        <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
-          <span><strong>🎨 RAZEM KOLOR:</strong></span>
-          <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>
-        </div>
-        <div class="summary-item">
-          <span><strong>⚫ RAZEM CZARNO-BIAŁY:</strong></span>
-          <span><strong>${formatPLN(grandTotalBwVariant)}</strong></span>
-        </div>
-      `;
-
-      if (grandTotal) {
-        grandTotal.textContent = formatPLN(grandTotalPrice);
+      if (summaryGrid) {
+        summaryGrid.innerHTML = `
+          ${files.length > 0 ? `
+          <div class="summary-item">
+            <span>⚫ Czarno-biały (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+            <span><strong>${formatPLN(totalPrintBwVariant)}</strong></span>
+          </div>
+          <div class="summary-item">
+            <span>🎨 Kolor (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+            <span><strong>${formatPLN(totalPrintColorVariant)}</strong></span>
+          </div>` : ''}
+          ${totalFoldingColorVariant > 0 ? `
+          <div class="summary-item">
+            <span>Składanie:</span>
+            <span>${formatPLN(totalFoldingColorVariant)}</span>
+          </div>` : ''}
+          ${totalScanColorVariant > 0 ? `
+          <div class="summary-item">
+            <span>Skanowanie:</span>
+            <span>${formatPLN(totalScanColorVariant)}</span>
+          </div>` : ''}
+          ${emailFee > 0 ? `
+          <div class="summary-item">
+            <span>Email:</span>
+            <span>${formatPLN(emailFee)}</span>
+          </div>` : ''}
+          <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
+            <span><strong>🎨 RAZEM KOLOR:</strong></span>
+            <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>
+          </div>
+          <div class="summary-item">
+            <span><strong>⚫ RAZEM CZARNO-BIAŁY:</strong></span>
+            <span><strong>${formatPLN(grandTotalBwVariant)}</strong></span>
+          </div>
+        `;
       }
 
-      summaryPanel.style.display = files.length > 0 ? "block" : "none";
+      if (grandTotal) {
+        grandTotal.textContent = formatPLN(getMode() === "color" ? grandTotalColorVariant : grandTotalBwVariant);
+      }
+
+      if (summaryPanel) {
+        summaryPanel.style.display = files.length > 0 ? "block" : "none";
+      }
     }
 
     async function addFiles(fileList: FileList): Promise<void> {
-      console.log("🔵 CAD UPLOAD: addFiles called with", fileList.length, "plików");
-      console.log("🔵 Current isColor mode:", isColor);
+      const acceptedFiles = getAllowedFiles(fileList);
+      if (acceptedFiles.length === 0) {
+        return;
+      }
 
-      const promises = Array.from(fileList).map(async (file) => {
-        console.log("🔵 Processing file:", file.name);
-        const fileEntry = await updateCadFileEntry(file, isColor);
-        console.log("🔵 File entry result:", fileEntry);
-        fileEntry.id = nextId++;
-        return fileEntry;
-      });
+      showStatus(`Przetwarzanie ${acceptedFiles.length} plików...`);
 
-      const newFiles = await Promise.all(promises);
-      console.log("🔵 All files processed:", newFiles.length);
-      files.push(...newFiles);
-      console.log("🔵 Total files in state:", files.length);
+      const newFiles = await mapWithConcurrency(
+        acceptedFiles,
+        CAD_UPLOAD_CONCURRENCY,
+        async (file, index) => {
+          const entry = await updateCadFileEntry(file, isColor);
+          showStatus(`Przetwarzanie: ${index + 1}/${acceptedFiles.length}`);
+          return entry;
+        }
+      );
+
+      const validFiles = newFiles
+        .filter((file) => !!file && file.pageCount > 0)
+        .map((file) => ({ ...file, mode: getMode() }));
+
+      files.push(...validFiles);
+      syncSequentialIds();
+
+      if (warningEl) {
+        warningEl.style.display = files.length > MAX_CAD_FILES ? "block" : "none";
+      }
+
+      showStatus(`Dodano ${validFiles.length} plików. Łącznie: ${files.length}/${MAX_CAD_FILES}.`);
       renderFiles();
     }
 
@@ -338,32 +402,75 @@ export const CadUploadView: View = {
       });
 
       dropZone.addEventListener("drop", (e) => {
-        console.log("*** CAD UPLOAD HANDLER FIRED ***", e.dataTransfer?.files?.length || 0);
         e.preventDefault();
         dropZone.classList.remove("drag-over");
-        void addFiles(e.dataTransfer!.files);
+        const dropped = e.dataTransfer?.files;
+        if (dropped && dropped.length > 0) {
+          void addFiles(dropped);
+        }
       });
     }
 
     fileInput.addEventListener("change", (e) => {
-      console.log("*** CAD UPLOAD HANDLER FIRED ***", (e.target as HTMLInputElement).files?.length || 0);
       const targetFiles = (e.target as HTMLInputElement).files;
-      void addFiles(targetFiles!);
+      if (targetFiles && targetFiles.length > 0) {
+        void addFiles(targetFiles);
+      }
+      (e.target as HTMLInputElement).value = "";
     });
 
-    // Color mode toggle
-    if (colorToggle) {
-      colorToggle.addEventListener("click", () => {
-        isColor = !isColor;
+    // Event delegation dla dużej liczby rekordów
+    tableBody.addEventListener("change", (event) => {
+      const target = event.target as HTMLInputElement;
+      const row = target.closest("tr[data-file-id]") as HTMLElement | null;
+      if (!row) return;
+
+      const id = Number(row.dataset.fileId || "0");
+      const index = files.findIndex((f) => f.id === id);
+      if (index < 0) return;
+
+      if (target.dataset.action === "fold") {
+        files[index].folding = target.checked;
+        files[index] = recalculateFile(files[index]);
+        renderFiles();
+      }
+
+      if (target.dataset.action === "scan") {
+        files[index].scanning = target.checked;
+        files[index] = recalculateFile(files[index]);
+        renderFiles();
+      }
+    });
+
+    tableBody.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      if (target.dataset.action !== "delete") return;
+
+      const row = target.closest("tr[data-file-id]") as HTMLElement | null;
+      if (!row) return;
+
+      const id = Number(row.dataset.fileId || "0");
+      files = files.filter((f) => f.id !== id);
+      syncSequentialIds();
+      renderFiles();
+    });
+
+    if (modeSelect) {
+      modeSelect.addEventListener("change", (e) => {
+        isColor = ((e.target as HTMLSelectElement).value || "color") === "color";
         colorSwitch?.classList.toggle("active", isColor);
         files = files.map(recalculateFile);
         renderFiles();
       });
     }
 
-    if (modeSelect) {
-      modeSelect.addEventListener("change", (e) => {
-        isColor = ((e.target as HTMLSelectElement).value || "color") === "color";
+    if (colorToggle) {
+      colorToggle.addEventListener("click", () => {
+        isColor = !isColor;
+        colorSwitch?.classList.toggle("active", isColor);
+        if (modeSelect) {
+          modeSelect.value = isColor ? "color" : "bw";
+        }
         files = files.map(recalculateFile);
         renderFiles();
       });
@@ -384,6 +491,7 @@ export const CadUploadView: View = {
           f.format = fmt.format;
           f.isFormatowy = fmt.isFormatowy;
           f.isStandardWidth = fmt.isStandardWidth;
+          f.mode = getMode();
           return recalculateFile(f);
         });
         renderFiles();
@@ -416,6 +524,8 @@ export const CadUploadView: View = {
           totalScan > 0 ? "ze skanowaniem" : ""
         ].filter(Boolean).join(", ");
 
+        const snapshotFiles = files.map((f) => ({ ...f }));
+
         ctx.cart.addItem({
           id: `cad-upload-${mode}-${Date.now()}`,
           category: "CAD Upload",
@@ -426,7 +536,7 @@ export const CadUploadView: View = {
           isExpress: ctx.expressMode,
           totalPrice: grandTotalPrice,
           optionsHint: opts,
-          payload: { files, mode, price: grandTotalPrice }
+          payload: { files: snapshotFiles, mode, price: grandTotalPrice }
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
