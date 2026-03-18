@@ -1,7 +1,11 @@
 <!-- PDF.js loaded globally in index.html -->
 
 <style>
-  .cad-upload { font-family: inherit; }
+  .cad-upload {
+    font-family: inherit;
+    width: min(1800px, 98vw);
+    margin: 0 auto;
+  }
   .cad-drop-zone {
     border: 3px dashed var(--border);
     padding: 40px;
@@ -206,13 +210,15 @@
     margin-top: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    overflow: hidden;
+    overflow-x: auto;
+    overflow-y: hidden;
   }
   .results-table {
     width: 100%;
+    min-width: 1060px;
     border-collapse: collapse;
     font-size: 0.88rem;
-    table-layout: auto; /* Allow auto layout within container */
+    table-layout: auto;
   }
   .results-table th {
     background: var(--surface-alt);
@@ -227,6 +233,53 @@
     padding: 6px 6px; /* Reduced padding */
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+  }
+
+  .results-table .col-lp,
+  .results-table .col-fold,
+  .results-table .col-scan,
+  .results-table .col-remove {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .results-table .col-name {
+    min-width: 260px;
+  }
+
+  .results-table .col-size {
+    min-width: 230px;
+  }
+
+  .results-table .col-price {
+    min-width: 220px;
+  }
+
+  .cad-size-main {
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .cad-size-dims {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cad-size-pages {
+    white-space: nowrap;
+    color: var(--text-secondary);
+  }
+
+  .cad-price-cell {
+    display: grid;
+    gap: 4px;
+  }
+
+  .cad-price-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    white-space: nowrap;
   }
   
   .results-table tbody tr:hover {
@@ -411,22 +464,23 @@
     <table id="resultsTable" class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
-          <th style="width:30px;text-align:center">Lp.</th>
-          <th>Plik</th>
-          <th>Rozmiar</th>
-          <th style="width:80px;text-align:center">Składanie</th>
-          <th style="width:50px;text-align:center">Skan</th>
-          <th style="width:30px;text-align:center">Usuń</th>
+          <th class="col-lp" style="width:40px;">Lp.</th>
+          <th class="col-name">Nazwa</th>
+          <th class="col-size">Rozmiar</th>
+          <th class="col-fold" style="width:90px;">Składanie</th>
+          <th class="col-scan" style="width:70px;">Skan</th>
+          <th class="col-price">Cena</th>
+          <th class="col-remove" style="width:42px;">X</th>
         </tr>
       </thead>
       <tbody id="results-body"></tbody>
       <tfoot>
         <tr style="background:#fff3e0;">
-          <td colspan="5"><strong>🎨 RAZEM KOLOR</strong></td>
+          <td colspan="6"><strong>🎨 RAZEM KOLOR</strong></td>
           <td id="results-total-color">0,00 zł</td>
         </tr>
         <tr style="background:#f5f5f5;">
-          <td colspan="5"><strong>⚫ RAZEM CZARNO-BIAŁE</strong></td>
+          <td colspan="6"><strong>⚫ RAZEM CZARNO-BIAŁE</strong></td>
           <td id="results-total-bw">0,00 zł</td>
         </tr>
       </tfoot>

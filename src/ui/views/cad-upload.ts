@@ -49,6 +49,7 @@ export const CadUploadView: View = {
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
     const warningEl = container.querySelector<HTMLElement>("#cadWarning");
     const statusEl = container.querySelector<HTMLElement>("#cadUploadStatus");
+    const calculationsList = container.querySelector<HTMLElement>("#obliczeniaLista");
 
     if (!dropZone || !fileInput || !tableBody) {
       console.error("❌ CAD Upload: Missing required elements");
@@ -175,11 +176,80 @@ export const CadUploadView: View = {
       return print + file.foldingPrice + file.scanPrice;
     }
 
+    function renderCalculations(): void {
+      if (!calculationsList) return;
+
+      if (files.length === 0) {
+        calculationsList.innerHTML = `
+          <div class="obliczenie-item">
+            <strong>Brak plików</strong>
+            <div class="obliczenie-text">Dodaj pliki, aby zobaczyć szczegóły kalkulacji.</div>
+          </div>
+        `;
+        return;
+      }
+
+      const surcharge = calcSurchargeMultiplier();
+      const surchargePct = Math.round((surcharge - 1) * 100);
+
+      calculationsList.innerHTML = files
+        .map((file) => {
+          const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
+          const isMb = !file.isFormatowy;
+
+          const colorUnit = file.isFormatowy
+            ? (CAD_PRICE.color?.formatowe?.[file.format] || 0)
+            : (CAD_PRICE.color?.mb?.[file.format] || 0);
+          const bwUnit = file.isFormatowy
+            ? (CAD_PRICE.bw?.formatowe?.[file.format] || 0)
+            : (CAD_PRICE.bw?.mb?.[file.format] || 0);
+
+          const colorPrintBase = calculateVariantPrint(file, "color");
+          const bwPrintBase = calculateVariantPrint(file, "bw");
+          const colorPrintAfterSurcharge = colorPrintBase * surcharge;
+          const bwPrintAfterSurcharge = bwPrintBase * surcharge;
+
+          const rowColor = colorPrintAfterSurcharge + file.foldingPrice + file.scanPrice;
+          const rowBw = bwPrintAfterSurcharge + file.foldingPrice + file.scanPrice;
+
+          const methodText = isMb
+            ? `MB: ${lengthMeters.toFixed(3)} m × stawka × ${file.pageCount} str.`
+            : `Formatowe: stawka × ${file.pageCount} str.`;
+
+          const surchargeText = surchargePct > 0
+            ? `, dopłata opcji +${surchargePct}%`
+            : "";
+
+          return `
+            <div class="obliczenie-item">
+              <strong>${file.id}. ${escapeHtml(file.name)}</strong>
+              <div class="obliczenie-text">
+                Format: ${escapeHtml(formatLabel(file.format))} (${Math.round(file.widthMm)}mm×${Math.round(file.heightMm)}mm), ${file.pageCount} str.<br/>
+                Metoda: ${methodText}${surchargeText}
+              </div>
+              <div class="obliczenie-text">
+                🎨 Kolor: ${isMb ? `${lengthMeters.toFixed(3)} × ${colorUnit.toFixed(2)} × ${file.pageCount}` : `${colorUnit.toFixed(2)} × ${file.pageCount}`} = ${formatPLN(colorPrintBase)} → po opcjach ${formatPLN(colorPrintAfterSurcharge)}
+              </div>
+              <div class="obliczenie-text">
+                ⚫ Czarny: ${isMb ? `${lengthMeters.toFixed(3)} × ${bwUnit.toFixed(2)} × ${file.pageCount}` : `${bwUnit.toFixed(2)} × ${file.pageCount}`} = ${formatPLN(bwPrintBase)} → po opcjach ${formatPLN(bwPrintAfterSurcharge)}
+              </div>
+              <div class="obliczenie-text">
+                Dodatki: składanie ${formatPLN(file.foldingPrice)}, skan ${formatPLN(file.scanPrice)}
+              </div>
+              <div class="obliczenie-cena">
+                🎨 ${formatPLN(rowColor)} &nbsp;|&nbsp; ⚫ ${formatPLN(rowBw)}
+              </div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
     function formatSizeLabel(file: CadUploadFileEntry): string {
       const w = Number.isFinite(file.widthMm) ? Math.round(file.widthMm) : 0;
       const h = Number.isFinite(file.heightMm) ? Math.round(file.heightMm) : 0;
       const pages = Math.max(1, file.pageCount || 1);
-      return `${formatLabel(file.format)} • ${w} × ${h} mm • ${pages} str.`;
+      return `${formatLabel(file.format)}|${w}mm×${h}mm|${pages}`;
     }
 
     function recalculateFile(file: CadUploadFileEntry): CadUploadFileEntry {
@@ -219,24 +289,33 @@ export const CadUploadView: View = {
         .map((file) => {
           const rowColor = calculateRowTotal(file, "color", surcharge);
           const rowBw = calculateRowTotal(file, "bw", surcharge);
+          const [paperFormat, dims, pagesRaw] = formatSizeLabel(file).split("|");
+          const pages = Number(pagesRaw || "1");
 
           return `
         <tr data-file-id="${file.id}">
-          <td style="text-align:center">${file.id}</td>
-          <td style="word-break: break-word; overflow-wrap: anywhere; white-space: normal;">
+          <td class="col-lp">${file.id}</td>
+          <td class="col-name" style="word-break: break-word; overflow-wrap: anywhere; white-space: normal;">
             <strong>${escapeHtml(file.name)}</strong>
           </td>
-          <td>
-            <div><strong>${escapeHtml(formatSizeLabel(file))}</strong></div>
-            <small>🎨 ${formatPLN(rowColor)} • ⚫ ${formatPLN(rowBw)}</small>
+          <td class="col-size">
+            <div class="cad-size-main">${escapeHtml(paperFormat || "—")}</div>
+            <div class="cad-size-dims">${escapeHtml(dims || "0mm×0mm")}</div>
+            <div class="cad-size-pages">Ilość stron: ${Number.isFinite(pages) ? pages : 1}</div>
           </td>
-          <td>
+          <td class="col-fold">
             <input type="checkbox" class="fold-check" data-action="fold" ${file.folding ? "checked" : ""} />
           </td>
-          <td>
+          <td class="col-scan">
             <input type="checkbox" class="scan-check" data-action="scan" ${file.scanning ? "checked" : ""} />
           </td>
-          <td style="text-align:center">
+          <td class="col-price">
+            <div class="cad-price-cell">
+              <div class="cad-price-line"><span>🎨 Kolor</span><strong>${formatPLN(rowColor)}</strong></div>
+              <div class="cad-price-line"><span>⚫ Czarny</span><strong>${formatPLN(rowBw)}</strong></div>
+            </div>
+          </td>
+          <td class="col-remove">
             <button type="button" class="cad-delete-x" data-action="delete" aria-label="Usuń plik">×</button>
           </td>
         </tr>
@@ -245,6 +324,7 @@ export const CadUploadView: View = {
         .join("");
 
       renderSummary();
+      renderCalculations();
     }
 
     function renderSummary(): void {
