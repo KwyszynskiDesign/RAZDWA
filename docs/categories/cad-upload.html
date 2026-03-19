@@ -1,9 +1,10 @@
-<!-- PDF.js loaded globally in index.html -->
+﻿<!-- PDF.js loaded globally in index.html -->
 
 <style>
   .cad-upload {
     font-family: inherit;
-    width: min(1800px, 98vw);
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
   }
   .cad-drop-zone {
@@ -210,27 +211,30 @@
     margin-top: 16px;
     border: 1px solid var(--border);
     border-radius: 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    overflow: hidden;
+    width: 100%;
+    max-width: 1400px;
+    box-sizing: border-box;
   }
   .results-table {
     width: 100%;
-    min-width: 1060px;
+    min-width: 0;
+    max-width: 1400px;
     border-collapse: collapse;
-    font-size: 0.88rem;
-    table-layout: auto;
+    font-size: 0.72rem;
+    table-layout: fixed;
   }
   .results-table th {
     background: var(--surface-alt);
     color: var(--text-primary);
     font-weight: 600;
-    padding: 8px 6px; /* Reduced padding */
+    padding: 3px 3px;
     text-align: left;
     border-bottom: 2px solid var(--border);
-    white-space: nowrap; /* Prevent headers wrapping heavily */
+    white-space: nowrap;
   }
   .results-table td {
-    padding: 6px 6px; /* Reduced padding */
+    padding: 2px 3px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
   }
@@ -243,43 +247,74 @@
     white-space: nowrap;
   }
 
-  .results-table .col-name {
-    min-width: 260px;
-  }
+  .results-table .col-lp { width: 4%; }
+  .results-table .col-name { width: 30%; }
+  .results-table .col-size { width: 22%; }
+  .results-table .col-fold { width: 8%; }
+  .results-table .col-scan { width: 6%; }
+  .results-table .col-price { width: 25%; }
+  .results-table .col-remove { width: 5%; }
 
-  .results-table .col-size {
-    min-width: 230px;
-  }
-
+  .results-table .col-name,
+  .results-table .col-size,
   .results-table .col-price {
-    min-width: 220px;
+    padding-left: 2px;
+    padding-right: 2px;
   }
 
   .cad-size-main {
     font-weight: 700;
     white-space: nowrap;
+    line-height: 1.05;
+    font-size: 0.73rem;
   }
 
   .cad-size-dims {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+    line-height: 1.05;
+    font-size: 0.72rem;
   }
 
   .cad-size-pages {
     white-space: nowrap;
     color: var(--text-secondary);
+    line-height: 1.05;
+    font-size: 0.7rem;
   }
 
   .cad-price-cell {
     display: grid;
-    gap: 4px;
+    gap: 1px;
   }
 
   .cad-price-line {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
+    gap: 2px;
     white-space: nowrap;
+    line-height: 1.05;
+    font-size: 0.71rem;
+  }
+
+  .results-table td strong {
+    line-height: 1.05;
+  }
+
+  #viewContainer .results-table th,
+  #viewContainer .results-table td {
+    padding: 2px 3px !important;
+    font-size: 11px !important;
+  }
+
+  #viewContainer .results-table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    border-radius: 8px !important;
+  }
+
+  #viewContainer .results-table-container {
+    padding: 8px !important;
   }
   
   .results-table tbody tr:hover {
@@ -326,8 +361,13 @@
   }
 
   @media (max-width: 600px) {
-    .results-table { font-size: 0.75rem; }
-    .results-table th, .results-table td { padding: 6px 4px; }
+    .results-table { font-size: 0.66rem; }
+    .results-table th, .results-table td { padding: 1px 1px; }
+    #viewContainer .results-table th,
+    #viewContainer .results-table td {
+      font-size: 10px !important;
+      padding: 1px 1px !important;
+    }
   }
 
   @media (max-width: 768px) {
@@ -464,13 +504,13 @@
     <table id="resultsTable" class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
-          <th class="col-lp" style="width:40px;">Lp.</th>
+          <th class="col-lp">Lp.</th>
           <th class="col-name">Nazwa</th>
           <th class="col-size">Rozmiar</th>
-          <th class="col-fold" style="width:90px;">Składanie</th>
-          <th class="col-scan" style="width:70px;">Skan</th>
+          <th class="col-fold">Składanie</th>
+          <th class="col-scan">Skan</th>
           <th class="col-price">Cena</th>
-          <th class="col-remove" style="width:42px;">X</th>
+          <th class="col-remove">X</th>
         </tr>
       </thead>
       <tbody id="results-body"></tbody>
