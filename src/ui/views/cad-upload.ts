@@ -312,7 +312,7 @@ export const CadUploadView: View = {
           <td class="col-price">
             <div class="cad-price-cell">
               <div class="cad-price-line"><span>🎨 Kolor</span><strong>${formatPLN(rowColor)}</strong></div>
-              <div class="cad-price-line"><span>⚫ Czarny</span><strong>${formatPLN(rowBw)}</strong></div>
+              <div class="cad-price-line"><span>⚫ Cz-B</span><strong>${formatPLN(rowBw)}</strong></div>
             </div>
           </td>
           <td class="col-remove">
