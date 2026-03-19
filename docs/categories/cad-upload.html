@@ -222,11 +222,10 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    width: calc(100% + 20px);
+    width: 100%;
     max-width: 1400px;
     box-sizing: border-box;
-    margin-left: -10px;
-    margin-right: -10px;
+    padding: 0 10px 10px 10px;
   }
   .results-table {
     width: 100%;
@@ -259,13 +258,13 @@
     white-space: nowrap;
   }
 
-  .results-table .col-lp { width: 4%; }
-  .results-table .col-name { width: 20%; }
-  .results-table .col-size { width: 31%; }
-  .results-table .col-fold { width: 11%; }
-  .results-table .col-scan { width: 8%; }
-  .results-table .col-price { width: 22%; }
-  .results-table .col-remove { width: 4%; min-width: 44px; }
+  .results-table .col-lp     { width: 4%; }
+  .results-table .col-name   { width: 22%; }
+  .results-table .col-size   { width: 25%; }
+  .results-table .col-fold   { width: 12%; }
+  .results-table .col-scan   { width: 7%; }
+  .results-table .col-price  { width: 25%; }
+  .results-table .col-remove { width: 5%; min-width: 40px; }
 
   .results-table .col-name,
   .results-table .col-size,
@@ -284,36 +283,10 @@
     white-space: normal;
   }
 
-  .results-table th.col-size,
-  .results-table td.col-size {
-    position: relative;
-    left: -20px;
-  }
-
-  .results-table th.col-fold,
-  .results-table td.col-fold {
-    position: relative;
-    left: -70px;
-  }
-
-  .results-table th.col-scan,
-  .results-table td.col-scan {
-    position: relative;
-    left: -40px;
-  }
-
-  .results-table th.col-price,
-  .results-table td.col-price {
-    position: relative;
-    left: -40px;
-  }
-
   .results-table th.col-remove,
   .results-table td.col-remove {
-    padding-left: 1px;
-    padding-right: 1px;
-    position: relative;
-    left: -20px;
+    padding-left: 2px;
+    padding-right: 2px;
   }
 
   .cad-size-main {
@@ -385,8 +358,6 @@
   .results-table tfoot td[colspan] {
     text-align: right;
     padding-right: clamp(10px, 2vw, 24px);
-    position: relative;
-    left: -50px;
   }
   .results-table tfoot td[id^="results-total"] {
     text-align: left;
