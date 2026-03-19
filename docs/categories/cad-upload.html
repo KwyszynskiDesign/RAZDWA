@@ -248,12 +248,12 @@
   }
 
   .results-table .col-lp { width: 4%; }
-  .results-table .col-name { width: 24%; }
-  .results-table .col-size { width: 30%; }
-  .results-table .col-fold { width: 9%; }
-  .results-table .col-scan { width: 7%; }
-  .results-table .col-price { width: 20%; }
-  .results-table .col-remove { width: 6%; min-width: 42px; }
+  .results-table .col-name { width: 20%; }
+  .results-table .col-size { width: 31%; }
+  .results-table .col-fold { width: 11%; }
+  .results-table .col-scan { width: 8%; }
+  .results-table .col-price { width: 22%; }
+  .results-table .col-remove { width: 4%; min-width: 44px; }
 
   .results-table .col-name,
   .results-table .col-size,
@@ -270,6 +270,30 @@
     word-break: break-word;
     overflow-wrap: anywhere;
     white-space: normal;
+  }
+
+  .results-table th.col-size,
+  .results-table td.col-size {
+    position: relative;
+    left: -50px;
+  }
+
+  .results-table th.col-fold,
+  .results-table td.col-fold {
+    position: relative;
+    left: -70px;
+  }
+
+  .results-table th.col-scan,
+  .results-table td.col-scan {
+    position: relative;
+    left: -30px;
+  }
+
+  .results-table th.col-price,
+  .results-table td.col-price {
+    position: relative;
+    left: -20px;
   }
 
   .results-table th.col-remove,
@@ -347,6 +371,8 @@
   .results-table tfoot td[colspan] {
     text-align: right;
     padding-right: clamp(10px, 2vw, 24px);
+    position: relative;
+    left: -50px;
   }
   .results-table tfoot td[id^="results-total"] {
     text-align: left;
@@ -354,17 +380,32 @@
     padding-left: clamp(8px, 1.5vw, 18px);
   }
   .results-table tfoot td strong {
-    font-size: clamp(0.98rem, 1.15vw, 1.14rem);
+    font-size: 1.04rem;
   }
   .results-table tfoot #results-total-color {
-    font-size: clamp(1.15rem, 1.5vw, 1.45rem);
+    font-size: 1.04rem;
     color: #ff6b35;
     font-weight: 800;
   }
   .results-table tfoot #results-total-bw {
-    font-size: clamp(1.15rem, 1.5vw, 1.45rem);
+    font-size: 1.04rem;
     color: #424242;
     font-weight: 800;
+  }
+
+  .results-table .cad-delete-x {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 999px;
+    line-height: 1;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
   }
   .results-total-live {
     padding: 16px;
