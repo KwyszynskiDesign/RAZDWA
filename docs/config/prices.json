@@ -370,7 +370,7 @@
                                                                         }
                                                           },
                                       "deluxe":  {
-                                                     "leadTime":  "4â€“5 dni roboczych",
+                                                     "leadTime":  "4–5 dni roboczych",
                                                      "options":  {
                                                                      "uv3d_softtouch":  {
                                                                                             "label":  "Maker UV 3D + folia SOFTTOUCH",
@@ -384,7 +384,7 @@
                                                                                                        }
                                                                                         },
                                                                      "uv3d_gold_softtouch":  {
-                                                                                                 "label":  "Maker UV 3D + zĹ‚ocenie + folia SOFTTOUCH",
+                                                                                                 "label":  "Maker UV 3D + złocenie + folia SOFTTOUCH",
                                                                                                  "prices":  {
                                                                                                                 "50":  450,
                                                                                                                 "100":  550,
@@ -450,7 +450,7 @@
                    "modifiers":  [
                                      {
                                          "id":  "oczkowanie",
-                                         "name":  "Oczkowanie (+2.50 zĹ‚/m2)",
+                                         "name":  "Oczkowanie (+2.50 zł/m2)",
                                          "type":  "fixed_per_unit",
                                          "value":  2.50
                                      },
@@ -538,17 +538,17 @@
                                                 "items":  [
                                                               {
                                                                   "id":  "gilotyna",
-                                                                  "name":  "CiÄ™cie na gilotynie",
+                                                                  "name":  "Cięcie na gilotynie",
                                                                   "price":  0.07
                                                               },
                                                               {
                                                                   "id":  "trymer",
-                                                                  "name":  "CiÄ™cie rÄ™czne (trymer)",
+                                                                  "name":  "Cięcie ręczne (trymer)",
                                                                   "price":  0.50
                                                               },
                                                               {
                                                                   "id":  "druk-powyzej-20",
-                                                                  "name":  "Drukowanie powyĹĽej 20 kartek",
+                                                                  "name":  "Drukowanie powyżej 20 kartek",
                                                                   "price":  0.05
                                                               },
                                                               {
@@ -558,7 +558,7 @@
                                                               },
                                                               {
                                                                   "id":  "broszurowanie",
-                                                                  "name":  "Broszurowanie / docnianie",
+                                                                  "name":  "Broszurowanie / docinanie",
                                                                   "price":  0.50
                                                               },
                                                               {
@@ -746,7 +746,7 @@
                                              {
                                                  "id":  "material-only",
                                                  "storageId":  "wydruk",
-                                                 "name":  "Szroniona â€” tylko wydruk",
+                                                 "name":  "Szroniona — tylko wydruk",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -773,7 +773,7 @@
                                              {
                                                  "id":  "full-service",
                                                  "storageId":  "oklejanie",
-                                                 "name":  "Szroniona â€” wydruk z oklejaniem",
+                                                 "name":  "Szroniona — wydruk z oklejaniem",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -800,7 +800,7 @@
                                              {
                                                  "id":  "owv-material-only",
                                                  "storageId":  "owv-wydruk",
-                                                 "name":  "OWV â€” tylko wydruk",
+                                                 "name":  "OWV — tylko wydruk",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -832,7 +832,7 @@
                                              {
                                                  "id":  "owv-full-service",
                                                  "storageId":  "owv-oklejanie",
-                                                 "name":  "OWV â€” wydruk z oklejaniem",
+                                                 "name":  "OWV — wydruk z oklejaniem",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -882,7 +882,7 @@
                                             },
                                             {
                                                 "id":  "zloto-srebro",
-                                                "name":  "Folia zĹ‚oto / srebro",
+                                                "name":  "Folia złoto / srebro",
                                                 "rates":  {
                                                               "below1m2":  220,
                                                               "aboveOrEqual1m2":  150
@@ -907,11 +907,11 @@
                        },
     "canvas":  {
                    "id":  "canvas",
-                   "title":  "Canvas / PĹ‚Ăłtno",
+                   "title":  "Canvas / Płótno",
                    "modes":  [
                                  {
                                      "id":  "framed",
-                                     "name":  "PĹ‚Ăłtno Canvas z oprawÄ… 240g",
+                                        "name":  "Płótno Canvas z oprawą 240g",
                                      "formats":  [
                                                      {
                                                          "id":  "50x40-a",
@@ -949,7 +949,7 @@
                                  },
                                  {
                                      "id":  "unframed",
-                                     "name":  "PĹ‚Ăłtno Canvas bez oprawy (ramki) 240g",
+                                     "name":  "Płótno Canvas bez oprawy (ramki) 240g",
                                      "formats":  [
                                                      {
                                                          "id":  "50x40-a",
@@ -1004,7 +1004,7 @@
                            "groups":  [
                                           {
                                               "id":  "wlepki_obrys_folia",
-                                              "title":  "Wlepki po obrysie (Folia BiaĹ‚a/Trans)",
+                                            "title":  "Wlepki po obrysie (Folia Biała/Trans)",
                                               "unit":  "m2",
                                               "pricing":  "per_unit",
                                               "tiers":  [
@@ -1064,7 +1064,7 @@
                                           },
                                           {
                                               "id":  "wlepki_standard_folia",
-                                              "title":  "Folia BiaĹ‚a / Transparentna (standard)",
+                                            "title":  "Folia Biała / Transparentna (standard)",
                                               "unit":  "m2",
                                               "pricing":  "per_unit",
                                               "tiers":  [
@@ -1101,7 +1101,7 @@
                            "pieceTables":  [
                                                {
                                                    "id":  "papier-sra3",
-                                                   "title":  "Papier SRA3 (papier z klejem mat/bĹ‚ysk)",
+                                                   "title":  "Papier SRA3 (papier z klejem mat/błysk)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1164,7 +1164,7 @@
                                                },
                                                {
                                                    "id":  "folia-sra3",
-                                                   "title":  "Folia SRA3 (folia biaĹ‚a / bezbarwna)",
+                                                   "title":  "Folia SRA3 (folia biała / bezbarwna)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1227,7 +1227,7 @@
                                                },
                                                {
                                                    "id":  "plotowane-papier",
-                                                   "title":  "Plotowane + ciÄ™te na sztuki (papier)",
+                                                   "title":  "Plotowane + cięte na sztuki (papier)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1290,7 +1290,7 @@
                                                },
                                                {
                                                    "id":  "plotowane-folia",
-                                                   "title":  "Plotowane + ciÄ™te na sztuki (folia)",
+                                                   "title":  "Plotowane + cięte na sztuki (folia)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1361,13 +1361,13 @@
                                              },
                                              {
                                                  "id":  "arkusze",
-                                                 "name":  "CiÄ™te na arkusze",
+                                                 "name":  "Cięte na arkusze",
                                                  "type":  "fixed_per_unit",
                                                  "value":  2
                                              },
                                              {
                                                  "id":  "pojedyncze",
-                                                 "name":  "CiÄ™te na pojedyncze sztuki",
+                                                 "name":  "Cięte na pojedyncze sztuki",
                                                  "type":  "fixed_per_unit",
                                                  "value":  10
                                              },
@@ -1518,7 +1518,7 @@
                                          }
                          },
     "ulotkiJednostronne":  {
-                               "name":  "Ulotki â€“ cyfrowe jednostronne",
+                               "name":  "Ulotki – cyfrowe jednostronne",
                                "formats":  {
                                                "A6":  {
                                                           "name":  "A6 (105x148)",
@@ -2090,7 +2090,7 @@
                            "materials":  [
                                              {
                                                  "id":  "150g",
-                                                 "name":  "Papier 150g pĂłĹ‚mat",
+                                                 "name":  "Papier 150g półmat",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -2121,7 +2121,7 @@
                                              },
                                              {
                                                  "id":  "200g",
-                                                 "name":  "Papier 200g poĹ‚ysk",
+                                                 "name":  "Papier 200g połysk",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -2182,7 +2182,7 @@
                                     "materials":  [
                                                       {
                                                           "id":  "200g-polysk",
-                                                          "name":  "200g PoĹ‚ysk (solwent)",
+                                                          "name":  "200g Połysk (solwent)",
                                                           "tiers":  [
                                                                         {
                                                                             "min":  1,
@@ -2244,7 +2244,7 @@
                                                       },
                                                       {
                                                           "id":  "150g-polmat",
-                                                          "name":  "150g PĂłĹ‚mat (solwent)",
+                                                          "name":  "150g Półmat (solwent)",
                                                           "tiers":  [
                                                                         {
                                                                             "min":  1,
@@ -2500,7 +2500,7 @@
                                   ],
                     "legacy200g":  {
                                        "id":  "solwent-plakaty-200g",
-                                       "title":  "SOLWENT - PLAKATY (Papier 200g poĹ‚ysk)",
+                                       "title":  "SOLWENT - PLAKATY (Papier 200g połysk)",
                                        "unit":  "m2",
                                        "pricing":  "per_unit",
                                        "tiers":  [

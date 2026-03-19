@@ -835,14 +835,14 @@
     }
 
     #viewContainer .cad-files-table th {
-      padding: 12px 14px;
+      padding: 12px 12px;
       text-align: left;
       font-size: 14px;
       border-bottom: 1px solid #dbe7f3;
     }
 
     #viewContainer .cad-files-table td {
-      padding: 12px 14px;
+      padding: 12px 12px;
       border-bottom: 1px solid #e2e8f0;
       font-size: 13px;
       vertical-align: middle;
@@ -859,16 +859,61 @@
     #viewContainer .cad-file-name {
       font-weight: 500;
       color: #0f172a;
-      max-width: 250px;
+      max-width: 270px;
       overflow: hidden;
       text-overflow: ellipsis;
       word-break: break-word;
+    }
+
+    #viewContainer .cad-files-table .cad-col-index,
+    #viewContainer .cad-files-table .cad-col-delete,
+    #viewContainer .cad-files-table .cad-file-type,
+    #viewContainer .cad-files-table .cad-file-scan {
+      text-align: center;
+    }
+
+    #viewContainer .cad-files-table .cad-col-size,
+    #viewContainer .cad-files-table .cad-file-size {
+      width: 148px;
+      text-align: center;
     }
 
     #viewContainer .cad-file-size {
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
       color: #475569;
+      position: relative;
+      left: -20px;
+    }
+
+    #viewContainer .cad-files-table .cad-col-size {
+      position: relative;
+      left: -20px;
+    }
+
+    #viewContainer .cad-summary-section .summary-grid {
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    #viewContainer .cad-summary-section .summary-item {
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+
+    #viewContainer .cad-summary-section .summary-item > span:first-child {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    #viewContainer .cad-summary-section .summary-item .price-value {
+      flex: 0 0 auto;
+      margin-left: 8px;
+    }
+
+    #viewContainer .cad-summary-section .summary-item.summary-item--total {
+      gap: 6px;
     }
 
     #viewContainer .cad-file-type,
@@ -1158,6 +1203,16 @@
         flex-direction: column;
       }
 
+      #viewContainer .cad-summary-section .summary-item {
+        flex-direction: row;
+        align-items: center;
+      }
+
+      #viewContainer .cad-files-table .cad-col-size,
+      #viewContainer .cad-files-table .cad-file-size {
+        left: 0;
+      }
+
       .category-sidebar {
         position: fixed;
         top: 0;
@@ -1330,12 +1385,12 @@
                 <table class="cad-files-table" id="cadFilesTable" style="display:none;width:100%;">
                   <thead>
                     <tr>
-                      <th style="width:50px;text-align:center;">Lp.</th>
+                      <th class="cad-col-index" style="width:50px;">Lp.</th>
                       <th>Nazwa pliku</th>
-                      <th>Rozmiar</th>
-                      <th>Składanie</th>
-                      <th>Skan</th>
-                      <th style="width:50px;text-align:center;">Usuń</th>
+                      <th class="cad-col-size">Rozmiar</th>
+                      <th class="cad-file-type">Składanie</th>
+                      <th class="cad-file-scan">Skan</th>
+                      <th class="cad-col-delete" style="width:50px;">Usuń</th>
                     </tr>
                   </thead>
                   <tbody id="cadTableBody">
@@ -1361,11 +1416,11 @@
                     <span>🎨 Kolor:</span>
                     <span id="summaryColor" class="price-value">0,00 zł</span>
                   </div>
-                  <div class="summary-item" style="border-top: 2px solid #dbe7f3; margin-top: 12px; padding-top: 12px; grid-column: 1/-1;">
+                  <div class="summary-item summary-item--total" style="border-top: 2px solid #dbe7f3; margin-top: 12px; padding-top: 12px; grid-column: 1/-1;">
                     <span><strong>🎨 RAZEM KOLOR:</strong></span>
                     <span id="totalColor" class="price-value" style="color:#0f766e;font-weight:700;">0,00 zł</span>
                   </div>
-                  <div class="summary-item">
+                  <div class="summary-item summary-item--total">
                     <span><strong>⚫ RAZEM CZARNO-BIAŁE:</strong></span>
                     <span id="totalBW" class="price-value" style="color:#0f766e;font-weight:700;">0,00 zł</span>
                   </div>
@@ -1675,18 +1730,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     cadTableBody.innerHTML = cadFiles.map((file, index) => `
       <tr data-file-id="${file.id}">
-        <td style="text-align:center;font-weight:bold;color:#475569;">${index + 1}</td>
+        <td class="cad-col-index" style="font-weight:bold;color:#475569;">${index + 1}</td>
         <td class="cad-file-name" title="${file.name}">
           <strong>${file.name}</strong>
         </td>
-        <td class="cad-file-size" style="white-space:nowrap;">${file.width.toFixed(0)} × ${file.height.toFixed(0)} mm</td>
-        <td class="cad-file-type" style="text-align:center;">
+        <td class="cad-file-size">${file.width.toFixed(0)} × ${file.height.toFixed(0)} mm</td>
+        <td class="cad-file-type">
           <input type="checkbox" class="fold-check" ${file.folding ? 'checked' : ''} />
         </td>
-        <td class="cad-file-scan" style="text-align:center;">
+        <td class="cad-file-scan">
           <input type="checkbox" class="scan-check" ${file.scanning ? 'checked' : ''} />
         </td>
-        <td class="cad-file-delete" style="text-align:center;">
+        <td class="cad-col-delete">
           <button class="cad-delete-btn" title="Usuń plik">❌</button>
         </td>
       </tr>
