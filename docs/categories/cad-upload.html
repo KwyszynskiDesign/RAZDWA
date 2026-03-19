@@ -133,9 +133,9 @@
   /* ── Opcje globalne ────────────────────────────────────────── */
   .cad-options-bar {
     display: flex;
-    flex-wrap: nowrap;
-    justify-content: space-between;
-    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 16px;
     align-items: center;
     padding: 10px 14px;
     background: var(--surface-alt);
@@ -244,11 +244,15 @@
     text-align: left;
     border-bottom: 2px solid var(--border);
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .results-table td {
     padding: 2px 3px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    overflow: hidden;
+    max-width: 0;
   }
 
   .results-table .col-lp,
@@ -321,6 +325,7 @@
     justify-content: space-between;
     gap: 2px;
     white-space: nowrap;
+    overflow: hidden;
     line-height: 1.05;
     font-size: 0.71rem;
   }
@@ -394,12 +399,7 @@
     padding: 0;
   }
 
-  @media (max-width: 980px) {
-    .cad-options-bar {
-      flex-wrap: wrap;
-      justify-content: flex-start;
-    }
-  }
+
   .results-total-live {
     padding: 16px;
     background: var(--surface-alt);
