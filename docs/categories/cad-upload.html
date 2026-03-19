@@ -248,18 +248,34 @@
   }
 
   .results-table .col-lp { width: 4%; }
-  .results-table .col-name { width: 30%; }
-  .results-table .col-size { width: 22%; }
-  .results-table .col-fold { width: 8%; }
-  .results-table .col-scan { width: 6%; }
-  .results-table .col-price { width: 25%; }
-  .results-table .col-remove { width: 5%; }
+  .results-table .col-name { width: 24%; }
+  .results-table .col-size { width: 30%; }
+  .results-table .col-fold { width: 9%; }
+  .results-table .col-scan { width: 7%; }
+  .results-table .col-price { width: 20%; }
+  .results-table .col-remove { width: 6%; min-width: 42px; }
 
   .results-table .col-name,
   .results-table .col-size,
   .results-table .col-price {
     padding-left: 2px;
     padding-right: 2px;
+  }
+
+  .results-table th {
+    white-space: nowrap;
+  }
+
+  .results-table td.col-name {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .results-table th.col-remove,
+  .results-table td.col-remove {
+    padding-left: 1px;
+    padding-right: 1px;
   }
 
   .cad-size-main {
@@ -325,16 +341,28 @@
   }
   .results-table tfoot td {
     font-weight: 700;
-    padding: 12px;
+    padding: clamp(8px, 1vw, 12px) clamp(8px, 1.2vw, 14px);
     border-top: 2px solid var(--border);
   }
+  .results-table tfoot td[colspan] {
+    text-align: right;
+    padding-right: clamp(10px, 2vw, 24px);
+  }
+  .results-table tfoot td[id^="results-total"] {
+    text-align: left;
+    min-width: clamp(130px, 16vw, 190px);
+    padding-left: clamp(8px, 1.5vw, 18px);
+  }
+  .results-table tfoot td strong {
+    font-size: clamp(0.98rem, 1.15vw, 1.14rem);
+  }
   .results-table tfoot #results-total-color {
-    font-size: 1.1rem;
+    font-size: clamp(1.15rem, 1.5vw, 1.45rem);
     color: #ff6b35;
     font-weight: 800;
   }
   .results-table tfoot #results-total-bw {
-    font-size: 1.1rem;
+    font-size: clamp(1.15rem, 1.5vw, 1.45rem);
     color: #424242;
     font-weight: 800;
   }
