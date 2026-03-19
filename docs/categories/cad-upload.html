@@ -133,7 +133,7 @@
   /* ── Opcje globalne ────────────────────────────────────────── */
   .cad-options-bar {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
     gap: 8px 16px;
     align-items: center;
@@ -276,6 +276,11 @@
   .results-table .col-price {
     padding-left: 2px;
     padding-right: 2px;
+  }
+
+  .results-table th.col-name,
+  .results-table td.col-name {
+    padding-left: 8px !important;
   }
 
   .results-table th {
@@ -522,13 +527,6 @@
   <!-- Opcje globalne -->
   <div class="cad-options-bar cad-options">
     <label>
-      Druk:
-      <select id="cadMode">
-        <option value="color">🎨 Kolor</option>
-        <option value="bw">⚫ Czarno-biały</option>
-      </select>
-    </label>
-    <label>
       <input type="checkbox" id="optZapelnienie">
       Zapełnienie &gt;25% (+50%)
     </label>
@@ -566,7 +564,7 @@
     <table id="resultsTable" class="results-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
-          <th class="col-lp">Lp.</th>
+          <th class="col-lp">NR.</th>
           <th class="col-name">Nazwa</th>
           <th class="col-size">Rozmiar</th>
           <th class="col-fold">Składanie</th>
