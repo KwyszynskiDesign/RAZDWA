@@ -22,7 +22,7 @@ const OPRAWY_PRICES = {
     do150: { A4: 7.00, A3: 14.00 }
   },
   kanałowa: {
-    standard: 35.00,
+    standard: 25.00,
     pozostale: 35.00,
     bezNapisu: 20.00,
     wkarta: 10.00
