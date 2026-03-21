@@ -55,6 +55,22 @@ export const PlakatyView: View = {
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
 
+    const requiredElements = [
+      materialSelect,
+      formatGroup,
+      formatSelect,
+      qtyInput,
+      calcBtn,
+      addBtn,
+      resultBox,
+      unitPriceEl,
+      totalPriceEl,
+    ];
+
+    if (requiredElements.some((el) => !el)) {
+      throw new Error("Brak wymaganych elementów formularza plakatów.");
+    }
+
     // Populate material select (tylko wielkoformatowe)
     const allMaterials = [...tableData.formatowe.materials];
     materialSelect.innerHTML = allMaterials.map((m: any) =>
@@ -62,9 +78,11 @@ export const PlakatyView: View = {
     ).join("");
 
     // Populate mały Canon variants (z marginesem / bez marginesu, gramatury)
-    canonVariantSelect.innerHTML = tableData.malyCanon.variants.map((v: any) =>
-      `<option value="${v.id}">${v.name}</option>`
-    ).join("");
+    if (canonVariantSelect) {
+      canonVariantSelect.innerHTML = tableData.malyCanon.variants.map((v: any) =>
+        `<option value="${v.id}">${v.name}</option>`
+      ).join("");
+    }
 
     // Populate duży Canon variants
     const duzyVariants = (tableData.duzyCanon?.variants ?? [
@@ -73,9 +91,11 @@ export const PlakatyView: View = {
       { id: "a4-200-kreda-200", name: "A4 200g kreda 200" },
       { id: "a3-200-kreda-200", name: "A3 200g kreda 200" },
     ]) as Array<{ id: string; name: string }>;
-    duzyCanonVariantSelect.innerHTML = duzyVariants
-      .map((v: any) => `<option value="${v.id}">${v.name}</option>`)
-      .join("");
+    if (duzyCanonVariantSelect) {
+      duzyCanonVariantSelect.innerHTML = duzyVariants
+        .map((v: any) => `<option value="${v.id}">${v.name}</option>`)
+        .join("");
+    }
 
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
@@ -172,7 +192,8 @@ export const PlakatyView: View = {
       }
     };
 
-    canonCalcBtn.onclick = () => {
+    if (canonCalcBtn && canonQtyInput && canonFormatSelect && canonVariantSelect) {
+      canonCalcBtn.onclick = () => {
       try {
         const qty = parsePositiveInt(canonQtyInput.value);
         if (!qty) throw new Error("Podaj ilość sztuk dla Małego Canon.");
@@ -202,9 +223,11 @@ export const PlakatyView: View = {
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
-    };
+      };
+    }
 
-    duzyCanonCalcBtn.onclick = () => {
+    if (duzyCanonCalcBtn && duzyCanonQtyInput && duzyCanonVariantSelect) {
+      duzyCanonCalcBtn.onclick = () => {
       try {
         const qty = parsePositiveInt(duzyCanonQtyInput.value);
         if (!qty) throw new Error("Podaj ilość sztuk dla Dużego Canon.");
@@ -232,7 +255,8 @@ export const PlakatyView: View = {
       } catch (err) {
         alert("Błąd: " + (err as Error).message);
       }
-    };
+      };
+    }
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;

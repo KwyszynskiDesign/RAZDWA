@@ -4,7 +4,7 @@ import { SolwentPlakatyView } from "./views/solwent-plakaty";
 import { PlakatyView } from "./views/plakaty";
 import { VoucheryView } from "./views/vouchery";
 import { DyplomyView } from "./views/dyplomy";
-import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
+import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy-fixed";
 import { RollUpView } from "./views/roll-up";
 import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
 import { UlotkiCyfroweView } from "./views/ulotki-cyfrowe";
