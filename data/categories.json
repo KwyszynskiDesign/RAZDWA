@@ -1,141 +1,311 @@
-[
-  {
-    "id": "druk-a4-a3",
-    "name": "Druk A4/A3 + skan",
-    "icon": "🖨️",
-    "implemented": true,
-    "pricing": {
-      "print_bw": [
-        { "min": 1, "max": 5, "a4": 0.90, "a3": 1.70 },
-        { "min": 6, "max": 20, "a4": 0.60, "a3": 1.10 },
-        { "min": 21, "max": 100, "a4": 0.35, "a3": 0.70 },
-        { "min": 101, "max": 500, "a4": 0.30, "a3": 0.60 },
-        { "min": 501, "max": 999, "a4": 0.23, "a3": 0.45 },
-        { "min": 1000, "max": 4999, "a4": 0.19, "a3": 0.33 },
-        { "min": 5000, "max": null, "a4": 0.15, "a3": 0.30 }
-      ],
-      "print_color": [
-        { "min": 1, "max": 10, "a4": 2.40, "a3": 4.80 },
-        { "min": 11, "max": 40, "a4": 2.20, "a3": 4.20 },
-        { "min": 41, "max": 100, "a4": 2.00, "a3": 3.80 },
-        { "min": 101, "max": 250, "a4": 1.80, "a3": 3.00 },
-        { "min": 251, "max": 500, "a4": 1.60, "a3": 2.50 },
-        { "min": 501, "max": 999, "a4": 1.40, "a3": 1.90 },
-        { "min": 1000, "max": null, "a4": 1.10, "a3": 1.60 }
-      ],
-      "scan_auto": [
-        { "min": 1, "max": 9, "price": 1.00 },
-        { "min": 10, "max": 49, "price": 0.50 },
-        { "min": 50, "max": 99, "price": 0.40 },
-        { "min": 100, "max": null, "price": 0.25 }
-      ],
-      "scan_manual": [
-        { "min": 1, "max": 4, "price": 2.00 },
-        { "min": 5, "max": null, "price": 1.00 }
-      ],
-      "email_cost": 1.00,
-        "label_sticker_cost": 1.60,
-      "surcharge_factor": 0.50
-    }
-  },
-  {
-    "id": "druk-cad",
-    "name": "Druk CAD wielkoformatowy",
-    "icon": "📐",
-    "implemented": true,
-    "format_prices": {
-      "bw": {
-        "A0+": { "length": 1292, "price": 12.50 },
-        "A0": { "length": 1189, "price": 11.00 },
-        "A1": { "length": 841, "price": 6.00 },
-        "A2": { "length": 594, "price": 4.00 },
-        "A3": { "length": 420, "price": 2.50 }
-      },
-      "color": {
-        "A0+": { "length": 1292, "price": 26.00 },
-        "A0": { "length": 1189, "price": 24.00 },
-        "A1": { "length": 841, "price": 12.00 },
-        "A2": { "length": 594, "price": 8.50 },
-        "A3": { "length": 420, "price": 5.30 }
-      }
+﻿[
+    {
+        "id":  "druk-a4-a3",
+        "name":  "Druk A4/A3 + skan",
+        "icon":  "đź–¨ď¸Ź",
+        "implemented":  true,
+        "pricing":  {
+                        "print_bw":  [
+                                         {
+                                             "min":  1,
+                                             "max":  5,
+                                             "a4":  0.90,
+                                             "a3":  1.70
+                                         },
+                                         {
+                                             "min":  6,
+                                             "max":  20,
+                                             "a4":  0.60,
+                                             "a3":  1.10
+                                         },
+                                         {
+                                             "min":  21,
+                                             "max":  100,
+                                             "a4":  0.35,
+                                             "a3":  0.70
+                                         },
+                                         {
+                                             "min":  101,
+                                             "max":  500,
+                                             "a4":  0.30,
+                                             "a3":  0.60
+                                         },
+                                         {
+                                             "min":  501,
+                                             "max":  999,
+                                             "a4":  0.23,
+                                             "a3":  0.45
+                                         },
+                                         {
+                                             "min":  1000,
+                                             "max":  4999,
+                                             "a4":  0.19,
+                                             "a3":  0.33
+                                         },
+                                         {
+                                             "min":  5000,
+                                             "max":  null,
+                                             "a4":  0.15,
+                                             "a3":  0.30
+                                         }
+                                     ],
+                        "print_color":  [
+                                            {
+                                                "min":  1,
+                                                "max":  10,
+                                                "a4":  2.40,
+                                                "a3":  4.80
+                                            },
+                                            {
+                                                "min":  11,
+                                                "max":  40,
+                                                "a4":  2.20,
+                                                "a3":  4.20
+                                            },
+                                            {
+                                                "min":  41,
+                                                "max":  100,
+                                                "a4":  2.00,
+                                                "a3":  3.80
+                                            },
+                                            {
+                                                "min":  101,
+                                                "max":  250,
+                                                "a4":  1.80,
+                                                "a3":  3.00
+                                            },
+                                            {
+                                                "min":  251,
+                                                "max":  500,
+                                                "a4":  1.60,
+                                                "a3":  2.50
+                                            },
+                                            {
+                                                "min":  501,
+                                                "max":  999,
+                                                "a4":  1.40,
+                                                "a3":  1.90
+                                            },
+                                            {
+                                                "min":  1000,
+                                                "max":  null,
+                                                "a4":  1.10,
+                                                "a3":  1.60
+                                            }
+                                        ],
+                        "scan_auto":  [
+                                          {
+                                              "min":  1,
+                                              "max":  9,
+                                              "price":  1.00
+                                          },
+                                          {
+                                              "min":  10,
+                                              "max":  49,
+                                              "price":  0.50
+                                          },
+                                          {
+                                              "min":  50,
+                                              "max":  99,
+                                              "price":  0.40
+                                          },
+                                          {
+                                              "min":  100,
+                                              "max":  null,
+                                              "price":  0.25
+                                          }
+                                      ],
+                        "scan_manual":  [
+                                            {
+                                                "min":  1,
+                                                "max":  4,
+                                                "price":  2.00
+                                            },
+                                            {
+                                                "min":  5,
+                                                "max":  null,
+                                                "price":  1.00
+                                            }
+                                        ],
+                        "email_cost":  1.00,
+                        "label_sticker_cost":  1.60,
+                        "surcharge_factor":  0.50
+                    }
     },
-    "meter_prices": {
-      "bw": {
-        "A0+": 10.00,
-        "A0": 9.00,
-        "A1": 5.00,
-        "A2": 4.50,
-        "A3": 3.50
-      },
-      "color": {
-        "A0+": 21.00,
-        "A0": 20.00,
-        "A1": 14.50,
-        "A2": 13.90,
-        "A3": 12.00
-      }
+    {
+        "id":  "druk-cad",
+        "name":  "Druk CAD wielkoformatowy",
+        "icon":  "đź“",
+        "implemented":  true,
+        "format_prices":  {
+                              "bw":  {
+                                         "A0+":  {
+                                                     "length":  1292,
+                                                     "price":  12.50
+                                                 },
+                                         "A0":  {
+                                                    "length":  1189,
+                                                    "price":  11.00
+                                                },
+                                         "A1":  {
+                                                    "length":  841,
+                                                    "price":  6.00
+                                                },
+                                         "A2":  {
+                                                    "length":  594,
+                                                    "price":  4.00
+                                                },
+                                         "A3":  {
+                                                    "length":  420,
+                                                    "price":  2.50
+                                                }
+                                     },
+                              "color":  {
+                                            "A0+":  {
+                                                        "length":  1292,
+                                                        "price":  26.00
+                                                    },
+                                            "A0":  {
+                                                       "length":  1189,
+                                                       "price":  24.00
+                                                   },
+                                            "A1":  {
+                                                       "length":  841,
+                                                       "price":  12.00
+                                                   },
+                                            "A2":  {
+                                                       "length":  594,
+                                                       "price":  8.50
+                                                   },
+                                            "A3":  {
+                                                       "length":  420,
+                                                       "price":  5.30
+                                                   }
+                                        }
+                          },
+        "meter_prices":  {
+                             "bw":  {
+                                        "A0+":  10.00,
+                                        "A0":  9.00,
+                                        "A1":  5.00,
+                                        "A2":  4.50,
+                                        "A3":  3.50
+                                    },
+                             "color":  {
+                                           "A0+":  21.00,
+                                           "A0":  20.00,
+                                           "A1":  14.50,
+                                           "A2":  13.90,
+                                           "A3":  12.00
+                                       }
+                         }
+    },
+    {
+        "id":  "vouchery",
+        "name":  "Vouchery",
+        "icon":  "đźŽźď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "dyplomy",
+        "name":  "Dyplomy",
+        "icon":  "đź“ś",
+        "implemented":  true
+    },
+    {
+        "id":  "wizytowki-druk-cyfrowy",
+        "name":  "WizytĂłwki - druk cyfrowy",
+        "icon":  "đź“‡",
+        "implemented":  true
+    },
+    {
+        "id":  "zaproszenia-kreda",
+        "name":  "Zaproszenia KREDA",
+        "icon":  "âś‰ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "ulotki-cyfrowe",
+        "name":  "Ulotki cyfrowe",
+        "icon":  "đź“„",
+        "implemented":  true
+    },
+    {
+        "id":  "banner",
+        "name":  "Bannery",
+        "icon":  "đźŹ",
+        "implemented":  true
+    },
+    {
+        "id":  "wlepki-naklejki",
+        "name":  "Wlepki / Naklejki",
+        "icon":  "đźŹ·ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "roll-up",
+        "name":  "Roll-up",
+        "icon":  "â†•ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "folia-szroniona",
+        "name":  "Folia szroniona",
+        "icon":  "âť„ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "wycinanie-folii",
+        "name":  "Wycinanie z folii",
+        "icon":  "âś‚ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "canvas",
+        "name":  "Canvas / PĹ‚Ăłtno",
+        "icon":  "đź–Ľď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "laminowanie",
+        "name":  "Introligatornia",
+        "icon":  "âś¨",
+        "implemented":  true
+    },
+    {
+        "id":  "wydruki-specjalne",
+        "name":  "DODRUKI / SPECJALNE WYDRUKI",
+        "icon":  "đź§ľ",
+        "implemented":  true
+    },
+    {
+        "id":  "cad-upload",
+        "name":  "CAD Upload plikĂłw",
+        "icon":  "đź“",
+        "implemented":  true
+    },
+    {
+        "id":  "plakaty",
+        "name":  "Plakaty wielkoformatowe",
+        "icon":  "âš™ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "plakaty-a4-a3",
+        "name":  "Plakaty A4-A3",
+        "icon":  "âš™ď¸Ź",
+        "implemented":  true
+    },
+    {
+        "id":  "artykuly-biurowe",
+        "name":  "ArtykuĹ‚y Biurowe",
+        "icon":  "đź“Ž",
+        "implemented":  true
+    },
+    {
+        "id":  "uslugi",
+        "name":  "UsĹ‚ugi",
+        "icon":  "đź› ď¸Ź",
+        "implemented":  true
     }
-  },
-  { "id": "vouchery", "name": "Vouchery", "icon": "🎟️", "implemented": true },
-  { "id": "dyplomy", "name": "Dyplomy", "icon": "📜", "implemented": true },
-  { "id": "wizytowki-druk-cyfrowy", "name": "Wizytówki - druk cyfrowy", "icon": "📇", "implemented": true },
-  { "id": "zaproszenia-kreda", "name": "Zaproszenia KREDA", "icon": "✉️", "implemented": true },
-  { "id": "ulotki-cyfrowe", "name": "Ulotki cyfrowe", "icon": "📄", "implemented": true },
-  { "id": "banner", "name": "Bannery", "icon": "🏁", "implemented": true },
-  { "id": "wlepki-naklejki", "name": "Wlepki / Naklejki", "icon": "🏷️", "implemented": true },
-  { "id": "roll-up", "name": "Roll-up", "icon": "↕️", "implemented": true },
-  {
-    "id": "folia-szroniona",
-    "name": "Folia szroniona",
-    "icon": "❄️",
-    "implemented": true
-  },
-  {
-    "id": "wycinanie-folii",
-    "name": "Wycinanie z folii",
-    "icon": "✂️",
-    "implemented": true
-  },
-  {
-    "id": "canvas",
-    "name": "Canvas / Płótno",
-    "icon": "🖼️",
-    "implemented": true
-  },
-  {
-    "id": "laminowanie",
-    "name": "Introligatornia",
-    "icon": "✨",
-    "implemented": true
-  },
-  {
-    "id": "wydruki-specjalne",
-    "name": "DODRUKI / SPECJALNE WYDRUKI",
-    "icon": "🧾",
-    "implemented": true
-  },
-  {
-    "id": "cad-upload",
-    "name": "CAD Upload plików",
-    "icon": "📁",
-    "implemented": true
-  },
-  {
-    "id": "plakaty",
-    "name": "Plakaty",
-    "icon": "⚙️",
-    "implemented": true
-  },
-  {
-    "id": "artykuly-biurowe",
-    "name": "Artykuły Biurowe",
-    "icon": "📎",
-    "implemented": true
-  },
-  {
-    "id": "uslugi",
-    "name": "Usługi",
-    "icon": "🛠️",
-    "implemented": true
-  }
 ]

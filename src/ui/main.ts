@@ -1,7 +1,8 @@
 import { Router } from "./router";
 import { ViewContext } from "./types";
 import { SolwentPlakatyView } from "./views/solwent-plakaty";
-import { PlakatyView } from "./views/plakaty";
+import { PlakatyWFView } from "./views/plakaty-wf";
+import { PlakatyA4A3View } from "./views/plakaty-a4-a3";
 import { VoucheryView } from "./views/vouchery";
 import { DyplomyView } from "./views/dyplomy";
 import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy-fixed";
@@ -251,7 +252,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const router = new Router(viewContainer, getCtx);
   router.setCategories(categories);
-  router.addRoute(PlakatyView);
+  router.addRoute(PlakatyWFView);
+  router.addRoute(PlakatyA4A3View);
   router.addRoute(DrukA4A3SkanView);
   router.addRoute(DrukCADView);
   router.addRoute(SolwentPlakatyView);

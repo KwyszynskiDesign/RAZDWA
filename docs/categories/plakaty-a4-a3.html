@@ -1,0 +1,93 @@
+<div class="category-view">
+    <div class="view-header">
+        <h2>🖼️ Plakaty A4-A3</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; align-items:start;">
+            <div id="pa-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Mały Canon</h3>
+                <div class="hint" style="margin-bottom:10px;">Wybierz wariant: z marginesem / bez marginesu, gramaturę i format.</div>
+
+                <div class="form-group">
+                    <label for="pa-canon-variant">Wariant:</label>
+                    <select id="pa-canon-variant" class="form-control"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-format">Format:</label>
+                    <select id="pa-canon-format" class="form-control">
+                        <option value="A4">A4</option>
+                        <option value="A3">A3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-qty">Ilość (szt):</label>
+                    <input type="number" id="pa-canon-qty" class="form-control" placeholder="np. 3" min="1" max="9" step="1" inputmode="numeric" autocomplete="off">
+                    <div class="hint">Plakaty do 9 szt. (mały Canon), czas realizacji 1-2 dni robocze.</div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="pa-canon-calculate" class="btn-primary">Oblicz Mały Canon</button>
+                </div>
+            </div>
+
+            <div id="pa-duzy-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Duży Canon</h3>
+                <div class="hint" style="margin-bottom:10px;">Plakaty z cennika ilościowego (10–200 szt.) na papierze kredowym 170g/200g.</div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-paper">Rodzaj papieru:</label>
+                    <select id="pa-duzy-canon-paper" class="form-control"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-format">Rozmiar:</label>
+                    <select id="pa-duzy-canon-format" class="form-control"></select>
+                </div>
+
+                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
+                    <input type="checkbox" id="pa-duzy-canon-gloss" style="width:auto; margin:0;">
+                    <label for="pa-duzy-canon-gloss" style="margin:0;">Błyszczący (odznaczone = mat)</label>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-qty">Ilość (szt):</label>
+                    <input type="number" id="pa-duzy-canon-qty" class="form-control" placeholder="np. 50" min="10" max="200" step="1" inputmode="numeric" autocomplete="off">
+                    <div class="hint">Obsługiwane progi: 10, 20, 30, ..., 100, 125, 150, 175, 200.</div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="pa-duzy-canon-calculate" class="btn-primary">Oblicz Duży Canon</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-actions" style="margin-top: 12px;">
+            <button id="pa-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+        </div>
+    </div>
+
+    <div id="pa-result-display" class="result-display card" style="display: none;">
+        <div class="result-row">
+            <span id="pa-qty-label">Ilość:</span>
+            <span id="pa-qty-val" class="price-unit">-</span>
+        </div>
+        <div class="result-row">
+            <span>Cena jednostkowa:</span>
+            <span id="pa-unit-price" class="price-unit">-</span>
+        </div>
+        <div id="pa-discount-row" class="result-row" style="display:none; color:#e67e22;">
+            <span id="pa-discount-label">Rabat ilościowy:</span>
+            <span id="pa-discount-val" class="price-unit">-</span>
+        </div>
+        <div class="result-row">
+            <span>Cena łączna:</span>
+            <span id="pa-total-price" class="price-value">-</span>
+        </div>
+        <div id="pa-express-hint" class="express-hint" style="display: none;">
+            W tym dopłata EXPRESS +20%
+        </div>
+    </div>
+</div>
