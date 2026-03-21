@@ -12,6 +12,11 @@ const FORMAT_LABELS: Record<string, string> = {
   "841x1189": "A0 (841x1189)",
 };
 
+const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
+  a4: "A4",
+  a3: "A3",
+};
+
 export const PlakatyView: View = {
   id: "plakaty",
   name: "Plakaty",
@@ -36,7 +41,9 @@ export const PlakatyView: View = {
     const canonFormatSelect = container.querySelector("#p-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#p-canon-qty") as HTMLInputElement;
     const canonCalcBtn   = container.querySelector("#p-canon-calculate") as HTMLButtonElement;
-    const duzyCanonVariantSelect = container.querySelector("#p-duzy-canon-variant") as HTMLSelectElement;
+    const duzyCanonPaperSelect = container.querySelector("#p-duzy-canon-paper") as HTMLSelectElement;
+    const duzyCanonFormatSelect = container.querySelector("#p-duzy-canon-format") as HTMLSelectElement;
+    const duzyCanonGlossCheckbox = container.querySelector("#p-duzy-canon-gloss") as HTMLInputElement;
     const duzyCanonQtyInput = container.querySelector("#p-duzy-canon-qty") as HTMLInputElement;
     const duzyCanonCalcBtn = container.querySelector("#p-duzy-canon-calculate") as HTMLButtonElement;
     const lengthGroup   = container.querySelector("#p-length-group") as HTMLElement;
@@ -91,11 +98,45 @@ export const PlakatyView: View = {
       { id: "a4-200-kreda-200", name: "A4 200g kreda 200" },
       { id: "a3-200-kreda-200", name: "A3 200g kreda 200" },
     ]) as Array<{ id: string; name: string }>;
-    if (duzyCanonVariantSelect) {
-      duzyCanonVariantSelect.innerHTML = duzyVariants
-        .map((v: any) => `<option value="${v.id}">${v.name}</option>`)
+    const duzyCanonPaperOptions = duzyVariants.reduce((acc, variant) => {
+      const key = variant.id.includes("200") ? "200" : "170";
+      if (!acc.some((option) => option.value === key)) {
+        acc.push({
+          value: key,
+          label: key === "200" ? "200g kreda 200" : "170g kreda 130/170",
+        });
+      }
+      return acc;
+    }, [] as Array<{ value: string; label: string }>);
+
+    const duzyCanonFormatOptions = duzyVariants.reduce((acc, variant) => {
+      const key = variant.id.startsWith("a3") ? "a3" : "a4";
+      if (!acc.includes(key)) {
+        acc.push(key);
+      }
+      return acc;
+    }, [] as string[]);
+
+    if (duzyCanonPaperSelect) {
+      duzyCanonPaperSelect.innerHTML = duzyCanonPaperOptions
+        .map((option) => `<option value="${option.value}">${option.label}</option>`)
         .join("");
     }
+
+    if (duzyCanonFormatSelect) {
+      duzyCanonFormatSelect.innerHTML = duzyCanonFormatOptions
+        .map((format) => `<option value="${format}">${DUZY_CANON_FORMAT_LABELS[format] ?? format.toUpperCase()}</option>`)
+        .join("");
+    }
+
+    const resolveDuzyCanonVariantId = () => {
+      const size = duzyCanonFormatSelect?.value === "a3" ? "a3" : "a4";
+      const paper = duzyCanonPaperSelect?.value === "200" ? "200-kreda-200" : "170-kreda-130-170";
+      return `${size}-${paper}`;
+    };
+
+    const resolveDuzyCanonFinishLabel = () =>
+      duzyCanonGlossCheckbox?.checked ? "błyszczący" : "mat";
 
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
@@ -226,17 +267,18 @@ export const PlakatyView: View = {
       };
     }
 
-    if (duzyCanonCalcBtn && duzyCanonQtyInput && duzyCanonVariantSelect) {
+    if (duzyCanonCalcBtn && duzyCanonQtyInput && duzyCanonPaperSelect && duzyCanonFormatSelect) {
       duzyCanonCalcBtn.onclick = () => {
       try {
         const qty = parsePositiveInt(duzyCanonQtyInput.value);
         if (!qty) throw new Error("Podaj ilość sztuk dla Dużego Canon.");
 
-        const variantId = duzyCanonVariantSelect.value;
+        const variantId = resolveDuzyCanonVariantId();
+        const finish = resolveDuzyCanonFinishLabel();
         const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
 
         currentResult = res;
-        currentOptions = { type: "duzy-canon", variantId, qty: res.qty };
+        currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish };
 
         unitPriceEl.innerText = formatPLN(res.tierPrice);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
@@ -246,7 +288,7 @@ export const PlakatyView: View = {
         }
 
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt`;
+        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${res.variantName}, ${finish}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
 
         resultBox.style.display = "block";
@@ -277,13 +319,12 @@ export const PlakatyView: View = {
           payload: currentResult,
         });
       } else if (currentOptions.type === "duzy-canon") {
-        const variantName = duzyCanonVariantSelect.options[duzyCanonVariantSelect.selectedIndex].text;
-        const hint = `${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
 
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
-          name: `${variantName} (duży Canon)`,
+          name: `${currentResult.variantName} (${currentOptions.finish}, duży Canon)`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.tierPrice,

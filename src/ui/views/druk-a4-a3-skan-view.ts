@@ -28,6 +28,7 @@ export const DrukA4A3SkanView: View = {
     const printQtyInput = container.querySelector("#d-print-qty") as HTMLInputElement;
     const emailCheck = container.querySelector("#d-email") as HTMLInputElement;
     const labelStickerCheck = container.querySelector("#d-label-sticker") as HTMLInputElement | null;
+    const sleeveCheck = container.querySelector("#d-sleeve") as HTMLInputElement | null;
     const surchargeCheck = container.querySelector("#d-surcharge") as HTMLInputElement | null;
     const surchargeQtyInput = container.querySelector("#d-surcharge-qty") as HTMLInputElement;
     const surchargeQtyRow = container.querySelector("#surcharge-qty-row") as HTMLElement | null;
@@ -85,6 +86,7 @@ export const DrukA4A3SkanView: View = {
         printQty,
         email: emailCheck.checked,
         labelSticker: !!labelStickerCheck?.checked,
+        sleeve: !!sleeveCheck?.checked,
         surcharge,
         surchargeQty,
         scanType: scanTypeSelect.value,
@@ -105,6 +107,8 @@ export const DrukA4A3SkanView: View = {
         const scanRow = container.querySelector("#d-scan-row") as HTMLElement | null;
         const emailRow = container.querySelector("#d-email-row") as HTMLElement | null;
         const stickerRow = container.querySelector("#d-label-sticker-row") as HTMLElement | null;
+        const sleeveRow = container.querySelector("#d-sleeve-row") as HTMLElement | null;
+        const sleevePriceEl = container.querySelector("#d-sleeve-price") as HTMLElement | null;
         const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
 
         if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
@@ -115,6 +119,8 @@ export const DrukA4A3SkanView: View = {
         if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
         if (stickerRow) stickerRow.style.display = result.stickerPrice > 0 ? "" : "none";
         if (stickerPrice) stickerPrice.innerText = formatPLN(result.stickerPrice);
+        if (sleeveRow) sleeveRow.style.display = result.sleevePrice > 0 ? "" : "none";
+        if (sleevePriceEl) sleevePriceEl.innerText = formatPLN(result.sleevePrice);
         if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
         if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
@@ -153,6 +159,7 @@ export const DrukA4A3SkanView: View = {
       if (hasScan) details.push(`skan ${scanLabel}: ${scanQty} str.`);
       if (currentOptions.email) details.push("wysyłka e-mail");
       if (currentOptions.labelSticker) details.push("naklejka (druk A4): +1,60 zł");
+      if (currentOptions.sleeve) details.push("koszulka: +0,80 zł");
       if (ctx.expressMode) details.push("EXPRESS");
 
       const itemNameParts: string[] = [];
@@ -179,6 +186,7 @@ export const DrukA4A3SkanView: View = {
           surchargeQty: Number(currentOptions.surchargeQty) || 0,
           email: !!currentOptions.email,
           labelSticker: !!currentOptions.labelSticker,
+          sleeve: !!currentOptions.sleeve,
           express: !!ctx.expressMode,
           breakdown: {
             totalPrintPrice: currentResult.totalPrintPrice,
@@ -186,6 +194,7 @@ export const DrukA4A3SkanView: View = {
             surchargePrice: currentResult.surchargePrice,
             emailPrice: currentResult.emailPrice,
             stickerPrice: currentResult.stickerPrice,
+            sleevePrice: currentResult.sleevePrice,
             totalPrice
           }
         }

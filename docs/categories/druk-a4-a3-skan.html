@@ -54,66 +54,161 @@
       background: #15803d;
       color: #fff;
     }
+
+    /* Dwukolumnowy ukad formularza */
+    .d-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .d-check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .d-check-group-title {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .d-section-hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 12px 0;
+    }
+
+    @media (max-width: 640px) {
+      .d-two-col { grid-template-columns: 1fr; }
+    }
+
+    /* Dwukolumnowy ukad formularza */
+    .d-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+
+    .d-check-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding: 16px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+    }
+
+    .d-check-group-title {
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.85em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .d-section-hr {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 12px 0;
+    }
+
+    @media (max-width: 640px) {
+      .d-two-col { grid-template-columns: 1fr; }
+    }
   </style>
   <h2>Druk A4/A3 + skan</h2>
-  
-  <!-- TRYB + FORMAT -->
-  <div class="form-row">
-    <div class="form-group">
-      <label>Tryb:</label>
-      <select id="d-mode">
-        <option value="bw">Czarnobiały</option>
-        <option value="color">Kolorowy</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Format:</label>
-      <select id="d-format">
-        <option value="A4">A4</option>
-        <option value="A3">A3</option>
-      </select>
-    </div>
-    <div class="form-group d-inline-check">
-      <label for="d-email">E-mail (+1 zł)</label>
-      <input type="checkbox" id="d-email">
-    </div>
-    <div class="form-group d-inline-check">
-      <label for="d-label-sticker">Naklejka/etykieta (A6) (+1,60 zł)</label>
-      <input type="checkbox" id="d-label-sticker">
-    </div>
-  </div>
 
-  <!-- DRUK -->
-  <div class="form-group">
-    <label>Ilość stron do druku:</label>
-    <input type="number" id="d-print-qty" min="0" value="1">
-  </div>
+  <!-- UKAD DWUKOLUMNOWY -->
+  <div class="d-two-col">
 
-  <!-- ZADRUK >25% -->
-  <div class="form-group">
-    <label>
-      <span class="label-title">Zadruk &gt;25%</span>
-      <span class="label-sub">Liczba stron z dopłatą +50%</span>
-    </label>
-    <input type="number" id="d-surcharge-qty" min="0" value="0">
-  </div>
+    <!-- LEWA KOLUMNA: druk i skan -->
+    <div class="d-left-col">
 
-  <!-- SKANOWANIE -->
-  <div class="form-group">
-    <label>Rodzaj skanowania:</label>
-    <select id="d-scan-type">
-      <option value="none">Brak</option>
-      <option value="auto">Automatyczne</option>
-      <option value="manual">Ręczne z szyby</option>
-    </select>
-  </div>
+      <div class="form-group">
+        <label>Rodzaj:</label>
+        <select id="d-mode">
+          <option value="bw">Czarnobiay</option>
+          <option value="color">Kolorowy</option>
+        </select>
+      </div>
 
-  <div class="form-row d-hidden" id="scan-qty-row">
-    <div class="form-group">
-      <label>Ilość stron do skanowania:</label>
-      <input type="number" id="d-scan-qty" min="0" value="1">
-    </div>
-  </div>
+      <div class="form-group">
+        <label>Format:</label>
+        <select id="d-format">
+          <option value="A4">A4</option>
+          <option value="A3">A3</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Ilo stron do druku:</label>
+        <input type="number" id="d-print-qty" min="0" value="1">
+      </div>
+
+      <div class="form-group">
+        <label>
+          <span class="label-title">Zadruk &gt;25%</span>
+          <span class="label-sub">Liczba stron z dopat +50%</span>
+        </label>
+        <input type="number" id="d-surcharge-qty" min="0" value="0">
+      </div>
+
+      <hr class="d-section-hr">
+
+      <div class="form-group">
+        <label>Rodzaj skanowania:</label>
+        <select id="d-scan-type">
+          <option value="none">Brak</option>
+          <option value="auto">Automatyczne</option>
+          <option value="manual">Rczne z szyby</option>
+        </select>
+      </div>
+
+      <div class="form-row d-hidden" id="scan-qty-row">
+        <div class="form-group">
+          <label>Ilo stron do skanowania:</label>
+          <input type="number" id="d-scan-qty" min="0" value="1">
+        </div>
+      </div>
+
+    </div><!-- /.d-left-col -->
+
+    <!-- PRAWA KOLUMNA: opcje dodatkowe -->
+    <div class="d-right-col">
+      <div class="d-check-group">
+        <div class="d-check-group-title">Opcje dodatkowe</div>
+
+        <div class="d-inline-check">
+          <input type="checkbox" id="d-email">
+          <label for="d-email">E-mail (+1 z)</label>
+        </div>
+
+        <div class="d-inline-check">
+          <input type="checkbox" id="d-label-sticker">
+          <label for="d-label-sticker">Naklejka / paczka (+1,60 z)</label>
+        </div>
+
+        <div class="d-inline-check">
+          <input type="checkbox" id="d-sleeve">
+          <label for="d-sleeve">Koszulka (+0,80 z)</label>
+        </div>
+      </div>
+    </div><!-- /.d-right-col -->
+
+  </div><!-- /.d-two-col -->
 
   <!-- PRZYCISKI -->
   <div class="form-actions">
@@ -128,6 +223,7 @@
     <div class="result-row d-hidden" id="d-scan-row">📷 Skanowanie: <span id="d-total-scan-price">-</span></div>
     <div class="result-row d-hidden" id="d-email-row">📧 E-mail: <span id="d-email-price">-</span></div>
     <div class="result-row d-hidden" id="d-label-sticker-row">🏷️ Naklejka (druk A4): <span id="d-label-sticker-price">-</span></div>
+    <div class="result-row d-hidden" id="d-sleeve-row">🗂️ Koszulka: <span id="d-sleeve-price">-</span></div>
     <div class="result-row d-hidden" id="d-surcharge-row">🎨 Dopłata (zadruk &gt;25%): <span id="d-surcharge-price">-</span></div>
     <hr>
     <div class="result-row total d-result-total">

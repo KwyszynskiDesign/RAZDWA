@@ -39,7 +39,10 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     ? resolveStoredPrice("druk-label-sticker", stickerBase)
     : 0;
 
-  const baseTotal = printResult.grandTotal + scanResult.total + stickerPrice;
+  const sleeveBase = 0.80;
+  const sleevePrice = options.sleeve ? resolveStoredPrice("druk-koszulka", sleeveBase) : 0;
+
+  const baseTotal = printResult.grandTotal + scanResult.total + stickerPrice + sleevePrice;
   let finalTotal = baseTotal;
   if (options.express) {
     finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.20));
