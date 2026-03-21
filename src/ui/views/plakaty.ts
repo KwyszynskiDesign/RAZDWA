@@ -1,5 +1,5 @@
 import { View, ViewContext } from "../types";
-import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon } from "../../categories/plakaty";
+import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 
@@ -36,6 +36,9 @@ export const PlakatyView: View = {
     const canonFormatSelect = container.querySelector("#p-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#p-canon-qty") as HTMLInputElement;
     const canonCalcBtn   = container.querySelector("#p-canon-calculate") as HTMLButtonElement;
+    const duzyCanonVariantSelect = container.querySelector("#p-duzy-canon-variant") as HTMLSelectElement;
+    const duzyCanonQtyInput = container.querySelector("#p-duzy-canon-qty") as HTMLInputElement;
+    const duzyCanonCalcBtn = container.querySelector("#p-duzy-canon-calculate") as HTMLButtonElement;
     const lengthGroup   = container.querySelector("#p-length-group") as HTMLElement;
     const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
@@ -62,6 +65,17 @@ export const PlakatyView: View = {
     canonVariantSelect.innerHTML = tableData.malyCanon.variants.map((v: any) =>
       `<option value="${v.id}">${v.name}</option>`
     ).join("");
+
+    // Populate duży Canon variants
+    const duzyVariants = (tableData.duzyCanon?.variants ?? [
+      { id: "a4-170-kreda-130-170", name: "A4 170g kreda 130/170" },
+      { id: "a3-170-kreda-130-170", name: "A3 170g kreda 130/170" },
+      { id: "a4-200-kreda-200", name: "A4 200g kreda 200" },
+      { id: "a3-200-kreda-200", name: "A3 200g kreda 200" },
+    ]) as Array<{ id: string; name: string }>;
+    duzyCanonVariantSelect.innerHTML = duzyVariants
+      .map((v: any) => `<option value="${v.id}">${v.name}</option>`)
+      .join("");
 
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
@@ -190,6 +204,36 @@ export const PlakatyView: View = {
       }
     };
 
+    duzyCanonCalcBtn.onclick = () => {
+      try {
+        const qty = parsePositiveInt(duzyCanonQtyInput.value);
+        if (!qty) throw new Error("Podaj ilość sztuk dla Dużego Canon.");
+
+        const variantId = duzyCanonVariantSelect.value;
+        const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
+
+        currentResult = res;
+        currentOptions = { type: "duzy-canon", variantId, qty: res.qty };
+
+        unitPriceEl.innerText = formatPLN(res.tierPrice);
+        totalPriceEl.innerText = formatPLN(res.totalPrice);
+
+        if (discountRow && discountLabel && discountVal) {
+          discountRow.style.display = "none";
+        }
+
+        if (qtyLabel) qtyLabel.innerText = "Ilość:";
+        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt`;
+        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+
+        resultBox.style.display = "block";
+        addBtn.disabled = false;
+        ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty (Duży Canon)");
+      } catch (err) {
+        alert("Błąd: " + (err as Error).message);
+      }
+    };
+
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
       const matName = materialSelect.options[materialSelect.selectedIndex].text;
@@ -200,6 +244,22 @@ export const PlakatyView: View = {
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
           name: `${canonName} (mały Canon)`,
+          quantity: currentOptions.qty,
+          unit: "szt",
+          unitPrice: currentResult.tierPrice,
+          isExpress: ctx.expressMode,
+          totalPrice: currentResult.totalPrice,
+          optionsHint: hint,
+          payload: currentResult,
+        });
+      } else if (currentOptions.type === "duzy-canon") {
+        const variantName = duzyCanonVariantSelect.options[duzyCanonVariantSelect.selectedIndex].text;
+        const hint = `${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+
+        ctx.cart.addItem({
+          id: `plakaty-${Date.now()}`,
+          category: "Plakaty",
+          name: `${variantName} (duży Canon)`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.tierPrice,

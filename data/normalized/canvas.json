@@ -8,11 +8,11 @@
       "id": "framed",
       "name": "Płótno Canvas z oprawą 240g",
       "formats": [
-        { "id": "50x40-a", "label": "50x40", "price": 69 },
-        { "id": "50x40-b", "label": "50x40 (wariant 2)", "price": 78 },
+        { "id": "50x30", "label": "50x30", "price": 69 },
+        { "id": "50x40", "label": "50x40", "price": 78 },
         { "id": "70x50", "label": "70x50", "price": 120 },
         { "id": "100x70", "label": "100x70", "price": 210 },
-        { "id": "120x80", "label": "120x80", "price": 270 },
+        { "id": "120x80", "label": "120x80", "price": 250 },
         { "id": "custom", "label": "Niestandardowy", "customQuote": true }
       ]
     },
@@ -20,10 +20,10 @@
       "id": "unframed",
       "name": "Płótno Canvas bez oprawy (ramki) 240g",
       "formats": [
-        { "id": "50x40-a", "label": "50x40", "price": 39 },
-        { "id": "50x40-b", "label": "50x40 (wariant 2)", "price": 48 },
-        { "id": "70x50", "label": "70x50", "price": 62 },
-        { "id": "100x70", "label": "100x70", "price": 120 },
+        { "id": "50x30", "label": "50x30", "price": 32 },
+        { "id": "50x40", "label": "50x40", "price": 36 },
+        { "id": "70x50", "label": "70x50", "price": 63 },
+        { "id": "100x70", "label": "100x70", "price": 130 },
         { "id": "120x80", "label": "120x80", "price": 172 },
         { "id": "custom", "label": "Niestandardowy", "customQuote": true }
       ]
@@ -38,7 +38,7 @@
     { "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.20 }
   ],
   "notes": [
-    "TODO: w CSV nagłówek zawiera podwójne 50x40; zweryfikować czy drugi format to 60x50.",
-    "Cena oprawy za zamówienie: 0,22 zł / cmb (do osobnego doprecyzowania)."
+    "Cena 1 m² (bez oprawy, sam wydruk): 180 zł.",
+    "Cena oprawy na zamówienie: 0,22 zł / cmb."
   ]
 }

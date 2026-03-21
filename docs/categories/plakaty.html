@@ -81,6 +81,28 @@
                     <button id="p-canon-calculate" class="btn-primary">Oblicz Mały Canon</button>
                 </div>
             </div>
+
+            <div id="p-duzy-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:16px;">Duży Canon</h3>
+                <div class="hint" style="margin-bottom:10px;">Plakaty z cennika ilościowego (10–200 szt.) na papierze kredowym 170g/200g.</div>
+
+                <div class="form-group">
+                    <label for="p-duzy-canon-variant">Wariant:</label>
+                    <select id="p-duzy-canon-variant" class="form-control">
+                        <!-- populated by JS -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="p-duzy-canon-qty">Ilość (szt):</label>
+                    <input type="number" id="p-duzy-canon-qty" class="form-control" placeholder="np. 50" min="10" max="200" step="1" inputmode="numeric" autocomplete="off">
+                    <div class="hint">Obsługiwane progi: 10, 20, 30, ..., 100, 125, 150, 175, 200.</div>
+                </div>
+
+                <div class="form-actions">
+                    <button id="p-duzy-canon-calculate" class="btn-primary">Oblicz Duży Canon</button>
+                </div>
+            </div>
         </div>
 
         <div class="form-actions" style="margin-top: 12px;">

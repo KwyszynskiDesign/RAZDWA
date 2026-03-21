@@ -4,6 +4,7 @@ import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 
 const SATIN_MULTIPLIER = 1.12;
+const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=21018362364&gbraid=0AAAAAD968vUsT1IYHnVYtLWCKF6brvsG5&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icws7E1EMoiecw063F64yWTCzjVQYAGv8B9VfaX9vnGa6MI9rM6KAh8aAncwEALw_wcB";
 
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",
@@ -43,11 +44,35 @@ export const WizytowkiView: View = {
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#w-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
+    const standardActions = container.querySelector("#w-standard-actions") as HTMLElement;
+    const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
+    const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
 
-    familySelect.onchange = () => {
-        const isDeluxe = familySelect.value === 'deluxe';
-        standardOpts.style.display = isDeluxe ? 'none' : 'block';
-        deluxeOpts.style.display = isDeluxe ? 'block' : 'none';
+    const requiresExternalRedirect = () => familySelect.value === 'deluxe' || finishSelect.value === 'softtouch';
+
+    const syncRedirectMode = () => {
+      const isDeluxe = familySelect.value === 'deluxe';
+      const isExternal = requiresExternalRedirect();
+
+      standardOpts.style.display = isDeluxe ? 'none' : 'block';
+      deluxeOpts.style.display = isDeluxe ? 'block' : 'none';
+
+      standardActions.style.display = isExternal ? 'none' : 'flex';
+      externalRedirect.style.display = isExternal ? 'block' : 'none';
+
+      if (isExternal) {
+        resultDisplay.style.display = 'none';
+        breakdownDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        currentOptions = null;
+      }
+    };
+
+    familySelect.onchange = syncRedirectMode;
+    finishSelect.onchange = syncRedirectMode;
+    goExternalBtn.onclick = () => {
+      window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
     };
 
     let currentResult: any = null;
@@ -86,6 +111,10 @@ export const WizytowkiView: View = {
     };
 
     calculateBtn.onclick = () => {
+      if (requiresExternalRedirect()) {
+        return;
+      }
+
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
 
@@ -121,6 +150,10 @@ export const WizytowkiView: View = {
     };
 
     addToCartBtn.onclick = () => {
+      if (requiresExternalRedirect()) {
+        return;
+      }
+
       if (currentResult && currentOptions) {
         const pv = paperSelect.value;
         const paperLabel = pv.startsWith('satyna_')
@@ -154,5 +187,7 @@ export const WizytowkiView: View = {
         });
       }
     };
+
+    syncRedirectMode();
   }
 };

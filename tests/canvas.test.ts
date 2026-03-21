@@ -48,7 +48,7 @@ describe("Canvas / Płótno", () => {
       express: true
     });
 
-    // 120 * 1.2
-    expect(result.totalPrice).toBe(144);
+    // 130 * 1.2
+    expect(result.totalPrice).toBe(156);
   });
 });

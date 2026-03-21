@@ -34,6 +34,7 @@
         { "min": 5, "max": null, "price": 1.00 }
       ],
       "email_cost": 1.00,
+        "label_sticker_cost": 1.60,
       "surcharge_factor": 0.50
     }
   },
@@ -109,7 +110,7 @@
   },
   {
     "id": "wydruki-specjalne",
-    "name": "Wydruki specjalne / dodruki",
+    "name": "DODRUKI / SPECJALNE WYDRUKI",
     "icon": "🧾",
     "implemented": true
   },

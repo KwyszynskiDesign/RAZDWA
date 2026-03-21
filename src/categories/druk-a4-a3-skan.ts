@@ -7,6 +7,7 @@ export interface DrukA4A3SkanOptions {
   format: "A4" | "A3";
   printQty: number;
   email: boolean;
+  labelSticker?: boolean;
   surcharge: boolean;
   surchargeQty: number;
   scanType: "none" | "auto" | "manual";
@@ -33,7 +34,12 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     });
   }
 
-  const baseTotal = printResult.grandTotal + scanResult.total;
+  const stickerBase = pricing?.label_sticker_cost ?? 1.6;
+  const stickerPrice = options.labelSticker && options.printQty > 0
+    ? resolveStoredPrice("druk-label-sticker", stickerBase)
+    : 0;
+
+  const baseTotal = printResult.grandTotal + scanResult.total + stickerPrice;
   let finalTotal = baseTotal;
   if (options.express) {
     finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.20));
@@ -46,6 +52,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     unitScanPrice: scanResult.unitPrice,
     totalScanPrice: scanResult.total,
     emailPrice: printResult.emailTotal,
+    stickerPrice: parseFloat(stickerPrice.toFixed(2)),
     surchargePrice: parseFloat(printResult.inkTotal.toFixed(2)),
     baseTotal
   };

@@ -273,6 +273,148 @@ export interface PlakatyMalyCanonResult {
   appliedModifiers: string[];
 }
 
+const DUZY_CANON_TABLE = {
+  unit: "szt",
+  minQty: 10,
+  maxQty: 200,
+  variants: [
+    {
+      id: "a4-170-kreda-130-170",
+      name: "A4 170g kreda 130/170",
+      tiers: [
+        { qty: 10, price: 47 },
+        { qty: 20, price: 55 },
+        { qty: 30, price: 69 },
+        { qty: 40, price: 83 },
+        { qty: 50, price: 95 },
+        { qty: 60, price: 108 },
+        { qty: 70, price: 120 },
+        { qty: 80, price: 130 },
+        { qty: 90, price: 141 },
+        { qty: 100, price: 150 },
+        { qty: 125, price: 180 },
+        { qty: 150, price: 205 },
+        { qty: 175, price: 233 },
+        { qty: 200, price: 250 },
+      ],
+    },
+    {
+      id: "a3-170-kreda-130-170",
+      name: "A3 170g kreda 130/170",
+      tiers: [
+        { qty: 10, price: 60 },
+        { qty: 20, price: 81 },
+        { qty: 30, price: 102 },
+        { qty: 40, price: 124 },
+        { qty: 50, price: 145 },
+        { qty: 60, price: 166 },
+        { qty: 70, price: 188 },
+        { qty: 80, price: 206 },
+        { qty: 90, price: 226 },
+        { qty: 100, price: 245 },
+        { qty: 125, price: 295 },
+        { qty: 150, price: 340 },
+        { qty: 175, price: 380 },
+        { qty: 200, price: 420 },
+      ],
+    },
+    {
+      id: "a4-200-kreda-200",
+      name: "A4 200g kreda 200",
+      tiers: [
+        { qty: 10, price: 52 },
+        { qty: 20, price: 65 },
+        { qty: 30, price: 73 },
+        { qty: 40, price: 90 },
+        { qty: 50, price: 105 },
+        { qty: 60, price: 116 },
+        { qty: 70, price: 129 },
+        { qty: 80, price: 139 },
+        { qty: 90, price: 155 },
+        { qty: 100, price: 163 },
+        { qty: 125, price: 193 },
+        { qty: 150, price: 219 },
+        { qty: 175, price: 249 },
+        { qty: 200, price: 268 },
+      ],
+    },
+    {
+      id: "a3-200-kreda-200",
+      name: "A3 200g kreda 200",
+      tiers: [
+        { qty: 10, price: 64 },
+        { qty: 20, price: 86 },
+        { qty: 30, price: 111 },
+        { qty: 40, price: 135 },
+        { qty: 50, price: 155 },
+        { qty: 60, price: 177 },
+        { qty: 70, price: 199 },
+        { qty: 80, price: 219 },
+        { qty: 90, price: 240 },
+        { qty: 100, price: 259 },
+        { qty: 125, price: 315 },
+        { qty: 150, price: 355 },
+        { qty: 175, price: 410 },
+        { qty: 200, price: 456 },
+      ],
+    },
+  ],
+};
+
+export interface PlakatyDuzyCanonInput {
+  variantId: string;
+  qty: number;
+  express?: boolean;
+}
+
+export interface PlakatyDuzyCanonResult {
+  variantName: string;
+  qty: number;
+  tierQty: number;
+  tierPrice: number;
+  basePrice: number;
+  modifiersTotal: number;
+  totalPrice: number;
+  appliedModifiers: string[];
+}
+
+export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): PlakatyDuzyCanonResult {
+  const variant = DUZY_CANON_TABLE.variants.find((v: any) => v.id === input.variantId);
+  if (!variant) throw new Error(`Unknown duży canon variant: ${input.variantId}`);
+
+  const qtyRaw = Math.max(DUZY_CANON_TABLE.minQty, Math.floor(input.qty));
+  const qty = Math.min(qtyRaw, DUZY_CANON_TABLE.maxQty);
+
+  const tier =
+    variant.tiers.find((t: any) => t.qty === qty) ??
+    variant.tiers.find((t: any) => qty <= t.qty) ??
+    variant.tiers[variant.tiers.length - 1];
+
+  const tierPrice = resolveStoredPrice(`plakaty-duzy-canon-${input.variantId}-${tier.qty}`, tier.price);
+  const basePrice = parseFloat(tierPrice.toFixed(2));
+
+  let modifiersTotal = 0;
+  const appliedModifiers: string[] = [];
+  if (input.express) {
+    const mod = fullData?.modifiers?.find((m: any) => m.id === "express");
+    if (mod) {
+      modifiersTotal = parseFloat((basePrice * mod.value).toFixed(2));
+      appliedModifiers.push(mod.name);
+    }
+  }
+
+  return {
+    variantName: variant.name,
+    qty,
+    tierQty: tier.qty,
+    tierPrice,
+    basePrice,
+    modifiersTotal,
+    totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
+    appliedModifiers,
+  };
+}
+
 export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): PlakatyMalyCanonResult {
   const data = fullData as any;
   const canon = data.malyCanon;
