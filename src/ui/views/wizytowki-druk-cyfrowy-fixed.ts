@@ -59,8 +59,8 @@ export const WizytowkiView: View = {
       standardOpts.style.display = "block";
       deluxeOpts.style.display = "none";
 
-      standardActions.style.display = isExternal ? "none" : "flex";
-      externalRedirect.style.display = isExternal ? "block" : "none";
+      if (standardActions) standardActions.style.display = isExternal ? "none" : "flex";
+      if (externalRedirect) externalRedirect.style.display = isExternal ? "block" : "none";
 
       if (isExternal) {
         resultDisplay.style.display = "none";
