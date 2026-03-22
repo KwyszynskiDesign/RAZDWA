@@ -56,13 +56,19 @@ class SimpleEventEmitter {
 
 const eventEmitter = new SimpleEventEmitter();
 
-function showToast(message: string, variant: "cart" | "success" = "cart") {
+function showToast(message: string, variant: "cart" | "success" | "warning" | "error" = "cart") {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
 
   const toast = document.createElement("div");
   toast.className = `ghost-toast ghost-toast--${variant}`;
-  const icon = variant === "success" ? "✓" : "+";
+  const icon = variant === "success"
+    ? "✓"
+    : variant === "warning"
+      ? "!"
+      : variant === "error"
+        ? "×"
+        : "+";
   toast.innerHTML = `
     <span class="ghost-toast__icon">${icon}</span>
     <span class="ghost-toast__message">${message}</span>
@@ -77,7 +83,7 @@ function showToast(message: string, variant: "cart" | "success" = "cart") {
   setTimeout(() => {
     toast.classList.remove("is-visible");
     setTimeout(() => toast.remove(), 250);
-  }, variant === "success" ? 2400 : 1600);
+  }, variant === "success" ? 2400 : variant === "cart" ? 1600 : 2600);
 }
 
 function updateCartUI() {
@@ -385,6 +391,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (cart.isEmpty()) {
+      showToast("Koszyk jest pusty", "error");
       alert("Koszyk jest pusty!");
       return;
     }
@@ -402,12 +409,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      showToast("Nie udało się wysłać do bazy — zapisuję plik lokalnie", "warning");
       alert(`Nie udało się wysłać do bazy: ${result.message || "nieznany błąd"}\n\nPobieram plik Excel lokalnie jako kopię zapasową.`);
       downloadExcel(items, customer);
       return;
     }
 
     downloadExcel(items, customer);
+    showToast("Brak integracji Apps Script — zapisano plik Excel", "warning");
     alert("Brak aktywnej integracji Apps Script. Zapisano lokalny plik Excel.");
   });
 

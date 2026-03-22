@@ -1167,6 +1167,18 @@
         box-shadow: 0 20px 40px rgba(21, 128, 61, 0.14);
       }
 
+      .ghost-toast--warning {
+        border-color: rgba(245, 158, 11, 0.30);
+        background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,251,235,0.95));
+        box-shadow: 0 20px 40px rgba(180, 83, 9, 0.14);
+      }
+
+      .ghost-toast--error {
+        border-color: rgba(239, 68, 68, 0.30);
+        background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(254,242,242,0.95));
+        box-shadow: 0 20px 40px rgba(185, 28, 28, 0.14);
+      }
+
       .ghost-toast__icon {
         flex: 0 0 auto;
         width: 28px;
@@ -1184,6 +1196,16 @@
       .ghost-toast--success .ghost-toast__icon {
         background: rgba(34, 197, 94, 0.16);
         color: #15803d;
+      }
+
+      .ghost-toast--warning .ghost-toast__icon {
+        background: rgba(245, 158, 11, 0.16);
+        color: #b45309;
+      }
+
+      .ghost-toast--error .ghost-toast__icon {
+        background: rgba(239, 68, 68, 0.16);
+        color: #b91c1c;
       }
 
       .ghost-toast__message {
