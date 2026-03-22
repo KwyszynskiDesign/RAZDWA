@@ -2,7 +2,7 @@
     {
         "id":  "druk-a4-a3",
         "name":  "Druk A4/A3 + skan",
-        "icon":  "đź–¨ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/printer.svg",
         "implemented":  true,
         "pricing":  {
                         "print_bw":  [
@@ -135,7 +135,7 @@
     {
         "id":  "druk-cad",
         "name":  "Druk CAD wielkoformatowy",
-        "icon":  "đź“",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ruler.svg",
         "implemented":  true,
         "format_prices":  {
                               "bw":  {
@@ -203,109 +203,109 @@
     {
         "id":  "vouchery",
         "name":  "Vouchery",
-        "icon":  "đźŽźď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket.svg",
         "implemented":  true
     },
     {
         "id":  "dyplomy",
         "name":  "Dyplomy",
-        "icon":  "đź“ś",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/graduation-cap.svg",
         "implemented":  true
     },
     {
         "id":  "wizytowki-druk-cyfrowy",
         "name":  "WizytĂłwki - druk cyfrowy",
-        "icon":  "đź“‡",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
         "implemented":  true
     },
     {
         "id":  "zaproszenia-kreda",
         "name":  "Zaproszenia KREDA",
-        "icon":  "âś‰ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
         "implemented":  true
     },
     {
         "id":  "ulotki-cyfrowe",
         "name":  "Ulotki cyfrowe",
-        "icon":  "đź“„",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
         "implemented":  true
     },
     {
         "id":  "banner",
         "name":  "Bannery",
-        "icon":  "đźŹ",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/flag.svg",
         "implemented":  true
     },
     {
         "id":  "wlepki-naklejki",
         "name":  "Wlepki / Naklejki",
-        "icon":  "đźŹ·ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/tag.svg",
         "implemented":  true
     },
     {
         "id":  "roll-up",
         "name":  "Roll-up",
-        "icon":  "â†•ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/move-vertical.svg",
         "implemented":  true
     },
     {
         "id":  "folia-szroniona",
         "name":  "Folia szroniona",
-        "icon":  "âť„ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/snowflake.svg",
         "implemented":  true
     },
     {
         "id":  "wycinanie-folii",
         "name":  "Wycinanie z folii",
-        "icon":  "âś‚ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scissors.svg",
         "implemented":  true
     },
     {
         "id":  "canvas",
         "name":  "Canvas / PĹ‚Ăłtno",
-        "icon":  "đź–Ľď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
         "implemented":  true
     },
     {
         "id":  "laminowanie",
         "name":  "Introligatornia",
-        "icon":  "âś¨",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
         "implemented":  true
     },
     {
         "id":  "wydruki-specjalne",
         "name":  "DODRUKI / SPECJALNE WYDRUKI",
-        "icon":  "đź§ľ",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
         "implemented":  true
     },
     {
         "id":  "cad-upload",
         "name":  "CAD Upload plikĂłw",
-        "icon":  "đź“",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/upload.svg",
         "implemented":  true
     },
     {
         "id":  "plakaty",
         "name":  "Plakaty wielkoformatowe",
-        "icon":  "âš™ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image-plus.svg",
         "implemented":  true
     },
     {
         "id":  "plakaty-a4-a3",
         "name":  "Plakaty A4-A3",
-        "icon":  "âš™ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-image.svg",
         "implemented":  true
     },
     {
         "id":  "artykuly-biurowe",
         "name":  "ArtykuĹ‚y Biurowe",
-        "icon":  "đź“Ž",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/paperclip.svg",
         "implemented":  true
     },
     {
         "id":  "uslugi",
         "name":  "UsĹ‚ugi",
-        "icon":  "đź› ď¸Ź",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
         "implemented":  true
     }
 ]

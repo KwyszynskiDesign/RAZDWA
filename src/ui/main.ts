@@ -291,7 +291,8 @@ document.addEventListener("DOMContentLoaded", () => {
     categories.forEach(cat => {
       const opt = document.createElement("option");
       opt.value = cat.id;
-      opt.innerText = `${cat.icon} ${cat.name}`;
+      const iconText = /^https?:\/\//i.test(String(cat.icon ?? "")) ? "-" : String(cat.icon ?? "");
+      opt.innerText = `${iconText} ${cat.name}`;
       if (!cat.implemented) {
         opt.disabled = true;
         opt.innerText += " (wkrótce)";

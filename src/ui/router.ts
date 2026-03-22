@@ -10,6 +10,28 @@ export class Router {
   private getCtx: () => ViewContext;
   private categories: any[] = [];
   private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
+  
+  private isIconUrl(icon: string): boolean {
+    return /^https?:\/\//i.test(icon);
+  }
+  
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/\"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+  
+  private renderCategoryIcon(icon: string, name: string): string {
+    if (this.isIconUrl(icon)) {
+      const safeUrl = this.escapeHtml(icon);
+      const safeAlt = this.escapeHtml(name);
+      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:20px;height:20px;display:block;" />`;
+    }
+    return this.escapeHtml(icon);
+  }
 
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
@@ -108,7 +130,7 @@ export class Router {
     ];
 
     const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "🛠️", implemented: true }
+      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg", implemented: true }
     };
 
     const groupHtml = groupedHomeTiles.map((group) => {
@@ -120,9 +142,10 @@ export class Router {
           const id = String(cat.id ?? "");
           const icon = String(cat.icon ?? "📁");
           const name = String(cat.name ?? id);
+          const iconMarkup = this.renderCategoryIcon(icon, name);
           return `
             <a href="#/${id}" class="home-mini-tile" aria-label="Przejdź do ${name}">
-              <span class="home-mini-icon">${icon}</span>
+              <span class="home-mini-icon">${iconMarkup}</span>
               <span class="home-mini-label">${name}</span>
             </a>
           `;

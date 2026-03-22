@@ -14,6 +14,19 @@ type PriceCategory = {
 
 let _cleanup: (() => void) | null = null;
 
+function isIconUrl(icon: string): boolean {
+  return /^https?:\/\//i.test(icon);
+}
+
+function renderCategoryIcon(icon: string, label: string): string {
+  if (isIconUrl(icon)) {
+    const safeUrl = escapeHtml(icon);
+    const safeLabel = escapeHtml(label);
+    return `<img src="${safeUrl}" alt="Ikona ${safeLabel}" loading="lazy" decoding="async" style="width:18px;height:18px;display:block;" />`;
+  }
+  return escapeHtml(icon);
+}
+
 function loadPrices(): Record<string, number> {
   const loaded = getPrice("defaultPrices") as Record<string, unknown> | undefined;
   const base: Record<string, number> = {};
@@ -450,7 +463,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
     label: "Druk A4/A3 + skan",
-    icon: "🖨️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/printer.svg",
     prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "modifier-druk-"],
     description: "Ceny druku czarno-białego, kolorowego, skanowania i dopłaty za duży zadruk.",
     newKeyPrefix: "druk-bw-a4-"
@@ -458,7 +471,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-cad",
     label: "CAD wielkoformatowy",
-    icon: "📐",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ruler.svg",
     prefixes: ["druk-cad-"],
     description: "Stawki CAD formatowe i za metr bieżący.",
     newKeyPrefix: "druk-cad-bw-fmt-"
@@ -466,7 +479,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "laminowanie",
     label: "Laminowanie",
-    icon: "✨",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
     prefixes: ["laminowanie-"],
     description: "Progi cenowe laminowania oraz stawki introligatorskie.",
     newKeyPrefix: "laminowanie-a4-"
@@ -474,7 +487,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "solwent",
     label: "Solwent / plakaty",
-    icon: "🎨",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
     prefixes: ["solwent-", "plakaty-maly-canon-", "plakaty-duzy-canon-"],
     description: "Cenniki solwentu oraz plakaty do 9 szt. (mały Canon).",
     newKeyPrefix: "solwent-150g-"
@@ -482,7 +495,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "vouchery",
     label: "Vouchery",
-    icon: "🎫",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket.svg",
     prefixes: ["vouchery-"],
     description: "Ceny voucherów jednostronnych i dwustronnych.",
     newKeyPrefix: "vouchery-1-jed"
@@ -490,7 +503,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "banner",
     label: "Banner",
-    icon: "🏁",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/flag.svg",
     prefixes: ["banner-"],
     description: "Materiały bannerowe i dopłata za oczkowanie.",
     newKeyPrefix: "banner-powlekany-"
@@ -498,7 +511,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "rollup",
     label: "Roll-up",
-    icon: "↕️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/move-vertical.svg",
     prefixes: ["rollup-"],
     description: "Komplety roll-up oraz wymiana wkładu.",
     newKeyPrefix: "rollup-85x200-"
@@ -506,7 +519,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "folia",
     label: "Folia szroniona / OWV",
-    icon: "❄️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/snowflake.svg",
     prefixes: ["folia-szroniona-"],
     description: "Wydruk i oklejanie folii szronionej oraz OWV.",
     newKeyPrefix: "folia-szroniona-wydruk-"
@@ -514,7 +527,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wycinanie-folii",
     label: "Wycinanie z folii",
-    icon: "✂️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scissors.svg",
     prefixes: ["wycinanie-folii-"],
     description: "Stawki wycinania folii kolorowej i złoto/srebro.",
     newKeyPrefix: "wycinanie-folii-kolorowa-"
@@ -522,7 +535,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "canvas",
     label: "Canvas / Płótno",
-    icon: "🖼️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
     prefixes: ["canvas-"],
     description: "Canvas z oprawą, bez oprawy i stawka za m².",
     newKeyPrefix: "canvas-framed-"
@@ -530,7 +543,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wlepki",
     label: "Wlepki / naklejki",
-    icon: "🏷️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/tag.svg",
     prefixes: ["wlepki-"],
     description: "Naklejki standardowe, po obrysie, PP i dopłaty dodatkowe.",
     newKeyPrefix: "wlepki-standard-folia-"
@@ -538,7 +551,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wizytowki",
     label: "Wizytówki",
-    icon: "📇",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
     prefixes: ["wizytowki-"],
     description: "Ceny wizytówek standard i z folią dla obu formatów.",
     newKeyPrefix: "wizytowki-85x55-none-"
@@ -546,7 +559,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "zaproszenia",
     label: "Zaproszenia KREDA",
-    icon: "💌",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
     prefixes: ["zaproszenia-"],
     description: "Ceny zaproszeń KREDA (format, strony, łamanie, ilość).",
     newKeyPrefix: "zaproszenia-a6-single-normal-"
@@ -554,7 +567,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "ulotki",
     label: "Ulotki cyfrowe",
-    icon: "📄",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
     prefixes: ["ulotki-jed-", "ulotki-dwu-"],
     description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",
     newKeyPrefix: "ulotki-jed-a6-"
@@ -562,7 +575,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "dyplomy",
     label: "Dyplomy",
-    icon: "🎓",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/graduation-cap.svg",
     prefixes: ["dyplomy-qty-"],
     description: "Ceny dyplomów wg progów ilościowych.",
     newKeyPrefix: "dyplomy-qty-"
@@ -570,7 +583,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "artykuly",
     label: "Artykuły biurowe",
-    icon: "📎",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/paperclip.svg",
     prefixes: ["artykuly-"],
     description: "Ceny materiałów biurowych i akcesoriów.",
     newKeyPrefix: "artykuly-"
@@ -578,7 +591,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "uslugi",
     label: "Usługi",
-    icon: "🛠️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
     prefixes: ["uslugi-"],
     description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
     newKeyPrefix: "uslugi-"
@@ -586,7 +599,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "modifiers",
     label: "Dopłaty globalne",
-    icon: "⚙️",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings.svg",
     prefixes: ["modifier-express", "modifier-satyna", "modifier-modigliani"],
     description: "Dopłaty procentowe współdzielone przez wiele kalkulatorów.",
     newKeyPrefix: "modifier-"
@@ -686,7 +699,7 @@ export const UstawieniaView: View = {
         const isActive = category.id === activeCategory;
         const count = getCategoryKeys(prices, category).length;
         return `<button type="button" data-cat="${category.id}" class="settings-tab${isActive ? " settings-tab--active" : ""}">
-          <span class="settings-tab-icon">${category.icon}</span>
+          <span class="settings-tab-icon">${renderCategoryIcon(category.icon, category.label)}</span>
           <span class="settings-tab-label">${category.label}</span>
           <span class="settings-tab-count">${count}</span>
         </button>`;
@@ -712,7 +725,8 @@ export const UstawieniaView: View = {
       const totalKeysEl = container.querySelector<HTMLElement>("#all-prices-count");
 
       if (activeLabelEl) {
-        activeLabelEl.textContent = `${active.icon} ${active.label}`;
+        const activeIcon = isIconUrl(active.icon) ? "-" : active.icon;
+        activeLabelEl.textContent = `${activeIcon} ${active.label}`;
       }
       if (activeDescEl) {
         activeDescEl.textContent = active.description;
