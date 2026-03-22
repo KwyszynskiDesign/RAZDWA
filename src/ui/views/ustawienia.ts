@@ -471,7 +471,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-cad",
     label: "CAD wielkoformatowy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ruler.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
     prefixes: ["druk-cad-"],
     description: "Stawki CAD formatowe i za metr bieżący.",
     newKeyPrefix: "druk-cad-bw-fmt-"
@@ -479,7 +479,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "laminowanie",
     label: "Laminowanie",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
     prefixes: ["laminowanie-"],
     description: "Progi cenowe laminowania oraz stawki introligatorskie.",
     newKeyPrefix: "laminowanie-a4-"
@@ -503,7 +503,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "banner",
     label: "Banner",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/flag.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layout-panel-top.svg",
     prefixes: ["banner-"],
     description: "Materiały bannerowe i dopłata za oczkowanie.",
     newKeyPrefix: "banner-powlekany-"
@@ -511,7 +511,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "rollup",
     label: "Roll-up",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/move-vertical.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/panel-top.svg",
     prefixes: ["rollup-"],
     description: "Komplety roll-up oraz wymiana wkładu.",
     newKeyPrefix: "rollup-85x200-"
@@ -519,7 +519,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "folia",
     label: "Folia szroniona / OWV",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/snowflake.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
     prefixes: ["folia-szroniona-"],
     description: "Wydruk i oklejanie folii szronionej oraz OWV.",
     newKeyPrefix: "folia-szroniona-wydruk-"
@@ -535,7 +535,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "canvas",
     label: "Canvas / Płótno",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/frame.svg",
     prefixes: ["canvas-"],
     description: "Canvas z oprawą, bez oprawy i stawka za m².",
     newKeyPrefix: "canvas-framed-"
@@ -543,7 +543,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wlepki",
     label: "Wlepki / naklejki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/tag.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sticker.svg",
     prefixes: ["wlepki-"],
     description: "Naklejki standardowe, po obrysie, PP i dopłaty dodatkowe.",
     newKeyPrefix: "wlepki-standard-folia-"
@@ -575,7 +575,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "dyplomy",
     label: "Dyplomy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/graduation-cap.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/award.svg",
     prefixes: ["dyplomy-qty-"],
     description: "Ceny dyplomów wg progów ilościowych.",
     newKeyPrefix: "dyplomy-qty-"
@@ -583,7 +583,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "artykuly",
     label: "Artykuły biurowe",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/paperclip.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/briefcase.svg",
     prefixes: ["artykuly-"],
     description: "Ceny materiałów biurowych i akcesoriów.",
     newKeyPrefix: "artykuly-"
@@ -591,7 +591,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "uslugi",
     label: "Usługi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg",
     prefixes: ["uslugi-"],
     description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
     newKeyPrefix: "uslugi-"

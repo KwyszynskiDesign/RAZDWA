@@ -135,7 +135,7 @@
     {
         "id":  "druk-cad",
         "name":  "Druk CAD wielkoformatowy",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ruler.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
         "implemented":  true,
         "format_prices":  {
                               "bw":  {
@@ -209,7 +209,7 @@
     {
         "id":  "dyplomy",
         "name":  "Dyplomy",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/graduation-cap.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/award.svg",
         "implemented":  true
     },
     {
@@ -233,25 +233,25 @@
     {
         "id":  "banner",
         "name":  "Bannery",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/flag.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layout-panel-top.svg",
         "implemented":  true
     },
     {
         "id":  "wlepki-naklejki",
         "name":  "Wlepki / Naklejki",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/tag.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sticker.svg",
         "implemented":  true
     },
     {
         "id":  "roll-up",
         "name":  "Roll-up",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/move-vertical.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/panel-top.svg",
         "implemented":  true
     },
     {
         "id":  "folia-szroniona",
         "name":  "Folia szroniona",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/snowflake.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
         "implemented":  true
     },
     {
@@ -263,13 +263,13 @@
     {
         "id":  "canvas",
         "name":  "Canvas / PĹ‚Ăłtno",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/frame.svg",
         "implemented":  true
     },
     {
         "id":  "laminowanie",
         "name":  "Introligatornia",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
         "implemented":  true
     },
     {
@@ -281,13 +281,13 @@
     {
         "id":  "cad-upload",
         "name":  "CAD Upload plikĂłw",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/upload.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/folder-up.svg",
         "implemented":  true
     },
     {
         "id":  "plakaty",
         "name":  "Plakaty wielkoformatowe",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image-plus.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
         "implemented":  true
     },
     {
@@ -299,13 +299,13 @@
     {
         "id":  "artykuly-biurowe",
         "name":  "ArtykuĹ‚y Biurowe",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/paperclip.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/briefcase.svg",
         "implemented":  true
     },
     {
         "id":  "uslugi",
         "name":  "UsĹ‚ugi",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg",
         "implemented":  true
     }
 ]
