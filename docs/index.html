@@ -1124,6 +1124,56 @@
       flex-shrink: 0;
     }
 
+      .toast-host {
+        position: sticky;
+        top: 12px;
+        z-index: 30;
+        display: grid;
+        gap: 10px;
+        margin-bottom: 12px;
+        pointer-events: none;
+      }
+
+      .ghost-toast {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(96, 165, 250, 0.25);
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.14);
+        color: #0f172a;
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        transform: translateX(16px);
+        transition: opacity 0.25s ease, transform 0.25s ease;
+      }
+
+      .ghost-toast.is-visible {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      .ghost-toast__icon {
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(34, 197, 94, 0.16);
+        color: #15803d;
+        font-weight: 800;
+      }
+
+      .ghost-toast__message {
+        font-size: 14px;
+        font-weight: 600;
+        line-height: 1.35;
+      }
+
     #orderSummary .primary,
     #orderSummary .btn-primary,
     #orderSummary .danger,
@@ -1438,6 +1488,7 @@
 
       <!-- Right column: order summary -->
       <div class="right-col">
+          <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
         <div class="card" id="orderSummary">
           <h2>Podsumowanie</h2>
 

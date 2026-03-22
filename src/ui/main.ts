@@ -57,14 +57,26 @@ class SimpleEventEmitter {
 const eventEmitter = new SimpleEventEmitter();
 
 function showToast(message: string) {
+  const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+  if (!host) return;
+
   const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.innerText = message;
-  document.body.appendChild(toast);
+  toast.className = "ghost-toast";
+  toast.innerHTML = `
+    <span class="ghost-toast__icon">✓</span>
+    <span class="ghost-toast__message">${message}</span>
+  `;
+
+  host.prepend(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add("is-visible");
+  });
+
   setTimeout(() => {
-    toast.style.opacity = "0";
-    setTimeout(() => toast.remove(), 300);
-  }, 2000);
+    toast.classList.remove("is-visible");
+    setTimeout(() => toast.remove(), 250);
+  }, 2200);
 }
 
 function updateCartUI() {
