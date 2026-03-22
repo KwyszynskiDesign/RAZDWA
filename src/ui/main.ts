@@ -56,14 +56,15 @@ class SimpleEventEmitter {
 
 const eventEmitter = new SimpleEventEmitter();
 
-function showToast(message: string) {
+function showToast(message: string, variant: "cart" | "success" = "cart") {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
 
   const toast = document.createElement("div");
-  toast.className = "ghost-toast";
+  toast.className = `ghost-toast ghost-toast--${variant}`;
+  const icon = variant === "success" ? "✓" : "+";
   toast.innerHTML = `
-    <span class="ghost-toast__icon">✓</span>
+    <span class="ghost-toast__icon">${icon}</span>
     <span class="ghost-toast__message">${message}</span>
   `;
 
@@ -76,7 +77,7 @@ function showToast(message: string) {
   setTimeout(() => {
     toast.classList.remove("is-visible");
     setTimeout(() => toast.remove(), 250);
-  }, 2200);
+  }, variant === "success" ? 2400 : 1600);
 }
 
 function updateCartUI() {
@@ -170,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     cart.addItem(cartItem);
     updateCartUI();
-    showToast("✓ Dodano do koszyka");
+    showToast("Dodano do koszyka", "cart");
   });
 
   if (!viewContainer || !globalExpress || !categorySearch) return;
@@ -227,7 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addItem: (item) => {
         cart.addItem(item);
         updateCartUI();
-        showToast("✓ Dodano do koszyka");
+        showToast("Dodano do koszyka", "cart");
       }
     },
     addToBasket: (item) => {
@@ -245,7 +246,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
       cart.addItem(cartItem);
       updateCartUI();
-      showToast("✓ Dodano do koszyka");
+      showToast("Dodano do koszyka", "cart");
     },
     expressMode: globalExpress.checked,
     updateLastCalculated: (price, hint) => {
@@ -396,7 +397,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await sendOrderToAppsScript(payload, exportConfig);
 
       if (result.ok) {
-        showToast("✓ Wysłano do bazy (Google Sheets)");
+        showToast("Wysłano do bazy (Google Sheets)", "success");
         alert("Zamówienie wysłane do bazy (Google Sheets).\n\nMożesz dalej pracować z listą albo ją wyczyścić.");
         return;
       }
