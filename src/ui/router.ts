@@ -117,8 +117,9 @@ export class Router {
     const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
       {
         title: "Druk",
-        ids: ["druk-a4-a3", "druk-cad", "cad-upload", "banner", "ulotki-cyfrowe", "wlepki-naklejki", "plakaty"]
+        ids: ["druk-a4-a3", "druk-cad", "cad-upload", "banner", "ulotki-cyfrowe", "wlepki-naklejki", "plakaty", "plakaty-a4-a3"]
       },
+
       {
         title: "Wykończenia",
         ids: ["laminowanie", "folia-szroniona", "wycinanie-folii", "canvas", "roll-up"]

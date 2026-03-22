@@ -286,7 +286,7 @@
     },
     {
         "id":  "plakaty",
-        "name":  "Plakaty wielkoformatowe",
+        "name":  "Plakaty A3-A0",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
         "implemented":  true
     },
