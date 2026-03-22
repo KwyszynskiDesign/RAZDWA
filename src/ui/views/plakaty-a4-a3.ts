@@ -28,13 +28,15 @@ export const PlakatyA4A3View: View = {
     const tableData = data as any;
 
     const canonVariantSelect = container.querySelector("#pa-canon-variant") as HTMLSelectElement;
+    const canonPaperSelect = container.querySelector("#pa-canon-paper") as HTMLSelectElement;
+    const canonFinishSelect = container.querySelector("#pa-canon-finish") as HTMLSelectElement;
     const canonFormatSelect = container.querySelector("#pa-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#pa-canon-qty") as HTMLInputElement;
     const canonCalcBtn = container.querySelector("#pa-canon-calculate") as HTMLButtonElement;
 
     const duzyCanonPaperSelect = container.querySelector("#pa-duzy-canon-paper") as HTMLSelectElement;
+    const duzyCanonFinishSelect = container.querySelector("#pa-duzy-canon-finish") as HTMLSelectElement;
     const duzyCanonFormatSelect = container.querySelector("#pa-duzy-canon-format") as HTMLSelectElement;
-    const duzyCanonGlossCheckbox = container.querySelector("#pa-duzy-canon-gloss") as HTMLInputElement;
     const duzyCanonQtyInput = container.querySelector("#pa-duzy-canon-qty") as HTMLInputElement;
     const duzyCanonCalcBtn = container.querySelector("#pa-duzy-canon-calculate") as HTMLButtonElement;
 
@@ -49,9 +51,10 @@ export const PlakatyA4A3View: View = {
     const qtyValEl = container.querySelector("#pa-qty-val") as HTMLElement | null;
     const expressHint = container.querySelector("#pa-express-hint") as HTMLElement;
 
-    canonVariantSelect.innerHTML = tableData.malyCanon.variants
-      .map((v: any) => `<option value="${v.id}">${v.name}</option>`)
-      .join("");
+    canonVariantSelect.innerHTML = `
+      <option value="margin">Z marginesem</option>
+      <option value="no-margin">Bez marginesu</option>
+    `;
 
     const duzyVariants = (tableData.duzyCanon?.variants ?? [
       { id: "a4-170-kreda-130-170", name: "A4 170g kreda 130/170" },
@@ -65,11 +68,15 @@ export const PlakatyA4A3View: View = {
       if (!acc.some((option) => option.value === key)) {
         acc.push({
           value: key,
-          label: key === "200" ? "200g kreda 200" : "170g kreda 130/170",
+          label: key === "200" ? "200g kreda" : "170g kreda",
         });
       }
       return acc;
     }, [] as Array<{ value: string; label: string }>);
+
+    if (!duzyCanonPaperOptions.some((o) => o.value === "130")) {
+      duzyCanonPaperOptions.unshift({ value: "130", label: "130g kreda" });
+    }
 
     const duzyCanonFormatOptions = duzyVariants.reduce((acc, variant) => {
       const key = variant.id.startsWith("a3") ? "a3" : "a4";
@@ -91,6 +98,12 @@ export const PlakatyA4A3View: View = {
       return `${size}-${paper}`;
     };
 
+    const resolveMalyCanonVariantId = () => {
+      const type = canonVariantSelect.value === "no-margin" ? "no-margin" : "margin";
+      const mappedPaper = canonPaperSelect.value === "200" ? "200" : "170";
+      return `${type}-${mappedPaper}`;
+    };
+
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
       return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
@@ -104,11 +117,13 @@ export const PlakatyA4A3View: View = {
         const qty = parsePositiveInt(canonQtyInput.value);
         if (!qty) throw new Error("Podaj ilość sztuk dla Małego Canon.");
         const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
-        const matId = canonVariantSelect.value;
+        const matId = resolveMalyCanonVariantId();
+        const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
+        const paper = canonPaperSelect.value;
 
         const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
         currentResult = res;
-        currentOptions = { type: "canon", matId, fmt, qty };
+        currentOptions = { type: "canon", matId, fmt, qty, finish, paper };
 
         unitPriceEl.innerText = formatPLN(res.tierPrice);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
@@ -125,7 +140,7 @@ export const PlakatyA4A3View: View = {
         }
 
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
+        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultBox.style.display = "block";
         addBtn.disabled = false;
@@ -141,18 +156,19 @@ export const PlakatyA4A3View: View = {
         if (!qty) throw new Error("Podaj ilość sztuk dla Dużego Canon.");
 
         const variantId = resolveDuzyCanonVariantId();
-        const finish = duzyCanonGlossCheckbox.checked ? "błyszczący" : "mat";
+        const finish = duzyCanonFinishSelect.value === "blysk" ? "błysk" : "mat";
+        const paper = duzyCanonPaperSelect.value;
         const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
 
         currentResult = res;
-        currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish };
+        currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper };
 
         unitPriceEl.innerText = formatPLN(res.tierPrice);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
         if (discountRow) discountRow.style.display = "none";
 
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${res.variantName}, ${finish}`;
+        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${paper}g kreda, ${finish}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultBox.style.display = "block";
         addBtn.disabled = false;
@@ -166,12 +182,12 @@ export const PlakatyA4A3View: View = {
       if (!currentResult || !currentOptions) return;
 
       if (currentOptions.type === "canon") {
-        const canonName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
-        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const canonTypeName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
+        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,
           category: "Plakaty A4-A3",
-          name: `${canonName} (mały Canon)`,
+          name: `${canonTypeName} (${currentOptions.paper}g, ${currentOptions.finish}, mały Canon)`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.tierPrice,
@@ -181,11 +197,11 @@ export const PlakatyA4A3View: View = {
           payload: currentResult,
         });
       } else {
-        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,
           category: "Plakaty A4-A3",
-          name: `${currentResult.variantName} (${currentOptions.finish}, duży Canon)`,
+          name: `${currentOptions.paper}g kreda (${currentOptions.finish}, duży Canon)`,
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.tierPrice,

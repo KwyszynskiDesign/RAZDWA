@@ -15,6 +15,23 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="pa-canon-paper">Rodzaj papieru:</label>
+                    <select id="pa-canon-paper" class="form-control">
+                        <option value="130">130g kreda</option>
+                        <option value="170" selected>170g kreda</option>
+                        <option value="200">200g kreda</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-finish">Wykończenie:</label>
+                    <select id="pa-canon-finish" class="form-control">
+                        <option value="mat" selected>Mat</option>
+                        <option value="blysk">Błysk</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="pa-canon-format">Format:</label>
                     <select id="pa-canon-format" class="form-control">
                         <option value="A4">A4</option>
@@ -43,13 +60,16 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="pa-duzy-canon-format">Rozmiar:</label>
-                    <select id="pa-duzy-canon-format" class="form-control"></select>
+                    <label for="pa-duzy-canon-finish">Wykończenie:</label>
+                    <select id="pa-duzy-canon-finish" class="form-control">
+                        <option value="mat" selected>Mat</option>
+                        <option value="blysk">Błysk</option>
+                    </select>
                 </div>
 
-                <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                    <input type="checkbox" id="pa-duzy-canon-gloss" style="width:auto; margin:0;">
-                    <label for="pa-duzy-canon-gloss" style="margin:0;">Błyszczący (odznaczone = mat)</label>
+                <div class="form-group">
+                    <label for="pa-duzy-canon-format">Rozmiar:</label>
+                    <select id="pa-duzy-canon-format" class="form-control"></select>
                 </div>
 
                 <div class="form-group">
