@@ -1,14 +1,6 @@
 <h2>Wycinanie z folii</h2>
 <div class="form">
   <div class="row">
-    <label for="wf-variant">Rodzaj folii:</label>
-    <select id="wf-variant">
-      <option value="kolorowa">Folia kolorowa</option>
-      <option value="zloto-srebro">Folia złoto / srebro</option>
-    </select>
-  </div>
-
-  <div class="row">
     <label>Wymiary (mm):</label>
     <div style="display: flex; gap: 10px; align-items: center;">
       <input type="number" id="wf-width" placeholder="Szerokość (np. 1000)" min="1" step="1" inputmode="numeric" autocomplete="off">
@@ -18,8 +10,22 @@
   </div>
 
   <div class="row">
-    <label>Kolor:</label>
-    <input type="text" id="wf-color" placeholder="Wpisz kolor" autocomplete="off">
+    <label>Rodzaj folii:</label>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-gold" class="wf-foil-type" value="zlota" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Złota</span>
+      </label>
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-silver" class="wf-foil-type" value="srebrna" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Srebrna</span>
+      </label>
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-custom" class="wf-foil-type" value="custom" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Inny kolor (wpisz poniżej):</span>
+      </label>
+      <input type="text" id="wf-color" placeholder="Wpisz kolor" autocomplete="off" style="margin-left: 26px;">
+    </div>
   </div>
 
 
