@@ -50,7 +50,7 @@ export const WycinanieFoliiView: View = {
     enforceSingleChoiceFoilType();
 
     const getSelectedColor = (): string | undefined => {
-      if (goldCheck.checked) return "zĹ‚ota";
+      if (goldCheck.checked) return "złota";
       if (silverCheck.checked) return "srebrna";
       if (customCheck.checked) {
         const custom = (colorInput?.value || "").trim();
