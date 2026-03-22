@@ -68,7 +68,7 @@ export const PlakatyA4A3View: View = {
       if (!acc.some((option) => option.value === key)) {
         acc.push({
           value: key,
-          label: key === "200" ? "200g kreda" : "170g kreda",
+          label: key === "200" ? "200g kreda" : "130g/170g kreda",
         });
       }
       return acc;
