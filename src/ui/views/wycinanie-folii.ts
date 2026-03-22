@@ -60,13 +60,18 @@ export const WycinanieFoliiView: View = {
     };
 
     const calculate = () => {
+      const color = getSelectedColor();
+      
+      if (!color) {
+        throw new Error("Wybierz kolor: zota, srebrna lub wpisz inny kolor.");
+      }
+
       const options: WycinanieFoliiOptions = {
         variantId: "kolorowa" as WycinanieFoliiOptions["variantId"],
         widthMm: parseInt(widthInput.value) || 0,
         heightMm: parseInt(heightInput.value) || 0,
         express: ctx.expressMode
       };
-      const color = getSelectedColor();
 
       const result = calculateWycinanieFolii(options);
       const areaM2 = (options.widthMm * options.heightMm) / 1_000_000;
@@ -80,7 +85,7 @@ export const WycinanieFoliiView: View = {
 
       currentOptions = {
         ...options,
-        color: color || undefined
+        color: color
       };
       currentResult = result;
       ctx.updateLastCalculated(result.totalPrice, "Wycinanie z folii");
