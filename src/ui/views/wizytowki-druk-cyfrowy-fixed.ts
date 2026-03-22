@@ -2,9 +2,9 @@ import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { VIPERPRINT_URL } from "../../core/external-links";
 
 const SATIN_MULTIPLIER = 1.12;
-const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=21018362364&gbraid=0AAAAAD968vUsT1IYHnVYtLWCKF6brvsG5&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icws7E1EMoiecw063F64yWTCzjVQYAGv8B9VfaX9vnGa6MI9rM6KAh8aAncwEALw_wcB";
 
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",

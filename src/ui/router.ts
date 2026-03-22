@@ -1,4 +1,5 @@
 import { View, ViewContext } from "./types";
+import { VIPERPRINT_URL } from "../core/external-links";
 
 export type CategoryModule = View;
 export type CategoryContext = ViewContext;
@@ -67,6 +68,12 @@ export class Router {
       return;
     }
 
+    if (path === "zamowienia-zewnetrzne") {
+      window.open(VIPERPRINT_URL, "_blank", "noopener,noreferrer");
+      window.location.hash = "#/";
+      return;
+    }
+
     // Unmount previous view before mounting a new one
     if (this.currentView?.unmount) {
       this.currentView.unmount();
@@ -78,8 +85,8 @@ export class Router {
       try {
         await view.mount(this.container, this.getCtx());
       } catch (err) {
-        console.error("❌ View mount error:", err);
-        this.container.innerHTML = `<div class="error">Błąd ładowania widoku: ${err}</div>`;
+        console.error("âťŚ View mount error:", err);
+        this.container.innerHTML = `<div class="error">BĹ‚Ä…d Ĺ‚adowania widoku: ${err}</div>`;
       }
     } else {
       try {

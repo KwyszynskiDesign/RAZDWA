@@ -18,6 +18,12 @@
         "name":  "Plakaty A3-A0",
         { "min": 11, "max": 40, "a4": 2.20, "a3": 4.20 },
         { "min": 41, "max": 100, "a4": 2.00, "a3": 3.80 },
+      },
+      {
+        "id":  "zamowienia-zewnetrzne",
+        "name":  "Zamówienia zewnętrzne",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/external-link.svg",
+        "implemented":  true
         { "min": 101, "max": 250, "a4": 1.80, "a3": 3.00 },
         { "min": 251, "max": 500, "a4": 1.60, "a3": 2.50 },
         { "min": 501, "max": 999, "a4": 1.40, "a3": 1.90 },
