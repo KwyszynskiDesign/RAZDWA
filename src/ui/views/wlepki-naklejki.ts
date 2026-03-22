@@ -1,4 +1,4 @@
-import { View, ViewContext } from "../types";
+﻿import { View, ViewContext } from "../types";
 import { calculateWlepki, calculateWlepkiSzt, WlepkiCalculation } from "../../categories/wlepki-naklejki";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -47,6 +47,7 @@ export const WlepkiView: View = {
     const piecePaperGroup = container.querySelector("#wlepki-piece-paper-group") as HTMLElement;
     const pieceFoilGroup = container.querySelector("#wlepki-piece-foil-group") as HTMLElement;
     const areaFoilGroup = container.querySelector("#wlepki-area-foil-group") as HTMLElement;
+    const areaFoilFinishGroup = container.querySelector("#wlepki-area-foil-finish-group") as HTMLElement;
 
     const singleChoiceCheckboxes = (selector: string) =>
       Array.from(container.querySelectorAll(selector) as NodeListOf<HTMLInputElement>);
@@ -66,6 +67,7 @@ export const WlepkiView: View = {
     enforceSingleChoice(".wlepki-piece-paper");
     enforceSingleChoice(".wlepki-piece-foil");
     enforceSingleChoice(".wlepki-area-foil");
+    enforceSingleChoice(".wlepki-area-foil-finish");
 
     const getSelectedValue = (selector: string): string | undefined => {
       const checked = container.querySelector(`${selector}:checked`) as HTMLInputElement | null;
@@ -74,7 +76,7 @@ export const WlepkiView: View = {
 
     let currentResult: any = null;
     let currentInput:
-      | (WlepkiCalculation & { mode: "m2"; foilType?: "biala" | "transparentna" })
+      | (WlepkiCalculation & { mode: "m2"; foilType?: "biala" | "transparentna"; foilFinish?: "mat" | "blysk" })
       | ({
           mode: "szt";
           tableId: string;
@@ -100,6 +102,7 @@ export const WlepkiView: View = {
       piecePaperGroup.style.display = mode === "szt" && requiresPaperFinish ? "" : "none";
       pieceFoilGroup.style.display = mode === "szt" && requiresPieceFoilType ? "" : "none";
       areaFoilGroup.style.display = mode === "m2" && requiresAreaFoilType ? "" : "none";
+      areaFoilFinishGroup.style.display = mode === "m2" && requiresAreaFoilType ? "" : "none";
 
       if (mode === "szt") {
         unitLabelEl.textContent = "Cena wg progu:";
@@ -163,6 +166,12 @@ export const WlepkiView: View = {
             throw new Error("Dla opcji foliowej wybierz: folia biała albo transparentna.");
           }
 
+          const foilFinish = getSelectedValue(".wlepki-area-foil-finish") as "mat" | "blysk" | undefined;
+
+          if (groupSelect.value.includes("folia") && !foilFinish) {
+            throw new Error("Dla opcji foliowej wybierz wykończenie: mat albo błysk.");
+          }
+
           const input = {
             mode: "m2" as const,
             groupId: groupSelect.value,
@@ -170,6 +179,7 @@ export const WlepkiView: View = {
             express: ctx.expressMode,
             modifiers,
             foilType,
+            foilFinish,
           };
 
           const result = calculateWlepki(input);
@@ -211,7 +221,9 @@ export const WlepkiView: View = {
             .filter(Boolean)
             .join("");
 
-          const foilDetails = input.foilType ? `<div class="result-row"><span>Rodzaj folii:</span><span class="price-value">${input.foilType === "biala" ? "biała" : "transparentna"}</span></div>` : "";
+          const foilDetails = input.foilType
+            ? `<div class="result-row"><span>Kolor folii:</span><span class="price-value">${input.foilType === "biala" ? "biała" : "transparentna"}</span></div>${input.foilFinish ? `<div class="result-row"><span>Wykończenie folii:</span><span class="price-value">${input.foilFinish === "mat" ? "mat" : "błysk"}</span></div>` : ""}`
+            : "";
 
           if (modifierLines || foilDetails) {
             modifiersBreakdownEl.innerHTML = modifierLines;
@@ -272,7 +284,10 @@ export const WlepkiView: View = {
         });
 
         if (currentInput.foilType) {
-          modsLabel.push(`Folia: ${currentInput.foilType === "biala" ? "biała" : "transparentna"}`);
+          modsLabel.push(`Kolor: ${currentInput.foilType === "biala" ? "biała" : "transparentna"}`);
+        }
+        if (currentInput.foilFinish) {
+          modsLabel.push(`Wykończenie: ${currentInput.foilFinish === "mat" ? "mat" : "błysk"}`);
         }
 
         if (currentInput.express) modsLabel.unshift("EXPRESS (+20%)");
@@ -291,6 +306,7 @@ export const WlepkiView: View = {
             ...currentResult,
             groupId: currentInput.groupId,
             foilType: currentInput.foilType,
+            foilFinish: currentInput.foilFinish,
           }
         });
       }
