@@ -21,10 +21,6 @@ export const WycinanieFoliiView: View = {
     const widthInput = container.querySelector("#wf-width") as HTMLInputElement;
     const heightInput = container.querySelector("#wf-height") as HTMLInputElement;
     const colorInput = container.querySelector("#wf-color") as HTMLInputElement;
-    const silverCheck = container.querySelector("#wf-silver") as HTMLInputElement | null;
-    const goldCheck = container.querySelector("#wf-gold") as HTMLInputElement | null;
-    const addSilverBtn = container.querySelector("#wf-add-silver") as HTMLButtonElement | null;
-    const addGoldBtn = container.querySelector("#wf-add-gold") as HTMLButtonElement | null;
     const calcBtn = container.querySelector("#wf-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
@@ -96,20 +92,6 @@ export const WycinanieFoliiView: View = {
       });
     };
 
-    addSilverBtn?.addEventListener('click', () => {
-      if (!currentOptions || !currentResult) {
-        alert('Najpierw oblicz cenę!');
-        return;
-      }
-      silverCheck!.checked = !silverCheck!.checked;
-    });
 
-    addGoldBtn?.addEventListener('click', () => {
-      if (!currentOptions || !currentResult) {
-        alert('Najpierw oblicz cenę!');
-        return;
-      }
-      goldCheck!.checked = !goldCheck!.checked;
-    });
   }
 };
