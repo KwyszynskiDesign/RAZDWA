@@ -2,7 +2,7 @@ import { View, ViewContext } from "./types";
 import { VIPERPRINT_URL } from "../core/external-links";
 
 export type CategoryModule = View;
-export type CategoryContext = ViewContext;
+        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
 
 export class Router {
   private routes: Map<string, View> = new Map();

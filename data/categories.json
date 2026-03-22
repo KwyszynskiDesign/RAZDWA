@@ -214,13 +214,13 @@
     },
     {
         "id":  "wizytowki-druk-cyfrowy",
-        "name":  "WizytĂłwki - druk cyfrowy",
+        "name":  "Wizytówki - druk cyfrowy",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
         "implemented":  true
     },
     {
         "id":  "zaproszenia-kreda",
-        "name":  "Zaproszenia KREDA",
+        "name":  "Zaproszenia",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
         "implemented":  true
     },
@@ -262,7 +262,7 @@
     },
     {
         "id":  "canvas",
-        "name":  "Canvas / PĹ‚Ăłtno",
+        "name":  "Canvas / Płótno",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/frame.svg",
         "implemented":  true
     },
@@ -280,7 +280,7 @@
     },
     {
         "id":  "cad-upload",
-        "name":  "CAD Upload plikĂłw",
+        "name":  "CAD Upload plików",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/folder-up.svg",
         "implemented":  true
     },
@@ -298,13 +298,13 @@
     },
     {
         "id":  "artykuly-biurowe",
-        "name":  "ArtykuĹ‚y Biurowe",
+        "name":  "Artykuły Biurowe",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/briefcase.svg",
         "implemented":  true
     },
     {
         "id":  "uslugi",
-        "name":  "UsĹ‚ugi",
+        "name":  "Usługi",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg",
         "implemented":  true
         },
