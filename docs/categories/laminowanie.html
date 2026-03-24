@@ -269,6 +269,44 @@
     font-weight: 700;
   }
 
+  .opr-info-table-wrap {
+    margin-top: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .opr-info-table-wrap h4 {
+    margin: 0 0 8px 0;
+    font-size: 13px;
+    color: #cbd5e1;
+  }
+
+  .opr-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+
+  .opr-info-table th,
+  .opr-info-table td {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 6px 8px;
+    text-align: center;
+  }
+
+  .opr-info-table th {
+    background: rgba(255, 255, 255, 0.06);
+    font-weight: 700;
+  }
+
+  .opr-info-note {
+    margin-top: 6px;
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
   .lam-calc-box {
     margin-top: 24px;
     padding: 14px;
@@ -413,7 +451,7 @@
         <option value="grzbietowa">Grzbietowa (listwa wsuwana)</option>
         <option value="kanałowa">Kanałowa dyplomowa</option>
         <option value="zaciskowa">Zaciskowa (miękka)</option>
-        <option value="zbijana">Zbijana</option>
+        <option value="zbijana">Zbijane / skręcane</option>
       </select>
     </div>
     <div class="row is-hidden" id="opr-color-row">
@@ -432,10 +470,6 @@
           <option value="bezNapisu">Bez napisu Standard (20 zł)</option>
           <option value="wkarta">Wkarta okładka (10 zł)</option>
         </optgroup>
-        <optgroup label="zbijana (50 zł)">
-          <option value="zbijana-czarny">Czarny</option>
-          <option value="zbijana-bialy">Biały</option>
-        </optgroup>
       </select>
     </div>
     <div class="row is-hidden" id="opr-custom-color-row">
@@ -453,20 +487,56 @@
       <label for="opr-pages">Ilość stron:</label>
       <input type="number" id="opr-pages" value="50" min="1">
     </div>
+    <div class="row is-hidden" id="opr-doc-source-row">
+      <label for="opr-doc-source">Dokumentacja:</label>
+      <select id="opr-doc-source">
+        <option value="printed-here">Drukowane u nas</option>
+        <option value="client-supplied">Dostarczone przez klienta</option>
+      </select>
+    </div>
+    <div class="row is-hidden" id="opr-zb-kind-row">
+      <label for="opr-zb-kind">Rodzaj oprawy:</label>
+      <select id="opr-zb-kind">
+        <option value="zbijane">Zbijane</option>
+        <option value="skrecane">Skręcane – śruby introligatorskie</option>
+      </select>
+    </div>
+    <div class="row is-hidden" id="opr-cm-row">
+      <label for="opr-cm">Wysokość (cm):</label>
+      <input type="number" id="opr-cm" value="5" min="1" step="1">
+    </div>
     <div class="row is-hidden" id="opr-rozszycie-row">
-      <label>Opcje zaciskowej:</label>
+      <label>Opcje dodatkowe oprawy:</label>
       <div class="opr-clamp-options">
         <label class="mini-check opr-clamp-option">
-          <input type="checkbox" id="opr-rozszycie-check">
-          <span>Rozszycie i zszycie</span>
+          <input type="checkbox" id="opr-hard-unbind-check">
+          <span>Rozszycie oprawy twardej – od 25 do 40 zł</span>
         </label>
         <div class="opr-clamp-price">
-          <span>Dopłata:</span>
-          <input type="number" id="opr-rozszycie-price" value="7" min="5" max="10" step="0.5">
+          <span>Wpisz cenę za usługę:</span>
+          <input type="number" id="opr-hard-unbind-price" min="25" max="40" step="1" placeholder="25-40">
           <span>zł</span>
         </div>
-        <small class="hint">Dopłata naliczana jednorazowo do pozycji.</small>
+
+        <label class="mini-check opr-clamp-option">
+          <input type="checkbox" id="opr-hard-resew-check">
+          <span>Ponowne zszycie oprawy twardej – od 25 do 40 zł</span>
+        </label>
+        <div class="opr-clamp-price">
+          <span>Wpisz cenę za usługę:</span>
+          <input type="number" id="opr-hard-resew-price" min="25" max="40" step="1" placeholder="25-40">
+          <span>zł</span>
+        </div>
+
+        <small class="hint">Usługi dodatkowe naliczane jednorazowo do pozycji.</small>
       </div>
+    </div>
+    <div class="row" id="opr-cd-row">
+      <label>Opcje dodatkowe:</label>
+      <label class="mini-check" style="margin-left:auto;">
+        <input type="checkbox" id="opr-cd-check">
+        <span id="opr-cd-label">Nagrywanie CD (+0,00 zł)</span>
+      </label>
     </div>
     <div class="row">
       <label for="opr-qty">Ilość sztuk:</label>
@@ -489,7 +559,7 @@
       <div class="lam-result-line lam-result-line-gap">
         <span>Doliczenie za obsługę:</span>
         <span class="opr-extra-input-wrap">
-          <input type="number" id="opr-service-extra-input" value="0" min="0" step="1">
+          <input type="number" id="opr-service-extra-input" min="0" step="1" placeholder="0">
           <span>zł</span>
         </span>
       </div>
@@ -501,6 +571,32 @@
         <button type="button" class="opr-extra-btn" data-extra="25">25 zł</button>
         <button type="button" class="opr-extra-btn" data-extra="30">30 zł</button>
       </div>
+    </div>
+
+    <div class="opr-info-table-wrap">
+      <h4>Cennik informacyjny — Oprawa zbijana / skręcana</h4>
+      <div class="opr-info-note">Cena jest za 5 cm wysokości, każdy dodatkowy centymetr kosztuje 10 zł.</div>
+      <table class="opr-info-table">
+        <thead>
+          <tr>
+            <th>Rodzaj</th>
+            <th>Drukowane u nas</th>
+            <th>Dostarczone przez klienta</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Zbijane</td>
+            <td id="opr-zb-price-zbijane-us">50,00 zł</td>
+            <td id="opr-zb-price-zbijane-client">60,00 zł</td>
+          </tr>
+          <tr>
+            <td>Skręcane – śruby introligatorskie</td>
+            <td id="opr-zb-price-skrecane-us">60,00 zł</td>
+            <td id="opr-zb-price-skrecane-client">70,00 zł</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
