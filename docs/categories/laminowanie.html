@@ -51,6 +51,12 @@
     width: 230px;
   }
 
+  #tab-oprawy .mini-check input {
+    width: 14px !important;
+    max-width: 14px !important;
+    min-height: 14px !important;
+  }
+
   #opr-rozszycie-row {
     align-items: flex-start;
     flex-direction: column;
@@ -506,7 +512,7 @@
       <input type="number" id="opr-cm" value="5" min="1" step="1">
     </div>
     <div class="row is-hidden" id="opr-rozszycie-row">
-      <label>Opcje dodatkowe oprawy:</label>
+      <label>Opcje dodatkowe oprawy (tylko kanałowa dyplomowa):</label>
       <div class="opr-clamp-options">
         <label class="mini-check opr-clamp-option">
           <input type="checkbox" id="opr-hard-unbind-check">
@@ -573,7 +579,7 @@
       </div>
     </div>
 
-    <div class="opr-info-table-wrap">
+    <div class="opr-info-table-wrap is-hidden" id="opr-zbijane-info-wrap">
       <h4>Cennik informacyjny — Oprawa zbijana / skręcana</h4>
       <div class="opr-info-note">Cena jest za 5 cm wysokości, każdy dodatkowy centymetr kosztuje 10 zł.</div>
       <table class="opr-info-table">
