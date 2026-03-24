@@ -298,8 +298,6 @@ export const LaminowanieView: View = {
     const oprZbPriceZbijaneClient = container.querySelector("#opr-zb-price-zbijane-client") as HTMLElement | null;
     const oprZbPriceSkrecaneUs = container.querySelector("#opr-zb-price-skrecane-us") as HTMLElement | null;
     const oprZbPriceSkrecaneClient = container.querySelector("#opr-zb-price-skrecane-client") as HTMLElement | null;
-    const oprServiceExtraInput = container.querySelector("#opr-service-extra-input") as HTMLInputElement | null;
-    const oprExtraButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".opr-extra-btn"));
 
     if (oprCdLabel) {
       oprCdLabel.innerText = `Tak (+${formatPLN(OPRAWY_CD_PRICE)})`;
@@ -346,47 +344,7 @@ export const LaminowanieView: View = {
       cdPrice: number;
       grzbietColor?: "czarna" | "biała";
       docSource?: "printed-here" | "client-supplied";
-      serviceExtra: number;
     } | null = null;
-
-    const parseServiceExtra = (value: string | undefined | null): number => {
-      const normalized = (value ?? "").replace(",", ".").trim();
-      const parsed = parseFloat(normalized);
-      if (!Number.isFinite(parsed) || parsed < 0) return 0;
-      return parseFloat(parsed.toFixed(2));
-    };
-
-    let oprServiceExtra = parseServiceExtra(oprServiceExtraInput?.value);
-
-    const updateExtraButtonsState = () => {
-      oprExtraButtons.forEach(btn => {
-        const value = parseFloat(btn.dataset.extra || "0") || 0;
-        btn.classList.toggle("is-active", value === oprServiceExtra);
-      });
-    };
-
-    const applyServiceExtraToSummary = () => {
-      updateExtraButtonsState();
-
-      if (!oprState) return;
-
-      const expressFactor = ctx.expressMode ? 1.2 : 1;
-      const baseTotal = (
-        oprState.unitPrice * oprState.qty
-        + (oprState.hardUnbind ? oprState.hardUnbindPrice : 0)
-        + (oprState.hardResew ? oprState.hardResewPrice : 0)
-        + (oprState.cdBurn ? oprState.cdPrice : 0)
-      ) * expressFactor;
-      const total = parseFloat((baseTotal + oprServiceExtra).toFixed(2));
-
-      oprState.total = total;
-      oprState.serviceExtra = oprServiceExtra;
-
-      if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
-      if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
-
-      ctx.updateLastCalculated(total, "Oprawy");
-    };
 
     const syncOprCustomColorRow = () => {
       if (!oprColor || !oprCustomColorRow) return;
@@ -498,7 +456,7 @@ export const LaminowanieView: View = {
       const hardResewPrice = hardResew ? hardResewUnitPrice : 0;
       const cdBurn = oprCdCheck?.checked ?? false;
       const cdPrice = cdBurn ? OPRAWY_CD_PRICE : 0;
-      const total = parseFloat((((unitPrice * qty + hardUnbindPrice + hardResewPrice + cdPrice) * expressFactor) + oprServiceExtra).toFixed(2));
+      const total = parseFloat(((unitPrice * qty + hardUnbindPrice + hardResewPrice + cdPrice) * expressFactor).toFixed(2));
 
       oprState = {
         type,
@@ -523,9 +481,6 @@ export const LaminowanieView: View = {
       if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
       if (oprResultDisplay) oprResultDisplay.style.display = "block";
       if (oprAddBtn) oprAddBtn.disabled = false;
-
-      oprState.serviceExtra = oprServiceExtra;
-      applyServiceExtraToSummary();
 
       ctx.updateLastCalculated(total, "Oprawy");
     });
@@ -577,42 +532,19 @@ export const LaminowanieView: View = {
       });
     });
 
-    oprServiceExtraInput?.addEventListener("input", () => {
-      oprServiceExtra = parseServiceExtra(oprServiceExtraInput.value);
-      applyServiceExtraToSummary();
-    });
-
-    oprServiceExtraInput?.addEventListener("blur", () => {
-      oprServiceExtra = parseServiceExtra(oprServiceExtraInput.value);
-      if (oprServiceExtraInput.value.trim() !== "") {
-        oprServiceExtraInput.value = oprServiceExtra.toString();
-      }
-      applyServiceExtraToSummary();
-    });
-
     oprHardUnbindPrice?.addEventListener("blur", () => {
       const normalized = parseHardCoverServicePrice(oprHardUnbindPrice.value, OPRAWA_TWARDA_ROZSZYCIE_DEFAULT);
       oprHardUnbindPrice.value = normalized.toString();
-      applyServiceExtraToSummary();
+      if (!oprState) return;
+      oprCalculateBtn?.click();
     });
 
     oprHardResewPrice?.addEventListener("blur", () => {
       const normalized = parseHardCoverServicePrice(oprHardResewPrice.value, OPRAWA_TWARDA_PONOWNE_ZSZYCIE_DEFAULT);
       oprHardResewPrice.value = normalized.toString();
-      applyServiceExtraToSummary();
+      if (!oprState) return;
+      oprCalculateBtn?.click();
     });
-
-    oprExtraButtons.forEach(btn => {
-      btn.addEventListener("click", () => {
-        oprServiceExtra = parseServiceExtra(btn.dataset.extra);
-        if (oprServiceExtraInput) {
-          oprServiceExtraInput.value = oprServiceExtra.toString();
-        }
-        applyServiceExtraToSummary();
-      });
-    });
-
-    updateExtraButtonsState();
 
     // Auto update on input change
     [formatSelect, qtyInput].forEach(el => {

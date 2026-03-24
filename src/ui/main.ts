@@ -33,6 +33,22 @@ import categories from "../../data/categories.json";
 
 const cart = new Cart();
 
+function getSummaryPercentValue(elementId: string): number {
+  const el = document.getElementById(elementId) as HTMLSelectElement | null;
+  if (!el) return 0;
+  const parsed = Number.parseFloat(el.value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed / 100 : 0;
+}
+
+function applySummaryPercentAdjustments(baseAmount: number): number {
+  const base = Number.isFinite(baseAmount) ? baseAmount : 0;
+  const discountPercent = getSummaryPercentValue("summaryDiscountPercent");
+  const surchargePercent = getSummaryPercentValue("summarySurchargePercent");
+  const discountValue = base * discountPercent;
+  const surchargeValue = base * surchargePercent;
+  return parseFloat((base - discountValue + surchargeValue).toFixed(2));
+}
+
 class SimpleEventEmitter {
   private listeners: Map<string, Set<(data?: any) => void>> = new Map();
 
@@ -121,7 +137,8 @@ function updateCartUI() {
   }
 
   const total = cart.getGrandTotal();
-  totalEl.innerText = formatPLN(total);
+  const adjustedTotal = applySummaryPercentAdjustments(total);
+  totalEl.innerText = formatPLN(adjustedTotal);
   if (debugEl) {
     debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
   }
@@ -181,6 +198,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   if (!viewContainer || !globalExpress || !categorySearch) return;
+
+  let lastCalculatedRaw = 0;
+  let lastCalculatedHint = "";
+
+  const renderLastCalculatedSummary = () => {
+    const currentPriceEl = document.getElementById("currentPrice");
+    const currentHintEl = document.getElementById("currentHint");
+    const adjustedPrice = applySummaryPercentAdjustments(lastCalculatedRaw);
+
+    if (currentPriceEl) currentPriceEl.innerText = formatPLN(adjustedPrice);
+    if (currentHintEl) currentHintEl.innerText = lastCalculatedHint ? `(${lastCalculatedHint})` : "";
+  };
 
   const categoryTiles = Array.from(document.querySelectorAll<HTMLAnchorElement>(".tile-grid .tile"));
 
@@ -256,10 +285,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     expressMode: globalExpress.checked,
     updateLastCalculated: (price, hint) => {
-      const currentPriceEl = document.getElementById("currentPrice");
-      const currentHintEl = document.getElementById("currentHint");
-      if (currentPriceEl) currentPriceEl.innerText = formatPLN(price);
-      if (currentHintEl) currentHintEl.innerText = hint ? `(${hint})` : "";
+      lastCalculatedRaw = price;
+      lastCalculatedHint = hint ?? "";
+      renderLastCalculatedSummary();
     },
     on: (event, callback) => {
       eventEmitter.on(event, callback);
@@ -365,6 +393,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentHash = window.location.hash;
     window.location.hash = "";
     window.location.hash = currentHash;
+  });
+
+  const summaryDiscountPercent = document.getElementById("summaryDiscountPercent") as HTMLSelectElement | null;
+  const summarySurchargePercent = document.getElementById("summarySurchargePercent") as HTMLSelectElement | null;
+
+  [summaryDiscountPercent, summarySurchargePercent].forEach((selectEl) => {
+    selectEl?.addEventListener("change", () => {
+      renderLastCalculatedSummary();
+      updateCartUI();
+    });
   });
 
   // Copy summary to clipboard
