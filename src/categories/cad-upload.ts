@@ -39,7 +39,7 @@ export interface CadFormatDetection {
  * Use detectFormatFromDimensions(width, height, true) for full details.
  */
 function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): CadFormatDetection {
-  const FORMAT_TOLERANCE_CLASSIFY = 15; // ±15mm dla klasyfikacji A-formatów
+  const FORMAT_TOLERANCE_CLASSIFY = 3; // +3mm dla klasyfikacji do najbliższej rolki
   
   const shorter = Math.min(widthMm, heightMm);
   const longer = Math.max(widthMm, heightMm);
@@ -48,7 +48,7 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
   console.log(`📐 Dim: ${shorter.toFixed(1)}×${longer.toFixed(1)}mm`);
   
   function inRange(value: number, target: number): boolean {
-    return Math.abs(value - target) <= FORMAT_TOLERANCE_CLASSIFY;
+    return value <= target + FORMAT_TOLERANCE_CLASSIFY;
   }
 
   let matchedFormat: string | null = null;
