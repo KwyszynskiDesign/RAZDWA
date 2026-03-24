@@ -36,12 +36,16 @@ const OPRAWY_PRICES = {
     skrecanePrintedHere: resolveStoredPrice("laminowanie-oprawa-skrecane-printed-here", 60.00),
     zbijaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-client-supplied", 60.00),
     skrecaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-skrecane-client-supplied", 70.00),
-    includedCm: 5,
-    extraPerCm: 10.00,
   }
 } as const;
 
-const OPRAWY_CD_PRICE = resolveStoredPrice("artykuly-plyty-cd", 3.2);
+const OPRAWY_CD_PRICE_RAW = resolveStoredPrice(
+  "artykuly-plyty-cd",
+  resolveStoredPrice("uslugi-archiwizacja-cd", resolveStoredPrice("artykuly-plyty-dvd", 3.2))
+);
+const OPRAWY_CD_PRICE = Number.isFinite(OPRAWY_CD_PRICE_RAW) && OPRAWY_CD_PRICE_RAW > 0
+  ? OPRAWY_CD_PRICE_RAW
+  : 3.2;
 const OPRAWA_TWARDA_ROZSZYCIE_DEFAULT = resolveStoredPrice("laminowanie-oprawa-twarda-rozszycie", 25);
 const OPRAWA_TWARDA_PONOWNE_ZSZYCIE_DEFAULT = resolveStoredPrice("laminowanie-oprawa-twarda-ponowne-zszycie", 25);
 
@@ -84,7 +88,7 @@ function getOprUnitPrice(
     return OPRAWY_PRICES.zaciskowa.miękka;
   }
 
-  return OPRAWY_PRICES.zbijana.printedHere;
+  return OPRAWY_PRICES.zbijana.zbijanePrintedHere;
 }
 
 export const LaminowanieView: View = {
@@ -266,11 +270,11 @@ export const LaminowanieView: View = {
     const oprFormat = container.querySelector("#opr-format") as HTMLSelectElement | null;
     const oprPages = container.querySelector("#opr-pages") as HTMLInputElement | null;
     const oprDocSource = container.querySelector("#opr-doc-source") as HTMLSelectElement | null;
-    const oprZbKind = container.querySelector("#opr-zb-kind") as HTMLSelectElement | null;
-    const oprCm = container.querySelector("#opr-cm") as HTMLInputElement | null;
     const oprQty = container.querySelector("#opr-qty") as HTMLInputElement | null;
+    const oprGrzbietColor = container.querySelector("#opr-grzbiet-color") as HTMLSelectElement | null;
     const oprColor = container.querySelector("#opr-color") as HTMLSelectElement | null;
     const oprCustomColor = container.querySelector("#opr-custom-color") as HTMLInputElement | null;
+    const oprGrzbietColorRow = container.querySelector("#opr-grzbiet-color-row") as HTMLElement | null;
     const oprColorRow = container.querySelector("#opr-color-row") as HTMLElement | null;
     const oprCustomColorRow = container.querySelector("#opr-custom-color-row") as HTMLElement | null;
     const oprFormatRow = container.querySelector("#opr-format-row") as HTMLElement | null;
@@ -289,8 +293,7 @@ export const LaminowanieView: View = {
     const oprCdCheck = container.querySelector("#opr-cd-check") as HTMLInputElement | null;
     const oprCdLabel = container.querySelector("#opr-cd-label") as HTMLElement | null;
     const oprDocSourceRow = container.querySelector("#opr-doc-source-row") as HTMLElement | null;
-    const oprZbKindRow = container.querySelector("#opr-zb-kind-row") as HTMLElement | null;
-    const oprCmRow = container.querySelector("#opr-cm-row") as HTMLElement | null;
+    const oprZbijaneInfoWrap = container.querySelector("#opr-zbijane-info-wrap") as HTMLElement | null;
     const oprZbPriceZbijaneUs = container.querySelector("#opr-zb-price-zbijane-us") as HTMLElement | null;
     const oprZbPriceZbijaneClient = container.querySelector("#opr-zb-price-zbijane-client") as HTMLElement | null;
     const oprZbPriceSkrecaneUs = container.querySelector("#opr-zb-price-skrecane-us") as HTMLElement | null;
@@ -299,7 +302,7 @@ export const LaminowanieView: View = {
     const oprExtraButtons = Array.from(container.querySelectorAll<HTMLButtonElement>(".opr-extra-btn"));
 
     if (oprCdLabel) {
-      oprCdLabel.innerText = `Nagrywanie CD (+${formatPLN(OPRAWY_CD_PRICE)})`;
+      oprCdLabel.innerText = `Tak (+${formatPLN(OPRAWY_CD_PRICE)})`;
     }
 
     if (oprHardUnbindPrice) {
@@ -341,10 +344,8 @@ export const LaminowanieView: View = {
       hardResewPrice: number;
       cdBurn: boolean;
       cdPrice: number;
+      grzbietColor?: "czarna" | "biała";
       docSource?: "printed-here" | "client-supplied";
-      zbijanaKind?: "zbijane" | "skrecane";
-      heightCm?: number;
-      zbijanaExtraCm?: number;
       serviceExtra: number;
     } | null = null;
 
@@ -402,41 +403,60 @@ export const LaminowanieView: View = {
     };
 
     const syncOprRows = () => {
-      if (!oprType || !oprColorRow || !oprFormatRow || !oprPagesRow || !oprCustomColorRow) return;
+      if (!oprType || !oprColorRow || !oprFormatRow || !oprPagesRow || !oprCustomColorRow || !oprGrzbietColorRow) return;
       const type = oprType.value;
+
+      const hardCoverOnly = type === "kanałowa";
+      if (oprHardUnbindCheck) {
+        if (!hardCoverOnly) oprHardUnbindCheck.checked = false;
+        oprHardUnbindCheck.disabled = !hardCoverOnly;
+      }
+      if (oprHardResewCheck) {
+        if (!hardCoverOnly) oprHardResewCheck.checked = false;
+        oprHardResewCheck.disabled = !hardCoverOnly;
+      }
+      if (oprHardUnbindPrice) {
+        if (!hardCoverOnly) oprHardUnbindPrice.value = OPRAWA_TWARDA_ROZSZYCIE_DEFAULT.toString();
+        oprHardUnbindPrice.disabled = !hardCoverOnly;
+      }
+      if (oprHardResewPrice) {
+        if (!hardCoverOnly) oprHardResewPrice.value = OPRAWA_TWARDA_PONOWNE_ZSZYCIE_DEFAULT.toString();
+        oprHardResewPrice.disabled = !hardCoverOnly;
+      }
+
       if (type === "grzbietowa") {
         oprFormatRow.style.display = "";
         oprPagesRow.style.display = "";
+        oprGrzbietColorRow.style.display = "";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
-        if (oprZbKindRow) oprZbKindRow.style.display = "none";
-        if (oprCmRow) oprCmRow.style.display = "none";
+        if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
       } else if (type === "kanałowa") {
         oprFormatRow.style.display = "none";
         oprPagesRow.style.display = "none";
+        oprGrzbietColorRow.style.display = "none";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
-        if (oprZbKindRow) oprZbKindRow.style.display = "none";
-        if (oprCmRow) oprCmRow.style.display = "none";
+        if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
         oprColorRow.style.display = "";
         syncOprCustomColorRow();
         if (oprRozszycieRow) oprRozszycieRow.style.display = "";
       } else if (type === "zaciskowa") {
         oprFormatRow.style.display = "none";
         oprPagesRow.style.display = "none";
+        oprGrzbietColorRow.style.display = "none";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
-        if (oprZbKindRow) oprZbKindRow.style.display = "none";
-        if (oprCmRow) oprCmRow.style.display = "none";
+        if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
       } else {
         oprFormatRow.style.display = "none";
         oprPagesRow.style.display = "none";
+        oprGrzbietColorRow.style.display = "none";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "";
-        if (oprZbKindRow) oprZbKindRow.style.display = "";
-        if (oprCmRow) oprCmRow.style.display = "";
+        if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
@@ -457,19 +477,16 @@ export const LaminowanieView: View = {
       const pages = parseInt(oprPages.value, 10) || 1;
       const qty = parseInt(oprQty.value, 10) || 1;
       const color = oprColor.value;
+      const grzbietColor = (oprGrzbietColor?.value === "biała" ? "biała" : "czarna") as "czarna" | "biała";
       const customColor = color === "pozostale" ? (oprCustomColor?.value?.trim() || "") : "";
       let unitPrice = getOprUnitPrice(type, format, pages, color);
 
       const docSource = ((oprDocSource?.value === "client-supplied") ? "client-supplied" : "printed-here") as "printed-here" | "client-supplied";
-      const zbijanaKind = ((oprZbKind?.value === "skrecane") ? "skrecane" : "zbijane") as "zbijane" | "skrecane";
-      const heightCm = Math.max(1, parseInt(oprCm?.value || "5", 10) || 5);
-      const extraCm = Math.max(0, Math.ceil(heightCm - OPRAWY_PRICES.zbijana.includedCm));
 
       if (type === "zbijana") {
-        const base = docSource === "client-supplied"
-          ? (zbijanaKind === "skrecane" ? OPRAWY_PRICES.zbijana.skrecaneClientSupplied : OPRAWY_PRICES.zbijana.zbijaneClientSupplied)
-          : (zbijanaKind === "skrecane" ? OPRAWY_PRICES.zbijana.skrecanePrintedHere : OPRAWY_PRICES.zbijana.zbijanePrintedHere);
-        unitPrice = base + extraCm * OPRAWY_PRICES.zbijana.extraPerCm;
+        unitPrice = docSource === "client-supplied"
+          ? OPRAWY_PRICES.zbijana.zbijaneClientSupplied
+          : OPRAWY_PRICES.zbijana.zbijanePrintedHere;
       }
 
       const expressFactor = ctx.expressMode ? 1.2 : 1;
@@ -498,10 +515,8 @@ export const LaminowanieView: View = {
         hardResewPrice,
         cdBurn,
         cdPrice,
+        grzbietColor,
         docSource,
-        zbijanaKind,
-        heightCm,
-        zbijanaExtraCm: extraCm,
       };
       if (oprUnitPrice) oprUnitPrice.innerText = formatPLN(unitPrice * expressFactor);
       if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
@@ -520,7 +535,7 @@ export const LaminowanieView: View = {
 
       const options: string[] = [];
       if (oprState.type === "grzbietowa") {
-        options.push(`${oprState.format}, ${oprState.pages} str.`);
+        options.push(`${oprState.format}, ${oprState.pages} str., kolor: ${oprState.grzbietColor ?? "czarna"}`);
       } else if (oprState.type === "kanałowa") {
         options.push(
           oprState.color === "bezNapisu" ? "bez napisu"
@@ -531,13 +546,7 @@ export const LaminowanieView: View = {
         const sourceLabel = oprState.docSource === "client-supplied"
           ? "dostarczone przez klienta"
           : "drukowane u nas";
-        const kindLabel = oprState.zbijanaKind === "skrecane"
-          ? "skręcane – śruby introligatorskie"
-          : "zbijane";
-        options.push(`${kindLabel}, ${sourceLabel}, ${oprState.heightCm ?? 5} cm`);
-        if ((oprState.zbijanaExtraCm ?? 0) > 0) {
-          options.push(`dopłata +${formatPLN((oprState.zbijanaExtraCm ?? 0) * OPRAWY_PRICES.zbijana.extraPerCm)} za ${(oprState.zbijanaExtraCm ?? 0)} cm ponad ${OPRAWY_PRICES.zbijana.includedCm} cm`);
-        }
+        options.push(`zbijane, ${sourceLabel}`);
       } else {
         options.push(oprState.type);
       }
@@ -551,7 +560,7 @@ export const LaminowanieView: View = {
       }
 
       if (oprState.cdBurn) {
-        options.push(`nagrywanie CD (+${formatPLN(oprState.cdPrice)})`);
+        options.push(`nagrywanie płyty (+${formatPLN(oprState.cdPrice)})`);
       }
 
       ctx.cart.addItem({

@@ -1,8 +1,8 @@
-<script>
+ <script>
   if (window.location.pathname.includes('/categories/')) {
     window.location.href = "/#/laminowanie";
   }
-</script> -->
+</script>
 
 <style>
   #tab-laminowanie .row,
@@ -493,23 +493,19 @@
       <label for="opr-pages">Ilość stron:</label>
       <input type="number" id="opr-pages" value="50" min="1">
     </div>
+    <div class="row" id="opr-grzbiet-color-row">
+      <label for="opr-grzbiet-color">Kolor:</label>
+      <select id="opr-grzbiet-color">
+        <option value="czarna">Czarna</option>
+        <option value="biała">Biała</option>
+      </select>
+    </div>
     <div class="row is-hidden" id="opr-doc-source-row">
       <label for="opr-doc-source">Dokumentacja:</label>
       <select id="opr-doc-source">
         <option value="printed-here">Drukowane u nas</option>
         <option value="client-supplied">Dostarczone przez klienta</option>
       </select>
-    </div>
-    <div class="row is-hidden" id="opr-zb-kind-row">
-      <label for="opr-zb-kind">Rodzaj oprawy:</label>
-      <select id="opr-zb-kind">
-        <option value="zbijane">Zbijane</option>
-        <option value="skrecane">Skręcane – śruby introligatorskie</option>
-      </select>
-    </div>
-    <div class="row is-hidden" id="opr-cm-row">
-      <label for="opr-cm">Wysokość (cm):</label>
-      <input type="number" id="opr-cm" value="5" min="1" step="1">
     </div>
     <div class="row is-hidden" id="opr-rozszycie-row">
       <label>Opcje dodatkowe oprawy (tylko kanałowa dyplomowa):</label>
@@ -538,10 +534,10 @@
       </div>
     </div>
     <div class="row" id="opr-cd-row">
-      <label>Opcje dodatkowe:</label>
-      <label class="mini-check" style="margin-left:auto;">
+      <label for="opr-cd-check">Nagrywanie płyty:</label>
+      <label class="mini-check">
         <input type="checkbox" id="opr-cd-check">
-        <span id="opr-cd-label">Nagrywanie CD (+0,00 zł)</span>
+        <span id="opr-cd-label">Tak (+0,00 zł)</span>
       </label>
     </div>
     <div class="row">
@@ -581,7 +577,7 @@
 
     <div class="opr-info-table-wrap is-hidden" id="opr-zbijane-info-wrap">
       <h4>Cennik informacyjny — Oprawa zbijana / skręcana</h4>
-      <div class="opr-info-note">Cena jest za 5 cm wysokości, każdy dodatkowy centymetr kosztuje 10 zł.</div>
+      <div class="opr-info-note">Cena zależy od rodzaju dokumentacji (drukowane u nas / dostarczone przez klienta).</div>
       <table class="opr-info-table">
         <thead>
           <tr>
