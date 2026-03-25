@@ -386,6 +386,19 @@
       line-height: 1;
     }
 
+    .home-mini-icon img,
+    .home-mini-icon svg {
+      transition: filter 0.2s ease, transform 0.2s ease;
+    }
+
+    .home-mini-tile:hover .home-mini-icon img,
+    .home-mini-tile:focus-visible .home-mini-icon img,
+    .home-mini-tile:hover .home-mini-icon svg,
+    .home-mini-tile:focus-visible .home-mini-icon svg {
+      filter: brightness(0) saturate(100%) invert(38%) sepia(97%) saturate(2200%) hue-rotate(204deg) brightness(102%) contrast(104%) drop-shadow(0 0 8px rgba(37, 99, 235, 0.6));
+      transform: scale(1.05);
+    }
+
     .home-mini-label {
       display: -webkit-box;
       -webkit-line-clamp: 2;
