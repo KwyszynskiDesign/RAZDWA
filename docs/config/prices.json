@@ -194,6 +194,7 @@
                                                 "formatowe":  {
                                                                   "A0p":  26.0,
                                                                   "A0":  24.0,
+                                                                  "A1p":  14.0,
                                                                   "A1":  12.0,
                                                                   "A2":  8.5,
                                                                   "A3":  5.3
@@ -201,6 +202,7 @@
                                                 "mb":  {
                                                            "A0p":  21.0,
                                                            "A0":  20.0,
+                                                           "A1p":  15.3,
                                                            "A1":  14.5,
                                                            "A2":  13.9,
                                                            "A3":  12.0,
@@ -211,6 +213,7 @@
                                              "formatowe":  {
                                                                "A0p":  12.5,
                                                                "A0":  11.0,
+                                                               "A1p":  9.7,
                                                                "A1":  6.0,
                                                                "A2":  4.0,
                                                                "A3":  2.5
@@ -218,6 +221,7 @@
                                              "mb":  {
                                                         "A0p":  10.0,
                                                         "A0":  9.0,
+                                                        "A1p":  10.6,
                                                         "A1":  5.0,
                                                         "A2":  4.5,
                                                         "A3":  3.5,
@@ -236,6 +240,11 @@
                                             "l":  1189,
                                             "label":  "A0"
                                         },
+                                 "A1p":  {
+                                             "w":  610,
+                                             "l":  914,
+                                             "label":  "A1+"
+                                         },
                                  "A1":  {
                                             "w":  594,
                                             "l":  841,
@@ -2498,7 +2507,7 @@
                                       "variants":  [
                                                         {
                                                             "id":  "a4-170-kreda-130-170",
-                                                            "name":  "A4 170g kreda 130/170",
+                                                            "name":  "A4 170g kreda",
                                                             "tiers":  [
                                                                           { "qty":  10, "price":  47 },
                                                                           { "qty":  20, "price":  55 },
@@ -2518,7 +2527,7 @@
                                                         },
                                                         {
                                                             "id":  "a3-170-kreda-130-170",
-                                                            "name":  "A3 170g kreda 130/170",
+                                                            "name":  "A3 170g kreda",
                                                             "tiers":  [
                                                                           { "qty":  10, "price":  60 },
                                                                           { "qty":  20, "price":  81 },
@@ -2741,22 +2750,26 @@
                           "druk-cad-kolor-fmt-a3":  5.30,
                           "druk-cad-kolor-fmt-a2":  8.50,
                           "druk-cad-kolor-fmt-a1":  12.00,
+                          "druk-cad-kolor-fmt-a1plus":  14.00,
                           "druk-cad-kolor-fmt-a0":  24.00,
                           "druk-cad-kolor-fmt-a0plus":  26.00,
                           "druk-cad-kolor-mb-a3":  12.00,
                           "druk-cad-kolor-mb-a2":  13.90,
                           "druk-cad-kolor-mb-a1":  14.50,
+                          "druk-cad-kolor-mb-a1plus":  15.30,
                           "druk-cad-kolor-mb-a0":  20.00,
                           "druk-cad-kolor-mb-a0plus":  21.00,
                           "druk-cad-kolor-mb-mb1067":  30.00,
                           "druk-cad-bw-fmt-a3":  2.50,
                           "druk-cad-bw-fmt-a2":  4.00,
                           "druk-cad-bw-fmt-a1":  6.00,
+                          "druk-cad-bw-fmt-a1plus":  9.70,
                           "druk-cad-bw-fmt-a0":  11.00,
                           "druk-cad-bw-fmt-a0plus":  12.50,
                           "druk-cad-bw-mb-a3":  3.50,
                           "druk-cad-bw-mb-a2":  4.50,
                           "druk-cad-bw-mb-a1":  5.00,
+                          "druk-cad-bw-mb-a1plus":  10.60,
                           "druk-cad-bw-mb-a0":  9.00,
                           "druk-cad-bw-mb-a0plus":  10.00,
                           "druk-cad-bw-mb-mb1067":  12.50,

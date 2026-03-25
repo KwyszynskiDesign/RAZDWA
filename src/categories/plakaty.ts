@@ -280,7 +280,7 @@ const DUZY_CANON_TABLE = {
   variants: [
     {
       id: "a4-170-kreda-130-170",
-      name: "A4 170g kreda 130/170",
+      name: "A4 170g kreda",
       tiers: [
         { qty: 10, price: 47 },
         { qty: 20, price: 55 },
@@ -300,7 +300,7 @@ const DUZY_CANON_TABLE = {
     },
     {
       id: "a3-170-kreda-130-170",
-      name: "A3 170g kreda 130/170",
+      name: "A3 170g kreda",
       tiers: [
         { qty: 10, price: 60 },
         { qty: 20, price: 81 },

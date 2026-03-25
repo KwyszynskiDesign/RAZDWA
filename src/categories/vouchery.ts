@@ -93,7 +93,7 @@ export const voucheryCategory: CategoryModule = {
           <label>Papier:</label>
           <select id="paper">
             <option value="standard">Standardowy (kreda)</option>
-            <option value="satin">Satynowy (+12%)</option>
+            <option value="satin">Satynowy</option>
           </select>
         </div>
 

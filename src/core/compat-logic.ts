@@ -119,7 +119,11 @@ export function calculateCad(options: {
   // Map to storage key: druk-cad-{bw|kolor}-{fmt|mb}-{format}
   const cadModeKey = options.mode === "bw" ? "bw" : "kolor";
   const cadTypeKey = detectedType === "formatowe" ? "fmt" : "mb";
-  const cadFmtKey = options.format.toLowerCase().replace("0p", "0plus").replace("r1067", "mb1067");
+  const cadFmtKey = options.format
+    .toLowerCase()
+    .replace("0p", "0plus")
+    .replace("1p", "1plus")
+    .replace("r1067", "mb1067");
   const cadStorageKey = `druk-cad-${cadModeKey}-${cadTypeKey}-${cadFmtKey}`;
   const resolvedRate = storedPrice(cadStorageKey, rate);
 

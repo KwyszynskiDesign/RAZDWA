@@ -74,6 +74,7 @@ export const CadUploadView: View = {
 
     function formatLabel(fmt: string): string {
       if (fmt === "A0p") return "A0+";
+      if (fmt === "A1p") return "A1+";
       if (fmt === "R1067") return "Rolka 1067";
       return fmt;
     }

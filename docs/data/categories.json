@@ -251,7 +251,7 @@
     {
         "id":  "folia-szroniona",
         "name":  "Folia szroniona",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layers.svg",
         "implemented":  true
     },
     {
@@ -263,7 +263,7 @@
     {
         "id":  "canvas",
         "name":  "Canvas / Płótno",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/frame.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/gallery-horizontal.svg",
         "implemented":  true
     },
     {
@@ -287,7 +287,7 @@
     {
         "id":  "plakaty",
         "name":  "Plakaty A3-A0",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-image.svg",
         "implemented":  true
     },
     {

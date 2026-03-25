@@ -100,7 +100,7 @@ export const DyplomyView: View = {
       const dPaperLabel = dpv === 'modigliani'
         ? 'Modigliani'
         : dpv.startsWith('satyna_')
-        ? `Satyna ${dpv.slice(7)}g (+12%)`
+        ? `Satyna ${dpv.slice(7)}g`
         : `Kreda ${dpv.slice(6)}g`;
 
       ctx.cart.addItem({

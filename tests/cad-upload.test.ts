@@ -9,6 +9,7 @@ import {
 describe("detectFormatFromDimensions", () => {
   it("A0  841×1189 → A0",  () => expect(detectFormatFromDimensions(841, 1189)).toBe('A0'));
   it("A0+ 914×1292 → A0p (internal key)", () => expect(detectFormatFromDimensions(914, 1292)).toBe('A0p'));
+  it("A1+ 610×914 → A1p (internal key)", () => expect(detectFormatFromDimensions(610, 914)).toBe('A1p'));
   it("A1  594× 841 → A1",  () => expect(detectFormatFromDimensions(594,  841)).toBe('A1'));
   it("A2  420× 594 → A2",  () => expect(detectFormatFromDimensions(420,  594)).toBe('A2'));
   it("A3  297× 420 → A3",  () => expect(detectFormatFromDimensions(297,  420)).toBe('A3'));
@@ -24,6 +25,13 @@ describe("calculatePriceFromDimensions", () => {
 
   it("A0+ cz-b formatowy (914×1292) qty=1 → 12.50 zł", () =>
     expect(calculatePriceFromDimensions(914, 1292, 'bw', 1)).toBe(12.50));
+
+  it("A1+ kolor formatowy (610×914) qty=1 → 14.00 zł", () =>
+    expect(calculatePriceFromDimensions(610, 914, 'color', 1)).toBe(14.00));
+
+  it("A1+ cz-b nieformatowy (610×1000) qty=1 → 10.60 zł", () =>
+    // 10.60 zł/mb × 1.000 m = 10.60
+    expect(calculatePriceFromDimensions(610, 1000, 'bw', 1)).toBe(10.60));
 
   it("A1 kolor nieformatowy (594×2000) qty=1 → 29.00 zł", () =>
     // 14.50 zł/mb × 2.000 m = 29.00

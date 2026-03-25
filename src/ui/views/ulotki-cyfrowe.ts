@@ -142,7 +142,7 @@ export const UlotkiCyfroweView: View = {
       if (currentResult && currentOptions) {
         const pv = paperSelect.value;
         const paperLabel = pv.startsWith('satyna_')
-          ? `Satyna ${pv.slice(7)}g (+12%)`
+          ? `Satyna ${pv.slice(7)}g`
           : `Kreda ${pv.slice(6)}g`;
         const sidesLabel = currentOptions.sides === 'dwustronne' ? 'Dwustronne' : 'Jednostronne';
         const parts: string[] = [

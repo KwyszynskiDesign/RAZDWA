@@ -100,7 +100,7 @@ export const ZaproszeniaKredaView: View = {
       const zPaperLabel = zpv === 'modigliani'
         ? 'Modigliani'
         : zpv.startsWith('satyna_')
-          ? `Satyna ${zpv.slice(7)}g (+12%)`
+          ? `Satyna ${zpv.slice(7)}g`
           : `Kreda ${zpv.slice(6)}g`;
 
       ctx.cart.addItem({

@@ -80,6 +80,12 @@ export const DrukCADView: View = {
       return format;
     };
 
+    const displayCadFormat = (format: string): string => {
+      if (format === "A0p") return "A0+";
+      if (format === "A1p") return "A1+";
+      return format;
+    };
+
     const updateCadOpsSummary = () => {
       if (!cadOpsList || !cadOpsListItems || !cadOpsTotal) return;
 
@@ -240,7 +246,7 @@ export const DrukCADView: View = {
         if (qtyHintSpan) {
           const qty = currentOptions.qty || 1;
           const unit = result.isMeter ? "mb" : "szt";
-          qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${currentOptions.format}`;
+          qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${displayCadFormat(currentOptions.format)}`;
         }
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
@@ -270,7 +276,7 @@ export const DrukCADView: View = {
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
         const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
         const opts = [
-            `${currentOptions.format} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
+          `${displayCadFormat(currentOptions.format)} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
             `${qtyLabel}${currentOptions.lengthMm} mm`,
           optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
           optScale?.checked ? "Skalowanie (+50%)" : "",
@@ -281,7 +287,7 @@ export const DrukCADView: View = {
         ctx.cart.addItem({
           id: `cad-${Date.now()}`,
           category: "Druk CAD wielkoformatowy",
-          name: `${currentOptions.format} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
+          name: `${displayCadFormat(currentOptions.format)} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
           quantity: currentOptions.lengthMm,
           unit: "mm",
           unitPrice: printTotalWithOptions / currentOptions.lengthMm,

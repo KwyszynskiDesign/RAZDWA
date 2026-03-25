@@ -29,7 +29,7 @@ export function calculateWycinanieFolii(options: WycinanieFoliiOptions): Calcula
     unit: "m2",
     pricing: "per_unit",
     tiers: [{ min: 0, max: null, price: tierRate }],
-    rules: [{ type: "minimum" as const, unit: "m2", value: 1 }],
+    rules: [{ type: "minimum" as const, unit: "pln", value: 30 }],
     modifiers: [{ id: "express", type: "percent" as const, name: "EXPRESS", value: 0.20 }]
   };
 

@@ -64,4 +64,16 @@ describe("CAD Complete Pricing Fix Verification", () => {
     // Rate for R1067 mb color is 30.00. 3 * 30.00 = 90.00
     expect(result.totalPrice).toBe(90.00);
   });
+
+  // 6. Formatowy A1+ kolor = 14.00 zł
+  it("Case 6: Formatowy A1+ kolor = 14.00 zł", () => {
+    const result = calculateDrukCAD({
+      mode: "color",
+      format: "A1p",
+      lengthMm: 914,
+      qty: 1,
+      express: false
+    });
+    expect(result.totalPrice).toBe(14.00);
+  });
 });

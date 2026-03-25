@@ -56,6 +56,7 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
   if (inRange(shorter, 297)) matchedFormat = 'A3';
   else if (inRange(shorter, 420)) matchedFormat = 'A2';
   else if (inRange(shorter, 594)) matchedFormat = 'A1';
+  else if (inRange(shorter, 610)) matchedFormat = 'A1p';
   else if (inRange(shorter, 841)) matchedFormat = 'A0';
   else if (inRange(shorter, 914)) matchedFormat = 'A0p';
 
@@ -75,6 +76,7 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
   if (shorter <= 297 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A3';
   else if (shorter <= 420 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A2';
   else if (shorter <= 594 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A1';
+  else if (shorter <= 610 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A1p';
   else if (shorter <= 841 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0';
   else if (shorter <= 914 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0p';
   else rollKey = 'R1067';
@@ -231,11 +233,11 @@ export function calculateCadScanningPrice(
   if (!scanning) return 0;
 
   // Skanowanie WF:
-  // - szukamy najmniejszego standardu (297, 420, 594, 841, 914, 1067 mm),
+  // - szukamy najmniejszego standardu (297, 420, 594, 610, 841, 914, 1067 mm),
   //   do którego zmieści się większy wymiar dokumentu,
   // - mniejszy wymiar to długość do rozliczenia: cm * 0.08,
   // - mnożymy przez liczbę stron.
-  const STANDARD_WIDTHS_MM = [297, 420, 594, 841, 914, 1067];
+  const STANDARD_WIDTHS_MM = [297, 420, 594, 610, 841, 914, 1067];
 
   const shorterSideMm = Math.min(widthMm, heightMm);
   const longerSideMm = Math.max(widthMm, heightMm);

@@ -42,7 +42,7 @@ const _cadBase: any = getPrice("drukCAD.base");
 
 // Map from UI select values to config keys
 const _fmtMap: Record<string, string> = {
-  'A0+': 'A0p', 'A0': 'A0', 'A1': 'A1', 'A2': 'A2', 'A3': 'A3', 'MB 1067': 'R1067'
+  'A0+': 'A0p', 'A0': 'A0', 'A1+': 'A1p', 'A1': 'A1', 'A2': 'A2', 'A3': 'A3', 'MB 1067': 'R1067'
 };
 const _clrMap: Record<string, string> = {
   'kolor': 'color', 'czarno_bialy': 'bw'
@@ -81,6 +81,7 @@ export const drukCADCategory: CategoryModule = {
           <select id="format">
             <option value="A0+">A0+ (914×1292 mm)</option>
             <option value="A0">A0 (841×1189 mm)</option>
+            <option value="A1+">A1+ (610×914 mm)</option>
             <option value="A1" selected>A1 (594×841 mm)</option>
             <option value="A2">A2 (420×594 mm)</option>
             <option value="A3">A3 (297×420 mm)</option>

@@ -146,7 +146,7 @@ export const WizytowkiView: View = {
       if (requiresExternalRedirect() || !currentResult || !currentOptions) return;
 
       const pv = paperSelect.value;
-      const paperLabel = pv.startsWith("satyna_") ? `Satyna ${pv.slice(7)}g (+12%)` : `Kreda ${pv.slice(6)}g`;
+      const paperLabel = pv.startsWith("satyna_") ? `Satyna ${pv.slice(7)}g` : `Kreda ${pv.slice(6)}g`;
       const parts: string[] = [`${currentOptions.qty} szt`, `${sizeSelect.value} mm`];
       const finishText = finishSelect.options[finishSelect.selectedIndex]?.text;
       if (finishText) parts.push(finishText);
