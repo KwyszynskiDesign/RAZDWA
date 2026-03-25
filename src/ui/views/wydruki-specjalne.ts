@@ -4,7 +4,7 @@ import { formatPLN } from "../../core/money";
 
 export const WydrukiSpecjalneView: View = {
   id: "wydruki-specjalne",
-  name: "DODRUKI / SPECJALNE WYDRUKI",
+  name: "Wydruki specjalne",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/wydruki-specjalne.html");
@@ -48,7 +48,7 @@ export const WydrukiSpecjalneView: View = {
         if (specialResultDisplay) specialResultDisplay.style.display = "block";
         if (specialAddBtn) specialAddBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "DODRUKI / SPECJALNE WYDRUKI");
+        ctx.updateLastCalculated(result.totalPrice, "Wydruki specjalne");
       } catch {
         // noop
       }
@@ -66,7 +66,7 @@ export const WydrukiSpecjalneView: View = {
 
       ctx.cart.addItem({
         id: `special-print-${Date.now()}`,
-        category: "DODRUKI / SPECJALNE WYDRUKI",
+        category: "Wydruki specjalne",
         name: specialState.variantName,
         quantity: specialState.qty,
         unit: "szt",

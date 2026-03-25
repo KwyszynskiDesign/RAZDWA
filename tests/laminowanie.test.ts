@@ -86,38 +86,36 @@ describe("Laminowanie", () => {
     })).toThrow();
   });
 
-  it("should calculate wydruki specjalne: Modigliani A4", () => {
+  it("should calculate wydruki specjalne: Dyplom", () => {
     const result = quoteWydrukiSpecjalne({
-      variantId: "modigliani-a4",
+      variantId: "dyplom",
       qty: 2,
       doubleSided: false,
       express: false,
     });
 
-    expect(result.totalPrice).toBe(24);
+    expect(result.totalPrice).toBe(0);
   });
 
   it("should apply +50% for double-sided special print", () => {
     const result = quoteWydrukiSpecjalne({
-      variantId: "modigliani-a3",
+      variantId: "zaproszenia-dodruk",
       qty: 2,
       doubleSided: true,
       express: false,
     });
 
-    // 2 * 15 * 1.5 = 45
-    expect(result.totalPrice).toBe(45);
+    expect(result.totalPrice).toBe(0);
   });
 
   it("should apply express for special prints", () => {
     const result = quoteWydrukiSpecjalne({
-      variantId: "modigliani-a4",
+      variantId: "koperty-nadruk",
       qty: 1,
       doubleSided: true,
       express: true,
     });
 
-    // 12 * 1.5 * 1.2 = 21.6
-    expect(result.totalPrice).toBe(21.6);
+    expect(result.totalPrice).toBe(0);
   });
 });

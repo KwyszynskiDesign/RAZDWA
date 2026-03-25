@@ -36,8 +36,11 @@
     "unit": "szt",
     "doubleSidedSurchargeFactor": 0.50,
     "items": [
-      { "id": "modigliani-a4", "name": "Modigliani 260g A4", "price": 12.00 },
-      { "id": "modigliani-a3", "name": "Modigliani 260g A3", "price": 15.00 }
+      { "id": "dyplom", "name": "Dyplom", "price": 0.00 },
+      { "id": "zaproszenia-dodruk", "name": "Zaproszenia (dodruk)", "price": 0.00 },
+      { "id": "katalog", "name": "Katalog", "price": 0.00 },
+      { "id": "broszura", "name": "Broszura", "price": 0.00 },
+      { "id": "koperty-nadruk", "name": "Koperty – nadruk", "price": 0.00 }
     ]
   }
 }

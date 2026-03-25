@@ -583,14 +583,29 @@
                                               "doubleSidedSurchargeFactor":  0.50,
                                               "items":  [
                                                             {
-                                                                "id":  "modigliani-a4",
-                                                                "name":  "Modigliani 260g A4",
-                                                                "price":  12.00
+                                                                "id":  "dyplom",
+                                                                "name":  "Dyplom",
+                                                                "price":  0.00
                                                             },
                                                             {
-                                                                "id":  "modigliani-a3",
-                                                                "name":  "Modigliani 260g A3",
-                                                                "price":  15.00
+                                                                "id":  "zaproszenia-dodruk",
+                                                                "name":  "Zaproszenia (dodruk)",
+                                                                "price":  0.00
+                                                            },
+                                                            {
+                                                                "id":  "katalog",
+                                                                "name":  "Katalog",
+                                                                "price":  0.00
+                                                            },
+                                                            {
+                                                                "id":  "broszura",
+                                                                "name":  "Broszura",
+                                                                "price":  0.00
+                                                            },
+                                                            {
+                                                                "id":  "koperty-nadruk",
+                                                                "name":  "Koperty – nadruk",
+                                                                "price":  0.00
                                                             }
                                                         ]
                                           }
@@ -2797,8 +2812,11 @@
                           "laminowanie-oprawa-skrecane-client-supplied":  70.00,
                           "laminowanie-oprawa-twarda-rozszycie":  25.00,
                           "laminowanie-oprawa-twarda-ponowne-zszycie":  25.00,
-                          "laminowanie-special-modigliani-a4":  12.00,
-                          "laminowanie-special-modigliani-a3":  15.00,
+                          "laminowanie-special-dyplom":  0.00,
+                          "laminowanie-special-zaproszenia-dodruk":  0.00,
+                          "laminowanie-special-katalog":  0.00,
+                          "laminowanie-special-broszura":  0.00,
+                          "laminowanie-special-koperty-nadruk":  0.00,
                           "laminowanie-special-double-sided-factor":  0.50,
                           "solwent-150g-1-3":  65.00,
                           "solwent-150g-4-9":  60.00,

@@ -157,8 +157,11 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-skrecane-client-supplied": "Oprawa zbijana/skręcana – skręcane, dokumentacja dostarczona przez klienta (za 5 cm)",
   "laminowanie-oprawa-twarda-rozszycie": "Oprawy twarde – rozszycie oprawy twardej (25–40 zł)",
   "laminowanie-oprawa-twarda-ponowne-zszycie": "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
-  "laminowanie-special-modigliani-a4": "Wydruki specjalne / dodruki – Modigliani 260g A4",
-  "laminowanie-special-modigliani-a3": "Wydruki specjalne / dodruki – Modigliani 260g A3",
+  "laminowanie-special-dyplom": "Wydruki specjalne – Dyplom",
+  "laminowanie-special-zaproszenia-dodruk": "Wydruki specjalne – Zaproszenia (dodruk)",
+  "laminowanie-special-katalog": "Wydruki specjalne – Katalog",
+  "laminowanie-special-broszura": "Wydruki specjalne – Broszura",
+  "laminowanie-special-koperty-nadruk": "Wydruki specjalne – Koperty – nadruk",
   "laminowanie-special-double-sided-factor": "Wydruki specjalne / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",

@@ -29,7 +29,7 @@ export class Router {
     if (this.isIconUrl(icon)) {
       const safeUrl = this.escapeHtml(icon);
       const safeAlt = this.escapeHtml(name);
-      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:20px;height:20px;display:block;" />`;
+      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:24px;height:24px;display:block;" />`;
     }
     return this.escapeHtml(icon);
   }
@@ -133,12 +133,12 @@ export class Router {
       },
       {
         title: "Pozostałe",
-        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi"]
+        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "wydruki-specjalne", "vouchery", "artykuly-biurowe", "uslugi"]
       }
     ];
 
     const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg", implemented: true }
+      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg", implemented: true }
     };
 
     const groupHtml = groupedHomeTiles.map((group) => {

@@ -11,13 +11,15 @@ const FORMAT_LABELS: Record<string, string> = {
   "594x841":  "A1 (594×841 mm)",
   "841x1189": "A0 (841×1189 mm)",
   // PP (Polipropylen) – szerokość 610
-  "610x841":  "610×841 mm",
+  "610x841":  "A1+ (610×841 mm)",
   // Wielkoformatowe ≥ A0
-  "914x1189": "914×1189 mm",
-  "914x1292": "914×1292 mm",
+  "914x1189": "A0+ (914×1189 mm)",
+  "914x1292": "A0++ (914×1292 mm)",
   // Rolka
   "rolka1067": "Rolka 1067 mm",
 };
+
+const getFormatLabel = (formatKey: string): string => FORMAT_LABELS[formatKey] ?? formatKey;
 
 const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
   a4: "A4",
@@ -154,7 +156,7 @@ export const PlakatyView: View = {
       const mat = tableData.formatowe.materials.find((m: any) => m.id === matId);
       if (!mat) return;
       const keys = Object.keys(mat.prices);
-      formatSelect.innerHTML = keys.map((k: string) => `<option value="${k}">${FORMAT_LABELS[k] ?? k}</option>`).join("");
+      formatSelect.innerHTML = keys.map((k: string) => `<option value="${k}">${getFormatLabel(k)}</option>`).join("");
     }
 
     function parseFormatDimensions(formatKey: string) {
@@ -212,8 +214,9 @@ export const PlakatyView: View = {
           ? (parseFloat(lengthInput.value) || undefined)
           : undefined;
         const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
+        const formatLabel = getFormatLabel(fmt);
         currentResult = res;
-        currentOptions = { type: "format", matId, fmt, qty, customLengthMm };
+        currentOptions = { type: "format", matId, fmt, formatLabel, qty, customLengthMm };
         unitPriceEl.innerText = formatPLN(res.pricePerPiece);
         totalPriceEl.innerText = formatPLN(res.totalPrice);
 
@@ -229,7 +232,7 @@ export const PlakatyView: View = {
           }
         }
         if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
+        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${formatLabel}`;
 
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultBox.style.display = "block";
@@ -342,7 +345,8 @@ export const PlakatyView: View = {
         });
       } else {
         const lengthHint = currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "";
-        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const fmtLabel = currentOptions.formatLabel ?? getFormatLabel(currentOptions.fmt);
+        const hint = `${fmtLabel} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",

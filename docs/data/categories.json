@@ -203,13 +203,13 @@
     {
         "id":  "vouchery",
         "name":  "Vouchery",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/receipt-text.svg",
         "implemented":  true
     },
     {
         "id":  "dyplomy",
         "name":  "Dyplomy",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/award.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scroll-text.svg",
         "implemented":  true
     },
     {
@@ -227,13 +227,13 @@
     {
         "id":  "ulotki-cyfrowe",
         "name":  "Ulotki cyfrowe",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/newspaper.svg",
         "implemented":  true
     },
     {
         "id":  "banner",
         "name":  "Bannery",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layout-panel-top.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/rectangle-horizontal.svg",
         "implemented":  true
     },
     {
@@ -245,13 +245,13 @@
     {
         "id":  "roll-up",
         "name":  "Roll-up",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/panel-top.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/align-vertical-justify-start.svg",
         "implemented":  true
     },
     {
         "id":  "folia-szroniona",
         "name":  "Folia szroniona",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layers.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/droplets.svg",
         "implemented":  true
     },
     {
@@ -263,7 +263,7 @@
     {
         "id":  "canvas",
         "name":  "Canvas / Płótno",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/gallery-horizontal.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/proportions.svg",
         "implemented":  true
     },
     {
@@ -274,7 +274,7 @@
     },
     {
         "id":  "wydruki-specjalne",
-        "name":  "DODRUKI / SPECJALNE WYDRUKI",
+        "name":  "Wydruki specjalne",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
         "implemented":  true
     },
@@ -287,7 +287,7 @@
     {
         "id":  "plakaty",
         "name":  "Plakaty A3-A0",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-image.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
         "implemented":  true
     },
     {
@@ -305,7 +305,7 @@
     {
         "id":  "uslugi",
         "name":  "Usługi",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
         "implemented":  true
         },
         {
