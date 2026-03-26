@@ -17,6 +17,8 @@ export function downloadExcel(cartItems: CartItem[], customer: CustomerData) {
     "Express (+20%)": item.isExpress ? "TAK" : "NIE",
     "Cena całkowita": item.totalPrice,
     "Klient": customer.name,
+    "Firma": customer.company || "-",
+    "NIP": customer.nip || "-",
     "Telefon": customer.phone,
     "Email": customer.email,
     "Priorytet": customer.priority

@@ -70,6 +70,8 @@ export interface CartItem {
 
 export interface CustomerData {
   name: string
+  company?: string
+  nip?: string
   phone: string
   email: string
   priority: string

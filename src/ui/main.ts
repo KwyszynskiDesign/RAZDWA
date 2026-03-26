@@ -422,6 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sendBtn")?.addEventListener("click", async () => {
     const customer: CustomerData = {
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
+      company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
+      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,

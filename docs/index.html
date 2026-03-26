@@ -1427,7 +1427,8 @@
           <div class="category-group" data-group="wykonczenia" style="--group-accent:#10b981;">
             <span class="category-group-label">Wyko&#x144;czenia</span>
             <div class="category-nav-list">
-              <a href="#/laminowanie" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Introligatornia">Introligatornia (Laminowanie, Bindowanie, Oprawy, Wydruki specjalne)</a>
+              <a href="#/laminowanie" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Introligatornia">Introligatornia (Laminowanie, Bindowanie, Oprawy)</a>
+              <a href="#/wydruki-specjalne" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wydruki specjalne">Wydruki specjalne</a>
               <a href="#/folia-szroniona" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Folia szroniona">Folia szroniona</a>
               <a href="#/wycinanie-folii" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wycinanie z folii">Wycinanie z folii</a>
               <a href="#/canvas" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Canvas / P&#x142;&#xF3;tno">Canvas / P&#x142;&#xF3;tno</a>
@@ -1599,6 +1600,14 @@
               <input id="custName" type="text" placeholder="Jan Kowalski">
             </div>
             <div class="order-row">
+              <label for="custCompany">Nazwa firmy</label>
+              <input id="custCompany" type="text" placeholder="Firma Sp. z o.o. (opcjonalnie)">
+            </div>
+            <div class="order-row">
+              <label for="custNip">NIP</label>
+              <input id="custNip" type="text" placeholder="000-000-00-00 (opcjonalnie)" maxlength="13">
+            </div>
+            <div class="order-row">
               <label for="custPhone">Telefon</label>
               <input id="custPhone" type="tel" placeholder="+48 000 000 000">
             </div>
@@ -1609,14 +1618,14 @@
             <div class="order-row">
               <label for="custPriority">Realizacja</label>
               <select id="custPriority">
-                <option value="Normalny">&#xD83D;&#xDFE2; Normalny (7 dni)</option>
-                <option value="Podwy&#x17C;szony">&#xD83D;&#xDFE1; Podwy&#x17C;szony (3 dni)</option>
-                <option value="Express">&#xD83D;&#xDD34; Express (1 dzie&#x144;)</option>
+                <option value="Normalny">&#x1F7E2; Normalny (7 dni)</option>
+                <option value="Podwy&#x17C;szony">&#x1F7E1; Podwy&#x17C;szony (3 dni)</option>
+                <option value="Express">&#x1F534; Express (1 dzie&#x144;)</option>
               </select>
             </div>
             <div class="order-row order-row--express">
               <input type="checkbox" id="globalExpress">
-              <label for="globalExpress">&#xD83D;&#xDCA8; Tryb EXPRESS (+20%)</label>
+              <label for="globalExpress">&#x1F4A8; Tryb EXPRESS (+20%)</label>
             </div>
             <div class="order-row order-row--full">
               <label for="custNotes">Uwagi do zam&#xF3;wienia</label>
