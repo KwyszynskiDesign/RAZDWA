@@ -29,6 +29,7 @@ import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
 import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript } from "../services/orderExportService";
 import { PRICES_UPDATED_EVENT } from "../services/priceService";
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
@@ -47,6 +48,159 @@ function applySummaryPercentAdjustments(baseAmount: number): number {
   const discountValue = base * discountPercent;
   const surchargeValue = base * surchargePercent;
   return parseFloat((base - discountValue + surchargeValue).toFixed(2));
+}
+
+function splitTextByWidth(text: string, maxWidth: number, font: any, fontSize: number): string[] {
+  const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
+  if (!normalized) return [""];
+
+  const words = normalized.split(" ");
+  const lines: string[] = [];
+  let current = "";
+
+  for (const word of words) {
+    const candidate = current ? `${current} ${word}` : word;
+    if (font.widthOfTextAtSize(candidate, fontSize) <= maxWidth) {
+      current = candidate;
+      continue;
+    }
+
+    if (current) {
+      lines.push(current);
+      current = word;
+      continue;
+    }
+
+    // Very long single word fallback
+    let chunk = "";
+    for (const ch of word) {
+      const chunkCandidate = `${chunk}${ch}`;
+      if (font.widthOfTextAtSize(chunkCandidate, fontSize) <= maxWidth) {
+        chunk = chunkCandidate;
+      } else {
+        if (chunk) lines.push(chunk);
+        chunk = ch;
+      }
+    }
+    current = chunk;
+  }
+
+  if (current) lines.push(current);
+  return lines;
+}
+
+async function generateOrderReportPdf(items: CartItem[], customer: CustomerData) {
+  const pdf = await PDFDocument.create();
+  const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  const pageWidth = 595.28;
+  const pageHeight = 841.89;
+  const margin = 42;
+  const contentWidth = pageWidth - margin * 2;
+
+  let page = pdf.addPage([pageWidth, pageHeight]);
+  let y = pageHeight - margin;
+
+  const ensureSpace = (required = 22) => {
+    if (y - required >= margin) return;
+    page = pdf.addPage([pageWidth, pageHeight]);
+    y = pageHeight - margin;
+  };
+
+  const writeWrapped = (
+    text: string,
+    options?: { size?: number; bold?: boolean; color?: [number, number, number]; lineGap?: number }
+  ) => {
+    const size = options?.size ?? 11;
+    const bold = options?.bold ?? false;
+    const lineGap = options?.lineGap ?? 4;
+    const [r, g, b] = options?.color ?? [0.06, 0.1, 0.16];
+    const font = bold ? fontBold : fontRegular;
+    const lineHeight = size + lineGap;
+    const lines = splitTextByWidth(text, contentWidth, font, size);
+
+    for (const line of lines) {
+      ensureSpace(lineHeight + 2);
+      page.drawText(line, {
+        x: margin,
+        y,
+        size,
+        font,
+        color: rgb(r, g, b)
+      });
+      y -= lineHeight;
+    }
+  };
+
+  const spacer = (value = 8) => {
+    y -= value;
+    ensureSpace();
+  };
+
+  const now = new Date();
+  const reportDate = now.toLocaleString("pl-PL", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+
+  const baseTotal = cart.getGrandTotal();
+  const adjustedTotal = applySummaryPercentAdjustments(baseTotal);
+  const discountPercent = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
+  const surchargePercent = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
+
+  writeWrapped("Raport zamówienia", { size: 18, bold: true });
+  writeWrapped(`Data wygenerowania: ${reportDate}`, { size: 10, color: [0.35, 0.4, 0.48] });
+  spacer(10);
+
+  writeWrapped("Dane zamówienia", { size: 13, bold: true });
+  writeWrapped(`Imię i nazwisko: ${customer.name || "-"}`);
+  writeWrapped(`Nazwa firmy: ${customer.company || "-"}`);
+  writeWrapped(`NIP: ${customer.nip || "-"}`);
+  writeWrapped(`Telefon: ${customer.phone || "-"}`);
+  writeWrapped(`E-mail: ${customer.email || "-"}`);
+  writeWrapped(`Realizacja: ${customer.priority || "-"}`);
+  writeWrapped(`Tryb EXPRESS (+20%): ${((document.getElementById("globalExpress") as HTMLInputElement | null)?.checked ? "TAK" : "NIE")}`);
+  writeWrapped(`Uwagi: ${customer.notes || "-"}`);
+  spacer(10);
+
+  writeWrapped("Pozycje koszyka", { size: 13, bold: true });
+  if (items.length === 0) {
+    writeWrapped("Brak pozycji w koszyku.");
+  } else {
+    items.forEach((item, idx) => {
+      writeWrapped(`${idx + 1}. ${item.name} — ${formatPLN(item.totalPrice)}`, { bold: true });
+      if (item.optionsHint) {
+        writeWrapped(`   Szczegóły: ${item.optionsHint}`, { size: 10, color: [0.33, 0.38, 0.45] });
+      }
+      spacer(3);
+    });
+  }
+
+  spacer(8);
+  writeWrapped("Podsumowanie", { size: 13, bold: true });
+  writeWrapped(`Suma bazowa: ${formatPLN(baseTotal)}`);
+  writeWrapped(`Rabat: ${discountPercent}%`);
+  writeWrapped(`Doliczenie: ${surchargePercent}%`);
+  writeWrapped(`Suma koszyka (kwota): ${formatPLN(adjustedTotal)}`, { size: 12, bold: true });
+
+  const pdfBytes = await pdf.save();
+  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const url = URL.createObjectURL(blob);
+  const fileName = `raport-zamowienia-${now.toISOString().slice(0, 19).replace(/[T:]/g, "-")}.pdf`;
+
+  const opened = window.open(url, "_blank", "noopener,noreferrer");
+  if (!opened) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = fileName;
+    link.click();
+  }
+
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 class SimpleEventEmitter {
@@ -390,11 +544,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Copy summary to clipboard
-  document.getElementById("copyBtn")?.addEventListener("click", () => {
-    const total = document.getElementById("basketTotal");
-    const text = total ? `Suma: ${total.innerText}` : "Brak pozycji";
-    navigator.clipboard?.writeText(text);
+  // Generate PDF report with order data + basket summary
+  document.getElementById("copyBtn")?.addEventListener("click", async () => {
+    if (cart.isEmpty()) {
+      showToast("Koszyk jest pusty", "error");
+      alert("Koszyk jest pusty!");
+      return;
+    }
+
+    const customer: CustomerData = {
+      name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
+      company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
+      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
+      phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
+      email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
+      priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
+      notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
+    };
+
+    try {
+      await generateOrderReportPdf(cart.getItems(), customer);
+      showToast("Wygenerowano raport PDF", "success");
+    } catch (error) {
+      console.error("Błąd generowania raportu PDF:", error);
+      showToast("Nie udało się wygenerować raportu PDF", "error");
+      alert("Wystąpił błąd podczas tworzenia raportu PDF.");
+    }
   });
 
   // Clear basket
