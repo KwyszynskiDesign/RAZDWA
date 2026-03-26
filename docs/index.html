@@ -1036,11 +1036,23 @@
     }
 
     #orderSummary .basketList {
-      max-height: 320px;
+      max-height: 460px;
       overflow-y: auto;
       padding-right: 4px;
       display: grid;
       gap: 10px;
+    }
+
+    #orderSummary .sumRow.total .k {
+      font-size: 0.86rem;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    #orderSummary .sumRow.total .v {
+      font-size: 1.1rem;
+      font-weight: 700;
     }
 
     #orderSummary .order-form {
@@ -1571,13 +1583,9 @@
             </div>
           </div>
 
-          <div class="summary">
-            <div class="sumRow">
-              <div class="k">Ostatnio obliczone <span class="pill" id="currentHint"></span></div>
-              <div class="v" id="currentPrice">0,00 z&#x142;</div>
-            </div>
+          <div class="summary" aria-label="Podsumowanie koszyka">
             <div class="sumRow total">
-              <div class="k">SUMA KOSZYKA</div>
+              <div class="k">Suma koszyka (kwota)</div>
               <div class="v" id="basketTotal">0,00 z&#x142;</div>
             </div>
           </div>
@@ -1588,8 +1596,10 @@
             <!-- Basket items -->
           </div>
 
-          <button id="clearBtn" class="danger" style="width: 100%; margin-top: 12px;">Wyczy&#x15B;&#x107; list&#x119;</button>
-          <button id="sendBtn" class="primary" style="width: 100%; margin-top: 8px;">&#xD83D;&#xDCE5; Wy&#x15B;lij do bazy (Apps Script / Excel)</button>
+          <div class="order-actions">
+            <button id="clearBtn" class="ghost">Wyczy&#x15B;&#x107; list&#x119;</button>
+            <button id="sendBtn" class="primary">Wy&#x15B;lij do bazy</button>
+          </div>
 
           <div style="margin: 20px 0; height: 1px; background: rgba(255,255,255,0.1);"></div>
 

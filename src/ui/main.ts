@@ -199,18 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!viewContainer || !globalExpress || !categorySearch) return;
 
-  let lastCalculatedRaw = 0;
-  let lastCalculatedHint = "";
-
-  const renderLastCalculatedSummary = () => {
-    const currentPriceEl = document.getElementById("currentPrice");
-    const currentHintEl = document.getElementById("currentHint");
-    const adjustedPrice = applySummaryPercentAdjustments(lastCalculatedRaw);
-
-    if (currentPriceEl) currentPriceEl.innerText = formatPLN(adjustedPrice);
-    if (currentHintEl) currentHintEl.innerText = lastCalculatedHint ? `(${lastCalculatedHint})` : "";
-  };
-
   const categoryTiles = Array.from(document.querySelectorAll<HTMLAnchorElement>(".tile-grid .tile"));
 
   const getVisibleCategoryTiles = () => categoryTiles.filter((tile) => !tile.hidden && tile.offsetParent !== null);
@@ -284,10 +272,8 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("Dodano do koszyka", "cart");
     },
     expressMode: globalExpress.checked,
-    updateLastCalculated: (price, hint) => {
-      lastCalculatedRaw = price;
-      lastCalculatedHint = hint ?? "";
-      renderLastCalculatedSummary();
+    updateLastCalculated: (_price, _hint) => {
+      // Intentionally no-op. Podsumowanie pokazuje wyłącznie sumę koszyka.
     },
     on: (event, callback) => {
       eventEmitter.on(event, callback);
@@ -400,7 +386,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   [summaryDiscountPercent, summarySurchargePercent].forEach((selectEl) => {
     selectEl?.addEventListener("change", () => {
-      renderLastCalculatedSummary();
       updateCartUI();
     });
   });
