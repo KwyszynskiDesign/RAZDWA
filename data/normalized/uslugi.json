@@ -54,7 +54,7 @@
           "name": "Poprawki graficzne pliku klienta",
           "price": 65.00,
           "priceMin": 10.00,
-          "note": "Cena uzależniona od złożoności. Minimalna kwota 10 zł"
+          "note": "Cena uzależniona od czasu i złożoności. 65 zł = godzina pracy, minimalna kwota 10 zł"
         },
         {
           "id": "grafika-baner-prosty",

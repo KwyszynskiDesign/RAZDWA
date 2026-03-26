@@ -39,6 +39,10 @@ export const uslugiCategory: CategoryModule = {
       return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
     };
 
+    const getTimeBasedHint = (serviceName: string): string => {
+      return `${serviceName}: podaj czas pracy w godzinach (rozliczenie godzinowe).`;
+    };
+
     let currentResult: { servicesCount: number; totalPrice: number } | null = null;
     let currentSelection: UslugiOptions['selectedServices'] = [];
 
@@ -105,22 +109,26 @@ export const uslugiCategory: CategoryModule = {
         const isTimeBased = isTimeBasedService(service.id);
 
         serviceDiv.innerHTML = `
-          <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${service.name}</label>
+          <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${service.name}${isTimeBased ? ' <span style="font-size:0.78em; color:#e07b00; font-weight:600;">(czas)</span>' : ''}</label>
           <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
             <span style="font-size:0.7em; color:#7a8a9a;">ilość szt.</span>
             <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity" aria-label="Ilość sztuk">
           </div>
-          ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:84px;"><span style="font-size:0.7em; color:#e07b00; font-weight:600;">⏱ czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Czas pracy w godzinach"></div>` : '<span style="width: 84px;"></span>'}
+          ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:96px;"><span style="font-size:0.7em; color:#e07b00; font-weight:700;">⏱ wpisz czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" placeholder="np. 1.5" title="Wpisz czas pracy w godzinach" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Wpisz czas pracy w godzinach"><span style="font-size:0.66em; color:#8b97a3;">np. 0.5, 1, 1.5</span></div>` : '<span style="width: 96px;"></span>'}
           <span style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
           <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
         `;
 
         servicesDiv.appendChild(serviceDiv);
 
-        if (isTimeBased && service.note) {
+        if (isTimeBased) {
           const noteDiv = document.createElement('div');
           noteDiv.style.cssText = 'font-size:0.78em; color:#7a8a9a; padding:2px 8px 4px 12px; font-style:italic;';
-          noteDiv.innerHTML = `ℹ️ ${service.note}`;
+          const noteParts = [getTimeBasedHint(service.name)];
+          if (service.note) {
+            noteParts.push(service.note);
+          }
+          noteDiv.innerHTML = `ℹ️ ${noteParts.join(' ')}`;
           servicesDiv.appendChild(noteDiv);
         }
       }
