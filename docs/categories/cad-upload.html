@@ -355,17 +355,41 @@
 
   .cad-price-cell {
     display: grid;
-    gap: 1px;
+    gap: 2px;
+  }
+
+  .cad-price-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    font-size: 0.64rem;
+    line-height: 1.05;
+  }
+
+  .cad-price-header span:last-child {
+    text-align: right;
   }
 
   .cad-price-line {
-    display: flex;
-    justify-content: space-between;
-    gap: 2px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
     white-space: nowrap;
     overflow: hidden;
     line-height: 1.05;
     font-size: 0.67rem;
+  }
+
+  .cad-price-line span,
+  .cad-price-line strong {
+    min-width: 0;
+  }
+
+  .cad-price-line strong {
+    text-align: right;
   }
 
   .results-table td strong {
@@ -617,7 +641,12 @@
               <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
             </div>
           </th>
-          <th class="col-price">Cena</th>
+          <th class="col-price">
+            <div class="cad-price-header">
+              <span>Rodzaj</span>
+              <span>Cena</span>
+            </div>
+          </th>
           <th class="col-remove">X</th>
         </tr>
       </thead>
