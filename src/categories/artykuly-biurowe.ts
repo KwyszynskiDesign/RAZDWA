@@ -3,6 +3,11 @@ import { resolveStoredPrice } from "../core/compat";
 import artykulyData from "../../data/normalized/artykuly-biurowe.json";
 
 const artykulyBiuroweData: any = artykulyData as any;
+const ENVELOPE_LETTERS = ["a", "b", "c", "d", "e", "f", "g"] as const;
+
+function isEnvelopeLetterItem(itemId: string): boolean {
+  return /^koperty-[a-g]$/i.test(itemId);
+}
 
 export interface ArtykulyBiuroweOptions {
   selectedItems: Array<{
@@ -19,7 +24,7 @@ export function quoteArtykulyBiurowe(options: ArtykulyBiuroweOptions): any {
   let totalQuantity = 0;
 
   for (const item of options.selectedItems) {
-    const storageKey = `artykuly-${item.itemId}`;
+    const storageKey = isEnvelopeLetterItem(item.itemId) ? item.itemId.toLowerCase() : `artykuly-${item.itemId}`;
     const price = resolveStoredPrice(storageKey, item.price);
     const itemTotal = price * item.quantity;
     totalPrice += itemTotal;
@@ -67,8 +72,17 @@ export const artykulyBiuroweCategory: CategoryModule = {
     `;
 
     const itemsList = container.querySelector('#items-list') as HTMLElement;
+    const envelopeLetterCategory = {
+      name: 'KOPERTY (A–G)',
+      items: ENVELOPE_LETTERS.map((letter) => ({
+        id: `koperty-${letter}`,
+        name: `Koperta ${letter.toUpperCase()}`,
+        price: resolveStoredPrice(`koperty-${letter}`, 0)
+      }))
+    };
+    const displayCategories = [...artykulyBiuroweData.categories, envelopeLetterCategory];
 
-    for (const category of artykulyBiuroweData.categories) {
+    for (const category of displayCategories) {
       const categoryDiv = document.createElement('div');
       categoryDiv.style.marginBottom = '10px';
       categoryDiv.style.padding = '8px 10px';
@@ -115,7 +129,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
     const summaryDiv = container.querySelector('#summary') as HTMLElement;
 
     const getCurrentPrice = (itemId: string, basePrice: number): number => {
-      const storageKey = `artykuly-${itemId}`;
+      const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
       return resolveStoredPrice(storageKey, basePrice);
     };
 

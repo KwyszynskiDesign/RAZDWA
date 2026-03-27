@@ -12,6 +12,19 @@ type PriceCategory = {
   newKeyPrefix?: string;
 };
 
+type PriceValue = number | null;
+type PriceMap = Record<string, PriceValue>;
+
+const ENVELOPE_PLACEHOLDER_KEYS = [
+  "koperty-a",
+  "koperty-b",
+  "koperty-c",
+  "koperty-d",
+  "koperty-e",
+  "koperty-f",
+  "koperty-g",
+] as const;
+
 let _cleanup: (() => void) | null = null;
 
 function isIconUrl(icon: string): boolean {
@@ -27,9 +40,9 @@ function renderCategoryIcon(icon: string, label: string): string {
   return escapeHtml(icon);
 }
 
-function loadPrices(): Record<string, number> {
+function loadPrices(): PriceMap {
   const loaded = getPrice("defaultPrices") as Record<string, unknown> | undefined;
-  const base: Record<string, number> = {};
+  const base: PriceMap = {};
 
   if (loaded && typeof loaded === "object") {
     Object.entries(loaded).forEach(([key, value]) => {
@@ -58,6 +71,12 @@ function loadPrices(): Record<string, number> {
       });
     });
   }
+
+  ENVELOPE_PLACEHOLDER_KEYS.forEach((key) => {
+    if (!(key in base)) {
+      base[key] = null;
+    }
+  });
 
   return base;
 }
@@ -393,6 +412,14 @@ const PRICE_LABELS: Record<string, string> = {
   "wlepki-modifier-arkusze": "Naklejki – cena za arkusz (m²)",
   "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
   "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
+  // Koperty (struktura wstępna)
+  "koperty-a": "Koperta A",
+  "koperty-b": "Koperta B",
+  "koperty-c": "Koperta C",
+  "koperty-d": "Koperta D",
+  "koperty-e": "Koperta E",
+  "koperty-f": "Koperta F",
+  "koperty-g": "Koperta G",
   // Wizytówki 85×55
   "wizytowki-85x55-none-50szt": "Wizytówki 85×55 mm bez laminatu – 50 szt.",
   "wizytowki-85x55-none-100szt": "Wizytówki 85×55 mm bez laminatu – 100 szt.",
@@ -461,6 +488,10 @@ function getPriceLabel(key: string): string {
 
   if (key.startsWith("uslugi-")) {
     return `Usługi – ${humanizeSegment(key.replace("uslugi-", ""))}`;
+  }
+
+  if (key.startsWith("koperty-")) {
+    return `Koperta ${key.replace("koperty-", "").toUpperCase()}`;
   }
 
   return key.replace(/-/g, " ");
@@ -610,6 +641,14 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     newKeyPrefix: "uslugi-"
   },
   {
+    id: "koperty",
+    label: "Koperty",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
+    prefixes: ["koperty-"],
+    description: "Struktura wstępna cennika kopert (A–G). Ceny można uzupełnić później.",
+    newKeyPrefix: "koperty-"
+  },
+  {
     id: "modifiers",
     label: "Dopłaty globalne",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings.svg",
@@ -623,7 +662,7 @@ function keyMatchesCategory(key: string, category: PriceCategory): boolean {
   return category.prefixes.some((prefix) => key.startsWith(prefix));
 }
 
-function getRenderedCategories(prices: Record<string, number>): PriceCategory[] {
+function getRenderedCategories(prices: PriceMap): PriceCategory[] {
   const categories = [...BASE_PRICE_CATEGORIES];
   const matchedKeys = new Set<string>();
 
@@ -650,7 +689,7 @@ function getRenderedCategories(prices: Record<string, number>): PriceCategory[] 
   return categories;
 }
 
-function getCategoryKeys(prices: Record<string, number>, category: PriceCategory): string[] {
+function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
   }
@@ -690,8 +729,9 @@ export const UstawieniaView: View = {
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
         const priceInput = row.querySelector<HTMLInputElement>("input[data-field='unitPrice']");
         const key = row.dataset.key ?? "";
-        const parsedPrice = Number.parseFloat(priceInput?.value ?? "0");
-        const nextPrice = Number.isFinite(parsedPrice) ? parsedPrice : 0;
+        const rawValue = (priceInput?.value ?? "").trim();
+        const parsedPrice = Number.parseFloat(rawValue);
+        const nextPrice: PriceValue = rawValue === "" ? null : (Number.isFinite(parsedPrice) ? parsedPrice : null);
 
         if (key) {
           prices[key] = nextPrice;
@@ -775,8 +815,10 @@ export const UstawieniaView: View = {
           previousGroup = groupLabel;
         }
 
-        const numericPrice = Number(prices[key]);
-        const displayPrice = Number.isFinite(numericPrice) ? numericPrice : 0;
+        const value = prices[key];
+        const displayPrice = typeof value === "number" && Number.isFinite(value)
+          ? value.toFixed(2)
+          : "";
 
         return `
         <tr data-key="${escapeHtml(key)}">
@@ -784,7 +826,7 @@ export const UstawieniaView: View = {
             <span class="settings-product-label${isBoldGroup ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
           </td>
           <td class="settings-td-price">
-            <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice.toFixed(2)}" class="settings-input settings-input--price">
+            <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice}" placeholder="—" class="settings-input settings-input--price">
           </td>
           <td class="settings-td-del">
             <button type="button" data-action="delete" data-key="${escapeHtml(key)}" class="settings-btn-del" title="Usuń pozycję">✕</button>
@@ -860,7 +902,7 @@ export const UstawieniaView: View = {
       const prefix = active.newKeyPrefix || active.prefixes[0] || "nowa-";
       const normalizedPrefix = prefix.endsWith("-") ? prefix : `${prefix}-`;
       const newKey = `${normalizedPrefix}nowa-${Date.now()}`;
-      prices[newKey] = 0;
+      prices[newKey] = null;
       renderTabs();
       renderTable();
       const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");
@@ -871,7 +913,15 @@ export const UstawieniaView: View = {
 
     container.querySelector("#btn-save")?.addEventListener("click", () => {
       flushInputs();
-      setPrice("defaultPrices", prices);
+      const persisted: Record<string, number> = {};
+      Object.entries(prices).forEach(([key, value]) => {
+        if (typeof value === "number" && Number.isFinite(value)) {
+          persisted[key] = value;
+        }
+      });
+
+      setPrice("defaultPrices", persisted);
+      prices = loadPrices();
       renderTabs();
       renderTable();
       showStatus("✓ Zapisano ceny.");

@@ -29,7 +29,7 @@ export class Router {
     if (this.isIconUrl(icon)) {
       const safeUrl = this.escapeHtml(icon);
       const safeAlt = this.escapeHtml(name);
-      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:24px;height:24px;display:block;" />`;
+      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:27.6px;height:27.6px;display:block;" />`;
     }
     return this.escapeHtml(icon);
   }

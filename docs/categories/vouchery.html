@@ -49,6 +49,29 @@
             <div class="hint">Zakres 1-30 szt.</div>
         </div>
 
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="v-envelope-enabled">
+                Dodaj koperty
+            </label>
+        </div>
+
+        <div id="v-envelope-fields" class="form-group" style="display: none; margin-top: -4px; padding: 10px; border: 1px dashed #cfd8e3; border-radius: 8px; background: rgba(15, 23, 42, 0.02);">
+            <label for="v-envelope-type">Rodzaj koperty:</label>
+            <select id="v-envelope-type" class="form-control" style="margin-bottom: 8px;">
+                <option value="a">Koperta A</option>
+                <option value="b">Koperta B</option>
+                <option value="c">Koperta C</option>
+                <option value="d">Koperta D</option>
+                <option value="e">Koperta E</option>
+                <option value="f">Koperta F</option>
+                <option value="g">Koperta G</option>
+            </select>
+
+            <label for="v-envelope-qty">Ilość kopert (szt):</label>
+            <input type="number" id="v-envelope-qty" class="form-control" value="1" min="1" step="1">
+        </div>
+
         <div class="form-actions">
             <button id="v-calculate" class="btn-primary">Oblicz</button>
             <button id="v-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
@@ -67,6 +90,10 @@
         <div class="result-row">
             <span>Cena:</span>
             <span id="v-total-price" class="price-value">-</span>
+        </div>
+        <div id="v-envelope-summary-row" class="result-row" style="display: none;">
+            <span id="v-envelope-summary-label">Koperty:</span>
+            <span id="v-envelope-summary-value">-</span>
         </div>
         <div id="v-tier-hint" class="hint" style="color: #555;"></div>
         <div id="v-express-hint" class="express-hint" style="display: none;">

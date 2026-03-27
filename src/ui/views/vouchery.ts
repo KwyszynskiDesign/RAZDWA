@@ -21,6 +21,10 @@ export const VoucheryView: View = {
   initLogic(container: HTMLElement, ctx: ViewContext) {
     const qtyInput = container.querySelector("#v-qty") as HTMLInputElement;
     const paperSelect = container.querySelector("#v-paper") as HTMLSelectElement;
+    const envelopeEnabled = container.querySelector("#v-envelope-enabled") as HTMLInputElement;
+    const envelopeFields = container.querySelector("#v-envelope-fields") as HTMLElement;
+    const envelopeTypeSelect = container.querySelector("#v-envelope-type") as HTMLSelectElement;
+    const envelopeQtyInput = container.querySelector("#v-envelope-qty") as HTMLInputElement;
     const calculateBtn = container.querySelector("#v-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#v-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#v-result-display") as HTMLElement;
@@ -34,6 +38,9 @@ export const VoucheryView: View = {
     const expressHint = container.querySelector("#v-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#v-satin-hint") as HTMLElement;
     const modiglianiHint = container.querySelector("#v-modigliani-hint") as HTMLElement;
+    const envelopeSummaryRow = container.querySelector("#v-envelope-summary-row") as HTMLElement;
+    const envelopeSummaryLabel = container.querySelector("#v-envelope-summary-label") as HTMLElement;
+    const envelopeSummaryValue = container.querySelector("#v-envelope-summary-value") as HTMLElement;
 
     let currentResult: any = null;
     let currentOptions: any = null;
@@ -41,6 +48,16 @@ export const VoucheryView: View = {
     const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
     const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+    const getEnvelopeLabel = (key: string): string => `Koperta ${key.toUpperCase()}`;
+
+    const updateEnvelopeVisibility = () => {
+      const enabled = envelopeEnabled?.checked;
+      if (envelopeFields) envelopeFields.style.display = enabled ? "block" : "none";
+    };
+
+    envelopeEnabled?.addEventListener("change", updateEnvelopeVisibility);
+    updateEnvelopeVisibility();
 
     const renderBreakdown = (result: any, options: any) => {
       const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
@@ -59,6 +76,9 @@ export const VoucheryView: View = {
 
       const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
       const materialTotal = parseFloat((satinAmount + modiglianiAmount).toFixed(2));
+      const envelopeUnitPrice = typeof options.envelopeUnitPrice === "number" ? options.envelopeUnitPrice : 0;
+      const envelopeQty = typeof options.envelopeQty === "number" ? options.envelopeQty : 0;
+      const envelopeTotal = typeof options.envelopeTotal === "number" ? options.envelopeTotal : 0;
 
       const lines = [
         `<div><strong>Nakład i typ:</strong> ${options.qty} szt, ${materialLabel}</div>`,
@@ -80,7 +100,13 @@ export const VoucheryView: View = {
         lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
-      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(materialTotal)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      if (options.withEnvelopes) {
+        lines.push(`<div><strong>${options.envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
+      } else {
+        lines.push(`<div><strong>Koperty:</strong> nie wybrano = ${formatPLN(0)}</div>`);
+      }
+
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(materialTotal)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
 
       breakdownLines.innerHTML = lines.join("");
       breakdownDisplay.style.display = "block";
@@ -100,13 +126,35 @@ export const VoucheryView: View = {
         paper: paperVal,
         satin: isSatin,
         modigliani: isModigliani,
-        express: ctx.expressMode
+        express: ctx.expressMode,
+        withEnvelopes: Boolean(envelopeEnabled?.checked),
+        envelopeType: (envelopeTypeSelect?.value || "a").toLowerCase(),
+        envelopeQty: Math.max(1, parseInt(envelopeQtyInput?.value || "1", 10) || 1)
       };
 
       try {
         const result = quoteVouchery(currentOptions);
-        const totalPrice = result.totalPrice;
-        currentResult = { ...result, totalPrice, usesSatinBase, isModigliani };
+        const envelopeKey = `koperty-${currentOptions.envelopeType}`;
+        const envelopeLabel = getEnvelopeLabel(currentOptions.envelopeType);
+        const envelopeUnitPrice = currentOptions.withEnvelopes ? resolveStoredPrice(envelopeKey, 0) : 0;
+        const envelopeTotal = currentOptions.withEnvelopes
+          ? parseFloat((envelopeUnitPrice * currentOptions.envelopeQty).toFixed(2))
+          : 0;
+        const totalPrice = parseFloat((result.totalPrice + envelopeTotal).toFixed(2));
+        currentResult = {
+          ...result,
+          totalPrice,
+          usesSatinBase,
+          isModigliani,
+          envelopeType: currentOptions.envelopeType,
+          envelopeLabel,
+          envelopeQty: currentOptions.withEnvelopes ? currentOptions.envelopeQty : 0,
+          envelopeUnitPrice,
+          envelopeTotal
+        };
+        currentOptions.envelopeLabel = envelopeLabel;
+        currentOptions.envelopeUnitPrice = envelopeUnitPrice;
+        currentOptions.envelopeTotal = envelopeTotal;
 
         basePriceSpan.innerText = formatPLN(result.basePrice);
 
@@ -115,6 +163,15 @@ export const VoucheryView: View = {
           modifiersTotalSpan.innerText = "+" + formatPLN(result.modifiersTotal);
         } else {
           modifiersRow.style.display = "none";
+        }
+
+        if (currentOptions.withEnvelopes) {
+          envelopeSummaryRow.style.display = "flex";
+          envelopeSummaryLabel.innerText = `${envelopeLabel}:`;
+          envelopeSummaryValue.innerText = `${currentOptions.envelopeQty} szt (${formatPLN(envelopeTotal)})`;
+        } else {
+          envelopeSummaryRow.style.display = "none";
+          envelopeSummaryValue.innerText = "-";
         }
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
@@ -149,6 +206,9 @@ export const VoucheryView: View = {
             : `Kreda ${pv.slice(6)}g`;
         const sidesLabel = currentOptions.sides === 'single' ? 'Jednostronne' : 'Dwustronne';
         const parts: string[] = [`${currentOptions.qty} szt`, sidesLabel, paperLabel];
+        if (currentOptions.withEnvelopes) {
+          parts.push(`${currentOptions.envelopeLabel}: ${currentOptions.envelopeQty} szt (+${formatPLN(currentResult.envelopeTotal)})`);
+        }
         if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
         ctx.cart.addItem({

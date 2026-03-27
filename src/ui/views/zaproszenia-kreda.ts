@@ -15,15 +15,30 @@ export const ZaproszeniaKredaView: View = {
     const foldedCheck = container.querySelector("#zapFolded") as HTMLInputElement;
     const qtyInput = container.querySelector("#zapQty") as HTMLInputElement;
     const paperSel = container.querySelector("#zapPaper") as HTMLSelectElement;
+    const envelopeEnabled = container.querySelector("#zapEnvelopeEnabled") as HTMLInputElement;
+    const envelopeFields = container.querySelector("#zapEnvelopeFields") as HTMLElement;
+    const envelopeTypeSel = container.querySelector("#zapEnvelopeType") as HTMLSelectElement;
+    const envelopeQtyInput = container.querySelector("#zapEnvelopeQty") as HTMLInputElement;
     const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
     const breakdownBox = container.querySelector("#zapBreakdown") as HTMLElement;
     const breakdownLines = container.querySelector("#zapBreakdownLines") as HTMLElement;
+    const envelopeSummaryRow = container.querySelector("#resEnvelopeSummary") as HTMLElement;
+    const envelopeSummaryValue = container.querySelector("#resEnvelopeSummaryValue") as HTMLElement;
 
     const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
     const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
+
+    const getEnvelopeLabel = (key: string): string => `Koperta ${key.toUpperCase()}`;
+    const updateEnvelopeVisibility = () => {
+      if (!envelopeFields) return;
+      envelopeFields.style.display = envelopeEnabled?.checked ? "block" : "none";
+    };
+
+    envelopeEnabled?.addEventListener("change", updateEnvelopeVisibility);
+    updateEnvelopeVisibility();
 
     const calculate = () => {
       const paperVal = paperSel.value;
@@ -40,7 +55,14 @@ export const ZaproszeniaKredaView: View = {
       };
 
       const result = calculateZaproszeniaKreda(options);
-      const totalPrice = result.totalPrice;
+      const envelopeType = (envelopeTypeSel?.value || "a").toLowerCase();
+      const envelopeQty = Math.max(1, parseInt(envelopeQtyInput?.value || "1", 10) || 1);
+      const withEnvelopes = Boolean(envelopeEnabled?.checked);
+      const envelopeKey = `koperty-${envelopeType}`;
+      const envelopeLabel = getEnvelopeLabel(envelopeType);
+      const envelopeUnitPrice = withEnvelopes ? resolveStoredPrice(envelopeKey, 0) : 0;
+      const envelopeTotal = withEnvelopes ? parseFloat((envelopeUnitPrice * envelopeQty).toFixed(2)) : 0;
+      const totalPrice = parseFloat((result.totalPrice + envelopeTotal).toFixed(2));
 
       let satinAmount = 0;
       let modiglianiAmount = 0;
@@ -72,13 +94,26 @@ export const ZaproszeniaKredaView: View = {
         breakdown.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(satinAmount + modiglianiAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      if (withEnvelopes) {
+        breakdown.push(`<div><strong>${envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
+      } else {
+        breakdown.push(`<div><strong>Koperty:</strong> nie wybrano = ${formatPLN(0)}</div>`);
+      }
+
+      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(satinAmount + modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";
       (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(totalPrice / options.qty);
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(totalPrice);
+      if (withEnvelopes) {
+        envelopeSummaryRow.style.display = "block";
+        envelopeSummaryValue.textContent = `${envelopeLabel}, ${envelopeQty} szt (${formatPLN(envelopeTotal)})`;
+      } else {
+        envelopeSummaryRow.style.display = "none";
+        envelopeSummaryValue.textContent = "0";
+      }
       const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
       if (tierHintEl) {
         tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
@@ -88,7 +123,19 @@ export const ZaproszeniaKredaView: View = {
       (container.querySelector("#resModiglianiHint") as HTMLElement).style.display = options.isModigliani ? "block" : "none";
 
       ctx.updateLastCalculated(totalPrice, "Zaproszenia");
-      return { options, result };
+      return {
+        options,
+        result: {
+          ...result,
+          totalPrice,
+          envelopeType,
+          envelopeLabel,
+          envelopeQty: withEnvelopes ? envelopeQty : 0,
+          envelopeUnitPrice,
+          envelopeTotal,
+          withEnvelopes
+        }
+      };
     };
 
     calcBtn.addEventListener("click", () => calculate());
@@ -112,8 +159,13 @@ export const ZaproszeniaKredaView: View = {
         unitPrice: result.totalPrice / options.qty,
         isExpress: options.express,
         totalPrice: result.totalPrice,
-        optionsHint: [`${options.qty} szt`, zPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
-        payload: options
+        optionsHint: [
+          `${options.qty} szt`,
+          zPaperLabel,
+          ...(result.withEnvelopes ? [`${result.envelopeLabel}: ${result.envelopeQty} szt (+${formatPLN(result.envelopeTotal)})`] : []),
+          ...(options.express ? ['EXPRESS (+20%)'] : [])
+        ].join(', '),
+        payload: { ...options, envelope: result.withEnvelopes ? { type: result.envelopeType, qty: result.envelopeQty } : null }
       });
     });
 
