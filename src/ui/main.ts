@@ -89,6 +89,26 @@ function splitTextByWidth(text: string, maxWidth: number, font: any, fontSize: n
   return lines;
 }
 
+function toPdfSafeText(value: string): string {
+  // Standard fonts in pdf-lib use WinAnsi and may fail on PL diacritics/emojis.
+  // Replace problematic chars with safe ASCII equivalents.
+  return String(value ?? "")
+    .replace(/[Ąą]/g, "a")
+    .replace(/[Ćć]/g, "c")
+    .replace(/[Ęę]/g, "e")
+    .replace(/[Łł]/g, "l")
+    .replace(/[Ńń]/g, "n")
+    .replace(/[Óó]/g, "o")
+    .replace(/[Śś]/g, "s")
+    .replace(/[ŹźŻż]/g, "z")
+    .replace(/[–—]/g, "-")
+    .replace(/[“”„]/g, '"')
+    .replace(/[’]/g, "'")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function generateOrderReportPdf(items: CartItem[], customer: CustomerData) {
   const pdf = await PDFDocument.create();
   const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
@@ -118,7 +138,8 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
     const [r, g, b] = options?.color ?? [0.06, 0.1, 0.16];
     const font = bold ? fontBold : fontRegular;
     const lineHeight = size + lineGap;
-    const lines = splitTextByWidth(text, contentWidth, font, size);
+    const safeText = toPdfSafeText(text);
+    const lines = splitTextByWidth(safeText, contentWidth, font, size);
 
     for (const line of lines) {
       ensureSpace(lineHeight + 2);

@@ -47,6 +47,8 @@ export const CadUploadView: View = {
                         container.querySelector<HTMLElement>("#cadSummary");
     const summaryGrid = container.querySelector<HTMLElement>("#summaryGrid");
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
+    const foldAllCheck = container.querySelector<HTMLInputElement>("#foldAllCheck");
+    const scanAllCheck = container.querySelector<HTMLInputElement>("#scanAllCheck");
     const warningEl = container.querySelector<HTMLElement>("#cadWarning");
     const statusEl = container.querySelector<HTMLElement>("#cadUploadStatus");
     const calculationsList = container.querySelector<HTMLElement>("#obliczeniaLista");
@@ -274,6 +276,24 @@ export const CadUploadView: View = {
       );
     }
 
+    function syncHeaderChecks(): void {
+      const foldCount = files.filter((file) => file.folding).length;
+      const scanCount = files.filter((file) => file.scanning).length;
+      const hasFiles = files.length > 0;
+
+      if (foldAllCheck) {
+        foldAllCheck.disabled = !hasFiles;
+        foldAllCheck.checked = hasFiles && foldCount === files.length;
+        foldAllCheck.indeterminate = hasFiles && foldCount > 0 && foldCount < files.length;
+      }
+
+      if (scanAllCheck) {
+        scanAllCheck.disabled = !hasFiles;
+        scanAllCheck.checked = hasFiles && scanCount === files.length;
+        scanAllCheck.indeterminate = hasFiles && scanCount > 0 && scanCount < files.length;
+      }
+    }
+
     function renderFiles(): void {
       if (!tableBody) return;
 
@@ -281,6 +301,7 @@ export const CadUploadView: View = {
         tableBody.innerHTML = "";
         if (summaryPanel) summaryPanel.style.display = "none";
         if (resultsContainer) resultsContainer.style.display = "none";
+        syncHeaderChecks();
         return;
       }
 
@@ -326,6 +347,7 @@ export const CadUploadView: View = {
 
       renderSummary();
       renderCalculations();
+      syncHeaderChecks();
     }
 
     function renderSummary(): void {
@@ -533,6 +555,18 @@ export const CadUploadView: View = {
       const id = Number(row.dataset.fileId || "0");
       files = files.filter((f) => f.id !== id);
       syncSequentialIds();
+      renderFiles();
+    });
+
+    foldAllCheck?.addEventListener("change", () => {
+      const checked = foldAllCheck.checked;
+      files = files.map((file) => recalculateFile({ ...file, folding: checked }));
+      renderFiles();
+    });
+
+    scanAllCheck?.addEventListener("change", () => {
+      const checked = scanAllCheck.checked;
+      files = files.map((file) => recalculateFile({ ...file, scanning: checked }));
       renderFiles();
     });
 

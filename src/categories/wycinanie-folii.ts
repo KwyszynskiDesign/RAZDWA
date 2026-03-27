@@ -1,7 +1,6 @@
 ﻿import { calculatePrice } from "../core/pricing";
 import { CalculationResult, PriceTable } from "../core/types";
 import { getPrice } from "../services/priceService";
-import { resolveStoredPrice } from "../core/compat";
 
 export interface WycinanieFoliiOptions {
   variantId: "kolorowa" | "zloto-srebro";
@@ -17,7 +16,7 @@ export function calculateWycinanieFolii(options: WycinanieFoliiOptions): Calcula
   }
 
   const areaBracket = areaM2 < 1 ? "ponizej-1m2" : "powyzej-1m2";
-  const variantId = "kolorowa"; // Always use kolorowa
+  const variantId = options.variantId;
   const storedKey = `wycinanie-folii-${variantId}-${areaBracket}`;
   
   const data = getPrice("defaultPrices") as any;

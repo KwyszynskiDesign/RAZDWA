@@ -63,11 +63,14 @@ export const WycinanieFoliiView: View = {
       const color = getSelectedColor();
       
       if (!color) {
-        throw new Error("Wybierz kolor: zota, srebrna lub wpisz inny kolor.");
+        throw new Error("Wybierz kolor: złota, srebrna lub wpisz inny kolor.");
       }
 
+      const variantId: WycinanieFoliiOptions["variantId"] =
+        goldCheck.checked || silverCheck.checked ? "zloto-srebro" : "kolorowa";
+
       const options: WycinanieFoliiOptions = {
-        variantId: "kolorowa" as WycinanieFoliiOptions["variantId"],
+        variantId,
         widthMm: parseInt(widthInput.value) || 0,
         heightMm: parseInt(heightInput.value) || 0,
         express: ctx.expressMode

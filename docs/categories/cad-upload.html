@@ -263,6 +263,21 @@
     white-space: nowrap;
   }
 
+  .results-table .header-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .results-table .header-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+  }
+
   .results-table .col-lp     { width: 6%; }
   .results-table .col-name   { width: 22%; }
   .results-table .col-size   { width: 21%; }
@@ -567,8 +582,18 @@
           <th class="col-lp">NR.</th>
           <th class="col-name">Nazwa</th>
           <th class="col-size">Rozmiar</th>
-          <th class="col-fold">Składanie</th>
-          <th class="col-scan">Skan</th>
+          <th class="col-fold">
+            <div class="header-toggle">
+              <span>Składanie</span>
+              <input type="checkbox" id="foldAllCheck" aria-label="Zaznacz składanie dla wszystkich plików" title="Zaznacz wszystkie: składanie">
+            </div>
+          </th>
+          <th class="col-scan">
+            <div class="header-toggle">
+              <span>Skan</span>
+              <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
+            </div>
+          </th>
           <th class="col-price">Cena</th>
           <th class="col-remove">X</th>
         </tr>
