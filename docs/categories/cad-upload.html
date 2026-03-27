@@ -223,26 +223,26 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    width: 106%;
-    max-width: none;
-    margin-left: -3%;
-    margin-right: -3%;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     box-sizing: border-box;
-    padding: 0 10px 10px 10px;
+    padding: 0 6px 8px 6px;
   }
   .results-table {
     width: 100%;
     min-width: 0;
     max-width: 100%;
     border-collapse: collapse;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     table-layout: fixed;
   }
   .results-table th {
     background: var(--surface-alt);
     color: var(--text-primary);
     font-weight: 600;
-    padding: 3px 3px;
+    padding: 2px 2px;
     text-align: left;
     border-bottom: 2px solid var(--border);
     white-space: nowrap;
@@ -250,7 +250,7 @@
     text-overflow: ellipsis;
   }
   .results-table td {
-    padding: 2px 3px;
+    padding: 2px 2px;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
     overflow: hidden;
@@ -296,13 +296,13 @@
     cursor: pointer;
   }
 
-  .results-table .col-lp     { width: 6%; }
-  .results-table .col-name   { width: 22%; }
-  .results-table .col-size   { width: 21%; }
-  .results-table .col-fold   { width: 14%; }
-  .results-table .col-scan   { width: 9%; }
-  .results-table .col-price  { width: 23%; }
-  .results-table .col-remove { width: 5%; min-width: 40px; }
+  .results-table .col-lp     { width: 8%; }
+  .results-table .col-name   { width: 21%; }
+  .results-table .col-size   { width: 12%; }
+  .results-table .col-fold   { width: 15%; }
+  .results-table .col-scan   { width: 10%; }
+  .results-table .col-price  { width: 28%; }
+  .results-table .col-remove { width: 6%; min-width: 34px; }
 
   .results-table .col-name,
   .results-table .col-size,
@@ -336,21 +336,21 @@
     font-weight: 700;
     white-space: nowrap;
     line-height: 1.05;
-    font-size: 0.73rem;
+    font-size: 0.68rem;
   }
 
   .cad-size-dims {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
     line-height: 1.05;
-    font-size: 0.72rem;
+    font-size: 0.66rem;
   }
 
   .cad-size-pages {
     white-space: nowrap;
     color: var(--text-secondary);
     line-height: 1.05;
-    font-size: 0.7rem;
+    font-size: 0.63rem;
   }
 
   .cad-price-cell {
@@ -365,7 +365,7 @@
     white-space: nowrap;
     overflow: hidden;
     line-height: 1.05;
-    font-size: 0.71rem;
+    font-size: 0.67rem;
   }
 
   .results-table td strong {
@@ -374,8 +374,8 @@
 
   #viewContainer .results-table th,
   #viewContainer .results-table td {
-    padding: 2px 3px !important;
-    font-size: 11px !important;
+    padding: 2px 2px !important;
+    font-size: 10px !important;
   }
 
   #viewContainer .results-table {
@@ -385,7 +385,7 @@
   }
 
   #viewContainer .results-table-container {
-    padding: 8px !important;
+    padding: 6px !important;
   }
   
   .results-table tbody tr:hover {
