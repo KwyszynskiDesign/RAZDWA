@@ -221,7 +221,7 @@
     {
         "id":  "zaproszenia-kreda",
         "name":  "Zaproszenia",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail-heart.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
         "implemented":  true
     },
     {
