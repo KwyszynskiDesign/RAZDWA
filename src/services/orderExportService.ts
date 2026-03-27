@@ -38,9 +38,9 @@ export interface OrderExportResult {
 }
 
 const DEFAULT_CONFIG: OrderExportConfig = {
-  appsScriptUrl: "",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwbZDEjSt4hGTfD7F1QaAzDm_Cb0Vf-Nk7dsJ_XNwaHVgMW7-bA-A8O8KlBYVDKjH53/exec",
   timeoutMs: 15000,
-  enabled: false,
+  enabled: true,
 };
 
 export function getOrderExportConfig(): OrderExportConfig {
@@ -51,9 +51,9 @@ export function getOrderExportConfig(): OrderExportConfig {
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
 
     return {
-      appsScriptUrl: String(parsed.appsScriptUrl ?? "").trim(),
+      appsScriptUrl: String(parsed.appsScriptUrl ?? DEFAULT_CONFIG.appsScriptUrl).trim() || DEFAULT_CONFIG.appsScriptUrl,
       timeoutMs: Number(parsed.timeoutMs) > 0 ? Number(parsed.timeoutMs) : DEFAULT_CONFIG.timeoutMs,
-      enabled: Boolean(parsed.enabled),
+      enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_CONFIG.enabled,
     };
   } catch {
     return DEFAULT_CONFIG;
