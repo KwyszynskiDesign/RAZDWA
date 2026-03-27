@@ -223,8 +223,10 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    width: 100%;
-    max-width: 100%;
+    width: 106%;
+    max-width: none;
+    margin-left: -3%;
+    margin-right: -3%;
     box-sizing: border-box;
     padding: 0 10px 10px 10px;
   }
@@ -261,6 +263,20 @@
   .results-table .col-remove {
     text-align: center;
     white-space: nowrap;
+  }
+
+  .results-table th.col-fold,
+  .results-table th.col-scan,
+  .results-table td.col-fold,
+  .results-table td.col-scan {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .results-table td.col-fold input[type="checkbox"],
+  .results-table td.col-scan input[type="checkbox"] {
+    display: block;
+    margin: 0 auto;
   }
 
   .results-table .header-toggle {
@@ -447,6 +463,11 @@
   @media (max-width: 600px) {
     .results-table { font-size: 0.66rem; }
     .results-table th, .results-table td { padding: 1px 1px; }
+    .results-table-container {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
     #viewContainer .results-table th,
     #viewContainer .results-table td {
       font-size: 10px !important;
