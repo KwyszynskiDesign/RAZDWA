@@ -603,7 +603,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "zaproszenia",
     label: "Zaproszenia KREDA",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail-heart.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
     prefixes: ["zaproszenia-"],
     description: "Ceny zaproszeń KREDA (format, strony, łamanie, ilość).",
     newKeyPrefix: "zaproszenia-a6-single-normal-"
