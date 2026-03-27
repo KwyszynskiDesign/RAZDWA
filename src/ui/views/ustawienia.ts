@@ -539,7 +539,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "vouchery",
     label: "Vouchery",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket-percent.svg",
     prefixes: ["vouchery-"],
     description: "Ceny voucherów jednostronnych i dwustronnych.",
     newKeyPrefix: "vouchery-1-jed"
@@ -603,7 +603,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "zaproszenia",
     label: "Zaproszenia KREDA",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail-heart.svg",
     prefixes: ["zaproszenia-"],
     description: "Ceny zaproszeń KREDA (format, strony, łamanie, ilość).",
     newKeyPrefix: "zaproszenia-a6-single-normal-"
@@ -627,7 +627,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "artykuly",
     label: "Artykuły biurowe",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/briefcase.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
     prefixes: ["artykuly-"],
     description: "Ceny materiałów biurowych i akcesoriów.",
     newKeyPrefix: "artykuly-"
@@ -635,7 +635,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "uslugi",
     label: "Usługi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings-2.svg",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg",
     prefixes: ["uslugi-"],
     description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
     newKeyPrefix: "uslugi-"

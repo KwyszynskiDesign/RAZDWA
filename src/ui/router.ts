@@ -138,7 +138,7 @@ export class Router {
     ];
 
     const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg", implemented: true }
+      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg", implemented: true }
     };
 
     const groupHtml = groupedHomeTiles.map((group) => {

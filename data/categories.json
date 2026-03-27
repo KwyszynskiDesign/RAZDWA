@@ -203,7 +203,7 @@
     {
         "id":  "vouchery",
         "name":  "Vouchery",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/receipt-text.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket-percent.svg",
         "implemented":  true
     },
     {
@@ -221,7 +221,7 @@
     {
         "id":  "zaproszenia-kreda",
         "name":  "Zaproszenia",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail-heart.svg",
         "implemented":  true
     },
     {
@@ -275,13 +275,13 @@
     {
         "id":  "wydruki-specjalne",
         "name":  "Wydruki specjalne",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
         "implemented":  true
     },
     {
         "id":  "cad-upload",
         "name":  "CAD Upload plików",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/folder-up.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-up.svg",
         "implemented":  true
     },
     {
@@ -299,13 +299,13 @@
     {
         "id":  "artykuly-biurowe",
         "name":  "Artykuły Biurowe",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/briefcase.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
         "implemented":  true
     },
     {
         "id":  "uslugi",
         "name":  "Usługi",
-        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/wrench.svg",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg",
         "implemented":  true
         },
         {
