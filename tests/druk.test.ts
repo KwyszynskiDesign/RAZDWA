@@ -157,6 +157,26 @@ describe("Druk A4/A3 + skan", () => {
     // 6.00 * 1.2 = 7.20
     expect(result.totalPrice).toBe(7.20);
   });
+
+  it("should add sleeve cost with quantity", () => {
+    const result = calculateDrukA4A3Skan({
+      mode: "bw",
+      format: "a4",
+      printQty: 1,
+      email: false,
+      sleeve: true,
+      sleeveQty: 3,
+      surcharge: false,
+      surchargeQty: 0,
+      scanType: "none",
+      scanQty: 0,
+      express: false
+    }, pricing);
+
+    // 1 x A4 BW = 0.90 + 3 x koszulka 0.80 = 3.30
+    expect(result.sleevePrice).toBe(2.40);
+    expect(result.totalPrice).toBe(3.30);
+  });
 });
 
 describe("Druk CAD", () => {

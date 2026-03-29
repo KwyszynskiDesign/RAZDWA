@@ -8,6 +8,8 @@ export interface DrukA4A3SkanOptions {
   printQty: number;
   email: boolean;
   labelSticker?: boolean;
+  sleeve?: boolean;
+  sleeveQty?: number;
   surcharge: boolean;
   surchargeQty: number;
   scanType: "none" | "auto" | "manual";
@@ -40,7 +42,10 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     : 0;
 
   const sleeveBase = 0.80;
-  const sleevePrice = options.sleeve ? resolveStoredPrice("druk-koszulka", sleeveBase) : 0;
+  const sleeveUnitPrice = resolveStoredPrice("druk-koszulka", sleeveBase);
+  const requestedSleeveQty = Math.max(0, Math.floor(Number(options.sleeveQty ?? 0)));
+  const sleeveQty = options.sleeve ? requestedSleeveQty : 0;
+  const sleevePrice = sleeveQty > 0 ? sleeveUnitPrice * sleeveQty : 0;
 
   const baseTotal = printResult.grandTotal + scanResult.total + stickerPrice + sleevePrice;
   let finalTotal = baseTotal;
@@ -56,6 +61,8 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     totalScanPrice: scanResult.total,
     emailPrice: printResult.emailTotal,
     stickerPrice: parseFloat(stickerPrice.toFixed(2)),
+    sleevePrice: parseFloat(sleevePrice.toFixed(2)),
+    sleeveQty,
     surchargePrice: parseFloat(printResult.inkTotal.toFixed(2)),
     baseTotal
   };
@@ -126,7 +133,7 @@ export const drukA4A3Category: CategoryModule = {
             </div>
           </label>
           <div id="surcharge-qty-container" style="display: none; margin-top: 15px;">
-            <label>Ile stron z zadrukieniem >25%:</label>
+            <label>Ile stron z zadrukiem >25%:</label>
             <input type="number" id="surchargeQty" value="0" min="0" max="10000" step="1">
             <small style="color: #fbbf24;">Te strony będą kosztować 150% standardowej ceny</small>
           </div>
@@ -257,6 +264,7 @@ export const drukA4A3Category: CategoryModule = {
       const format = formatSelect.value as "A4" | "A3";
       const quantity = parseInt(quantityInput.value) || 1;
       const color = colorSelect.value as "czarnoBialy" | "kolorowy";
+      const colorLabel = color === "czarnoBialy" ? "Czarno-biały" : "Kolorowy";
       const mode = color === "czarnoBialy" ? "bw" : "color";
       const surcharge = surchargeCheckbox.checked;
       const surchargeQty = parseInt(surchargeQtyInput.value) || 0;
@@ -289,7 +297,6 @@ export const drukA4A3Category: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        const colorLabel = color === "czarnoBialy" ? "Czarno-biały" : "Kolorowy";
         let parts = [];
         
         if (currentResult.totalPrintPrice > 0) {
@@ -300,6 +307,12 @@ export const drukA4A3Category: CategoryModule = {
         }
         if (currentResult.emailPrice > 0) {
           parts.push(`E-mail: +${currentResult.emailPrice.toFixed(2)} zł`);
+        }
+        if (currentResult.stickerPrice > 0) {
+          parts.push(`Naklejka: +${currentResult.stickerPrice.toFixed(2)} zł`);
+        }
+        if (currentResult.sleevePrice > 0) {
+          parts.push(`Koszulki: +${currentResult.sleevePrice.toFixed(2)} zł`);
         }
         if (currentResult.totalScanPrice > 0) {
           parts.push(`Skanowanie: ${currentResult.totalScanPrice.toFixed(2)} zł`);
@@ -333,7 +346,7 @@ export const drukA4A3Category: CategoryModule = {
 
       let descParts = [`${format}, ${quantity} str, ${color}`];
       if (surcharge && parseInt(surchargeQty) > 0) {
-        descParts.push(`${surchargeQty} str z zadrukieniem >25%`);
+        descParts.push(`${surchargeQty} str z zadrukiem >25%`);
       }
       if (email) descParts.push('E-mail');
       if (scanType !== 'none' && parseInt(scanQty) > 0) {

@@ -12,7 +12,7 @@ export const WycinanieFoliiView: View = {
       container.innerHTML = await response.text();
       this.initLogic(container, ctx);
     } catch (err) {
-      container.innerHTML = `<div class="error">BĹ‚Ä…d Ĺ‚adowania: ${err}</div>`;
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }
   },
 
@@ -98,7 +98,7 @@ export const WycinanieFoliiView: View = {
       try {
         calculate();
       } catch (err) {
-        alert("BĹ‚Ä…d: " + (err as Error).message);
+        alert("Błąd: " + (err as Error).message);
       }
     };
 

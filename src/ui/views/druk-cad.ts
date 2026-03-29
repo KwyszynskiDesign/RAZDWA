@@ -63,7 +63,7 @@ export const DrukCADView: View = {
     const cadOpsListItems = container.querySelector("#cad-ops-list-items") as HTMLElement | null;
     const cadOpsTotal = container.querySelector("#cad-ops-total") as HTMLElement | null;
 
-    const cadOps: Array<{
+    type CadOpItem = {
       id: string;
       name: string;
       quantity: number;
@@ -72,7 +72,9 @@ export const DrukCADView: View = {
       totalPrice: number;
       optionsHint: string;
       payload: any;
-    }> = [];
+    };
+
+    const cadOps: CadOpItem[] = [];
 
     const normalizeFoldFormat = (format: string): string => {
       if (format === "A0+") return "A0p";
@@ -86,25 +88,68 @@ export const DrukCADView: View = {
       return format;
     };
 
+    const getInlineWfScanOp = (): CadOpItem | null => {
+      if (!wfScanCmInput || !wfScanQtyInput) return null;
+
+      const rawCm = (wfScanCmInput.value || "").trim();
+      if (!rawCm) return null;
+
+      const cm = parseFloat(rawCm.replace(",", "."));
+      const qty = parseInt(wfScanQtyInput.value, 10);
+      if (isNaN(cm) || cm <= 0 || isNaN(qty) || qty <= 0) return null;
+
+      try {
+        const mm = Math.round(cm * 10);
+        const result = quoteCadWfScan({ lengthMm: mm, qty });
+        return {
+          id: "cad-wf-scan-inline",
+          name: "Skanowanie wielkoformatowe",
+          quantity: qty,
+          unit: "szt",
+          unitPrice: result.unitPrice,
+          totalPrice: result.total,
+          optionsHint: `${qty} szt., ${cm} cm`,
+          payload: result
+        };
+      } catch {
+        return null;
+      }
+    };
+
+    const getEffectiveCadOps = (): CadOpItem[] => {
+      const inlineScan = getInlineWfScanOp();
+      if (!inlineScan) return cadOps;
+
+      const duplicateExists = cadOps.some(op =>
+        op.name === inlineScan.name &&
+        op.optionsHint === inlineScan.optionsHint &&
+        Math.abs(op.totalPrice - inlineScan.totalPrice) < 0.01
+      );
+
+      return duplicateExists ? cadOps : [...cadOps, inlineScan];
+    };
+
     const updateCadOpsSummary = () => {
       if (!cadOpsList || !cadOpsListItems || !cadOpsTotal) return;
 
-      if (cadOps.length === 0) {
+      const effectiveOps = getEffectiveCadOps();
+
+      if (effectiveOps.length === 0) {
         cadOpsList.style.display = "none";
         cadOpsListItems.innerHTML = "";
         cadOpsTotal.innerText = formatPLN(0);
         return;
       }
 
-      const total = cadOps.reduce((sum, op) => sum + op.totalPrice, 0);
+      const total = effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0);
       cadOpsList.style.display = "block";
-      cadOpsListItems.innerHTML = cadOps
+      cadOpsListItems.innerHTML = effectiveOps
         .map(op => `<div>• ${op.name}: ${formatPLN(op.totalPrice)} (${op.optionsHint})</div>`)
         .join("");
       cadOpsTotal.innerText = formatPLN(total);
     };
 
-    const getCadOpsTotal = () => cadOps.reduce((sum, op) => sum + op.totalPrice, 0);
+    const getCadOpsTotal = () => getEffectiveCadOps().reduce((sum, op) => sum + op.totalPrice, 0);
 
     const zadrukFactor = resolveStoredPrice("modifier-druk-zadruk25", 0.5);
     const emailFeeUnit = resolveStoredPrice("druk-email", 1);
@@ -201,6 +246,13 @@ export const DrukCADView: View = {
       }
     });
 
+    [wfScanCmInput, wfScanQtyInput].forEach((el) => {
+      el?.addEventListener("input", () => {
+        updateCadOpsSummary();
+        updateGrandTotal();
+      });
+    });
+
     const updateUI = () => {
       const format = formatSelect.value;
       const mode = modeSelect.value;
@@ -275,12 +327,14 @@ export const DrukCADView: View = {
         const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
         const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
+        const effectiveOps = getEffectiveCadOps();
         const opts = [
           `${displayCadFormat(currentOptions.format)} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
             `${qtyLabel}${currentOptions.lengthMm} mm`,
           optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
           optScale?.checked ? "Skalowanie (+50%)" : "",
           optEmail?.checked ? `Wysyłka e-mail (+${formatPLN(emailFeeUnit)})` : "",
+            effectiveOps.some(op => op.name === "Skanowanie wielkoformatowe") ? "Skanowanie wielkoformatowe" : "",
             ctx.expressMode ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");
 
@@ -309,7 +363,7 @@ export const DrukCADView: View = {
           }
         });
 
-        for (const op of cadOps) {
+        for (const op of effectiveOps) {
           ctx.cart.addItem({
             id: `${op.id}-${Date.now()}`,
             category: "CAD",

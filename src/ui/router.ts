@@ -34,6 +34,24 @@ export class Router {
     return this.escapeHtml(icon);
   }
 
+  private renderHomeTileLabel(id: string, name: string): string {
+    const safeName = this.escapeHtml(name);
+
+    if (id === "plakaty") {
+      return "Plakaty<br>A3-A0";
+    }
+
+    if (id === "plakaty-a4-a3") {
+      return "Plakaty<br>A4-A3";
+    }
+
+    if (id === "druk-cad") {
+      return "Druk CAD<br><span style=\"font-size:11px;line-height:1.1;display:inline-block;\">wielkoformatowy</span>";
+    }
+
+    return safeName;
+  }
+
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
     this.getCtx = getCtx;
@@ -85,8 +103,8 @@ export class Router {
       try {
         await view.mount(this.container, this.getCtx());
       } catch (err) {
-        console.error("âťŚ View mount error:", err);
-        this.container.innerHTML = `<div class="error">BĹ‚Ä…d Ĺ‚adowania widoku: ${err}</div>`;
+        console.error("❌ View mount error:", err);
+        this.container.innerHTML = `<div class="error">Błąd ładowania widoku: ${err}</div>`;
       }
     } else {
       try {
@@ -151,10 +169,11 @@ export class Router {
           const icon = String(cat.icon ?? "📁");
           const name = String(cat.name ?? id);
           const iconMarkup = this.renderCategoryIcon(icon, name);
+          const labelMarkup = this.renderHomeTileLabel(id, name);
           return `
             <a href="#/${id}" class="home-mini-tile" aria-label="Przejdź do ${name}">
               <span class="home-mini-icon">${iconMarkup}</span>
-              <span class="home-mini-label">${name}</span>
+              <span class="home-mini-label">${labelMarkup}</span>
             </a>
           `;
         })

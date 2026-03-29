@@ -55,7 +55,7 @@
       color: #fff;
     }
 
-    /* Dwukolumnowy ukad formularza */
+    /* Dwukolumnowy układ formularza */
     .d-two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -92,7 +92,7 @@
       .d-two-col { grid-template-columns: 1fr; }
     }
 
-    /* Dwukolumnowy ukad formularza */
+    /* Dwukolumnowy układ formularza */
     .d-two-col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -137,7 +137,7 @@
   </style>
   <h2>Druk A4/A3 + skan</h2>
 
-  <!-- UKAD DWUKOLUMNOWY -->
+  <!-- UKŁAD DWUKOLUMNOWY -->
   <div class="d-two-col">
 
     <!-- LEWA KOLUMNA: druk i skan -->
@@ -146,7 +146,7 @@
       <div class="form-group">
         <label>Rodzaj:</label>
         <select id="d-mode">
-          <option value="bw">Czarnobiay</option>
+          <option value="bw">Czarno-biały</option>
           <option value="color">Kolorowy</option>
         </select>
       </div>
@@ -160,14 +160,14 @@
       </div>
 
       <div class="form-group">
-        <label>Ilo stron do druku:</label>
+        <label>Ilość stron do druku:</label>
         <input type="number" id="d-print-qty" min="0" value="1">
       </div>
 
       <div class="form-group">
         <label>
           <span class="label-title">Zadruk &gt;25%</span>
-          <span class="label-sub">Liczba stron z dopat +50%</span>
+          <span class="label-sub">Liczba stron z dopłatą +50%</span>
         </label>
         <input type="number" id="d-surcharge-qty" min="0" value="0">
       </div>
@@ -179,13 +179,13 @@
         <select id="d-scan-type">
           <option value="none">Brak</option>
           <option value="auto">Automatyczne</option>
-          <option value="manual">Rczne z szyby</option>
+          <option value="manual">Ręczne z szyby</option>
         </select>
       </div>
 
       <div class="form-row d-hidden" id="scan-qty-row">
         <div class="form-group">
-          <label>Ilo stron do skanowania:</label>
+          <label>Ilość stron do skanowania:</label>
           <input type="number" id="d-scan-qty" min="0" value="1">
         </div>
       </div>
@@ -199,17 +199,19 @@
 
         <div class="d-inline-check">
           <input type="checkbox" id="d-email">
-          <label for="d-email">E-mail (+1 z)</label>
+          <label for="d-email">E-mail (+1 zł)</label>
         </div>
 
         <div class="d-inline-check">
           <input type="checkbox" id="d-label-sticker">
-          <label for="d-label-sticker">Naklejka / paczka (+1,60 z)</label>
+          <label for="d-label-sticker">Naklejka / paczka (+1,60 zł)</label>
         </div>
 
         <div class="d-inline-check">
           <input type="checkbox" id="d-sleeve">
-          <label for="d-sleeve">Koszulka (+0,80 z)</label>
+          <label for="d-sleeve">Koszulka (+0,80 zł/szt.)</label>
+          <input type="number" id="d-sleeve-qty" min="0" value="0" style="width: 78px;" aria-label="Ilość koszulek">
+          <span>szt.</span>
         </div>
       </div>
     </div><!-- /.d-right-col -->

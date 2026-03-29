@@ -29,6 +29,7 @@ export const DrukA4A3SkanView: View = {
     const emailCheck = container.querySelector("#d-email") as HTMLInputElement;
     const labelStickerCheck = container.querySelector("#d-label-sticker") as HTMLInputElement | null;
     const sleeveCheck = container.querySelector("#d-sleeve") as HTMLInputElement | null;
+    const sleeveQtyInput = container.querySelector("#d-sleeve-qty") as HTMLInputElement | null;
     const surchargeCheck = container.querySelector("#d-surcharge") as HTMLInputElement | null;
     const surchargeQtyInput = container.querySelector("#d-surcharge-qty") as HTMLInputElement;
     const surchargeQtyRow = container.querySelector("#surcharge-qty-row") as HTMLElement | null;
@@ -68,6 +69,19 @@ export const DrukA4A3SkanView: View = {
       scanQtyRow.style.display = scanTypeSelect.value !== "none" ? "flex" : "none";
     };
 
+    const updateSleeveQtyState = () => {
+      if (!sleeveQtyInput || !sleeveCheck) return;
+      sleeveQtyInput.disabled = !sleeveCheck.checked;
+      if (!sleeveCheck.checked) {
+        sleeveQtyInput.value = "0";
+      } else if ((parseInt(sleeveQtyInput.value) || 0) <= 0) {
+        sleeveQtyInput.value = "1";
+      }
+    };
+
+    sleeveCheck?.addEventListener("change", updateSleeveQtyState);
+    updateSleeveQtyState();
+
     let currentResult: any = null;
     let currentOptions: any = null;
 
@@ -75,6 +89,11 @@ export const DrukA4A3SkanView: View = {
       const printQty = parseInt(printQtyInput.value) || 0;
       const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
       const surchargeQty = Math.min(Math.max(requestedSurchargeQty, 0), Math.max(printQty, 0));
+      const requestedSleeveQty = Math.max(0, parseInt(sleeveQtyInput?.value || "0") || 0);
+      const sleeveQty = (sleeveCheck?.checked ?? false) ? Math.max(1, requestedSleeveQty) : 0;
+      if (sleeveQtyInput && requestedSleeveQty !== sleeveQty) {
+        sleeveQtyInput.value = String(sleeveQty);
+      }
       if (requestedSurchargeQty !== surchargeQty) {
         surchargeQtyInput.value = String(surchargeQty);
       }
@@ -87,6 +106,7 @@ export const DrukA4A3SkanView: View = {
         email: emailCheck.checked,
         labelSticker: !!labelStickerCheck?.checked,
         sleeve: !!sleeveCheck?.checked,
+        sleeveQty,
         surcharge,
         surchargeQty,
         scanType: scanTypeSelect.value,
@@ -159,7 +179,9 @@ export const DrukA4A3SkanView: View = {
       if (hasScan) details.push(`skan ${scanLabel}: ${scanQty} str.`);
       if (currentOptions.email) details.push("wysyłka e-mail");
       if (currentOptions.labelSticker) details.push("naklejka (druk A4): +1,60 zł");
-      if (currentOptions.sleeve) details.push("koszulka: +0,80 zł");
+      if (currentOptions.sleeve && currentOptions.sleeveQty > 0) {
+        details.push(`koszulka: ${currentOptions.sleeveQty} szt.`);
+      }
       if (ctx.expressMode) details.push("EXPRESS");
 
       const itemNameParts: string[] = [];
@@ -187,6 +209,7 @@ export const DrukA4A3SkanView: View = {
           email: !!currentOptions.email,
           labelSticker: !!currentOptions.labelSticker,
           sleeve: !!currentOptions.sleeve,
+          sleeveQty: Number(currentOptions.sleeveQty) || 0,
           express: !!ctx.expressMode,
           breakdown: {
             totalPrintPrice: currentResult.totalPrintPrice,
