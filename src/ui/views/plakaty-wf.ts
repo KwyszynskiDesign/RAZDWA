@@ -22,7 +22,7 @@ export const PlakatyWFView: View = {
       container.innerHTML = await response.text();
       this.initLogic(container, ctx);
     } catch (err) {
-      container.innerHTML = `<div class="error">B\u0142\u0105d \u0142adowania: ${err}</div>`;
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }
   },
 
@@ -109,7 +109,7 @@ export const PlakatyWFView: View = {
       lengthGroup.style.display = "";
       lengthInput.value = "";
       lengthInput.placeholder = `np. ${dims.lengthMm}`;
-      lengthLabel.innerText = `D\u0142ugo\u015B\u0107 drugiego boku dla ${dims.widthMm} mm (mm):`;
+      lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
     };
 
     const updateVisibility = () => {
@@ -131,7 +131,7 @@ export const PlakatyWFView: View = {
         const matId = materialSelect.value;
         const fmt = formatSelect.value;
         const qty = parsePositiveInt(qtyInput.value);
-        if (!qty) throw new Error("Podaj ilo\u015B\u0107 sztuk.");
+        if (!qty) throw new Error("Podaj ilość sztuk.");
 
         const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
           ? (parseFloat(lengthInput.value) || undefined)
@@ -148,7 +148,7 @@ export const PlakatyWFView: View = {
           if (res.discountFactor < 1) {
             const pct = Math.round((1 - res.discountFactor) * 100);
             const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
-            discountLabel.innerText = `Rabat ilo\u015Bciowy ${pct}%:`;
+            discountLabel.innerText = `Rabat ilościowy ${pct}%:`;
             discountVal.innerText = `-${formatPLN(saved)}`;
             discountRow.style.display = "";
           } else {
@@ -161,7 +161,7 @@ export const PlakatyWFView: View = {
         const sizeLabel = (dimsForDisplay && customLengthMm && customLengthMm !== dimsForDisplay.lengthMm)
           ? `${dimsForDisplay.widthMm}\u00d7${customLengthMm}\u00a0mm`
           : fmtLabel;
-        if (qtyLabel) qtyLabel.innerText = "Ilo\u015B\u0107:";
+        if (qtyLabel) qtyLabel.innerText = "Ilość:"; 
         if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
 
         if (calcHintEl) {
@@ -176,7 +176,7 @@ export const PlakatyWFView: View = {
         addBtn.disabled = false;
         ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty wielkoformatowe");
       } catch (err) {
-        alert("B\u0142\u0105d: " + (err as Error).message);
+        alert("Błąd: " + (err as Error).message);
       }
     };
 
@@ -189,7 +189,7 @@ export const PlakatyWFView: View = {
       const sizeLabelCart = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm)
         ? `${dimsForCart.widthMm}\u00d7${currentOptions.customLengthMm}\u00a0mm`
         : fmtLabel;
-      const lengthHint = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm) ? "" : (currentOptions.customLengthMm ? `, d\u0142ugo\u015B\u0107: ${currentOptions.customLengthMm} mm` : "");
+      const lengthHint = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm) ? "" : (currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "");
       const calcHint = buildNieformatCalcHint(currentResult);
       const hintBase = `${sizeLabelCart} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
       const hint = calcHint ? `${hintBase} | ${calcHint.replace(/<br>/g, " ")}` : hintBase;
