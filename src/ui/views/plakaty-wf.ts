@@ -6,10 +6,14 @@ import { getPrice } from "../../services/priceService";
 const data: any = getPrice("plakaty");
 
 const FORMAT_LABELS: Record<string, string> = {
-  "297x420": "A3 (297x420)",
-  "420x594": "A2 (420x594)",
-  "594x841": "A1 (594x841)",
-  "841x1189": "A0 (841x1189)",
+  "297x420":  "A3 (297×420 mm)",
+  "420x594":  "A2 (420×594 mm)",
+  "594x841":  "A1 (594×841 mm)",
+  "610x841":  "A1+ (610×841 mm)",
+  "841x1189": "A0 (841×1189 mm)",
+  "914x1189": "B0 (914×1189 mm)",
+  "914x1292": "A0+ (914×1292 mm)",
+  "rolka1067": "Rolka 1067 mm",
 };
 
 export const PlakatyWFView: View = {
