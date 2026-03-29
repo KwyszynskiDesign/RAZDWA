@@ -13,8 +13,7 @@ const FORMAT_LABELS: Record<string, string> = {
   // PP (Polipropylen) – szerokość 610
   "610x841":  "A1+ (610×841 mm)",
   // Wielkoformatowe ≥ A0
-  "914x1189": "A0+ (914×1189 mm)",
-  "914x1292": "A0++ (914×1292 mm)",
+  "914x1292": "A0+ (914×1292 mm)",
   // Rolka
   "rolka1067": "Rolka 1067 mm",
 };

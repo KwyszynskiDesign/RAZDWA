@@ -50,7 +50,7 @@
     '120g-formatowe': {
       name: '120g Formatowe',
       discountGroup: '120g',
-      prices: { '297x420': 9, '420x594': 12, '594x841': 18, '841x1189': 28, '914x1189': 34, '914x1292': 50, 'rolka1067': 68 },
+      prices: { '297x420': 9, '420x594': 12, '594x841': 18, '841x1189': 28, '914x1292': 50, 'rolka1067': 68 },
     },
     '120g-nieformatowe': {
       name: '120g Nieformatowe',
