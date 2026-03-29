@@ -1,4 +1,4 @@
-<div class="category-view">
+﻿<div class="category-view">
     <div class="view-header">
         <h2>Plakaty wielkoformatowe A3-A0+</h2>
     </div>
@@ -7,7 +7,7 @@
         <div class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
             <h3 style="margin:0 0 10px 0; font-size:16px;">Wielkoformatowe (A3-A0)</h3>
             <div class="form-group">
-                <label for="p-material">Papier / Materiał:</label>
+                <label for="p-material">Papier / MateriaĹ‚:</label>
                 <select id="p-material" class="form-control">
                     <!-- populated by JS -->
                 </select>
@@ -19,28 +19,28 @@
                     <!-- populated by JS -->
                 </select>
                 <div id="p-length-group" style="margin-top:10px; display:none;">
-                    <label for="p-length-mm" id="p-length-label">Długość (mm):</label>
+                    <label for="p-length-mm" id="p-length-label">DĹ‚ugoĹ›Ä‡ (mm):</label>
                     <input type="number" id="p-length-mm" class="form-control" placeholder="np. 420" min="1" step="1" inputmode="numeric" autocomplete="off">
-                    <div class="hint">Możesz wpisać własną długość drugiego boku w mm (opcjonalnie).</div>
+                    <div class="hint">MoĹĽesz wpisaÄ‡ wĹ‚asnÄ… dĹ‚ugoĹ›Ä‡ drugiego boku w mm (opcjonalnie).</div>
                 </div>
-                <label for="p-qty" style="margin-top:10px;">Ilość (szt):</label>
+                <label for="p-qty" style="margin-top:10px;">IloĹ›Ä‡ (szt):</label>
                 <input type="number" id="p-qty" class="form-control" placeholder="np. 10" min="1" step="1" inputmode="numeric" autocomplete="off">
                 <div style="margin-top:12px; border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px;">
-                    <div style="font-weight:700; margin-bottom:8px;">Rabaty ilościowe</div>
+                    <div style="font-weight:700; margin-bottom:8px;">Rabaty iloĹ›ciowe</div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; font-size:13px;">
                         <div>
                             <div style="font-weight:600; margin-bottom:4px;">120g / 180g PP</div>
                             <ul style="margin:0 0 0 16px; padding:0; line-height:1.5;">
-                                <li>2–5 szt: -5%</li>
-                                <li>6–20 szt: -8%</li>
-                                <li>21–30 szt: -13%</li>
+                                <li>2â€“5 szt: -5%</li>
+                                <li>6â€“20 szt: -8%</li>
+                                <li>21â€“30 szt: -13%</li>
                             </ul>
                         </div>
                         <div>
                             <div style="font-weight:600; margin-bottom:4px;">260g Satyna</div>
                             <ul style="margin:0 0 0 16px; padding:0; line-height:1.5;">
-                                <li>9–20 szt: -7%</li>
-                                <li>21–30 szt: -12%</li>
+                                <li>9â€“20 szt: -7%</li>
+                                <li>21â€“30 szt: -12%</li>
                             </ul>
                         </div>
                     </div>
@@ -58,23 +58,26 @@
 
     <div id="p-result-display" class="result-display card" style="display: none;">
         <div class="result-row">
-            <span id="p-qty-label">Ilość:</span>
+            <span id="p-qty-label">IloĹ›Ä‡:</span>
             <span id="p-qty-val" class="price-unit">-</span>
         </div>
+        <div id="p-calc-hint" style="display:none; font-size:12px; color:#93c5fd; margin: 4px 0 8px 0; line-height:1.7; background:rgba(59,130,246,0.07); border:1px solid rgba(59,130,246,0.18); border-radius:8px; padding:8px 12px;"></div>
         <div class="result-row">
             <span>Cena jednostkowa:</span>
             <span id="p-unit-price" class="price-unit">-</span>
         </div>
         <div id="p-discount-row" class="result-row" style="display:none; color:#e67e22;">
-            <span id="p-discount-label">Rabat ilościowy:</span>
+            <span id="p-discount-label">Rabat iloĹ›ciowy:</span>
             <span id="p-discount-val" class="price-unit">-</span>
         </div>
         <div class="result-row">
-            <span>Cena łączna:</span>
+            <span>Cena Ĺ‚Ä…czna:</span>
             <span id="p-total-price" class="price-value">-</span>
         </div>
         <div id="p-express-hint" class="express-hint" style="display: none;">
-            W tym dopłata EXPRESS +20%
+            W tym dopĹ‚ata EXPRESS +20%
         </div>
     </div>
 </div>
+
+
