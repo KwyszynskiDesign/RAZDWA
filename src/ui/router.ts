@@ -25,7 +25,24 @@ export class Router {
       .replace(/'/g, "&#39;");
   }
   
-  private renderCategoryIcon(icon: string, name: string): string {
+  private getCustomHomeIcon(id: string): string | null {
+    if (id === "roll-up") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="M12 16v5"/><path d="M8 21h8"/></svg>`;
+    }
+
+    if (id === "laminowanie") {
+      return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/></svg>`;
+    }
+
+    return null;
+  }
+
+  private renderCategoryIcon(icon: string, name: string, id?: string): string {
+    if (id) {
+      const customIcon = this.getCustomHomeIcon(id);
+      if (customIcon) return customIcon;
+    }
+
     if (this.isIconUrl(icon)) {
       const safeUrl = this.escapeHtml(icon);
       const safeAlt = this.escapeHtml(name);
@@ -168,7 +185,7 @@ export class Router {
           const id = String(cat.id ?? "");
           const icon = String(cat.icon ?? "📁");
           const name = String(cat.name ?? id);
-          const iconMarkup = this.renderCategoryIcon(icon, name);
+          const iconMarkup = this.renderCategoryIcon(icon, name, id);
           const labelMarkup = this.renderHomeTileLabel(id, name);
           return `
             <a href="#/${id}" class="home-mini-tile" aria-label="Przejdź do ${name}">

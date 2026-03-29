@@ -192,6 +192,14 @@ export interface PlakatyFormatResult {
   appliedModifiers: string[];
 }
 
+function calculateByLengthCadStyle(unitPriceForBaseFormat: number, baseLengthMm: number, lengthMm: number): number {
+  if (!Number.isFinite(unitPriceForBaseFormat) || unitPriceForBaseFormat < 0) return 0;
+  if (!Number.isFinite(baseLengthMm) || baseLengthMm <= 0) return unitPriceForBaseFormat;
+  const ratePerMeter = unitPriceForBaseFormat / (baseLengthMm / 1000);
+  const lengthMeters = lengthMm / 1000;
+  return parseFloat((ratePerMeter * lengthMeters).toFixed(2));
+}
+
 export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormatResult {
   const data = fullData as any;
   const mat = data.formatowe.materials.find((m: any) => m.id === input.materialId);
@@ -210,11 +218,14 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     baseLengthMm !== null && input.customLengthMm && input.customLengthMm > 0
       ? input.customLengthMm
       : baseLengthMm;
+  const isNieformatowe = input.materialId.includes("nieformatowe");
   const lengthFactor =
     baseLengthMm !== null && customLengthMm !== null
       ? parseFloat((customLengthMm / baseLengthMm).toFixed(6))
       : 1;
-  const effectiveUnitPrice = parseFloat((unitPrice * lengthFactor).toFixed(2));
+  const effectiveUnitPrice = isNieformatowe && baseLengthMm !== null && customLengthMm !== null
+    ? calculateByLengthCadStyle(unitPrice, baseLengthMm, customLengthMm)
+    : parseFloat((unitPrice * lengthFactor).toFixed(2));
 
   // Find discount factor
   const discountGroup: string = mat.discountGroup;
