@@ -24,6 +24,11 @@ export const RollUpView: View = {
 
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
+    let currentOptions: RollUpOptions | null = null;
+    let currentResult: ReturnType<typeof calculateRollUp> | null = null;
+
+    addToCartBtn.disabled = true;
+
     const calculate = () => {
       const options: RollUpOptions = {
         format: formatSel.value,
@@ -33,6 +38,9 @@ export const RollUpView: View = {
       };
 
       const result = calculateRollUp(options);
+      currentOptions = options;
+      currentResult = result;
+
       const unitBase = parseFloat((result.basePrice / options.qty).toFixed(2));
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
@@ -67,30 +75,33 @@ export const RollUpView: View = {
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(result.totalPrice);
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
 
+      addToCartBtn.disabled = false;
       ctx.updateLastCalculated(result.totalPrice, "Roll-up");
-      return { options, result };
     };
 
-    calcBtn.addEventListener("click", () => calculate());
+    calcBtn.addEventListener("click", () => {
+      try {
+        calculate();
+      } catch (err) {
+        alert("Błąd: " + (err as Error).message);
+      }
+    });
 
     addToCartBtn.addEventListener("click", () => {
-      const { options, result } = calculate();
+      if (!currentOptions || !currentResult) return;
 
       ctx.cart.addItem({
         id: `rollup-${Date.now()}`,
         category: "Roll-up",
-        name: `${options.isReplacement ? 'Wymiana wkładu' : 'Roll-up Komplet'} ${options.format}`,
-        quantity: options.qty,
+        name: `${currentOptions.isReplacement ? 'Wymiana wkładu' : 'Roll-up Komplet'} ${currentOptions.format}`,
+        quantity: currentOptions.qty,
         unit: "szt",
-        unitPrice: result.totalPrice / options.qty,
-        isExpress: options.express,
-        totalPrice: result.totalPrice,
-        optionsHint: `${options.format}, ${options.qty} szt`,
-        payload: options
+        unitPrice: currentResult.totalPrice / currentOptions.qty,
+        isExpress: currentOptions.express,
+        totalPrice: currentResult.totalPrice,
+        optionsHint: `${currentOptions.format}, ${currentOptions.qty} szt`,
+        payload: currentOptions
       });
     });
-
-    // Initial calculation
-    calculate();
   }
 };

@@ -3,6 +3,7 @@ import {
   calculateCadUpload,
   detectFormatFromDimensions,
   calculatePriceFromDimensions,
+  calculateCadScanningPrice,
 } from "../src/categories/cad-upload";
 
 // ─── detectFormatFromDimensions ───────────────────────────────────────────────
@@ -80,5 +81,32 @@ describe("calculateCadUpload", () => {
 
   it("qty < 1 → błąd", () => {
     expect(() => calculateCadUpload({ wMm: 841, hMm: 1189, qty: 0 })).toThrow();
+  });
+});
+
+// ─── calculateCadScanningPrice ────────────────────────────────────────────────
+describe("calculateCadScanningPrice", () => {
+  it("297×2519 scanning=true qty=1 → dłuższy bok 252cm * 0.08 = 20.16 zł", () => {
+    // 2519mm / 10 = 251.9 → zaokrąglone 252cm; 252 * 0.08 = 20.16
+    expect(calculateCadScanningPrice(297, 2519, true, 1)).toBeCloseTo(20.16, 2);
+  });
+
+  it("594×841 scanning=true qty=1 → dłuższy bok 84cm * 0.08 = 6.72 zł", () => {
+    // 841mm / 10 = 84.1 → zaokrąglone 84cm; 84 * 0.08 = 6.72
+    expect(calculateCadScanningPrice(594, 841, true, 1)).toBeCloseTo(6.72, 2);
+  });
+
+  it("841×297 (landscape) scanning=true qty=1 → dłuższy bok 84cm * 0.08 = 6.72 zł", () => {
+    // szerszy bok to 841mm – powinien dać ten sam wynik co wyżej
+    expect(calculateCadScanningPrice(841, 297, true, 1)).toBeCloseTo(6.72, 2);
+  });
+
+  it("scanning=false → 0 zł", () => {
+    expect(calculateCadScanningPrice(297, 2519, false, 1)).toBe(0);
+  });
+
+  it("qty=3 → wynik × 3", () => {
+    // 2519mm → 252cm; 252 * 0.08 * 3 = 60.48
+    expect(calculateCadScanningPrice(297, 2519, true, 3)).toBeCloseTo(60.48, 2);
   });
 });
