@@ -1,4 +1,4 @@
-import { CAD_BASE, CAD_PRICE, FOLD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
+import { CAD_BASE, CAD_PRICE, FOLD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM, resolveStoredPrice } from "../core/compat";
 import { money } from "../core/compat";
 import { PDFDocument } from "pdf-lib";
 
@@ -191,6 +191,19 @@ function calculateCadPrintPriceWithDimensions(
 /**
  * Calculate folding price for CAD file.
  */
+/**
+ * Mapping from format key to defaultPrices storage key for folding.
+ */
+const FOLD_STORAGE_KEY: Record<string, string> = {
+  A0p: "cad-fold-a0plus",
+  A0: "cad-fold-a0",
+  A1p: "cad-fold-a1plus",
+  A1: "cad-fold-a1",
+  A2: "cad-fold-a2",
+  A3: "cad-fold-a3",
+  A3L: "cad-fold-a3l",
+};
+
 export function calculateCadFoldingPrice(
   format: string,
   isFormatowy: boolean,
@@ -201,7 +214,9 @@ export function calculateCadFoldingPrice(
 ): number {
   if (!folding) return 0;
 
-  const unitPrice = typeof FOLD_PRICE?.[format] === "number" ? FOLD_PRICE[format] : 0;
+  const storageKey = FOLD_STORAGE_KEY[format];
+  const defaultPrice = typeof FOLD_PRICE?.[format] === "number" ? FOLD_PRICE[format] : 0;
+  const unitPrice = storageKey ? resolveStoredPrice(storageKey, defaultPrice) : defaultPrice;
   return unitPrice > 0 ? qty * unitPrice : 0;
 }
 
@@ -329,7 +344,7 @@ export function updateCadFileEntry(
   const format = entry.format || 'unknown';
   const isFormatowy = entry.isFormatowy || false;
   const qty = entry.pageCount || 1;
-  const foldingQty = entry.folding ? 1 : 0;
+  const foldingQty = entry.folding ? qty : 0;
 
   console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning, pageCount: qty });
 

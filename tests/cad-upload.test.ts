@@ -123,7 +123,11 @@ describe("CAD folding in upload", () => {
     expect(calculateCadFoldingPrice("A1", false, 594, 1200, true, 1)).toBe(2.0);
   });
 
-  it("wielostronicowy PDF nalicza składanie tylko raz na plik", () => {
+  it("A1+ (A1p) ma własną stawkę składania 3.0 zł (A1 + 1 zł)", () => {
+    expect(calculateCadFoldingPrice("A1p", true, 610, 914, true, 2)).toBe(6.0);
+  });
+
+  it("wielostronicowy PDF nalicza składanie za każdy dokument (stronę)", () => {
     const updated = updateCadFileEntry(
       {
         id: 1,
@@ -143,7 +147,7 @@ describe("CAD folding in upload", () => {
       "color"
     );
 
-    expect(updated.foldingPrice).toBe(2.0);
+    expect(updated.foldingPrice).toBe(10.0);
   });
 
   it("bez składania cena składania wynosi 0", () => {

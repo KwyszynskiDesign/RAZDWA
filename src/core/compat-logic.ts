@@ -8,6 +8,7 @@ import {
   BIZ,
   pickTier,
   pickNearestCeilKey,
+  resolveStoredPrice,
   money,
   readStoredPrices,
 } from "./compat";
@@ -142,10 +143,23 @@ export function calculateCad(options: {
   };
 }
 
+/** Mapping from format key to defaultPrices storage key for folding. */
+const FOLD_STORAGE_KEY: Record<string, string> = {
+  A0p: "cad-fold-a0plus",
+  A0: "cad-fold-a0",
+  A1p: "cad-fold-a1plus",
+  A1: "cad-fold-a1",
+  A2: "cad-fold-a2",
+  A3: "cad-fold-a3",
+  A3L: "cad-fold-a3l",
+};
+
 /** CAD Folding logic */
 export function calculateCadFold(options: { format: string; qty: number }) {
-  const unit = FOLD_PRICE[options.format];
-  if (unit == null) throw new Error("Brak stawki składania.");
+  const defaultUnit = FOLD_PRICE[options.format];
+  if (defaultUnit == null) throw new Error("Brak stawki składania.");
+  const storageKey = FOLD_STORAGE_KEY[options.format];
+  const unit = storageKey ? resolveStoredPrice(storageKey, defaultUnit) : defaultUnit;
   return {
     unit,
     total: options.qty * unit,

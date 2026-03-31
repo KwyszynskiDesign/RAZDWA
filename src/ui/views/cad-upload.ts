@@ -237,7 +237,7 @@ export const CadUploadView: View = {
                 ⚫ Czarny: ${isMb ? `${lengthMeters.toFixed(3)} × ${bwUnit.toFixed(2)} × ${file.pageCount}` : `${bwUnit.toFixed(2)} × ${file.pageCount}`} = ${formatPLN(bwPrintBase)} → po opcjach ${formatPLN(bwPrintAfterSurcharge)}
               </div>
               <div class="obliczenie-text">
-                Dodatki: składanie ${file.folding ? `1 × ${formatPLN(file.foldingPrice)} za dokument` : formatPLN(file.foldingPrice)}, skan ${formatPLN(file.scanPrice)}
+                Dodatki: składanie ${file.folding ? `${file.pageCount} × stawka formatu = ${formatPLN(file.foldingPrice)}` : formatPLN(file.foldingPrice)}, skan ${formatPLN(file.scanPrice)}
               </div>
               <div class="obliczenie-cena">
                 🎨 ${formatPLN(rowColor)} &nbsp;|&nbsp; ⚫ ${formatPLN(rowBw)}
@@ -418,7 +418,7 @@ export const CadUploadView: View = {
           </div>` : ''}
           ${totalFoldingColorVariant > 0 ? `
           <div class="summary-item">
-            <span>Składanie (1× za dokument):</span>
+            <span>Składanie (stawka × liczba dokumentów):</span>
             <span>${formatPLN(totalFoldingColorVariant)}</span>
           </div>` : ''}
           ${totalScanColorVariant > 0 ? `

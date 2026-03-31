@@ -151,6 +151,14 @@ const PRICE_LABELS: Record<string, string> = {
   "druk-cad-bw-mb-a0": "CAD czarno-biały metr bieżący – A0",
   "druk-cad-bw-mb-a0plus": "CAD czarno-biały metr bieżący – A0+",
   "druk-cad-bw-mb-mb1067": "CAD czarno-biały metr bieżący – rolka 1067 mm",
+  // Składanie CAD
+  "cad-fold-a0plus": "Składanie CAD – A0+",
+  "cad-fold-a0": "Składanie CAD – A0",
+  "cad-fold-a1plus": "Składanie CAD – A1+ (610)",
+  "cad-fold-a1": "Składanie CAD – A1",
+  "cad-fold-a2": "Składanie CAD – A2",
+  "cad-fold-a3": "Składanie CAD – A3",
+  "cad-fold-a3l": "Składanie CAD – A3 poprzeczne",
   // Laminowanie
   "laminowanie-a3-1-50": "Laminowanie A3 – 1–50 szt.",
   "laminowanie-a3-51-100": "Laminowanie A3 – 51–100 szt.",
@@ -516,8 +524,8 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "druk-cad",
     label: "CAD wielkoformatowy",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
-    prefixes: ["druk-cad-"],
-    description: "Stawki CAD formatowe i za metr bieżący.",
+    prefixes: ["druk-cad-", "cad-fold-"],
+    description: "Stawki CAD formatowe, za metr bieżący oraz składanie.",
     newKeyPrefix: "druk-cad-bw-fmt-"
   },
   {
