@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateSolwentPlakaty } from "../../categories/solwent-plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -28,7 +29,6 @@ export const SolwentPlakatyView: View = {
   initLogic(container: HTMLElement, ctx: ViewContext) {
     const materialSelect = container.querySelector("#material") as HTMLSelectElement;
     const areaInput = container.querySelector("#area") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#result-display") as HTMLElement;
     const unitPriceSpan = container.querySelector("#unit-price") as HTMLElement;
@@ -38,29 +38,27 @@ export const SolwentPlakatyView: View = {
 
     let currentResult: any = null;
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       const input = {
         material: materialSelect.value,
         areaM2: parseFloat(areaInput.value),
         express: ctx.expressMode
       };
 
-      try {
-        const result = calculateSolwentPlakaty(input);
-        currentResult = result;
+      const result = calculateSolwentPlakaty(input);
+      currentResult = result;
 
-        unitPriceSpan.innerText = formatPLN(result.tierPrice);
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (areaValSpan) areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+      unitPriceSpan.innerText = formatPLN(result.tierPrice);
+      totalPriceSpan.innerText = formatPLN(result.totalPrice);
+      if (areaValSpan) areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultDisplay.style.display = "block";
+      addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Solwent - Plakaty");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
+      ctx.updateLastCalculated(result.totalPrice, "Solwent - Plakaty");
     };
+
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (currentResult) {

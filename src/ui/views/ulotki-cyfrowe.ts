@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
 import { quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
@@ -24,7 +25,6 @@ export const UlotkiCyfroweView: View = {
     const formatSelect = container.querySelector("#u-format") as HTMLSelectElement;
     const qtySelect = container.querySelector("#u-qty") as HTMLSelectElement;
     const paperSelect = container.querySelector("#u-paper") as HTMLSelectElement;
-    const calculateBtn = container.querySelector("#u-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#u-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#u-result-display") as HTMLElement;
     const breakdownDisplay = container.querySelector("#u-breakdown-display") as HTMLElement;
@@ -36,7 +36,7 @@ export const UlotkiCyfroweView: View = {
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
     const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
 
-    if (!formatSelect || !qtySelect || !paperSelect || !calculateBtn || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
+    if (!formatSelect || !qtySelect || !paperSelect || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
       container.innerHTML = `<div class="error">Błąd: brak elementów formularza ulotek.</div>`;
       return;
     }
@@ -136,7 +136,7 @@ export const UlotkiCyfroweView: View = {
       }
     };
 
-    calculateBtn.onclick = performCalculation;
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
@@ -168,12 +168,6 @@ export const UlotkiCyfroweView: View = {
       }
     };
 
-    [formatSelect, qtySelect, paperSelect].forEach(el => {
-      el.addEventListener("change", performCalculation);
-    });
-    sidesInputs.forEach(input => input.addEventListener("change", performCalculation));
-
     populateTables();
-    performCalculation();
   }
 };

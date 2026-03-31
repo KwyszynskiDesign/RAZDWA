@@ -1,4 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateWycinanieFolii, WycinanieFoliiOptions } from "../../categories/wycinanie-folii";
 import { formatPLN } from "../../core/money";
 
@@ -24,7 +25,6 @@ export const WycinanieFoliiView: View = {
     const silverCheck = container.querySelector("#wf-silver") as HTMLInputElement;
     const customCheck = container.querySelector("#wf-custom") as HTMLInputElement;
     const foilTypeCheckboxes = container.querySelectorAll(".wf-foil-type") as NodeListOf<HTMLInputElement>;
-    const calcBtn = container.querySelector("#wf-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
     const resultEl = container.querySelector("#wf-result") as HTMLElement;
@@ -94,13 +94,7 @@ export const WycinanieFoliiView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Wycinanie z folii");
     };
 
-    calcBtn.onclick = () => {
-      try {
-        calculate();
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
-    };
+    autoCalc({ root: container, calc: calculate });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;

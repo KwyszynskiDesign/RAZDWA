@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -32,13 +33,11 @@ export const PlakatyA4A3View: View = {
     const canonFinishSelect = container.querySelector("#pa-canon-finish") as HTMLSelectElement;
     const canonFormatSelect = container.querySelector("#pa-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#pa-canon-qty") as HTMLInputElement;
-    const canonCalcBtn = container.querySelector("#pa-canon-calculate") as HTMLButtonElement;
 
     const duzyCanonPaperSelect = container.querySelector("#pa-duzy-canon-paper") as HTMLSelectElement;
     const duzyCanonFinishSelect = container.querySelector("#pa-duzy-canon-finish") as HTMLSelectElement;
     const duzyCanonFormatSelect = container.querySelector("#pa-duzy-canon-format") as HTMLSelectElement;
     const duzyCanonQtyInput = container.querySelector("#pa-duzy-canon-qty") as HTMLInputElement;
-    const duzyCanonCalcBtn = container.querySelector("#pa-duzy-canon-calculate") as HTMLButtonElement;
 
     const addBtn = container.querySelector("#pa-add-to-cart") as HTMLButtonElement;
     const resultBox = container.querySelector("#pa-result-display") as HTMLElement;
@@ -112,71 +111,65 @@ export const PlakatyA4A3View: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    canonCalcBtn.onclick = () => {
-      try {
-        const qty = parsePositiveInt(canonQtyInput.value);
-        if (!qty) throw new Error("Podaj ilość sztuk dla Małego Canon.");
-        const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
-        const matId = resolveMalyCanonVariantId();
-        const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
-        const paper = canonPaperSelect.value;
+    const calcMalyCanon = () => {
+      const qty = parsePositiveInt(canonQtyInput.value);
+      if (!qty) return;
+      const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
+      const matId = resolveMalyCanonVariantId();
+      const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
+      const paper = canonPaperSelect.value;
 
-        const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
-        currentResult = res;
-        currentOptions = { type: "canon", matId, fmt, qty, finish, paper };
+      const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
+      currentResult = res;
+      currentOptions = { type: "canon", matId, fmt, qty, finish, paper };
 
-        unitPriceEl.innerText = formatPLN(res.tierPrice);
-        totalPriceEl.innerText = formatPLN(res.totalPrice);
+      unitPriceEl.innerText = formatPLN(res.tierPrice);
+      totalPriceEl.innerText = formatPLN(res.totalPrice);
 
-        if (discountRow && discountLabel && discountVal) {
-          if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
-            const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
-            discountLabel.innerText = `Rabat ilościowy (${res.qty} szt):`;
-            discountVal.innerText = `-${formatPLN(saved)}`;
-            discountRow.style.display = "";
-          } else {
-            discountRow.style.display = "none";
-          }
+      if (discountRow && discountLabel && discountVal) {
+        if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
+          const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
+          discountLabel.innerText = `Rabat ilościowy (${res.qty} szt):`;
+          discountVal.innerText = `-${formatPLN(saved)}`;
+          discountRow.style.display = "";
+        } else {
+          discountRow.style.display = "none";
         }
-
-        if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultBox.style.display = "block";
-        addBtn.disabled = false;
-        ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Mały Canon)");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
       }
+
+      if (qtyLabel) qtyLabel.innerText = "Ilość:";
+      if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultBox.style.display = "block";
+      addBtn.disabled = false;
+      ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Mały Canon)");
     };
 
-    duzyCanonCalcBtn.onclick = () => {
-      try {
-        const qty = parsePositiveInt(duzyCanonQtyInput.value);
-        if (!qty) throw new Error("Podaj ilość sztuk dla Dużego Canon.");
+    const calcDuzyCanon = () => {
+      const qty = parsePositiveInt(duzyCanonQtyInput.value);
+      if (!qty) return;
 
-        const variantId = resolveDuzyCanonVariantId();
-        const finish = duzyCanonFinishSelect.value === "blysk" ? "błysk" : "mat";
-        const paper = duzyCanonPaperSelect.value;
-        const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
+      const variantId = resolveDuzyCanonVariantId();
+      const finish = duzyCanonFinishSelect.value === "blysk" ? "błysk" : "mat";
+      const paper = duzyCanonPaperSelect.value;
+      const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
 
-        currentResult = res;
-        currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper };
+      currentResult = res;
+      currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper };
 
-        unitPriceEl.innerText = formatPLN(res.tierPrice);
-        totalPriceEl.innerText = formatPLN(res.totalPrice);
-        if (discountRow) discountRow.style.display = "none";
+      unitPriceEl.innerText = formatPLN(res.tierPrice);
+      totalPriceEl.innerText = formatPLN(res.totalPrice);
+      if (discountRow) discountRow.style.display = "none";
 
-        if (qtyLabel) qtyLabel.innerText = "Ilość:";
-        if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${paper}g kreda, ${finish}`;
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultBox.style.display = "block";
-        addBtn.disabled = false;
-        ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Duży Canon)");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
+      if (qtyLabel) qtyLabel.innerText = "Ilość:";
+      if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${paper}g kreda, ${finish}`;
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultBox.style.display = "block";
+      addBtn.disabled = false;
+      ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Duży Canon)");
     };
+
+    autoCalc({ root: container, calc: () => { try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} } });
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;

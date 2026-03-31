@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateDyplomy, DyplomyOptions } from "../../categories/dyplomy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
@@ -14,7 +15,6 @@ export const DyplomyView: View = {
     const formatSel = container.querySelector("#dypFormat") as HTMLSelectElement;
     const qtyInput = container.querySelector("#dypQty") as HTMLInputElement;
     const paperSel = container.querySelector("#dypPaper") as HTMLSelectElement;
-    const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#dypResult") as HTMLElement;
     const breakdownBox = container.querySelector("#dypBreakdown") as HTMLElement;
@@ -91,7 +91,7 @@ export const DyplomyView: View = {
       return { options, result };
     };
 
-    calcBtn.addEventListener("click", () => calculate());
+    autoCalc({ root: container, calc: calculate });
 
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();
@@ -116,8 +116,5 @@ export const DyplomyView: View = {
         payload: options
       });
     });
-
-    // Initial calculation
-    calculate();
   }
 };

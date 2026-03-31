@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateFoliaSzroniona } from "../../categories/folia-szroniona";
 import { formatPLN } from "../../core/money";
 
@@ -21,7 +22,6 @@ export const FoliaSzronionaView: View = {
     const serviceSelect = container.querySelector("#fs-service") as HTMLSelectElement;
     const widthInput = container.querySelector("#fs-width") as HTMLInputElement;
     const heightInput = container.querySelector("#fs-height") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#fs-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#fs-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#fs-result-display") as HTMLElement;
     const normalResult = container.querySelector("#fs-normal-result") as HTMLElement;
@@ -34,7 +34,7 @@ export const FoliaSzronionaView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       currentOptions = {
         serviceId: serviceSelect.value,
         widthMm: parseInt(widthInput.value) || 0,
@@ -42,33 +42,30 @@ export const FoliaSzronionaView: View = {
         express: ctx.expressMode
       };
 
-      try {
-        const result = calculateFoliaSzroniona(currentOptions);
-        currentResult = result;
+      const result = calculateFoliaSzroniona(currentOptions);
+      currentResult = result;
 
-        if (result.isCustom) {
-            normalResult.style.display = "none";
-            customQuote.style.display = "block";
-            addToCartBtn.disabled = true;
-          ctx.updateLastCalculated(0, "Folia szroniona / OWV (wycena ind.)");
-        } else {
-            normalResult.style.display = "block";
-            customQuote.style.display = "none";
-            const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1000000;
-            if (areaValSpan) areaValSpan.innerText = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? ' (min. 1m2)' : ''}`;
-            if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
-            if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
-            addToCartBtn.disabled = false;
-            ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
-        }
-
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
-
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
+      if (result.isCustom) {
+          normalResult.style.display = "none";
+          customQuote.style.display = "block";
+          addToCartBtn.disabled = true;
+        ctx.updateLastCalculated(0, "Folia szroniona / OWV (wycena ind.)");
+      } else {
+          normalResult.style.display = "block";
+          customQuote.style.display = "none";
+          const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1000000;
+          if (areaValSpan) areaValSpan.innerText = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? ' (min. 1m2)' : ''}`;
+          if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
+          if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
+          addToCartBtn.disabled = false;
+          ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
       }
+
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultDisplay.style.display = "block";
     };
+
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {

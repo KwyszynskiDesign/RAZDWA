@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateRollUp, RollUpOptions } from "../../categories/roll-up";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -16,7 +17,6 @@ export const RollUpView: View = {
     const typeSel = container.querySelector("#rollUpType") as HTMLSelectElement;
     const formatSel = container.querySelector("#rollUpFormat") as HTMLSelectElement;
     const qtyInput = container.querySelector("#rollUpQty") as HTMLInputElement;
-    const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#rollUpResult") as HTMLElement;
     const breakdownBox = container.querySelector("#rollUpBreakdown") as HTMLElement;
@@ -79,13 +79,7 @@ export const RollUpView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Roll-up");
     };
 
-    calcBtn.addEventListener("click", () => {
-      try {
-        calculate();
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
-    });
+    autoCalc({ root: container, calc: calculate });
 
     addToCartBtn.addEventListener("click", () => {
       if (!currentOptions || !currentResult) return;

@@ -1,4 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateWlepki, calculateWlepkiSzt, WlepkiCalculation } from "../../categories/wlepki-naklejki";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -29,7 +30,6 @@ export const WlepkiView: View = {
     const areaGroup = container.querySelector("#wlepki-area-group") as HTMLElement;
     const modifiersGroup = container.querySelector("#wlepki-modifiers-group") as HTMLElement;
     const areaInput = container.querySelector("#wlepki-area") as HTMLInputElement;
-    const calcBtn = container.querySelector("#btn-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#btn-add-to-cart") as HTMLButtonElement;
     const resultDiv = container.querySelector("#wlepki-result") as HTMLElement;
     const unitPriceEl = container.querySelector("#unit-price") as HTMLElement;
@@ -248,7 +248,7 @@ export const WlepkiView: View = {
       }
     };
 
-    calcBtn.addEventListener("click", calculate);
+    autoCalc({ root: container, calc: calculate });
 
     addBtn.addEventListener("click", () => {
       if (!currentResult || !currentInput) return;

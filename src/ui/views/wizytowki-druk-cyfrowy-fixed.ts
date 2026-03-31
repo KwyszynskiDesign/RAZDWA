@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
@@ -32,7 +33,6 @@ export const WizytowkiView: View = {
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#w-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
@@ -108,7 +108,7 @@ export const WizytowkiView: View = {
       breakdownDisplay.style.display = "block";
     };
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       if (requiresExternalRedirect()) return;
 
       const isSatin = paperSelect.value.startsWith("satyna");
@@ -121,26 +121,24 @@ export const WizytowkiView: View = {
         express: ctx.expressMode,
       };
 
-      try {
-        const result = quoteWizytowki(currentOptions);
-        const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
-        currentResult = { ...result, totalPrice };
+      const result = quoteWizytowki(currentOptions);
+      const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+      currentResult = { ...result, totalPrice };
 
-        if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(totalPrice);
-        if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
-        if (billedQtyHint) billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
-        if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny bazowej ${result.basePrice.toFixed(2)} zł`;
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
+      if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(totalPrice);
+      if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
+      if (billedQtyHint) billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
+      if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny bazowej ${result.basePrice.toFixed(2)} zł`;
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
 
-        renderBreakdown(currentResult, currentOptions, isSatin);
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
-        ctx.updateLastCalculated(totalPrice, "Wizytówki");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
+      renderBreakdown(currentResult, currentOptions, isSatin);
+      resultDisplay.style.display = "block";
+      addToCartBtn.disabled = false;
+      ctx.updateLastCalculated(totalPrice, "Wizytówki");
     };
+
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (requiresExternalRedirect() || !currentResult || !currentOptions) return;

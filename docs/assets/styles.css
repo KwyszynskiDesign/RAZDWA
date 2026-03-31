@@ -790,6 +790,42 @@ button.ghost:hover {
   padding: 2px 0;
 }
 
+/* ===== LIVE TOTAL (always visible SUMA) ===== */
+.live-total {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 14px 20px;
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 12px;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+  transition: opacity .15s;
+}
+
+.live-total .live-total-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.live-total .live-total-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.live-total .live-total-value.empty {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 16px;
+}
+
 /* ===== FORM ROW (category views) ===== */
 .form-row {
   display: flex;

@@ -44,10 +44,6 @@
                     <input type="number" id="pa-canon-qty" class="form-control" placeholder="np. 3" min="1" max="9" step="1" inputmode="numeric" autocomplete="off">
                     <div class="hint">Plakaty do 9 szt. (mały Canon), czas realizacji 1-2 dni robocze.</div>
                 </div>
-
-                <div class="form-actions">
-                    <button id="pa-canon-calculate" class="btn-primary">Oblicz Mały Canon</button>
-                </div>
             </div>
 
             <div id="pa-duzy-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
@@ -77,10 +73,6 @@
                     <input type="number" id="pa-duzy-canon-qty" class="form-control" placeholder="np. 50" min="10" max="200" step="1" inputmode="numeric" autocomplete="off">
                     <div class="hint">Obsługiwane progi: 10, 20, 30, ..., 100, 125, 150, 175, 200.</div>
                 </div>
-
-                <div class="form-actions">
-                    <button id="pa-duzy-canon-calculate" class="btn-primary">Oblicz Duży Canon</button>
-                </div>
             </div>
         </div>
 
@@ -89,7 +81,7 @@
         </div>
     </div>
 
-    <div id="pa-result-display" class="result-display card" style="display: none;">
+    <div id="pa-result-display" class="result-display card">
         <div class="result-row">
             <span id="pa-qty-label">Ilość:</span>
             <span id="pa-qty-val" class="price-unit">-</span>

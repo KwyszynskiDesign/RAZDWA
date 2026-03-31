@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateCanvas, CanvasOptions, CanvasResult } from "../../categories/canvas";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -28,7 +29,6 @@ export const CanvasView: View = {
     const heightInput = container.querySelector("#cv-height") as HTMLInputElement;
     const qtyInput = container.querySelector("#cv-qty") as HTMLInputElement;
 
-    const calcBtn = container.querySelector("#cv-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#cv-add") as HTMLButtonElement;
 
     const resultEl = container.querySelector("#cv-result") as HTMLElement;
@@ -145,13 +145,7 @@ export const CanvasView: View = {
 
     modeSel.onchange = syncModeUI;
 
-    calcBtn.onclick = () => {
-      try {
-        calculate();
-      } catch (err) {
-        alert("B\u0142\u0105d: " + (err as Error).message);
-      }
-    };
+    autoCalc({ root: container, calc: calculate });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult || currentResult.isCustom) return;

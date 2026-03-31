@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateDrukA4A3Skan } from "../../categories/druk-a4-a3-skan";
 import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
@@ -37,7 +38,6 @@ export const DrukA4A3SkanView: View = {
     const scanQtyInput = container.querySelector("#d-scan-qty") as HTMLInputElement;
     const scanQtyRow = container.querySelector("#scan-qty-row") as HTMLElement;
 
-    const calculateBtn = container.querySelector("#d-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#d-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#d-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#d-total-price") as HTMLElement;
@@ -85,18 +85,12 @@ export const DrukA4A3SkanView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       const printQty = parseInt(printQtyInput.value) || 0;
       const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
       const surchargeQty = Math.min(Math.max(requestedSurchargeQty, 0), Math.max(printQty, 0));
       const requestedSleeveQty = Math.max(0, parseInt(sleeveQtyInput?.value || "0") || 0);
       const sleeveQty = (sleeveCheck?.checked ?? false) ? Math.max(1, requestedSleeveQty) : 0;
-      if (sleeveQtyInput && requestedSleeveQty !== sleeveQty) {
-        sleeveQtyInput.value = String(sleeveQty);
-      }
-      if (requestedSurchargeQty !== surchargeQty) {
-        surchargeQtyInput.value = String(surchargeQty);
-      }
       const surcharge = (surchargeCheck ? surchargeCheck.checked : requestedSurchargeQty > 0) && printQty > 0 && surchargeQty > 0;
 
       currentOptions = {
@@ -114,46 +108,44 @@ export const DrukA4A3SkanView: View = {
         express: ctx.expressMode
       };
 
-      try {
-        const result = calculateDrukA4A3Skan(currentOptions, pricing);
-        currentResult = result;
+      const result = calculateDrukA4A3Skan(currentOptions, pricing);
+      currentResult = result;
 
-        const unitPrint = container.querySelector("#d-unit-print-price") as HTMLElement | null;
-        const totalPrint = container.querySelector("#d-total-print-price") as HTMLElement | null;
-        const totalScan = container.querySelector("#d-total-scan-price") as HTMLElement | null;
-        const emailPrice = container.querySelector("#d-email-price") as HTMLElement | null;
-        const stickerPrice = container.querySelector("#d-label-sticker-price") as HTMLElement | null;
-        const surchargePrice = container.querySelector("#d-surcharge-price") as HTMLElement | null;
-        const scanRow = container.querySelector("#d-scan-row") as HTMLElement | null;
-        const emailRow = container.querySelector("#d-email-row") as HTMLElement | null;
-        const stickerRow = container.querySelector("#d-label-sticker-row") as HTMLElement | null;
-        const sleeveRow = container.querySelector("#d-sleeve-row") as HTMLElement | null;
-        const sleevePriceEl = container.querySelector("#d-sleeve-price") as HTMLElement | null;
-        const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
+      const unitPrint = container.querySelector("#d-unit-print-price") as HTMLElement | null;
+      const totalPrint = container.querySelector("#d-total-print-price") as HTMLElement | null;
+      const totalScan = container.querySelector("#d-total-scan-price") as HTMLElement | null;
+      const emailPrice = container.querySelector("#d-email-price") as HTMLElement | null;
+      const stickerPrice = container.querySelector("#d-label-sticker-price") as HTMLElement | null;
+      const surchargePrice = container.querySelector("#d-surcharge-price") as HTMLElement | null;
+      const scanRow = container.querySelector("#d-scan-row") as HTMLElement | null;
+      const emailRow = container.querySelector("#d-email-row") as HTMLElement | null;
+      const stickerRow = container.querySelector("#d-label-sticker-row") as HTMLElement | null;
+      const sleeveRow = container.querySelector("#d-sleeve-row") as HTMLElement | null;
+      const sleevePriceEl = container.querySelector("#d-sleeve-price") as HTMLElement | null;
+      const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
 
-        if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
-        if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
-        if (scanRow) scanRow.style.display = result.totalScanPrice > 0 ? "" : "none";
-        if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
-        if (emailRow) emailRow.style.display = result.emailPrice > 0 ? "" : "none";
-        if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
-        if (stickerRow) stickerRow.style.display = result.stickerPrice > 0 ? "" : "none";
-        if (stickerPrice) stickerPrice.innerText = formatPLN(result.stickerPrice);
-        if (sleeveRow) sleeveRow.style.display = result.sleevePrice > 0 ? "" : "none";
-        if (sleevePriceEl) sleevePriceEl.innerText = formatPLN(result.sleevePrice);
-        if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
-        if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
+      if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
+      if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
+      if (scanRow) scanRow.style.display = result.totalScanPrice > 0 ? "" : "none";
+      if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
+      if (emailRow) emailRow.style.display = result.emailPrice > 0 ? "" : "none";
+      if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
+      if (stickerRow) stickerRow.style.display = result.stickerPrice > 0 ? "" : "none";
+      if (stickerPrice) stickerPrice.innerText = formatPLN(result.stickerPrice);
+      if (sleeveRow) sleeveRow.style.display = result.sleevePrice > 0 ? "" : "none";
+      if (sleevePriceEl) sleevePriceEl.innerText = formatPLN(result.sleevePrice);
+      if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
+      if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+      totalPriceSpan.innerText = formatPLN(result.totalPrice);
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultDisplay.style.display = "block";
+      addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Druk A4/A3 + skan");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
+      ctx.updateLastCalculated(result.totalPrice, "Druk A4/A3 + skan");
     };
+
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;

@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateZaproszeniaKreda, ZaproszeniaKredaOptions } from "../../categories/zaproszenia-kreda";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
@@ -19,7 +20,6 @@ export const ZaproszeniaKredaView: View = {
     const envelopeFields = container.querySelector("#zapEnvelopeFields") as HTMLElement;
     const envelopeTypeSel = container.querySelector("#zapEnvelopeType") as HTMLSelectElement;
     const envelopeQtyInput = container.querySelector("#zapEnvelopeQty") as HTMLInputElement;
-    const calcBtn = container.querySelector("#calcBtn") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
     const breakdownBox = container.querySelector("#zapBreakdown") as HTMLElement;
@@ -138,7 +138,7 @@ export const ZaproszeniaKredaView: View = {
       };
     };
 
-    calcBtn.addEventListener("click", () => calculate());
+    autoCalc({ root: container, calc: calculate });
 
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();
@@ -168,8 +168,5 @@ export const ZaproszeniaKredaView: View = {
         payload: { ...options, envelope: result.withEnvelopes ? { type: result.envelopeType, qty: result.envelopeQty } : null }
       });
     });
-
-    // Initial calculation
-    calculate();
   }
 };

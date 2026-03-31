@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateBanner } from "../../categories/banner";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -27,7 +28,6 @@ export const BannerView: View = {
     const heightInput = container.querySelector("#b-height") as HTMLInputElement;
     const areaInput = container.querySelector("#b-area") as HTMLInputElement;
     const oczkowanieCheckbox = container.querySelector("#b-oczkowanie") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#b-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#b-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#b-result-display") as HTMLElement;
     const breakdownDisplay = container.querySelector("#b-breakdown-display") as HTMLElement;
@@ -122,12 +122,9 @@ export const BannerView: View = {
       breakdownDisplay.style.display = "block";
     };
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       const { areaM2, widthCm, heightCm } = computeAreaFromInputs();
-      if (!areaM2) {
-        alert("Błąd: Podaj poprawny rozmiar banera w cm.");
-        return;
-      }
+      if (!areaM2) return;
 
       currentOptions = {
         material: materialSelect.value,
@@ -138,22 +135,20 @@ export const BannerView: View = {
         express: ctx.expressMode
       };
 
-      try {
-        const result = calculateBanner(currentOptions);
-        currentResult = result;
+      const result = calculateBanner(currentOptions);
+      currentResult = result;
 
-        unitPriceSpan.innerText = formatPLN(result.tierPrice);
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        renderBreakdown(result, currentOptions);
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+      unitPriceSpan.innerText = formatPLN(result.tierPrice);
+      totalPriceSpan.innerText = formatPLN(result.totalPrice);
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      renderBreakdown(result, currentOptions);
+      resultDisplay.style.display = "block";
+      addToCartBtn.disabled = false;
 
-        ctx.updateLastCalculated(result.totalPrice, "Banner");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
-      }
+      ctx.updateLastCalculated(result.totalPrice, "Banner");
     };
+
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {

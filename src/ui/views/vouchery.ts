@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { quoteVouchery } from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
@@ -25,7 +26,6 @@ export const VoucheryView: View = {
     const envelopeFields = container.querySelector("#v-envelope-fields") as HTMLElement;
     const envelopeTypeSelect = container.querySelector("#v-envelope-type") as HTMLSelectElement;
     const envelopeQtyInput = container.querySelector("#v-envelope-qty") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#v-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#v-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#v-result-display") as HTMLElement;
     const basePriceSpan = container.querySelector("#v-base-price") as HTMLElement;
@@ -191,9 +191,7 @@ export const VoucheryView: View = {
       }
     };
 
-    calculateBtn.onclick = () => {
-      performCalculation();
-    };
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (!performCalculation()) return;

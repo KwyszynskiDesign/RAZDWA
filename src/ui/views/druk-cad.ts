@@ -1,4 +1,5 @@
 import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculateDrukCAD } from "../../categories/druk-cad";
 import { quoteCadFold, quoteCadWfScan } from "../../categories/cad-ops";
 import { formatPLN } from "../../core/money";
@@ -35,7 +36,6 @@ export const DrukCADView: View = {
     const useBaseBtn = container.querySelector("#cad-use-base") as HTMLButtonElement;
     const baseInfo = container.querySelector("#cad-base-info") as HTMLElement;
 
-    const calculateBtn = container.querySelector("#cad-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#cad-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#cad-result-display") as HTMLElement;
     const priceTypeSpan = container.querySelector("#cad-price-type") as HTMLElement;
@@ -280,7 +280,7 @@ export const DrukCADView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calculateBtn.onclick = () => {
+    const performCalculation = () => {
       currentOptions = {
         mode: modeSelect.value,
         format: formatSelect.value,
@@ -289,38 +289,29 @@ export const DrukCADView: View = {
         express: ctx.expressMode
       };
 
-      try {
-        const result = calculateDrukCAD(currentOptions, data);
-        currentResult = result;
+      const result = calculateDrukCAD(currentOptions, data);
+      currentResult = result;
 
-        priceTypeSpan.innerText = result.isMeter ? "Cena za mb:" : "Cena za szt:";
-        if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.rate ?? 0);
-        if (qtyHintSpan) {
-          const qty = currentOptions.qty || 1;
-          const unit = result.isMeter ? "mb" : "szt";
-          qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${displayCadFormat(currentOptions.format)}`;
-        }
-        totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
-
-        updateOptionsSummary();
-        updateGrandTotal();
-
-        const optionsTotal = getPrintOptionsBreakdown(result.totalPrice).total;
-        ctx.updateLastCalculated(result.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
+      priceTypeSpan.innerText = result.isMeter ? "Cena za mb:" : "Cena za szt:";
+      if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.rate ?? 0);
+      if (qtyHintSpan) {
+        const qty = currentOptions.qty || 1;
+        const unit = result.isMeter ? "mb" : "szt";
+        qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${displayCadFormat(currentOptions.format)}`;
       }
+      totalPriceSpan.innerText = formatPLN(result.totalPrice);
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      resultDisplay.style.display = "block";
+      addToCartBtn.disabled = false;
+
+      updateOptionsSummary();
+      updateGrandTotal();
+
+      const optionsTotal = getPrintOptionsBreakdown(result.totalPrice).total;
+      ctx.updateLastCalculated(result.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
     };
 
-    qtySheetsInput?.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        calculateBtn.click();
-      }
-    });
+    autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {

@@ -1,4 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
+import { autoCalc } from "../autoCalc";
 import { calculatePlakatyFormat } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
@@ -39,7 +40,6 @@ export const PlakatyWFView: View = {
     const lengthLabel = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput = container.querySelector("#p-length-mm") as HTMLInputElement;
     const qtyInput = container.querySelector("#p-qty") as HTMLInputElement;
-    const calcBtn = container.querySelector("#p-calculate") as HTMLButtonElement;
     const addBtn = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox = container.querySelector("#p-result-display") as HTMLElement;
     const unitPriceEl = container.querySelector("#p-unit-price") as HTMLElement;
@@ -129,59 +129,57 @@ export const PlakatyWFView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    calcBtn.onclick = () => {
-      try {
-        const matId = materialSelect.value;
-        const fmt = formatSelect.value;
-        const qty = parsePositiveInt(qtyInput.value);
-        if (!qty) throw new Error("Podaj ilość sztuk.");
+    const calcWielkoformatowe = () => {
+      const matId = materialSelect.value;
+      const fmt = formatSelect.value;
+      const qty = parsePositiveInt(qtyInput.value);
+      if (!qty) return;
 
-        const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
-          ? (parseFloat(lengthInput.value) || undefined)
-          : undefined;
+      const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
+        ? (parseFloat(lengthInput.value) || undefined)
+        : undefined;
 
-        const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
-        currentResult = res;
-        currentOptions = { matId, fmt, qty, customLengthMm };
+      const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
+      currentResult = res;
+      currentOptions = { matId, fmt, qty, customLengthMm };
 
-        unitPriceEl.innerText = formatPLN(res.pricePerPiece);
-        totalPriceEl.innerText = formatPLN(res.totalPrice);
+      unitPriceEl.innerText = formatPLN(res.pricePerPiece);
+      totalPriceEl.innerText = formatPLN(res.totalPrice);
 
-        if (discountRow && discountLabel && discountVal) {
-          if (res.discountFactor < 1) {
-            const pct = Math.round((1 - res.discountFactor) * 100);
-            const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
-            discountLabel.innerText = `Rabat ilościowy ${pct}%:`;
-            discountVal.innerText = `-${formatPLN(saved)}`;
-            discountRow.style.display = "";
-          } else {
-            discountRow.style.display = "none";
-          }
+      if (discountRow && discountLabel && discountVal) {
+        if (res.discountFactor < 1) {
+          const pct = Math.round((1 - res.discountFactor) * 100);
+          const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
+          discountLabel.innerText = `Rabat ilościowy ${pct}%:`;
+          discountVal.innerText = `-${formatPLN(saved)}`;
+          discountRow.style.display = "";
+        } else {
+          discountRow.style.display = "none";
         }
-
-        const fmtLabel = formatShortLabel(fmt);
-        const dimsForDisplay = parseFormatDimensions(fmt);
-        const sizeLabel = (dimsForDisplay && customLengthMm && customLengthMm !== dimsForDisplay.lengthMm)
-          ? `${dimsForDisplay.widthMm}\u00d7${customLengthMm}\u00a0mm`
-          : fmtLabel;
-        if (qtyLabel) qtyLabel.innerText = "Ilość:"; 
-        if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
-
-        if (calcHintEl) {
-          const hint = buildNieformatCalcHint(res);
-          calcHintEl.innerHTML = hint;
-          calcHintEl.style.display = hint ? "block" : "none";
-        }
-
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-
-        resultBox.style.display = "block";
-        addBtn.disabled = false;
-        ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty wielkoformatowe");
-      } catch (err) {
-        alert("Błąd: " + (err as Error).message);
       }
+
+      const fmtLabel = formatShortLabel(fmt);
+      const dimsForDisplay = parseFormatDimensions(fmt);
+      const sizeLabel = (dimsForDisplay && customLengthMm && customLengthMm !== dimsForDisplay.lengthMm)
+        ? `${dimsForDisplay.widthMm}\u00d7${customLengthMm}\u00a0mm`
+        : fmtLabel;
+      if (qtyLabel) qtyLabel.innerText = "Ilość:"; 
+      if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
+
+      if (calcHintEl) {
+        const hint = buildNieformatCalcHint(res);
+        calcHintEl.innerHTML = hint;
+        calcHintEl.style.display = hint ? "block" : "none";
+      }
+
+      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+
+      resultBox.style.display = "block";
+      addBtn.disabled = false;
+      ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty wielkoformatowe");
     };
+
+    autoCalc({ root: container, calc: calcWielkoformatowe });
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
