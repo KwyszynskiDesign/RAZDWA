@@ -15,3 +15,11 @@ script_output*.txt
 /assets/styles.css
 .aider*
 .npm-cache/
+
+# Google Service Account — NIGDY nie commitować
+service-account.json
+*-service-account.json
+*credentials*.json
+.env
+.env.local
+.env.production
