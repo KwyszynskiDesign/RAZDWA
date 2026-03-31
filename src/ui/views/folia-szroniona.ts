@@ -35,6 +35,11 @@ export const FoliaSzronionaView: View = {
     let currentOptions: any = null;
 
     const performCalculation = () => {
+      if (!serviceSelect.value) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       currentOptions = {
         serviceId: serviceSelect.value,
         widthMm: parseInt(widthInput.value) || 0,

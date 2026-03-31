@@ -63,6 +63,12 @@ export const CanvasView: View = {
         sizeRow.style.display = "none";
 
         formatSel.innerHTML = "";
+        const placeholderOpt = document.createElement("option");
+        placeholderOpt.value = "";
+        placeholderOpt.disabled = true;
+        placeholderOpt.selected = true;
+        placeholderOpt.text = "— wybierz format —";
+        formatSel.appendChild(placeholderOpt);
         (mode.formats ?? []).forEach((f: any) => {
           const opt = document.createElement("option");
           opt.value = f.id;
@@ -80,6 +86,11 @@ export const CanvasView: View = {
     };
 
     const calculate = () => {
+      if (!modeSel.value) {
+        resultEl.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
       const options: CanvasOptions = {
         modeId: modeSel.value as CanvasOptions["modeId"],
         formatId: formatSel.value,

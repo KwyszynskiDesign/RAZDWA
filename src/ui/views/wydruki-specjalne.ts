@@ -32,6 +32,11 @@ export const WydrukiSpecjalneView: View = {
 
     const performCalculation = () => {
       if (!specialVariant || !specialQty || !specialDouble) return;
+      if (!specialVariant.value) {
+        if (specialResultDisplay) specialResultDisplay.style.display = "none";
+        if (specialAddBtn) specialAddBtn.disabled = true;
+        return;
+      }
 
       const result = quoteWydrukiSpecjalne({
         variantId: specialVariant.value,

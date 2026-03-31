@@ -30,6 +30,12 @@ export const RollUpView: View = {
     addToCartBtn.disabled = true;
 
     const calculate = () => {
+      if (!typeSel.value || !formatSel.value) {
+        resultArea.style.display = "none";
+        breakdownBox.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const options: RollUpOptions = {
         format: formatSel.value,
         qty: parseInt(qtyInput.value) || 1,

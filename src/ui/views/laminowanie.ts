@@ -159,6 +159,11 @@ export const LaminowanieView: View = {
     const performCalculation = () => {
         const qty = parseInt(qtyInput.value);
         if (isNaN(qty) || qty <= 0) return;
+        if (!formatSelect.value) {
+          resultDisplay.style.display = "none";
+          addToCartBtn.disabled = true;
+          return;
+        }
 
         currentOptions = {
           format: formatSelect.value,
@@ -460,6 +465,11 @@ export const LaminowanieView: View = {
 
     const recalcOpr = () => {
       if (!oprType || !oprFormat || !oprPages || !oprQty || !oprColor) return;
+      if (!oprType.value) {
+        if (oprResultDisplay) oprResultDisplay.style.display = "none";
+        if (oprAddBtn) oprAddBtn.disabled = true;
+        return;
+      }
       const type = (oprType.value === "kanałowa" || oprType.value === "zaciskowa"
         || oprType.value === "zbijana" || oprType.value === "skrecana"
         ? oprType.value
@@ -631,6 +641,11 @@ export const LaminowanieView: View = {
 
     const recalcIntro = () => {
       if (!introService || !introQty) return;
+      if (!introService.value) {
+        if (introResultDisplay) introResultDisplay.style.display = "none";
+        if (introAddBtn) introAddBtn.disabled = true;
+        return;
+      }
       const result = quoteIntroligatornia({
         serviceId: introService.value,
         qty: parseInt(introQty.value, 10) || 1,

@@ -145,7 +145,8 @@ export const WizytowkiView: View = {
 
         ctx.updateLastCalculated(totalPrice, "Wizytówki");
       } catch (err) {
-        alert("Błąd: " + (err as Error).message);
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
       }
     };
 

@@ -41,6 +41,12 @@ export const ZaproszeniaKredaView: View = {
     updateEnvelopeVisibility();
 
     const calculate = () => {
+      if (!formatSel.value) {
+        resultArea.style.display = "none";
+        breakdownBox.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const paperVal = paperSel.value;
       const isSatin = paperVal.startsWith("satyna");
       const isModigliani = paperVal === "modigliani";

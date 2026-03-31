@@ -100,6 +100,11 @@ export const UlotkiCyfroweView: View = {
     };
 
     const performCalculation = () => {
+      if (!formatSelect.value) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const sides = getSelectedSides();
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
@@ -132,7 +137,6 @@ export const UlotkiCyfroweView: View = {
       } catch (err) {
         addToCartBtn.disabled = true;
         resultDisplay.style.display = "none";
-        alert("Błąd: " + (err as Error).message);
       }
     };
 

@@ -186,7 +186,8 @@ export const VoucheryView: View = {
         ctx.updateLastCalculated(totalPrice, "Vouchery");
         return true;
       } catch (err) {
-        alert("Błąd: " + (err as Error).message);
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
         return false;
       }
     };

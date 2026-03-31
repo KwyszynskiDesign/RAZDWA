@@ -121,6 +121,17 @@ export const WlepkiView: View = {
     const calculate = () => {
       const mode = modeSelect.value === "szt" ? "szt" : "m2";
 
+      if (mode === "szt" && !pieceTableSelect.value) {
+        resultDiv.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
+      if (mode === "m2" && !groupSelect.value) {
+        resultDiv.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
+
       try {
         if (mode === "szt") {
           const selectedTable = pieceTableSelect.value;
@@ -244,7 +255,8 @@ export const WlepkiView: View = {
 
         ctx.updateLastCalculated(currentResult.totalPrice, "Wlepki");
       } catch (err) {
-        alert("Błąd: " + (err as Error).message);
+        resultDiv.style.display = "none";
+        addBtn.disabled = true;
       }
     };
 

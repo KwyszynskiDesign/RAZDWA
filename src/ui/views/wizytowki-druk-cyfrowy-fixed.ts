@@ -109,6 +109,12 @@ export const WizytowkiView: View = {
     };
 
     const performCalculation = () => {
+      if (!familySelect.value) {
+        resultDisplay.style.display = "none";
+        breakdownDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       if (requiresExternalRedirect()) return;
 
       const isSatin = paperSelect.value.startsWith("satyna");

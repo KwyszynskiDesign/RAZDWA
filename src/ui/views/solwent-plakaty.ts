@@ -18,7 +18,7 @@ export const SolwentPlakatyView: View = {
       const tableData = data as any;
       const materials = tableData.materials;
       const materialSelect = container.querySelector("#material") as HTMLSelectElement;
-      materialSelect.innerHTML = materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
+      materialSelect.innerHTML = '<option value="" disabled selected>— wybierz materiał —</option>' + materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
 
       this.initLogic?.(container, ctx);
     } catch (err) {
@@ -39,6 +39,11 @@ export const SolwentPlakatyView: View = {
     let currentResult: any = null;
 
     const performCalculation = () => {
+      if (!materialSelect.value) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const input = {
         material: materialSelect.value,
         areaM2: parseFloat(areaInput.value),
