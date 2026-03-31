@@ -122,6 +122,7 @@ const PRICE_LABELS: Record<string, string> = {
   "skan-reczne-5+": "Skanowanie ręczne – 5+ stron",
   "druk-email": "Dopłata za wysłanie pliku e-mailem",
   "druk-label-sticker": "Dopłata: Naklejka (druk A4)",
+  "druk-koszulka": "Dopłata: Koszulka (druk A4)",
   "modifier-druk-zadruk25": "Dopłata za duże plamy koloru (zadruk >25%)",
   // CAD wielkoformatowy kolor
   "druk-cad-kolor-fmt-a3": "CAD kolor formatowy – A3",
@@ -350,6 +351,9 @@ const PRICE_LABELS: Record<string, string> = {
   "canvas-unframed-100x70": "Canvas bez oprawy – 100×70",
   "canvas-unframed-120x80": "Canvas bez oprawy – 120×80",
   "canvas-m2-unframed": "Canvas bez oprawy – cena za m²",
+  "canvas-framed-custom-m2": "Canvas z oprawą – własny rozmiar – cena za m²",
+  "canvas-unframed-custom-m2": "Canvas bez oprawy – własny rozmiar – cena za m²",
+  "canvas-framed-custom-border": "Canvas z oprawą – własny rozmiar – cena za cmb ramki",
   // Wlepki / naklejki
   "wlepki-obrys-folia-1-5": "Naklejki wycinane po obrysie – 1–5 m²",
   "wlepki-obrys-folia-6-25": "Naklejki wycinane po obrysie – 6–25 m²",
@@ -516,7 +520,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "druk-a4-a3",
     label: "Druk A4/A3 + skan",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/printer.svg",
-    prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "modifier-druk-"],
+    prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "druk-koszulka", "modifier-druk-"],
     description: "Ceny druku czarno-białego, kolorowego, skanowania i dopłaty za duży zadruk.",
     newKeyPrefix: "druk-bw-a4-"
   },
