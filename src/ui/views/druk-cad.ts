@@ -209,7 +209,7 @@ export const DrukCADView: View = {
         updateCadOpsSummary();
         updateGrandTotal();
       } catch (err) {
-        alert((err as Error).message);
+        console.warn("Składanie CAD:", (err as Error).message);
       }
     });
 
@@ -242,7 +242,7 @@ export const DrukCADView: View = {
         updateCadOpsSummary();
         updateGrandTotal();
       } catch (err) {
-        alert((err as Error).message);
+        console.warn("Skanowanie WF:", (err as Error).message);
       }
     });
 

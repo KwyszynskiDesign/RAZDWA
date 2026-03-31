@@ -45,7 +45,7 @@ export const CadOpsView: View = {
 
         ctx.updateLastCalculated(res.total, "Składanie CAD");
       } catch (err) {
-        alert((err as Error).message);
+        console.warn("Składanie CAD:", (err as Error).message);
       }
     };
 
@@ -76,7 +76,7 @@ export const CadOpsView: View = {
 
         ctx.updateLastCalculated(res.total, "Skanowanie WF");
       } catch (err) {
-        alert((err as Error).message);
+        console.warn("Skanowanie WF:", (err as Error).message);
       }
     };
   }
