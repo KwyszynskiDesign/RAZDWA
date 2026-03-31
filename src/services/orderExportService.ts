@@ -26,7 +26,7 @@ export interface OrderExportPayload {
     totalPrice: number;
     isExpress: boolean;
     optionsHint: string;
-    payload: Record<string, unknown>;
+    payload: unknown;
   }>;
 }
 
@@ -84,7 +84,7 @@ export function buildOrderExportPayload(
 ): OrderExportPayload {
   const itemsCount = cartItems.length;
   const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-  const hasExpress = cartItems.some(i => i.isExpress);
+  const hasExpress = cartItems.some(i => !!i.isExpress);
 
   return {
     source: "razdwa-web",
@@ -102,7 +102,7 @@ export function buildOrderExportPayload(
       unit: item.unit,
       unitPrice: item.unitPrice,
       totalPrice: item.totalPrice,
-      isExpress: item.isExpress,
+      isExpress: !!item.isExpress,
       optionsHint: item.optionsHint,
       payload: item.payload,
     })),

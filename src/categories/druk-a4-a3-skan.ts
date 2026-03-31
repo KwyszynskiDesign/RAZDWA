@@ -4,7 +4,7 @@ import { PRICE, resolveStoredPrice } from "../core/compat";
 
 export interface DrukA4A3SkanOptions {
   mode: "bw" | "color";
-  format: "A4" | "A3";
+  format: "A4" | "A3" | "a4" | "a3";
   printQty: number;
   email: boolean;
   labelSticker?: boolean;

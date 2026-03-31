@@ -8,8 +8,9 @@ import { calculateBasePrice, BaseCalcTable } from './calculateBasePrice';
 import { applyDiscounts } from './applyDiscounts';
 import { addTaxes } from './addTaxes';
 import { computeShipping } from './computeShipping';
+import type { CalculationResult as CoreCalculationResult } from './types';
 
-type SimpleModifier = { id: string; name: string; type: string; value: number };
+type SimpleModifier = { id: string; name?: string; type: string; value: number };
 type SimpleRule = { type: string; unit: string; value: number };
 
 export interface SimplePriceTable extends BaseCalcTable {
@@ -17,14 +18,7 @@ export interface SimplePriceTable extends BaseCalcTable {
   rules?: SimpleRule[];
 }
 
-export interface CalculationResult {
-  basePrice: number;
-  effectiveQuantity: number;
-  tierPrice: number;
-  modifiersTotal: number;
-  totalPrice: number;
-  appliedModifiers: string[];
-}
+export type CalculationResult = CoreCalculationResult;
 
 export function computeTotalPrice(
   table: SimplePriceTable,
@@ -36,7 +30,10 @@ export function computeTotalPrice(
     basePrice,
     effectiveQuantity,
     activeModifiers,
-    table.modifiers ?? []
+    (table.modifiers ?? []).map(modifier => ({
+      ...modifier,
+      name: modifier.name ?? modifier.id,
+    }))
   );
 
   let totalPrice = basePrice + modifiersTotal;

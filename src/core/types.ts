@@ -3,21 +3,41 @@
  * Domain types for RAZDWA pricing calculator
  */
 
-export type Unit = 'm²' | 'szt' | 'mb'
+export type Unit = 'm2' | 'm²' | 'szt' | 'mb' | 'strona' | 'format' | 'inna'
 
 export interface PriceTier {
   min: number
   max: number | null
-  pricePerUnit: number
+  price?: number
+  pricePerUnit?: number
+}
+
+export interface PriceModifier {
+  id: string
+  name?: string
+  type: 'percent' | 'percentage' | 'fixed' | 'fixed_per_unit' | 'multiplicative'
+  value: number
+  description?: string
+}
+
+export interface PriceRule {
+  type: string
+  unit: string
+  value: number
 }
 
 export interface PriceTable {
   id: string
-  name: string
+  title?: string
+  name?: string
   unit: Unit
+  pricing?: 'per_unit' | 'flat'
   tiers: PriceTier[]
+  modifiers?: PriceModifier[]
+  rules?: PriceRule[]
   minimumQuantity?: number // e.g., 1 for m²
   minimumPrice?: number // e.g., 10 PLN minimum
+  notes?: string[]
 }
 
 export interface CategoryInput {
@@ -46,10 +66,20 @@ export interface PricingResult {
   errors: string[]
 }
 
+export interface CalculationResult {
+  basePrice: number
+  effectiveQuantity: number
+  tierPrice: number
+  modifiersTotal: number
+  totalPrice: number
+  appliedModifiers: string[]
+  [key: string]: unknown
+}
+
 export interface ModifierConfig {
   id: string
   name: string
-  type: 'percentage' | 'fixed' | 'multiplicative'
+  type: 'percent' | 'percentage' | 'fixed' | 'fixed_per_unit' | 'multiplicative'
   value: number
   description: string
   applicableTo?: Unit[]
@@ -62,10 +92,10 @@ export interface CartItem {
   quantity: number
   unit: string
   unitPrice: number
-  isExpress: boolean
+  isExpress?: boolean
   totalPrice: number
   optionsHint: string
-  payload: Record<string, unknown>
+  payload: unknown
 }
 
 export interface CustomerData {

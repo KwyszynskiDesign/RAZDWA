@@ -19,7 +19,7 @@ export const SolwentPlakatyView: View = {
       const materialSelect = container.querySelector("#material") as HTMLSelectElement;
       materialSelect.innerHTML = materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
 
-      this.initLogic(container, ctx);
+      this.initLogic?.(container, ctx);
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }

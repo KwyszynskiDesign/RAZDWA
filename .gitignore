@@ -14,3 +14,4 @@ script_output*.txt
 /assets/app.js
 /assets/styles.css
 .aider*
+.npm-cache/

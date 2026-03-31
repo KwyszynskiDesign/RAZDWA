@@ -4,6 +4,8 @@ import {
   detectFormatFromDimensions,
   calculatePriceFromDimensions,
   calculateCadScanningPrice,
+  calculateCadFoldingPrice,
+  updateCadFileEntry,
 } from "../src/categories/cad-upload";
 
 // ─── detectFormatFromDimensions ───────────────────────────────────────────────
@@ -108,5 +110,43 @@ describe("calculateCadScanningPrice", () => {
   it("qty=3 → wynik × 3", () => {
     // 2519mm → 252cm; 252 * 0.08 * 3 = 60.48
     expect(calculateCadScanningPrice(297, 2519, true, 3)).toBeCloseTo(60.48, 2);
+  });
+});
+
+// ─── calculateCadFoldingPrice / updateCadFileEntry ──────────────────────────
+describe("CAD folding in upload", () => {
+  it("formatowy dokument dostaje jedną cenę składania za dokument", () => {
+    expect(calculateCadFoldingPrice("A1", true, 594, 841, true, 1)).toBe(2.0);
+  });
+
+  it("nieformatowy dokument używa jednej ceny składania z bucketu formatu", () => {
+    expect(calculateCadFoldingPrice("A1", false, 594, 1200, true, 1)).toBe(2.0);
+  });
+
+  it("wielostronicowy PDF nalicza składanie tylko raz na plik", () => {
+    const updated = updateCadFileEntry(
+      {
+        id: 1,
+        name: "projekt.pdf",
+        widthPx: 0,
+        heightPx: 0,
+        widthMm: 594,
+        heightMm: 841,
+        format: "A1",
+        isFormatowy: true,
+        isStandardWidth: true,
+        pageCount: 5,
+        mode: "color",
+        folding: true,
+        scanning: false,
+      },
+      "color"
+    );
+
+    expect(updated.foldingPrice).toBe(2.0);
+  });
+
+  it("bez składania cena składania wynosi 0", () => {
+    expect(calculateCadFoldingPrice("A0", true, 841, 1189, false, 1)).toBe(0);
   });
 });

@@ -276,37 +276,38 @@ export const WlepkiView: View = {
           }
         });
       } else {
-        const group = tableData.groups.find((g: any) => g.id === currentInput.groupId);
+        const currentInputM2 = currentInput;
+        const group = tableData.groups.find((g: any) => g.id === currentInputM2.groupId);
 
-        const modsLabel = currentInput.modifiers.map(mId => {
+        const modsLabel = currentInputM2.modifiers.map(mId => {
           const m = tableData.modifiers.find((mod: any) => mod.id === mId);
           return m ? m.name : mId;
         });
 
-        if (currentInput.foilType) {
-          modsLabel.push(`Kolor: ${currentInput.foilType === "biala" ? "biała" : "transparentna"}`);
+        if (currentInputM2.foilType) {
+          modsLabel.push(`Kolor: ${currentInputM2.foilType === "biala" ? "biała" : "transparentna"}`);
         }
-        if (currentInput.foilFinish) {
-          modsLabel.push(`Wykończenie: ${currentInput.foilFinish === "mat" ? "mat" : "błysk"}`);
+        if (currentInputM2.foilFinish) {
+          modsLabel.push(`Wykończenie: ${currentInputM2.foilFinish === "mat" ? "mat" : "błysk"}`);
         }
 
-        if (currentInput.express) modsLabel.unshift("EXPRESS (+20%)");
+        if (currentInputM2.express) modsLabel.unshift("EXPRESS (+20%)");
 
         ctx.cart.addItem({
           id: `wlepki-${Date.now()}`,
           category: "Wlepki / Naklejki",
           name: group?.title || "Wlepki",
-          quantity: currentInput.area,
+          quantity: currentInputM2.area,
           unit: "m2",
           unitPrice: currentResult.tierPrice,
-          isExpress: !!currentInput.express,
+          isExpress: !!currentInputM2.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: [`${currentInput.area} m²`, ...(modsLabel.length ? modsLabel : ['Standard'])].join(', '),
+          optionsHint: [`${currentInputM2.area} m²`, ...(modsLabel.length ? modsLabel : ['Standard'])].join(', '),
           payload: {
             ...currentResult,
-            groupId: currentInput.groupId,
-            foilType: currentInput.foilType,
-            foilFinish: currentInput.foilFinish,
+            groupId: currentInputM2.groupId,
+            foilType: currentInputM2.foilType,
+            foilFinish: currentInputM2.foilFinish,
           }
         });
       }

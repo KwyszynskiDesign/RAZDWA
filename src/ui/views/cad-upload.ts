@@ -19,7 +19,7 @@ export const CadUploadView: View = {
       const response = await fetch("categories/cad-upload.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
-      this.initLogic(container, ctx);
+      this.initLogic?.(container, ctx);
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }
@@ -237,7 +237,7 @@ export const CadUploadView: View = {
                 ⚫ Czarny: ${isMb ? `${lengthMeters.toFixed(3)} × ${bwUnit.toFixed(2)} × ${file.pageCount}` : `${bwUnit.toFixed(2)} × ${file.pageCount}`} = ${formatPLN(bwPrintBase)} → po opcjach ${formatPLN(bwPrintAfterSurcharge)}
               </div>
               <div class="obliczenie-text">
-                Dodatki: składanie ${formatPLN(file.foldingPrice)}, skan ${formatPLN(file.scanPrice)}
+                Dodatki: składanie ${file.folding ? `1 × ${formatPLN(file.foldingPrice)} za dokument` : formatPLN(file.foldingPrice)}, skan ${formatPLN(file.scanPrice)}
               </div>
               <div class="obliczenie-cena">
                 🎨 ${formatPLN(rowColor)} &nbsp;|&nbsp; ⚫ ${formatPLN(rowBw)}
@@ -418,7 +418,7 @@ export const CadUploadView: View = {
           </div>` : ''}
           ${totalFoldingColorVariant > 0 ? `
           <div class="summary-item">
-            <span>Składanie:</span>
+            <span>Składanie (1× za dokument):</span>
             <span>${formatPLN(totalFoldingColorVariant)}</span>
           </div>` : ''}
           ${totalScanColorVariant > 0 ? `

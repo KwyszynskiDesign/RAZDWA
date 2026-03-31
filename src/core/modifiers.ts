@@ -26,19 +26,19 @@ const ModifierSchema = z.object({
 });
 
 // Apply Modifiers function
-export type PricingResult = {
+export type ModifierApplicationResult = {
   total: number;
   breakdown: string[];
 };
 
-export function applyModifiers(basePrice: number, modifiers: Modifier[]): PricingResult {
+export function applyModifiers(basePrice: number, modifiers: Modifier[]): ModifierApplicationResult {
   let total = basePrice;
   const breakdown: string[] = [];
 
   for (const modifier of modifiers) {
     const result = ModifierSchema.safeParse(modifier);
     if (!result.success) {
-      throw new Error(`Invalid modifier: ${result.error.issues.map(issue => issue.message).join(', ')}`);
+      throw new Error(`Invalid modifier: ${result.error.issues.map((issue: z.ZodIssue) => issue.message).join(', ')}`);
     }
 
     total += modifier.value;

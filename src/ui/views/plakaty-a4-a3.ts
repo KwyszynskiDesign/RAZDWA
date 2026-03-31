@@ -18,7 +18,7 @@ export const PlakatyA4A3View: View = {
       const response = await fetch("categories/plakaty-a4-a3.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
-      this.initLogic(container, ctx);
+      this.initLogic?.(container, ctx);
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }

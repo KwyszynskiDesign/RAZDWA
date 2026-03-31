@@ -14,6 +14,7 @@ export interface ViewContext {
 export interface View {
   id: string;
   name: string;
-  mount: (container: HTMLElement, ctx: ViewContext) => void;
+  mount: (container: HTMLElement, ctx: ViewContext) => void | Promise<void>;
+  initLogic?: (container: HTMLElement, ctx: ViewContext) => void;
   unmount?: () => void;
 }

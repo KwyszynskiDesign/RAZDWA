@@ -209,7 +209,8 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
   writeWrapped(`Suma koszyka (kwota): ${formatPLN(adjustedTotal)}`, { size: 12, bold: true });
 
   const pdfBytes = await pdf.save();
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
+  const pdfData = new Uint8Array(pdfBytes);
+  const blob = new Blob([pdfData], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
   const fileName = `raport-zamowienia-${now.toISOString().slice(0, 19).replace(/[T:]/g, "-")}.pdf`;
 

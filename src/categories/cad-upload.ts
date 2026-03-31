@@ -1,6 +1,5 @@
-import { CAD_BASE, CAD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
+import { CAD_BASE, CAD_PRICE, FOLD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER_CM } from "../core/compat";
 import { money } from "../core/compat";
-import { getFileDimensions, detectPaperFormat, formatDimensionOutput, pixelsToMm as pxToMmUtil } from "../utils/fileDimensionReader";
 import { PDFDocument } from "pdf-lib";
 
 /** Pixel to millimeters conversion at 300 DPI */
@@ -202,23 +201,8 @@ export function calculateCadFoldingPrice(
 ): number {
   if (!folding) return 0;
 
-  if (isFormatowy) {
-    // Format-based folding price
-    const FOLD_PRICES: Record<string, number> = {
-      A0p: 4.0,
-      A0: 3.0,
-      A1: 2.0,
-      A2: 1.5,
-      A3: 1.0,
-      A3L: 0.7,
-    };
-    const price = FOLD_PRICES[format];
-    return price ? qty * price : 0;
-  } else {
-    // Non-format folding = per m²
-    const areaM2 = (widthMm / 1000) * (heightMm / 1000);
-    return qty * areaM2 * 2.5; // 2.5 zł/m²
-  }
+  const unitPrice = typeof FOLD_PRICE?.[format] === "number" ? FOLD_PRICE[format] : 0;
+  return unitPrice > 0 ? qty * unitPrice : 0;
 }
 
 /**
@@ -345,11 +329,12 @@ export function updateCadFileEntry(
   const format = entry.format || 'unknown';
   const isFormatowy = entry.isFormatowy || false;
   const qty = entry.pageCount || 1;
+  const foldingQty = entry.folding ? 1 : 0;
 
   console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning, pageCount: qty });
 
   const printPrice = calculateCadPrintPriceWithDimensions(widthMm, heightMm, format, isFormatowy, mode, qty);
-  const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, qty);
+  const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, foldingQty);
   const scanPrice = calculateCadScanningPrice(widthMm, heightMm, entry.scanning || false, qty);
 
   console.log("🟡 Recalculated prices:", { printPrice, foldingPrice, scanPrice });

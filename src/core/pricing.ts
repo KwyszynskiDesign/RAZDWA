@@ -1,9 +1,10 @@
-import { PriceTable, PriceTier, PricingResult, Unit } from './types'
+import { PriceTable, PriceTier, PricingResult, Unit, CalculationResult } from './types'
 import {
   TierNotFoundError,
   IncompatibleUnitError,
   MinimumQuantityError,
 } from './errors'
+import { computeTotalPrice, SimplePriceTable } from './computeTotalPrice'
 
 /**
  * /src/core/pricing.ts
@@ -12,6 +13,12 @@ import {
 
 // Cache for tier lookups (memoization)
 const TIER_CACHE = new Map<string, Map<number, PriceTier>>()
+
+function getTierUnitPrice(tier: PriceTier): number {
+  return typeof tier.pricePerUnit === 'number'
+    ? tier.pricePerUnit
+    : (typeof tier.price === 'number' ? tier.price : 0)
+}
 
 function getCacheKey(tableId: string): string {
   return `tier_cache_${tableId}`
@@ -92,7 +99,7 @@ export function calculateBasePrice(
   }
 
   // Calculate price
-  result.basePrice = effectiveQuantity * tier.pricePerUnit
+  result.basePrice = effectiveQuantity * getTierUnitPrice(tier)
 
   // Apply minimum price if set
   if (
@@ -141,7 +148,7 @@ export function getPricingStats(tiers: PriceTier[]): {
     }
   }
 
-  const prices = tiers.map((t) => t.pricePerUnit)
+  const prices = tiers.map((t) => getTierUnitPrice(t))
   const minPrice = Math.min(...prices)
   const maxPrice = Math.max(...prices)
   const avgPrice = prices.reduce((a, b) => a + b, 0) / prices.length
@@ -159,7 +166,7 @@ export function getPricingStats(tiers: PriceTier[]): {
  */
 export function formatTierRange(tier: PriceTier, unit: Unit): string {
   const maxStr = tier.max === null ? '+' : `-${tier.max}`
-  return `${tier.min}${maxStr} ${unit}: ${tier.pricePerUnit.toFixed(2)} zł/${unit}`
+  return `${tier.min}${maxStr} ${unit}: ${getTierUnitPrice(tier).toFixed(2)} zł/${unit}`
 }
 
 /**
@@ -175,7 +182,18 @@ export function formatAllTiers(table: PriceTable): string[] {
 // Simple pricing engine used by /src/categories/* files
 // ---------------------------------------------------------------------------
 
-export { CalculationResult, SimplePriceTable, computeTotalPrice } from './computeTotalPrice';
+export { SimplePriceTable, computeTotalPrice } from './computeTotalPrice';
 
-// Backward-compatible alias so existing callers of calculatePrice keep working
-export { computeTotalPrice as calculatePrice } from './computeTotalPrice';
+export function calculatePrice(table: SimplePriceTable, qty: number, activeModifiers?: string[]): CalculationResult;
+export function calculatePrice(qty: number, table: SimplePriceTable, activeModifiers?: string[]): CalculationResult;
+export function calculatePrice(
+  arg1: SimplePriceTable | number,
+  arg2: SimplePriceTable | number,
+  activeModifiers: string[] = []
+): CalculationResult {
+  if (typeof arg1 === 'number') {
+    return computeTotalPrice(arg2 as SimplePriceTable, arg1, activeModifiers);
+  }
+
+  return computeTotalPrice(arg1, arg2 as number, activeModifiers);
+}

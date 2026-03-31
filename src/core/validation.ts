@@ -5,21 +5,39 @@ import { Unit } from './types'
 // DOMAIN SCHEMAS
 // ============================================================================
 
-export const UnitSchema = z.enum(['m²', 'szt', 'mb'])
+export const UnitSchema = z.enum(['m2', 'm²', 'szt', 'mb', 'strona', 'format', 'inna'])
 
 export const PriceTierSchema = z.object({
   min: z.number().nonnegative('Min musi być >= 0'),
   max: z.number().nullable().default(null),
-  pricePerUnit: z.number().positive('Cena musi być > 0'),
+  price: z.number().positive('Cena musi być > 0').optional(),
+  pricePerUnit: z.number().positive('Cena musi być > 0').optional(),
+}).refine((tier) => typeof tier.price === 'number' || typeof tier.pricePerUnit === 'number', {
+  message: 'Tier musi zawierać pole `price` lub `pricePerUnit`',
 })
 
 export const PriceTableSchema = z.object({
   id: z.string().min(1, 'ID nie może być puste'),
-  name: z.string().min(1, 'Nazwa nie może być pusta'),
+  title: z.string().min(1, 'Tytuł nie może być pusty').optional(),
+  name: z.string().min(1, 'Nazwa nie może być pusta').optional(),
   unit: UnitSchema,
+  pricing: z.enum(['per_unit', 'flat']).optional(),
   tiers: z.array(PriceTierSchema).min(1, 'Musi być co najmniej jeden tier'),
   minimumQuantity: z.number().nonnegative().optional(),
   minimumPrice: z.number().nonnegative().optional(),
+  modifiers: z.array(z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    type: z.enum(['percent', 'percentage', 'fixed', 'fixed_per_unit', 'multiplicative']),
+    value: z.number(),
+    description: z.string().optional(),
+  })).optional(),
+  rules: z.array(z.object({
+    type: z.string(),
+    unit: z.string(),
+    value: z.number(),
+  })).optional(),
+  notes: z.array(z.string()).optional(),
 })
 
 export const CategoryInputSchema = z.object({
@@ -35,7 +53,7 @@ export const CategoryInputSchema = z.object({
 // CSV/JSON IMPORT SCHEMAS
 // ============================================================================
 
-export const CSVRowSchema = z.record(z.any())
+export const CSVRowSchema = z.record(z.string(), z.unknown())
 
 export const NormalizedDataSchema = z.object({
   categories: z.array(
@@ -60,13 +78,13 @@ export const NormalizedDataSchema = z.object({
 export function validatePriceTable(data: unknown): {
   success: boolean
   data?: z.infer<typeof PriceTableSchema>
-  errors?: z.ZodError['errors']
+  errors?: z.ZodIssue[]
 } {
   const result = PriceTableSchema.safeParse(data)
   if (result.success) {
     return { success: true, data: result.data }
   }
-  return { success: false, errors: result.error.errors }
+  return { success: false, errors: result.error.issues }
 }
 
 export function validateCategoryInput(data: unknown): {
@@ -80,6 +98,6 @@ export function validateCategoryInput(data: unknown): {
   }
   return {
     success: false,
-    errors: result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`),
+    errors: result.error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`),
   }
 }

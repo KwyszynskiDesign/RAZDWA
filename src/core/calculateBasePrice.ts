@@ -4,11 +4,11 @@
  * applying minimum-quantity rules and selecting the correct tier.
  */
 
-type SimpleTier = { min: number; max: number | null; price: number };
+type SimpleTier = { min: number; max: number | null; price?: number; pricePerUnit?: number };
 type SimpleRule = { type: string; unit: string; value: number };
 
 export interface BaseCalcTable {
-  pricing: 'per_unit' | 'flat';
+  pricing?: 'per_unit' | 'flat';
   tiers: SimpleTier[];
   rules?: SimpleRule[];
 }
@@ -27,16 +27,23 @@ function findSimpleTier(tiers: SimpleTier[], qty: number): SimpleTier {
   return first ?? sorted[sorted.length - 1];
 }
 
+function getTierPrice(tier: SimpleTier): number {
+  return typeof tier.pricePerUnit === 'number'
+    ? tier.pricePerUnit
+    : (typeof tier.price === 'number' ? tier.price : 0);
+}
+
 export function calculateBasePrice(table: BaseCalcTable, qty: number): BasePriceResult {
   const minQtyRule = (table.rules ?? []).find(r => r.type === 'minimum' && r.unit === 'm2');
   const effectiveQty = (minQtyRule && qty < minQtyRule.value) ? minQtyRule.value : qty;
 
   const tier = findSimpleTier(table.tiers, effectiveQty);
-  const basePrice = table.pricing === 'per_unit' ? effectiveQty * tier.price : tier.price;
+  const tierPrice = getTierPrice(tier);
+  const basePrice = (table.pricing ?? 'per_unit') === 'per_unit' ? effectiveQty * tierPrice : tierPrice;
 
   return {
     basePrice,
     effectiveQuantity: effectiveQty,
-    tierPrice: tier.price,
+    tierPrice,
   };
 }

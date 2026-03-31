@@ -14,7 +14,7 @@ export const WizytowkiView: View = {
       const response = await fetch("categories/wizytowki-druk-cyfrowy.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
-      this.initLogic(container, ctx);
+      this.initLogic?.(container, ctx);
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }

@@ -1,8 +1,19 @@
 import { View, ViewContext } from "./types";
 import { VIPERPRINT_URL } from "../core/external-links";
 
-export type CategoryModule = View;
-        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
+export interface CategoryContext extends ViewContext {
+  cart: {
+    addItem: (item: any) => void;
+  };
+}
+
+export interface CategoryModule {
+  id: string;
+  name: string;
+  mount: (container: HTMLElement, ctx: CategoryContext) => void | Promise<void>;
+  initLogic?: (container: HTMLElement, ctx: CategoryContext) => void;
+  unmount?: () => void;
+}
 
 export class Router {
   private routes: Map<string, View> = new Map();

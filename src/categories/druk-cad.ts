@@ -7,7 +7,7 @@ export interface DrukCADOptions {
   mode: "bw" | "color";
   format: string;
   lengthMm: number;
-  qty: number;
+  qty?: number;
   express: boolean;
 }
 
