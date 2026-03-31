@@ -48,11 +48,23 @@ const _clrMap: Record<string, string> = {
   'kolor': 'color', 'czarno_bialy': 'bw'
 };
 
+// Build storage key matching defaultPrices convention: druk-cad-{bw|kolor}-{fmt|mb}-{format}
+function _cadStorageKey(color: string, type: 'fmt' | 'mb', format: string): string {
+  const cadModeKey = color === 'bw' ? 'bw' : 'kolor';
+  const cadFmtKey = format
+    .toLowerCase()
+    .replace('0p', '0plus')
+    .replace('1p', '1plus')
+    .replace('r1067', 'mb1067');
+  return `druk-cad-${cadModeKey}-${type}-${cadFmtKey}`;
+}
+
 function _getFormatowyPricing(color: string, format: string): { price: number; dims: string } | null {
   const c = _clrMap[color];
   const f = _fmtMap[format];
-  const price = _cadPrice[c]?.formatowe?.[f];
-  if (price == null) return null;
+  const basePrice = _cadPrice[c]?.formatowe?.[f];
+  if (basePrice == null) return null;
+  const price = resolveStoredPrice(_cadStorageKey(c, 'fmt', f), basePrice);
   const b = _cadBase[f];
   return { price, dims: b ? `${b.w}\u00d7${b.l} mm` : '' };
 }
@@ -60,8 +72,9 @@ function _getFormatowyPricing(color: string, format: string): { price: number; d
 function _getMbPricing(color: string, format: string): { price: number } | null {
   const c = _clrMap[color];
   const f = _fmtMap[format];
-  const price = _cadPrice[c]?.mb?.[f];
-  if (price == null) return null;
+  const basePrice = _cadPrice[c]?.mb?.[f];
+  if (basePrice == null) return null;
+  const price = resolveStoredPrice(_cadStorageKey(c, 'mb', f), basePrice);
   return { price };
 }
 

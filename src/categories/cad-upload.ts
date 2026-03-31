@@ -166,6 +166,17 @@ export function calculateCadPrintPrice(format: string, isColor: boolean): number
   return mbPrice || 0;
 }
 
+// Build storage key matching defaultPrices convention: druk-cad-{bw|kolor}-{fmt|mb}-{format}
+function _cadStorageKey(mode: string, type: 'fmt' | 'mb', format: string): string {
+  const cadModeKey = mode === 'bw' ? 'bw' : 'kolor';
+  const cadFmtKey = format
+    .toLowerCase()
+    .replace('0p', '0plus')
+    .replace('1p', '1plus')
+    .replace('r1067', 'mb1067');
+  return `druk-cad-${cadModeKey}-${type}-${cadFmtKey}`;
+}
+
 function calculateCadPrintPriceWithDimensions(
   widthMm: number,
   heightMm: number,
@@ -177,13 +188,15 @@ function calculateCadPrintPriceWithDimensions(
   const prices = CAD_PRICE[mode];
 
   if (isFormatowy) {
-    const price = prices.formatowe[format];
-    if (!price) return 0;
+    const basePrice = prices.formatowe[format];
+    if (!basePrice) return 0;
+    const price = resolveStoredPrice(_cadStorageKey(mode, 'fmt', format), basePrice);
     return qty * price;
   }
 
-  const price = prices.mb[format];
-  if (!price) return 0;
+  const basePrice = prices.mb[format];
+  if (!basePrice) return 0;
+  const price = resolveStoredPrice(_cadStorageKey(mode, 'mb', format), basePrice);
   const lengthMeters = Math.max(widthMm, heightMm) / 1000;
   return qty * lengthMeters * price;
 }
