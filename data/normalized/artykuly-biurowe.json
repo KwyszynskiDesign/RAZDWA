@@ -58,9 +58,14 @@
           "price": 13.00
         },
         {
-          "id": "koszulka-dokumenty",
-          "name": "KOSZULKA na dokumenty (1 szt / 10 szt)",
-          "prices": [0.30, 0.80]
+          "id": "koszulka-dokumenty-1szt",
+          "name": "KOSZULKA na dokumenty (1 szt)",
+          "price": 0.30
+        },
+        {
+          "id": "koszulka-dokumenty-10szt",
+          "name": "KOSZULKA na dokumenty (10 szt)",
+          "price": 0.80
         },
         {
           "id": "papier-ryza-a4",
