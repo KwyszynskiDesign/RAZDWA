@@ -162,6 +162,7 @@ const PRICE_LABELS: Record<string, string> = {
   "druk-cad-bw-fmt-a1plus": "CAD czarno-biały formatowy – A1+ (610)",
   "druk-cad-bw-fmt-a0": "CAD czarno-biały formatowy – A0",
   "druk-cad-bw-fmt-a0plus": "CAD czarno-biały formatowy – A0+",
+  "druk-cad-bw-fmt-mb1067": "CAD czarno-biały formatowy – rolka 1067 mm",
   "druk-cad-bw-mb-a3": "CAD czarno-biały metr bieżący – A3",
   "druk-cad-bw-mb-a2": "CAD czarno-biały metr bieżący – A2",
   "druk-cad-bw-mb-a1": "CAD czarno-biały metr bieżący – A1",
@@ -739,6 +740,7 @@ const CAD_SETTINGS_ORDER: string[] = [
   "druk-cad-bw-fmt-a1",
   "druk-cad-bw-fmt-a2",
   "druk-cad-bw-fmt-a3",
+  "druk-cad-bw-fmt-mb1067",
   // CZ-B nieformatowe (mb)
   "druk-cad-bw-mb-a0plus",
   "druk-cad-bw-mb-a0",

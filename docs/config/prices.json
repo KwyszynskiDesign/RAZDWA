@@ -1,4 +1,4 @@
-﻿{
+{
     "drukA4A3":  {
                      "print":  {
                                    "bw":  {
@@ -221,7 +221,8 @@
                                                                "A1p":  9.7,
                                                                "A1":  8.0,
                                                                "A2":  6.0,
-                                                               "A3":  3.0
+                                                               "A3":  3.0,
+                                                               "R1067":  14.0
                                                            },
                                              "mb":  {
                                                         "A0p":  10.0,
@@ -267,7 +268,7 @@
                                         },
                                  "R1067":  {
                                                "w":  1067,
-                                               "l":  0,
+                                               "l":  1000,
                                                "label":  "Roll 1067"
                                            }
                              },
@@ -2786,6 +2787,7 @@
                           "druk-cad-bw-fmt-a1plus":  9.70,
                           "druk-cad-bw-fmt-a0":  10.00,
                           "druk-cad-bw-fmt-a0plus":  12.00,
+                          "druk-cad-bw-fmt-mb1067":  14.00,
                           "druk-cad-bw-mb-a3":  8.50,
                           "druk-cad-bw-mb-a2":  8.50,
                           "druk-cad-bw-mb-a1":  10.20,
