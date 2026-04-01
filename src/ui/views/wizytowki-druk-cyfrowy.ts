@@ -44,24 +44,24 @@ export const WizytowkiView: View = {
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
 
-    const isExternal = () => familySelect.value === 'softtouch' || familySelect.value === 'deluxe';
+    const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
 
     const syncMode = () => {
       const external = isExternal();
-      standardOpts.style.display = external ? 'none' : 'block';
-      standardActions.style.display = external ? 'none' : 'flex';
-      externalRedirect.style.display = external ? 'block' : 'none';
+      if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
+      if (standardActions) standardActions.style.display = external ? 'none' : 'flex';
+      if (externalRedirect) externalRedirect.style.display = external ? 'block' : 'none';
       if (external) {
-        resultDisplay.style.display = 'none';
-        breakdownDisplay.style.display = 'none';
-        addToCartBtn.disabled = true;
+        if (resultDisplay) resultDisplay.style.display = 'none';
+        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+        if (addToCartBtn) addToCartBtn.disabled = true;
         currentResult = null;
         currentOptions = null;
       }
     };
 
-    familySelect.onchange = syncMode;
-    goExternalBtn.onclick = () => {
+    if (familySelect) familySelect.onchange = syncMode;
+    if (goExternalBtn) goExternalBtn.onclick = () => {
       window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
     };
 
@@ -96,11 +96,22 @@ export const WizytowkiView: View = {
 
       lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
 
-      breakdownLines.innerHTML = lines.join("");
-      breakdownDisplay.style.display = "block";
+      if (breakdownLines) breakdownLines.innerHTML = lines.join("");
+      if (breakdownDisplay) breakdownDisplay.style.display = "block";
     };
 
     const calculate = () => {
+      if (isExternal() || !familySelect?.value) {
+        if (resultDisplay) resultDisplay.style.display = 'none';
+        if (addToCartBtn) addToCartBtn.disabled = true;
+        return;
+      }
+      if (!qtyInput?.value) {
+        if (resultDisplay) resultDisplay.style.display = 'none';
+        if (addToCartBtn) addToCartBtn.disabled = true;
+        return;
+      }
+
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
 
@@ -124,13 +135,13 @@ export const WizytowkiView: View = {
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, isSatin);
-        resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+        if (resultDisplay) resultDisplay.style.display = "block";
+        if (addToCartBtn) addToCartBtn.disabled = false;
 
         ctx.updateLastCalculated(totalPrice, "Wizytówki");
       } catch (err) {
-        resultDisplay.style.display = "none";
-        addToCartBtn.disabled = true;
+        if (resultDisplay) resultDisplay.style.display = "none";
+        if (addToCartBtn) addToCartBtn.disabled = true;
       }
     };
 

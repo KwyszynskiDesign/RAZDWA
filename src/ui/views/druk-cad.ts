@@ -266,7 +266,11 @@ export const DrukCADView: View = {
       return baseLen;
     };
 
-    formatSelect.onchange = updateUI;
+    formatSelect.onchange = () => {
+      const baseLen = data.base[formatSelect.value]?.l;
+      if (baseLen != null) lengthInput.value = String(baseLen);
+      updateUI();
+    };
     modeSelect.onchange = updateUI;
     lengthInput.oninput = updateUI;
 
