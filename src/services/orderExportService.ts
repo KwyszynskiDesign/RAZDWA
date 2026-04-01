@@ -38,7 +38,7 @@ export interface OrderExportResult {
 }
 
 const DEFAULT_CONFIG: OrderExportConfig = {
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwbZDEjSt4hGTfD7F1QaAzDm_Cb0Vf-Nk7dsJ_XNwaHVgMW7-bA-A8O8KlBYVDKjH53/exec",
+  appsScriptUrl: "https://script.google.com/macros/s/AKfycbzs95KkZuTndZyjHuIEih0vMF1orBtyJqh9ceQcvRygQg2cR3yZg9dWdsKiPS78-5np/exec",
   timeoutMs: 15000,
   enabled: true,
 };
