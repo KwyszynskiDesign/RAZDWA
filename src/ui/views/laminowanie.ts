@@ -16,29 +16,43 @@ const BINDOWANIE_PRICES = {
   }
 } as const;
 
-const OPRAWY_PRICES = {
-  grzbietowa: {
-    do50: { A4: 3.50, A3: 7.00 },
-    do60: { A4: 4.50, A3: 8.00 },
-    do90: { A4: 5.50, A3: 9.00 },
-    do150: { A4: 7.00, A3: 14.00 }
-  },
-  kanałowa: {
-    standard: 25.00,
-    pozostale: 35.00,
-    bezNapisu: 20.00,
-    wkarta: 10.00
-  },
-  zaciskowa: {
-    miękka: 15.00
-  },
-  zbijana: {
-    zbijanePrintedHere: resolveStoredPrice("laminowanie-oprawa-zbijane-printed-here", 50.00),
-    skrecanePrintedHere: resolveStoredPrice("laminowanie-oprawa-skrecane-printed-here", 60.00),
-    zbijaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-client-supplied", 60.00),
-    skrecaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-skrecane-client-supplied", 70.00),
-  }
-} as const;
+function getOprawyPrices() {
+  return {
+    grzbietowa: {
+      do50: {
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do50", 3.5),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do50", 7.0),
+      },
+      do60: {
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do60", 4.5),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do60", 8.0),
+      },
+      do90: {
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do90", 5.5),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do90", 9.0),
+      },
+      do150: {
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do150", 7.0),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do150", 14.0),
+      },
+    },
+    kanałowa: {
+      standard: resolveStoredPrice("laminowanie-oprawa-kanalowa-standard", 25.0),
+      pozostale: resolveStoredPrice("laminowanie-oprawa-kanalowa-pozostale", 35.0),
+      bezNapisu: resolveStoredPrice("laminowanie-oprawa-kanalowa-bez-napisu", 20.0),
+      wkarta: resolveStoredPrice("laminowanie-oprawa-kanalowa-wkarta", 10.0),
+    },
+    zaciskowa: {
+      miękka: resolveStoredPrice("laminowanie-oprawa-zaciskowa-miekka", 15.0),
+    },
+    zbijana: {
+      zbijanePrintedHere: resolveStoredPrice("laminowanie-oprawa-zbijane-printed-here", 50.0),
+      skrecanePrintedHere: resolveStoredPrice("laminowanie-oprawa-skrecane-printed-here", 60.0),
+      zbijaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-client-supplied", 60.0),
+      skrecaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-skrecane-client-supplied", 70.0),
+    },
+  } as const;
+}
 
 function getCurrentOprawyCdPrice(): number {
   const raw = resolveStoredPrice(
@@ -73,28 +87,30 @@ function getOprUnitPrice(
   pages: number,
   color: string
 ): number {
+  const oprawyPrices = getOprawyPrices();
+
   if (type === "grzbietowa") {
-    if (pages <= 50) return OPRAWY_PRICES.grzbietowa.do50[format];
-    if (pages <= 60) return OPRAWY_PRICES.grzbietowa.do60[format];
-    if (pages <= 90) return OPRAWY_PRICES.grzbietowa.do90[format];
-    return OPRAWY_PRICES.grzbietowa.do150[format];
+    if (pages <= 50) return oprawyPrices.grzbietowa.do50[format];
+    if (pages <= 60) return oprawyPrices.grzbietowa.do60[format];
+    if (pages <= 90) return oprawyPrices.grzbietowa.do90[format];
+    return oprawyPrices.grzbietowa.do150[format];
   }
 
   if (type === "kanałowa") {
-    if (color === "bezNapisu") return OPRAWY_PRICES.kanałowa.bezNapisu;
-    if (color === "wkarta") return OPRAWY_PRICES.kanałowa.wkarta;
-    return color === "pozostale" ? OPRAWY_PRICES.kanałowa.pozostale : OPRAWY_PRICES.kanałowa.standard;
+    if (color === "bezNapisu") return oprawyPrices.kanałowa.bezNapisu;
+    if (color === "wkarta") return oprawyPrices.kanałowa.wkarta;
+    return color === "pozostale" ? oprawyPrices.kanałowa.pozostale : oprawyPrices.kanałowa.standard;
   }
 
   if (type === "zaciskowa") {
-    return OPRAWY_PRICES.zaciskowa.miękka;
+    return oprawyPrices.zaciskowa.miękka;
   }
 
   if (type === "zbijana") {
-    return OPRAWY_PRICES.zbijana.zbijanePrintedHere;
+    return oprawyPrices.zbijana.zbijanePrintedHere;
   }
 
-  return OPRAWY_PRICES.zbijana.skrecanePrintedHere;
+  return oprawyPrices.zbijana.skrecanePrintedHere;
 }
 
 export const LaminowanieView: View = {
@@ -344,20 +360,21 @@ export const LaminowanieView: View = {
       oprHardResewPrice.value = OPRAWA_TWARDA_PONOWNE_ZSZYCIE_DEFAULT.toString();
     }
 
+    const oprawyPricesForTable = getOprawyPrices();
     if (oprZbPriceZbijaneUs) {
-      oprZbPriceZbijaneUs.innerText = formatPLN(OPRAWY_PRICES.zbijana.zbijanePrintedHere);
+      oprZbPriceZbijaneUs.innerText = formatPLN(oprawyPricesForTable.zbijana.zbijanePrintedHere);
     }
 
     if (oprZbPriceZbijaneClient) {
-      oprZbPriceZbijaneClient.innerText = formatPLN(OPRAWY_PRICES.zbijana.zbijaneClientSupplied);
+      oprZbPriceZbijaneClient.innerText = formatPLN(oprawyPricesForTable.zbijana.zbijaneClientSupplied);
     }
 
     if (oprZbPriceSkrecaneUs) {
-      oprZbPriceSkrecaneUs.innerText = formatPLN(OPRAWY_PRICES.zbijana.skrecanePrintedHere);
+      oprZbPriceSkrecaneUs.innerText = formatPLN(oprawyPricesForTable.zbijana.skrecanePrintedHere);
     }
 
     if (oprZbPriceSkrecaneClient) {
-      oprZbPriceSkrecaneClient.innerText = formatPLN(OPRAWY_PRICES.zbijana.skrecaneClientSupplied);
+      oprZbPriceSkrecaneClient.innerText = formatPLN(oprawyPricesForTable.zbijana.skrecaneClientSupplied);
     }
 
     let oprState: {
@@ -489,10 +506,12 @@ export const LaminowanieView: View = {
 
       const docSource = ((oprDocSource?.value === "client-supplied") ? "client-supplied" : "printed-here") as "printed-here" | "client-supplied";
 
+      const oprawyPrices = getOprawyPrices();
+
       if (type === "zbijana" || type === "skrecana") {
         unitPrice = docSource === "client-supplied"
-          ? (type === "skrecana" ? OPRAWY_PRICES.zbijana.skrecaneClientSupplied : OPRAWY_PRICES.zbijana.zbijaneClientSupplied)
-          : (type === "skrecana" ? OPRAWY_PRICES.zbijana.skrecanePrintedHere : OPRAWY_PRICES.zbijana.zbijanePrintedHere);
+          ? (type === "skrecana" ? oprawyPrices.zbijana.skrecaneClientSupplied : oprawyPrices.zbijana.zbijaneClientSupplied)
+          : (type === "skrecana" ? oprawyPrices.zbijana.skrecanePrintedHere : oprawyPrices.zbijana.zbijanePrintedHere);
       }
 
       const expressFactor = ctx.expressMode ? 1.2 : 1;
