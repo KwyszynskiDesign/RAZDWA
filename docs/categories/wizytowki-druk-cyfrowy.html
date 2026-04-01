@@ -55,29 +55,27 @@
         </div>
         </div>
 
-        <div id="w-standard-actions" class="form-actions">
-            <button id="w-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
-        </div>
-
         <div id="w-external-redirect" class="card" style="display:none; margin-top:16px; padding:16px; border:1px solid rgba(255,255,255,0.08);">
-            <h3 style="margin:0 0 8px 0; font-size:16px;">SoftTouch / DELUXE</h3>
-            <div class="hint" style="margin-bottom:12px;">
-                Ten wariant obsługiwany jest zewnętrznie. Skorzystaj z ViperPrint lub wpisz cenę i dodaj do koszyka.
+            <div id="w-viperprint-section" style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 8px 0; font-size:16px;">SoftTouch / DELUXE</h3>
+                <div class="hint" style="margin-bottom:12px;">
+                    Ten wariant obsługiwany jest zewnętrznie. Skorzystaj z ViperPrint lub wpisz cenę i dodaj do koszyka.
+                </div>
+                <div class="form-actions" style="margin-bottom:0;">
+                    <button id="w-go-external" class="btn-primary" type="button">Przejdź do ViperPrint</button>
+                </div>
             </div>
-            <div class="form-actions" style="margin-bottom:12px;">
-                <button id="w-go-external" class="btn-primary" type="button">Przejdź do ViperPrint</button>
-            </div>
-            <div style="padding-top:12px; border-top:1px solid rgba(255,255,255,0.08);">
+            <div id="w-ext-price-section">
                 <div class="hint" style="margin-bottom:10px;">Wpisz cenę jednostkową, żeby dodać do zamówienia:</div>
                 <div class="form-group">
                     <label for="w-ext-unit-price">Cena za szt (zł):</label>
                     <input type="number" id="w-ext-unit-price" class="form-control" min="0" step="0.01" placeholder="np. 2.50" inputmode="decimal">
                 </div>
-                <div class="form-actions" style="margin-top:8px;">
-                    <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
-                </div>
-                <div id="w-ext-qty-hint" class="hint" style="margin-top:6px; display:none;">Wpisz ilość, aby aktywować przycisk.</div>
             </div>
+            <div class="form-actions" style="margin-top:8px;">
+                <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+            </div>
+            <div id="w-ext-qty-hint" class="hint" style="margin-top:6px; display:none;">Wpisz ilość, aby aktywować przycisk.</div>
         </div>
     </div>
 

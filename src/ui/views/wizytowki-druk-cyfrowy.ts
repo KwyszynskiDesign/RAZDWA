@@ -30,7 +30,6 @@ export const WizytowkiView: View = {
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
-    const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
     const breakdownDisplay = container.querySelector("#w-breakdown-display") as HTMLElement;
@@ -40,8 +39,9 @@ export const WizytowkiView: View = {
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#w-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
-    const standardActions = container.querySelector("#w-standard-actions") as HTMLElement;
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
+    const viperprintSection = container.querySelector("#w-viperprint-section") as HTMLElement;
+    const extPriceSection = container.querySelector("#w-ext-price-section") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
     const extPriceInput = container.querySelector("#w-ext-unit-price") as HTMLInputElement;
     const extAddToCartBtn = container.querySelector("#w-ext-add-to-cart") as HTMLButtonElement;
@@ -51,12 +51,12 @@ export const WizytowkiView: View = {
     const syncMode = () => {
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
-      if (standardActions) standardActions.style.display = external ? 'none' : 'flex';
-      if (externalRedirect) externalRedirect.style.display = external ? 'block' : 'none';
+      if (externalRedirect) externalRedirect.style.display = 'block';
+      if (viperprintSection) viperprintSection.style.display = external ? 'block' : 'none';
+      if (extPriceSection) extPriceSection.style.display = external ? 'block' : 'none';
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
-        if (addToCartBtn) addToCartBtn.disabled = true;
         currentResult = null;
         currentOptions = null;
       }
@@ -105,7 +105,6 @@ export const WizytowkiView: View = {
     const calculate = () => {
       if (isExternal() || !familySelect?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
-        if (addToCartBtn) addToCartBtn.disabled = true;
         if (isExternal()) {
           const qty = parseInt(qtyInput?.value || '');
           if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0);
@@ -114,7 +113,7 @@ export const WizytowkiView: View = {
       }
       if (!qtyInput?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
-        if (addToCartBtn) addToCartBtn.disabled = true;
+        if (extAddToCartBtn) extAddToCartBtn.disabled = true;
         return;
       }
 
@@ -142,12 +141,12 @@ export const WizytowkiView: View = {
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, isSatin);
         if (resultDisplay) resultDisplay.style.display = "block";
-        if (addToCartBtn) addToCartBtn.disabled = false;
+        if (extAddToCartBtn) extAddToCartBtn.disabled = false;
 
         ctx.updateLastCalculated(totalPrice, "Wizytówki");
       } catch (err) {
         if (resultDisplay) resultDisplay.style.display = "none";
-        if (addToCartBtn) addToCartBtn.disabled = true;
+        if (extAddToCartBtn) extAddToCartBtn.disabled = true;
       }
     };
 
@@ -157,60 +156,61 @@ export const WizytowkiView: View = {
       extAddToCartBtn.onclick = () => {
         const qty = parseInt(qtyInput?.value || '');
         if (!(qty > 0)) return;
-        const unitPrice = parseFloat(extPriceInput?.value || '') || 0;
 
-        const familyLabel = familySelect.value === 'softtouch' ? 'SoftTouch' : 'DELUXE';
-        const pv = paperSelect.value;
-        const paperLabel = pv.startsWith('satyna_') ? `Satyna ${pv.slice(7)}g` : `Kreda ${pv.slice(6)}g`;
-        const totalPrice = parseFloat((qty * unitPrice * (ctx.expressMode ? 1.2 : 1)).toFixed(2));
-        const parts = [`${qty} szt`, paperLabel];
-        if (ctx.expressMode) parts.push('EXPRESS (+20%)');
+        if (isExternal()) {
+          const unitPrice = parseFloat(extPriceInput?.value || '') || 0;
 
-        ctx.cart.addItem({
-          id: `wizytowki-ext-${Date.now()}`,
-          category: "Wizytówki",
-          name: `Wizytówki ${familyLabel}`,
-          quantity: qty,
-          unit: "szt",
-          unitPrice,
-          isExpress: ctx.expressMode,
-          totalPrice,
-          optionsHint: parts.join(', '),
-          payload: { family: familySelect.value, paper: pv, qty, unitPrice }
-        });
+          const familyLabel = familySelect.value === 'softtouch' ? 'SoftTouch' : 'DELUXE';
+          const pv = paperSelect.value;
+          const paperLabel = pv.startsWith('satyna_') ? `Satyna ${pv.slice(7)}g` : `Kreda ${pv.slice(6)}g`;
+          const totalPrice = parseFloat((qty * unitPrice * (ctx.expressMode ? 1.2 : 1)).toFixed(2));
+          const parts = [`${qty} szt`, paperLabel];
+          if (ctx.expressMode) parts.push('EXPRESS (+20%)');
 
-        ctx.updateLastCalculated(totalPrice, "Wizytówki");
+          ctx.cart.addItem({
+            id: `wizytowki-ext-${Date.now()}`,
+            category: "Wizytówki",
+            name: `Wizytówki ${familyLabel}`,
+            quantity: qty,
+            unit: "szt",
+            unitPrice,
+            isExpress: ctx.expressMode,
+            totalPrice,
+            optionsHint: parts.join(', '),
+            payload: { family: familySelect.value, paper: pv, qty, unitPrice }
+          });
+
+          ctx.updateLastCalculated(totalPrice, "Wizytówki");
+        } else {
+          if (currentResult && currentOptions) {
+            const pv = paperSelect.value;
+            const paperLabel = pv.startsWith('satyna_')
+              ? `Satyna ${pv.slice(7)}g`
+              : `Kreda ${pv.slice(6)}g`;
+            const parts: string[] = [
+              `${currentOptions.qty} szt`,
+              `${sizeSelect.value} mm`,
+              lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
+              paperLabel
+            ];
+            if (currentOptions.express) parts.push('EXPRESS (+20%)');
+
+            ctx.cart.addItem({
+              id: `wizytowki-${Date.now()}`,
+              category: "Wizytówki",
+              name: 'Wizytówki Standard',
+              quantity: currentOptions.qty,
+              unit: "szt",
+              unitPrice: currentResult.totalPrice / currentOptions.qty,
+              isExpress: currentOptions.express,
+              totalPrice: currentResult.totalPrice,
+              optionsHint: parts.join(', '),
+              payload: currentResult
+            });
+          }
+        }
       };
     }
-
-    addToCartBtn.onclick = () => {
-      if (currentResult && currentOptions) {
-        const pv = paperSelect.value;
-        const paperLabel = pv.startsWith('satyna_')
-          ? `Satyna ${pv.slice(7)}g`
-          : `Kreda ${pv.slice(6)}g`;
-        const parts: string[] = [
-          `${currentOptions.qty} szt`,
-          `${sizeSelect.value} mm`,
-          lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
-          paperLabel
-        ];
-        if (currentOptions.express) parts.push('EXPRESS (+20%)');
-
-        ctx.cart.addItem({
-          id: `wizytowki-${Date.now()}`,
-          category: "Wizytówki",
-          name: 'Wizytówki Standard',
-          quantity: currentOptions.qty,
-          unit: "szt",
-          unitPrice: currentResult.totalPrice / currentOptions.qty,
-          isExpress: currentOptions.express,
-          totalPrice: currentResult.totalPrice,
-          optionsHint: parts.join(', '),
-          payload: currentResult
-        });
-      }
-    };
 
     syncMode();
   }
