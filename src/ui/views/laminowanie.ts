@@ -268,6 +268,7 @@ export const LaminowanieView: View = {
       const selectedType = bindTypeChecks.find(c => c.checked);
       const selectedColor = bindColorChecks.find(c => c.checked);
       if (!selectedType || !selectedColor) return;
+      if (!bindQty.value) return;
 
       const type = ((selectedType.dataset.type === "metal") ? "metal" : "plastik") as "plastik" | "metal";
       const subtype = ((selectedType.dataset.subtype === "listwa") ? "listwa" : "spirala") as "spirala" | "listwa";
@@ -487,6 +488,11 @@ export const LaminowanieView: View = {
         if (oprAddBtn) oprAddBtn.disabled = true;
         return;
       }
+      if (!oprQty.value) {
+        if (oprResultDisplay) oprResultDisplay.style.display = "none";
+        if (oprAddBtn) oprAddBtn.disabled = true;
+        return;
+      }
       const type = (oprType.value === "kanałowa" || oprType.value === "zaciskowa"
         || oprType.value === "zbijana" || oprType.value === "skrecana"
         ? oprType.value
@@ -665,6 +671,7 @@ export const LaminowanieView: View = {
         if (introAddBtn) introAddBtn.disabled = true;
         return;
       }
+      if (!introQty.value) return;
       const result = quoteIntroligatornia({
         serviceId: introService.value,
         qty: parseInt(introQty.value, 10) || 1,

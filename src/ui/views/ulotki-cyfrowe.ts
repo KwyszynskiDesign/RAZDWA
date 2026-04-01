@@ -105,6 +105,11 @@ export const UlotkiCyfroweView: View = {
         addToCartBtn.disabled = true;
         return;
       }
+      if (!qtySelect.value) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const sides = getSelectedSides();
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");

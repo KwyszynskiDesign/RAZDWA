@@ -146,6 +146,12 @@ export const WlepkiView: View = {
             throw new Error("Dla opcji foliowej wybierz: folia biała albo transparentna.");
           }
 
+          if (!pieceQtyInput.value) {
+            resultDiv.style.display = "none";
+            addBtn.disabled = true;
+            return;
+          }
+
           const input = {
             mode: "szt" as const,
             tableId: selectedTable,

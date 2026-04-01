@@ -91,6 +91,11 @@ export const CanvasView: View = {
         addBtn.disabled = true;
         return;
       }
+      if (!qtyInput.value) {
+        resultEl.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
       const options: CanvasOptions = {
         modeId: modeSel.value as CanvasOptions["modeId"],
         formatId: formatSel.value,
