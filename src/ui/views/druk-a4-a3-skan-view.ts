@@ -170,7 +170,7 @@ export const DrukA4A3SkanView: View = {
       if (currentOptions.surcharge && currentOptions.surchargeQty > 0) details.push(`zadruk >25%: ${currentOptions.surchargeQty} str.`);
       if (hasScan) details.push(`skan ${scanLabel}: ${scanQty} str.`);
       if (currentOptions.email) details.push("wysyłka e-mail");
-      if (currentOptions.labelSticker) details.push("naklejka (druk A4): +1,60 zł");
+      if (currentOptions.labelSticker) details.push("naklejka A6: +1,60 zł");
       if (currentOptions.sleeve && currentOptions.sleeveQty > 0) {
         details.push(`koszulka: ${currentOptions.sleeveQty} szt.`);
       }

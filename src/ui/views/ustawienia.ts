@@ -121,7 +121,7 @@ const PRICE_LABELS: Record<string, string> = {
   "skan-reczne-1-4": "Skanowanie ręczne – 1–4 strony",
   "skan-reczne-5+": "Skanowanie ręczne – 5+ stron",
   "druk-email": "Dopłata za wysłanie pliku e-mailem",
-  "druk-label-sticker": "Dopłata: Naklejka (druk A4)",
+  "druk-label-sticker": "Dopłata: Naklejka A6",
   "druk-koszulka": "Dopłata: Koszulka (druk A4)",
   "modifier-druk-zadruk25": "Dopłata za duże plamy koloru (zadruk >25%)",
   // CAD wielkoformatowy kolor
@@ -701,11 +701,74 @@ function getRenderedCategories(prices: PriceMap): PriceCategory[] {
   return categories;
 }
 
+const CAD_SETTINGS_ORDER: string[] = [
+  // CZ-B formatowe
+  "druk-cad-bw-fmt-a0plus",
+  "druk-cad-bw-fmt-a0",
+  "druk-cad-bw-fmt-a1plus",
+  "druk-cad-bw-fmt-a1",
+  "druk-cad-bw-fmt-a2",
+  "druk-cad-bw-fmt-a3",
+  // CZ-B nieformatowe (mb)
+  "druk-cad-bw-mb-a0plus",
+  "druk-cad-bw-mb-a0",
+  "druk-cad-bw-mb-a1plus",
+  "druk-cad-bw-mb-a1",
+  "druk-cad-bw-mb-a2",
+  "druk-cad-bw-mb-a3",
+  "druk-cad-bw-mb-mb1067",
+  // Kolor formatowe
+  "druk-cad-kolor-fmt-a0plus",
+  "druk-cad-kolor-fmt-a0",
+  "druk-cad-kolor-fmt-a1plus",
+  "druk-cad-kolor-fmt-a1",
+  "druk-cad-kolor-fmt-a2",
+  "druk-cad-kolor-fmt-a3",
+  // Kolor nieformatowe (mb)
+  "druk-cad-kolor-mb-a0plus",
+  "druk-cad-kolor-mb-a0",
+  "druk-cad-kolor-mb-a1plus",
+  "druk-cad-kolor-mb-a1",
+  "druk-cad-kolor-mb-a2",
+  "druk-cad-kolor-mb-a3",
+  "druk-cad-kolor-mb-mb1067",
+  // Składanie
+  "cad-fold-a0plus",
+  "cad-fold-a0",
+  "cad-fold-a1plus",
+  "cad-fold-a1",
+  "cad-fold-a2",
+  "cad-fold-a3",
+  "cad-fold-a3l",
+];
+
+const CAD_SETTINGS_ORDER_INDEX = new Map<string, number>(
+  CAD_SETTINGS_ORDER.map((key, idx) => [key, idx])
+);
+
+function sortCadCategoryKeys(keys: string[]): string[] {
+  return [...keys].sort((a, b) => {
+    const ai = CAD_SETTINGS_ORDER_INDEX.get(a);
+    const bi = CAD_SETTINGS_ORDER_INDEX.get(b);
+
+    if (ai != null && bi != null) return ai - bi;
+    if (ai != null) return -1;
+    if (bi != null) return 1;
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
   }
-  return Object.keys(prices).filter((key) => keyMatchesCategory(key, category)).sort();
+
+  const keys = Object.keys(prices).filter((key) => keyMatchesCategory(key, category));
+  if (category.id === "druk-cad") {
+    return sortCadCategoryKeys(keys);
+  }
+
+  return keys.sort();
 }
 
 export const UstawieniaView: View = {
@@ -816,15 +879,34 @@ export const UstawieniaView: View = {
         return;
       }
 
+      const cadSectionTitles: Record<string, string> = {
+        "druk-cad-bw-fmt-a0plus": "CZARNO-BIAŁY FORMATOWY",
+        "druk-cad-bw-mb-a0plus": "NIEFORMATOWE CZARNO-BIAŁE",
+        "druk-cad-kolor-fmt-a0plus": "KOLOR FORMATOWY",
+        "druk-cad-kolor-mb-a0plus": "NIEFORMATOWE KOLOROWE",
+        "cad-fold-a0plus": "SKŁADANIE CAD",
+      };
+
       let previousGroup = "";
       let isBoldGroup = false;
 
-      tbody.innerHTML = keys.map((key) => {
+      const rows: string[] = [];
+      keys.forEach((key) => {
+        if (active.id === "druk-cad" && cadSectionTitles[key]) {
+          rows.push(`
+            <tr class="settings-section-row">
+              <td colspan="3"><strong>${escapeHtml(cadSectionTitles[key])}</strong></td>
+            </tr>
+          `);
+        }
+
         const label = getPriceLabel(key);
-        const groupLabel = getProductGroupLabel(label);
-        if (groupLabel !== previousGroup) {
-          isBoldGroup = !isBoldGroup;
-          previousGroup = groupLabel;
+        if (active.id !== "druk-cad") {
+          const groupLabel = getProductGroupLabel(label);
+          if (groupLabel !== previousGroup) {
+            isBoldGroup = !isBoldGroup;
+            previousGroup = groupLabel;
+          }
         }
 
         const value = prices[key];
@@ -832,7 +914,7 @@ export const UstawieniaView: View = {
           ? value.toFixed(2)
           : "";
 
-        return `
+        rows.push(`
         <tr data-key="${escapeHtml(key)}">
           <td class="settings-td-product">
             <span class="settings-product-label${isBoldGroup ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
@@ -844,8 +926,10 @@ export const UstawieniaView: View = {
             <button type="button" data-action="delete" data-key="${escapeHtml(key)}" class="settings-btn-del" title="Usuń pozycję">✕</button>
           </td>
         </tr>
-      `;
-      }).join("");
+      `);
+      });
+
+      tbody.innerHTML = rows.join("");
 
       tbody.querySelectorAll<HTMLButtonElement>("[data-action='delete']").forEach((button) => {
         button.addEventListener("click", () => {

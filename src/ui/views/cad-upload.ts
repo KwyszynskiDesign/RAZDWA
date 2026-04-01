@@ -5,7 +5,7 @@ import {
   CadUploadFileEntry,
 } from "../../categories/cad-upload";
 import { formatPLN } from "../../core/money";
-import { CAD_PRICE } from "../../core/compat";
+import { resolveStoredPrice } from "../../core/compat";
 
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
@@ -91,7 +91,7 @@ export const CadUploadView: View = {
 
     function calcSurchargeMultiplier(): number {
       let m = 1;
-      if (optFill?.checked) m += 0.5;
+      if (optFill?.checked) m += resolveStoredPrice("modifier-druk-zadruk25", 0.5);
       if (optScale?.checked) m += 0.5;
       return m;
     }
@@ -159,24 +159,14 @@ export const CadUploadView: View = {
     }
 
     function calculateVariantPrint(file: CadUploadFileEntry, mode: "color" | "bw"): number {
-      if (file.isFormatowy) {
-        return (CAD_PRICE[mode]?.formatowe?.[file.format] || 0) * file.pageCount;
-      }
-
-      const mbPrice = CAD_PRICE[mode]?.mb?.[file.format];
-      if (typeof mbPrice === "number" && mbPrice > 0) {
-        const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
-        return lengthMeters * mbPrice * file.pageCount;
-      }
-
-      // Fallback zgodny z legacy
-      const longerSideCm = Math.max(file.widthMm, file.heightMm) / 10;
-      return longerSideCm * 0.08 * file.pageCount;
+      const recalculated = updateCadFileEntry({ ...file, mode }, mode);
+      return recalculated.printPrice;
     }
 
     function calculateRowTotal(file: CadUploadFileEntry, mode: "color" | "bw", surcharge: number): number {
-      const print = calculateVariantPrint(file, mode) * surcharge;
-      return print + file.foldingPrice + file.scanPrice;
+      const recalculated = updateCadFileEntry({ ...file, mode }, mode);
+      const print = recalculated.printPrice * surcharge;
+      return print + recalculated.foldingPrice + recalculated.scanPrice;
     }
 
     function renderCalculations(): void {
@@ -200,15 +190,14 @@ export const CadUploadView: View = {
           const lengthMeters = Math.max(file.widthMm, file.heightMm) / 1000;
           const isMb = !file.isFormatowy;
 
-          const colorUnit = file.isFormatowy
-            ? (CAD_PRICE.color?.formatowe?.[file.format] || 0)
-            : (CAD_PRICE.color?.mb?.[file.format] || 0);
-          const bwUnit = file.isFormatowy
-            ? (CAD_PRICE.bw?.formatowe?.[file.format] || 0)
-            : (CAD_PRICE.bw?.mb?.[file.format] || 0);
-
           const colorPrintBase = calculateVariantPrint(file, "color");
           const bwPrintBase = calculateVariantPrint(file, "bw");
+          const colorUnit = isMb
+            ? (lengthMeters > 0 && file.pageCount > 0 ? colorPrintBase / (lengthMeters * file.pageCount) : 0)
+            : (file.pageCount > 0 ? colorPrintBase / file.pageCount : 0);
+          const bwUnit = isMb
+            ? (lengthMeters > 0 && file.pageCount > 0 ? bwPrintBase / (lengthMeters * file.pageCount) : 0)
+            : (file.pageCount > 0 ? bwPrintBase / file.pageCount : 0);
           const colorPrintAfterSurcharge = colorPrintBase * surcharge;
           const bwPrintAfterSurcharge = bwPrintBase * surcharge;
 
@@ -323,7 +312,7 @@ export const CadUploadView: View = {
           <td class="col-size">
             <div class="cad-size-main">${escapeHtml(paperFormat || "—")}</div>
             <div class="cad-size-dims">${escapeHtml(dims || "0mm×0mm")}</div>
-            <div class="cad-size-pages">Ilość stron: ${Number.isFinite(pages) ? pages : 1}</div>
+            <div class="cad-size-pages">Ilość: ${Number.isFinite(pages) ? pages : 1}</div>
           </td>
           <td class="col-fold">
             <input type="checkbox" class="fold-check" data-action="fold" ${file.folding ? "checked" : ""} />
@@ -375,7 +364,7 @@ export const CadUploadView: View = {
       }
       totalPrintBwVariant *= surcharge;
       
-      const emailFee = optEmail?.checked ? 1 : 0;
+      const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
       
       grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
       grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
