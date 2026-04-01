@@ -2,6 +2,7 @@ import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { autoCalc } from "../autoCalc";
 
 const SATIN_MULTIPLIER = 1.12;
 const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=21018362364&gbraid=0AAAAAD968vUsT1IYHnVYtLWCKF6brvsG5&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icws7E1EMoiecw063F64yWTCzjVQYAGv8B9VfaX9vnGa6MI9rM6KAh8aAncwEALw_wcB";
@@ -24,16 +25,11 @@ export const WizytowkiView: View = {
   initLogic(container: HTMLElement, ctx: ViewContext) {
     const familySelect = container.querySelector("#w-family") as HTMLSelectElement;
     const standardOpts = container.querySelector("#standard-options") as HTMLElement;
-    const deluxeOpts = container.querySelector("#deluxe-options") as HTMLElement;
-
-    const finishSelect = container.querySelector("#w-finish") as HTMLSelectElement;
     const sizeSelect = container.querySelector("#w-size") as HTMLSelectElement;
     const lamSelect = container.querySelector("#w-lam") as HTMLSelectElement;
-    const deluxeOptSelect = container.querySelector("#w-deluxe-opt") as HTMLSelectElement;
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
-    const calculateBtn = container.querySelector("#w-calculate") as HTMLButtonElement;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
@@ -48,19 +44,14 @@ export const WizytowkiView: View = {
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
 
-    const requiresExternalRedirect = () => familySelect.value === 'deluxe' || finishSelect.value === 'softtouch';
+    const isExternal = () => familySelect.value === 'softtouch' || familySelect.value === 'deluxe';
 
-    const syncRedirectMode = () => {
-      const isDeluxe = familySelect.value === 'deluxe';
-      const isExternal = requiresExternalRedirect();
-
-      standardOpts.style.display = isDeluxe ? 'none' : 'block';
-      deluxeOpts.style.display = isDeluxe ? 'block' : 'none';
-
-      standardActions.style.display = isExternal ? 'none' : 'flex';
-      externalRedirect.style.display = isExternal ? 'block' : 'none';
-
-      if (isExternal) {
+    const syncMode = () => {
+      const external = isExternal();
+      standardOpts.style.display = external ? 'none' : 'block';
+      standardActions.style.display = external ? 'none' : 'flex';
+      externalRedirect.style.display = external ? 'block' : 'none';
+      if (external) {
         resultDisplay.style.display = 'none';
         breakdownDisplay.style.display = 'none';
         addToCartBtn.disabled = true;
@@ -69,8 +60,7 @@ export const WizytowkiView: View = {
       }
     };
 
-    familySelect.onchange = syncRedirectMode;
-    finishSelect.onchange = syncRedirectMode;
+    familySelect.onchange = syncMode;
     goExternalBtn.onclick = () => {
       window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
     };
@@ -110,20 +100,14 @@ export const WizytowkiView: View = {
       breakdownDisplay.style.display = "block";
     };
 
-    calculateBtn.onclick = () => {
-      if (requiresExternalRedirect()) {
-        return;
-      }
-
+    const calculate = () => {
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
 
       currentOptions = {
-        family: familySelect.value,
-        finish: finishSelect.value,
+        family: "standard",
         format: sizeSelect.value,
         folia: lamSelect.value === 'lam' ? 'matt_gloss' : 'none',
-        deluxeOpt: deluxeOptSelect.value,
         qty: parseInt(qtyInput.value),
         express: ctx.expressMode
       };
@@ -150,34 +134,26 @@ export const WizytowkiView: View = {
       }
     };
 
-    addToCartBtn.onclick = () => {
-      if (requiresExternalRedirect()) {
-        return;
-      }
+    autoCalc({ root: container, calc: calculate });
 
+    addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const pv = paperSelect.value;
         const paperLabel = pv.startsWith('satyna_')
           ? `Satyna ${pv.slice(7)}g`
           : `Kreda ${pv.slice(6)}g`;
-        const isDeluxe = currentOptions.family === 'deluxe';
-        const parts: string[] = [`${currentOptions.qty} szt`];
-        if (!isDeluxe) {
-          parts.push(`${sizeSelect.value} mm`);
-          const finishText = finishSelect.options[finishSelect.selectedIndex]?.text;
-          if (finishText) parts.push(finishText);
-          if (currentOptions.folia !== 'none') parts.push('Foliowane');
-        } else {
-          const deluxeText = deluxeOptSelect.options[deluxeOptSelect.selectedIndex]?.text;
-          if (deluxeText) parts.push(deluxeText);
-        }
-        parts.push(paperLabel);
+        const parts: string[] = [
+          `${currentOptions.qty} szt`,
+          `${sizeSelect.value} mm`,
+          lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
+          paperLabel
+        ];
         if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
         ctx.cart.addItem({
           id: `wizytowki-${Date.now()}`,
           category: "Wizytówki",
-          name: isDeluxe ? 'Wizytówki DELUXE' : 'Wizytówki Standard',
+          name: 'Wizytówki Standard',
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
@@ -189,6 +165,6 @@ export const WizytowkiView: View = {
       }
     };
 
-    syncRedirectMode();
+    syncMode();
   }
 };
