@@ -19,9 +19,9 @@ const BINDOWANIE_PRICES = {
 function getOprawyPrices() {
   return {
     grzbietowa: {
-      do50: {
-        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do50", 3.5),
-        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do50", 7.0),
+      do30: {
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do30", 3.5),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do30", 7.0),
       },
       do60: {
         A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do60", 4.5),
@@ -90,7 +90,7 @@ function getOprUnitPrice(
   const oprawyPrices = getOprawyPrices();
 
   if (type === "grzbietowa") {
-    if (pages <= 30) return oprawyPrices.grzbietowa.do50[format];  // do30 wg cennika
+    if (pages <= 30) return oprawyPrices.grzbietowa.do30[format];
     if (pages <= 60) return oprawyPrices.grzbietowa.do60[format];
     if (pages <= 90) return oprawyPrices.grzbietowa.do90[format];
     return oprawyPrices.grzbietowa.do150[format];

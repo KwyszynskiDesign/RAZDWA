@@ -43,6 +43,8 @@ export const WizytowkiView: View = {
     const standardActions = container.querySelector("#w-standard-actions") as HTMLElement;
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
+    const extPriceInput = container.querySelector("#w-ext-unit-price") as HTMLInputElement;
+    const extAddToCartBtn = container.querySelector("#w-ext-add-to-cart") as HTMLButtonElement;
 
     const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
 
@@ -104,6 +106,10 @@ export const WizytowkiView: View = {
       if (isExternal() || !familySelect?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (addToCartBtn) addToCartBtn.disabled = true;
+        if (isExternal()) {
+          const qty = parseInt(qtyInput?.value || '');
+          if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0);
+        }
         return;
       }
       if (!qtyInput?.value) {
@@ -146,6 +152,36 @@ export const WizytowkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate });
+
+    if (extAddToCartBtn) {
+      extAddToCartBtn.onclick = () => {
+        const qty = parseInt(qtyInput?.value || '');
+        if (!(qty > 0)) return;
+        const unitPrice = parseFloat(extPriceInput?.value || '') || 0;
+
+        const familyLabel = familySelect.value === 'softtouch' ? 'SoftTouch' : 'DELUXE';
+        const pv = paperSelect.value;
+        const paperLabel = pv.startsWith('satyna_') ? `Satyna ${pv.slice(7)}g` : `Kreda ${pv.slice(6)}g`;
+        const totalPrice = parseFloat((qty * unitPrice * (ctx.expressMode ? 1.2 : 1)).toFixed(2));
+        const parts = [`${qty} szt`, paperLabel];
+        if (ctx.expressMode) parts.push('EXPRESS (+20%)');
+
+        ctx.cart.addItem({
+          id: `wizytowki-ext-${Date.now()}`,
+          category: "Wizytówki",
+          name: `Wizytówki ${familyLabel}`,
+          quantity: qty,
+          unit: "szt",
+          unitPrice,
+          isExpress: ctx.expressMode,
+          totalPrice,
+          optionsHint: parts.join(', '),
+          payload: { family: familySelect.value, paper: pv, qty, unitPrice }
+        });
+
+        ctx.updateLastCalculated(totalPrice, "Wizytówki");
+      };
+    }
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
