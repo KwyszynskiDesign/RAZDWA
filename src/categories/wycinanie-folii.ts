@@ -15,15 +15,17 @@ export function calculateWycinanieFolii(options: WycinanieFoliiOptions): Calcula
     throw new Error("Nieprawidłowa powierzchnia");
   }
 
-  const areaBracket = areaM2 < 1 ? "ponizej-1m2" : "powyzej-1m2";
   const variantId = options.variantId;
-  const storedKey = `wycinanie-folii-${variantId}-${areaBracket}`;
+  const storedKey = `wycinanie-folii-${variantId}`;
   
   const data = getPrice("defaultPrices") as any;
-  const tierRate = data?.[storedKey] ?? 125;
+  const legacyAboveKey = `wycinanie-folii-${variantId}-powyzej-1m2`;
+  const legacyBelowKey = `wycinanie-folii-${variantId}-ponizej-1m2`;
+  const defaultRate = variantId === "zloto-srebro" ? 150 : 125;
+  const tierRate = data?.[storedKey] ?? data?.[legacyAboveKey] ?? data?.[legacyBelowKey] ?? defaultRate;
 
   const table: PriceTable = {
-    id: `wycinanie-folii-${variantId}-${areaBracket}`,
+    id: `wycinanie-folii-${variantId}`,
     title: "Wycinanie z folii",
     unit: "m2",
     pricing: "per_unit",

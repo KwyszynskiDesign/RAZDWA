@@ -78,6 +78,23 @@ function loadPrices(): PriceMap {
     }
   });
 
+  const wycinanieKolorowaSingle = base["wycinanie-folii-kolorowa"];
+  if (typeof wycinanieKolorowaSingle !== "number") {
+    const fromLegacy = base["wycinanie-folii-kolorowa-powyzej-1m2"] ?? base["wycinanie-folii-kolorowa-ponizej-1m2"];
+    if (typeof fromLegacy === "number") base["wycinanie-folii-kolorowa"] = fromLegacy;
+  }
+
+  const wycinanieZlotoSingle = base["wycinanie-folii-zloto-srebro"];
+  if (typeof wycinanieZlotoSingle !== "number") {
+    const fromLegacy = base["wycinanie-folii-zloto-srebro-powyzej-1m2"] ?? base["wycinanie-folii-zloto-srebro-ponizej-1m2"];
+    if (typeof fromLegacy === "number") base["wycinanie-folii-zloto-srebro"] = fromLegacy;
+  }
+
+  delete base["wycinanie-folii-kolorowa-ponizej-1m2"];
+  delete base["wycinanie-folii-kolorowa-powyzej-1m2"];
+  delete base["wycinanie-folii-zloto-srebro-ponizej-1m2"];
+  delete base["wycinanie-folii-zloto-srebro-powyzej-1m2"];
+
   return base;
 }
 
@@ -335,10 +352,8 @@ const PRICE_LABELS: Record<string, string> = {
   "folia-szroniona-owv-oklejanie-6-10": "Folia OWV oklejanie – 6–10 m²",
   "folia-szroniona-owv-oklejanie-11-20": "Folia OWV oklejanie – 11–20 m²",
   // Wycinanie z folii
-  "wycinanie-folii-kolorowa-ponizej-1m2": "Wycinanie folii kolorowej – poniżej 1 m²",
-  "wycinanie-folii-kolorowa-powyzej-1m2": "Wycinanie folii kolorowej – powyżej 1 m²",
-  "wycinanie-folii-zloto-srebro-ponizej-1m2": "Wycinanie folii złoto/srebro – poniżej 1 m²",
-  "wycinanie-folii-zloto-srebro-powyzej-1m2": "Wycinanie folii złoto/srebro – powyżej 1 m²",
+  "wycinanie-folii-kolorowa": "Wycinanie folii kolorowej",
+  "wycinanie-folii-zloto-srebro": "Wycinanie folii złoto/srebro",
   // Canvas
   "canvas-framed-50x30": "Canvas z oprawą – 50×30",
   "canvas-framed-50x40": "Canvas z oprawą – 50×40",
@@ -586,7 +601,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scissors.svg",
     prefixes: ["wycinanie-folii-"],
     description: "Stawki wycinania folii kolorowej i złoto/srebro.",
-    newKeyPrefix: "wycinanie-folii-kolorowa-"
+    newKeyPrefix: "wycinanie-folii-kolorowa"
   },
   {
     id: "canvas",

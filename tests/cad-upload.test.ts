@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   calculateCadUpload,
   detectFormatFromDimensions,
@@ -7,6 +7,27 @@ import {
   calculateCadFoldingPrice,
   updateCadFileEntry,
 } from "../src/categories/cad-upload";
+import { calculateDrukCAD } from "../src/categories/druk-cad";
+import { setPrice, resetPrices } from "../src/services/priceService";
+import { getPrice } from "../src/services/priceService";
+
+let storageData: Record<string, string> = {};
+
+beforeEach(() => {
+  storageData = {};
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => storageData[key] || null,
+    setItem: (key: string, value: string) => { storageData[key] = value; },
+    removeItem: (key: string) => { delete storageData[key]; },
+    clear: () => { storageData = {}; }
+  });
+  resetPrices();
+});
+
+afterEach(() => {
+  storageData = {};
+  resetPrices();
+});
 
 // ─── detectFormatFromDimensions ───────────────────────────────────────────────
 describe("detectFormatFromDimensions", () => {
@@ -152,5 +173,78 @@ describe("CAD folding in upload", () => {
 
   it("bez składania cena składania wynosi 0", () => {
     expect(calculateCadFoldingPrice("A0", true, 841, 1189, false, 1)).toBe(0);
+  });
+});
+
+describe("CAD Upload vs CAD wielkoformatowy (ustawienia cen)", () => {
+  it("używa tej samej ceny formatowej po zmianie w ustawieniach", () => {
+    setPrice("defaultPrices.druk-cad-kolor-fmt-a1", 99);
+
+    const upload = calculatePriceFromDimensions(594, 841, "color", 1);
+    const cad = calculateDrukCAD({
+      mode: "color",
+      format: "A1",
+      lengthMm: 841,
+      qty: 1,
+      express: false,
+    }).totalPrice;
+
+    expect(upload).toBe(99);
+    expect(cad).toBe(99);
+  });
+
+  it("używa tej samej ceny mb po zmianie w ustawieniach", () => {
+    setPrice("defaultPrices.druk-cad-kolor-mb-a1", 33);
+
+    const upload = calculatePriceFromDimensions(594, 2000, "color", 1);
+    const cad = calculateDrukCAD({
+      mode: "color",
+      format: "A1",
+      lengthMm: 2000,
+      qty: 1,
+      express: false,
+    }).totalPrice;
+
+    expect(upload).toBe(66);
+    expect(cad).toBe(66);
+  });
+});
+
+describe("Ustawienia cen CAD – spójność wartości", () => {
+  const fmtToKey = (fmt: string) =>
+    fmt.toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+
+  it("defaultPrices dla CAD odpowiadają bazowym tabelom CAD", () => {
+    const defaults = getPrice("defaultPrices") as Record<string, number>;
+    const cadPrice = getPrice("drukCAD.price") as any;
+    const cadFold = getPrice("drukCAD.fold") as Record<string, number>;
+
+    for (const mode of ["bw", "color"] as const) {
+      const modeKey = mode === "bw" ? "bw" : "kolor";
+
+      for (const [fmt, value] of Object.entries(cadPrice[mode].formatowe ?? {})) {
+        const key = `druk-cad-${modeKey}-fmt-${fmtToKey(fmt)}`;
+        expect(defaults[key]).toBe(Number(value));
+      }
+
+      for (const [fmt, value] of Object.entries(cadPrice[mode].mb ?? {})) {
+        const key = `druk-cad-${modeKey}-mb-${fmtToKey(fmt)}`;
+        expect(defaults[key]).toBe(Number(value));
+      }
+    }
+
+    const foldMap: Record<string, string> = {
+      A0p: "cad-fold-a0plus",
+      A0: "cad-fold-a0",
+      A1p: "cad-fold-a1plus",
+      A1: "cad-fold-a1",
+      A2: "cad-fold-a2",
+      A3: "cad-fold-a3",
+      A3L: "cad-fold-a3l",
+    };
+
+    for (const [fmt, key] of Object.entries(foldMap)) {
+      expect(defaults[key]).toBe(Number(cadFold[fmt]));
+    }
   });
 });
