@@ -5,7 +5,7 @@ import { PlakatyWFView } from "./views/plakaty-wf";
 import { PlakatyA4A3View } from "./views/plakaty-a4-a3";
 import { VoucheryView } from "./views/vouchery";
 import { DyplomyView } from "./views/dyplomy";
-import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy-fixed";
+import { WizytowkiView } from "./views/wizytowki-druk-cyfrowy";
 import { RollUpView } from "./views/roll-up";
 import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
 import { UlotkiCyfroweView } from "./views/ulotki-cyfrowe";
