@@ -47,8 +47,8 @@ describe("calculatePriceFromDimensions", () => {
   it("A0 kolor formatowy (841×1189) qty=1 → 24.00 zł", () =>
     expect(calculatePriceFromDimensions(841, 1189, 'color', 1)).toBe(24.00));
 
-  it("A0+ cz-b formatowy (914×1292) qty=1 → 12.50 zł", () =>
-    expect(calculatePriceFromDimensions(914, 1292, 'bw', 1)).toBe(12.50));
+  it("A0+ cz-b formatowy (914×1292) qty=1 → 12.00 zł", () =>
+    expect(calculatePriceFromDimensions(914, 1292, 'bw', 1)).toBe(12.00));
 
   it("A1+ kolor formatowy (610×914) qty=1 → 14.00 zł", () =>
     expect(calculatePriceFromDimensions(610, 914, 'color', 1)).toBe(14.00));
@@ -57,9 +57,9 @@ describe("calculatePriceFromDimensions", () => {
     // 10.60 zł/mb × 1.000 m = 10.60
     expect(calculatePriceFromDimensions(610, 1000, 'bw', 1)).toBe(10.60));
 
-  it("A1 kolor nieformatowy (594×2000) qty=1 → 29.00 zł", () =>
-    // 14.50 zł/mb × 2.000 m = 29.00
-    expect(calculatePriceFromDimensions(594, 2000, 'color', 1)).toBe(29.00));
+  it("A1 kolor nieformatowy (594×2000) qty=1 → 28.60 zł", () =>
+    // 14.30 zł/mb × 2.000 m = 28.60
+    expect(calculatePriceFromDimensions(594, 2000, 'color', 1)).toBe(28.60));
 
   it("A3 kolor nieformatowy (297×1200) qty=1 → 14.40 zł", () =>
     // 12.00 zł/mb × 1.200 m = 14.40
@@ -82,14 +82,14 @@ describe("calculateCadUpload", () => {
     expect(r.qty).toBe(1);
   });
 
-  it("A1 cz-b formatowy qty=2 → 12.00 zł", () => {
+  it("A1 cz-b formatowy qty=2 → 16.00 zł", () => {
     const r = calculateCadUpload({ wMm: 594, hMm: 841, mode: 'bw', qty: 2 });
-    expect(r.totalPrice).toBe(12.00); // 6.00 × 2
+    expect(r.totalPrice).toBe(16.00); // 8.00 × 2
   });
 
-  it("A0+ cz-b formatowy (914×1292) → 12.50 zł", () => {
+  it("A0+ cz-b formatowy (914×1292) → 12.00 zł", () => {
     const r = calculateCadUpload({ wMm: 914, hMm: 1292, mode: 'bw' });
-    expect(r.totalPrice).toBe(12.50);
+    expect(r.totalPrice).toBe(12.00);
     expect(r.detectedFormat).toBe('A0p');
   });
 

@@ -189,7 +189,7 @@ describe("Druk CAD", () => {
       lengthMm: 841, // base length for A1
       express: false
     }, pricing);
-    expect(result.totalPrice).toBe(6.00);
+    expect(result.totalPrice).toBe(8.00);
     expect(result.isMeter).toBe(false);
   });
 
@@ -200,8 +200,8 @@ describe("Druk CAD", () => {
       lengthMm: 1000,
       express: false
     }, pricing);
-    // meter price for A1 BW is 5.00. 1000mm = 1mb. 1 * 5 = 5.00
-    expect(result.totalPrice).toBe(5.00);
+    // meter price for A1 BW is 10.20. 1000mm = 1mb. 1 * 10.20 = 10.20
+    expect(result.totalPrice).toBe(10.20);
     expect(result.isMeter).toBe(true);
   });
 
@@ -212,8 +212,8 @@ describe("Druk CAD", () => {
       lengthMm: 2000,
       express: false
     }, pricing);
-    // 2 * 5.00 = 10.00
-    expect(result.totalPrice).toBe(10.00);
+    // 2 * 10.20 = 20.40
+    expect(result.totalPrice).toBe(20.40);
   });
 
   it("should apply express for CAD", () => {
@@ -223,7 +223,7 @@ describe("Druk CAD", () => {
       lengthMm: 841,
       express: true
     }, pricing);
-    // 6.00 * 1.2 = 7.20
-    expect(result.totalPrice).toBe(7.20);
+    // 8.00 * 1.2 = 9.60
+    expect(result.totalPrice).toBe(9.60);
   });
 });

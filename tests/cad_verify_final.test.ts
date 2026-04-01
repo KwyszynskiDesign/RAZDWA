@@ -14,8 +14,8 @@ describe("CAD Complete Pricing Fix Verification", () => {
     expect(result.totalPrice).toBe(12.00);
   });
 
-  // 2. Formatowy A0+ cz-b = 12.50 zł
-  it("Case 2: Formatowy A0+ cz-b = 12.50 zł", () => {
+  // 2. Formatowy A0+ cz-b = 12.00 zł
+  it("Case 2: Formatowy A0+ cz-b = 12.00 zł", () => {
     const result = calculateDrukCAD({
       mode: "bw",
       format: "A0p", // A0p maps to A0+
@@ -23,11 +23,11 @@ describe("CAD Complete Pricing Fix Verification", () => {
       qty: 1,
       express: false
     });
-    expect(result.totalPrice).toBe(12.50);
+    expect(result.totalPrice).toBe(12.00);
   });
 
-  // 3. Nieformatowy A1 kolor × 2m = 29.00 zł
-  it("Case 3: Nieformatowy A1 kolor x 2m = 29.00 zł", () => {
+  // 3. Nieformatowy A1 kolor × 2m = 28.60 zł
+  it("Case 3: Nieformatowy A1 kolor x 2m = 28.60 zł", () => {
     const result = calculateDrukCAD({
       mode: "color",
       format: "A1",
@@ -35,8 +35,8 @@ describe("CAD Complete Pricing Fix Verification", () => {
       qty: 1,
       express: false
     });
-    // Rate for A1 mb color is 14.50. 2 * 14.50 = 29.00
-    expect(result.totalPrice).toBe(29.00);
+    // Rate for A1 mb color is 14.30. 2 * 14.30 = 28.60
+    expect(result.totalPrice).toBe(28.60);
   });
 
   // 4. Nieformatowy A0+ cz-b × 1.5m = 15.00 zł
