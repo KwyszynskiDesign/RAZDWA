@@ -25,13 +25,19 @@ export const DyplomyView: View = {
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
     const calculate = () => {
+      if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
+        resultArea.style.display = 'none';
+        breakdownBox.style.display = 'none';
+        addToCartBtn.disabled = true;
+        return;
+      }
       const paperVal = paperSel.value;
       const isSatin = paperVal.startsWith("satyna");
       const isModigliani = paperVal === "modigliani";
       const usesSatinBase = isSatin || isModigliani;
       const options: DyplomyOptions = {
         format: (formatSel.value === "A5" ? "A5" : "A4"),
-        qty: parseInt(qtyInput.value) || 1,
+        qty: parseInt(qtyInput.value),
         sides: parseInt(sidesSel.value) || 1,
         isSatin,
         isModigliani,

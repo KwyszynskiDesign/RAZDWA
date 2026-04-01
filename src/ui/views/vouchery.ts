@@ -113,6 +113,11 @@ export const VoucheryView: View = {
     };
 
     const performCalculation = (): boolean => {
+      if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
+        resultDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
+        return false;
+      }
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement;
       const sides = (sidesInput ? sidesInput.value : 'single') as 'single' | 'double';
       const paperVal = paperSelect.value;
