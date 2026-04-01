@@ -40,7 +40,9 @@
       { "id": "zaproszenia-dodruk", "name": "Zaproszenia (dodruk)", "price": 0.00 },
       { "id": "katalog", "name": "Katalog", "price": 0.00 },
       { "id": "broszura", "name": "Broszura", "price": 0.00 },
-      { "id": "koperty-nadruk", "name": "Koperty – nadruk", "price": 0.00 }
+      { "id": "koperty-nadruk", "name": "Koperty – nadruk", "price": 0.00 },
+      { "id": "trymer-2x", "name": "Cięcie trymer 2x", "price": 1.00 },
+      { "id": "trymer-4x", "name": "Cięcie trymer 4x", "price": 2.00 }
     ]
   }
 }

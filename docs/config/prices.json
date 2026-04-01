@@ -2844,6 +2844,8 @@
                           "laminowanie-special-katalog":  0.00,
                           "laminowanie-special-broszura":  0.00,
                           "laminowanie-special-koperty-nadruk":  0.00,
+                          "laminowanie-special-trymer-2x":  1.00,
+                          "laminowanie-special-trymer-4x":  2.00,
                           "laminowanie-special-double-sided-factor":  0.50,
                           "solwent-150g-1-3":  65.00,
                           "solwent-150g-4-9":  60.00,

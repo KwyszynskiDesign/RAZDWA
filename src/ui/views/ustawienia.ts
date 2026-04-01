@@ -221,6 +221,8 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-special-katalog": "Wydruki specjalne – Katalog",
   "laminowanie-special-broszura": "Wydruki specjalne – Broszura",
   "laminowanie-special-koperty-nadruk": "Wydruki specjalne – Koperty – nadruk",
+  "laminowanie-special-trymer-2x": "Wydruki specjalne – Cięcie trymer 2x",
+  "laminowanie-special-trymer-4x": "Wydruki specjalne – Cięcie trymer 4x",
   "laminowanie-special-double-sided-factor": "Wydruki specjalne / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",

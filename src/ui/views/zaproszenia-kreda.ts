@@ -111,6 +111,7 @@ export const ZaproszeniaKredaView: View = {
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";
+      addToCartBtn.disabled = false;
       (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(totalPrice / options.qty);
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(totalPrice);
       if (withEnvelopes) {
