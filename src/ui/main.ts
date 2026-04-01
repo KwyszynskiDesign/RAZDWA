@@ -627,19 +627,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (result.ok) {
         showToast("Wysłano do bazy (Google Sheets)", "success");
-        alert("Zamówienie wysłane do bazy (Google Sheets).\n\nMożesz dalej pracować z listą albo ją wyczyścić.");
         return;
       }
 
-      showToast("Nie udało się wysłać do bazy — zapisuję plik lokalnie", "warning");
-      alert(`Nie udało się wysłać do bazy: ${result.message || "nieznany błąd"}\n\nPobieram plik Excel lokalnie jako kopię zapasową.`);
-      downloadExcel(items, customer);
+      showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
       return;
     }
 
-    downloadExcel(items, customer);
-    showToast("Brak integracji Apps Script — zapisano plik Excel", "warning");
-    alert("Brak aktywnej integracji Apps Script. Zapisano lokalny plik Excel.");
+    showToast("Brak aktywnej integracji Apps Script — skonfiguruj URL w ustawieniach.", "error");
   });
 
   updateCartUI();

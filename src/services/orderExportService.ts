@@ -127,8 +127,10 @@ export async function sendOrderToAppsScript(
   try {
     const response = await fetch(config.appsScriptUrl, {
       method: "POST",
+      // Using text/plain to avoid CORS preflight (OPTIONS) which Google Apps Script does not handle.
+      // Apps Script reads the body via e.postData.contents and parses it as JSON.
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain",
       },
       body: JSON.stringify(payload),
       signal: controller.signal,
