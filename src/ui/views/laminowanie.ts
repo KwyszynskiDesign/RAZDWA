@@ -90,7 +90,7 @@ function getOprUnitPrice(
   const oprawyPrices = getOprawyPrices();
 
   if (type === "grzbietowa") {
-    if (pages <= 50) return oprawyPrices.grzbietowa.do50[format];
+    if (pages <= 30) return oprawyPrices.grzbietowa.do50[format];  // do30 wg cennika
     if (pages <= 60) return oprawyPrices.grzbietowa.do60[format];
     if (pages <= 90) return oprawyPrices.grzbietowa.do90[format];
     return oprawyPrices.grzbietowa.do150[format];

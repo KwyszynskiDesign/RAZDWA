@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { calculateWycinanieFolii } from "../src/categories/wycinanie-folii";
 
 describe("Wycinanie z folii", () => {
-  it("should use one rate for kolorowa (niezależnie od metrażu)", () => {
+  it("should use below-1m2 rate for kolorowa when area < 1m2", () => {
     const result = calculateWycinanieFolii({
       variantId: "kolorowa",
       widthMm: 500,
@@ -10,12 +10,25 @@ describe("Wycinanie z folii", () => {
       express: false
     });
 
-    // 0.5 m2 * 125 = 62.5
-    expect(result.totalPrice).toBe(62.5);
+    // 0.5 m2 * 200 (poniżej 1m2) = 100
+    expect(result.totalPrice).toBe(100);
+    expect(result.tierPrice).toBe(200);
+  });
+
+  it("should use >=1m2 rate for kolorowa when area >= 1m2", () => {
+    const result = calculateWycinanieFolii({
+      variantId: "kolorowa",
+      widthMm: 1000,
+      heightMm: 1000,
+      express: false
+    });
+
+    // 1 m2 * 125 = 125
+    expect(result.totalPrice).toBe(125);
     expect(result.tierPrice).toBe(125);
   });
 
-  it("should use >=1m2 rate for zloto-srebro", () => {
+  it("should use >=1m2 rate for zloto-srebro at exactly 1m2", () => {
     const result = calculateWycinanieFolii({
       variantId: "zloto-srebro",
       widthMm: 1000,
@@ -28,6 +41,19 @@ describe("Wycinanie z folii", () => {
     expect(result.tierPrice).toBe(150);
   });
 
+  it("should use below-1m2 rate for zloto-srebro when area < 1m2", () => {
+    const result = calculateWycinanieFolii({
+      variantId: "zloto-srebro",
+      widthMm: 500,
+      heightMm: 1000,
+      express: false
+    });
+
+    // 0.5 m2 * 220 (poniżej 1m2) = 110
+    expect(result.totalPrice).toBe(110);
+    expect(result.tierPrice).toBe(220);
+  });
+
   it("should apply minimum 30 PLN", () => {
     const result = calculateWycinanieFolii({
       variantId: "kolorowa",
@@ -36,11 +62,11 @@ describe("Wycinanie z folii", () => {
       express: false
     });
 
-    // 0.01 m2 * 125 = 1.25 => min 30
+    // 0.01 m2 * 200 = 2 => min 30
     expect(result.totalPrice).toBe(30);
   });
 
-  it("should apply express modifier", () => {
+  it("should apply express modifier on above-1m2 price", () => {
     const result = calculateWycinanieFolii({
       variantId: "kolorowa",
       widthMm: 1000,
@@ -52,7 +78,7 @@ describe("Wycinanie z folii", () => {
     expect(result.totalPrice).toBe(150);
   });
 
-  it("should keep one unit rate for kolorowa below and above 1m2", () => {
+  it("should use different rates below vs above 1m2 for kolorowa", () => {
     const small = calculateWycinanieFolii({
       variantId: "kolorowa",
       widthMm: 500,
@@ -67,6 +93,7 @@ describe("Wycinanie z folii", () => {
       express: false
     });
 
-    expect(small.tierPrice).toBe(large.tierPrice);
+    expect(small.tierPrice).toBe(200); // poniżej 1m2
+    expect(large.tierPrice).toBe(125); // powyżej/równe 1m2
   });
 });
