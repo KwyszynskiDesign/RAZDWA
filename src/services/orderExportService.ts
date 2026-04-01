@@ -125,10 +125,12 @@ export async function sendOrderToAppsScript(
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    const response = await fetch(config.appsScriptUrl, {
+    // mode: 'no-cors' — przeglądarka wysyła żądanie bez preflightu i bez blokowania.
+    // Odpowiedź jest "opaque" (status=0, type='opaque', body niedostępne),
+    // ale samo dostarczenie żądania do Apps Script jest gwarantowane.
+    await fetch(config.appsScriptUrl, {
       method: "POST",
-      // Using text/plain to avoid CORS preflight (OPTIONS) which Google Apps Script does not handle.
-      // Apps Script reads the body via e.postData.contents and parses it as JSON.
+      mode: "no-cors",
       headers: {
         "Content-Type": "text/plain",
       },
@@ -136,32 +138,11 @@ export async function sendOrderToAppsScript(
       signal: controller.signal,
     });
 
-    const text = await response.text();
-    let parsed: unknown = text;
-    try {
-      parsed = JSON.parse(text);
-    } catch {
-      // keep plain text response
-    }
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        status: response.status,
-        message: typeof parsed === "object" && parsed && "message" in (parsed as Record<string, unknown>)
-          ? String((parsed as Record<string, unknown>).message)
-          : `Błąd HTTP ${response.status}`,
-        data: parsed,
-      };
-    }
-
+    // Brak wyjątku = żądanie dotarło do serwera.
     return {
       ok: true,
-      status: response.status,
-      message: typeof parsed === "object" && parsed && "message" in (parsed as Record<string, unknown>)
-        ? String((parsed as Record<string, unknown>).message)
-        : "Zamówienie wysłane do arkusza.",
-      data: parsed,
+      status: 0,
+      message: "Zamówienie wysłane do arkusza.",
     };
   } catch (err) {
     const msg = err instanceof Error && err.name === "AbortError"

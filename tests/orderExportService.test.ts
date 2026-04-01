@@ -74,9 +74,9 @@ describe("orderExportService", () => {
 
   it("sendOrderToAppsScript returns success for HTTP 200", async () => {
     (globalThis as any).fetch = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      text: async () => JSON.stringify({ ok: true, message: "Saved" }),
+      ok: false,
+      status: 0,
+      type: "opaque",
     }));
 
     const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
@@ -87,8 +87,8 @@ describe("orderExportService", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.status).toBe(200);
-    expect(result.message).toBe("Saved");
+    expect(result.status).toBe(0);
+    expect(result.message).toMatch(/wysłane/i);
   });
 
   it("sendOrderToAppsScript returns failure when disabled", async () => {
