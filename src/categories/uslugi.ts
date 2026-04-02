@@ -43,9 +43,6 @@ export const uslugiCategory: CategoryModule = {
       return `${serviceName}: podaj czas pracy w godzinach (rozliczenie godzinowe).`;
     };
 
-    let currentResult: { servicesCount: number; totalPrice: number } | null = null;
-    let currentSelection: UslugiOptions['selectedServices'] = [];
-
     container.innerHTML = `
       <div class="category-form">
         <h2>Usługi Dodatkowe</h2>
@@ -54,20 +51,6 @@ export const uslugiCategory: CategoryModule = {
         </p>
 
         <div id="services-list" style="margin-bottom: 14px;"></div>
-
-        <div class="form-group" style="margin-bottom: 10px; display: flex; gap: 10px;">
-          <button id="calculate-btn" class="btn btn-primary" style="flex: 1;">Oblicz</button>
-          <button id="add-to-cart-btn" class="btn btn-success" style="flex: 1;" disabled>DODAJ DO KOSZYKA</button>
-        </div>
-
-        <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 1rem;">Podsumowanie</h3>
-          <p style="margin: 2px 0;">Liczba usług: <strong id="services-count">0</strong></p>
-          <p style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #999;">
-            Razem: <strong id="total-price">0,00 zł</strong>
-          </p>
-          <div id="details-info" style="margin-top: 8px; font-size: 0.86em; color: #666;"></div>
-        </div>
       </div>
     `;
 
@@ -116,7 +99,7 @@ export const uslugiCategory: CategoryModule = {
           </div>
           ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:96px;"><span style="font-size:0.7em; color:#e07b00; font-weight:700;">⏱ wpisz czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" placeholder="np. 1.5" title="Wpisz czas pracy w godzinach" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Wpisz czas pracy w godzinach"><span style="font-size:0.66em; color:#8b97a3;">np. 0.5, 1, 1.5</span></div>` : '<span style="width: 96px;"></span>'}
           <span style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
-          <input type="checkbox" data-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="service-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+          <button type="button" data-add-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${service.name} do koszyka">+</button>
         `;
 
         servicesDiv.appendChild(serviceDiv);
@@ -137,87 +120,43 @@ export const uslugiCategory: CategoryModule = {
       servicesList.appendChild(categoryDiv);
     }
 
-    // Calculate button handler
-    const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
-    const addToCartBtn = container.querySelector('#add-to-cart-btn') as HTMLButtonElement;
-    const summaryDiv = container.querySelector('#summary') as HTMLElement;
+    container.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const addButton = target?.closest('.service-add-btn') as HTMLButtonElement | null;
+      if (!addButton) return;
 
-    calculateBtn.addEventListener('click', () => {
-      const checked = Array.from(container.querySelectorAll('.service-checkbox:checked')) as HTMLInputElement[];
-      
-      if (checked.length === 0) {
-        alert('Proszę wybrać co najmniej jedną usługę');
-        return;
-      }
+      const serviceId = addButton.getAttribute('data-add-service-id') || '';
+      const serviceName = addButton.getAttribute('data-service-name') || '';
+      const price = parseFloat(addButton.getAttribute('data-price') || '0');
+      const qtyInput = container.querySelector(`input[data-qty-for="${serviceId}"]`) as HTMLInputElement | null;
+      const hoursInput = container.querySelector(`input[data-hours-for="${serviceId}"]`) as HTMLInputElement | null;
 
-      const selectedServices = checked.map(checkbox => {
-        const serviceId = checkbox.getAttribute('data-service-id') || '';
-        const serviceName = checkbox.getAttribute('data-service-name') || '';
-        const price = parseFloat(checkbox.getAttribute('data-price') || '0');
-        const qtyInput = container.querySelector(`input[data-qty-for="${serviceId}"]`) as HTMLInputElement;
-        const hoursInput = container.querySelector(`input[data-hours-for="${serviceId}"]`) as HTMLInputElement;
-        const quantity = qtyInput ? parseInt(qtyInput.value) : 1;
-        const hours = hoursInput ? parseFloat(hoursInput.value || '1') : 1;
+      const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
+      const hours = Math.max(0.25, parseFloat(hoursInput?.value || '1') || 1);
 
-        return {
-          serviceId,
-          serviceName,
-          price,
-          quantity,
-          hours
-        };
-      });
+      const selectedService = {
+        serviceId,
+        serviceName,
+        price,
+        quantity,
+        hours
+      };
 
-      currentSelection = selectedServices;
-      const result = quoteUslugi({ selectedServices });
-      currentResult = result;
+      const result = quoteUslugi({ selectedServices: [selectedService] });
 
-      (container.querySelector('#services-count') as HTMLElement).textContent = result.servicesCount.toString();
-      (container.querySelector('#total-price') as HTMLElement).textContent = result.totalPrice.toFixed(2) + ' zł';
-
-      // Build details
-      const detailsDiv = container.querySelector('#details-info') as HTMLElement;
-      const detailsHTML = selectedServices
-        .map(s => {
-          const qty = s.quantity || 1;
-          const hours = s.hours || 1;
-          const extra = hours !== 1 ? ` (${hours}h)` : '';
-          return `<div>• ${s.serviceName}${extra}: ${(s.price * qty * hours).toFixed(2)} zł</div>`;
-        })
-        .join('');
-      detailsDiv.innerHTML = detailsHTML;
-
-      summaryDiv.style.display = 'block';
-      addToCartBtn.disabled = false;
-
-      ctx.updateLastCalculated(result.totalPrice, `Usługi - ${result.servicesCount} poz.`);
-
-      // Emit event
+      ctx.updateLastCalculated(result.totalPrice, `Usługi - ${serviceName}`);
       ctx?.emit?.('price-calculated', {
         categoryId: 'uslugi',
         totalPrice: result.totalPrice,
         details: result
       });
-    });
-
-    addToCartBtn.addEventListener('click', () => {
-      if (!currentResult || currentSelection.length === 0) {
-        alert('Najpierw oblicz wybrane usługi.');
-        return;
-      }
 
       ctx.addToBasket({
         category: 'Usługi',
-        price: currentResult.totalPrice,
-        description: currentSelection
-          .map(service => {
-            const qty = service.quantity || 1;
-            const hours = service.hours || 1;
-            return hours !== 1
-              ? `${service.serviceName} × ${qty} (${hours}h)`
-              : `${service.serviceName} × ${qty}`;
-          })
-          .join(', ')
+        price: result.totalPrice,
+        description: hours !== 1
+          ? `${serviceName} × ${quantity} (${hours}h)`
+          : `${serviceName} × ${quantity}`
       });
     });
   }

@@ -55,7 +55,7 @@
 
     #viewContainer .calculator-form .form-group > label {
       display: block;
-      margin-bottom: 8px;
+      margin-bottom: 0;
     }
 
     #viewContainer .calculator-form .form-group > input[type="number"],
@@ -200,18 +200,38 @@
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow-y: auto;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
       z-index: 20;
     }
 
     .category-sidebar-inner {
-      padding: 16px 0 24px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      height: 100%;
+      padding: 0;
     }
 
     .category-search-wrap {
-      padding: 0 16px;
-      margin-bottom: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 3;
+      padding: 14px 16px 10px;
+      margin-bottom: 0;
+      background: rgba(237, 242, 247, 0.98);
+      border-bottom: 1px solid rgba(15, 32, 53, 0.16);
+    }
+
+    .category-sidebar-scroll {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 0 120px;
+      scroll-padding-bottom: 120px;
     }
 
     .category-sidebar-search {
@@ -819,6 +839,29 @@
       box-sizing: border-box;
     }
 
+    #viewContainer .add-pill-btn {
+      width: 28px;
+      height: 28px;
+      min-height: 28px;
+      padding: 0;
+      border-radius: 999px;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    @media (min-width: 768px) {
+      #viewContainer .add-pill-btn {
+        width: 36px;
+        height: 36px;
+        min-height: 36px;
+        font-size: 22px;
+        justify-self: end;
+      }
+    }
+
     #viewContainer .bind-type-wrap,
     #viewContainer .bind-color-wrap,
     #viewContainer .modifiers-list {
@@ -1420,46 +1463,48 @@
             <input id="sidebarCategorySearch" class="category-sidebar-search" type="search" placeholder="Szukaj kategorii..." autocomplete="off">
           </div>
 
-          <div class="category-group" data-group="druk" style="--group-accent:#3b82f6;">
-            <span class="category-group-label">Druk</span>
-            <div class="category-nav-list">
-              <a href="#/druk-a4-a3" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Druk A4/A3 + skan">Druk A4/A3 + skan</a>
-              <a href="#/druk-cad" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do CAD wielkoformatowy">CAD wielkoformatowy</a>
-              <a href="#/cad-upload" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do CAD Upload plik&#xF3;w">CAD Upload plik&#xF3;w</a>
-              <a href="#/banner" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Banner">Banner</a>
-              <a href="#/ulotki-cyfrowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Ulotki cyfrowe">Ulotki cyfrowe</a>
-              <a href="#/wlepki-naklejki" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wlepki / Naklejki">Wlepki / Naklejki</a>
-                <a href="#/plakaty" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Plakaty A3-A0">Plakaty A3-A0</a>
-                <a href="#/plakaty-a4-a3" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Plakaty A4-A3">Plakaty A4-A3</a>
+          <div class="category-sidebar-scroll">
+            <div class="category-group" data-group="druk" style="--group-accent:#3b82f6;">
+              <span class="category-group-label">Druk</span>
+              <div class="category-nav-list">
+                <a href="#/druk-a4-a3" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Druk A4/A3 + skan">Druk A4/A3 + skan</a>
+                <a href="#/druk-cad" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do CAD wielkoformatowy">CAD wielkoformatowy</a>
+                <a href="#/cad-upload" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do CAD Upload plik&#xF3;w">CAD Upload plik&#xF3;w</a>
+                <a href="#/banner" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Banner">Banner</a>
+                <a href="#/ulotki-cyfrowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Ulotki cyfrowe">Ulotki cyfrowe</a>
+                <a href="#/wlepki-naklejki" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wlepki / Naklejki">Wlepki / Naklejki</a>
+                  <a href="#/plakaty" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Plakaty A3-A0">Plakaty A3-A0</a>
+                  <a href="#/plakaty-a4-a3" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Plakaty A4-A3">Plakaty A4-A3</a>
+              </div>
             </div>
-          </div>
 
-          <div class="category-group-divider" aria-hidden="true"></div>
+            <div class="category-group-divider" aria-hidden="true"></div>
 
-          <div class="category-group" data-group="wykonczenia" style="--group-accent:#10b981;">
-            <span class="category-group-label">Wyko&#x144;czenia</span>
-            <div class="category-nav-list">
-              <a href="#/laminowanie" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Introligatornia">Introligatornia (Laminowanie, Bindowanie, Oprawy)</a>
-              <a href="#/wydruki-specjalne" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wydruki specjalne">Wydruki specjalne</a>
-              <a href="#/folia-szroniona" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Folia szroniona">Folia szroniona</a>
-              <a href="#/wycinanie-folii" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wycinanie z folii">Wycinanie z folii</a>
-              <a href="#/canvas" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Canvas / P&#x142;&#xF3;tno">Canvas / P&#x142;&#xF3;tno</a>
-              <a href="#/roll-up" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Roll-up">Roll-up</a>
+            <div class="category-group" data-group="wykonczenia" style="--group-accent:#10b981;">
+              <span class="category-group-label">Wyko&#x144;czenia</span>
+              <div class="category-nav-list">
+                <a href="#/laminowanie" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Introligatornia">Introligatornia (Laminowanie, Bindowanie, Oprawy)</a>
+                <a href="#/wydruki-specjalne" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wydruki specjalne">Wydruki specjalne</a>
+                <a href="#/folia-szroniona" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Folia szroniona">Folia szroniona</a>
+                <a href="#/wycinanie-folii" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wycinanie z folii">Wycinanie z folii</a>
+                <a href="#/canvas" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Canvas / P&#x142;&#xF3;tno">Canvas / P&#x142;&#xF3;tno</a>
+                <a href="#/roll-up" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Roll-up">Roll-up</a>
+              </div>
             </div>
-          </div>
 
-          <div class="category-group-divider" aria-hidden="true"></div>
+            <div class="category-group-divider" aria-hidden="true"></div>
 
-          <div class="category-group" data-group="pozostale" style="--group-accent:#f59e0b;">
-            <span class="category-group-label">Pozosta&#x142;e</span>
-            <div class="category-nav-list">
-                <a href="#/wizytowki-druk-cyfrowy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wizyt&#xF3;wki - druk cyfrowy">Wizyt&#xF3;wki - druk cyfrowy</a>
-              <a href="#/dyplomy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Dyplomy">Dyplomy</a>
-                <a href="#/zaproszenia-kreda" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Zaproszenia">Zaproszenia</a>
-              <a href="#/vouchery" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Vouchery">Vouchery</a>
-                <a href="#/artykuly-biurowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Artyku&#x142;y biurowe">Artyku&#x142;y biurowe</a>
-              <a href="#/uslugi" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Us&#x142;ugi">Us&#x142;ugi</a>
-                <a href="#/zamowienia-zewnetrzne" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Zam&#xF3;wienia zewn&#x119;trzne">Zam&#xF3;wienia zewn&#x119;trzne</a>
+            <div class="category-group" data-group="pozostale" style="--group-accent:#f59e0b;">
+              <span class="category-group-label">Pozosta&#x142;e</span>
+              <div class="category-nav-list">
+                  <a href="#/wizytowki-druk-cyfrowy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Wizyt&#xF3;wki - druk cyfrowy">Wizyt&#xF3;wki - druk cyfrowy</a>
+                <a href="#/dyplomy" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Dyplomy">Dyplomy</a>
+                  <a href="#/zaproszenia-kreda" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Zaproszenia">Zaproszenia</a>
+                <a href="#/vouchery" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Vouchery">Vouchery</a>
+                  <a href="#/artykuly-biurowe" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Artyku&#x142;y biurowe">Artyku&#x142;y biurowe</a>
+                <a href="#/uslugi" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Us&#x142;ugi">Us&#x142;ugi</a>
+                  <a href="#/zamowienia-zewnetrzne" class="category-nav-button" role="button" tabindex="0" aria-label="Przejd&#x17A; do Zam&#xF3;wienia zewn&#x119;trzne">Zam&#xF3;wienia zewn&#x119;trzne</a>
+              </div>
             </div>
           </div>
         </div>
@@ -1658,6 +1703,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const sidebarToggle = document.getElementById('sidebarToggle');
   const sidebarBackdrop = document.getElementById('sidebarBackdrop');
   const searchInput = document.getElementById('sidebarCategorySearch');
+  const sidebarScroll = document.querySelector('.category-sidebar-scroll');
   const navButtons = Array.from(document.querySelectorAll('.category-nav-button'));
   const groups = Array.from(document.querySelectorAll('.category-group'));
 
@@ -1757,7 +1803,9 @@ document.addEventListener('DOMContentLoaded', () => {
       setSidebarState(true);
     }
 
-    if (sidebar) {
+    if (sidebarScroll) {
+      sidebarScroll.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (sidebar) {
       sidebar.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1963,13 +2011,16 @@ document.addEventListener('DOMContentLoaded', () => {
  <script>
 window.scrollToTopTiles = () => {
   const sidebar = document.getElementById('categorySidebar');
+  const sidebarScroll = document.querySelector('.category-sidebar-scroll');
   const searchInput = document.getElementById('sidebarCategorySearch');
 
   if (window.innerWidth < 768) {
     document.body.classList.add('sidebar-open');
   }
 
-  if (sidebar) {
+  if (sidebarScroll) {
+    sidebarScroll.scrollTo({ top: 0, behavior: 'smooth' });
+  } else if (sidebar) {
     sidebar.scrollTo({ top: 0, behavior: 'smooth' });
   }
 

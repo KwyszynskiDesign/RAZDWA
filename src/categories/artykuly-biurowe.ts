@@ -42,9 +42,6 @@ export const artykulyBiuroweCategory: CategoryModule = {
   id: 'artykuly-biurowe',
   name: '📎 Artykuły Biurowe',
   mount: (container, ctx) => {
-    let currentResult: { itemsCount: number; totalQuantity: number; totalPrice: number } | null = null;
-    let currentSelection: ArtykulyBiuroweOptions['selectedItems'] = [];
-
     container.innerHTML = `
       <div class="category-form">
         <h2>Artykuły Biurowe</h2>
@@ -53,21 +50,6 @@ export const artykulyBiuroweCategory: CategoryModule = {
         </p>
 
         <div id="items-list" style="margin-bottom: 14px;"></div>
-
-        <div class="form-group" style="margin-bottom: 10px; display: flex; gap: 10px;">
-          <button id="calculate-btn" class="btn btn-primary" style="flex: 1;">Oblicz</button>
-          <button id="add-to-cart-btn" class="btn btn-success" style="flex: 1;" disabled>DODAJ DO KOSZYKA</button>
-        </div>
-
-        <div id="summary" style="display: none; margin-top: 10px; padding: 12px; background: #f0f0f0; border-radius: 6px;">
-          <h3 style="margin: 0 0 8px 0; font-size: 1rem;">Podsumowanie</h3>
-          <p style="margin: 2px 0;">Liczba pozycji: <strong id="items-count">0</strong></p>
-          <p style="margin: 2px 0;">Ilość sztuk: <strong id="total-qty">0</strong></p>
-          <div id="details-info" style="margin-top: 8px; font-size: 0.86em; color: #555; max-height: 120px; overflow-y: auto;"></div>
-          <p style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #999;">
-            Razem: <strong id="total-price">0,00 zł</strong>
-          </p>
-        </div>
       </div>
     `;
 
@@ -114,7 +96,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
           </label>
           <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
           <span class="item-price" data-item-id="${item.id}" data-base-price="${itemPrice}" style="font-weight: bold; color: #0066cc; min-width: 68px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
-          <input type="checkbox" data-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="item-checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+          <button type="button" data-add-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="btn btn-success item-add-btn add-pill-btn" aria-label="Dodaj artykuł ${item.name} do koszyka">+</button>
         `;
 
         itemsDiv.appendChild(itemDiv);
@@ -124,10 +106,6 @@ export const artykulyBiuroweCategory: CategoryModule = {
       itemsList.appendChild(categoryDiv);
     }
 
-    const calculateBtn = container.querySelector('#calculate-btn') as HTMLButtonElement;
-    const addToCartBtn = container.querySelector('#add-to-cart-btn') as HTMLButtonElement;
-    const summaryDiv = container.querySelector('#summary') as HTMLElement;
-
     const getCurrentPrice = (itemId: string, basePrice: number): number => {
       const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
       return resolveStoredPrice(storageKey, basePrice);
@@ -135,63 +113,14 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
     const updatePriceDisplay = (itemId: string) => {
       const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
-      const checkbox = container.querySelector(`input[data-item-id="${itemId}"]`) as HTMLInputElement | null;
-      if (!priceSpan || !checkbox) return;
+      const addButton = container.querySelector(`button[data-add-item-id="${itemId}"]`) as HTMLButtonElement | null;
+      if (!priceSpan || !addButton) return;
 
       const basePrice = parseFloat(priceSpan.getAttribute('data-base-price') || '0');
       const currentPrice = getCurrentPrice(itemId, basePrice);
 
       priceSpan.textContent = `${currentPrice.toFixed(2)} zł`;
-      checkbox.setAttribute('data-price', currentPrice.toString());
-    };
-
-    const collectSelectedItems = (): ArtykulyBiuroweOptions['selectedItems'] => {
-      const checked = Array.from(container.querySelectorAll('.item-checkbox:checked')) as HTMLInputElement[];
-      return checked.map((checkbox) => {
-        const itemId = checkbox.getAttribute('data-item-id') || '';
-        const itemName = checkbox.getAttribute('data-item-name') || '';
-        const basePrice = parseFloat(checkbox.getAttribute('data-price') || '0');
-        const price = getCurrentPrice(itemId, basePrice);
-        const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement;
-        const quantity = parseInt(qtyInput?.value || '1', 10);
-
-        return {
-          categoryName: '',
-          itemId,
-          itemName,
-          quantity,
-          price
-        };
-      });
-    };
-
-    const updateAddButtonState = () => {
-      addToCartBtn.disabled = collectSelectedItems().length === 0;
-    };
-
-    const renderCalculation = (selectedItems: ArtykulyBiuroweOptions['selectedItems']) => {
-      currentSelection = selectedItems;
-      const result = quoteArtykulyBiurowe({ selectedItems });
-      currentResult = result;
-
-      (container.querySelector('#items-count') as HTMLElement).textContent = result.itemsCount.toString();
-      (container.querySelector('#total-qty') as HTMLElement).textContent = result.totalQuantity.toString();
-      (container.querySelector('#total-price') as HTMLElement).textContent = `${result.totalPrice.toFixed(2)} zł`;
-
-      const detailsDiv = container.querySelector('#details-info') as HTMLElement;
-      detailsDiv.innerHTML = selectedItems
-        .map((s) => `<div>• ${s.itemName} × ${s.quantity} szt: ${(s.price * s.quantity).toFixed(2)} zł</div>`)
-        .join('');
-
-      summaryDiv.style.display = 'block';
-      addToCartBtn.disabled = false;
-
-      ctx.updateLastCalculated(result.totalPrice, `Artykuły biurowe - ${result.itemsCount} poz.`);
-      ctx?.emit?.('price-calculated', {
-        categoryId: 'artykuly-biurowe',
-        totalPrice: result.totalPrice,
-        details: result
-      });
+      addButton.setAttribute('data-price', currentPrice.toString());
     };
 
     const priceSpans = container.querySelectorAll('span.item-price') as NodeListOf<HTMLElement>;
@@ -207,44 +136,40 @@ export const artykulyBiuroweCategory: CategoryModule = {
       });
     });
 
-    calculateBtn.addEventListener('click', () => {
-      const selectedItems = collectSelectedItems();
-      if (selectedItems.length === 0) {
-        alert('Proszę wybrać co najmniej jeden artykuł');
-        return;
-      }
-      renderCalculation(selectedItems);
-    });
+    container.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement;
+      const addButton = target?.closest('.item-add-btn') as HTMLButtonElement | null;
+      if (!addButton) return;
 
-    addToCartBtn.addEventListener('click', () => {
-      const selectedItems = collectSelectedItems();
-      if (selectedItems.length === 0) {
-        alert('Wybierz co najmniej jeden artykuł.');
-        return;
-      }
+      const itemId = addButton.getAttribute('data-add-item-id') || '';
+      const itemName = addButton.getAttribute('data-item-name') || '';
+      const basePrice = parseFloat(addButton.getAttribute('data-price') || '0');
+      const price = getCurrentPrice(itemId, basePrice);
+      const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement | null;
+      const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
 
-      renderCalculation(selectedItems);
+      const selectedItems: ArtykulyBiuroweOptions['selectedItems'] = [{
+        categoryName: '',
+        itemId,
+        itemName,
+        quantity,
+        price
+      }];
+
+      const result = quoteArtykulyBiurowe({ selectedItems });
+
+      ctx.updateLastCalculated(result.totalPrice, `Artykuły biurowe - ${itemName}`);
+      ctx?.emit?.('price-calculated', {
+        categoryId: 'artykuly-biurowe',
+        totalPrice: result.totalPrice,
+        details: result
+      });
+
       ctx.addToBasket({
         category: 'Artykuły biurowe',
-        price: currentResult?.totalPrice ?? 0,
-        description: selectedItems.map((item) => `${item.itemName} × ${item.quantity}`).join(', ')
+        price: result.totalPrice,
+        description: `${itemName} × ${quantity}`
       });
     });
-
-    container.addEventListener('change', (e) => {
-      const target = e.target as HTMLElement;
-      if (target?.classList.contains('item-checkbox') || target?.classList.contains('item-quantity')) {
-        updateAddButtonState();
-      }
-    });
-
-    container.addEventListener('input', (e) => {
-      const target = e.target as HTMLElement;
-      if (target?.classList.contains('item-quantity')) {
-        updateAddButtonState();
-      }
-    });
-
-    updateAddButtonState();
   }
 };
