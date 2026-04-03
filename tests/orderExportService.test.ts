@@ -72,11 +72,15 @@ describe("orderExportService", () => {
     expect(stored[ORDER_EXPORT_CONFIG_KEY]).toBeTruthy();
   });
 
-  it("sendOrderToAppsScript returns success for HTTP 200", async () => {
+  it("sendOrderToAppsScript returns success for HTTP 200 with JSON body", async () => {
     (globalThis as any).fetch = vi.fn(async () => ({
-      ok: false,
-      status: 0,
-      type: "opaque",
+      ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
+      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      text: async () => "",
     }));
 
     const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
@@ -87,8 +91,54 @@ describe("orderExportService", () => {
     });
 
     expect(result.ok).toBe(true);
-    expect(result.status).toBe(0);
-    expect(result.message).toMatch(/wysłane/i);
+    expect(result.status).toBe(200);
+    expect(result.message).toMatch(/saved to sheet/i);
+  });
+
+  it("sendOrderToAppsScript returns failure for HTTP error", async () => {
+    (globalThis as any).fetch = vi.fn(async () => ({
+      ok: false,
+      status: 403,
+      headers: {
+        get: () => "application/json",
+      },
+      json: async () => ({ ok: false, message: "Forbidden" }),
+      text: async () => "",
+    }));
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(403);
+    expect(result.message).toMatch(/forbidden/i);
+  });
+
+  it("sendOrderToAppsScript falls back to no-cors when CORS fetch fails", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError("Failed to fetch"))
+      .mockResolvedValueOnce({});
+
+    (globalThis as any).fetch = fetchMock;
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.verified).toBe(false);
+    expect(result.message).toMatch(/bez potwierdzenia/i);
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0]?.[1]?.mode).toBe("cors");
+    expect(fetchMock.mock.calls[1]?.[1]?.mode).toBe("no-cors");
   });
 
   it("sendOrderToAppsScript returns failure when disabled", async () => {
