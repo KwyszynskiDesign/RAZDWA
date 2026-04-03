@@ -8,6 +8,12 @@ export interface OrderExportConfig {
   enabled: boolean;
 }
 
+const LEGACY_APPS_SCRIPT_URLS = [
+  "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
+  "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
+] as const;
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIJZg6v63WrwOy3bU-Yc75G3HgGC17tvpCFNVA2II2wnM0fcgmK56pTS4LAXBm-Gg8/exec";
+
 export interface OrderExportPayload {
   source: "razdwa-web";
   createdAt: string;
@@ -45,7 +51,7 @@ type AppsScriptResponseBody = {
 };
 
 const DEFAULT_CONFIG: OrderExportConfig = {
-  appsScriptUrl: "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
+  appsScriptUrl: CURRENT_APPS_SCRIPT_URL,
   timeoutMs: 15000,
   enabled: true,
 };
@@ -56,9 +62,13 @@ export function getOrderExportConfig(): OrderExportConfig {
     const raw = localStorage.getItem(ORDER_EXPORT_CONFIG_KEY);
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
+    const parsedUrl = String(parsed.appsScriptUrl ?? "").trim();
+    const migratedUrl = !parsedUrl || LEGACY_APPS_SCRIPT_URLS.includes(parsedUrl as (typeof LEGACY_APPS_SCRIPT_URLS)[number])
+      ? CURRENT_APPS_SCRIPT_URL
+      : parsedUrl;
 
     return {
-      appsScriptUrl: String(parsed.appsScriptUrl ?? DEFAULT_CONFIG.appsScriptUrl).trim() || DEFAULT_CONFIG.appsScriptUrl,
+      appsScriptUrl: migratedUrl,
       timeoutMs: Number(parsed.timeoutMs) > 0 ? Number(parsed.timeoutMs) : DEFAULT_CONFIG.timeoutMs,
       enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_CONFIG.enabled,
     };
