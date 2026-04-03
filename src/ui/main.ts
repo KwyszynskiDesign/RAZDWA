@@ -626,7 +626,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const result = await sendOrderToAppsScript(payload, exportConfig);
 
       if (result.ok) {
-        showToast("Wysłano do bazy (Google Sheets)", "success");
+        if (result.verified === false) {
+          showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
+        } else {
+          showToast("Wysłano do bazy (Google Sheets)", "success");
+        }
         return;
       }
 

@@ -35,6 +35,7 @@ export interface OrderExportResult {
   status?: number;
   message?: string;
   data?: unknown;
+  verified?: boolean;
 }
 
 type AppsScriptResponseBody = {
@@ -200,11 +201,43 @@ export async function sendOrderToAppsScript(
       data: responseBody,
     };
   } catch (err) {
+    const errorName = err instanceof Error ? err.name : "";
+    const errorMessage = err instanceof Error ? err.message : "";
+    const normalizedError = `${errorName} ${errorMessage}`.toLowerCase();
+    const isCorsOrNetworkFailure =
+      errorName !== "AbortError" &&
+      (normalizedError.includes("failed to fetch") ||
+        normalizedError.includes("networkerror") ||
+        normalizedError.includes("load failed"));
+
+    if (isCorsOrNetworkFailure) {
+      try {
+        await fetch(config.appsScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: {
+            "Content-Type": "text/plain",
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal,
+        });
+
+        return {
+          ok: true,
+          status: 0,
+          verified: false,
+          message: "Wysłano bez potwierdzenia odpowiedzi (ograniczenia CORS). Sprawdź czy rekord pojawił się w arkuszu.",
+        };
+      } catch {
+        // continue to final error below
+      }
+    }
+
     const msg = err instanceof Error && err.name === "AbortError"
       ? "Przekroczono limit czasu wysyłki do Apps Script."
       : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}. Sprawdź URL Web App i uprawnienia wdrożenia.`;
 
-    return { ok: false, message: msg };
+    return { ok: false, message: msg, verified: false };
   } finally {
     clearTimeout(timeout);
   }
