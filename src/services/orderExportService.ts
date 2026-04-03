@@ -37,6 +37,12 @@ export interface OrderExportResult {
   data?: unknown;
 }
 
+type AppsScriptResponseBody = {
+  ok?: boolean;
+  message?: string;
+  [key: string]: unknown;
+};
+
 const DEFAULT_CONFIG: OrderExportConfig = {
   appsScriptUrl: "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
   timeoutMs: 15000,
@@ -125,12 +131,9 @@ export async function sendOrderToAppsScript(
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    // mode: 'no-cors' — przeglądarka wysyła żądanie bez preflightu i bez blokowania.
-    // Odpowiedź jest "opaque" (status=0, type='opaque', body niedostępne),
-    // ale samo dostarczenie żądania do Apps Script jest gwarantowane.
-    await fetch(config.appsScriptUrl, {
+    const response = await fetch(config.appsScriptUrl, {
       method: "POST",
-      mode: "no-cors",
+      mode: "cors",
       headers: {
         "Content-Type": "text/plain",
       },
@@ -138,16 +141,68 @@ export async function sendOrderToAppsScript(
       signal: controller.signal,
     });
 
-    // Brak wyjątku = żądanie dotarło do serwera.
+    let responseBody: AppsScriptResponseBody | string | null = null;
+    const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
+
+    if (contentType.includes("application/json")) {
+      try {
+        responseBody = await response.json();
+      } catch {
+        responseBody = null;
+      }
+    } else {
+      try {
+        const text = await response.text();
+        if (text) {
+          try {
+            responseBody = JSON.parse(text) as AppsScriptResponseBody;
+          } catch {
+            responseBody = text;
+          }
+        }
+      } catch {
+        responseBody = null;
+      }
+    }
+
+    const bodyMessage =
+      responseBody && typeof responseBody === "object" && "message" in responseBody
+        ? String((responseBody as AppsScriptResponseBody).message ?? "")
+        : "";
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        status: response.status,
+        message: bodyMessage || `Błąd HTTP ${response.status} podczas wysyłki do Apps Script.`,
+        data: responseBody,
+      };
+    }
+
+    if (
+      responseBody &&
+      typeof responseBody === "object" &&
+      "ok" in responseBody &&
+      (responseBody as AppsScriptResponseBody).ok === false
+    ) {
+      return {
+        ok: false,
+        status: response.status,
+        message: bodyMessage || "Apps Script zwrócił błąd zapisu.",
+        data: responseBody,
+      };
+    }
+
     return {
       ok: true,
-      status: 0,
-      message: "Zamówienie wysłane do arkusza.",
+      status: response.status,
+      message: bodyMessage || "Zamówienie zapisane w arkuszu.",
+      data: responseBody,
     };
   } catch (err) {
     const msg = err instanceof Error && err.name === "AbortError"
       ? "Przekroczono limit czasu wysyłki do Apps Script."
-      : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}`;
+      : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}. Sprawdź URL Web App i uprawnienia wdrożenia.`;
 
     return { ok: false, message: msg };
   } finally {
