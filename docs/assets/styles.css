@@ -833,9 +833,29 @@ button.ghost:hover {
   flex-wrap: wrap;
 }
 
+.form .row,
+.category-template .form-group {
+  margin: 10px 0;
+  gap: 6px;
+}
+
+.form .row > label,
+.category-template .form-group > label {
+  font-size: 15px;
+}
+
+.form .row > input,
+.form .row > select,
+.form .row > textarea,
+.category-template .form-group > input,
+.category-template .form-group > select,
+.category-template .form-group > textarea {
+  font-size: 16px;
+}
+
 .category-template .form-group {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .category-template .form-group > input[type="number"],

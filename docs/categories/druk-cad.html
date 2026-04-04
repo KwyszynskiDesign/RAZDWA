@@ -12,10 +12,25 @@
     flex-wrap: wrap;
   }
 
+  .cad-length-row .cad-inline-row {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+
   .cad-format-pair {
     display: flex;
     align-items: center;
     gap: 8px;
+  }
+
+  .cad-format-select {
+    width: 190px;
+    min-width: 150px;
+  }
+
+  .cad-length-input {
+    width: 170px;
+    max-width: 170px;
   }
 
   .cad-format-pair label {
@@ -25,7 +40,13 @@
 
   .cad-use-base-btn {
     white-space: nowrap;
-    min-width: 120px;
+    min-width: 100px;
+  }
+
+  @media (max-width: 900px) {
+    .cad-length-row .cad-inline-row {
+      flex-wrap: wrap;
+    }
   }
 
   .cad-qty-row {
@@ -216,12 +237,11 @@
     </div>
   </div>
 
-  <div class="row">
-    <label for="cad-length">Długość (mm):</label>
+  <div class="row cad-length-row">
     <div class="cad-inline-row">
       <div class="cad-format-pair">
         <label for="cad-format">Format:</label>
-        <select id="cad-format">
+        <select id="cad-format" class="cad-format-select">
           <option value="A0p">A0+ (914 mm)</option>
           <option value="A0">A0 (841 mm)</option>
           <option value="A1p">A1+ (610 mm)</option>
@@ -231,7 +251,7 @@
           <option value="R1067">Rolka 1067 (1067 mm)</option>
         </select>
       </div>
-      <input type="number" id="cad-length" value="1292" min="1">
+      <input type="number" id="cad-length" value="1292" min="1" class="cad-length-input" aria-label="Długość (mm)">
       <button id="cad-use-base" class="secondary btn-use-base cad-use-base-btn">Użyj bazowej</button>
     </div>
     <div id="cad-base-info" class="hint">Wymiar bazowy: 1292 mm</div>

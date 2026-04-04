@@ -1,5 +1,22 @@
 <div class="category-template">
   <style>
+    .d-checkbox-right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .d-checkbox-right label {
+      margin: 0;
+    }
+
+    .d-checkbox-right input[type="checkbox"] {
+      transform: scale(0.7);
+      transform-origin: right center;
+      margin: 0;
+    }
+
     .d-result-box {
       display: none;
       margin-top: 14px;
@@ -63,7 +80,7 @@
         <option value="A3">A3</option>
       </select>
     </div>
-    <div class="form-group">
+    <div class="form-group d-checkbox-right">
       <label for="d-email">E-mail (+1 zł):</label>
       <input type="checkbox" id="d-email">
     </div>

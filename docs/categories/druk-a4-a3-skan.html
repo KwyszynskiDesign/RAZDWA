@@ -7,6 +7,27 @@
       flex-wrap: wrap;
     }
 
+    .d-checkbox-right {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .d-checkbox-right label {
+      margin: 0;
+    }
+
+    .d-checkbox-right input[type="checkbox"] {
+      transform: scale(0.7);
+      transform-origin: right center;
+      margin: 0;
+    }
+
+    .d-checkbox-right .d-option-inline {
+      justify-content: flex-end;
+    }
+
     .d-option-inline input[type="number"] {
       width: 96px;
     }
@@ -198,17 +219,17 @@
       <div class="d-check-group">
         <div class="d-check-group-title">Opcje dodatkowe</div>
 
-        <div class="form-group">
+        <div class="form-group d-checkbox-right">
           <label for="d-email">E-mail (+1 zł):</label>
           <input type="checkbox" id="d-email">
         </div>
 
-        <div class="form-group">
+        <div class="form-group d-checkbox-right">
           <label for="d-label-sticker">Naklejka A6 (+1,60 zł):</label>
           <input type="checkbox" id="d-label-sticker">
         </div>
 
-        <div class="form-group">
+        <div class="form-group d-checkbox-right">
           <label for="d-sleeve">Koszulka (+0,80 zł/szt.):</label>
           <div class="d-option-inline">
           <input type="checkbox" id="d-sleeve">
