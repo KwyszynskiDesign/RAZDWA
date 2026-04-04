@@ -833,6 +833,19 @@ button.ghost:hover {
   flex-wrap: wrap;
 }
 
+.category-template .form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.category-template .form-group > input[type="number"],
+.category-template .form-group > input[type="text"],
+.category-template .form-group > input[type="email"],
+.category-template .form-group > select,
+.category-template .form-group > textarea {
+  width: 100%;
+}
+
 /* ===== FORM ACTIONS (unified button container) ===== */
 .form-actions {
   display: flex;

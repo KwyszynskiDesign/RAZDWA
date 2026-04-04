@@ -1,13 +1,14 @@
 <div class="category-template">
   <style>
-    .d-inline-check {
+    .d-option-inline {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
-    .d-inline-check label {
-      margin: 0;
+    .d-option-inline input[type="number"] {
+      width: 96px;
     }
 
     .d-result-box {
@@ -197,21 +198,23 @@
       <div class="d-check-group">
         <div class="d-check-group-title">Opcje dodatkowe</div>
 
-        <div class="d-inline-check">
+        <div class="form-group">
+          <label for="d-email">E-mail (+1 zł):</label>
           <input type="checkbox" id="d-email">
-          <label for="d-email">E-mail (+1 zł)</label>
         </div>
 
-        <div class="d-inline-check">
+        <div class="form-group">
+          <label for="d-label-sticker">Naklejka A6 (+1,60 zł):</label>
           <input type="checkbox" id="d-label-sticker">
-          <label for="d-label-sticker">Naklejka A6 (+1,60 zł)</label>
         </div>
 
-        <div class="d-inline-check">
+        <div class="form-group">
+          <label for="d-sleeve">Koszulka (+0,80 zł/szt.):</label>
+          <div class="d-option-inline">
           <input type="checkbox" id="d-sleeve">
-          <label for="d-sleeve">Koszulka (+0,80 zł/szt.)</label>
-          <input type="number" id="d-sleeve-qty" min="0" value="0" style="width: 78px;" aria-label="Ilość koszulek">
+          <input type="number" id="d-sleeve-qty" min="0" value="0" aria-label="Ilość koszulek">
           <span>szt.</span>
+          </div>
         </div>
       </div>
     </div><!-- /.d-right-col -->
