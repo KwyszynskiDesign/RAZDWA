@@ -319,14 +319,15 @@
   </div>
 
   <div class="form-actions cad-actions">
-    <div class="cad-grand-total-box">
-      <strong>RAZEM:</strong>
-      <span id="cad-grand-total" class="cad-grand-total-value">0.00 zł</span>
-    </div>
     <button id="cad-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
   </div>
 
   <div id="cad-result-display" class="cad-result-box">
+    <div class="cad-result-line cad-result-line-total">
+      <span>SUMA ZA WSZYSTKO:</span>
+      <span id="cad-total-with-options" class="cad-option-total">-</span>
+    </div>
+    <hr>
     <div id="cad-qty-hint" class="cad-qty-hint"></div>
     <div class="cad-result-line cad-result-line-top">
       <span id="cad-price-type">Cena formatowa:</span>
@@ -349,12 +350,15 @@
         <span>Wysyłka e-mail:</span>
         <span id="cad-opt-email-price">0,00 zł</span>
       </div>
-      <div class="cad-result-line cad-option-line-total">
-        <span>Cena łączna (druk + opcje):</span>
-        <span id="cad-total-with-options" class="cad-option-total">-</span>
-      </div>
     </div>
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+  </div>
+
+  <div id="cad-breakdown-display" class="card" style="margin-top: 16px;">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+    <div id="cad-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;">
+      <div>Cena uwzględnia: stawkę druku CAD, format/nakład oraz zaznaczone opcje dodatkowe.</div>
+    </div>
   </div>
 
   <div id="cad-ops-list" class="cad-ops-list">

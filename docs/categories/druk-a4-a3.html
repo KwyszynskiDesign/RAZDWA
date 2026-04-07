@@ -128,15 +128,20 @@
 
   <!-- WYNIKI -->
   <div id="d-result-display" class="d-result-box">
+    <div class="result-row total d-result-total">
+      <span>SUMA ZA WSZYSTKO:</span> <span id="d-total-price" class="price-value">-</span>
+    </div>
+    <hr>
     <div class="result-row"><span>Cena druku/str.:</span> <span id="d-unit-print-price" class="price-unit">-</span></div>
     <div class="result-row"><span>Koszt druku (strony zwykłe):</span> <span id="d-total-print-price" class="price-unit">-</span></div>
     <div class="result-row d-hidden" id="d-scan-row"><span>Skanowanie:</span> <span id="d-total-scan-price" class="price-unit">-</span></div>
     <div class="result-row d-hidden" id="d-email-row"><span>E-mail:</span> <span id="d-email-price" class="price-unit">-</span></div>
     <div class="result-row d-hidden" id="d-surcharge-row"><span>Dopłata (zadruk &gt;25%):</span> <span id="d-surcharge-price" class="price-unit">-</span></div>
-    <hr>
-    <div class="result-row total d-result-total">
-      <span>SUMA za wszystko:</span> <span id="d-total-price" class="price-value">-</span>
-    </div>
+  </div>
+
+  <div id="d-breakdown-display" class="card" style="display:none; margin-top:14px;">
+    <h4 style="margin:0 0 10px 0; font-size:15px; font-weight:700; color:#0f172a;">Szczegółowe rozbicie kalkulacji</h4>
+    <div id="d-breakdown-lines" style="display:grid; gap:8px; font-size:14px; line-height:1.45; color:#334155;"></div>
   </div>
 
   <!-- EXPRESS HINT -->

@@ -37,7 +37,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
   }
 
   const stickerBase = pricing?.label_sticker_cost ?? 1.6;
-  const stickerPrice = options.labelSticker && options.printQty > 0
+  const stickerPrice = options.labelSticker
     ? resolveStoredPrice("druk-label-sticker", stickerBase)
     : 0;
 

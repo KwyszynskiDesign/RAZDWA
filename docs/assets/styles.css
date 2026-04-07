@@ -855,7 +855,7 @@ button.ghost:hover {
 
 .category-template .form-group {
   display: grid;
-  gap: 6px;
+  gap: 2px;
 }
 
 .category-template .form-group > input[type="number"],

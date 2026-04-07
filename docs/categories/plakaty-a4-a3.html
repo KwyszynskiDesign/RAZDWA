@@ -82,6 +82,11 @@
     </div>
 
     <div id="pa-result-display" class="result-display card">
+        <div class="result-row total">
+            <span>SUMA ZA WSZYSTKO:</span>
+            <span id="pa-total-price" class="price-value">-</span>
+        </div>
+        <hr>
         <div class="result-row">
             <span id="pa-qty-label">Ilość:</span>
             <span id="pa-qty-val" class="price-unit">-</span>
@@ -94,12 +99,13 @@
             <span id="pa-discount-label">Rabat ilościowy:</span>
             <span id="pa-discount-val" class="price-unit">-</span>
         </div>
-        <div class="result-row">
-            <span>Cena łączna:</span>
-            <span id="pa-total-price" class="price-value">-</span>
-        </div>
         <div id="pa-express-hint" class="express-hint" style="display: none;">
             W tym dopłata EXPRESS +20%
         </div>
+    </div>
+
+    <div id="pa-breakdown-display" class="card" style="margin-top: 16px; display:none;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+        <div id="pa-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
 </div>
