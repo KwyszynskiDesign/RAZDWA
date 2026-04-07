@@ -12,7 +12,7 @@ const LEGACY_APPS_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
   "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
 ] as const;
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIJZg6v63WrwOy3bU-Yc75G3HgGC17tvpCFNVA2II2wnM0fcgmK56pTS4LAXBm-Gg8/exec";
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwl0tXoZe9U3TTj2grrjpo-Z_g4nfq9NxlnsySfnS6yEPs4EP13LOLScJY0HamffUeH/exec";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
@@ -44,6 +44,26 @@ export interface OrderExportResult {
   verified?: boolean;
 }
 
+interface AppsScriptCompactRowPayload {
+  "Data": string;
+  "Godzina": string;
+  "Firma": string;
+  "Imię": string;
+  "Nazwisko": string;
+  "NIP": string;
+  "Telefon": string;
+  "Email": string;
+  "Materiał": string;
+  "jedno/dwustronne": string;
+  "Produkt": string;
+  "Ilosc sztuk": string;
+  "Cena za sztukę": string;
+  "Uwagi": string;
+  "Suma (PLN)": number;
+  "Priorytet": string;
+  "Ekspres": "TAK" | "NIE";
+}
+
 type AppsScriptResponseBody = {
   ok?: boolean;
   message?: string;
@@ -55,6 +75,150 @@ const DEFAULT_CONFIG: OrderExportConfig = {
   timeoutMs: 15000,
   enabled: true,
 };
+
+function splitCustomerName(fullName: string): { firstName: string; lastName: string } {
+  const normalized = String(fullName ?? "").trim().replace(/\s+/g, " ");
+  if (!normalized) return { firstName: "", lastName: "" };
+
+  const [firstName, ...rest] = normalized.split(" ");
+  return {
+    firstName: firstName ?? "",
+    lastName: rest.join(" "),
+  };
+}
+
+function extractMaterialFromItem(item: OrderExportPayload["items"][number]): string {
+  const payload = item.payload;
+
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const p = payload as Record<string, unknown>;
+    const candidates = [
+      p.material,
+      p.paper,
+      p.paperType,
+      p.substrate,
+      p.foilType,
+    ];
+
+    for (const candidate of candidates) {
+      if (candidate !== undefined && candidate !== null) {
+        const value = String(candidate).trim();
+        if (value) return value;
+      }
+    }
+  }
+
+  const hint = String(item.optionsHint ?? "").trim();
+  return hint || "-";
+}
+
+function extractFormatFromItem(item: OrderExportPayload["items"][number]): string {
+  const payload = item.payload;
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const p = payload as Record<string, unknown>;
+    const val = String(p.format ?? "").trim();
+    if (val) return val.toUpperCase();
+  }
+
+  const hint = String(item.optionsHint ?? "");
+  const match = hint.match(/\b(A0\+?|A1\+?|A2|A3|A4|A5|A6|DL)\b/i);
+  return match ? match[1].toUpperCase() : "";
+}
+
+function extractSidesFromItem(item: OrderExportPayload["items"][number]): string {
+  const payload = item.payload;
+  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
+    const p = payload as Record<string, unknown>;
+    const sidesRaw = String(p.sides ?? "").toLowerCase();
+    if (sidesRaw.includes("dwu")) return "Dwustronne";
+    if (sidesRaw.includes("jedno")) return "Jednostronne";
+  }
+
+  const hint = String(item.optionsHint ?? "").toLowerCase();
+  if (hint.includes("dwustron")) return "Dwustronne";
+  if (hint.includes("jednostron")) return "Jednostronne";
+  return "";
+}
+
+function buildProductLabel(item: OrderExportPayload["items"][number]): string {
+  const category = String(item.category ?? "").trim();
+  const name = String(item.name ?? "").trim();
+  const format = extractFormatFromItem(item);
+
+  if (/ulotk/i.test(category) || /ulotk/i.test(name)) {
+    const base = "Ulotka";
+    return [base, format].filter(Boolean).join(" ").trim();
+  }
+
+  return name || category || "Produkt";
+}
+
+function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompactRowPayload {
+  const createdAt = payload.createdAt ? new Date(payload.createdAt) : new Date();
+  const safeDate = Number.isNaN(createdAt.getTime()) ? new Date() : createdAt;
+  const { firstName, lastName } = splitCustomerName(payload.customer.name);
+
+  const date = new Intl.DateTimeFormat("pl-PL", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(safeDate);
+
+  const time = new Intl.DateTimeFormat("pl-PL", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(safeDate);
+
+  type ExportLine = { product: string; material: string; sides: string; quantity: number; unitPrice: number };
+  const grouped = new Map<string, ExportLine>();
+
+  payload.items.forEach((item) => {
+    const product = buildProductLabel(item);
+    const material = extractMaterialFromItem(item);
+    const sides = extractSidesFromItem(item);
+    const quantity = Math.max(0, Number(item.quantity || 0));
+    const unitPrice = Number(item.unitPrice || 0);
+
+    const key = `${product}|${material}|${sides}|${unitPrice.toFixed(2)}`;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.quantity += quantity;
+      return;
+    }
+
+    grouped.set(key, { product, material, sides, quantity, unitPrice });
+  });
+
+  const packedLines = Array.from(grouped.values());
+
+  const products = packedLines.map(line => line.product).join(" | ");
+  const sides = packedLines.map(line => line.sides).join(" | ");
+  const quantities = packedLines.map(line => String(line.quantity)).join(" | ");
+  const unitPrices = packedLines.map(line => line.unitPrice.toFixed(2)).join(" | ");
+  const materials = packedLines.map(line => line.material).join(" | ");
+
+  return {
+    "Data": date,
+    "Godzina": time,
+    "Firma": String(payload.customer.company ?? ""),
+    "Imię": firstName,
+    "Nazwisko": lastName,
+    "NIP": String(payload.customer.nip ?? ""),
+    "Telefon": String(payload.customer.phone ?? ""),
+    "Email": String(payload.customer.email ?? ""),
+    "Materiał": materials,
+    "jedno/dwustronne": sides,
+    "Produkt": products,
+    "Ilosc sztuk": quantities,
+    "Cena za sztukę": unitPrices,
+    "Uwagi": String(payload.customer.notes ?? ""),
+    "Suma (PLN)": parseFloat(Number(payload.summary.total || 0).toFixed(2)),
+    "Priorytet": String(payload.customer.priority ?? ""),
+    "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
+  };
+}
 
 export function getOrderExportConfig(): OrderExportConfig {
   try {
@@ -140,6 +304,7 @@ export async function sendOrderToAppsScript(
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+  const compactPayload = buildAppsScriptCompactRow(payload);
 
   try {
     const response = await fetch(config.appsScriptUrl, {
@@ -148,7 +313,7 @@ export async function sendOrderToAppsScript(
       headers: {
         "Content-Type": "text/plain",
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(compactPayload),
       signal: controller.signal,
     });
 
@@ -228,7 +393,7 @@ export async function sendOrderToAppsScript(
           headers: {
             "Content-Type": "text/plain",
           },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(compactPayload),
           signal: controller.signal,
         });
 

@@ -546,6 +546,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Re-render view when express mode changes
   globalExpress.addEventListener("change", () => {
+    cart.setExpressForAll(globalExpress.checked);
+    updateCartUI();
+
     // Toggle express styling on order summary
     const orderSummary = document.getElementById("orderSummary");
     if (orderSummary) {

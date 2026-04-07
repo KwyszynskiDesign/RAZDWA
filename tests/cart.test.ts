@@ -56,4 +56,19 @@ describe("Cart", () => {
     cart.clear();
     expect(cart.isEmpty()).toBe(true);
   });
+
+  it("should apply and remove express for all cart items", () => {
+    const cart = new Cart();
+    cart.addItem(mockItem);
+
+    cart.setExpressForAll(true);
+    expect(cart.getItems()[0]?.isExpress).toBe(true);
+    expect(cart.getItems()[0]?.totalPrice).toBe(24);
+    expect(cart.getGrandTotal()).toBe(24);
+
+    cart.setExpressForAll(false);
+    expect(cart.getItems()[0]?.isExpress).toBe(false);
+    expect(cart.getItems()[0]?.totalPrice).toBe(20);
+    expect(cart.getGrandTotal()).toBe(20);
+  });
 });
