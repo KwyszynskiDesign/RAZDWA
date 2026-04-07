@@ -259,9 +259,7 @@ export const DrukCADView: View = {
       const baseLen = data.base[format]?.l;
       baseInfo.innerText = `Wymiar bazowy: ${baseLen} mm`;
 
-      const currentLen = parseInt(lengthInput.value) || 0;
-      const isFormatowe = Math.abs(currentLen - baseLen) <= 0.5;
-      qtySheetsGroup.style.display = isFormatowe ? "grid" : "none";
+      qtySheetsGroup.style.display = "grid";
 
       return baseLen;
     };
