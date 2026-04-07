@@ -1,34 +1,37 @@
 <div class="category-template">
   <style>
     .d-checkbox-right {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      align-items: start;
       gap: 10px;
     }
 
     .d-checkbox-right label {
       margin: 0;
+      cursor: pointer;
     }
 
     .d-checkbox-right input[type="checkbox"] {
-      transform: scale(0.7);
-      transform-origin: right center;
-      margin: 0;
+      width: 16px;
+      height: 16px;
+      margin: 2px 0 0 0;
+      transform: none;
     }
 
     .d-result-box {
       display: none;
       margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #bbf7d0;
-      border-radius: 12px;
-      background: #f0fdf4;
+      padding: 18px;
+      border: 1px solid #dbe7f3;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 14px 34px rgba(148, 163, 184, 0.12);
     }
 
     .d-result-total {
-      font-size: 1.2em;
-      color: #15803d;
+      font-size: 1.1em;
+      color: #0f766e;
       font-weight: 700;
     }
 
@@ -81,8 +84,8 @@
       </select>
     </div>
     <div class="form-group d-checkbox-right">
-      <label for="d-email">E-mail (+1 zł):</label>
       <input type="checkbox" id="d-email">
+      <label for="d-email">E-mail (+1 zł)</label>
     </div>
   </div>
 
@@ -125,14 +128,14 @@
 
   <!-- WYNIKI -->
   <div id="d-result-display" class="d-result-box">
-    <div class="result-row">💰 Cena druku/str.: <span id="d-unit-print-price">-</span></div>
-    <div class="result-row">📄 Koszt druku (strony zwykłe): <span id="d-total-print-price">-</span></div>
-    <div class="result-row d-hidden" id="d-scan-row">📷 Skanowanie: <span id="d-total-scan-price">-</span></div>
-    <div class="result-row d-hidden" id="d-email-row">📧 E-mail: <span id="d-email-price">-</span></div>
-    <div class="result-row d-hidden" id="d-surcharge-row">🎨 Dopłata (zadruk &gt;25%): <span id="d-surcharge-price">-</span></div>
+    <div class="result-row"><span>Cena druku/str.:</span> <span id="d-unit-print-price" class="price-unit">-</span></div>
+    <div class="result-row"><span>Koszt druku (strony zwykłe):</span> <span id="d-total-print-price" class="price-unit">-</span></div>
+    <div class="result-row d-hidden" id="d-scan-row"><span>Skanowanie:</span> <span id="d-total-scan-price" class="price-unit">-</span></div>
+    <div class="result-row d-hidden" id="d-email-row"><span>E-mail:</span> <span id="d-email-price" class="price-unit">-</span></div>
+    <div class="result-row d-hidden" id="d-surcharge-row"><span>Dopłata (zadruk &gt;25%):</span> <span id="d-surcharge-price" class="price-unit">-</span></div>
     <hr>
     <div class="result-row total d-result-total">
-      💎 SUMA za wszystko: <span id="d-total-price">-</span>
+      <span>SUMA za wszystko:</span> <span id="d-total-price" class="price-value">-</span>
     </div>
   </div>
 

@@ -40,6 +40,8 @@ export const DrukA4A3SkanView: View = {
 
     const addToCartBtn = container.querySelector("#d-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#d-result-display") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#d-breakdown-display") as HTMLElement | null;
+    const breakdownLines = container.querySelector("#d-breakdown-lines") as HTMLElement | null;
     const totalPriceSpan = container.querySelector("#d-total-price") as HTMLElement;
     const expressHint = container.querySelector("#d-express-hint") as HTMLElement;
 
@@ -137,6 +139,54 @@ export const DrukA4A3SkanView: View = {
       if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
       if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
+      const sleeveUnit = Number(pricing?.sleeve_price ?? 0.8);
+      const printQtySafe = Math.max(0, Number(currentOptions.printQty) || 0);
+      const surchargeQtySafe = Math.max(0, Number(currentOptions.surchargeQty) || 0);
+      const normalQty = Math.max(0, printQtySafe - surchargeQtySafe);
+      const unitPrintValue = Number(result.unitPrintPrice || 0);
+      const normalPrintCost = parseFloat((normalQty * unitPrintValue).toFixed(2));
+      const baseWithoutExpress = Number(result.baseTotal || 0);
+      const expressCost = currentOptions.express
+        ? parseFloat((Number(result.totalPrice || 0) - baseWithoutExpress).toFixed(2))
+        : 0;
+
+      if (breakdownDisplay && breakdownLines) {
+        const lines: string[] = [];
+
+        lines.push(`<div><strong>Parametry:</strong> ${currentOptions.format}, ${printQtySafe} str., ${currentOptions.mode === "bw" ? "czarno-biały" : "kolorowy"}</div>`);
+        lines.push(`<div><strong>Cena druku bazowa:</strong> ${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}</div>`);
+
+        if (currentOptions.surcharge && surchargeQtySafe > 0) {
+          lines.push(`<div><strong>Zadruk &gt;25%:</strong> ${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}</div>`);
+          lines.push(`<div><strong>Druk bez dopłaty:</strong> ${normalQty} str. = ${formatPLN(normalPrintCost)}</div>`);
+        }
+
+        if (result.totalScanPrice > 0) {
+          lines.push(`<div><strong>Skanowanie:</strong> ${currentOptions.scanType === "auto" ? "automatyczne" : "ręczne"}, ${currentOptions.scanQty} str. = ${formatPLN(result.totalScanPrice)}</div>`);
+        }
+
+        if (result.emailPrice > 0) {
+          lines.push(`<div><strong>E-mail:</strong> ${formatPLN(result.emailPrice)}</div>`);
+        }
+
+        if (result.stickerPrice > 0) {
+          lines.push(`<div><strong>Naklejka A6:</strong> ${formatPLN(result.stickerPrice)}</div>`);
+        }
+
+        if (result.sleevePrice > 0) {
+          lines.push(`<div><strong>Koszulka:</strong> ${currentOptions.sleeveQty} szt. × ${formatPLN(sleeveUnit)} = ${formatPLN(result.sleevePrice)}</div>`);
+        }
+
+        if (currentOptions.express) {
+          lines.push(`<div><strong>EXPRESS:</strong> +20% × ${formatPLN(baseWithoutExpress)} = ${formatPLN(expressCost)}</div>`);
+        }
+
+        lines.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+
+        breakdownLines.innerHTML = lines.join("");
+        breakdownDisplay.style.display = "block";
+      }
+
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
@@ -148,6 +198,8 @@ export const DrukA4A3SkanView: View = {
     autoCalc({ root: container, calc: performCalculation });
 
     addToCartBtn.onclick = () => {
+      performCalculation();
+
       if (!currentResult || !currentOptions) return;
 
       const printQty = Math.max(0, Number(currentOptions.printQty) || 0);

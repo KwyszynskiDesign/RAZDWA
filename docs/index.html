@@ -675,7 +675,14 @@
     #viewContainer #b-result-display,
     #viewContainer #dypResult,
     #viewContainer #zapResult,
-    #viewContainer #rollUpResult {
+    #viewContainer #rollUpResult,
+    #viewContainer [id$="-result-display"],
+    #viewContainer [id$="Result"],
+    #viewContainer [id*="Breakdown"],
+    #viewContainer [id*="breakdown"],
+    #viewContainer .lam-result-box,
+    #viewContainer .special-result,
+    #viewContainer .cad-result-box {
       background: #ffffff !important;
       border: 1px solid #dbe7f3 !important;
       border-radius: 18px !important;
@@ -823,6 +830,16 @@
     #viewContainer .price-value {
       color: #0f766e !important;
       font-weight: 700;
+    }
+
+    #viewContainer [id*="breakdown-lines"],
+    #viewContainer [id*="BreakdownLines"],
+    #viewContainer .breakdown-lines {
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      line-height: 1.45;
+      color: #334155;
     }
 
     #viewContainer .price-unit,
@@ -2040,6 +2057,135 @@ document.addEventListener('DOMContentLoaded', () => {
  </script>
 
  <script src="assets/app.js" type="module"></script>
+ <script>
+(() => {
+  const VIEW_ID = 'viewContainer';
+
+  const parsePLN = (text) => {
+    const normalized = String(text || '')
+      .replace(/\s+/g, '')
+      .replace('zł', '')
+      .replace(',', '.');
+    const num = Number.parseFloat(normalized);
+    return Number.isFinite(num) ? num : 0;
+  };
+
+  const formatPLN = (value) => `${Number(value || 0).toFixed(2).replace('.', ',')} zł`;
+
+  const isVisible = (el) => {
+    if (!el) return false;
+    const style = window.getComputedStyle(el);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  };
+
+  const collectSummaryLines = (panel) => {
+    const rows = panel.querySelectorAll('.result-row, .price-line, .lam-result-line, .summary-item, .special-row, .calc-line');
+    const lines = [];
+
+    rows.forEach((row) => {
+      if (!isVisible(row)) return;
+      const texts = Array.from(row.querySelectorAll('span, strong, b'))
+        .map((node) => String(node.textContent || '').trim())
+        .filter(Boolean);
+
+      if (texts.length >= 2) {
+        const label = texts[0].replace(/:$/, '');
+        const value = texts[texts.length - 1];
+        lines.push({ label, value });
+        return;
+      }
+
+      const raw = String(row.textContent || '').replace(/\s+/g, ' ').trim();
+      if (!raw) return;
+      const split = raw.split(':');
+      if (split.length >= 2) {
+        const label = split[0].trim();
+        const value = split.slice(1).join(':').trim();
+        lines.push({ label, value });
+      }
+    });
+
+    return lines;
+  };
+
+  const ensureAutoBreakdown = (panel) => {
+    if (!(panel instanceof HTMLElement)) return;
+
+    const parent = panel.parentElement;
+    if (!parent) return;
+
+    const hasNativeBreakdown = !!parent.querySelector('[id*="breakdown" i], [class*="breakdown" i]');
+    if (hasNativeBreakdown) return;
+
+    let card = panel.nextElementSibling;
+    if (!(card instanceof HTMLElement) || !card.classList.contains('auto-breakdown-card')) {
+      card = document.createElement('div');
+      card.className = 'result-display card auto-breakdown-card';
+      card.style.marginTop = '16px';
+      card.innerHTML = '<h4 style="margin:0 0 10px 0; font-size:15px;">Szczegółowe rozbicie kalkulacji</h4><div class="auto-breakdown-lines"></div>';
+      panel.insertAdjacentElement('afterend', card);
+    }
+
+    const linesHost = card.querySelector('.auto-breakdown-lines');
+    if (!linesHost) return;
+
+    const lines = collectSummaryLines(panel);
+    if (!lines.length || !isVisible(panel)) {
+      card.style.display = 'none';
+      linesHost.innerHTML = '';
+      return;
+    }
+
+    const rendered = lines.map((line) => `<div class="result-row"><span>${line.label}:</span><span class="price-unit">${line.value}</span></div>`);
+
+    const totalRaw = lines.find((line) => /suma|razem|total/i.test(line.label))?.value;
+    if (totalRaw) {
+      rendered.push(`<div class="result-row total"><span>Razem:</span><span class="price-value">${formatPLN(parsePLN(totalRaw))}</span></div>`);
+    }
+
+    linesHost.innerHTML = rendered.join('');
+    card.style.display = 'block';
+  };
+
+  const enhanceCurrentView = () => {
+    const root = document.getElementById(VIEW_ID);
+    if (!root) return;
+
+    const resultPanels = root.querySelectorAll(
+      '.result-display, [id$="result-display" i], [id$="Result"], .lam-result-box, .special-result, .cad-result-box'
+    );
+
+    resultPanels.forEach((panel) => {
+      ensureAutoBreakdown(panel);
+      if (panel instanceof HTMLElement && !panel.dataset.autoBreakdownObserved) {
+        const observer = new MutationObserver(() => ensureAutoBreakdown(panel));
+        observer.observe(panel, { childList: true, subtree: true, characterData: true, attributes: true });
+        panel.dataset.autoBreakdownObserved = 'true';
+      }
+    });
+  };
+
+  const start = () => {
+    const root = document.getElementById(VIEW_ID);
+    if (!root) return;
+
+    const routeObserver = new MutationObserver(() => {
+      enhanceCurrentView();
+    });
+    routeObserver.observe(root, { childList: true, subtree: true });
+
+    enhanceCurrentView();
+    document.addEventListener('razdwa:addToCart', () => setTimeout(enhanceCurrentView, 0));
+    window.addEventListener('hashchange', () => setTimeout(enhanceCurrentView, 30));
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
+ </script>
  <script>
 window.scrollToTopTiles = () => {
   const sidebar = document.getElementById('categorySidebar');
