@@ -95,6 +95,66 @@ describe("orderExportService", () => {
     expect(result.message).toMatch(/saved to sheet/i);
   });
 
+  it("sendOrderToAppsScript sends compact payload without item columns", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
+      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      text: async () => "",
+    }));
+
+    (globalThis as any).fetch = fetchMock;
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const parsedBody = JSON.parse(requestBody);
+
+    expect(Object.keys(parsedBody)).toEqual([
+      "Data",
+      "Godzina",
+      "Firma",
+      "Imię",
+      "Nazwisko",
+      "NIP",
+      "Telefon",
+      "Email",
+      "Materiał",
+      "jedno/dwustronne",
+      "Produkt",
+      "Ilosc sztuk",
+      "Cena za sztukę",
+      "Uwagi",
+      "Suma (PLN)",
+      "Priorytet",
+      "Ekspres",
+    ]);
+
+    expect(parsedBody["Data"]).toBeTypeOf("string");
+    expect(parsedBody["Godzina"]).toBeTypeOf("string");
+    expect(parsedBody["Imię"]).toBe("Jan");
+    expect(parsedBody["Nazwisko"]).toBe("Kowalski");
+    expect(parsedBody["Firma"]).toBe("");
+    expect(parsedBody["Ekspres"]).toBe("TAK");
+    expect(parsedBody["Suma (PLN)"]).toBe(113);
+    expect(parsedBody["Produkt"]).toContain("Wizytówki Standard");
+    expect(parsedBody["Ilosc sztuk"]).toContain("100");
+    expect(parsedBody["Cena za sztukę"]).toContain("75.00");
+    expect(parsedBody["Materiał"]).toContain("kreda_350");
+
+    expect(parsedBody.items).toBeUndefined();
+    expect(parsedBody.summary).toBeUndefined();
+    expect(parsedBody.customer).toBeUndefined();
+  });
+
   it("sendOrderToAppsScript returns failure for HTTP error", async () => {
     (globalThis as any).fetch = vi.fn(async () => ({
       ok: false,
@@ -151,5 +211,62 @@ describe("orderExportService", () => {
 
     expect(result.ok).toBe(false);
     expect(result.message).toMatch(/wyłączona/i);
+  });
+
+  it("packs multiple products into single fields and includes format/sides for ulotki", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
+      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      text: async () => "",
+    }));
+
+    (globalThis as any).fetch = fetchMock;
+
+    const ulotkiItems: CartItem[] = [
+      {
+        id: "u1",
+        category: "Ulotki",
+        name: "Ulotki A5",
+        quantity: 100,
+        unit: "szt",
+        unitPrice: 1.2,
+        isExpress: false,
+        totalPrice: 120,
+        optionsHint: "100 szt, A5, Dwustronne",
+        payload: { format: "A5", sides: "dwustronne", paper: "kreda 130g" },
+      },
+      {
+        id: "u2",
+        category: "Ulotki",
+        name: "Ulotki A5",
+        quantity: 50,
+        unit: "szt",
+        unitPrice: 1.2,
+        isExpress: false,
+        totalPrice: 60,
+        optionsHint: "50 szt, A5, Dwustronne",
+        payload: { format: "A5", sides: "dwustronne", paper: "kreda 130g" },
+      },
+    ];
+
+    const payload = buildOrderExportPayload(ulotkiItems, sampleCustomer);
+    await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const parsedBody = JSON.parse(requestBody);
+
+    expect(parsedBody["Produkt"]).toContain("Ulotka A5");
+    expect(parsedBody["jedno/dwustronne"]).toBe("Dwustronne");
+    expect(parsedBody["Ilosc sztuk"]).toBe("150");
+    expect(parsedBody["Cena za sztukę"]).toBe("1.20");
+    expect(parsedBody["Materiał"]).toContain("kreda 130g");
   });
 });
