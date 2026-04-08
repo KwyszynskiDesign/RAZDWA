@@ -105,7 +105,9 @@ export const DrukCADView: View = {
             <th>Cena formatowa</th>
             <th>Cena nieformatowa</th>
           </tr>
+          <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
           ${bwRows}
+          <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${colorRows}
         </table>
         <div class="hint" style="margin-top:8px;">Składanie i skan WF rozliczane wg aktualnych stawek z ustawień.</div>

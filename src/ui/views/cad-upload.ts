@@ -79,27 +79,43 @@ export const CadUploadView: View = {
         ekranObliczen.appendChild(legend);
       }
 
-      const renderRows = (mode: "bw" | "color", type: "formatowe" | "mb") => {
+      const displayCadFormat = (format: string): string => {
+        if (format === "A0p") return "A0+";
+        if (format === "A1p") return "A1+";
+        if (format === "R1067") return "Rolka 1067";
+        return format;
+      };
+
+      const collectRowsForMode = (mode: "bw" | "color", modeLabel: string) => {
         const modeKey = mode === "bw" ? "bw" : "kolor";
-        const prices = cadPricing.price?.[mode]?.[type] ?? {};
-        return Object.entries(prices).map(([fmt, base]) => {
-          const normalized = String(fmt).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
-          const key = `druk-cad-${modeKey}-${type === "formatowe" ? "fmt" : "mb"}-${normalized}`;
-          return `<tr><td>${fmt}</td><td>${formatPLN(resolveStoredPrice(key, Number(base)))}</td></tr>`;
+        const fmtMap = cadPricing.price?.[mode]?.formatowe ?? {};
+        const mbMap = cadPricing.price?.[mode]?.mb ?? {};
+        const allFormats = Array.from(new Set([...Object.keys(fmtMap), ...Object.keys(mbMap)]));
+
+        return allFormats.map((format) => {
+          const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+          const fmtBase = Number((fmtMap as any)[format] ?? 0);
+          const mbBase = Number((mbMap as any)[format] ?? 0);
+          const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
+          const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
+          const fmtPrice = (fmtMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
+          const mbPrice = (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
+
+          return `<tr><td>${modeLabel}</td><td>${displayCadFormat(String(format))}</td><td>${fmtPrice}</td><td>${mbPrice}</td></tr>`;
         }).join("");
       };
 
+      const bwRows = collectRowsForMode("bw", "Czarno-biały");
+      const colorRows = collectRowsForMode("color", "Kolorowy");
+
       legend.innerHTML = `
-        <div style="display:grid; gap:10px;">
-          <div>
-            <strong>CAD kolor</strong>
-            <table class="results-table" style="margin-top:6px;"><tr><th>Format</th><th>Formatowe</th></tr>${renderRows("color", "formatowe")}</table>
-          </div>
-          <div>
-            <strong>CAD czarno-biały</strong>
-            <table class="results-table" style="margin-top:6px;"><tr><th>Format</th><th>Formatowe</th></tr>${renderRows("bw", "formatowe")}</table>
-          </div>
-        </div>
+        <table class="results-table" style="margin-top:6px;">
+          <tr><th>Tryb</th><th>Format</th><th>Cena formatowa</th><th>Cena nieformatowa</th></tr>
+          <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
+          ${bwRows}
+          <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
+          ${colorRows}
+        </table>
         <div style="margin-top:8px; font-size:12px; color:#666;">Dopłaty: zadruk &gt;25% +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}%, e-mail ${formatPLN(resolveStoredPrice("druk-email", 1))}.</div>
       `;
     };

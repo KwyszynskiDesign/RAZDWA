@@ -35,6 +35,7 @@ export const WlepkiView: View = {
     const unitPriceEl = container.querySelector("#unit-price") as HTMLElement;
     const basePriceEl = container.querySelector("#base-price") as HTMLElement;
     const totalPriceEl = container.querySelector("#total-price") as HTMLElement;
+    const breakdownLinesEl = container.querySelector("#wlepki-breakdown-lines") as HTMLElement | null;
     const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement;
     const detailedBreakdownDisplay = container.querySelector("#wlepki-breakdown-display") as HTMLElement | null;
     const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement;
@@ -208,28 +209,23 @@ export const WlepkiView: View = {
           currentInput = input;
           currentResult = result;
 
-          unitPriceEl.textContent = formatPLN(result.unitPrice);
-          basePriceEl.textContent = `${result.requestedQty} szt (próg: ${result.chargedQty} szt)`;
-
           const technicalDetails: string[] = [];
           if (input.paperFinish) technicalDetails.push(`Papier: ${input.paperFinish === "mat" ? "mat" : "błysk"}`);
           if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
 
           const detailsRows: string[] = [
-            `<div class="result-row"><span>Nakład podany:</span><span class="price-value">${result.requestedQty} szt</span></div>`,
-            `<div class="result-row"><span>Próg rozliczeniowy:</span><span class="price-value">${result.chargedQty} szt</span></div>`,
-            `<div class="result-row"><span>Cena z cennika (próg):</span><span class="price-value">${formatPLN(result.basePrice)}</span></div>`
+            `<div><strong>Parametry:</strong> ${result.requestedQty} szt, ${selectedTable}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}</div>`,
+            `<div><strong>Próg rozliczeniowy:</strong> ${result.chargedQty} szt</div>`,
+            `<div><strong>Cena z cennika:</strong> ${formatPLN(result.basePrice)}</div>`
           ];
 
           if (result.modifiersTotal > 0) {
-            detailsRows.push(`<div class="result-row"><span>Dopłata EXPRESS:</span><span class="price-value">+${formatPLN(result.modifiersTotal)}</span></div>`);
+            detailsRows.push(`<div><strong>EXPRESS:</strong> +${formatPLN(result.modifiersTotal)}</div>`);
           }
 
-          if (technicalDetails.length) {
-            detailsRows.push(`<div class="result-row"><span>Specyfikacja:</span><span class="price-value">${technicalDetails.join(", ")}</span></div>`);
-          }
+          detailsRows.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
 
-          modifiersBreakdownEl.innerHTML = detailsRows.join("");
+          if (breakdownLinesEl) breakdownLinesEl.innerHTML = detailsRows.join("");
         } else {
           const modCheckboxes = container.querySelectorAll(".wlepki-mod:checked") as NodeListOf<HTMLInputElement>;
           const modifiers = Array.from(modCheckboxes).map(cb => cb.value);
@@ -259,9 +255,6 @@ export const WlepkiView: View = {
           currentInput = input;
           currentResult = result;
 
-          unitPriceEl.textContent = formatPLN(result.tierPrice);
-          basePriceEl.textContent = `${formatPLN(result.basePrice)} (${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)})`;
-
           const activeModifierIds = [...input.modifiers];
           if (input.express) activeModifierIds.push("express");
 
@@ -284,31 +277,25 @@ export const WlepkiView: View = {
                 details = "dopłata stała";
               }
 
-              return `
-                <div class="result-row">
-                  <span>${mod.name} (${details}):</span>
-                  <span class="price-value">+${formatPLN(parseFloat(amount.toFixed(2)))}</span>
-                </div>
-              `;
+              return `<div><strong>${mod.name}:</strong> ${details} = ${formatPLN(parseFloat(amount.toFixed(2)))}</div>`;
             })
             .filter(Boolean)
             .join("");
 
-          const foilDetails = input.foilType
-            ? `<div class="result-row"><span>Kolor folii:</span><span class="price-value">${input.foilType === "biala" ? "biała" : "transparentna"}</span></div>${input.foilFinish ? `<div class="result-row"><span>Wykończenie folii:</span><span class="price-value">${input.foilFinish === "mat" ? "mat" : "błysk"}</span></div>` : ""}`
-            : "";
+          const breakdownRows: string[] = [
+            `<div><strong>Parametry:</strong> ${input.area} m², grupa: ${groupSelect.options[groupSelect.selectedIndex]?.text ?? input.groupId}</div>`,
+            `<div><strong>Rozliczona powierzchnia:</strong> ${result.effectiveQuantity} m²</div>`,
+            `<div><strong>Cena za m²:</strong> ${formatPLN(result.tierPrice)}</div>`,
+            `<div><strong>Cena bazowa:</strong> ${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}</div>`
+          ];
 
-          if (modifierLines || foilDetails) {
-            modifiersBreakdownEl.innerHTML = modifierLines;
-            modifiersBreakdownEl.innerHTML += foilDetails;
-          } else {
-            modifiersBreakdownEl.innerHTML = `
-              <div class="result-row">
-                <span>Opcje dodatkowe:</span>
-                <span class="price-value">brak dopłat</span>
-              </div>
-            `;
-          }
+          if (modifierLines) breakdownRows.push(modifierLines);
+          if (input.foilType) breakdownRows.push(`<div><strong>Kolor folii:</strong> ${input.foilType === "biala" ? "biała" : "transparentna"}</div>`);
+          if (input.foilFinish) breakdownRows.push(`<div><strong>Wykończenie folii:</strong> ${input.foilFinish === "mat" ? "mat" : "błysk"}</div>`);
+          if (!modifierLines && !input.foilType && !input.foilFinish) breakdownRows.push(`<div><strong>Opcje dodatkowe:</strong> brak dopłat</div>`);
+          breakdownRows.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+
+          if (breakdownLinesEl) breakdownLinesEl.innerHTML = breakdownRows.join("");
         }
 
         totalPriceEl.textContent = formatPLN(currentResult.totalPrice);

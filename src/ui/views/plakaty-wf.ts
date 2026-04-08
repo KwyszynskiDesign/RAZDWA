@@ -72,9 +72,16 @@ export const PlakatyWFView: View = {
         return `<tr><td>${FORMAT_LABELS[format] ?? format}</td><td>${formatPLN(resolved)}</td></tr>`;
       }).join("");
 
+      const discountRows = ((tableData.formatowe?.discounts?.[selectedMaterial.discountGroup]) ?? []).map((tier: any) => {
+        const pct = Math.round((1 - Number(tier.factor)) * 100);
+        const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+        return `<tr><td>${label}</td><td>${pct > 0 ? `-${pct}%` : "brak"}</td></tr>`;
+      }).join("");
+
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">${selectedMaterial.name}</h4>
         <table><tr><th>Format</th><th>Cena bazowa / szt.</th></tr>${priceRows}</table>
+        ${discountRows ? `<h4 style="margin:10px 0 6px;">Rabaty ilościowe</h4><table><tr><th>Zakres</th><th>Rabat</th></tr>${discountRows}</table>` : ""}
       `;
     };
 
