@@ -7,7 +7,6 @@
         <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:16px; align-items:start;">
             <div id="pa-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
                 <h3 style="margin:0 0 10px 0; font-size:18px;">Mały Canon</h3>
-                <div class="hint" style="margin-bottom:10px;">Wybierz wariant: z marginesem / bez marginesu, gramaturę i format.</div>
 
                 <div class="form-group">
                     <label for="pa-canon-variant">Wariant:</label>
@@ -15,8 +14,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="pa-canon-paper">Rodzaj papieru:</label>
-                    <select id="pa-canon-paper" class="form-control">
+                    <select id="pa-canon-paper" class="form-control" aria-label="Papier mały Canon">
                         <option value="130">130g kreda</option>
                         <option value="170" selected>170g kreda</option>
                         <option value="200">200g kreda</option>
@@ -42,17 +40,14 @@
                 <div class="form-group">
                     <label for="pa-canon-qty">Ilość (szt):</label>
                     <input type="number" id="pa-canon-qty" class="form-control" placeholder="np. 3" min="1" max="9" step="1" inputmode="numeric" autocomplete="off">
-                    <div class="hint">Plakaty do 9 szt. (mały Canon), czas realizacji 1-2 dni robocze.</div>
                 </div>
             </div>
 
             <div id="pa-duzy-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
                 <h3 style="margin:0 0 10px 0; font-size:18px;">Duży Canon</h3>
-                <div class="hint" style="margin-bottom:10px;">Plakaty z cennika ilościowego (10–200 szt.) na papierze kredowym 170g/200g.</div>
 
                 <div class="form-group">
-                    <label for="pa-duzy-canon-paper">Rodzaj papieru:</label>
-                    <select id="pa-duzy-canon-paper" class="form-control"></select>
+                    <select id="pa-duzy-canon-paper" class="form-control" aria-label="Papier duży Canon"></select>
                 </div>
 
                 <div class="form-group">
@@ -71,10 +66,11 @@
                 <div class="form-group">
                     <label for="pa-duzy-canon-qty">Ilość (szt):</label>
                     <input type="number" id="pa-duzy-canon-qty" class="form-control" placeholder="np. 50" min="10" max="200" step="1" inputmode="numeric" autocomplete="off">
-                    <div class="hint">Obsługiwane progi: 10, 20, 30, ..., 100, 125, 150, 175, 200.</div>
                 </div>
             </div>
         </div>
+
+        <div id="pa-conflict-warning" style="display:none; margin-top:10px; color:#b91c1c; font-weight:700;"></div>
 
         <div class="form-actions" style="margin-top: 12px;">
             <button id="pa-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>

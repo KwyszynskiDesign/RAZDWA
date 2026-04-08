@@ -1672,6 +1672,14 @@
         <div class="card" id="orderSummary">
           <h2>Podsumowanie</h2>
 
+          <div class="order-row order-row--express" style="margin-top: 10px;">
+            <div class="express-toggle-wrap">
+              <input type="checkbox" id="globalExpress">
+              <label for="globalExpress">&#x1F4A8; Tryb EXPRESS (+20%)</label>
+            </div>
+            <div id="globalExpressSummary" class="express-summary">Dopłata: 0,00 zł</div>
+          </div>
+
           <div class="summary-adjustments" aria-label="Rabat i doliczenie">
             <div class="summary-adjustment-col">
               <div class="summary-adjustment-title">Rabat</div>
@@ -1746,13 +1754,6 @@
                 <option value="Podwy&#x17C;szony">&#x1F7E1; Podwy&#x17C;szony (3 dni)</option>
                 <option value="Express">&#x1F534; Express (1 dzie&#x144;)</option>
               </select>
-            </div>
-            <div class="order-row order-row--express">
-              <div class="express-toggle-wrap">
-                <input type="checkbox" id="globalExpress">
-                <label for="globalExpress">&#x1F4A8; Tryb EXPRESS (+20%)</label>
-              </div>
-              <div id="globalExpressSummary" class="express-summary">Dopłata: 0,00 zł</div>
             </div>
             <div class="order-row order-row--full">
               <label for="custNotes">Uwagi do zam&#xF3;wienia</label>

@@ -81,6 +81,18 @@ export const CadUploadView: View = {
       return fmt;
     }
 
+    function formatPlikCount(count: number): string {
+      const abs = Math.abs(Math.trunc(count));
+      const mod10 = abs % 10;
+      const mod100 = abs % 100;
+
+      if (abs === 1) return `${abs} plik`;
+      if (mod10 >= 2 && mod10 <= 4 && !(mod100 >= 12 && mod100 <= 14)) {
+        return `${abs} pliki`;
+      }
+      return `${abs} plików`;
+    }
+
     function wrapFileName(name: string, chunkSize = 10): string {
       const chunks: string[] = [];
       for (let i = 0; i < name.length; i += chunkSize) {
@@ -398,11 +410,11 @@ export const CadUploadView: View = {
         summaryGrid.innerHTML = `
           ${files.length > 0 ? `
           <div class="summary-item">
-            <span>⚫ Czarno-biały (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+            <span>⚫ Czarno-biały (${formatPlikCount(files.length)}):</span>
             <span><strong>${formatPLN(totalPrintBwVariant)}</strong></span>
           </div>
           <div class="summary-item">
-            <span>🎨 Kolor (${files.length} plik${files.length !== 1 ? 'i/ów' : ''}):</span>
+            <span>🎨 Kolor (${formatPlikCount(files.length)}):</span>
             <span><strong>${formatPLN(totalPrintColorVariant)}</strong></span>
           </div>` : ''}
           ${totalFoldingColorVariant > 0 ? `
@@ -622,7 +634,7 @@ export const CadUploadView: View = {
 
         const modeLabel = mode === 'color' ? "KOLOR" : "CZ-B";
         const opts = [
-          `${files.length} plik${files.length !== 1 ? "i/ów" : ""}`,
+          formatPlikCount(files.length),
           modeLabel,
           totalFolding > 0 ? "ze składaniem" : "",
           totalScan > 0 ? "ze skanowaniem" : ""
@@ -633,7 +645,7 @@ export const CadUploadView: View = {
         ctx.cart.addItem({
           id: `cad-upload-${mode}-${Date.now()}`,
           category: "CAD Upload",
-          name: `Wydruk CAD (${files.length} plik${files.length !== 1 ? "i" : ""}) - ${modeLabel}`,
+          name: `Wydruk CAD (${formatPlikCount(files.length)}) - ${modeLabel}`,
           quantity: files.length,
           unit: "plik",
           unitPrice: grandTotalPrice / files.length,

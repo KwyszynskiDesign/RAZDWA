@@ -49,6 +49,7 @@ export const PlakatyA4A3View: View = {
     const qtyLabel = container.querySelector("#pa-qty-label") as HTMLElement | null;
     const qtyValEl = container.querySelector("#pa-qty-val") as HTMLElement | null;
     const expressHint = container.querySelector("#pa-express-hint") as HTMLElement;
+    const conflictWarning = container.querySelector("#pa-conflict-warning") as HTMLElement | null;
 
     canonVariantSelect.innerHTML = `
       <option value="margin">Z marginesem</option>
@@ -110,14 +111,26 @@ export const PlakatyA4A3View: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+    let activeCanonInput: "maly" | "duzy" = "maly";
 
-    const calcMalyCanon = () => {
-      const qty = parsePositiveInt(canonQtyInput.value);
-      if (!qty) {
-        resultBox.style.display = "none";
-        addBtn.disabled = true;
+    const clearResult = () => {
+      resultBox.style.display = "none";
+      addBtn.disabled = true;
+      if (discountRow) discountRow.style.display = "none";
+    };
+
+    const showConflictWarning = (message: string | null) => {
+      if (!conflictWarning) return;
+      if (!message) {
+        conflictWarning.style.display = "none";
+        conflictWarning.textContent = "";
         return;
       }
+      conflictWarning.textContent = message;
+      conflictWarning.style.display = "block";
+    };
+
+    const calcMalyCanon = (qty: number) => {
       const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
       const matId = resolveMalyCanonVariantId();
       const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
@@ -149,14 +162,7 @@ export const PlakatyA4A3View: View = {
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Mały Canon)");
     };
 
-    const calcDuzyCanon = () => {
-      const qty = parsePositiveInt(duzyCanonQtyInput.value);
-      if (!qty) {
-        resultBox.style.display = "none";
-        addBtn.disabled = true;
-        return;
-      }
-
+    const calcDuzyCanon = (qty: number) => {
       const variantId = resolveDuzyCanonVariantId();
       const finish = duzyCanonFinishSelect.value === "blysk" ? "błysk" : "mat";
       const paper = duzyCanonPaperSelect.value;
@@ -167,7 +173,15 @@ export const PlakatyA4A3View: View = {
 
       unitPriceEl.innerText = formatPLN(res.tierPrice);
       totalPriceEl.innerText = formatPLN(res.totalPrice);
-      if (discountRow) discountRow.style.display = "none";
+      if (discountRow && discountLabel && discountVal) {
+        if (res.tierQty !== res.qty) {
+          discountLabel.innerText = "Próg ilościowy:";
+          discountVal.innerText = `${res.qty} → ${res.tierQty} szt`;
+          discountRow.style.display = "";
+        } else {
+          discountRow.style.display = "none";
+        }
+      }
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${paper}g kreda, ${finish}`;
@@ -177,7 +191,52 @@ export const PlakatyA4A3View: View = {
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Duży Canon)");
     };
 
-    autoCalc({ root: container, calc: () => { try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} } });
+    const recalculate = () => {
+      const malyQty = parsePositiveInt(canonQtyInput.value);
+      const duzyQty = parsePositiveInt(duzyCanonQtyInput.value);
+
+      if (malyQty && duzyQty) {
+        showConflictWarning(
+          activeCanonInput === "duzy"
+            ? "USUŃ ILOŚĆ SZTUK Z MAŁY CANON"
+            : "USUŃ ILOŚĆ SZTUK Z DUŻY CANON"
+        );
+        clearResult();
+        return;
+      }
+
+      showConflictWarning(null);
+
+      if (malyQty) {
+        try {
+          calcMalyCanon(malyQty);
+        } catch {
+          clearResult();
+        }
+        return;
+      }
+
+      if (duzyQty) {
+        try {
+          calcDuzyCanon(duzyQty);
+        } catch {
+          clearResult();
+        }
+        return;
+      }
+
+      clearResult();
+    };
+
+    canonQtyInput.addEventListener("input", () => {
+      activeCanonInput = "maly";
+    });
+
+    duzyCanonQtyInput.addEventListener("input", () => {
+      activeCanonInput = "duzy";
+    });
+
+    autoCalc({ root: container, calc: recalculate });
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
