@@ -62,29 +62,98 @@ export const PlakatyA4A3View: View = {
         resultBox.insertAdjacentElement("afterend", legend);
       }
 
-      const malyVariants = (tableData.malyCanon?.variants ?? []).map((variant: any) => {
-        const rows = (variant.tiers ?? []).map((tier: any) => {
-          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-          const price = resolveStoredPrice(`plakaty-maly-canon-${variant.id}-${suffix}`, tier.price);
-          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
-          return `<tr><td>${label}</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
-        return `<details><summary>${variant.name}</summary><table><tr><th>Ilość</th><th>Cena / szt.</th></tr>${rows}</table></details>`;
-      }).join("");
+      const findMalyVariant = (variantId: string) =>
+        (tableData.malyCanon?.variants ?? []).find((variant: any) => variant.id === variantId);
 
-      const duzyVariants = (tableData.duzyCanon?.variants ?? []).map((variant: any) => {
-        const rows = (variant.tiers ?? []).map((tier: any) => {
-          const price = resolveStoredPrice(`plakaty-duzy-canon-${variant.id}-${tier.qty}`, tier.price);
-          return `<tr><td>${tier.qty} szt</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
-        return `<details><summary>${variant.name}</summary><table><tr><th>Próg</th><th>Cena łączna</th></tr>${rows}</table></details>`;
-      }).join("");
+      const findDuzyVariant = (variantId: string) =>
+        (tableData.duzyCanon?.variants ?? []).find((variant: any) => variant.id === variantId);
+
+      const getMalyPrice = (variantId: string, tier: any) => {
+        const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+        return formatPLN(resolveStoredPrice(`plakaty-maly-canon-${variantId}-${suffix}`, tier.price));
+      };
+
+      const getDuzyPrice = (variantId: string, qty: number, fallback = "-") => {
+        const variant = findDuzyVariant(variantId);
+        const tier = (variant?.tiers ?? []).find((entry: any) => entry.qty === qty);
+        if (!tier) return fallback;
+        return formatPLN(resolveStoredPrice(`plakaty-duzy-canon-${variantId}-${qty}`, tier.price));
+      };
+
+      const malyRows = ((findMalyVariant("margin-170")?.tiers ?? []) as any[])
+        .map((tier) => {
+          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `
+            <tr>
+              <td>${label}</td>
+              <td>${getMalyPrice("margin-170", tier)}</td>
+              <td>${getMalyPrice("no-margin-170", tier)}</td>
+              <td>${getMalyPrice("margin-200", tier)}</td>
+              <td>${getMalyPrice("no-margin-200", tier)}</td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[])
+        .map((tier) => tier.qty);
+
+      const duzy170Rows = duzyQuantities
+        .map((qty) => `
+          <tr>
+            <td>${qty} szt</td>
+            <td>${getDuzyPrice("a4-170-kreda-130-170", qty)}</td>
+            <td>${getDuzyPrice("a3-170-kreda-130-170", qty)}</td>
+          </tr>
+        `)
+        .join("");
+
+      const duzy200Rows = duzyQuantities
+        .map((qty) => `
+          <tr>
+            <td>${qty} szt</td>
+            <td>${getDuzyPrice("a4-200-kreda-200", qty)}</td>
+            <td>${getDuzyPrice("a3-200-kreda-200", qty)}</td>
+          </tr>
+        `)
+        .join("");
 
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
-        ${malyVariants}
-        <h4 style="margin:10px 0 6px;">Duży Canon</h4>
-        ${duzyVariants}
+        <table>
+          <thead>
+            <tr>
+              <th>Ilość</th>
+              <th>170 margines</th>
+              <th>170 bez marginesu</th>
+              <th>200 margines</th>
+              <th>200 bez marginesu</th>
+            </tr>
+          </thead>
+          <tbody>${malyRows}</tbody>
+        </table>
+        <h4 style="margin:16px 0 6px;">Duży Canon 170g</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Ilość</th>
+              <th>A4 cena</th>
+              <th>A3 cena</th>
+            </tr>
+          </thead>
+          <tbody>${duzy170Rows}</tbody>
+        </table>
+        <h4 style="margin:16px 0 6px;">Duży Canon 200g</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Ilość</th>
+              <th>A4 cena</th>
+              <th>A3 cena</th>
+            </tr>
+          </thead>
+          <tbody>${duzy200Rows}</tbody>
+        </table>
       `;
     };
 
