@@ -1164,12 +1164,21 @@
     #orderSummary .order-row--express {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
       min-height: 46px;
       padding: 10px 12px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.75);
       border: 1px solid rgba(15, 32, 53, 0.14);
+    }
+
+    #orderSummary .order-row--express .express-toggle-wrap {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1 1 auto;
     }
 
     #orderSummary .order-row--express input[type="checkbox"] {
@@ -1185,6 +1194,17 @@
 
     #orderSummary .order-row--express label {
       margin: 0;
+    }
+
+    #orderSummary .order-row--express .express-summary {
+      font-size: 12px;
+      font-weight: 700;
+      color: #64748b;
+      white-space: nowrap;
+    }
+
+    #orderSummary .order-row--express .express-summary.is-active {
+      color: #16a34a;
     }
 
     #orderSummary .order-actions {
@@ -1728,8 +1748,11 @@
               </select>
             </div>
             <div class="order-row order-row--express">
-              <input type="checkbox" id="globalExpress">
-              <label for="globalExpress">&#x1F4A8; Tryb EXPRESS (+20%)</label>
+              <div class="express-toggle-wrap">
+                <input type="checkbox" id="globalExpress">
+                <label for="globalExpress">&#x1F4A8; Tryb EXPRESS (+20%)</label>
+              </div>
+              <div id="globalExpressSummary" class="express-summary">Dopłata: 0,00 zł</div>
             </div>
             <div class="order-row order-row--full">
               <label for="custNotes">Uwagi do zam&#xF3;wienia</label>

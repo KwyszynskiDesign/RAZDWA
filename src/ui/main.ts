@@ -315,6 +315,19 @@ function updateCartUI() {
   const total = cart.getGrandTotal();
   const adjustedTotal = applySummaryPercentAdjustments(total);
   totalEl.innerText = formatPLN(adjustedTotal);
+
+  const globalExpress = document.getElementById("globalExpress") as HTMLInputElement | null;
+  const globalExpressSummary = document.getElementById("globalExpressSummary") as HTMLElement | null;
+  if (globalExpressSummary) {
+    const expressEnabled = !!globalExpress?.checked;
+    const expressSurcharge = expressEnabled
+      ? parseFloat((total - total / 1.2).toFixed(2))
+      : 0;
+
+    globalExpressSummary.innerText = `Dopłata: ${formatPLN(expressSurcharge)}`;
+    globalExpressSummary.classList.toggle("is-active", expressEnabled && expressSurcharge > 0);
+  }
+
   if (debugEl) {
     debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
   }
