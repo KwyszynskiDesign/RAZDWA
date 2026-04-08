@@ -63,6 +63,43 @@ export const DrukCADView: View = {
     const cadOpsListItems = container.querySelector("#cad-ops-list-items") as HTMLElement | null;
     const cadOpsTotal = container.querySelector("#cad-ops-total") as HTMLElement | null;
 
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#cad-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "cad-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        const anchor = container.querySelector("#cad-breakdown-display") as HTMLElement | null;
+        (anchor ?? resultDisplay).insertAdjacentElement("afterend", legend);
+      }
+
+      const mode = (modeSelect.value === "bw" ? "bw" : "color") as "bw" | "color";
+      const formatoweRows = Object.entries(data.price?.[mode]?.formatowe ?? {}).map(([format, value]) => {
+        const modeKey = mode === "bw" ? "bw" : "kolor";
+        const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+        const key = `druk-cad-${modeKey}-fmt-${normalized}`;
+        return `<tr><td>${displayCadFormat(String(format))}</td><td>${formatPLN(resolveStoredPrice(key, Number(value)))}</td></tr>`;
+      }).join("");
+
+      const mbRows = Object.entries(data.price?.[mode]?.mb ?? {}).map(([format, value]) => {
+        const modeKey = mode === "bw" ? "bw" : "kolor";
+        const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+        const key = `druk-cad-${modeKey}-mb-${normalized}`;
+        return `<tr><td>${displayCadFormat(String(format))}</td><td>${formatPLN(resolveStoredPrice(key, Number(value)))}</td></tr>`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        <div class="hint" style="margin-bottom:8px;">Tryb: ${mode === "bw" ? "Czarno-biały" : "Kolorowy"}</div>
+        <h4 style="margin:10px 0 6px;">Formatowe (za szt.)</h4>
+        <table><tr><th>Format</th><th>Cena</th></tr>${formatoweRows}</table>
+        <h4 style="margin:10px 0 6px;">Metrowe (za mb)</h4>
+        <table><tr><th>Format</th><th>Cena</th></tr>${mbRows}</table>
+        <div class="hint" style="margin-top:8px;">Składanie i skan WF rozliczane wg aktualnych stawek z ustawień.</div>
+      `;
+    };
+
     type CadOpItem = {
       id: string;
       name: string;
@@ -268,8 +305,12 @@ export const DrukCADView: View = {
       const baseLen = data.base[formatSelect.value]?.l;
       if (baseLen != null) lengthInput.value = String(baseLen);
       updateUI();
+      ensureLegend();
     };
-    modeSelect.onchange = updateUI;
+    modeSelect.onchange = () => {
+      updateUI();
+      ensureLegend();
+    };
     lengthInput.oninput = updateUI;
 
     useBaseBtn.onclick = () => {
@@ -278,6 +319,7 @@ export const DrukCADView: View = {
     };
 
     updateUI();
+    ensureLegend();
 
     let currentResult: any = null;
     let currentOptions: any = null;

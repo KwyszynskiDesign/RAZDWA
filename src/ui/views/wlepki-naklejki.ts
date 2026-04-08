@@ -38,6 +38,7 @@ export const WlepkiView: View = {
     const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement;
     const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement;
     const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement;
+    const cennikPanel = container.querySelector("#wlepki-cennik-panel") as HTMLElement | null;
 
     const allModifiers = (tableData.modifiers || []).map((m: any) => {
       const modKey = `wlepki-modifier-${String(m.id).replace(/_/g, "-")}`;
@@ -111,12 +112,56 @@ export const WlepkiView: View = {
         unitLabelEl.textContent = "Cena za m2:";
         baseLabelEl.textContent = "Baza (rozliczone m²):";
       }
+
+      renderDynamicLegend();
     };
 
     modeSelect.addEventListener("change", syncMode);
   pieceTableSelect.addEventListener("change", syncMode);
   groupSelect.addEventListener("change", syncMode);
     syncMode();
+
+    function renderDynamicLegend() {
+      if (!cennikPanel) return;
+
+      const mode = modeSelect.value === "szt" ? "szt" : "m2";
+      if (mode === "m2") {
+        const m2Blocks = (tableData.groups ?? []).map((group: any) => {
+          const rows = (group.tiers ?? []).map((tier: any) => {
+            const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+            const key = `${String(group.id).replace(/_/g, "-")}-${suffix}`;
+            const value = resolveStoredPrice(key, tier.price);
+            const label = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+            return `<tr><td>${label}</td><td>${formatPLN(value)}</td></tr>`;
+          }).join("");
+
+          return `<div class="wlepki-cennik-block"><h5>${group.title}</h5><table class="wlepki-cennik-table"><thead><tr><th>Zakres</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        }).join("");
+
+        cennikPanel.innerHTML = `
+          <h4>Legenda cen (dynamiczna)</h4>
+          ${m2Blocks}
+          <p class="wlepki-cennik-note">Dopłaty: mocny klej +${Math.round(resolveStoredPrice("wlepki-modifier-mocny-klej", 0.12) * 100)}%, arkusze ${formatPLN(resolveStoredPrice("wlepki-modifier-arkusze", 2))}/m², pojedyncze ${formatPLN(resolveStoredPrice("wlepki-modifier-pojedyncze", 10))}/m², EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.</p>
+        `;
+        return;
+      }
+
+      const selectedTableId = pieceTableSelect.value || "papier-sra3";
+      const blocks = (tableData.pieceTables ?? []).map((piece: any) => {
+        const visible = piece.id === selectedTableId;
+        const rows = (piece.tiers ?? []).map((tier: any) => {
+          const value = resolveStoredPrice(`wlepki-szt-${piece.id}-${tier.qty}`, tier.price);
+          return `<tr><td>${tier.qty}</td><td>${formatPLN(value)}</td></tr>`;
+        }).join("");
+        return `<div class="wlepki-cennik-block" style="display:${visible ? "block" : "none"}"><h5>${piece.title}</h5><table class="wlepki-cennik-table"><thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      }).join("");
+
+      cennikPanel.innerHTML = `
+        <h4>Legenda cen (dynamiczna)</h4>
+        ${blocks}
+        <p class="wlepki-cennik-note">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.</p>
+      `;
+    }
 
     const calculate = () => {
       const mode = modeSelect.value === "szt" ? "szt" : "m2";
@@ -267,6 +312,9 @@ export const WlepkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate });
+    pieceTableSelect.addEventListener("change", renderDynamicLegend);
+    modeSelect.addEventListener("change", renderDynamicLegend);
+    renderDynamicLegend();
 
     addBtn.addEventListener("click", () => {
       if (!currentResult || !currentInput) return;

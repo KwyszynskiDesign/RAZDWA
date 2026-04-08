@@ -6,6 +6,7 @@ import {
 } from "../../categories/cad-upload";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { getPrice } from "../../services/priceService";
 
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
@@ -52,6 +53,7 @@ export const CadUploadView: View = {
     const warningEl = container.querySelector<HTMLElement>("#cadWarning");
     const statusEl = container.querySelector<HTMLElement>("#cadUploadStatus");
     const calculationsList = container.querySelector<HTMLElement>("#obliczeniaLista");
+    const ekranObliczen = container.querySelector<HTMLElement>("#ekranObliczen");
 
     if (!dropZone || !fileInput || !tableBody) {
       console.error("❌ CAD Upload: Missing required elements");
@@ -64,6 +66,44 @@ export const CadUploadView: View = {
     let dpi = 300;
     let grandTotalColorVariant = 0;
     let grandTotalBwVariant = 0;
+    const cadPricing: any = getPrice("drukCAD");
+
+    const renderLegend = () => {
+      if (!ekranObliczen || !cadPricing?.price) return;
+
+      let legend = container.querySelector<HTMLElement>("#cad-upload-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "cad-upload-legend";
+        legend.style.marginTop = "12px";
+        ekranObliczen.appendChild(legend);
+      }
+
+      const renderRows = (mode: "bw" | "color", type: "formatowe" | "mb") => {
+        const modeKey = mode === "bw" ? "bw" : "kolor";
+        const prices = cadPricing.price?.[mode]?.[type] ?? {};
+        return Object.entries(prices).map(([fmt, base]) => {
+          const normalized = String(fmt).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+          const key = `druk-cad-${modeKey}-${type === "formatowe" ? "fmt" : "mb"}-${normalized}`;
+          return `<tr><td>${fmt}</td><td>${formatPLN(resolveStoredPrice(key, Number(base)))}</td></tr>`;
+        }).join("");
+      };
+
+      legend.innerHTML = `
+        <h4 style="margin:12px 0 8px; color:#1f2937;">Legenda cen (dynamiczna)</h4>
+        <div style="display:grid; gap:10px;">
+          <div>
+            <strong>CAD kolor</strong>
+            <table class="results-table" style="margin-top:6px;"><tr><th>Format</th><th>Formatowe</th></tr>${renderRows("color", "formatowe")}</table>
+          </div>
+          <div>
+            <strong>CAD czarno-biały</strong>
+            <table class="results-table" style="margin-top:6px;"><tr><th>Format</th><th>Formatowe</th></tr>${renderRows("bw", "formatowe")}</table>
+          </div>
+        </div>
+        <div style="margin-top:8px; font-size:12px; color:#666;">Dopłaty: zadruk &gt;25% +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}%, e-mail ${formatPLN(resolveStoredPrice("druk-email", 1))}.</div>
+      `;
+    };
 
     // Helpers
     function pxToMm(px: number): number {
@@ -577,6 +617,7 @@ export const CadUploadView: View = {
         colorSwitch?.classList.toggle("active", isColor);
         files = files.map(recalculateFile);
         renderFiles();
+        renderLegend();
       });
     }
 
@@ -589,6 +630,7 @@ export const CadUploadView: View = {
         }
         files = files.map(recalculateFile);
         renderFiles();
+        renderLegend();
       });
     }
 
@@ -680,6 +722,7 @@ export const CadUploadView: View = {
 
     // Initial render
     renderFiles();
+    renderLegend();
   },
 
   unmount() {

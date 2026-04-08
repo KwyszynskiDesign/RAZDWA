@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculatePlakatyFormat } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 const data: any = getPrice("plakaty");
 
@@ -51,6 +52,41 @@ export const PlakatyWFView: View = {
     const qtyValEl = container.querySelector("#p-qty-val") as HTMLElement | null;
     const calcHintEl = container.querySelector("#p-calc-hint") as HTMLElement | null;
     const expressHint = container.querySelector("#p-express-hint") as HTMLElement;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#p-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "p-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        resultBox.insertAdjacentElement("afterend", legend);
+      }
+
+      const selectedMaterial = (tableData.formatowe?.materials ?? []).find((m: any) => m.id === materialSelect.value);
+      if (!selectedMaterial) return;
+
+      const priceRows = Object.entries(selectedMaterial.prices ?? {}).map(([format, basePrice]) => {
+        const key = `plakaty-format-${selectedMaterial.id}-${format}`;
+        const resolved = resolveStoredPrice(key, Number(basePrice));
+        return `<tr><td>${FORMAT_LABELS[format] ?? format}</td><td>${formatPLN(resolved)}</td></tr>`;
+      }).join("");
+
+      const discountRows = ((tableData.formatowe?.discounts?.[selectedMaterial.discountGroup]) ?? []).map((tier: any) => {
+        const pct = Math.round((1 - Number(tier.factor)) * 100);
+        const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+        return `<tr><td>${label}</td><td>${pct > 0 ? `-${pct}%` : "brak"}</td></tr>`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        <h4 style="margin:10px 0 6px;">${selectedMaterial.name}</h4>
+        <table><tr><th>Format</th><th>Cena bazowa / szt.</th></tr>${priceRows}</table>
+        <h4 style="margin:10px 0 6px;">Rabaty ilościowe</h4>
+        <table><tr><th>Ilość</th><th>Rabat</th></tr>${discountRows}</table>
+        <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round((tableData.modifiers?.find((m: any) => m.id === "express")?.value ?? 0.2) * 100)}%</div>
+      `;
+    };
 
     const allMaterials = [...tableData.formatowe.materials];
     materialSelect.innerHTML = allMaterials.map((m: any) => `<option value="${m.id}">${m.name}</option>`).join("");
@@ -124,7 +160,9 @@ export const PlakatyWFView: View = {
 
     materialSelect.addEventListener("change", updateVisibility);
     formatSelect.addEventListener("change", () => updateLengthInput(materialSelect.value));
+    materialSelect.addEventListener("change", ensureLegend);
     updateVisibility();
+    ensureLegend();
 
     let currentResult: any = null;
     let currentOptions: any = null;

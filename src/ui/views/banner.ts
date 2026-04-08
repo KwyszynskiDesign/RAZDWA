@@ -37,6 +37,35 @@ export const BannerView: View = {
     const computedAreaInfo = container.querySelector("#b-computed-area-info") as HTMLElement | null;
     const expressHint = container.querySelector("#b-express-hint") as HTMLElement;
 
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#b-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "b-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        resultDisplay.insertAdjacentElement("afterend", legend);
+      }
+
+      const rows = (bannerData.materials ?? []).map((material: any) => {
+        const tiers = (material.tiers ?? []).map((tier: any) => {
+          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const value = resolveStoredPrice(`banner-${material.id}-${suffix}`, tier.price);
+          const label = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+          return `<tr><td>${label}</td><td>${formatPLN(value)}</td></tr>`;
+        }).join("");
+        return `<h4 style="margin:10px 0 6px;">${material.name}</h4><table><tr><th>Próg</th><th>Cena za m²</th></tr>${tiers}</table>`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        ${rows}
+        <div class="hint" style="margin-top:8px;">Oczkowanie: ${formatPLN(resolveStoredPrice("banner-oczkowanie", 2.5))}/m², EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
+
     let currentResult: any = null;
     let currentOptions: any = null;
 

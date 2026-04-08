@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateDrukA4A3Skan } from "../../categories/druk-a4-a3-skan";
 import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const DrukA4A3SkanView: View = {
   id: "druk-a4-a3",
@@ -44,6 +45,104 @@ export const DrukA4A3SkanView: View = {
     const breakdownLines = container.querySelector("#d-breakdown-lines") as HTMLElement | null;
     const totalPriceSpan = container.querySelector("#d-total-price") as HTMLElement;
     const expressHint = container.querySelector("#d-express-hint") as HTMLElement;
+    const pricingLegend = container.querySelector(".d-pricing-block") as HTMLElement | null;
+
+    const rangeLabel = (from: number, to: number) => (to >= 999999999 || to >= 99999 ? `${from}+` : `${from}-${to}`);
+    const printTierKey = (mode: "bw" | "color", format: "A4" | "A3", from: number, to: number) => {
+      const modeKey = mode === "bw" ? "bw" : "kolor";
+      const suffix = to > 50000 ? `${from}+` : `${from}-${to}`;
+      return `druk-${modeKey}-${format.toLowerCase()}-${suffix}`;
+    };
+    const scanTierKey = (type: "auto" | "manual", from: number, to: number) => {
+      const suffix = to > 50000 ? `${from}+` : `${from}-${to}`;
+      return `skan-${type === "auto" ? "auto" : "reczne"}-${suffix}`;
+    };
+
+    const renderDynamicLegend = () => {
+      if (!pricingLegend) return;
+
+      const bwA4 = (pricing.print?.bw?.A4 ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(printTierKey("bw", "A4", tier.from, tier.to), tier.unit),
+      }));
+      const bwA3 = (pricing.print?.bw?.A3 ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(printTierKey("bw", "A3", tier.from, tier.to), tier.unit),
+      }));
+      const colorA4 = (pricing.print?.color?.A4 ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(printTierKey("color", "A4", tier.from, tier.to), tier.unit),
+      }));
+      const colorA3 = (pricing.print?.color?.A3 ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(printTierKey("color", "A3", tier.from, tier.to), tier.unit),
+      }));
+      const autoScan = (pricing.scan?.auto ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(scanTierKey("auto", tier.from, tier.to), tier.unit),
+      }));
+      const manualScan = (pricing.scan?.manual ?? []).map((tier: any) => ({
+        range: rangeLabel(tier.from, tier.to),
+        price: resolveStoredPrice(scanTierKey("manual", tier.from, tier.to), tier.unit),
+      }));
+
+      const maxPrintRows = Math.max(bwA4.length, bwA3.length, colorA4.length, colorA3.length);
+      const maxScanRows = Math.max(autoScan.length, manualScan.length);
+
+      pricingLegend.innerHTML = `
+        <h3>📋 Cennik Studio Raz Dwa (dynamiczny)</h3>
+
+        <h4>🖨️ DRUK CZARNO-BIAŁY</h4>
+        <table>
+          <tr class="d-price-table-head-dark">
+            <th>Nakład</th>
+            <th>A4</th>
+            <th>A3</th>
+          </tr>
+          ${Array.from({ length: maxPrintRows }).map((_, idx) => {
+            const a4 = bwA4[idx];
+            const a3 = bwA3[idx];
+            return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
+          }).join("")}
+        </table>
+
+        <h4>🌈 DRUK KOLOROWY</h4>
+        <table>
+          <tr class="d-price-table-head-blue">
+            <th>Nakład</th>
+            <th>A4</th>
+            <th>A3</th>
+          </tr>
+          ${Array.from({ length: maxPrintRows }).map((_, idx) => {
+            const a4 = colorA4[idx];
+            const a3 = colorA3[idx];
+            return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
+          }).join("")}
+        </table>
+
+        <h4>📷 SKANOWANIE</h4>
+        <table>
+          <tr class="d-price-table-head-green">
+            <th>Automatyczne</th>
+            <th>Ręczne (z szyby)</th>
+          </tr>
+          ${Array.from({ length: maxScanRows }).map((_, idx) => {
+            const auto = autoScan[idx];
+            const manual = manualScan[idx];
+            return `<tr><td>${auto ? `${auto.range}: ${formatPLN(auto.price)}` : "-"}</td><td>${manual ? `${manual.range}: ${formatPLN(manual.price)}` : "-"}</td></tr>`;
+          }).join("")}
+        </table>
+
+        <div class="d-note">
+          ⚠️ <strong>Zadruk &gt;25% powierzchni:</strong> +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}% ceny strony<br>
+          📧 <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", pricing.email_price ?? 1))}<br>
+          🏷️ <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}<br>
+          📎 <strong>Koszulka:</strong> ${formatPLN(resolveStoredPrice("druk-koszulka", 0.8))} / szt.
+        </div>
+      `;
+    };
+
+    renderDynamicLegend();
 
     container.querySelectorAll<HTMLElement>(".option-card").forEach(card => {
       const toggleCard = () => {
@@ -89,12 +188,17 @@ export const DrukA4A3SkanView: View = {
 
     const performCalculation = () => {
       const printQty = parseInt(printQtyInput.value) || 0;
-        if (printQty <= 0) {
-          resultDisplay.style.display = "none";
-          addToCartBtn.disabled = true;
-          return;
-        }
-        const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
+      const scanQty = parseInt(scanQtyInput.value) || 0;
+      const scanEnabled = scanTypeSelect.value !== "none";
+      const hasAnyInput = printQty > 0 || (scanEnabled && scanQty > 0);
+      if (!hasAnyInput) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
+        return;
+      }
+
+      const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
       const surchargeQty = Math.min(Math.max(requestedSurchargeQty, 0), Math.max(printQty, 0));
       const requestedSleeveQty = Math.max(0, parseInt(sleeveQtyInput?.value || "0") || 0);
       const sleeveQty = (sleeveCheck?.checked ?? false) ? Math.max(1, requestedSleeveQty) : 0;
@@ -111,7 +215,7 @@ export const DrukA4A3SkanView: View = {
         surcharge,
         surchargeQty,
         scanType: scanTypeSelect.value,
-        scanQty: parseInt(scanQtyInput.value) || 0,
+        scanQty,
         express: ctx.expressMode
       };
 
@@ -131,8 +235,13 @@ export const DrukA4A3SkanView: View = {
       const sleevePriceEl = container.querySelector("#d-sleeve-price") as HTMLElement | null;
       const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
 
+      const printRow = container.querySelector("#d-total-print-price")?.closest(".result-row") as HTMLElement | null;
+      const unitPrintRow = container.querySelector("#d-unit-print-price")?.closest(".result-row") as HTMLElement | null;
+
       if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
       if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
+      if (printRow) printRow.style.display = printQty > 0 ? "" : "none";
+      if (unitPrintRow) unitPrintRow.style.display = printQty > 0 ? "" : "none";
       if (scanRow) scanRow.style.display = result.totalScanPrice > 0 ? "" : "none";
       if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
       if (emailRow) emailRow.style.display = result.emailPrice > 0 ? "" : "none";
@@ -158,8 +267,14 @@ export const DrukA4A3SkanView: View = {
       if (breakdownDisplay && breakdownLines) {
         const lines: string[] = [];
 
-        lines.push(`<div><strong>Parametry:</strong> ${currentOptions.format}, ${printQtySafe} str., ${currentOptions.mode === "bw" ? "czarno-biały" : "kolorowy"}</div>`);
-        lines.push(`<div><strong>Cena druku bazowa:</strong> ${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}</div>`);
+        const modeLabel = currentOptions.mode === "bw" ? "czarno-biały" : "kolorowy";
+        const printParams = printQtySafe > 0 ? `${currentOptions.format}, ${printQtySafe} str., ${modeLabel}` : "bez druku";
+        const scanParams = result.totalScanPrice > 0 ? `, skan ${currentOptions.scanType === "auto" ? "automatyczny" : "ręczny"}: ${currentOptions.scanQty} str.` : "";
+        lines.push(`<div><strong>Parametry:</strong> ${printParams}${scanParams}</div>`);
+
+        if (printQtySafe > 0) {
+          lines.push(`<div><strong>Cena druku bazowa:</strong> ${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}</div>`);
+        }
 
         if (currentOptions.surcharge && surchargeQtySafe > 0) {
           lines.push(`<div><strong>Zadruk &gt;25%:</strong> ${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}</div>`);

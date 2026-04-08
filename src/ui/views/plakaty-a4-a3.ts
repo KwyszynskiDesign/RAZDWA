@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 const data: any = getPrice("plakaty");
 
@@ -50,6 +51,43 @@ export const PlakatyA4A3View: View = {
     const qtyValEl = container.querySelector("#pa-qty-val") as HTMLElement | null;
     const expressHint = container.querySelector("#pa-express-hint") as HTMLElement;
     const conflictWarning = container.querySelector("#pa-conflict-warning") as HTMLElement | null;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#pa-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "pa-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        resultBox.insertAdjacentElement("afterend", legend);
+      }
+
+      const malyVariants = (tableData.malyCanon?.variants ?? []).map((variant: any) => {
+        const rows = (variant.tiers ?? []).map((tier: any) => {
+          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const price = resolveStoredPrice(`plakaty-maly-canon-${variant.id}-${suffix}`, tier.price);
+          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `<tr><td>${label}</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+        return `<details><summary>${variant.name}</summary><table><tr><th>Ilość</th><th>Cena / szt.</th></tr>${rows}</table></details>`;
+      }).join("");
+
+      const duzyVariants = (tableData.duzyCanon?.variants ?? []).map((variant: any) => {
+        const rows = (variant.tiers ?? []).map((tier: any) => {
+          const price = resolveStoredPrice(`plakaty-duzy-canon-${variant.id}-${tier.qty}`, tier.price);
+          return `<tr><td>${tier.qty} szt</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+        return `<details><summary>${variant.name}</summary><table><tr><th>Próg</th><th>Cena łączna</th></tr>${rows}</table></details>`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        <h4 style="margin:10px 0 6px;">Mały Canon</h4>
+        ${malyVariants}
+        <h4 style="margin:10px 0 6px;">Duży Canon</h4>
+        ${duzyVariants}
+      `;
+    };
 
     canonVariantSelect.innerHTML = `
       <option value="margin">Z marginesem</option>
@@ -237,6 +275,7 @@ export const PlakatyA4A3View: View = {
     });
 
     autoCalc({ root: container, calc: recalculate });
+    ensureLegend();
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
