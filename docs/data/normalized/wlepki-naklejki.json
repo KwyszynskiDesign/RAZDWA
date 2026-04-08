@@ -9,7 +9,7 @@
       "tiers": [
         { "min": 1, "max": 5, "price": 67 },
         { "min": 6, "max": 25, "price": 60 },
-        { "min": 26, "max": 50, "price": 52 },
+        { "min": 26, "max": 50, "price": 56 },
         { "min": 51, "max": null, "price": 48 }
       ],
       "rules": [
@@ -42,6 +42,92 @@
       ],
       "rules": [
         { "type": "minimum", "unit": "m2", "value": 1 }
+      ]
+    }
+  ],
+  "pieceTables": [
+    {
+      "id": "papier-sra3",
+      "title": "Papier SRA3 (papier z klejem mat/błysk)",
+      "unit": "szt",
+      "tiers": [
+        { "qty": 1, "price": 20 },
+        { "qty": 2, "price": 25 },
+        { "qty": 3, "price": 29 },
+        { "qty": 4, "price": 33 },
+        { "qty": 5, "price": 36 },
+        { "qty": 6, "price": 40 },
+        { "qty": 7, "price": 44 },
+        { "qty": 8, "price": 47 },
+        { "qty": 9, "price": 51 },
+        { "qty": 10, "price": 54 },
+        { "qty": 15, "price": 75 },
+        { "qty": 20, "price": 79 },
+        { "qty": 25, "price": 105 },
+        { "qty": 30, "price": 119 }
+      ]
+    },
+    {
+      "id": "folia-sra3",
+      "title": "Folia SRA3 (folia biała / bezbarwna)",
+      "unit": "szt",
+      "tiers": [
+        { "qty": 1, "price": 59 },
+        { "qty": 2, "price": 81 },
+        { "qty": 3, "price": 102 },
+        { "qty": 4, "price": 124 },
+        { "qty": 5, "price": 145 },
+        { "qty": 6, "price": 166 },
+        { "qty": 7, "price": 188 },
+        { "qty": 8, "price": 206 },
+        { "qty": 9, "price": 226 },
+        { "qty": 10, "price": 245 },
+        { "qty": 15, "price": 295 },
+        { "qty": 20, "price": 340 },
+        { "qty": 25, "price": 380 },
+        { "qty": 30, "price": 420 }
+      ]
+    },
+    {
+      "id": "plotowane-papier",
+      "title": "Plotowane + cięte na sztuki (papier)",
+      "unit": "szt",
+      "tiers": [
+        { "qty": 1, "price": 40 },
+        { "qty": 2, "price": 55 },
+        { "qty": 3, "price": 70 },
+        { "qty": 4, "price": 85 },
+        { "qty": 5, "price": 95 },
+        { "qty": 6, "price": 110 },
+        { "qty": 7, "price": 115 },
+        { "qty": 8, "price": 129 },
+        { "qty": 9, "price": 145 },
+        { "qty": 10, "price": 150 },
+        { "qty": 15, "price": 189 },
+        { "qty": 20, "price": 169 },
+        { "qty": 25, "price": 210 },
+        { "qty": 30, "price": 249 }
+      ]
+    },
+    {
+      "id": "plotowane-folia",
+      "title": "Plotowane + cięte na sztuki (folia)",
+      "unit": "szt",
+      "tiers": [
+        { "qty": 1, "price": 50 },
+        { "qty": 2, "price": 75 },
+        { "qty": 3, "price": 99 },
+        { "qty": 4, "price": 123 },
+        { "qty": 5, "price": 145 },
+        { "qty": 6, "price": 170 },
+        { "qty": 7, "price": 190 },
+        { "qty": 8, "price": 210 },
+        { "qty": 9, "price": 240 },
+        { "qty": 10, "price": 250 },
+        { "qty": 15, "price": 330 },
+        { "qty": 20, "price": 399 },
+        { "qty": 25, "price": 490 },
+        { "qty": 30, "price": 580 }
       ]
     }
   ],

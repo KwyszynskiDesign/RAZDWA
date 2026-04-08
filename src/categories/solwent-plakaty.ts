@@ -41,9 +41,10 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
 
   const materialData = tableData.materials.find((m: any) => {
     return m.id === input.material
-      || (gsmToken ? String(m.id).toLowerCase() === gsmToken : false)
       || normalizeMaterialKey(m.name) === materialKey
       || normalizeMaterialKey(m.id) === materialKey;
+  }) ?? tableData.materials.find((m: any) => {
+    return gsmToken ? String(m.id).toLowerCase() === gsmToken : false;
   });
 
   if (!materialData) {

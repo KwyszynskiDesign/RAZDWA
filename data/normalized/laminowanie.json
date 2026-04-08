@@ -28,7 +28,7 @@
       { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.50 },
       { "id": "druk-powyzej-20", "name": "Drukowanie powyżej 20 kartek", "price": 0.05 },
       { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.30 },
-      { "id": "broszurowanie", "name": "Broszurowanie / docnianie", "price": 0.50 },
+      { "id": "broszurowanie", "name": "Broszurowanie / docinanie", "price": 0.50 },
       { "id": "bigowanie", "name": "Bigowanie", "price": 0.50 }
     ]
   },

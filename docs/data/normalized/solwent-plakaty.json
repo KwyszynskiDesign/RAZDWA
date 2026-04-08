@@ -20,6 +20,7 @@
   ],
   "materials": [
     {
+      "id": "150g",
       "name": "Papier 150g półmat",
       "tiers": [
         { "min": 1, "max": 3, "price": 65 },
@@ -30,6 +31,7 @@
       ]
     },
     {
+      "id": "200g",
       "name": "Papier 200g połysk",
       "tiers": [
         { "min": 1, "max": 3, "price": 70 },
@@ -40,11 +42,23 @@
       ]
     },
     {
+      "id": "115g",
       "name": "Papier 115g matowy",
       "tiers": [
         { "min": 1, "max": 3, "price": 45 },
         { "min": 4, "max": 19, "price": 40 },
         { "min": 20, "max": null, "price": 35 }
+      ]
+    },
+    {
+      "id": "blockout-200g",
+      "name": "Papier BLOCKOUT 200g satyna",
+      "tiers": [
+        { "min": 1, "max": 3, "price": 80 },
+        { "min": 4, "max": 9, "price": 75 },
+        { "min": 10, "max": 20, "price": 70 },
+        { "min": 21, "max": 40, "price": 65 },
+        { "min": 41, "max": null, "price": 60 }
       ]
     }
   ]

@@ -29,4 +29,11 @@ describe("Solwent Plakaty Category E2E", () => {
     const result = calculateSolwentPlakaty({ areaM2: 1, material, express: true });
     expect(result.totalPrice).toBe(78); // 65 * 1.2
   });
+
+  it("should calculate blockout 200g satyna from CSV-backed runtime data", () => {
+    const result = calculateSolwentPlakaty({ areaM2: 4, material: "Papier BLOCKOUT 200g satyna" });
+    expect(result.effectiveQuantity).toBe(4);
+    expect(result.tierPrice).toBe(75);
+    expect(result.totalPrice).toBe(300);
+  });
 });
