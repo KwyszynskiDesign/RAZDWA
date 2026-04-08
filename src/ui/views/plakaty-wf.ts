@@ -133,7 +133,11 @@ export const PlakatyWFView: View = {
       const matId = materialSelect.value;
       const fmt = formatSelect.value;
       const qty = parsePositiveInt(qtyInput.value);
-      if (!qty) return;
+        if (!qty) {
+          resultBox.style.display = "none";
+          addBtn.disabled = true;
+          return;
+        }
 
       const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
         ? (parseFloat(lengthInput.value) || undefined)

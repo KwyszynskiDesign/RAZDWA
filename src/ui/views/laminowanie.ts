@@ -174,7 +174,11 @@ export const LaminowanieView: View = {
 
     const performCalculation = () => {
         const qty = parseInt(qtyInput.value);
-        if (isNaN(qty) || qty <= 0) return;
+          if (isNaN(qty) || qty <= 0) {
+            resultDisplay.style.display = "none";
+            addToCartBtn.disabled = true;
+            return;
+          }
         if (!formatSelect.value) {
           resultDisplay.style.display = "none";
           addToCartBtn.disabled = true;
@@ -267,8 +271,16 @@ export const LaminowanieView: View = {
 
       const selectedType = bindTypeChecks.find(c => c.checked);
       const selectedColor = bindColorChecks.find(c => c.checked);
-      if (!selectedType || !selectedColor) return;
-      if (!bindQty.value) return;
+        if (!selectedType || !selectedColor) {
+          if (bindResultDisplay) bindResultDisplay.style.display = "none";
+          if (bindAddBtn) bindAddBtn.disabled = true;
+          return;
+        }
+        if (!bindQty.value) {
+          if (bindResultDisplay) bindResultDisplay.style.display = "none";
+          if (bindAddBtn) bindAddBtn.disabled = true;
+          return;
+        }
 
       const type = ((selectedType.dataset.type === "metal") ? "metal" : "plastik") as "plastik" | "metal";
       const subtype = ((selectedType.dataset.subtype === "listwa") ? "listwa" : "spirala") as "spirala" | "listwa";
@@ -671,7 +683,11 @@ export const LaminowanieView: View = {
         if (introAddBtn) introAddBtn.disabled = true;
         return;
       }
-      if (!introQty.value) return;
+        if (!introQty.value) {
+          if (introResultDisplay) introResultDisplay.style.display = "none";
+          if (introAddBtn) introAddBtn.disabled = true;
+          return;
+        }
       const result = quoteIntroligatornia({
         serviceId: introService.value,
         qty: parseInt(introQty.value, 10) || 1,

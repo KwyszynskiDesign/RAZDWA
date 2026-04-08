@@ -44,9 +44,15 @@ export const SolwentPlakatyView: View = {
         addToCartBtn.disabled = true;
         return;
       }
+      const areaM2 = parseFloat(areaInput.value);
+      if (!Number.isFinite(areaM2) || areaM2 <= 0) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
       const input = {
         material: materialSelect.value,
-        areaM2: parseFloat(areaInput.value),
+        areaM2,
         express: ctx.expressMode
       };
 

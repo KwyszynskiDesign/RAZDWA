@@ -113,7 +113,11 @@ export const PlakatyA4A3View: View = {
 
     const calcMalyCanon = () => {
       const qty = parsePositiveInt(canonQtyInput.value);
-      if (!qty) return;
+      if (!qty) {
+        resultBox.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
       const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
       const matId = resolveMalyCanonVariantId();
       const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
@@ -147,7 +151,11 @@ export const PlakatyA4A3View: View = {
 
     const calcDuzyCanon = () => {
       const qty = parsePositiveInt(duzyCanonQtyInput.value);
-      if (!qty) return;
+      if (!qty) {
+        resultBox.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
 
       const variantId = resolveDuzyCanonVariantId();
       const finish = duzyCanonFinishSelect.value === "blysk" ? "błysk" : "mat";

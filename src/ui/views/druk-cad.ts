@@ -283,11 +283,22 @@ export const DrukCADView: View = {
     let currentOptions: any = null;
 
     const performCalculation = () => {
+      const parsedQty = parseInt(qtySheetsInput.value, 10);
+      const parsedLength = parseInt(lengthInput.value, 10);
+      if (!qtySheetsInput.value || isNaN(parsedQty) || parsedQty <= 0 || isNaN(parsedLength) || parsedLength <= 0) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        updateOptionsSummary();
+        updateGrandTotal();
+        return;
+      }
+
       currentOptions = {
         mode: modeSelect.value,
         format: formatSelect.value,
-        lengthMm: parseInt(lengthInput.value) || 0,
-        qty: parseInt(qtySheetsInput.value) || 1,
+        lengthMm: parsedLength,
+        qty: parsedQty,
         express: ctx.expressMode
       };
 

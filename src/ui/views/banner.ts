@@ -124,7 +124,11 @@ export const BannerView: View = {
 
     const performCalculation = () => {
       const { areaM2, widthCm, heightCm } = computeAreaFromInputs();
-      if (!areaM2) return;
+        if (!areaM2) {
+          resultDisplay.style.display = "none";
+          addToCartBtn.disabled = true;
+          return;
+        }
 
       currentOptions = {
         material: materialSelect.value,
