@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon } from "../src/categories/plakaty";
+import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../src/categories/plakaty";
 
 describe("calculatePlakatyM2 – solwent m² materials", () => {
   it("applies minimalka: 0.5 m² → 1 m²  @ 70 zł (200g Połysk, tier 1-3)", () => {
@@ -160,5 +160,38 @@ describe("calculatePlakatyMalyCanon – do 9 szt", () => {
 
   it("throws above 9 szt", () => {
     expect(() => calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 10 })).toThrow();
+  });
+});
+
+describe("calculatePlakatyDuzyCanon – A4/A3, progi 10-200 szt", () => {
+  it("A4 170g, 10 szt -> próg 10 i poprawna cena", () => {
+    const res = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 10 });
+    expect(res.tierQty).toBe(10);
+    expect(res.tierPrice).toBe(47);
+    expect(res.totalPrice).toBe(47);
+  });
+
+  it("A3 200g, ilość poza progiem (11) -> nalicza najbliższy wyższy próg 20", () => {
+    const res = calculatePlakatyDuzyCanon({ variantId: "a3-200-kreda-200", qty: 11 });
+    expect(res.qty).toBe(11);
+    expect(res.tierQty).toBe(20);
+    expect(res.tierPrice).toBe(86);
+    expect(res.totalPrice).toBe(86);
+  });
+
+  it("applies express +20%", () => {
+    const res = calculatePlakatyDuzyCanon({ variantId: "a4-200-kreda-200", qty: 10, express: true });
+    expect(res.basePrice).toBe(52);
+    expect(res.totalPrice).toBe(62.4);
+  });
+
+  it("clamps qty to minimum 10 i maximum 200", () => {
+    const below = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 1 });
+    expect(below.qty).toBe(10);
+    expect(below.tierQty).toBe(10);
+
+    const above = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 999 });
+    expect(above.qty).toBe(200);
+    expect(above.tierQty).toBe(200);
   });
 });
