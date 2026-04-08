@@ -212,11 +212,12 @@ export const WlepkiView: View = {
           const technicalDetails: string[] = [];
           if (input.paperFinish) technicalDetails.push(`Papier: ${input.paperFinish === "mat" ? "mat" : "błysk"}`);
           if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
+          const selectedTitle = pieceTableSelect.options[pieceTableSelect.selectedIndex]?.text ?? selectedTable;
 
           const detailsRows: string[] = [
-            `<div><strong>Parametry:</strong> ${result.requestedQty} szt, ${selectedTable}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}</div>`,
+            `<div><strong>Parametry:</strong> ${result.requestedQty} szt, ${selectedTitle}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}</div>`,
             `<div><strong>Próg rozliczeniowy:</strong> ${result.chargedQty} szt</div>`,
-            `<div><strong>Cena z cennika:</strong> ${formatPLN(result.basePrice)}</div>`
+            `<div><strong>Cena z tabeli:</strong> ${formatPLN(result.basePrice)}</div>`
           ];
 
           if (result.modifiersTotal > 0) {

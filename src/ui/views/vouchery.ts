@@ -90,8 +90,6 @@ export const VoucheryView: View = {
         lines.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`);
       } else if (options.satin) {
         lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
-      } else {
-        lines.push(`<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`);
       }
 
       if (options.express) {
@@ -100,8 +98,6 @@ export const VoucheryView: View = {
 
       if (options.withEnvelopes) {
         lines.push(`<div><strong>${options.envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
-      } else {
-        lines.push(`<div><strong>Koperty:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(materialTotal)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);

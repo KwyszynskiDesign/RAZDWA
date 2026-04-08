@@ -61,8 +61,6 @@ export const UlotkiCyfroweView: View = {
 
       if (result.isSatin) {
         lines.push(`<div><strong>Satyna:</strong> 12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
-      } else {
-        lines.push(`<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`);
       }
 
       if (options.express) {

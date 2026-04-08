@@ -75,7 +75,8 @@ export const CadUploadView: View = {
       if (!legend) {
         legend = document.createElement("div");
         legend.id = "cad-upload-legend";
-        legend.style.marginTop = "12px";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
         ekranObliczen.appendChild(legend);
       }
 
@@ -116,7 +117,7 @@ export const CadUploadView: View = {
           <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${colorRows}
         </table>
-        <div style="margin-top:8px; font-size:12px; color:#666;">Dopłaty: zadruk &gt;25% +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}%, e-mail ${formatPLN(resolveStoredPrice("druk-email", 1))}.</div>
+        <div class="hint" style="margin-top:8px;">Dopłaty: zadruk &gt;25% +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}%, e-mail ${formatPLN(resolveStoredPrice("druk-email", 1))}.</div>
       `;
     };
 

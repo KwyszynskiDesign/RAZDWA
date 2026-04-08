@@ -134,8 +134,6 @@ export const BannerView: View = {
 
       if (options.oczkowanie) {
         lines.push(`<div><strong>Oczkowanie:</strong> ${result.effectiveQuantity} m² × ${formatPLN(oczkowanieRate)} = ${formatPLN(oczkowanieCost)}</div>`);
-      } else {
-        lines.push(`<div><strong>Oczkowanie:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       if (options.express) {

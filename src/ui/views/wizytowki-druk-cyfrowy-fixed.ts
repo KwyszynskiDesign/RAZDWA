@@ -94,7 +94,7 @@ export const WizytowkiView: View = {
       lines.push(
         isSatin
           ? `<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`
-          : `<div><strong>Papier:</strong> Kreda (bez dopłaty) = ${formatPLN(0)}</div>`
+          : ""
       );
 
       lines.push(
