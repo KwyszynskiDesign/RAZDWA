@@ -633,7 +633,7 @@ export const CadUploadView: View = {
         ctx.cart.addItem({
           id: `cad-upload-${mode}-${Date.now()}`,
           category: "CAD Upload",
-          name: `Wydruk CAD (${files.length} plik${files.length !== 1 ? "i/ów" : ""}) - ${modeLabel}`,
+          name: `Wydruk CAD (${files.length} plik${files.length !== 1 ? "i" : ""}) - ${modeLabel}`,
           quantity: files.length,
           unit: "plik",
           unitPrice: grandTotalPrice / files.length,
