@@ -37,7 +37,8 @@ export const UlotkiCyfroweView: View = {
     const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
     const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
-    const sideBySideLegendNote = container.querySelectorAll<HTMLElement>(".cennik-note");
+    const legendTitle = container.querySelector("#u-legend-title") as HTMLElement | null;
+    const legendTbody = container.querySelector("#u-table-legend tbody") as HTMLElement | null;
     const dynamicLegendNote = container.querySelector("#u-dynamic-legend-note") as HTMLElement | null;
 
     if (!formatSelect || !qtySelect || !paperSelect || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
@@ -80,32 +81,46 @@ export const UlotkiCyfroweView: View = {
     };
 
     const populateTables = () => {
-      const singleTbody = container.querySelector("#u-table-single tbody") as HTMLElement | null;
-      const doubleTbody = container.querySelector("#u-table-double tbody") as HTMLElement | null;
-      const format = (formatSelect.value || "A5") as "A6" | "A5" | "DL";
-      const singleTiers = getPrice(`ulotkiJednostronne.formats.${format}.tiers`) as any[];
-      const doubleTiers = getPrice(`ulotkiDwustronne.formats.${format}.tiers`) as any[];
+      const sides = getSelectedSides();
+      const paperVal = paperSelect.value;
+      const isSatin = paperVal.startsWith("satyna");
+      const factor = isSatin ? SATIN_MULTIPLIER : 1;
+      const formatOrder: Array<"A5" | "A6" | "DL"> = ["A5", "A6", "DL"];
+      const sidePrefix = sides === "dwustronne" ? "dwu" : "jed";
+      const sidePath = sides === "dwustronne" ? "ulotkiDwustronne" : "ulotkiJednostronne";
 
-      if (singleTbody) {
-        singleTbody.innerHTML = (singleTiers ?? []).map((tier: any) => {
-          const price = resolveStoredPrice(`ulotki-jed-${format.toLowerCase()}-${tier.min}`, tier.price);
-          return `<tr><td>${tier.min}</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
-      }
+      const priceByFormatByQty: Record<string, Record<number, number>> = {};
+      const qtySet = new Set<number>();
 
-      if (doubleTbody) {
-        doubleTbody.innerHTML = (doubleTiers ?? []).map((tier: any) => {
-          const price = resolveStoredPrice(`ulotki-dwu-${format.toLowerCase()}-${tier.min}`, tier.price);
-          return `<tr><td>${tier.min}</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
-      }
-
-      sideBySideLegendNote.forEach((note) => {
-        note.innerText = `* Format legendy: ${format}. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%. EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
+      formatOrder.forEach((format) => {
+        const tiers = (getPrice(`${sidePath}.formats.${format}.tiers`) as any[]) ?? [];
+        const map: Record<number, number> = {};
+        tiers.forEach((tier: any) => {
+          const base = resolveStoredPrice(`ulotki-${sidePrefix}-${format.toLowerCase()}-${tier.min}`, tier.price);
+          const final = parseFloat((base * factor).toFixed(2));
+          map[Number(tier.min)] = final;
+          qtySet.add(Number(tier.min));
+        });
+        priceByFormatByQty[format] = map;
       });
 
+      const qtyList = Array.from(qtySet).sort((a, b) => a - b);
+
+      if (legendTbody) {
+        legendTbody.innerHTML = qtyList.map((qty) => {
+          const a5 = priceByFormatByQty.A5?.[qty];
+          const a6 = priceByFormatByQty.A6?.[qty];
+          const dl = priceByFormatByQty.DL?.[qty];
+          return `<tr><td>${qty}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td><td>${typeof a6 === "number" ? formatPLN(a6) : "-"}</td><td>${typeof dl === "number" ? formatPLN(dl) : "-"}</td></tr>`;
+        }).join("");
+      }
+
+      if (legendTitle) {
+        legendTitle.innerText = `CENNIK ULOTEK ${sides === "dwustronne" ? "DWUSTRONNYCH" : "JEDNOSTRONNYCH"}`;
+      }
+
       if (dynamicLegendNote) {
-        dynamicLegendNote.innerText = `Cennik: ${format}, jednostronne i dwustronne. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%, EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
+        dynamicLegendNote.innerText = `Papier: ${isSatin ? "satyna" : "kreda"}. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%, EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
       }
     };
 
