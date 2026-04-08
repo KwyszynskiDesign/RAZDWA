@@ -93,9 +93,7 @@ export const DrukA4A3SkanView: View = {
       const maxScanRows = Math.max(autoScan.length, manualScan.length);
 
       pricingLegend.innerHTML = `
-        <h3>📋 Cennik Studio Raz Dwa (dynamiczny)</h3>
-
-        <h4>🖨️ DRUK CZARNO-BIAŁY</h4>
+        <h4>DRUK CZARNO-BIAŁY</h4>
         <table>
           <tr class="d-price-table-head-dark">
             <th>Nakład</th>
@@ -109,7 +107,7 @@ export const DrukA4A3SkanView: View = {
           }).join("")}
         </table>
 
-        <h4>🌈 DRUK KOLOROWY</h4>
+        <h4>DRUK KOLOROWY</h4>
         <table>
           <tr class="d-price-table-head-blue">
             <th>Nakład</th>
@@ -123,7 +121,7 @@ export const DrukA4A3SkanView: View = {
           }).join("")}
         </table>
 
-        <h4>📷 SKANOWANIE</h4>
+        <h4>SKANOWANIE</h4>
         <table>
           <tr class="d-price-table-head-green">
             <th>Automatyczne</th>
@@ -137,10 +135,10 @@ export const DrukA4A3SkanView: View = {
         </table>
 
         <div class="d-note">
-          ⚠️ <strong>Zadruk &gt;25% powierzchni:</strong> +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}% ceny strony<br>
-          📧 <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", pricing.email_price ?? 1))}<br>
-          🏷️ <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}<br>
-          📎 <strong>Koszulka:</strong> ${formatPLN(resolveStoredPrice("druk-koszulka", 0.8))} / szt.
+          <strong>Zadruk &gt;25% powierzchni:</strong> +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}% ceny strony<br>
+          <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", pricing.email_price ?? 1))}<br>
+          <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}<br>
+          <strong>Koszulka:</strong> ${formatPLN(resolveStoredPrice("druk-koszulka", 0.8))} / szt.
         </div>
       `;
     };

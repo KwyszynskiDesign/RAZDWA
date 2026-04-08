@@ -74,27 +74,40 @@ export const DrukCADView: View = {
         (anchor ?? resultDisplay).insertAdjacentElement("afterend", legend);
       }
 
-      const mode = (modeSelect.value === "bw" ? "bw" : "color") as "bw" | "color";
-      const formatoweRows = Object.entries(data.price?.[mode]?.formatowe ?? {}).map(([format, value]) => {
+      const collectRowsForMode = (mode: "bw" | "color", modeLabel: string) => {
         const modeKey = mode === "bw" ? "bw" : "kolor";
-        const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
-        const key = `druk-cad-${modeKey}-fmt-${normalized}`;
-        return `<tr><td>${displayCadFormat(String(format))}</td><td>${formatPLN(resolveStoredPrice(key, Number(value)))}</td></tr>`;
-      }).join("");
+        const fmtMap = data.price?.[mode]?.formatowe ?? {};
+        const mbMap = data.price?.[mode]?.mb ?? {};
+        const allFormats = Array.from(new Set([...Object.keys(fmtMap), ...Object.keys(mbMap)]));
 
-      const mbRows = Object.entries(data.price?.[mode]?.mb ?? {}).map(([format, value]) => {
-        const modeKey = mode === "bw" ? "bw" : "kolor";
-        const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
-        const key = `druk-cad-${modeKey}-mb-${normalized}`;
-        return `<tr><td>${displayCadFormat(String(format))}</td><td>${formatPLN(resolveStoredPrice(key, Number(value)))}</td></tr>`;
-      }).join("");
+        return allFormats.map((format) => {
+          const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
+          const fmtBase = Number((fmtMap as any)[format] ?? 0);
+          const mbBase = Number((mbMap as any)[format] ?? 0);
+          const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
+          const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
+
+          const fmtPrice = (fmtMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
+          const mbPrice = (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
+
+          return `<tr><td>${modeLabel}</td><td>${displayCadFormat(String(format))}</td><td>${fmtPrice}</td><td>${mbPrice}</td></tr>`;
+        }).join("");
+      };
+
+      const bwRows = collectRowsForMode("bw", "Czarno-biały");
+      const colorRows = collectRowsForMode("color", "Kolorowy");
 
       legend.innerHTML = `
-        <div class="hint" style="margin-bottom:8px;">Tryb: ${mode === "bw" ? "Czarno-biały" : "Kolorowy"}</div>
-        <h4 style="margin:10px 0 6px;">Formatowe (za szt.)</h4>
-        <table><tr><th>Format</th><th>Cena</th></tr>${formatoweRows}</table>
-        <h4 style="margin:10px 0 6px;">Metrowe (za mb)</h4>
-        <table><tr><th>Format</th><th>Cena</th></tr>${mbRows}</table>
+        <table>
+          <tr>
+            <th>Tryb</th>
+            <th>Format</th>
+            <th>Cena formatowa</th>
+            <th>Cena nieformatowa</th>
+          </tr>
+          ${bwRows}
+          ${colorRows}
+        </table>
         <div class="hint" style="margin-top:8px;">Składanie i skan WF rozliczane wg aktualnych stawek z ustawień.</div>
       `;
     };
