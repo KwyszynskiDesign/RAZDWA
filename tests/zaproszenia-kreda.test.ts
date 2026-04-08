@@ -44,6 +44,45 @@ describe("Zaproszenia KREDA logic", () => {
     expect(result.totalPrice).toBe(79.00);
   });
 
+  it("should use corrected CSV value for A6 Folded Double-sided 10szt", () => {
+    const result = calculateZaproszeniaKreda({
+      format: "A6",
+      qty: 10,
+      sides: 2,
+      isFolded: true,
+      isSatin: false,
+      isModigliani: false,
+      express: false
+    });
+    expect(result.totalPrice).toBe(55.00);
+  });
+
+  it("should use corrected CSV value for A5 Normal Double-sided 100szt", () => {
+    const result = calculateZaproszeniaKreda({
+      format: "A5",
+      qty: 100,
+      sides: 2,
+      isFolded: false,
+      isSatin: false,
+      isModigliani: false,
+      express: false
+    });
+    expect(result.totalPrice).toBe(125.00);
+  });
+
+  it("should use corrected CSV value for DL Normal Single-sided 50szt", () => {
+    const result = calculateZaproszeniaKreda({
+      format: "DL",
+      qty: 50,
+      sides: 1,
+      isFolded: false,
+      isSatin: false,
+      isModigliani: false,
+      express: false
+    });
+    expect(result.totalPrice).toBe(62.00);
+  });
+
   it("should apply Satin modifier (+12%)", () => {
     // A6 Double-sided Normal 10szt = 35.00. 35 + 12% = 39.20
     const result = calculateZaproszeniaKreda({

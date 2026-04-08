@@ -6,8 +6,8 @@
       { "qty": 150, "price": 85 },
       { "qty": 200, "price": 96 },
       { "qty": 250, "price": 110 },
-      { "qty": 300, "price": 126 },
-      { "qty": 400, "price": 146 },
+      { "qty": 300, "price": 125 },
+      { "qty": 400, "price": 145 },
       { "qty": 500, "price": 170 },
       { "qty": 1000, "price": 290 }
     ],
@@ -17,10 +17,10 @@
       { "qty": 150, "price": 180 },
       { "qty": 200, "price": 190 },
       { "qty": 250, "price": 200 },
-      { "qty": 300, "price": 220 },
-      { "qty": 400, "price": 240 },
+      { "qty": 300, "price": 210 },
+      { "qty": 400, "price": 230 },
       { "qty": 500, "price": 250 },
-      { "qty": 1000, "price": 335 }
+      { "qty": 1000, "price": 355 }
     ]
   },
   "90x50": {
@@ -30,8 +30,8 @@
       { "qty": 150, "price": 89 },
       { "qty": 200, "price": 99 },
       { "qty": 250, "price": 120 },
-      { "qty": 300, "price": 129 },
-      { "qty": 400, "price": 149 },
+      { "qty": 300, "price": 135 },
+      { "qty": 400, "price": 155 },
       { "qty": 500, "price": 175 },
       { "qty": 1000, "price": 300 }
     ],
@@ -41,8 +41,8 @@
       { "qty": 150, "price": 190 },
       { "qty": 200, "price": 200 },
       { "qty": 250, "price": 210 },
-      { "qty": 300, "price": 230 },
-      { "qty": 400, "price": 250 },
+      { "qty": 300, "price": 220 },
+      { "qty": 400, "price": 240 },
       { "qty": 500, "price": 260 },
       { "qty": 1000, "price": 345 }
     ]
@@ -63,11 +63,11 @@
       { "qty": 50, "price": 170 },
       { "qty": 100, "price": 190 },
       { "qty": 150, "price": 210 },
-      { "qty": 200, "price": 220 },
-      { "qty": 250, "price": 230 },
-      { "qty": 300, "price": 240 },
-      { "qty": 400, "price": 260 },
-      { "qty": 500, "price": 270 },
+      { "qty": 200, "price": 230 },
+      { "qty": 250, "price": 240 },
+      { "qty": 300, "price": 250 },
+      { "qty": 400, "price": 270 },
+      { "qty": 500, "price": 290 },
       { "qty": 1000, "price": 390 }
     ]
   },
@@ -75,18 +75,19 @@
     "uv3d_softtouch": [
       { "qty": 50, "price": 280 },
       { "qty": 100, "price": 320 },
-      { "qty": 200, "price": 395 },
-      { "qty": 250, "price": 479 },
-      { "qty": 400, "price": 655 },
-      { "qty": 500, "price": 778 }
+      { "qty": 200, "price": 359 },
+      { "qty": 250, "price": 379 },
+      { "qty": 300, "price": 399 },
+      { "qty": 400, "price": 449 }
     ],
     "uv3d_gold_softtouch": [
       { "qty": 50, "price": 450 },
       { "qty": 100, "price": 550 },
       { "qty": 200, "price": 650 },
       { "qty": 250, "price": 720 },
+      { "qty": 300, "price": 790 },
       { "qty": 400, "price": 850 },
-      { "qty": 500, "price": 905 }
+      { "qty": 500, "price": 950 }
     ]
   }
 }
