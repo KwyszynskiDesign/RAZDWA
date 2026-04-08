@@ -36,6 +36,7 @@ export const WlepkiView: View = {
     const basePriceEl = container.querySelector("#base-price") as HTMLElement;
     const totalPriceEl = container.querySelector("#total-price") as HTMLElement;
     const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement;
+    const detailedBreakdownDisplay = container.querySelector("#wlepki-breakdown-display") as HTMLElement | null;
     const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement;
     const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement;
     const cennikPanel = container.querySelector("#wlepki-cennik-panel") as HTMLElement | null;
@@ -216,9 +217,21 @@ export const WlepkiView: View = {
           if (input.paperFinish) technicalDetails.push(`Papier: ${input.paperFinish === "mat" ? "mat" : "błysk"}`);
           if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
 
-          modifiersBreakdownEl.innerHTML = result.modifiersTotal > 0
-            ? `<div class="result-row"><span>Dopłata EXPRESS:</span><span class="price-value">+${formatPLN(result.modifiersTotal)}</span></div>${technicalDetails.length ? `<div class="result-row"><span>Specyfikacja:</span><span class="price-value">${technicalDetails.join(", ")}</span></div>` : ""}`
-            : `<div class="result-row"><span>Opcje dodatkowe:</span><span class="price-value">${technicalDetails.length ? technicalDetails.join(", ") : "brak dopłat"}</span></div>`;
+          const detailsRows: string[] = [
+            `<div class="result-row"><span>Nakład podany:</span><span class="price-value">${result.requestedQty} szt</span></div>`,
+            `<div class="result-row"><span>Próg rozliczeniowy:</span><span class="price-value">${result.chargedQty} szt</span></div>`,
+            `<div class="result-row"><span>Cena z cennika (próg):</span><span class="price-value">${formatPLN(result.basePrice)}</span></div>`
+          ];
+
+          if (result.modifiersTotal > 0) {
+            detailsRows.push(`<div class="result-row"><span>Dopłata EXPRESS:</span><span class="price-value">+${formatPLN(result.modifiersTotal)}</span></div>`);
+          }
+
+          if (technicalDetails.length) {
+            detailsRows.push(`<div class="result-row"><span>Specyfikacja:</span><span class="price-value">${technicalDetails.join(", ")}</span></div>`);
+          }
+
+          modifiersBreakdownEl.innerHTML = detailsRows.join("");
         } else {
           const modCheckboxes = container.querySelectorAll(".wlepki-mod:checked") as NodeListOf<HTMLInputElement>;
           const modifiers = Array.from(modCheckboxes).map(cb => cb.value);
@@ -302,11 +315,13 @@ export const WlepkiView: View = {
 
         totalPriceEl.textContent = formatPLN(currentResult.totalPrice);
         resultDiv.style.display = "block";
+        if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "block";
         addBtn.disabled = false;
 
         ctx.updateLastCalculated(currentResult.totalPrice, "Wlepki");
       } catch (err) {
         resultDiv.style.display = "none";
+        if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "none";
         addBtn.disabled = true;
       }
     };

@@ -24,6 +24,43 @@ export const RollUpView: View = {
 
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#rollup-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "rollup-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        const anchor = container.querySelector("#rollUpBreakdown") as HTMLElement | null;
+        (anchor ?? resultArea).insertAdjacentElement("afterend", legend);
+      }
+
+      const fullRows = Object.entries(rollUpData?.formats ?? {}).map(([format, formatData]: [string, any]) => {
+        const tiers = (formatData.tiers ?? []).map((tier: any) => {
+          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const price = resolveStoredPrice(`rollup-${format}-${suffix}`, tier.price);
+          const range = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `<div>${range}: ${formatPLN(price)}</div>`;
+        }).join("");
+        return `<tr><td>${format}</td><td>${tiers}</td></tr>`;
+      }).join("");
+
+      const replacementLabor = resolveStoredPrice("rollup-wymiana-labor", rollUpData?.replacement?.labor ?? 50);
+      const replacementM2 = resolveStoredPrice("rollup-wymiana-m2", rollUpData?.replacement?.print_per_m2 ?? 80);
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        <h4 style="margin:10px 0 6px;">Roll-up komplet</h4>
+        <table><tr><th>Format</th><th>Progi cenowe</th></tr>${fullRows}</table>
+        <h4 style="margin:10px 0 6px;">Wymiana wkładu</h4>
+        <div>Wydruk: ${formatPLN(replacementM2)} / m²</div>
+        <div>Robocizna: ${formatPLN(replacementLabor)} / szt.</div>
+        <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(expressRate * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
+
     let currentOptions: RollUpOptions | null = null;
     let currentResult: ReturnType<typeof calculateRollUp> | null = null;
 
@@ -74,8 +111,6 @@ export const RollUpView: View = {
 
       if (options.express) {
         breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      } else {
-        breakdown.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);

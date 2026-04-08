@@ -77,6 +77,10 @@ export class Router {
       return "Druk CAD<br><span style=\"font-size:11px;line-height:1.1;display:inline-block;\">wielkoformatowy</span>";
     }
 
+    if (id === "zamowienia-zewnetrzne") {
+      return "ZAMÓWIENIA<br>ZEWNĘTRZNE";
+    }
+
     return safeName;
   }
 
@@ -179,12 +183,18 @@ export class Router {
       },
       {
         title: "Pozostałe",
-        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "wydruki-specjalne", "vouchery", "artykuly-biurowe", "uslugi"]
+        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "wydruki-specjalne", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
       }
     ];
 
     const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg", implemented: true }
+      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg", implemented: true },
+      "zamowienia-zewnetrzne": {
+        id: "zamowienia-zewnetrzne",
+        name: "Zamówienia zewnętrzne",
+        icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/external-link.svg",
+        implemented: true
+      }
     };
 
     const groupHtml = groupedHomeTiles.map((group) => {

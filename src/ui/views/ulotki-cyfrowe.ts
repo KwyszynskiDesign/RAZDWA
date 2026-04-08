@@ -38,6 +38,7 @@ export const UlotkiCyfroweView: View = {
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
     const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
     const sideBySideLegendNote = container.querySelectorAll<HTMLElement>(".cennik-note");
+    const dynamicLegendNote = container.querySelector("#u-dynamic-legend-note") as HTMLElement | null;
 
     if (!formatSelect || !qtySelect || !paperSelect || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
       container.innerHTML = `<div class="error">Błąd: brak elementów formularza ulotek.</div>`;
@@ -65,8 +66,6 @@ export const UlotkiCyfroweView: View = {
 
       if (options.express) {
         lines.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      } else {
-        lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
@@ -104,6 +103,10 @@ export const UlotkiCyfroweView: View = {
       sideBySideLegendNote.forEach((note) => {
         note.innerText = `* Format legendy: ${format}. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%. EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
       });
+
+      if (dynamicLegendNote) {
+        dynamicLegendNote.innerText = `Legenda cen (dynamiczna): ${format}, jednostronne i dwustronne. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%, EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
+      }
     };
 
     const performCalculation = () => {

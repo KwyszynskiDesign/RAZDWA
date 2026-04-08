@@ -96,8 +96,6 @@ export const VoucheryView: View = {
 
       if (options.express) {
         lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      } else {
-        lines.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       if (options.withEnvelopes) {

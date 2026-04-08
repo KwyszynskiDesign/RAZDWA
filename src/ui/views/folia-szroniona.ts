@@ -2,6 +2,8 @@ import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
 import { calculateFoliaSzroniona } from "../../categories/folia-szroniona";
 import { formatPLN } from "../../core/money";
+import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const FoliaSzronionaView: View = {
   id: "folia-szroniona",
@@ -19,6 +21,7 @@ export const FoliaSzronionaView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    const data = getPrice("foliaSzroniona") as any;
     const serviceSelect = container.querySelector("#fs-service") as HTMLSelectElement;
     const widthInput = container.querySelector("#fs-width") as HTMLInputElement;
     const heightInput = container.querySelector("#fs-height") as HTMLInputElement;
@@ -30,6 +33,38 @@ export const FoliaSzronionaView: View = {
     const unitPriceSpan = container.querySelector("#fs-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#fs-total-price") as HTMLElement;
     const expressHint = container.querySelector("#fs-express-hint") as HTMLElement;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#fs-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "fs-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        const anchor = container.querySelector("#fs-breakdown-display") as HTMLElement | null;
+        (anchor ?? resultDisplay).insertAdjacentElement("afterend", legend);
+      }
+
+      const materialsHtml = (data?.materials ?? []).map((material: any) => {
+        const rows = (material.tiers ?? []).map((tier: any) => {
+          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const key = `folia-szroniona-${material.storageId ?? material.id}-${suffix}`;
+          const price = resolveStoredPrice(key, tier.price);
+          const range = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+          return `<tr><td>${range}</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+
+        return `<h4 style="margin:10px 0 6px;">${material.name}</h4><table><tr><th>Zakres</th><th>Cena</th></tr>${rows}</table>`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        ${materialsHtml}
+        <div class="hint" style="margin-top:8px;">Minimalne rozliczenie: 1 m², EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
 
     let currentResult: any = null;
     let currentOptions: any = null;

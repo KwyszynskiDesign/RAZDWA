@@ -832,6 +832,29 @@
       font-weight: 700;
     }
 
+    #viewContainer .result-row.total,
+    #viewContainer .price-line.highlight,
+    #viewContainer .summary-item.summary-item--total {
+      font-size: 1.08rem;
+      font-weight: 800;
+    }
+
+    #viewContainer .result-row.total .price-value,
+    #viewContainer .result-row.total .price-unit,
+    #viewContainer .price-line.highlight .price-value,
+    #viewContainer .price-line.highlight .price-unit,
+    #viewContainer .summary-item.summary-item--total .price-value {
+      font-size: 1.52rem;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+
+    #viewContainer .result-row:not(.total) .price-value,
+    #viewContainer .price-line:not(.highlight) .price-value,
+    #viewContainer .summary-item:not(.summary-item--total) .price-value {
+      font-size: 1.12rem;
+    }
+
     #viewContainer [id*="breakdown-lines"],
     #viewContainer [id*="BreakdownLines"],
     #viewContainer .breakdown-lines {

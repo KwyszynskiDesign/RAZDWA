@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { quoteLaminowanie, quoteIntroligatornia } from "../../categories/laminowanie";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { getPrice } from "../../services/priceService";
 
 const BINDOWANIE_PRICES = {
   plastik: {
@@ -129,6 +130,7 @@ export const LaminowanieView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    const data = getPrice("laminowanie") as any;
     const tabBtns = Array.from(container.querySelectorAll<HTMLButtonElement>(".tab-btn"));
     const tabContents = Array.from(container.querySelectorAll<HTMLElement>(".tab-content"));
     const calcBreakdownBox = container.querySelector("#lam-calc-breakdown") as HTMLElement | null;
@@ -143,6 +145,50 @@ export const LaminowanieView: View = {
       calcBreakdownDetails.innerHTML = `${header}${rows}`;
       calcBreakdownBox.style.display = "block";
     };
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#lam-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "lam-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        (calcBreakdownBox ?? container).insertAdjacentElement("afterend", legend);
+      }
+
+      const lamTables = Object.entries(data?.formats ?? {}).map(([format, tiers]: [string, any]) => {
+        const rows = (tiers ?? []).map((tier: any) => {
+          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const price = resolveStoredPrice(`laminowanie-${format.toLowerCase()}-${suffix}`, tier.price);
+          const range = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `<tr><td>${range}</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+        return `<h4 style="margin:10px 0 6px;">Laminowanie ${format}</h4><table><tr><th>Nakład</th><th>Cena / szt.</th></tr>${rows}</table>`;
+      }).join("");
+
+      const introRows = (data?.introligatornia?.items ?? []).map((item: any) => {
+        const price = resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price);
+        return `<tr><td>${item.name}</td><td>${formatPLN(price)}</td></tr>`;
+      }).join("");
+
+      const oprawy = getOprawyPrices();
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        ${lamTables}
+        <h4 style="margin:10px 0 6px;">Introligatornia (usługi)</h4>
+        <table><tr><th>Usługa</th><th>Cena / szt.</th></tr>${introRows}</table>
+        <h4 style="margin:10px 0 6px;">Bindowanie (ceny bazowe)</h4>
+        <div>Plastik: 1-50 szt. (do 20 kartek) ${formatPLN(BINDOWANIE_PRICES.plastik["1-50"].do20)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.plastik["51-100"].do20)}</div>
+        <div>Metal: 1-50 szt. (do 40 kartek) ${formatPLN(BINDOWANIE_PRICES.metal["1-50"].do40)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.metal["51-100"].do40)}</div>
+        <h4 style="margin:10px 0 6px;">Oprawy (wybrane stawki)</h4>
+        <div>Grzbietowa A4 do 30: ${formatPLN(oprawy.grzbietowa.do30.A4)}, A3 do 30: ${formatPLN(oprawy.grzbietowa.do30.A3)}</div>
+        <div>Kanałowa standard: ${formatPLN(oprawy.kanałowa.standard)}, zaciskowa miękka: ${formatPLN(oprawy.zaciskowa.miękka)}</div>
+        <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
 
     tabBtns.forEach(btn => {
       btn.onclick = () => {

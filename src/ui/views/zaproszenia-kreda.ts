@@ -96,8 +96,6 @@ export const ZaproszeniaKredaView: View = {
 
       if (options.express) {
         breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      } else {
-        breakdown.push(`<div><strong>EXPRESS:</strong> nie wybrano = ${formatPLN(0)}</div>`);
       }
 
       if (withEnvelopes) {

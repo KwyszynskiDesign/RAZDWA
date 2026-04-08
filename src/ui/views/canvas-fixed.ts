@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateCanvas, CanvasOptions, CanvasResult } from "../../categories/canvas";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const CanvasView: View = {
   id: "canvas",
@@ -46,6 +47,45 @@ export const CanvasView: View = {
     const qtyEl = container.querySelector("#cv-qty-val") as HTMLElement;
     const totalEl = container.querySelector("#cv-total") as HTMLElement;
     const expressEl = container.querySelector("#cv-express") as HTMLElement;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#cv-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "cv-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        const anchor = container.querySelector("#cv-breakdown-display") as HTMLElement | null;
+        (anchor ?? resultEl).insertAdjacentElement("afterend", legend);
+      }
+
+      const modeBlocks = (data?.modes ?? []).map((mode: any) => {
+        if (mode.id === "m2-unframed") {
+          const price = resolveStoredPrice("canvas-m2-unframed", mode.pricePerM2 ?? 180);
+          return `<h4 style="margin:10px 0 6px;">${mode.name}</h4><div>${formatPLN(price)} / m²</div>`;
+        }
+
+        const rows = (mode.formats ?? []).filter((f: any) => !f.customSize && !f.customQuote).map((format: any) => {
+          const key = `canvas-${mode.id}-${format.id}`;
+          const price = resolveStoredPrice(key, format.price);
+          return `<tr><td>${format.label}</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+
+        const customLine = mode.customPricePerM2
+          ? `<div class="hint" style="margin-top:6px;">Własny rozmiar: ${formatPLN(resolveStoredPrice(`canvas-${mode.id}-custom-m2`, mode.customPricePerM2))} / m²${mode.customPricePerCmBorder ? ` + ${formatPLN(resolveStoredPrice("canvas-framed-custom-border", mode.customPricePerCmBorder))} / cm obwodu` : ""}</div>`
+          : "";
+
+        return `<h4 style="margin:10px 0 6px;">${mode.name}</h4><table><tr><th>Format</th><th>Cena</th></tr>${rows}</table>${customLine}`;
+      }).join("");
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        ${modeBlocks}
+        <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
 
     let currentOptions: CanvasOptions | null = null;
     let currentResult: CanvasResult | null = null;

@@ -3,7 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateDrukA4A3Skan } from "../../categories/druk-a4-a3-skan";
 import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
-import { resolveStoredPrice } from "../../core/compat";
+import { PRICE, resolveStoredPrice } from "../../core/compat";
 
 export const DrukA4A3SkanView: View = {
   id: "druk-a4-a3",
@@ -61,27 +61,30 @@ export const DrukA4A3SkanView: View = {
     const renderDynamicLegend = () => {
       if (!pricingLegend) return;
 
-      const bwA4 = (pricing.print?.bw?.A4 ?? []).map((tier: any) => ({
+      const drukPricing = PRICE?.print ?? pricing?.print;
+      const scanPricing = PRICE?.scan ?? pricing?.scan;
+
+      const bwA4 = (drukPricing?.bw?.A4 ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(printTierKey("bw", "A4", tier.from, tier.to), tier.unit),
       }));
-      const bwA3 = (pricing.print?.bw?.A3 ?? []).map((tier: any) => ({
+      const bwA3 = (drukPricing?.bw?.A3 ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(printTierKey("bw", "A3", tier.from, tier.to), tier.unit),
       }));
-      const colorA4 = (pricing.print?.color?.A4 ?? []).map((tier: any) => ({
+      const colorA4 = (drukPricing?.color?.A4 ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(printTierKey("color", "A4", tier.from, tier.to), tier.unit),
       }));
-      const colorA3 = (pricing.print?.color?.A3 ?? []).map((tier: any) => ({
+      const colorA3 = (drukPricing?.color?.A3 ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(printTierKey("color", "A3", tier.from, tier.to), tier.unit),
       }));
-      const autoScan = (pricing.scan?.auto ?? []).map((tier: any) => ({
+      const autoScan = (scanPricing?.auto ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(scanTierKey("auto", tier.from, tier.to), tier.unit),
       }));
-      const manualScan = (pricing.scan?.manual ?? []).map((tier: any) => ({
+      const manualScan = (scanPricing?.manual ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
         price: resolveStoredPrice(scanTierKey("manual", tier.from, tier.to), tier.unit),
       }));

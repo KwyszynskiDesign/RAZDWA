@@ -2,6 +2,8 @@
 import { autoCalc } from "../autoCalc";
 import { calculateWycinanieFolii, WycinanieFoliiOptions } from "../../categories/wycinanie-folii";
 import { formatPLN } from "../../core/money";
+import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const WycinanieFoliiView: View = {
   id: "wycinanie-folii",
@@ -18,6 +20,8 @@ export const WycinanieFoliiView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    const data = getPrice("wycinanieFolii") as any;
+    const defaultPrices = getPrice("defaultPrices") as any;
     const widthInput = container.querySelector("#wf-width") as HTMLInputElement;
     const heightInput = container.querySelector("#wf-height") as HTMLInputElement;
     const colorInput = container.querySelector("#wf-color") as HTMLInputElement;
@@ -32,6 +36,39 @@ export const WycinanieFoliiView: View = {
     const unitEl = container.querySelector("#wf-unit") as HTMLElement;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wf-express") as HTMLElement;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#wf-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "wf-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        const anchor = container.querySelector("#wf-breakdown-display") as HTMLElement | null;
+        (anchor ?? resultEl).insertAdjacentElement("afterend", legend);
+      }
+
+      const rows = (data?.variants ?? []).map((variant: any) => {
+        const keyAbove = `wycinanie-folii-${variant.id}`;
+        const keyBelow = `wycinanie-folii-${variant.id}-ponizej`;
+        const aboveDefault = variant?.rates?.aboveOrEqual1m2 ?? (variant.id === "zloto-srebro" ? 150 : 125);
+        const belowDefault = variant?.rates?.below1m2 ?? (variant.id === "zloto-srebro" ? 220 : 200);
+        const above = defaultPrices?.[keyAbove] ?? aboveDefault;
+        const below = defaultPrices?.[keyBelow] ?? belowDefault;
+
+        return `<tr><td>${variant.name}</td><td>&lt; 1 m²: ${formatPLN(below)}</td><td>≥ 1 m²: ${formatPLN(above)}</td></tr>`;
+      }).join("");
+
+      const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
+
+      legend.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
+        <table><tr><th>Wariant</th><th>Stawka poniżej 1 m²</th><th>Stawka od 1 m²</th></tr>${rows}</table>
+        <div class="hint" style="margin-top:8px;">Minimalna kwota: ${formatPLN(minRule)}, EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+      `;
+    };
+
+    ensureLegend();
 
     let currentOptions: (WycinanieFoliiOptions & { color?: string }) | null = null;
     let currentResult: any = null;
