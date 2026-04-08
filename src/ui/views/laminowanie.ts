@@ -156,15 +156,43 @@ export const LaminowanieView: View = {
         (calcBreakdownBox ?? container).insertAdjacentElement("afterend", legend);
       }
 
-      const lamTables = Object.entries(data?.formats ?? {}).map(([format, tiers]: [string, any]) => {
-        const rows = (tiers ?? []).map((tier: any) => {
+      const formatOrder = ["A3", "A4", "A5"];
+      const rangeOrder: string[] = [];
+      const rangeIndex = new Set<string>();
+      const formatRangePrice: Record<string, Record<string, number>> = {};
+
+      formatOrder.forEach((format) => {
+        const tiers = data?.formats?.[format] ?? [];
+        formatRangePrice[format] = {};
+
+        (tiers ?? []).forEach((tier: any) => {
           const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-          const price = resolveStoredPrice(`laminowanie-${format.toLowerCase()}-${suffix}`, tier.price);
           const range = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
-          return `<tr><td>${range}</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
-        return `<h4 style="margin:10px 0 6px;">Laminowanie ${format}</h4><table><tr><th>Nakład</th><th>Cena / szt.</th></tr>${rows}</table>`;
+          const price = resolveStoredPrice(`laminowanie-${format.toLowerCase()}-${suffix}`, tier.price);
+
+          if (!rangeIndex.has(range)) {
+            rangeIndex.add(range);
+            rangeOrder.push(range);
+          }
+
+          formatRangePrice[format][range] = price;
+        });
+      });
+
+      const lamRows = rangeOrder.map((range) => {
+        const a3 = formatRangePrice.A3?.[range];
+        const a4 = formatRangePrice.A4?.[range];
+        const a5 = formatRangePrice.A5?.[range];
+        return `<tr><td>${range}</td><td>${typeof a3 === "number" ? formatPLN(a3) : "-"}</td><td>${typeof a4 === "number" ? formatPLN(a4) : "-"}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td></tr>`;
       }).join("");
+
+      const lamTables = `
+        <h4 style="margin:10px 0 6px;">Laminowanie (cena / szt.)</h4>
+        <table>
+          <tr><th>Nakład</th><th>A3</th><th>A4</th><th>A5</th></tr>
+          ${lamRows}
+        </table>
+      `;
 
       const introRows = (data?.introligatornia?.items ?? []).map((item: any) => {
         const price = resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price);
@@ -174,7 +202,6 @@ export const LaminowanieView: View = {
       const oprawy = getOprawyPrices();
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         ${lamTables}
         <h4 style="margin:10px 0 6px;">Introligatornia (usługi)</h4>
         <table><tr><th>Usługa</th><th>Cena / szt.</th></tr>${introRows}</table>

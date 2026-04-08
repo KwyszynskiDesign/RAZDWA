@@ -58,7 +58,6 @@ export const FoliaSzronionaView: View = {
       }).join("");
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         ${materialsHtml}
         <div class="hint" style="margin-top:8px;">Minimalne rozliczenie: 1 m², EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
       `;

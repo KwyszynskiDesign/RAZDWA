@@ -90,7 +90,6 @@ export const DrukCADView: View = {
       }).join("");
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         <div class="hint" style="margin-bottom:8px;">Tryb: ${mode === "bw" ? "Czarno-biały" : "Kolorowy"}</div>
         <h4 style="margin:10px 0 6px;">Formatowe (za szt.)</h4>
         <table><tr><th>Format</th><th>Cena</th></tr>${formatoweRows}</table>

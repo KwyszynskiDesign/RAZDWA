@@ -81,7 +81,6 @@ export const PlakatyA4A3View: View = {
       }).join("");
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
         ${malyVariants}
         <h4 style="margin:10px 0 6px;">Duży Canon</h4>

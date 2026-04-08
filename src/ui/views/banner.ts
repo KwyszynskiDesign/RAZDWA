@@ -58,7 +58,6 @@ export const BannerView: View = {
       }).join("");
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         ${rows}
         <div class="hint" style="margin-top:8px;">Oczkowanie: ${formatPLN(resolveStoredPrice("banner-oczkowanie", 2.5))}/m², EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
       `;

@@ -49,7 +49,6 @@ export const RollUpView: View = {
       const replacementM2 = resolveStoredPrice("rollup-wymiana-m2", rollUpData?.replacement?.print_per_m2 ?? 80);
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         <h4 style="margin:10px 0 6px;">Roll-up komplet</h4>
         <table><tr><th>Format</th><th>Progi cenowe</th></tr>${fullRows}</table>
         <h4 style="margin:10px 0 6px;">Wymiana wkładu</h4>

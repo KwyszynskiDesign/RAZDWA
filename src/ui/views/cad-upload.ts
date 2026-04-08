@@ -90,7 +90,6 @@ export const CadUploadView: View = {
       };
 
       legend.innerHTML = `
-        <h4 style="margin:12px 0 8px; color:#1f2937;">Legenda cen (dynamiczna)</h4>
         <div style="display:grid; gap:10px;">
           <div>
             <strong>CAD kolor</strong>

@@ -32,6 +32,8 @@ export const WycinanieFoliiView: View = {
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
     const resultEl = container.querySelector("#wf-result") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#wf-breakdown-display") as HTMLElement | null;
+    const breakdownLines = container.querySelector("#wf-breakdown-lines") as HTMLElement | null;
     const areaEl = container.querySelector("#wf-area") as HTMLElement;
     const unitEl = container.querySelector("#wf-unit") as HTMLElement;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
@@ -62,7 +64,6 @@ export const WycinanieFoliiView: View = {
       const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
 
       legend.innerHTML = `
-        <h3 style="margin:0 0 10px; font-size:16px;">Legenda cen (dynamiczna)</h3>
         <table><tr><th>Wariant</th><th>Stawka poniżej 1 m²</th><th>Stawka od 1 m²</th></tr>${rows}</table>
         <div class="hint" style="margin-top:8px;">Minimalna kwota: ${formatPLN(minRule)}, EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
       `;
@@ -115,12 +116,39 @@ export const WycinanieFoliiView: View = {
 
       const result = calculateWycinanieFolii(options);
       const areaM2 = (options.widthMm * options.heightMm) / 1_000_000;
+      const basePrice = Number(result.basePrice || 0);
+      const expressValue = Number(result.modifiersTotal || 0);
+      const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
+      const appliedRate = areaM2 < 1
+        ? (defaultPrices?.[`wycinanie-folii-${variantId}-ponizej`] ?? (variantId === "zloto-srebro" ? 220 : 200))
+        : (defaultPrices?.[`wycinanie-folii-${variantId}`] ?? (variantId === "zloto-srebro" ? 150 : 125));
+      const colorLabel = color ?? "-";
 
       areaEl.innerText = `${areaM2.toFixed(2)} m2`;
       unitEl.innerText = formatPLN(result.tierPrice);
       totalEl.innerText = formatPLN(result.totalPrice);
       expressEl.style.display = options.express ? "block" : "none";
       resultEl.style.display = "block";
+      if (breakdownDisplay && breakdownLines) {
+        const lines: string[] = [
+          `<div><strong>Parametry:</strong> ${options.widthMm} × ${options.heightMm} mm, kolor: ${colorLabel}</div>`,
+          `<div><strong>Powierzchnia:</strong> ${areaM2.toFixed(4)} m²</div>`,
+          `<div><strong>Stawka:</strong> ${formatPLN(appliedRate)} / m² (${areaM2 < 1 ? "poniżej 1 m²" : "od 1 m²"})</div>`,
+          `<div><strong>Cena bazowa:</strong> ${areaM2.toFixed(4)} × ${formatPLN(appliedRate)} = ${formatPLN(basePrice)}</div>`
+        ];
+
+        if (basePrice < minRule) {
+          lines.push(`<div><strong>Minimalna kwota:</strong> podniesiono do ${formatPLN(minRule)}</div>`);
+        }
+
+        if (options.express) {
+          lines.push(`<div><strong>EXPRESS:</strong> +20% = ${formatPLN(expressValue)}</div>`);
+        }
+
+        lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+        breakdownLines.innerHTML = lines.join("");
+        breakdownDisplay.style.display = "block";
+      }
       addBtn.disabled = false;
 
       currentOptions = {
