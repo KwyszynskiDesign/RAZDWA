@@ -148,12 +148,23 @@ export const LaminowanieView: View = {
 
     const ensureLegend = (activeTab: string = "laminowanie") => {
       let legend = container.querySelector<HTMLElement>("#lam-dynamic-legend");
+      const activeTabEl = container.querySelector<HTMLElement>(`#tab-${activeTab}`);
+      if (!activeTabEl) return;
+
       if (!legend) {
         legend = document.createElement("div");
         legend.id = "lam-dynamic-legend";
-        legend.className = "card";
+        legend.className = "cennik-table pricing-legend";
         legend.style.marginTop = "16px";
-        (calcBreakdownBox ?? container).insertAdjacentElement("afterend", legend);
+      }
+
+      if (legend.parentElement !== activeTabEl) {
+        const formInTab = activeTabEl.querySelector<HTMLElement>(".form");
+        if (formInTab) {
+          formInTab.insertAdjacentElement("afterend", legend);
+        } else {
+          activeTabEl.appendChild(legend);
+        }
       }
 
       const formatOrder = ["A3", "A4", "A5", "A6"];
@@ -188,7 +199,15 @@ export const LaminowanieView: View = {
       }).join("");
 
       const lamTables = `
-        <h4 style="margin:10px 0 6px;">Laminowanie (cena / szt.)</h4>
+        <div class="legend-head">
+          <div>
+            <h4>Laminowanie (cena / szt.)</h4>
+            <p class="legend-subtitle">Legenda cenowa wg formatu i nakładu.</p>
+          </div>
+        </div>
+        <div class="legend-badges">
+          <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span>
+        </div>
         <table>
           <tr><th>Nakład</th><th>A3</th><th>A4</th><th>A5</th><th>A6</th></tr>
           ${lamRows}
@@ -203,18 +222,33 @@ export const LaminowanieView: View = {
       const oprawy = getOprawyPrices();
 
       const introTable = `
-        <h4 style="margin:10px 0 6px;">Introligatornia (usługi)</h4>
+        <div class="legend-head">
+          <div>
+            <h4>Introligatornia (usługi)</h4>
+            <p class="legend-subtitle">Stawki jednostkowe za operację.</p>
+          </div>
+        </div>
         <table><tr><th>Usługa</th><th>Cena / szt.</th></tr>${introRows}</table>
       `;
 
       const bindowanieBlock = `
-        <h4 style="margin:10px 0 6px;">Bindowanie (ceny bazowe)</h4>
+        <div class="legend-head">
+          <div>
+            <h4>Bindowanie (ceny bazowe)</h4>
+            <p class="legend-subtitle">Przykładowe stawki bazowe dla najczęstszych zakresów.</p>
+          </div>
+        </div>
         <div>Plastik: 1-50 szt. (do 20 kartek) ${formatPLN(BINDOWANIE_PRICES.plastik["1-50"].do20)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.plastik["51-100"].do20)}</div>
         <div>Metal: 1-50 szt. (do 40 kartek) ${formatPLN(BINDOWANIE_PRICES.metal["1-50"].do40)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.metal["51-100"].do40)}</div>
       `;
 
       const oprawyBlock = `
-        <h4 style="margin:10px 0 6px;">Oprawy (wybrane stawki)</h4>
+        <div class="legend-head">
+          <div>
+            <h4>Oprawy (wybrane stawki)</h4>
+            <p class="legend-subtitle">Legenda cenowa dla najczęściej wybieranych wariantów.</p>
+          </div>
+        </div>
         <div>Grzbietowa A4 do 30: ${formatPLN(oprawy.grzbietowa.do30.A4)}, A3 do 30: ${formatPLN(oprawy.grzbietowa.do30.A3)}</div>
         <div>Kanałowa standard: ${formatPLN(oprawy.kanałowa.standard)}, zaciskowa miękka: ${formatPLN(oprawy.zaciskowa.miękka)}</div>
       `;
@@ -222,7 +256,7 @@ export const LaminowanieView: View = {
       if (activeTab === "bindowanie") {
         legend.innerHTML = `
           ${bindowanieBlock}
-          <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+          <div class="legend-badges"><span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span></div>
         `;
         return;
       }
@@ -230,7 +264,7 @@ export const LaminowanieView: View = {
       if (activeTab === "oprawy") {
         legend.innerHTML = `
           ${oprawyBlock}
-          <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+          <div class="legend-badges"><span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span></div>
         `;
         return;
       }
@@ -245,7 +279,6 @@ export const LaminowanieView: View = {
       legend.innerHTML = `
         ${lamTables}
         ${introTable}
-        <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
       `;
     };
 

@@ -767,6 +767,80 @@ button.ghost:hover {
   font-style: italic;
 }
 
+.cennik-table.pricing-legend {
+  display: block;
+  position: relative;
+  bottom: auto;
+  z-index: 1;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08);
+  border-radius: 14px;
+}
+
+.pricing-legend .legend-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.pricing-legend .legend-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.pricing-legend .legend-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 10px 0;
+}
+
+.pricing-legend .legend-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.65);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+.pricing-legend .legend-badge strong {
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.pricing-legend .legend-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.pricing-legend .legend-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.pricing-legend .legend-panel h5 {
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pricing-legend .legend-panel table {
+  margin: 0;
+}
+
 /* ===== RESULT AREA (category views) ===== */
 .result-area .price-line {
   display: flex;
@@ -1482,4 +1556,4 @@ a[href] {
 }
 
 /* ===== CENNIK TABLE (hidden by default) ===== */
-.cennik-table { display: none; }
+.cennik-table:not(.pricing-legend) { display: none; }

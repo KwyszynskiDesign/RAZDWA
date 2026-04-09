@@ -111,8 +111,21 @@ export const PlakatyWFView: View = {
       return byLength[dims.lengthMm] ?? formatKey;
     };
 
+    const isNieformatMaterial = (matId: string): boolean => {
+      const id = String(matId ?? "").toLowerCase();
+      if (id.includes("nieformat")) return true;
+
+      const selectedOption = materialSelect.options[materialSelect.selectedIndex];
+      const optionLabel = String(selectedOption?.textContent ?? "").toLowerCase();
+      if (optionLabel.includes("nieformat")) return true;
+
+      const selectedMaterial = (tableData.formatowe?.materials ?? []).find((m: any) => m.id === matId);
+      const materialName = String(selectedMaterial?.name ?? "").toLowerCase();
+      return materialName.includes("nieformat");
+    };
+
     const buildNieformatCalcHint = (res: any): string => {
-      const isNieformat = String(materialSelect.value).includes("nieformatowe");
+      const isNieformat = isNieformatMaterial(materialSelect.value);
       if (!isNieformat || !res || !res.baseLengthMm || !res.customLengthMm) return "";
 
       const meterRate = parseFloat((res.unitPrice / (res.baseLengthMm / 1000)).toFixed(2));
@@ -137,15 +150,20 @@ export const PlakatyWFView: View = {
       const dims = parseFormatDimensions(formatSelect.value);
       if (!lengthGroup || !lengthInput || !lengthLabel) return;
 
-      if (!dims || !matId.includes("nieformatowe")) {
+      if (!isNieformatMaterial(matId)) {
         lengthGroup.style.display = "none";
         return;
       }
 
       lengthGroup.style.display = "";
       lengthInput.value = "";
-      lengthInput.placeholder = `np. ${dims.lengthMm}`;
-      lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
+      if (dims) {
+        lengthInput.placeholder = `np. ${dims.lengthMm}`;
+        lengthLabel.innerText = `Długość drugiego boku dla ${dims.widthMm} mm (mm):`;
+      } else {
+        lengthInput.placeholder = "np. 420";
+        lengthLabel.innerText = "Długość drugiego boku (mm):";
+      }
     };
 
     const updateVisibility = () => {
