@@ -146,7 +146,7 @@ export const LaminowanieView: View = {
       calcBreakdownBox.style.display = "block";
     };
 
-    const ensureLegend = () => {
+    const ensureLegend = (activeTab: string = "laminowanie") => {
       let legend = container.querySelector<HTMLElement>("#lam-dynamic-legend");
       if (!legend) {
         legend = document.createElement("div");
@@ -156,7 +156,7 @@ export const LaminowanieView: View = {
         (calcBreakdownBox ?? container).insertAdjacentElement("afterend", legend);
       }
 
-      const formatOrder = ["A3", "A4", "A5"];
+      const formatOrder = ["A3", "A4", "A5", "A6"];
       const rangeOrder: string[] = [];
       const rangeIndex = new Set<string>();
       const formatRangePrice: Record<string, Record<string, number>> = {};
@@ -183,13 +183,14 @@ export const LaminowanieView: View = {
         const a3 = formatRangePrice.A3?.[range];
         const a4 = formatRangePrice.A4?.[range];
         const a5 = formatRangePrice.A5?.[range];
-        return `<tr><td>${range}</td><td>${typeof a3 === "number" ? formatPLN(a3) : "-"}</td><td>${typeof a4 === "number" ? formatPLN(a4) : "-"}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td></tr>`;
+        const a6 = formatRangePrice.A6?.[range];
+        return `<tr><td>${range}</td><td>${typeof a3 === "number" ? formatPLN(a3) : "-"}</td><td>${typeof a4 === "number" ? formatPLN(a4) : "-"}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td><td>${typeof a6 === "number" ? formatPLN(a6) : "-"}</td></tr>`;
       }).join("");
 
       const lamTables = `
         <h4 style="margin:10px 0 6px;">Laminowanie (cena / szt.)</h4>
         <table>
-          <tr><th>Nakład</th><th>A3</th><th>A4</th><th>A5</th></tr>
+          <tr><th>Nakład</th><th>A3</th><th>A4</th><th>A5</th><th>A6</th></tr>
           ${lamRows}
         </table>
       `;
@@ -201,21 +202,54 @@ export const LaminowanieView: View = {
 
       const oprawy = getOprawyPrices();
 
-      legend.innerHTML = `
-        ${lamTables}
+      const introTable = `
         <h4 style="margin:10px 0 6px;">Introligatornia (usługi)</h4>
         <table><tr><th>Usługa</th><th>Cena / szt.</th></tr>${introRows}</table>
+      `;
+
+      const bindowanieBlock = `
         <h4 style="margin:10px 0 6px;">Bindowanie (ceny bazowe)</h4>
         <div>Plastik: 1-50 szt. (do 20 kartek) ${formatPLN(BINDOWANIE_PRICES.plastik["1-50"].do20)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.plastik["51-100"].do20)}</div>
         <div>Metal: 1-50 szt. (do 40 kartek) ${formatPLN(BINDOWANIE_PRICES.metal["1-50"].do40)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.metal["51-100"].do40)}</div>
+      `;
+
+      const oprawyBlock = `
         <h4 style="margin:10px 0 6px;">Oprawy (wybrane stawki)</h4>
         <div>Grzbietowa A4 do 30: ${formatPLN(oprawy.grzbietowa.do30.A4)}, A3 do 30: ${formatPLN(oprawy.grzbietowa.do30.A3)}</div>
         <div>Kanałowa standard: ${formatPLN(oprawy.kanałowa.standard)}, zaciskowa miękka: ${formatPLN(oprawy.zaciskowa.miękka)}</div>
+      `;
+
+      if (activeTab === "bindowanie") {
+        legend.innerHTML = `
+          ${bindowanieBlock}
+          <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+        `;
+        return;
+      }
+
+      if (activeTab === "oprawy") {
+        legend.innerHTML = `
+          ${oprawyBlock}
+          <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
+        `;
+        return;
+      }
+
+      if (activeTab === "introligatornia") {
+        legend.innerHTML = `
+          ${introTable}
+        `;
+        return;
+      }
+
+      legend.innerHTML = `
+        ${lamTables}
+        ${introTable}
         <div class="hint" style="margin-top:8px;">EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
       `;
     };
 
-    ensureLegend();
+    ensureLegend("laminowanie");
 
     tabBtns.forEach(btn => {
       btn.onclick = () => {
@@ -230,6 +264,8 @@ export const LaminowanieView: View = {
         tabContents.forEach(content => {
           content.style.display = content.id === `tab-${targetTab}` ? "block" : "none";
         });
+
+        ensureLegend(targetTab ?? "laminowanie");
       };
     });
 
@@ -764,21 +800,22 @@ export const LaminowanieView: View = {
       const result = quoteIntroligatornia({
         serviceId: introService.value,
         qty: parseInt(introQty.value, 10) || 1,
-        express: ctx.expressMode,
+        express: false,
       });
 
       introState = result;
       if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
       if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
-      if (introExpressHint) introExpressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (introExpressHint) introExpressHint.style.display = "none";
       if (introResultDisplay) introResultDisplay.style.display = "block";
       if (introAddBtn) introAddBtn.disabled = false;
 
+      const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
       renderCalcBreakdown("Introligatornia", [
         `Usługa: ${result.serviceName}`,
         `Ilość operacji: ${result.qty}`,
-        `Cena jednostkowa: ${formatPLN(result.totalPrice / result.qty)}`,
-        ctx.expressMode ? "EXPRESS: +20%" : "EXPRESS: nie",
+        `Cena jednostkowa: ${formatPLN(unitPrice)}`,
+        `Cena bazowa: ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}`,
         `Cena końcowa: ${formatPLN(result.totalPrice)}`
       ]);
 
@@ -794,9 +831,9 @@ export const LaminowanieView: View = {
         quantity: introState.qty,
         unit: "szt",
         unitPrice: introState.totalPrice / introState.qty,
-        isExpress: ctx.expressMode,
+        isExpress: false,
         totalPrice: introState.totalPrice,
-        optionsHint: `${introState.qty} operacji${ctx.expressMode ? ", EXPRESS" : ""}`,
+        optionsHint: `${introState.qty} operacji`,
         payload: introState
       });
     });

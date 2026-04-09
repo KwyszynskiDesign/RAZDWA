@@ -192,6 +192,14 @@ export interface PlakatyFormatResult {
   appliedModifiers: string[];
 }
 
+function normalizeFormatPricingMaterialId(materialId: string): string {
+  // Globalna zasada: dla A3-A0 nieformatowe i formatowe mają tę samą cenę bazową.
+  // Nieformatowe różnią się tylko sposobem przeliczenia (po długości, jak CAD).
+  return materialId.includes("nieformatowe")
+    ? materialId.replace("nieformatowe", "formatowe")
+    : materialId;
+}
+
 function calculateByLengthCadStyle(unitPriceForBaseFormat: number, baseLengthMm: number, lengthMm: number): number {
   if (!Number.isFinite(unitPriceForBaseFormat) || unitPriceForBaseFormat < 0) return 0;
   if (!Number.isFinite(baseLengthMm) || baseLengthMm <= 0) return unitPriceForBaseFormat;
@@ -202,13 +210,17 @@ function calculateByLengthCadStyle(unitPriceForBaseFormat: number, baseLengthMm:
 
 export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormatResult {
   const data = fullData as any;
-  const mat = data.formatowe.materials.find((m: any) => m.id === input.materialId);
-  if (!mat) throw new Error(`Unknown format material: ${input.materialId}`);
+  const selectedMaterial = data.formatowe.materials.find((m: any) => m.id === input.materialId);
+  if (!selectedMaterial) throw new Error(`Unknown format material: ${input.materialId}`);
 
-  const baseUnitPrice: number = mat.prices[input.formatKey];
+  const pricingMaterialId = normalizeFormatPricingMaterialId(input.materialId);
+  const pricingMaterial =
+    data.formatowe.materials.find((m: any) => m.id === pricingMaterialId) ?? selectedMaterial;
+
+  const baseUnitPrice: number = pricingMaterial.prices[input.formatKey];
   if (baseUnitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
   const unitPrice = resolveStoredPrice(
-    `plakaty-format-${input.materialId}-${input.formatKey}`,
+    `plakaty-format-${pricingMaterialId}-${input.formatKey}`,
     baseUnitPrice
   );
 
@@ -228,7 +240,7 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     : parseFloat((unitPrice * lengthFactor).toFixed(2));
 
   // Find discount factor
-  const discountGroup: string = mat.discountGroup;
+  const discountGroup: string = pricingMaterial.discountGroup;
   const discountTiers: any[] = data.formatowe.discounts[discountGroup] ?? [];
   const discountTier = discountTiers.find(
     (d: any) => input.qty >= d.min && (d.max === null || input.qty <= d.max)
@@ -248,7 +260,7 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
   }
 
   return {
-    materialName: mat.name,
+    materialName: selectedMaterial.name,
     formatKey: input.formatKey,
     qty: input.qty,
     unitPrice,

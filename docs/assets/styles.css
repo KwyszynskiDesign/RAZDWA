@@ -397,13 +397,13 @@ thead {
 
 th {
   text-align: left;
-  padding: 14px 16px;
+  padding: 11px 16px;
   font-weight: 600;
   font-size: 14px;
 }
 
 td {
-  padding: 14px 16px;
+  padding: 11px 16px;
   border-bottom: 1px solid #E9ECEF;
   color: var(--text-secondary);
 }

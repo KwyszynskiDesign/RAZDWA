@@ -33,7 +33,6 @@ export const CanvasView: View = {
 
     const resultEl = container.querySelector("#cv-result") as HTMLElement;
     const normalEl = container.querySelector("#cv-normal") as HTMLElement;
-    const customEl = container.querySelector("#cv-custom") as HTMLElement;
     const modeLabelEl = container.querySelector("#cv-mode-label") as HTMLElement;
     const formatLabelEl = container.querySelector("#cv-format-label") as HTMLElement;
     const areaRowEl = container.querySelector("#cv-area-row") as HTMLElement;
@@ -82,7 +81,11 @@ export const CanvasView: View = {
         sizeRow.style.display = isCustom ? "" : "none";
       };
 
-      sizeRow.style.display = formatSel.value === "custom" ? "" : "none";
+      if (modeId === "m2-unframed") {
+        sizeRow.style.display = "";
+      } else {
+        sizeRow.style.display = formatSel.value === "custom" ? "" : "none";
+      }
     };
 
     const calculate = () => {
@@ -107,15 +110,14 @@ export const CanvasView: View = {
 
       const result = calculateCanvas(options);
 
-      resultEl.style.display = "block";
-      if (result.isCustom) {
-        normalEl.style.display = "none";
-        customEl.style.display = "block";
+      if (result.totalPrice <= 0) {
+        resultEl.style.display = "none";
         addBtn.disabled = true;
-        ctx.updateLastCalculated(0, "Canvas (wycena ind.)");
-      } else {
-        normalEl.style.display = "block";
-        customEl.style.display = "none";
+        return;
+      }
+
+      resultEl.style.display = "block";
+      normalEl.style.display = "block";
 
         modeLabelEl.innerText = result.modeLabel;
         formatLabelEl.innerText = result.formatLabel;
@@ -151,9 +153,8 @@ export const CanvasView: View = {
         totalEl.innerText = formatPLN(result.totalPrice);
         expressEl.style.display = options.express ? "block" : "none";
 
-        addBtn.disabled = false;
-        ctx.updateLastCalculated(result.totalPrice, "Canvas / P\u0142\u00F3tno");
-      }
+      addBtn.disabled = false;
+      ctx.updateLastCalculated(result.totalPrice, "Canvas / P\u0142\u00F3tno");
 
       currentOptions = options;
       currentResult = result;
@@ -164,7 +165,7 @@ export const CanvasView: View = {
     autoCalc({ root: container, calc: calculate });
 
     addBtn.onclick = () => {
-      if (!currentOptions || !currentResult || currentResult.isCustom) return;
+      if (!currentOptions || !currentResult) return;
 
       const optionsHintParts = [
         currentResult.modeLabel,

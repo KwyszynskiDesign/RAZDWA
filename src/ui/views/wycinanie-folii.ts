@@ -34,10 +34,10 @@ export const WycinanieFoliiView: View = {
     const resultEl = container.querySelector("#wf-result") as HTMLElement;
     const breakdownDisplay = container.querySelector("#wf-breakdown-display") as HTMLElement | null;
     const breakdownLines = container.querySelector("#wf-breakdown-lines") as HTMLElement | null;
-    const areaEl = container.querySelector("#wf-area") as HTMLElement;
-    const unitEl = container.querySelector("#wf-unit") as HTMLElement;
+    const areaEl = container.querySelector("#wf-area") as HTMLElement | null;
+    const unitEl = container.querySelector("#wf-unit") as HTMLElement | null;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
-    const expressEl = container.querySelector("#wf-express") as HTMLElement;
+    const expressEl = container.querySelector("#wf-express") as HTMLElement | null;
 
     const ensureLegend = () => {
       let legend = container.querySelector<HTMLElement>("#wf-dynamic-legend");
@@ -124,10 +124,10 @@ export const WycinanieFoliiView: View = {
         : (defaultPrices?.[`wycinanie-folii-${variantId}`] ?? (variantId === "zloto-srebro" ? 150 : 125));
       const colorLabel = color ?? "-";
 
-      areaEl.innerText = `${areaM2.toFixed(2)} m2`;
-      unitEl.innerText = formatPLN(result.tierPrice);
+      if (areaEl) areaEl.innerText = `${areaM2.toFixed(2)} m2`;
+      if (unitEl) unitEl.innerText = formatPLN(result.tierPrice);
       totalEl.innerText = formatPLN(result.totalPrice);
-      expressEl.style.display = options.express ? "block" : "none";
+      if (expressEl) expressEl.style.display = options.express ? "block" : "none";
       resultEl.style.display = "block";
       if (breakdownDisplay && breakdownLines) {
         const lines: string[] = [

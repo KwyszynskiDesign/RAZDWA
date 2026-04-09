@@ -84,11 +84,11 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.totalPrice).toBe(parseFloat((74.40 * 9).toFixed(2)));
   });
 
-  it("260g satyna nieformatowe A0 (841x1189) × 1 → 66.70 zł (no discount)", () => {
+  it("260g satyna nieformatowe A0 (841x1189) × 1 → 80.00 zł (ta sama baza co formatowe)", () => {
     const res = calculatePlakatyFormat({ materialId: "260g-satyna-nieformatowe", formatKey: "841x1189", qty: 1 });
-    expect(res.unitPrice).toBe(66.70);
+    expect(res.unitPrice).toBe(80.00);
     expect(res.discountFactor).toBe(1.0);
-    expect(res.totalPrice).toBe(66.70);
+    expect(res.totalPrice).toBe(80.00);
   });
 
   it("180g PP formatowe A0 (841x1189) × 6 → rabat 120g 6-20 = 0.92 → 70 × 0.92 = 64.40 zł/szt", () => {
@@ -134,8 +134,8 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
       qty: 1,
     });
     expect(res.lengthFactor).toBe(0.5);
-    expect(res.effectiveUnitPrice).toBe(14);
-    expect(res.totalPrice).toBe(14);
+    expect(res.effectiveUnitPrice).toBe(4.5);
+    expect(res.totalPrice).toBe(4.5);
   });
 });
 

@@ -68,14 +68,14 @@ describe("Laminowanie", () => {
     expect(result.totalPrice).toBe(0.7);
   });
 
-  it("should apply express for introligatornia", () => {
+  it("should ignore express for introligatornia", () => {
     const result = quoteIntroligatornia({
       serviceId: "bigowanie",
       qty: 2,
       express: true
     });
-    // 2 * 0.5 * 1.2 = 1.2
-    expect(result.totalPrice).toBe(1.2);
+    // 2 * 0.5 = 1.0 (bez dopłaty express)
+    expect(result.totalPrice).toBe(1.0);
   });
 
   it("should throw for invalid introligatornia service", () => {

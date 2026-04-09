@@ -79,7 +79,7 @@ export function quoteIntroligatornia(options: IntroligatorniaOptions): Introliga
   const qty = Math.max(1, Math.floor(options.qty));
   const unitPrice = resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price);
   const basePrice = unitPrice * qty;
-  const totalPrice = parseFloat((basePrice * (options.express ? 1.2 : 1)).toFixed(2));
+  const totalPrice = parseFloat(basePrice.toFixed(2));
 
   return {
     serviceId: item.id,

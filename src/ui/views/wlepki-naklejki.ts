@@ -32,14 +32,14 @@ export const WlepkiView: View = {
     const areaInput = container.querySelector("#wlepki-area") as HTMLInputElement;
     const addBtn = container.querySelector("#btn-add-to-cart") as HTMLButtonElement;
     const resultDiv = container.querySelector("#wlepki-result") as HTMLElement;
-    const unitPriceEl = container.querySelector("#unit-price") as HTMLElement;
-    const basePriceEl = container.querySelector("#base-price") as HTMLElement;
+    const unitPriceEl = container.querySelector("#unit-price") as HTMLElement | null;
+    const basePriceEl = container.querySelector("#base-price") as HTMLElement | null;
     const totalPriceEl = container.querySelector("#total-price") as HTMLElement;
     const breakdownLinesEl = container.querySelector("#wlepki-breakdown-lines") as HTMLElement | null;
-    const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement;
+    const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement | null;
     const detailedBreakdownDisplay = container.querySelector("#wlepki-breakdown-display") as HTMLElement | null;
-    const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement;
-    const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement;
+    const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement | null;
+    const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement | null;
     const cennikPanel = container.querySelector("#wlepki-cennik-panel") as HTMLElement | null;
 
     const allModifiers = (tableData.modifiers || []).map((m: any) => {
@@ -108,11 +108,11 @@ export const WlepkiView: View = {
       areaFoilFinishGroup.style.display = mode === "m2" && requiresAreaFoilType ? "" : "none";
 
       if (mode === "szt") {
-        unitLabelEl.textContent = "Cena wg progu:";
-        baseLabelEl.textContent = "Ilość rozliczona:";
+        if (unitLabelEl) unitLabelEl.textContent = "Cena wg progu:";
+        if (baseLabelEl) baseLabelEl.textContent = "Ilość rozliczona:";
       } else {
-        unitLabelEl.textContent = "Cena za m2:";
-        baseLabelEl.textContent = "Baza (rozliczone m²):";
+        if (unitLabelEl) unitLabelEl.textContent = "Cena za m2:";
+        if (baseLabelEl) baseLabelEl.textContent = "Baza (rozliczone m²):";
       }
 
       renderDynamicLegend();

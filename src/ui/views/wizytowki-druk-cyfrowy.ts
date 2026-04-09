@@ -30,6 +30,7 @@ export const WizytowkiView: View = {
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
+    const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement | null;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
     const breakdownDisplay = container.querySelector("#w-breakdown-display") as HTMLElement;
@@ -41,19 +42,19 @@ export const WizytowkiView: View = {
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
     const viperprintSection = container.querySelector("#w-viperprint-section") as HTMLElement;
-    const extPriceSection = container.querySelector("#w-ext-price-section") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
-    const extPriceInput = container.querySelector("#w-ext-unit-price") as HTMLInputElement;
-    const extAddToCartBtn = container.querySelector("#w-ext-add-to-cart") as HTMLButtonElement;
 
     const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
 
     const syncMode = () => {
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
-      if (externalRedirect) externalRedirect.style.display = 'block';
+      if (externalRedirect) externalRedirect.style.display = external ? 'block' : 'none';
       if (viperprintSection) viperprintSection.style.display = external ? 'block' : 'none';
-      if (extPriceSection) extPriceSection.style.display = external ? 'block' : 'none';
+      if (addToCartBtn) {
+        addToCartBtn.style.display = external ? 'none' : '';
+        addToCartBtn.disabled = true;
+      }
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
@@ -101,15 +102,12 @@ export const WizytowkiView: View = {
     const calculate = () => {
       if (isExternal() || !familySelect?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
-        if (isExternal()) {
-          const qty = parseInt(qtyInput?.value || '');
-          if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0);
-        }
+        if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
       if (!qtyInput?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
-        if (extAddToCartBtn) extAddToCartBtn.disabled = true;
+        if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
 
@@ -137,73 +135,45 @@ export const WizytowkiView: View = {
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, isSatin);
         if (resultDisplay) resultDisplay.style.display = "block";
-        if (extAddToCartBtn) extAddToCartBtn.disabled = false;
+        if (addToCartBtn) addToCartBtn.disabled = false;
 
         ctx.updateLastCalculated(totalPrice, "Wizytówki");
       } catch (err) {
         if (resultDisplay) resultDisplay.style.display = "none";
-        if (extAddToCartBtn) extAddToCartBtn.disabled = true;
+        if (addToCartBtn) addToCartBtn.disabled = true;
       }
     };
 
     autoCalc({ root: container, calc: calculate });
 
-    if (extAddToCartBtn) {
-      extAddToCartBtn.onclick = () => {
-        const qty = parseInt(qtyInput?.value || '');
-        if (!(qty > 0)) return;
-
-        if (isExternal()) {
-          const unitPrice = parseFloat(extPriceInput?.value || '') || 0;
-
-          const familyLabel = familySelect.value === 'softtouch' ? 'SoftTouch' : 'DELUXE';
+    if (addToCartBtn) {
+      addToCartBtn.onclick = () => {
+        if (isExternal()) return;
+        if (currentResult && currentOptions) {
           const pv = paperSelect.value;
-          const paperLabel = pv.startsWith('satyna_') ? `Satyna ${pv.slice(7)}g` : `Kreda ${pv.slice(6)}g`;
-          const totalPrice = parseFloat((qty * unitPrice * (ctx.expressMode ? 1.2 : 1)).toFixed(2));
-          const parts = [`${qty} szt`, paperLabel];
-          if (ctx.expressMode) parts.push('EXPRESS (+20%)');
+          const paperLabel = pv.startsWith('satyna_')
+            ? `Satyna ${pv.slice(7)}g`
+            : `Kreda ${pv.slice(6)}g`;
+          const parts: string[] = [
+            `${currentOptions.qty} szt`,
+            `${sizeSelect.value} mm`,
+            lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
+            paperLabel
+          ];
+          if (currentOptions.express) parts.push('EXPRESS (+20%)');
 
           ctx.cart.addItem({
-            id: `wizytowki-ext-${Date.now()}`,
+            id: `wizytowki-${Date.now()}`,
             category: "Wizytówki",
-            name: `Wizytówki ${familyLabel}`,
-            quantity: qty,
+            name: 'Wizytówki Standard',
+            quantity: currentOptions.qty,
             unit: "szt",
-            unitPrice,
-            isExpress: ctx.expressMode,
-            totalPrice,
+            unitPrice: currentResult.totalPrice / currentOptions.qty,
+            isExpress: currentOptions.express,
+            totalPrice: currentResult.totalPrice,
             optionsHint: parts.join(', '),
-            payload: { family: familySelect.value, paper: pv, qty, unitPrice }
+            payload: currentResult
           });
-
-          ctx.updateLastCalculated(totalPrice, "Wizytówki");
-        } else {
-          if (currentResult && currentOptions) {
-            const pv = paperSelect.value;
-            const paperLabel = pv.startsWith('satyna_')
-              ? `Satyna ${pv.slice(7)}g`
-              : `Kreda ${pv.slice(6)}g`;
-            const parts: string[] = [
-              `${currentOptions.qty} szt`,
-              `${sizeSelect.value} mm`,
-              lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
-              paperLabel
-            ];
-            if (currentOptions.express) parts.push('EXPRESS (+20%)');
-
-            ctx.cart.addItem({
-              id: `wizytowki-${Date.now()}`,
-              category: "Wizytówki",
-              name: 'Wizytówki Standard',
-              quantity: currentOptions.qty,
-              unit: "szt",
-              unitPrice: currentResult.totalPrice / currentOptions.qty,
-              isExpress: currentOptions.express,
-              totalPrice: currentResult.totalPrice,
-              optionsHint: parts.join(', '),
-              payload: currentResult
-            });
-          }
         }
       };
     }
