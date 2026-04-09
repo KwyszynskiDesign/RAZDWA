@@ -49,32 +49,32 @@ describe("calculatePlakatyM2 – solwent m² materials", () => {
 });
 
 describe("calculatePlakatyFormat – per-format szt materials", () => {
-  it("120g formatowe A0 (841x1189) × 1 szt → 28 zł (no discount)", () => {
+  it("120g formatowe A0 (841x1189) × 1 szt → 54 zł (no discount)", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 1 });
-    expect(res.unitPrice).toBe(28);
+    expect(res.unitPrice).toBe(54);
     expect(res.discountFactor).toBe(1.0);
-    expect(res.pricePerPiece).toBe(28);
-    expect(res.totalPrice).toBe(28);
+    expect(res.pricePerPiece).toBe(54);
+    expect(res.totalPrice).toBe(54);
   });
 
-  it("120g formatowe A0 × 3 szt → rabat 2-5 szt = 0.95 → 28 × 0.95 = 26.60 zł/szt", () => {
+  it("120g formatowe A0 × 3 szt → rabat 2-5 szt = 0.95 → 54 × 0.95 = 51.30 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 3 });
     expect(res.discountFactor).toBe(0.95);
-    expect(res.pricePerPiece).toBe(26.60);
-    expect(res.totalPrice).toBe(parseFloat((26.60 * 3).toFixed(2)));
+    expect(res.pricePerPiece).toBe(51.30);
+    expect(res.totalPrice).toBe(parseFloat((51.30 * 3).toFixed(2)));
   });
 
-  it("120g formatowe A0 × 6 szt → rabat 6-20 szt = 0.92 → 28 × 0.92 = 25.76 zł/szt", () => {
+  it("120g formatowe A0 × 6 szt → rabat 6-20 szt = 0.92 → 54 × 0.92 = 49.68 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 6 });
     expect(res.discountFactor).toBe(0.92);
-    expect(res.pricePerPiece).toBe(25.76);
-    expect(res.totalPrice).toBe(parseFloat((25.76 * 6).toFixed(2)));
+    expect(res.pricePerPiece).toBe(49.68);
+    expect(res.totalPrice).toBe(parseFloat((49.68 * 6).toFixed(2)));
   });
 
-  it("120g formatowe A3 (297x420) × 21 szt → rabat 21-30 = 0.87 → 9 × 0.87 = 7.83 zł/szt", () => {
+  it("120g formatowe A3 (297x420) × 21 szt → rabat 21-30 = 0.87 → 12 × 0.87 = 10.44 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "297x420", qty: 21 });
     expect(res.discountFactor).toBe(0.87);
-    expect(res.pricePerPiece).toBe(7.83);
+    expect(res.pricePerPiece).toBe(10.44);
   });
 
   it("260g satyna formatowe A0 (841x1189) × 9 szt → rabat 9-20 = 0.93 → 80 × 0.93 = 74.40 zł/szt", () => {
@@ -84,23 +84,23 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.totalPrice).toBe(parseFloat((74.40 * 9).toFixed(2)));
   });
 
-  it("260g satyna nieformatowe A0 (841x1189) × 1 → 80.00 zł (ta sama baza co formatowe)", () => {
+  it("260g satyna nieformatowe A0 (841x1189) × 1 → 66.70 zł", () => {
     const res = calculatePlakatyFormat({ materialId: "260g-satyna-nieformatowe", formatKey: "841x1189", qty: 1 });
-    expect(res.unitPrice).toBe(80.00);
+    expect(res.unitPrice).toBe(66.70);
     expect(res.discountFactor).toBe(1.0);
-    expect(res.totalPrice).toBe(80.00);
+    expect(res.totalPrice).toBe(66.70);
   });
 
-  it("180g PP formatowe A0 (841x1189) × 6 → rabat 120g 6-20 = 0.92 → 70 × 0.92 = 64.40 zł/szt", () => {
+  it("180g PP formatowe A0 (841x1189) × 6 → rabat 120g 6-20 = 0.92 → 75 × 0.92 = 69.00 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "180g-pp-formatowe", formatKey: "841x1189", qty: 6 });
     expect(res.discountFactor).toBe(0.92);
-    expect(res.pricePerPiece).toBe(64.40);
+    expect(res.pricePerPiece).toBe(69.00);
   });
 
-  it("applies express +20%: 120g formatowe A0 × 1 → 28 × 1.20 = 33.60 zł", () => {
+  it("applies express +20%: 120g formatowe A0 × 1 → 54 × 1.20 = 64.80 zł", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 1, express: true });
-    expect(res.basePrice).toBe(28);
-    expect(res.totalPrice).toBe(33.60);
+    expect(res.basePrice).toBe(54);
+    expect(res.totalPrice).toBe(64.80);
     expect(res.appliedModifiers).toContain("TRYB EXPRESS (+20%)");
   });
 
@@ -122,8 +122,8 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.baseLengthMm).toBe(420);
     expect(res.customLengthMm).toBe(840);
     expect(res.lengthFactor).toBe(2);
-    expect(res.effectiveUnitPrice).toBe(18);
-    expect(res.totalPrice).toBe(18);
+    expect(res.effectiveUnitPrice).toBe(24);
+    expect(res.totalPrice).toBe(24);
   });
 
   it("supports custom length mm for nieformatowe", () => {
@@ -134,8 +134,8 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
       qty: 1,
     });
     expect(res.lengthFactor).toBe(0.5);
-    expect(res.effectiveUnitPrice).toBe(4.5);
-    expect(res.totalPrice).toBe(4.5);
+    expect(res.effectiveUnitPrice).toBe(14);
+    expect(res.totalPrice).toBe(14);
   });
 });
 

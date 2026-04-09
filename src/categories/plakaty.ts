@@ -192,14 +192,6 @@ export interface PlakatyFormatResult {
   appliedModifiers: string[];
 }
 
-function normalizeFormatPricingMaterialId(materialId: string): string {
-  // Globalna zasada: dla A3-A0 nieformatowe i formatowe mają tę samą cenę bazową.
-  // Nieformatowe różnią się tylko sposobem przeliczenia (po długości, jak CAD).
-  return materialId.includes("nieformatowe")
-    ? materialId.replace("nieformatowe", "formatowe")
-    : materialId;
-}
-
 function calculateByLengthCadStyle(unitPriceForBaseFormat: number, baseLengthMm: number, lengthMm: number): number {
   if (!Number.isFinite(unitPriceForBaseFormat) || unitPriceForBaseFormat < 0) return 0;
   if (!Number.isFinite(baseLengthMm) || baseLengthMm <= 0) return unitPriceForBaseFormat;
@@ -213,14 +205,10 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
   const selectedMaterial = data.formatowe.materials.find((m: any) => m.id === input.materialId);
   if (!selectedMaterial) throw new Error(`Unknown format material: ${input.materialId}`);
 
-  const pricingMaterialId = normalizeFormatPricingMaterialId(input.materialId);
-  const pricingMaterial =
-    data.formatowe.materials.find((m: any) => m.id === pricingMaterialId) ?? selectedMaterial;
-
-  const baseUnitPrice: number = pricingMaterial.prices[input.formatKey];
+  const baseUnitPrice: number = selectedMaterial.prices[input.formatKey];
   if (baseUnitPrice === undefined) throw new Error(`Unknown format: ${input.formatKey}`);
   const unitPrice = resolveStoredPrice(
-    `plakaty-format-${pricingMaterialId}-${input.formatKey}`,
+    `plakaty-format-${input.materialId}-${input.formatKey}`,
     baseUnitPrice
   );
 
@@ -240,7 +228,7 @@ export function calculatePlakatyFormat(input: PlakatyFormatInput): PlakatyFormat
     : parseFloat((unitPrice * lengthFactor).toFixed(2));
 
   // Find discount factor
-  const discountGroup: string = pricingMaterial.discountGroup;
+  const discountGroup: string = selectedMaterial.discountGroup;
   const discountTiers: any[] = data.formatowe.discounts[discountGroup] ?? [];
   const discountTier = discountTiers.find(
     (d: any) => input.qty >= d.min && (d.max === null || input.qty <= d.max)

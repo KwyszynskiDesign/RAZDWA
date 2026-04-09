@@ -224,6 +224,53 @@
   .cad-ops-items {
     margin-top: 6px;
   }
+
+  /* Zwężona legenda CAD */
+  #cad-dynamic-legend {
+    overflow-x: auto;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th,
+  #cad-dynamic-legend table.cad-legend-table td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    word-break: break-word;
+    padding: 8px 10px;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-mode,
+  #cad-dynamic-legend table.cad-legend-table td.col-mode {
+    width: 22%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-format,
+  #cad-dynamic-legend table.cad-legend-table td.col-format {
+    width: 16%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-format-price,
+  #cad-dynamic-legend table.cad-legend-table td.col-format-price,
+  #cad-dynamic-legend table.cad-legend-table th.col-nonformat-price,
+  #cad-dynamic-legend table.cad-legend-table td.col-nonformat-price {
+    width: 31%;
+  }
+
+  #cad-dynamic-legend .cad-legend-break {
+    display: inline-block;
+    line-height: 1.2;
+  }
+
+  #cad-dynamic-legend .cad-legend-section {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
 </style>
 <h2>Druk CAD wielkoformatowy</h2>
 <div class="form">

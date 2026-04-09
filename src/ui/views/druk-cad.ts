@@ -90,7 +90,7 @@ export const DrukCADView: View = {
           const fmtPrice = (fmtMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
           const mbPrice = (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
 
-          return `<tr><td>${modeLabel}</td><td>${displayCadFormat(String(format))}</td><td>${fmtPrice}</td><td>${mbPrice}</td></tr>`;
+          return `<tr><td class="col-mode">${modeLabel}</td><td class="col-format">${displayCadFormat(String(format))}</td><td class="col-format-price">${fmtPrice}</td><td class="col-nonformat-price">${mbPrice}</td></tr>`;
         }).join("");
       };
 
@@ -98,16 +98,16 @@ export const DrukCADView: View = {
       const colorRows = collectRowsForMode("color", "Kolorowy");
 
       legend.innerHTML = `
-        <table>
+        <table class="cad-legend-table">
           <tr>
-            <th>Tryb</th>
-            <th>Format</th>
-            <th>Cena formatowa</th>
-            <th>Cena nieformatowa</th>
+            <th class="col-mode">Tryb</th>
+            <th class="col-format">Format</th>
+            <th class="col-format-price"><span class="cad-legend-break">Cena<br>formatowa</span></th>
+            <th class="col-nonformat-price"><span class="cad-legend-break">Cena<br>nieformatowa</span></th>
           </tr>
-          <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
+          <tr><td colspan="4" class="cad-legend-section" style="border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
           ${bwRows}
-          <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
+          <tr><td colspan="4" class="cad-legend-section" style="border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${colorRows}
         </table>
         <div class="hint" style="margin-top:8px;">Składanie i skan WF rozliczane wg aktualnych stawek z ustawień.</div>
