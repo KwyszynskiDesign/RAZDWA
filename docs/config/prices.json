@@ -2366,6 +2366,7 @@
                                                       "297x420",
                                                       "420x594",
                                                       "594x841",
+                                                      "610x841",
                                                       "841x1189",
                                                       "914x1292",
                                                       "rolka1067"
@@ -3316,13 +3317,13 @@
 
                           "plakaty-format-120g-formatowe-297x420":  12.00,
                           "plakaty-format-120g-formatowe-420x594":  18.00,
-                          "plakaty-format-120g-formatowe-594x841":  28.00,
+                          "plakaty-format-120g-formatowe-610x841":  28.00,
                           "plakaty-format-120g-formatowe-841x1189":  54.00,
                           "plakaty-format-120g-formatowe-914x1292":  65.00,
                           "plakaty-format-120g-formatowe-rolka1067":  63.00,
                           "plakaty-format-120g-nieformatowe-297x420":  28.00,
                           "plakaty-format-120g-nieformatowe-420x594":  30.00,
-                          "plakaty-format-120g-nieformatowe-594x841":  33.00,
+                          "plakaty-format-120g-nieformatowe-610x841":  33.00,
                           "plakaty-format-120g-nieformatowe-841x1189":  45.00,
                           "plakaty-format-120g-nieformatowe-914x1292":  50.00,
                           "plakaty-format-120g-nieformatowe-rolka1067":  63.00,

@@ -91,6 +91,18 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.totalPrice).toBe(66.70);
   });
 
+  it("120g formatowe A1+ (610x841) × 1 → 28 zł zgodnie z CSV", () => {
+    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "610x841", qty: 1 });
+    expect(res.unitPrice).toBe(28);
+    expect(res.totalPrice).toBe(28);
+  });
+
+  it("120g nieformatowe A1+ (610x841) × 1 → 33 zł zgodnie z CSV", () => {
+    const res = calculatePlakatyFormat({ materialId: "120g-nieformatowe", formatKey: "610x841", qty: 1 });
+    expect(res.unitPrice).toBe(33);
+    expect(res.totalPrice).toBe(33);
+  });
+
   it("180g PP formatowe A0 (841x1189) × 6 → rabat 120g 6-20 = 0.92 → 75 × 0.92 = 69.00 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "180g-pp-formatowe", formatKey: "841x1189", qty: 6 });
     expect(res.discountFactor).toBe(0.92);

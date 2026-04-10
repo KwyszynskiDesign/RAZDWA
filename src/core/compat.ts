@@ -51,7 +51,19 @@ export function readStoredPrices(): Record<string, number> {
  */
 export function resolveStoredPrice(key: string, defaultValue: number): number {
   const stored = readStoredPrices();
-  return typeof stored[key] === "number" ? stored[key] : defaultValue;
+  if (typeof stored[key] === "number") return stored[key];
+
+  const aliases: Record<string, string> = {
+    "plakaty-format-120g-formatowe-610x841": "plakaty-format-120g-formatowe-594x841",
+    "plakaty-format-120g-formatowe-594x841": "plakaty-format-120g-formatowe-610x841",
+    "plakaty-format-120g-nieformatowe-610x841": "plakaty-format-120g-nieformatowe-594x841",
+    "plakaty-format-120g-nieformatowe-594x841": "plakaty-format-120g-nieformatowe-610x841"
+  };
+
+  const aliasKey = aliases[key];
+  if (aliasKey && typeof stored[aliasKey] === "number") return stored[aliasKey];
+
+  return defaultValue;
 }
 
 /**
