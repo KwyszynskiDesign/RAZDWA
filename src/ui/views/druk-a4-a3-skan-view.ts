@@ -124,21 +124,22 @@ export const DrukA4A3SkanView: View = {
         <h4>SKANOWANIE</h4>
         <table>
           <tr class="d-price-table-head-green">
-            <th>Automatyczne</th>
-            <th>Ręczne (z szyby)</th>
+            <th>Automatyczne sztuki</th>
+            <th>Automatyczne cena</th>
+            <th>Ręczne sztuki</th>
+            <th>Ręczne cena</th>
           </tr>
           ${Array.from({ length: maxScanRows }).map((_, idx) => {
             const auto = autoScan[idx];
             const manual = manualScan[idx];
-            return `<tr><td>${auto ? `${auto.range}: ${formatPLN(auto.price)}` : "-"}</td><td>${manual ? `${manual.range}: ${formatPLN(manual.price)}` : "-"}</td></tr>`;
+            return `<tr><td>${auto?.range ? `${auto.range} str.` : "-"}</td><td>${auto ? formatPLN(auto.price) : "-"}</td><td>${manual?.range ? `${manual.range} str.` : "-"}</td><td>${manual ? formatPLN(manual.price) : "-"}</td></tr>`;
           }).join("")}
         </table>
 
         <div class="d-note">
           <strong>Zadruk &gt;25% powierzchni:</strong> +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}% ceny strony<br>
           <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", pricing.email_price ?? 1))}<br>
-          <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}<br>
-          <strong>Koszulka:</strong> ${formatPLN(resolveStoredPrice("druk-koszulka", 0.8))} / szt.
+          <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}
         </div>
       `;
     };
