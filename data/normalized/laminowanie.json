@@ -26,11 +26,49 @@
     "items": [
       { "id": "gilotyna", "name": "Cięcie na gilotynie", "price": 0.07 },
       { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.50 },
-      { "id": "druk-powyzej-20", "name": "Drukowanie powyżej 20 kartek", "price": 0.05 },
+      { "id": "dziurkowanie-powyzej-20", "name": "Dziurkowanie powyżej 20 kartek", "price": 0.05 },
       { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.30 },
       { "id": "broszurowanie", "name": "Broszurowanie / docinanie", "price": 0.50 },
       { "id": "bigowanie", "name": "Bigowanie", "price": 0.50 }
     ]
+  },
+  "bindowanie": {
+    "unit": "szt",
+    "plastik": {
+      "1-50": {
+        "do20": { "listwa": 7.00, "spirala": 6.00 },
+        "21-100": 5.00,
+        "100+": 4.00
+      },
+      "51-100": {
+        "do20": 9.00,
+        "21-100": 8.00,
+        "100+": 7.00
+      },
+      "101-200": {
+        "do20": 13.00,
+        "21-100": 12.00,
+        "100+": 11.00
+      }
+    },
+    "metal": {
+      "1-50": { "do40": 11.00, "do80": 13.00, "do120": 15.00 },
+      "51-100": { "do40": 10.00, "do80": 11.00, "do120": 13.00 }
+    }
+  },
+  "oprawy": {
+    "grzbietowa": {
+      "A4": { "do30": 3.50, "do60": 4.50, "do90": 5.50, "do150": 7.00 },
+      "A3": { "do30": 7.00, "do60": 8.00, "do90": 9.00, "do150": 14.00 }
+    },
+    "kanalowa": { "standard": 25.00, "pozostale": 35.00, "bezNapisu": 20.00, "wkarta": 10.00 },
+    "zaciskowa": { "miekka": 15.00, "thermoBiala": 8.00, "skoroszytZszywanie": 7.00 },
+    "zbijana": {
+      "printedHere": { "zbijane": 50.00, "skrecane": 60.00 },
+      "clientSupplied": { "zbijane": 60.00, "skrecane": 70.00 },
+      "extraPerCm": { "printedHere": 10.00, "clientSupplied": 12.00 }
+    },
+    "twarda": { "rozszycieMin": 25.00, "rozszycieMax": 40.00, "ponowneZszycieMin": 25.00, "ponowneZszycieMax": 40.00 }
   },
   "specialPrints": {
     "unit": "szt",

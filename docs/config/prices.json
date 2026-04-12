@@ -565,8 +565,8 @@
                                                                   "price":  0.50
                                                               },
                                                               {
-                                                                  "id":  "druk-powyzej-20",
-                                                                  "name":  "Drukowanie powyżej 20 kartek",
+                                                                  "id":  "dziurkowanie-powyzej-20",
+                                                                  "name":  "Dziurkowanie powyżej 20 kartek",
                                                                   "price":  0.05
                                                               },
                                                               {
@@ -586,6 +586,88 @@
                                                               }
                                                           ]
                                             },
+                        "bindowanie":  {
+                                           "unit":  "szt",
+                                           "plastik":  {
+                                                            "1-50":  {
+                                                                         "do20":  {
+                                                                                      "listwa":  7.00,
+                                                                                      "spirala":  6.00
+                                                                                  },
+                                                                         "21-100":  5.00,
+                                                                         "100+":  4.00
+                                                                     },
+                                                            "51-100":  {
+                                                                           "do20":  9.00,
+                                                                           "21-100":  8.00,
+                                                                           "100+":  7.00
+                                                                       },
+                                                            "101-200":  {
+                                                                            "do20":  13.00,
+                                                                            "21-100":  12.00,
+                                                                            "100+":  11.00
+                                                                        }
+                                                        },
+                                           "metal":  {
+                                                          "1-50":  {
+                                                                       "do40":  11.00,
+                                                                       "do80":  13.00,
+                                                                       "do120":  15.00
+                                                                   },
+                                                          "51-100":  {
+                                                                         "do40":  10.00,
+                                                                         "do80":  11.00,
+                                                                         "do120":  13.00
+                                                                     }
+                                                      }
+                                       },
+                        "oprawy":  {
+                                        "grzbietowa":  {
+                                                           "A4":  {
+                                                                      "do30":  3.50,
+                                                                      "do60":  4.50,
+                                                                      "do90":  5.50,
+                                                                      "do150":  7.00
+                                                                  },
+                                                           "A3":  {
+                                                                      "do30":  7.00,
+                                                                      "do60":  8.00,
+                                                                      "do90":  9.00,
+                                                                      "do150":  14.00
+                                                                  }
+                                                       },
+                                        "kanalowa":  {
+                                                         "standard":  25.00,
+                                                         "pozostale":  35.00,
+                                                         "bezNapisu":  20.00,
+                                                         "wkarta":  10.00
+                                                     },
+                                        "zaciskowa":  {
+                                                          "miekka":  15.00,
+                                                          "thermoBiala":  8.00,
+                                                          "skoroszytZszywanie":  7.00
+                                                      },
+                                        "zbijana":  {
+                                                        "printedHere":  {
+                                                                            "zbijane":  50.00,
+                                                                            "skrecane":  60.00
+                                                                        },
+                                                        "clientSupplied":  {
+                                                                               "zbijane":  60.00,
+                                                                               "skrecane":  70.00
+                                                                           },
+                                                        "extraPerCm":  {
+                                                                           "printedHere":  10.00,
+                                                                           "clientSupplied":  12.00
+                                                                       }
+                                                    },
+                                        "twarda":  {
+                                                       "rozszycieMin":  25.00,
+                                                       "rozszycieMax":  40.00,
+                                                       "ponowneZszycieMin":  25.00,
+                                                       "ponowneZszycieMax":  40.00
+                                                   }
+                                    },
                         "specialPrints":  {
                                               "unit":  "szt",
                                               "doubleSidedSurchargeFactor":  0.50,
@@ -2873,10 +2955,27 @@
                           "laminowanie-a6-101-200":  2.00,
                           "laminowanie-intro-gilotyna":  0.07,
                           "laminowanie-intro-trymer":  0.50,
+                          "laminowanie-intro-dziurkowanie-powyzej-20":  0.05,
                           "laminowanie-intro-druk-powyzej-20":  0.05,
                           "laminowanie-intro-zszywanie":  0.30,
                           "laminowanie-intro-broszurowanie":  0.50,
                           "laminowanie-intro-bigowanie":  0.50,
+                          "laminowanie-bindowanie-plastik-1-50-do20-listwa":  7.00,
+                          "laminowanie-bindowanie-plastik-1-50-do20-spirala":  6.00,
+                          "laminowanie-bindowanie-plastik-1-50-21-100":  5.00,
+                          "laminowanie-bindowanie-plastik-1-50-100plus":  4.00,
+                          "laminowanie-bindowanie-plastik-51-100-do20":  9.00,
+                          "laminowanie-bindowanie-plastik-51-100-21-100":  8.00,
+                          "laminowanie-bindowanie-plastik-51-100-100plus":  7.00,
+                          "laminowanie-bindowanie-plastik-101-200-do20":  13.00,
+                          "laminowanie-bindowanie-plastik-101-200-21-100":  12.00,
+                          "laminowanie-bindowanie-plastik-101-200-100plus":  11.00,
+                          "laminowanie-bindowanie-metal-1-50-do40":  11.00,
+                          "laminowanie-bindowanie-metal-1-50-do80":  13.00,
+                          "laminowanie-bindowanie-metal-1-50-do120":  15.00,
+                          "laminowanie-bindowanie-metal-51-100-do40":  10.00,
+                          "laminowanie-bindowanie-metal-51-100-do80":  11.00,
+                          "laminowanie-bindowanie-metal-51-100-do120":  13.00,
                           "laminowanie-oprawa-grzbietowa-a4-do30":  3.50,
                           "laminowanie-oprawa-grzbietowa-a4-do60":  4.50,
                           "laminowanie-oprawa-grzbietowa-a4-do90":  5.50,
@@ -2890,10 +2989,14 @@
                           "laminowanie-oprawa-kanalowa-bez-napisu":  20.00,
                           "laminowanie-oprawa-kanalowa-wkarta":  10.00,
                           "laminowanie-oprawa-zaciskowa-miekka":  15.00,
+                          "laminowanie-oprawa-zaciskowa-thermo-biala":  8.00,
+                          "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie":  7.00,
                           "laminowanie-oprawa-zbijane-printed-here":  50.00,
                           "laminowanie-oprawa-skrecane-printed-here":  60.00,
                           "laminowanie-oprawa-zbijane-client-supplied":  60.00,
                           "laminowanie-oprawa-skrecane-client-supplied":  70.00,
+                          "laminowanie-oprawa-zbijane-extra-per-cm-printed-here":  10.00,
+                          "laminowanie-oprawa-zbijane-extra-per-cm-client-supplied":  12.00,
                           "laminowanie-oprawa-twarda-rozszycie":  25.00,
                           "laminowanie-oprawa-twarda-ponowne-zszycie":  25.00,
                           "laminowanie-special-dyplom":  0.00,

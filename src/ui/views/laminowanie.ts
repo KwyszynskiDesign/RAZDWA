@@ -5,9 +5,9 @@ import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 import { getPrice } from "../../services/priceService";
 
-const BINDOWANIE_PRICES = {
+const BINDOWANIE_FALLBACK = {
   plastik: {
-    "1-50": { do20: 7.00, "21-100": 5.00, "100+": 4.00 },
+    "1-50": { do20: { listwa: 7.00, spirala: 6.00 }, "21-100": 5.00, "100+": 4.00 },
     "51-100": { do20: 9.00, "21-100": 8.00, "100+": 7.00 },
     "101-200": { do20: 13.00, "21-100": 12.00, "100+": 11.00 }
   },
@@ -17,40 +17,101 @@ const BINDOWANIE_PRICES = {
   }
 } as const;
 
+function getBindowaniePrices() {
+  const data = getPrice("laminowanie") as any;
+  const source = data?.bindowanie ?? {};
+
+  const do20Source = source?.plastik?.["1-50"]?.do20;
+  const do20ListwaBase = typeof do20Source === "object"
+    ? Number(do20Source?.listwa)
+    : Number(do20Source);
+  const do20SpiralaBase = typeof do20Source === "object"
+    ? Number(do20Source?.spirala)
+    : Number(do20Source);
+
+  const do20Listwa = resolveStoredPrice(
+    "laminowanie-bindowanie-plastik-1-50-do20-listwa",
+    Number.isFinite(do20ListwaBase) ? do20ListwaBase : BINDOWANIE_FALLBACK.plastik["1-50"].do20.listwa
+  );
+  const do20Spirala = resolveStoredPrice(
+    "laminowanie-bindowanie-plastik-1-50-do20-spirala",
+    Number.isFinite(do20SpiralaBase) ? do20SpiralaBase : BINDOWANIE_FALLBACK.plastik["1-50"].do20.spirala
+  );
+
+  return {
+    plastik: {
+      "1-50": {
+        do20: { listwa: do20Listwa, spirala: do20Spirala },
+        "21-100": resolveStoredPrice("laminowanie-bindowanie-plastik-1-50-21-100", Number(source?.plastik?.["1-50"]?.["21-100"] ?? BINDOWANIE_FALLBACK.plastik["1-50"]["21-100"])),
+        "100+": resolveStoredPrice("laminowanie-bindowanie-plastik-1-50-100plus", Number(source?.plastik?.["1-50"]?.["100+"] ?? BINDOWANIE_FALLBACK.plastik["1-50"]["100+"]))
+      },
+      "51-100": {
+        do20: resolveStoredPrice("laminowanie-bindowanie-plastik-51-100-do20", Number(source?.plastik?.["51-100"]?.do20 ?? BINDOWANIE_FALLBACK.plastik["51-100"].do20)),
+        "21-100": resolveStoredPrice("laminowanie-bindowanie-plastik-51-100-21-100", Number(source?.plastik?.["51-100"]?.["21-100"] ?? BINDOWANIE_FALLBACK.plastik["51-100"]["21-100"])),
+        "100+": resolveStoredPrice("laminowanie-bindowanie-plastik-51-100-100plus", Number(source?.plastik?.["51-100"]?.["100+"] ?? BINDOWANIE_FALLBACK.plastik["51-100"]["100+"]))
+      },
+      "101-200": {
+        do20: resolveStoredPrice("laminowanie-bindowanie-plastik-101-200-do20", Number(source?.plastik?.["101-200"]?.do20 ?? BINDOWANIE_FALLBACK.plastik["101-200"].do20)),
+        "21-100": resolveStoredPrice("laminowanie-bindowanie-plastik-101-200-21-100", Number(source?.plastik?.["101-200"]?.["21-100"] ?? BINDOWANIE_FALLBACK.plastik["101-200"]["21-100"])),
+        "100+": resolveStoredPrice("laminowanie-bindowanie-plastik-101-200-100plus", Number(source?.plastik?.["101-200"]?.["100+"] ?? BINDOWANIE_FALLBACK.plastik["101-200"]["100+"]))
+      }
+    },
+    metal: {
+      "1-50": {
+        do40: resolveStoredPrice("laminowanie-bindowanie-metal-1-50-do40", Number(source?.metal?.["1-50"]?.do40 ?? BINDOWANIE_FALLBACK.metal["1-50"].do40)),
+        do80: resolveStoredPrice("laminowanie-bindowanie-metal-1-50-do80", Number(source?.metal?.["1-50"]?.do80 ?? BINDOWANIE_FALLBACK.metal["1-50"].do80)),
+        do120: resolveStoredPrice("laminowanie-bindowanie-metal-1-50-do120", Number(source?.metal?.["1-50"]?.do120 ?? BINDOWANIE_FALLBACK.metal["1-50"].do120)),
+      },
+      "51-100": {
+        do40: resolveStoredPrice("laminowanie-bindowanie-metal-51-100-do40", Number(source?.metal?.["51-100"]?.do40 ?? BINDOWANIE_FALLBACK.metal["51-100"].do40)),
+        do80: resolveStoredPrice("laminowanie-bindowanie-metal-51-100-do80", Number(source?.metal?.["51-100"]?.do80 ?? BINDOWANIE_FALLBACK.metal["51-100"].do80)),
+        do120: resolveStoredPrice("laminowanie-bindowanie-metal-51-100-do120", Number(source?.metal?.["51-100"]?.do120 ?? BINDOWANIE_FALLBACK.metal["51-100"].do120)),
+      }
+    }
+  } as const;
+}
+
 function getOprawyPrices() {
+  const data = getPrice("laminowanie") as any;
+  const source = data?.oprawy ?? {};
+
   return {
     grzbietowa: {
       do30: {
-        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do30", 3.5),
-        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do30", 7.0),
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do30", Number(source?.grzbietowa?.A4?.do30 ?? 3.5)),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do30", Number(source?.grzbietowa?.A3?.do30 ?? 7.0)),
       },
       do60: {
-        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do60", 4.5),
-        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do60", 8.0),
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do60", Number(source?.grzbietowa?.A4?.do60 ?? 4.5)),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do60", Number(source?.grzbietowa?.A3?.do60 ?? 8.0)),
       },
       do90: {
-        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do90", 5.5),
-        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do90", 9.0),
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do90", Number(source?.grzbietowa?.A4?.do90 ?? 5.5)),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do90", Number(source?.grzbietowa?.A3?.do90 ?? 9.0)),
       },
       do150: {
-        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do150", 7.0),
-        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do150", 14.0),
+        A4: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a4-do150", Number(source?.grzbietowa?.A4?.do150 ?? 7.0)),
+        A3: resolveStoredPrice("laminowanie-oprawa-grzbietowa-a3-do150", Number(source?.grzbietowa?.A3?.do150 ?? 14.0)),
       },
     },
     kanałowa: {
-      standard: resolveStoredPrice("laminowanie-oprawa-kanalowa-standard", 25.0),
-      pozostale: resolveStoredPrice("laminowanie-oprawa-kanalowa-pozostale", 35.0),
-      bezNapisu: resolveStoredPrice("laminowanie-oprawa-kanalowa-bez-napisu", 20.0),
-      wkarta: resolveStoredPrice("laminowanie-oprawa-kanalowa-wkarta", 10.0),
+      standard: resolveStoredPrice("laminowanie-oprawa-kanalowa-standard", Number(source?.kanalowa?.standard ?? 25.0)),
+      pozostale: resolveStoredPrice("laminowanie-oprawa-kanalowa-pozostale", Number(source?.kanalowa?.pozostale ?? 35.0)),
+      bezNapisu: resolveStoredPrice("laminowanie-oprawa-kanalowa-bez-napisu", Number(source?.kanalowa?.bezNapisu ?? 20.0)),
+      wkarta: resolveStoredPrice("laminowanie-oprawa-kanalowa-wkarta", Number(source?.kanalowa?.wkarta ?? 10.0)),
     },
     zaciskowa: {
-      miękka: resolveStoredPrice("laminowanie-oprawa-zaciskowa-miekka", 15.0),
+      miękka: resolveStoredPrice("laminowanie-oprawa-zaciskowa-miekka", Number(source?.zaciskowa?.miekka ?? 15.0)),
+      thermoBiala: resolveStoredPrice("laminowanie-oprawa-zaciskowa-thermo-biala", Number(source?.zaciskowa?.thermoBiala ?? 8.0)),
+      skoroszytZszywanie: resolveStoredPrice("laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie", Number(source?.zaciskowa?.skoroszytZszywanie ?? 7.0)),
     },
     zbijana: {
-      zbijanePrintedHere: resolveStoredPrice("laminowanie-oprawa-zbijane-printed-here", 50.0),
-      skrecanePrintedHere: resolveStoredPrice("laminowanie-oprawa-skrecane-printed-here", 60.0),
-      zbijaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-client-supplied", 60.0),
-      skrecaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-skrecane-client-supplied", 70.0),
+      zbijanePrintedHere: resolveStoredPrice("laminowanie-oprawa-zbijane-printed-here", Number(source?.zbijana?.printedHere?.zbijane ?? 50.0)),
+      skrecanePrintedHere: resolveStoredPrice("laminowanie-oprawa-skrecane-printed-here", Number(source?.zbijana?.printedHere?.skrecane ?? 60.0)),
+      zbijaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-client-supplied", Number(source?.zbijana?.clientSupplied?.zbijane ?? 60.0)),
+      skrecaneClientSupplied: resolveStoredPrice("laminowanie-oprawa-skrecane-client-supplied", Number(source?.zbijana?.clientSupplied?.skrecane ?? 70.0)),
+      extraPerCmPrintedHere: resolveStoredPrice("laminowanie-oprawa-zbijane-extra-per-cm-printed-here", Number(source?.zbijana?.extraPerCm?.printedHere ?? 10.0)),
+      extraPerCmClientSupplied: resolveStoredPrice("laminowanie-oprawa-zbijane-extra-per-cm-client-supplied", Number(source?.zbijana?.extraPerCm?.clientSupplied ?? 12.0)),
     },
   } as const;
 }
@@ -66,24 +127,29 @@ function getCurrentOprawyCdPrice(): number {
 const OPRAWA_TWARDA_ROZSZYCIE_DEFAULT = resolveStoredPrice("laminowanie-oprawa-twarda-rozszycie", 25);
 const OPRAWA_TWARDA_PONOWNE_ZSZYCIE_DEFAULT = resolveStoredPrice("laminowanie-oprawa-twarda-ponowne-zszycie", 25);
 
-function getBindingUnitPrice(type: "plastik" | "metal", qty: number, pages: number): number {
+function getBindingUnitPrice(type: "plastik" | "metal", subtype: "spirala" | "listwa", qty: number, pages: number): number {
+  const prices = getBindowaniePrices();
   const tier = qty >= 101 ? "101-200" : qty >= 51 ? "51-100" : "1-50";
 
   if (type === "plastik") {
-    const row = BINDOWANIE_PRICES.plastik[tier];
-    if (pages <= 20) return row.do20;
+    const row = prices.plastik[tier];
+    if (pages <= 20) {
+      return typeof row.do20 === "number"
+        ? row.do20
+        : (subtype === "listwa" ? row.do20.listwa : row.do20.spirala);
+    }
     if (pages <= 100) return row["21-100"];
     return row["100+"];
   }
 
-  const row = BINDOWANIE_PRICES.metal[tier === "101-200" ? "51-100" : tier];
+  const row = prices.metal[tier === "101-200" ? "51-100" : tier];
   if (pages <= 40) return row.do40;
   if (pages <= 80) return row.do80;
   return row.do120;
 }
 
 function getOprUnitPrice(
-  type: "grzbietowa" | "kanałowa" | "zaciskowa" | "zbijana" | "skrecana",
+  type: "grzbietowa" | "kanałowa" | "zaciskowa" | "thermo" | "skoroszyt" | "zbijana" | "skrecana",
   format: "A4" | "A3",
   pages: number,
   color: string
@@ -105,6 +171,14 @@ function getOprUnitPrice(
 
   if (type === "zaciskowa") {
     return oprawyPrices.zaciskowa.miękka;
+  }
+
+  if (type === "thermo") {
+    return oprawyPrices.zaciskowa.thermoBiala;
+  }
+
+  if (type === "skoroszyt") {
+    return oprawyPrices.zaciskowa.skoroszytZszywanie;
   }
 
   if (type === "zbijana") {
@@ -144,6 +218,12 @@ export const LaminowanieView: View = {
 
       calcBreakdownDetails.innerHTML = `${header}${rows}`;
       calcBreakdownBox.style.display = "block";
+    };
+
+    const clearCalcBreakdown = () => {
+      if (!calcBreakdownBox || !calcBreakdownDetails) return;
+      calcBreakdownDetails.innerHTML = "";
+      calcBreakdownBox.style.display = "none";
     };
 
     const ensureLegend = (activeTab: string = "laminowanie") => {
@@ -231,26 +311,82 @@ export const LaminowanieView: View = {
         <table><tr><th>Usługa</th><th>Cena / szt.</th></tr>${introRows}</table>
       `;
 
+      const bindowaniePrices = getBindowaniePrices();
+
       const bindowanieBlock = `
         <div class="legend-head">
           <div>
             <h4>Bindowanie (ceny bazowe)</h4>
-            <p class="legend-subtitle">Przykładowe stawki bazowe dla najczęstszych zakresów.</p>
+            <p class="legend-subtitle">Pełna tabela cen wg nakładu i liczby kartek (CSV).</p>
           </div>
         </div>
-        <div>Plastik: 1-50 szt. (do 20 kartek) ${formatPLN(BINDOWANIE_PRICES.plastik["1-50"].do20)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.plastik["51-100"].do20)}</div>
-        <div>Metal: 1-50 szt. (do 40 kartek) ${formatPLN(BINDOWANIE_PRICES.metal["1-50"].do40)}, 51-100 szt. ${formatPLN(BINDOWANIE_PRICES.metal["51-100"].do40)}</div>
+        <h5 style="margin:8px 0 6px;">Plastik (listwa zatrzaskowa / spirala plastik)</h5>
+        <table>
+          <tr><th>Ilość kartek</th><th>do 20</th><th>21-100</th><th>powyżej 100</th></tr>
+          <tr>
+            <td>1-50 szt.</td>
+            <td>${formatPLN(bindowaniePrices.plastik["1-50"].do20.listwa)} / ${formatPLN(bindowaniePrices.plastik["1-50"].do20.spirala)}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["1-50"]["21-100"])}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["1-50"]["100+"])}</td>
+          </tr>
+          <tr>
+            <td>51-100 szt.</td>
+            <td>${formatPLN(bindowaniePrices.plastik["51-100"].do20)}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["51-100"]["21-100"])}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["51-100"]["100+"])}</td>
+          </tr>
+          <tr>
+            <td>101-200 szt.</td>
+            <td>${formatPLN(bindowaniePrices.plastik["101-200"].do20)}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["101-200"]["21-100"])}</td>
+            <td>${formatPLN(bindowaniePrices.plastik["101-200"]["100+"])}</td>
+          </tr>
+        </table>
+        <h5 style="margin:10px 0 6px;">Metal (spirala metalowa)</h5>
+        <table>
+          <tr><th>Ilość kartek</th><th>do 40</th><th>do 80</th><th>do 120</th></tr>
+          <tr>
+            <td>1-50 szt.</td>
+            <td>${formatPLN(bindowaniePrices.metal["1-50"].do40)}</td>
+            <td>${formatPLN(bindowaniePrices.metal["1-50"].do80)}</td>
+            <td>${formatPLN(bindowaniePrices.metal["1-50"].do120)}</td>
+          </tr>
+          <tr>
+            <td>51-100 szt.</td>
+            <td>${formatPLN(bindowaniePrices.metal["51-100"].do40)}</td>
+            <td>${formatPLN(bindowaniePrices.metal["51-100"].do80)}</td>
+            <td>${formatPLN(bindowaniePrices.metal["51-100"].do120)}</td>
+          </tr>
+        </table>
       `;
 
       const oprawyBlock = `
         <div class="legend-head">
           <div>
             <h4>Oprawy (wybrane stawki)</h4>
-            <p class="legend-subtitle">Legenda cenowa dla najczęściej wybieranych wariantów.</p>
+            <p class="legend-subtitle">Tabela opraw zgodna z cennikiem CSV.</p>
           </div>
         </div>
-        <div>Grzbietowa A4 do 30: ${formatPLN(oprawy.grzbietowa.do30.A4)}, A3 do 30: ${formatPLN(oprawy.grzbietowa.do30.A3)}</div>
-        <div>Kanałowa standard: ${formatPLN(oprawy.kanałowa.standard)}, zaciskowa miękka: ${formatPLN(oprawy.zaciskowa.miękka)}</div>
+        <h5 style="margin:8px 0 6px;">Oprawa grzbietowa (listwa wsuwana)</h5>
+        <table>
+          <tr><th>Ilość stron</th><th>A4</th><th>A3</th></tr>
+          <tr><td>do 30</td><td>${formatPLN(oprawy.grzbietowa.do30.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do30.A3)}</td></tr>
+          <tr><td>do 60</td><td>${formatPLN(oprawy.grzbietowa.do60.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do60.A3)}</td></tr>
+          <tr><td>do 90</td><td>${formatPLN(oprawy.grzbietowa.do90.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do90.A3)}</td></tr>
+          <tr><td>do 150</td><td>${formatPLN(oprawy.grzbietowa.do150.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do150.A3)}</td></tr>
+        </table>
+        <h5 style="margin:10px 0 6px;">Oprawy kanałowe / zaciskowe</h5>
+        <table>
+          <tr><th>Pozycja</th><th>Cena</th></tr>
+          <tr><td>Kanałowa standard</td><td>${formatPLN(oprawy.kanałowa.standard)}</td></tr>
+          <tr><td>Kanałowa pozostałe kolory</td><td>${formatPLN(oprawy.kanałowa.pozostale)}</td></tr>
+          <tr><td>Kanałowa bez napisu</td><td>${formatPLN(oprawy.kanałowa.bezNapisu)}</td></tr>
+          <tr><td>Kanałowa własna okładka</td><td>${formatPLN(oprawy.kanałowa.wkarta)}</td></tr>
+          <tr><td>Zaciskowa miękka</td><td>${formatPLN(oprawy.zaciskowa.miękka)}</td></tr>
+          <tr><td>Biała – zszywka THERMO</td><td>${formatPLN(oprawy.zaciskowa.thermoBiala)}</td></tr>
+          <tr><td>Skoroszyt + zszywanie</td><td>${formatPLN(oprawy.zaciskowa.skoroszytZszywanie)}</td></tr>
+        </table>
+        <div style="margin-top:8px;">Dopłata za każdy dodatkowy 1 cm powyżej 5 cm: ${formatPLN(oprawy.zbijana.extraPerCmPrintedHere)} (drukowane u nas) / ${formatPLN(oprawy.zbijana.extraPerCmClientSupplied)} (dostarczone przez klienta).</div>
       `;
 
       if (activeTab === "bindowanie") {
@@ -278,11 +414,13 @@ export const LaminowanieView: View = {
 
       legend.innerHTML = `
         ${lamTables}
-        ${introTable}
       `;
     };
 
     ensureLegend("laminowanie");
+
+    const getActiveTab = (): string =>
+      tabBtns.find((b) => b.classList.contains("active"))?.dataset.tab ?? "laminowanie";
 
     tabBtns.forEach(btn => {
       btn.onclick = () => {
@@ -298,6 +436,7 @@ export const LaminowanieView: View = {
           content.style.display = content.id === `tab-${targetTab}` ? "block" : "none";
         });
 
+        clearCalcBreakdown();
         ensureLegend(targetTab ?? "laminowanie");
       };
     });
@@ -319,11 +458,13 @@ export const LaminowanieView: View = {
           if (isNaN(qty) || qty <= 0) {
             resultDisplay.style.display = "none";
             addToCartBtn.disabled = true;
+            clearCalcBreakdown();
             return;
           }
         if (!formatSelect.value) {
           resultDisplay.style.display = "none";
           addToCartBtn.disabled = true;
+          clearCalcBreakdown();
           return;
         }
 
@@ -369,6 +510,15 @@ export const LaminowanieView: View = {
           optionsHint: `${currentOptions.qty} szt, Format ${currentOptions.format}${expressLabel}`,
           payload: currentResult
         });
+
+        formatSelect.value = "";
+        qtyInput.value = "";
+        currentResult = null;
+        currentOptions = null;
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        if (expressHint) expressHint.style.display = "none";
+        clearCalcBreakdown();
       }
     };
 
@@ -416,11 +566,13 @@ export const LaminowanieView: View = {
         if (!selectedType || !selectedColor) {
           if (bindResultDisplay) bindResultDisplay.style.display = "none";
           if (bindAddBtn) bindAddBtn.disabled = true;
+          clearCalcBreakdown();
           return;
         }
         if (!bindQty.value) {
           if (bindResultDisplay) bindResultDisplay.style.display = "none";
           if (bindAddBtn) bindAddBtn.disabled = true;
+          clearCalcBreakdown();
           return;
         }
 
@@ -429,7 +581,7 @@ export const LaminowanieView: View = {
       const color = ((selectedColor.value === "biały") ? "biały" : "czarny") as "czarny" | "biały";
       const qty = parseInt(bindQty.value, 10) || 1;
       const pages = parseInt(bindPages.value, 10) || 1;
-      const unitPrice = getBindingUnitPrice(type, qty, pages);
+      const unitPrice = getBindingUnitPrice(type, subtype, qty, pages);
       const expressFactor = ctx.expressMode ? 1.2 : 1;
       const total = parseFloat((unitPrice * qty * expressFactor).toFixed(2));
 
@@ -467,6 +619,17 @@ export const LaminowanieView: View = {
         optionsHint: `${bindState.qty} szt., ${bindState.pages} kartek, ${bindState.type}/${bindState.subtype}, kolor: ${bindState.color}`,
         payload: bindState
       });
+
+      bindState = null;
+      bindTypeChecks.forEach(c => { c.checked = false; });
+      bindColorChecks.forEach(c => { c.checked = false; });
+      if (bindTypeChecks[0]) bindTypeChecks[0].checked = true;
+      if (bindColorChecks[0]) bindColorChecks[0].checked = true;
+      if (bindQty) bindQty.value = "";
+      if (bindPages) bindPages.value = "20";
+      if (bindResultDisplay) bindResultDisplay.style.display = "none";
+      if (bindAddBtn) bindAddBtn.disabled = true;
+      clearCalcBreakdown();
     });
 
     const oprType = container.querySelector("#opr-type") as HTMLSelectElement | null;
@@ -484,6 +647,8 @@ export const LaminowanieView: View = {
     const oprCustomColorRow = container.querySelector("#opr-custom-color-row") as HTMLElement | null;
     const oprFormatRow = container.querySelector("#opr-format-row") as HTMLElement | null;
     const oprPagesRow = container.querySelector("#opr-pages-row") as HTMLElement | null;
+    const oprThicknessRow = container.querySelector("#opr-thickness-row") as HTMLElement | null;
+    const oprThicknessCm = container.querySelector("#opr-thickness-cm") as HTMLInputElement | null;
     const oprAddBtn = container.querySelector("#opr-add-to-cart") as HTMLButtonElement | null;
     const oprResultDisplay = container.querySelector("#opr-result-display") as HTMLElement | null;
     const oprUnitPrice = container.querySelector("#opr-unit-price") as HTMLElement | null;
@@ -533,12 +698,15 @@ export const LaminowanieView: View = {
     }
 
     let oprState: {
-      type: "grzbietowa" | "kanałowa" | "zaciskowa" | "zbijana" | "skrecana";
+      type: "grzbietowa" | "kanałowa" | "zaciskowa" | "thermo" | "skoroszyt" | "zbijana" | "skrecana";
       format: "A4" | "A3";
       pages: number;
       qty: number;
       color: string;
       customColor?: string;
+      thicknessCm?: number;
+      extraCmUnits?: number;
+      extraThicknessPrice?: number;
       unitPrice: number;
       total: number;
       hardUnbind: boolean;
@@ -567,7 +735,7 @@ export const LaminowanieView: View = {
     };
 
     const syncOprRows = () => {
-      if (!oprType || !oprColorRow || !oprFormatRow || !oprPagesRow || !oprCustomColorRow || !oprGrzbietColorRow || !oprZaciskColorRow) return;
+      if (!oprType || !oprColorRow || !oprFormatRow || !oprPagesRow || !oprCustomColorRow || !oprGrzbietColorRow || !oprZaciskColorRow || !oprThicknessRow) return;
       const type = oprType.value;
 
       const hardCoverOnly = type === "kanałowa";
@@ -597,6 +765,7 @@ export const LaminowanieView: View = {
         if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
+        oprThicknessRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
       } else if (type === "kanałowa") {
         oprFormatRow.style.display = "none";
@@ -605,6 +774,7 @@ export const LaminowanieView: View = {
         oprZaciskColorRow.style.display = "none";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
         if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
+        oprThicknessRow.style.display = "none";
         oprColorRow.style.display = "";
         syncOprCustomColorRow();
         if (oprRozszycieRow) oprRozszycieRow.style.display = "";
@@ -615,6 +785,18 @@ export const LaminowanieView: View = {
         oprZaciskColorRow.style.display = "";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
         if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
+        oprThicknessRow.style.display = "none";
+        oprColorRow.style.display = "none";
+        oprCustomColorRow.style.display = "none";
+        if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
+      } else if (type === "thermo" || type === "skoroszyt") {
+        oprFormatRow.style.display = "none";
+        oprPagesRow.style.display = "none";
+        oprGrzbietColorRow.style.display = "none";
+        oprZaciskColorRow.style.display = "none";
+        if (oprDocSourceRow) oprDocSourceRow.style.display = "none";
+        if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "none";
+        oprThicknessRow.style.display = "none";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
@@ -625,6 +807,7 @@ export const LaminowanieView: View = {
         oprZaciskColorRow.style.display = "none";
         if (oprDocSourceRow) oprDocSourceRow.style.display = "";
         if (oprZbijaneInfoWrap) oprZbijaneInfoWrap.style.display = "";
+        oprThicknessRow.style.display = "";
         oprColorRow.style.display = "none";
         oprCustomColorRow.style.display = "none";
         if (oprRozszycieRow) oprRozszycieRow.style.display = "none";
@@ -640,17 +823,19 @@ export const LaminowanieView: View = {
       if (!oprType.value) {
         if (oprResultDisplay) oprResultDisplay.style.display = "none";
         if (oprAddBtn) oprAddBtn.disabled = true;
+        clearCalcBreakdown();
         return;
       }
       if (!oprQty.value) {
         if (oprResultDisplay) oprResultDisplay.style.display = "none";
         if (oprAddBtn) oprAddBtn.disabled = true;
+        clearCalcBreakdown();
         return;
       }
-      const type = (oprType.value === "kanałowa" || oprType.value === "zaciskowa"
+      const type = (oprType.value === "kanałowa" || oprType.value === "zaciskowa" || oprType.value === "thermo" || oprType.value === "skoroszyt"
         || oprType.value === "zbijana" || oprType.value === "skrecana"
         ? oprType.value
-        : "grzbietowa") as "grzbietowa" | "kanałowa" | "zaciskowa" | "zbijana" | "skrecana";
+        : "grzbietowa") as "grzbietowa" | "kanałowa" | "zaciskowa" | "thermo" | "skoroszyt" | "zbijana" | "skrecana";
       const format = (oprFormat.value === "A3" ? "A3" : "A4") as "A4" | "A3";
       const pages = parseInt(oprPages.value, 10) || 1;
       const qty = parseInt(oprQty.value, 10) || 1;
@@ -674,6 +859,16 @@ export const LaminowanieView: View = {
           : (type === "skrecana" ? oprawyPrices.zbijana.skrecanePrintedHere : oprawyPrices.zbijana.zbijanePrintedHere);
       }
 
+      const thicknessCmRaw = parseFloat((oprThicknessCm?.value ?? "").replace(",", "."));
+      const thicknessCm = Number.isFinite(thicknessCmRaw) && thicknessCmRaw > 0 ? thicknessCmRaw : 5;
+      const extraCmUnits = (type === "zbijana" || type === "skrecana")
+        ? Math.max(0, Math.ceil(thicknessCm - 5))
+        : 0;
+      const extraPerCm = docSource === "client-supplied"
+        ? oprawyPrices.zbijana.extraPerCmClientSupplied
+        : oprawyPrices.zbijana.extraPerCmPrintedHere;
+      const extraThicknessPrice = parseFloat((extraCmUnits * extraPerCm).toFixed(2));
+
       const expressFactor = ctx.expressMode ? 1.2 : 1;
       const hardUnbind = type === "kanałowa" && (oprHardUnbindCheck?.checked ?? false);
       const hardUnbindUnitPrice = parseHardCoverServicePrice(oprHardUnbindPrice?.value, OPRAWA_TWARDA_ROZSZYCIE_DEFAULT);
@@ -683,7 +878,7 @@ export const LaminowanieView: View = {
       const hardResewPrice = hardResew ? hardResewUnitPrice : 0;
       const cdBurn = oprCdCheck?.checked ?? false;
       const cdPrice = cdBurn ? currentCdPrice : 0;
-      const total = parseFloat(((unitPrice * qty + hardUnbindPrice + hardResewPrice + cdPrice) * expressFactor).toFixed(2));
+      const total = parseFloat(((unitPrice * qty + extraThicknessPrice + hardUnbindPrice + hardResewPrice + cdPrice) * expressFactor).toFixed(2));
 
       oprState = {
         type,
@@ -692,6 +887,9 @@ export const LaminowanieView: View = {
         qty,
         color,
         customColor,
+        thicknessCm,
+        extraCmUnits,
+        extraThicknessPrice,
         unitPrice,
         total,
         hardUnbind,
@@ -726,11 +924,21 @@ export const LaminowanieView: View = {
       if (type === "zaciskowa") {
         details.splice(1, 0, `Kolor: ${zaciskColor}`);
       }
+      if (type === "thermo") {
+        details.splice(1, 0, "Wariant: Biała – zszywka THERMO");
+      }
+      if (type === "skoroszyt") {
+        details.splice(1, 0, "Wariant: Skoroszyt + zszywanie");
+      }
       if (type === "kanałowa") {
         details.splice(1, 0, `Wariant: ${color === "pozostale" ? (customColor || "pozostałe") : color}`);
       }
       if (type === "zbijana" || type === "skrecana") {
         details.splice(1, 0, `Dokumentacja: ${docSource === "client-supplied" ? "dostarczone przez klienta" : "drukowane u nas"}`);
+        details.push(`Grubość: ${thicknessCm.toFixed(1)} cm`);
+        if (extraCmUnits > 0) {
+          details.push(`Dopłata za dodatkowy cm: ${extraCmUnits} × ${formatPLN(extraPerCm)} = ${formatPLN(extraThicknessPrice)}`);
+        }
       }
       if (cdBurn) {
         details.push(`Nagrywanie płyty: +${formatPLN(cdPrice)}`);
@@ -759,11 +967,19 @@ export const LaminowanieView: View = {
             : oprState.color === "wkarta" ? "wkarta okładka"
             : `kolor: ${oprState.color === "pozostale" ? (oprState.customColor || "pozostałe") : oprState.color}`
         );
+      } else if (oprState.type === "thermo") {
+        options.push("Biała – zszywka THERMO");
+      } else if (oprState.type === "skoroszyt") {
+        options.push("Skoroszyt + zszywanie");
       } else if (oprState.type === "zbijana" || oprState.type === "skrecana") {
         const sourceLabel = oprState.docSource === "client-supplied"
           ? "dostarczone przez klienta"
           : "drukowane u nas";
         options.push(`${oprState.type === "skrecana" ? "skręcane" : "zbijane"}, ${sourceLabel}`);
+        options.push(`grubość: ${(oprState.thicknessCm ?? 5).toFixed(1)} cm`);
+        if ((oprState.extraCmUnits ?? 0) > 0) {
+          options.push(`dopłata +${formatPLN(oprState.extraThicknessPrice ?? 0)}`);
+        }
       } else {
         options.push(`${oprState.type}, kolor: ${oprState.zaciskColor ?? "czarny"}`);
       }
@@ -783,7 +999,11 @@ export const LaminowanieView: View = {
       ctx.cart.addItem({
         id: `oprawa-${Date.now()}`,
         category: "Introligatornia",
-        name: oprState.type === "zbijana"
+        name: oprState.type === "thermo"
+          ? "Oprawa THERMO"
+          : oprState.type === "skoroszyt"
+            ? "Skoroszyt + zszywanie"
+            : oprState.type === "zbijana"
           ? "Oprawa zbijana"
           : oprState.type === "skrecana"
             ? "Oprawa skręcana"
@@ -796,6 +1016,26 @@ export const LaminowanieView: View = {
         optionsHint: options.join(", "),
         payload: oprState
       });
+
+      oprState = null;
+      if (oprType) oprType.selectedIndex = 0;
+      if (oprFormat) oprFormat.value = "A4";
+      if (oprPages) oprPages.value = "";
+      if (oprQty) oprQty.value = "";
+      if (oprColor) oprColor.value = "czarny";
+      if (oprCustomColor) oprCustomColor.value = "";
+      if (oprGrzbietColor) oprGrzbietColor.value = "czarna";
+      if (oprZaciskColor) oprZaciskColor.value = "czarny";
+      if (oprDocSource) oprDocSource.value = "printed-here";
+      if (oprThicknessCm) oprThicknessCm.value = "5";
+      if (oprHardUnbindCheck) oprHardUnbindCheck.checked = false;
+      if (oprHardResewCheck) oprHardResewCheck.checked = false;
+      if (oprCdCheck) oprCdCheck.checked = false;
+      syncOprRows();
+      if (oprResultDisplay) oprResultDisplay.style.display = "none";
+      if (oprAddBtn) oprAddBtn.disabled = true;
+      if (oprExpressHint) oprExpressHint.style.display = "none";
+      clearCalcBreakdown();
     });
 
     oprHardUnbindPrice?.addEventListener("blur", () => {
@@ -823,11 +1063,13 @@ export const LaminowanieView: View = {
       if (!introService.value) {
         if (introResultDisplay) introResultDisplay.style.display = "none";
         if (introAddBtn) introAddBtn.disabled = true;
+        clearCalcBreakdown();
         return;
       }
         if (!introQty.value) {
           if (introResultDisplay) introResultDisplay.style.display = "none";
           if (introAddBtn) introAddBtn.disabled = true;
+          clearCalcBreakdown();
           return;
         }
       const result = quoteIntroligatornia({
@@ -869,13 +1111,34 @@ export const LaminowanieView: View = {
         optionsHint: `${introState.qty} operacji`,
         payload: introState
       });
+
+      introState = null;
+      introService.selectedIndex = 0;
+      introQty.value = "";
+      if (introResultDisplay) introResultDisplay.style.display = "none";
+      if (introAddBtn) introAddBtn.disabled = true;
+      if (introExpressHint) introExpressHint.style.display = "none";
+      clearCalcBreakdown();
     });
 
     const recalcAll = () => {
-      performCalculation();
-      recalcBind();
-      recalcOpr();
-      recalcIntro();
+      const activeTab = getActiveTab();
+      if (activeTab === "laminowanie") {
+        performCalculation();
+        return;
+      }
+      if (activeTab === "bindowanie") {
+        recalcBind();
+        return;
+      }
+      if (activeTab === "oprawy") {
+        recalcOpr();
+        return;
+      }
+      if (activeTab === "introligatornia") {
+        recalcIntro();
+        return;
+      }
     };
 
     autoCalc({ root: container, calc: recalcAll });

@@ -158,10 +158,16 @@ describe("calculatePlakatyMalyCanon – do 9 szt", () => {
     expect(res.totalPrice).toBe(21);
   });
 
-  it("bez marginesu 200g, 4-9 szt -> 9 zł/szt", () => {
+  it("z marginesem 170g, A3, 1-3 szt -> 8 zł/szt", () => {
+    const res = calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A3", qty: 3 });
+    expect(res.tierPrice).toBe(8);
+    expect(res.totalPrice).toBe(24);
+  });
+
+  it("bez marginesu 200g, A3, 4-9 szt -> 11 zł/szt", () => {
     const res = calculatePlakatyMalyCanon({ variantId: "no-margin-200", format: "A3", qty: 9 });
-    expect(res.tierPrice).toBe(9);
-    expect(res.totalPrice).toBe(81);
+    expect(res.tierPrice).toBe(11);
+    expect(res.totalPrice).toBe(99);
   });
 
   it("applies express +20%", () => {

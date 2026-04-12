@@ -70,19 +70,28 @@ export function quoteLaminowanie(options: LaminowanieOptions): CalculationResult
 
 export function quoteIntroligatornia(options: IntroligatorniaOptions): IntroligatorniaResult {
   const laminowanieData = getPrice('laminowanie') as any;
-  const item = laminowanieData?.introligatornia?.items?.find((i: any) => i.id === options.serviceId);
+  const requestedId = options.serviceId === "druk-powyzej-20"
+    ? "dziurkowanie-powyzej-20"
+    : options.serviceId;
+  const item = laminowanieData?.introligatornia?.items?.find((i: any) => i.id === requestedId);
 
   if (!item) {
     throw new Error(`Invalid introligatornia service: ${options.serviceId}`);
   }
 
   const qty = Math.max(1, Math.floor(options.qty));
-  const unitPrice = resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price);
+  const normalizedId = item.id === "druk-powyzej-20" ? "dziurkowanie-powyzej-20" : item.id;
+  const unitPrice = normalizedId === "dziurkowanie-powyzej-20"
+    ? resolveStoredPrice(
+      "laminowanie-intro-dziurkowanie-powyzej-20",
+      resolveStoredPrice("laminowanie-intro-druk-powyzej-20", item.price)
+    )
+    : resolveStoredPrice(`laminowanie-intro-${normalizedId}`, item.price);
   const basePrice = unitPrice * qty;
   const totalPrice = parseFloat(basePrice.toFixed(2));
 
   return {
-    serviceId: item.id,
+    serviceId: normalizedId,
     serviceName: item.name,
     qty,
     unitPrice,

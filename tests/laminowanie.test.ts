@@ -86,6 +86,25 @@ describe("Laminowanie", () => {
     })).toThrow();
   });
 
+  it("should calculate introligatornia: dziurkowanie powyzej 20 kartek", () => {
+    const result = quoteIntroligatornia({
+      serviceId: "dziurkowanie-powyzej-20",
+      qty: 10,
+      express: false,
+    });
+    expect(result.totalPrice).toBe(0.5);
+  });
+
+  it("should support legacy id for dziurkowanie service", () => {
+    const result = quoteIntroligatornia({
+      serviceId: "druk-powyzej-20",
+      qty: 10,
+      express: false,
+    });
+    expect(result.serviceId).toBe("dziurkowanie-powyzej-20");
+    expect(result.totalPrice).toBe(0.5);
+  });
+
   it("should calculate wydruki specjalne: Dyplom", () => {
     const result = quoteWydrukiSpecjalne({
       variantId: "dyplom",
