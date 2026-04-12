@@ -68,9 +68,11 @@ export const PlakatyA4A3View: View = {
       const findDuzyVariant = (variantId: string) =>
         (tableData.duzyCanon?.variants ?? []).find((variant: any) => variant.id === variantId);
 
-      const getMalyPrice = (variantId: string, tier: any) => {
+      const getMalyPrice = (variantId: string, format: "A4" | "A3", tier: any) => {
         const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-        return formatPLN(resolveStoredPrice(`plakaty-maly-canon-${variantId}-${suffix}`, tier.price));
+        const base = tier?.prices?.[format] ?? (format === "A3" ? tier?.priceA3 : tier?.priceA4) ?? tier?.price;
+        const legacyAware = resolveStoredPrice(`plakaty-maly-canon-${variantId}-${suffix}`, Number(base));
+        return formatPLN(resolveStoredPrice(`plakaty-maly-canon-${variantId}-${format}-${suffix}`, legacyAware));
       };
 
       const getDuzyPrice = (variantId: string, qty: number, fallback = "-") => {
@@ -86,10 +88,10 @@ export const PlakatyA4A3View: View = {
           return `
             <tr>
               <td>${label}</td>
-              <td>${getMalyPrice("margin-170", tier)}</td>
-              <td>${getMalyPrice("no-margin-170", tier)}</td>
-              <td>${getMalyPrice("margin-200", tier)}</td>
-              <td>${getMalyPrice("no-margin-200", tier)}</td>
+              <td>${getMalyPrice("margin-170", "A4", tier)} / ${getMalyPrice("margin-170", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-170", "A4", tier)} / ${getMalyPrice("no-margin-170", "A3", tier)}</td>
+              <td>${getMalyPrice("margin-200", "A4", tier)} / ${getMalyPrice("margin-200", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-200", "A4", tier)} / ${getMalyPrice("no-margin-200", "A3", tier)}</td>
             </tr>
           `;
         })
@@ -124,10 +126,10 @@ export const PlakatyA4A3View: View = {
           <thead>
             <tr>
               <th>Ilość</th>
-              <th>170 margines</th>
-              <th>170 bez marginesu</th>
-              <th>200 margines</th>
-              <th>200 bez marginesu</th>
+              <th>170 margines (A4/A3)</th>
+              <th>170 bez marginesu (A4/A3)</th>
+              <th>200 margines (A4/A3)</th>
+              <th>200 bez marginesu (A4/A3)</th>
             </tr>
           </thead>
           <tbody>${malyRows}</tbody>

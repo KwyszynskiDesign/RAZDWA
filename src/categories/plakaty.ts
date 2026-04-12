@@ -431,6 +431,7 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
   const canon = data.malyCanon;
   const variant = canon?.variants?.find((v: any) => v.id === input.variantId);
   if (!variant) throw new Error(`Unknown mały canon variant: ${input.variantId}`);
+  const format = input.format === "A3" ? "A3" : "A4";
 
   const qty = Math.max(1, Math.floor(input.qty));
   if (qty > (canon.maxQty ?? 9)) {
@@ -441,12 +442,39 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
   if (!tier) throw new Error(`Brak progu dla ${qty} szt.`);
 
   const suffix = tier.max === null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-  const tierPrice = resolveStoredPrice(`plakaty-maly-canon-${input.variantId}-${suffix}`, tier.price);
+  const tierBasePrice =
+    tier?.prices?.[format] ??
+    (format === "A3" ? tier?.priceA3 : tier?.priceA4) ??
+    tier?.price;
+  if (!Number.isFinite(tierBasePrice)) {
+    throw new Error(`Brak ceny dla wariantu ${input.variantId}, formatu ${format}, progu ${suffix}.`);
+  }
+  const tierPriceLegacyAware = resolveStoredPrice(
+    `plakaty-maly-canon-${input.variantId}-${suffix}`,
+    tierBasePrice
+  );
+  const tierPrice = resolveStoredPrice(
+    `plakaty-maly-canon-${input.variantId}-${format}-${suffix}`,
+    tierPriceLegacyAware
+  );
 
   const singleTier = variant.tiers.find((t: any) => 1 >= t.min && (t.max === null || 1 <= t.max));
   const singleSuffix = singleTier ? (singleTier.max === null ? `${singleTier.min}+` : `${singleTier.min}-${singleTier.max}`) : suffix;
+  const singleTierBasePrice = singleTier
+    ? (
+      singleTier?.prices?.[format] ??
+      (format === "A3" ? singleTier?.priceA3 : singleTier?.priceA4) ??
+      singleTier?.price
+    )
+    : tierBasePrice;
   const singleTierPrice = singleTier
-    ? resolveStoredPrice(`plakaty-maly-canon-${input.variantId}-${singleSuffix}`, singleTier.price)
+    ? resolveStoredPrice(
+      `plakaty-maly-canon-${input.variantId}-${format}-${singleSuffix}`,
+      resolveStoredPrice(
+        `plakaty-maly-canon-${input.variantId}-${singleSuffix}`,
+        singleTierBasePrice
+      )
+    )
     : tierPrice;
 
   const basePrice = parseFloat((qty * tierPrice).toFixed(2));
@@ -463,7 +491,7 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
 
   return {
     variantName: variant.name,
-    format: input.format,
+    format,
     qty,
     tierPrice,
     singleTierPrice,
