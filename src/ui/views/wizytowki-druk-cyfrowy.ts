@@ -43,8 +43,10 @@ export const WizytowkiView: View = {
     const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
     const viperprintSection = container.querySelector("#w-viperprint-section") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
+    const goExternalInlineBtn = container.querySelector("#w-go-external-inline") as HTMLButtonElement | null;
 
     const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
+    const shouldShowInlineRedirect = () => !isExternal() && lamSelect?.value === 'lam';
 
     const syncMode = () => {
       const external = isExternal();
@@ -55,6 +57,9 @@ export const WizytowkiView: View = {
         addToCartBtn.style.display = external ? 'none' : '';
         addToCartBtn.disabled = true;
       }
+      if (goExternalInlineBtn) {
+        goExternalInlineBtn.style.display = shouldShowInlineRedirect() ? '' : 'none';
+      }
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
@@ -64,7 +69,11 @@ export const WizytowkiView: View = {
     };
 
     if (familySelect) familySelect.onchange = syncMode;
+    if (lamSelect) lamSelect.onchange = syncMode;
     if (goExternalBtn) goExternalBtn.onclick = () => {
+      window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
+    };
+    if (goExternalInlineBtn) goExternalInlineBtn.onclick = () => {
       window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
     };
 
