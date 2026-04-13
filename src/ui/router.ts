@@ -179,11 +179,11 @@ export class Router {
 
       {
         title: "Wykończenia",
-        ids: ["laminowanie", "folia-szroniona", "wycinanie-folii", "canvas", "roll-up"]
+        ids: ["laminowanie", "wydruki-specjalne", "folia-szroniona", "wycinanie-folii", "canvas", "roll-up"]
       },
       {
         title: "Pozostałe",
-        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "wydruki-specjalne", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
+        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
       }
     ];
 

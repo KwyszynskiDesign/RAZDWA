@@ -21,7 +21,6 @@ export const RollUpView: View = {
     const resultArea = container.querySelector("#rollUpResult") as HTMLElement;
     const breakdownBox = container.querySelector("#rollUpBreakdown") as HTMLElement;
     const breakdownLines = container.querySelector("#rollUpBreakdownLines") as HTMLElement;
-    const legendExpress = container.querySelector("#rollup-legend-express") as HTMLElement | null;
     const legendNote = container.querySelector("#rollup-legend-note") as HTMLElement | null;
 
     const legendTierEls: Record<string, HTMLElement | null> = {
@@ -53,9 +52,6 @@ export const RollUpView: View = {
       const replacementLabor = resolveStoredPrice("rollup-wymiana-labor", rollUpData?.replacement?.labor ?? 50);
       const replacementM2 = resolveStoredPrice("rollup-wymiana-m2", rollUpData?.replacement?.print_per_m2 ?? 80);
 
-      if (legendExpress) {
-        legendExpress.innerText = `+${Math.round(expressRate * 100)}%`;
-      }
       if (legendNote) {
         legendNote.innerText = `* Wymiana wkładu: ${formatPLN(replacementLabor)} + ${formatPLN(replacementM2)}/m² wydruku (blockout z czarnym środkiem).`;
       }
@@ -110,18 +106,13 @@ export const RollUpView: View = {
         breakdown.push(`<div><strong>Cena bazowa:</strong> ${options.qty} × ${formatPLN(unitBase)} = ${formatPLN(result.basePrice)}</div>`);
       }
 
-      if (options.express) {
-        breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      }
-
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";
       (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(result.totalPrice / options.qty);
       (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(result.totalPrice);
-      (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
 
       addToCartBtn.disabled = false;
       ctx.updateLastCalculated(result.totalPrice, "Roll-up");
