@@ -38,38 +38,40 @@ export const WycinanieFoliiView: View = {
     const unitEl = container.querySelector("#wf-unit") as HTMLElement | null;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wf-express") as HTMLElement | null;
+    const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
+    const legendExpressEl = container.querySelector("#wf-legend-express") as HTMLElement | null;
+    const legendKolorowaBelowEl = container.querySelector("#wf-legend-kolorowa-below") as HTMLElement | null;
+    const legendKolorowaAboveEl = container.querySelector("#wf-legend-kolorowa-above") as HTMLElement | null;
+    const legendZlotoBelowEl = container.querySelector("#wf-legend-zloto-below") as HTMLElement | null;
+    const legendZlotoAboveEl = container.querySelector("#wf-legend-zloto-above") as HTMLElement | null;
+    const legendNoteEl = container.querySelector("#wf-legend-note") as HTMLElement | null;
 
-    const ensureLegend = () => {
-      let legend = container.querySelector<HTMLElement>("#wf-dynamic-legend");
-      if (!legend) {
-        legend = document.createElement("div");
-        legend.id = "wf-dynamic-legend";
-        legend.className = "card";
-        legend.style.marginTop = "16px";
-        const anchor = container.querySelector("#wf-breakdown-display") as HTMLElement | null;
-        (anchor ?? resultEl).insertAdjacentElement("afterend", legend);
-      }
-
-      const rows = (data?.variants ?? []).map((variant: any) => {
-        const keyAbove = `wycinanie-folii-${variant.id}`;
-        const keyBelow = `wycinanie-folii-${variant.id}-ponizej`;
-        const aboveDefault = variant?.rates?.aboveOrEqual1m2 ?? (variant.id === "zloto-srebro" ? 150 : 125);
-        const belowDefault = variant?.rates?.below1m2 ?? (variant.id === "zloto-srebro" ? 220 : 200);
-        const above = defaultPrices?.[keyAbove] ?? aboveDefault;
-        const below = defaultPrices?.[keyBelow] ?? belowDefault;
-
-        return `<tr><td>${variant.name}</td><td>&lt; 1 m²: ${formatPLN(below)}</td><td>≥ 1 m²: ${formatPLN(above)}</td></tr>`;
-      }).join("");
-
+    const updateLegend = () => {
       const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
+      const expressPct = Math.round(resolveStoredPrice("modifier-express", 0.2) * 100);
 
-      legend.innerHTML = `
-        <table><tr><th>Wariant</th><th>Stawka poniżej 1 m²</th><th>Stawka od 1 m²</th></tr>${rows}</table>
-        <div class="hint" style="margin-top:8px;">Minimalna kwota: ${formatPLN(minRule)}, EXPRESS: +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</div>
-      `;
+      const kolorowa = (data?.variants ?? []).find((v: any) => v.id === "kolorowa");
+      const zloto = (data?.variants ?? []).find((v: any) => v.id === "zloto-srebro");
+
+      const kolorowaBelow = defaultPrices?.["wycinanie-folii-kolorowa-ponizej"] ?? kolorowa?.rates?.below1m2 ?? 200;
+      const kolorowaAbove = defaultPrices?.["wycinanie-folii-kolorowa"] ?? kolorowa?.rates?.aboveOrEqual1m2 ?? 125;
+      const zlotoBelow = defaultPrices?.["wycinanie-folii-zloto-srebro-ponizej"] ?? zloto?.rates?.below1m2 ?? 220;
+      const zlotoAbove = defaultPrices?.["wycinanie-folii-zloto-srebro"] ?? zloto?.rates?.aboveOrEqual1m2 ?? 150;
+
+      if (legendMinEl) legendMinEl.innerText = `${formatPLN(minRule)} / zlecenie`;
+      if (legendExpressEl) legendExpressEl.innerText = `+${expressPct}%`;
+      if (legendKolorowaBelowEl) legendKolorowaBelowEl.innerText = `${formatPLN(kolorowaBelow)}/m²`;
+      if (legendKolorowaAboveEl) legendKolorowaAboveEl.innerText = `${formatPLN(kolorowaAbove)}/m²`;
+      if (legendZlotoBelowEl) legendZlotoBelowEl.innerText = `${formatPLN(zlotoBelow)}/m²`;
+      if (legendZlotoAboveEl) legendZlotoAboveEl.innerText = `${formatPLN(zlotoAbove)}/m²`;
+
+      if (legendNoteEl) {
+        const note = (data?.notes ?? [])[0] ?? "Cena zawiera: folia + wycinanie + wybieranie + transport";
+        legendNoteEl.innerText = `* ${note}`;
+      }
     };
 
-    ensureLegend();
+    updateLegend();
 
     let currentOptions: (WycinanieFoliiOptions & { color?: string }) | null = null;
     let currentResult: any = null;

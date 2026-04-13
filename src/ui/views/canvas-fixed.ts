@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateCanvas, CanvasOptions, CanvasResult } from "../../categories/canvas";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const CanvasView: View = {
   id: "canvas",
@@ -45,9 +46,56 @@ export const CanvasView: View = {
     const qtyEl = container.querySelector("#cv-qty-val") as HTMLElement;
     const totalEl = container.querySelector("#cv-total") as HTMLElement;
     const expressEl = container.querySelector("#cv-express") as HTMLElement;
+    const legendM2Rate = container.querySelector("#cv-legend-m2-rate") as HTMLElement | null;
+    const legendExpress = container.querySelector("#cv-legend-express") as HTMLElement | null;
+    const legendFramedRows = container.querySelector("#cv-legend-framed-rows") as HTMLElement | null;
+    const legendUnframedRows = container.querySelector("#cv-legend-unframed-rows") as HTMLElement | null;
+    const legendNote = container.querySelector("#cv-legend-note") as HTMLElement | null;
 
     let currentOptions: CanvasOptions | null = null;
     let currentResult: CanvasResult | null = null;
+
+    const updateLegend = () => {
+      const framedMode = data?.modes?.find((m: any) => m.id === "framed");
+      const unframedMode = data?.modes?.find((m: any) => m.id === "unframed");
+      const m2Mode = data?.modes?.find((m: any) => m.id === "m2-unframed");
+
+      if (legendM2Rate) {
+        legendM2Rate.innerText = `${formatPLN(resolveStoredPrice("canvas-m2-unframed", m2Mode?.pricePerM2 ?? 180))} / m²`;
+      }
+      if (legendExpress) {
+        legendExpress.innerText = `+${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%`;
+      }
+
+      if (legendFramedRows) {
+        const rows = (framedMode?.formats ?? [])
+          .filter((f: any) => !f.customSize && !f.customQuote)
+          .map((f: any) => {
+            const price = resolveStoredPrice(`canvas-framed-${f.id}`, f.price);
+            const label = String(f.label ?? f.id).replace("x", " × ");
+            return `<tr><td>${label} cm</td><td>${formatPLN(price)}</td></tr>`;
+          })
+          .join("");
+        legendFramedRows.innerHTML = rows;
+      }
+
+      if (legendUnframedRows) {
+        const rows = (unframedMode?.formats ?? [])
+          .filter((f: any) => !f.customSize && !f.customQuote)
+          .map((f: any) => {
+            const price = resolveStoredPrice(`canvas-unframed-${f.id}`, f.price);
+            const label = String(f.label ?? f.id).replace("x", " × ");
+            return `<tr><td>${label} cm</td><td>${formatPLN(price)}</td></tr>`;
+          })
+          .join("");
+        legendUnframedRows.innerHTML = rows;
+      }
+
+      if (legendNote) {
+        const border = resolveStoredPrice("canvas-framed-custom-border", framedMode?.customPricePerCmBorder ?? 0.22);
+        legendNote.innerText = `* Format niestandardowy wyceniany indywidualnie. Cena oprawy na zamówienie: ${formatPLN(border)} / cmb.`;
+      }
+    };
 
     const syncModeUI = () => {
       const modeId = modeSel.value;
@@ -163,6 +211,7 @@ export const CanvasView: View = {
     modeSel.onchange = syncModeUI;
 
     autoCalc({ root: container, calc: calculate });
+    updateLegend();
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;
