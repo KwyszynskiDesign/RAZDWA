@@ -282,11 +282,7 @@ export const LaminowanieView: View = {
         <div class="legend-head">
           <div>
             <h4>Laminowanie (cena / szt.)</h4>
-            <p class="legend-subtitle">Legenda cenowa wg formatu i nakładu.</p>
           </div>
-        </div>
-        <div class="legend-badges">
-          <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span>
         </div>
         <table>
           <tr><th>Nakład</th><th>A3</th><th>A4</th><th>A5</th><th>A6</th></tr>
@@ -316,8 +312,7 @@ export const LaminowanieView: View = {
       const bindowanieBlock = `
         <div class="legend-head">
           <div>
-            <h4>Bindowanie (ceny bazowe)</h4>
-            <p class="legend-subtitle">Pełna tabela cen wg nakładu i liczby kartek (CSV).</p>
+            <h4>Bindowanie</h4>
           </div>
         </div>
         <h5 style="margin:8px 0 6px;">Plastik (listwa zatrzaskowa / spirala plastik)</h5>
@@ -363,8 +358,7 @@ export const LaminowanieView: View = {
       const oprawyBlock = `
         <div class="legend-head">
           <div>
-            <h4>Oprawy (wybrane stawki)</h4>
-            <p class="legend-subtitle">Tabela opraw zgodna z cennikiem CSV.</p>
+            <h4>Oprawy</h4>
           </div>
         </div>
         <h5 style="margin:8px 0 6px;">Oprawa grzbietowa (listwa wsuwana)</h5>
@@ -392,7 +386,6 @@ export const LaminowanieView: View = {
       if (activeTab === "bindowanie") {
         legend.innerHTML = `
           ${bindowanieBlock}
-          <div class="legend-badges"><span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span></div>
         `;
         return;
       }
@@ -400,7 +393,6 @@ export const LaminowanieView: View = {
       if (activeTab === "oprawy") {
         legend.innerHTML = `
           ${oprawyBlock}
-          <div class="legend-badges"><span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span></div>
         `;
         return;
       }
