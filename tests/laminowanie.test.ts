@@ -137,4 +137,15 @@ describe("Laminowanie", () => {
 
     expect(result.totalPrice).toBe(0);
   });
+
+  it("should calculate wydruki specjalne: trymer 2x", () => {
+    const result = quoteWydrukiSpecjalne({
+      variantId: "trymer-2x",
+      qty: 3,
+      doubleSided: false,
+      express: false,
+    });
+
+    expect(result.totalPrice).toBe(3);
+  });
 });
