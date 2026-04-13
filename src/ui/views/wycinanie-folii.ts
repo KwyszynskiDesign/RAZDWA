@@ -39,7 +39,6 @@ export const WycinanieFoliiView: View = {
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wf-express") as HTMLElement | null;
     const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
-    const legendExpressEl = container.querySelector("#wf-legend-express") as HTMLElement | null;
     const legendKolorowaBelowEl = container.querySelector("#wf-legend-kolorowa-below") as HTMLElement | null;
     const legendKolorowaAboveEl = container.querySelector("#wf-legend-kolorowa-above") as HTMLElement | null;
     const legendZlotoBelowEl = container.querySelector("#wf-legend-zloto-below") as HTMLElement | null;
@@ -48,7 +47,6 @@ export const WycinanieFoliiView: View = {
 
     const updateLegend = () => {
       const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
-      const expressPct = Math.round(resolveStoredPrice("modifier-express", 0.2) * 100);
 
       const kolorowa = (data?.variants ?? []).find((v: any) => v.id === "kolorowa");
       const zloto = (data?.variants ?? []).find((v: any) => v.id === "zloto-srebro");
@@ -59,7 +57,6 @@ export const WycinanieFoliiView: View = {
       const zlotoAbove = defaultPrices?.["wycinanie-folii-zloto-srebro"] ?? zloto?.rates?.aboveOrEqual1m2 ?? 150;
 
       if (legendMinEl) legendMinEl.innerText = `${formatPLN(minRule)} / zlecenie`;
-      if (legendExpressEl) legendExpressEl.innerText = `+${expressPct}%`;
       if (legendKolorowaBelowEl) legendKolorowaBelowEl.innerText = `${formatPLN(kolorowaBelow)}/m²`;
       if (legendKolorowaAboveEl) legendKolorowaAboveEl.innerText = `${formatPLN(kolorowaAbove)}/m²`;
       if (legendZlotoBelowEl) legendZlotoBelowEl.innerText = `${formatPLN(zlotoBelow)}/m²`;
