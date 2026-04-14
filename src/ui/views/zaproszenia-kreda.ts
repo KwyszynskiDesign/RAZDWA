@@ -25,23 +25,42 @@ export const ZaproszeniaKredaView: View = {
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
     const breakdownBox = container.querySelector("#zapBreakdown") as HTMLElement;
     const breakdownLines = container.querySelector("#zapBreakdownLines") as HTMLElement;
+    const legendTitle = container.querySelector("#zap-legend-title") as HTMLElement | null;
+    const legendSubtitle = container.querySelector("#zap-legend-subtitle") as HTMLElement | null;
+    const legendModeBadge = container.querySelector("#zap-legend-mode-badge") as HTMLElement | null;
     const legendRows = container.querySelector("#zap-legend-rows") as HTMLElement | null;
     const envelopeSummaryRow = container.querySelector("#resEnvelopeSummary") as HTMLElement;
     const envelopeSummaryValue = container.querySelector("#resEnvelopeSummaryValue") as HTMLElement;
 
     const updateLegend = () => {
       if (!legendRows) return;
+
       const data = getPrice("zaproszeniaKreda") as any;
-      const tiers = data?.formats?.A6?.single?.normal ?? {};
+      const format = formatSel.value || "A6";
+      const sidesNum = parseInt(sidesSel.value, 10) || 1;
+      const sidesKey = sidesNum === 1 ? "single" : "double";
+      const foldKey = foldedCheck.checked ? "folded" : "normal";
+      const tiers = data?.formats?.[format]?.[sidesKey]?.[foldKey] ?? {};
+
       const qtyList = Object.keys(tiers)
         .map((k) => Number(k))
         .filter((n) => Number.isFinite(n))
         .sort((a, b) => a - b);
 
+      if (legendTitle) {
+        legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldKey === "folded" ? " SKŁADANE" : ""}`;
+      }
+      if (legendSubtitle) {
+        legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
+      }
+      if (legendModeBadge) {
+        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}`;
+      }
+
       legendRows.innerHTML = qtyList
         .map((qty) => {
           const base = Number(tiers[String(qty)] ?? 0);
-          const price = resolveStoredPrice(`zaproszenia-a6-single-normal-${qty}`, base);
+          const price = resolveStoredPrice(`zaproszenia-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
           return `<tr><td>${qty} szt</td><td>${formatPLN(price)}</td></tr>`;
         })
         .join("");
@@ -58,6 +77,9 @@ export const ZaproszeniaKredaView: View = {
     };
 
     envelopeEnabled?.addEventListener("change", updateEnvelopeVisibility);
+    formatSel?.addEventListener("change", updateLegend);
+    sidesSel?.addEventListener("change", updateLegend);
+    foldedCheck?.addEventListener("change", updateLegend);
     updateEnvelopeVisibility();
 
     const calculate = () => {
