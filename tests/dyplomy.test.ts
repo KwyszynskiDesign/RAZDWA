@@ -101,5 +101,42 @@ describe("Dyplomy logic", () => {
     const result = calculateDyplomy({ qty: 1, isSatin: false, express: false });
     expect(result.appliedModifiers).toEqual([]);
   });
+
+  it("should apply -12% discount for single-sided from 6 pcs", () => {
+    // baza z tabeli: 6 szt = 35.00
+    // jednostronne od 6 szt: -12% = 4.20
+    // suma: 30.80
+    const result = calculateDyplomy({ qty: 6, sides: 1, isSatin: false, express: false });
+    expect((result as any).tierPrice).toBe(35.00);
+    expect((result as any).singleSidedDiscountAmount).toBe(4.20);
+    expect(result.basePrice).toBe(30.80);
+    expect(result.totalPrice).toBe(30.80);
+    expect(result.appliedModifiers).toContain("single-sided-discount");
+  });
+
+  it("should not apply single-sided discount below 6 pcs", () => {
+    const result = calculateDyplomy({ qty: 5, sides: 1, isSatin: false, express: false });
+    expect((result as any).singleSidedDiscountAmount).toBe(0);
+    expect(result.totalPrice).toBe(35.00);
+  });
+
+  it("should apply satin and express on discounted single-sided base", () => {
+    // 6 szt jednostronne:
+    // baza tabeli 35.00, rabat -12% => 30.80
+    // satyna +12% => 3.70
+    // express +20% => 6.16
+    // razem: 40.66
+    const result = calculateDyplomy({ qty: 6, sides: 1, isSatin: true, express: true });
+    expect(result.basePrice).toBe(30.80);
+    expect(result.modifiersTotal).toBe(9.86);
+    expect(result.totalPrice).toBe(40.66);
+  });
+
+  it("should ignore format in price calculation", () => {
+    const a4 = calculateDyplomy({ qty: 10, sides: 2, format: "A4", isSatin: false, express: false });
+    const a5 = calculateDyplomy({ qty: 10, sides: 2, format: "A5", isSatin: false, express: false });
+    expect(a4.totalPrice).toBe(a5.totalPrice);
+    expect(a4.totalPrice).toBe(40.00);
+  });
 });
 
