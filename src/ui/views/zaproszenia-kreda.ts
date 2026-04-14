@@ -40,7 +40,12 @@ export const ZaproszeniaKredaView: View = {
       const sidesNum = parseInt(sidesSel.value, 10) || 1;
       const sidesKey = sidesNum === 1 ? "single" : "double";
       const foldKey = foldedCheck.checked ? "folded" : "normal";
-      const tiers = data?.formats?.[format]?.[sidesKey]?.[foldKey] ?? {};
+      const paperVal = paperSel.value;
+      const isSatin = paperVal?.startsWith("satyna") || paperVal === "modigliani";
+      const paperBase: "kreda" | "satyna" = isSatin ? "satyna" : "kreda";
+      const tiers = (paperBase === "satyna"
+        ? data?.satynaFormats?.[format]?.[sidesKey]?.[foldKey]
+        : data?.formats?.[format]?.[sidesKey]?.[foldKey]) ?? {};
 
       const qtyList = Object.keys(tiers)
         .map((k) => Number(k))
@@ -54,19 +59,19 @@ export const ZaproszeniaKredaView: View = {
         legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
-        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}`;
+        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
       }
 
       legendRows.innerHTML = qtyList
         .map((qty) => {
           const base = Number(tiers[String(qty)] ?? 0);
-          const price = resolveStoredPrice(`zaproszenia-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
+          const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
+          const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
           return `<tr><td>${qty} szt</td><td>${formatPLN(price)}</td></tr>`;
         })
         .join("");
     };
 
-    const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
     const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
     const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
@@ -80,6 +85,7 @@ export const ZaproszeniaKredaView: View = {
     formatSel?.addEventListener("change", updateLegend);
     sidesSel?.addEventListener("change", updateLegend);
     foldedCheck?.addEventListener("change", updateLegend);
+    paperSel?.addEventListener("change", updateLegend);
     updateEnvelopeVisibility();
 
     const calculate = () => {
@@ -112,13 +118,9 @@ export const ZaproszeniaKredaView: View = {
       const envelopeTotal = withEnvelopes ? parseFloat((envelopeUnitPrice * envelopeQty).toFixed(2)) : 0;
       const totalPrice = parseFloat((result.totalPrice + envelopeTotal).toFixed(2));
 
-      let satinAmount = 0;
       let modiglianiAmount = 0;
       if (options.isModigliani) {
-        satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
-        modiglianiAmount = parseFloat(((result.basePrice + satinAmount) * modiglianiRate).toFixed(2));
-      } else if (options.isSatin) {
-        satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
+        modiglianiAmount = parseFloat((result.basePrice * modiglianiRate).toFixed(2));
       }
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
@@ -128,10 +130,9 @@ export const ZaproszeniaKredaView: View = {
       ];
 
       if (options.isModigliani) {
-        breakdown.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`);
-        breakdown.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(result.basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`);
+        breakdown.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(modiglianiAmount)}</div>`);
       } else if (options.isSatin) {
-        breakdown.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`);
+        breakdown.push(`<div><strong>Satyna:</strong> cena z osobnej tabeli SATYNA (bez dodatkowego +12%)</div>`);
       }
 
       if (options.express) {
@@ -142,7 +143,7 @@ export const ZaproszeniaKredaView: View = {
         breakdown.push(`<div><strong>${envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
       }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(satinAmount + modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(totalPrice)}</strong></div>`);
+      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
 

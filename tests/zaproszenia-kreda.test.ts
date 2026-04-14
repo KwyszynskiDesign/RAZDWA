@@ -83,8 +83,8 @@ describe("Zaproszenia KREDA logic", () => {
     expect(result.totalPrice).toBe(62.00);
   });
 
-  it("should apply Satin modifier (+12%)", () => {
-    // A6 Double-sided Normal 10szt = 35.00. 35 + 12% = 39.20
+  it("should use SATYNA table price from CSV", () => {
+    // SATYNA: A6 Double-sided Normal 10szt = 40.00
     const result = calculateZaproszeniaKreda({
       format: "A6",
       qty: 10,
@@ -94,7 +94,8 @@ describe("Zaproszenia KREDA logic", () => {
       isModigliani: false,
       express: false
     });
-    expect(result.totalPrice).toBe(39.20);
+    expect(result.basePrice).toBe(40.00);
+    expect(result.totalPrice).toBe(40.00);
   });
 
   it("should apply Express modifier (+20%)", () => {
@@ -111,8 +112,8 @@ describe("Zaproszenia KREDA logic", () => {
     expect(result.totalPrice).toBe(42.00);
   });
 
-  it("should apply both Satin and Express modifiers", () => {
-    // 35 + 12% + 20% = 35 + 4.2 + 7.0 = 46.20
+  it("should apply Express on SATYNA table price", () => {
+    // SATYNA A6 Double-sided Normal 10szt = 40.00. EXPRESS +20% => 48.00
     const result = calculateZaproszeniaKreda({
       format: "A6",
       qty: 10,
@@ -122,11 +123,11 @@ describe("Zaproszenia KREDA logic", () => {
       isModigliani: false,
       express: true
     });
-    expect(result.totalPrice).toBe(46.20);
+    expect(result.totalPrice).toBe(48.00);
   });
 
-  it("should apply Modigliani modifier (+34%)", () => {
-    // A6 Double-sided Normal 10szt = 35.00. 35 * 1.344 = 47.04
+  it("should apply Modigliani modifier (+20%) on SATYNA base", () => {
+    // SATYNA A6 Double-sided Normal 10szt = 40.00. MODIGLIANI +20% => 48.00
     const result = calculateZaproszeniaKreda({
       format: "A6",
       qty: 10,
@@ -136,6 +137,7 @@ describe("Zaproszenia KREDA logic", () => {
       isModigliani: true,
       express: false
     });
-    expect(result.totalPrice).toBe(47.04);
+    expect(result.basePrice).toBe(40.00);
+    expect(result.totalPrice).toBe(48.00);
   });
 });
