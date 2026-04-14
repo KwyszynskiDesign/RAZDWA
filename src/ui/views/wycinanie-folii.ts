@@ -63,7 +63,7 @@ export const WycinanieFoliiView: View = {
       if (legendZlotoAboveEl) legendZlotoAboveEl.innerText = `${formatPLN(zlotoAbove)}/m²`;
 
       if (legendNoteEl) {
-        const note = (data?.notes ?? [])[0] ?? "Cena zawiera: folia + wycinanie + wybieranie + transport";
+        const note = (data?.notes ?? [])[0] ?? "Cena zawiera: folia + wycinanie + wybieranie";
         legendNoteEl.innerText = `* ${note}`;
       }
     };
