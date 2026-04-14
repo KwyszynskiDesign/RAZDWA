@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateZaproszeniaKreda, ZaproszeniaKredaOptions } from "../../categories/zaproszenia-kreda";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { getPrice } from "../../services/priceService";
 
 export const ZaproszeniaKredaView: View = {
   id: "zaproszenia-kreda",
@@ -24,8 +25,27 @@ export const ZaproszeniaKredaView: View = {
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
     const breakdownBox = container.querySelector("#zapBreakdown") as HTMLElement;
     const breakdownLines = container.querySelector("#zapBreakdownLines") as HTMLElement;
+    const legendRows = container.querySelector("#zap-legend-rows") as HTMLElement | null;
     const envelopeSummaryRow = container.querySelector("#resEnvelopeSummary") as HTMLElement;
     const envelopeSummaryValue = container.querySelector("#resEnvelopeSummaryValue") as HTMLElement;
+
+    const updateLegend = () => {
+      if (!legendRows) return;
+      const data = getPrice("zaproszeniaKreda") as any;
+      const tiers = data?.formats?.A6?.single?.normal ?? {};
+      const qtyList = Object.keys(tiers)
+        .map((k) => Number(k))
+        .filter((n) => Number.isFinite(n))
+        .sort((a, b) => a - b);
+
+      legendRows.innerHTML = qtyList
+        .map((qty) => {
+          const base = Number(tiers[String(qty)] ?? 0);
+          const price = resolveStoredPrice(`zaproszenia-a6-single-normal-${qty}`, base);
+          return `<tr><td>${qty} szt</td><td>${formatPLN(price)}</td></tr>`;
+        })
+        .join("");
+    };
 
     const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
     const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
@@ -140,6 +160,7 @@ export const ZaproszeniaKredaView: View = {
     };
 
     autoCalc({ root: container, calc: calculate });
+    updateLegend();
 
     addToCartBtn.addEventListener("click", () => {
       const { options, result } = calculate();

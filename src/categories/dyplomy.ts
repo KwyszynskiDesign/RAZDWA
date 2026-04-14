@@ -28,13 +28,21 @@ export interface DyplomyOptions {
 }
 
 export function calculateDyplomy(options: DyplomyOptions) {
-  const basePrice = getPriceForQuantity(options.qty);
+  const tierPrice = getPriceForQuantity(options.qty);
+  const isSingleSided = (options.sides ?? 2) === 1;
+  const singleSidedDiscountRate = isSingleSided && options.qty >= 6 ? 0.12 : 0;
+  const singleSidedDiscountAmount = parseFloat((tierPrice * singleSidedDiscountRate).toFixed(2));
+  const basePrice = parseFloat((tierPrice - singleSidedDiscountAmount).toFixed(2));
   const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
   const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
   const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
   let materialModifiersTotal = 0;
   const appliedModifiers: string[] = [];
+
+  if (singleSidedDiscountRate > 0) {
+    appliedModifiers.push("single-sided-discount");
+  }
 
   if (options.isModigliani) {
     const satinModifier = basePrice * satinRate;
@@ -57,7 +65,10 @@ export function calculateDyplomy(options: DyplomyOptions) {
   const totalPrice = parseFloat((basePrice + modifiersTotal).toFixed(2));
 
   return {
+    tierPrice,
     basePrice,
+    singleSidedDiscountRate,
+    singleSidedDiscountAmount,
     modifiersTotal,
     totalPrice,
     appliedModifiers

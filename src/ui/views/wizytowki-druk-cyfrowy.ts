@@ -3,6 +3,7 @@ import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 import { autoCalc } from "../autoCalc";
+import { getPrice } from "../../services/priceService";
 
 const SATIN_MULTIPLIER = 1.12;
 const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=21018362364&gbraid=0AAAAAD968vUsT1IYHnVYtLWCKF6brvsG5&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icws7E1EMoiecw063F64yWTCzjVQYAGv8B9VfaX9vnGa6MI9rM6KAh8aAncwEALw_wcB";
@@ -44,6 +45,29 @@ export const WizytowkiView: View = {
     const viperprintSection = container.querySelector("#w-viperprint-section") as HTMLElement;
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
     const goExternalInlineBtn = container.querySelector("#w-go-external-inline") as HTMLButtonElement | null;
+    const legendRows = container.querySelector("#w-legend-rows") as HTMLElement | null;
+
+    const updateLegend = () => {
+      if (!legendRows) return;
+
+      const biz = getPrice("wizytowki") as any;
+      const table85none = biz?.cyfrowe?.standardPrices?.["85x55"]?.noLam ?? {};
+      const qtyList = Object.keys(table85none)
+        .map((k) => Number(k))
+        .filter((n) => Number.isFinite(n))
+        .sort((a, b) => a - b);
+
+      legendRows.innerHTML = qtyList
+        .map((qty) => {
+          const p85none = resolveStoredPrice(`wizytowki-85x55-none-${qty}szt`, Number(table85none[String(qty)] ?? 0));
+          const p85lam = resolveStoredPrice(`wizytowki-85x55-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["85x55"]?.lam?.[String(qty)] ?? 0));
+          const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.noLam?.[String(qty)] ?? 0));
+          const p90lam = resolveStoredPrice(`wizytowki-90x50-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.lam?.[String(qty)] ?? 0));
+
+          return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p85lam)}</td><td>${formatPLN(p90none)}</td><td>${formatPLN(p90lam)}</td></tr>`;
+        })
+        .join("");
+    };
 
     const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
     const shouldShowInlineRedirect = () => !isExternal() && lamSelect?.value === 'lam';
@@ -154,6 +178,7 @@ export const WizytowkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate });
+    updateLegend();
 
     if (addToCartBtn) {
       addToCartBtn.onclick = () => {
