@@ -30,6 +30,15 @@ export interface VoucheryOptions {
 }
 
 export function quoteVouchery(options: VoucheryOptions): any {
+  let selectedTier = voucheryData[0];
+  for (const tier of voucheryData) {
+    if (options.qty >= tier.qty) {
+      selectedTier = tier;
+    } else {
+      break;
+    }
+  }
+
   const basePrice = getPriceForQuantity(options.qty, options.sides === 'single');
   const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
   const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
@@ -51,6 +60,7 @@ export function quoteVouchery(options: VoucheryOptions): any {
   const total = basePrice + modifiersTotal;
 
   return {
+    tierQty: selectedTier.qty,
     basePrice,
     modifiersTotal: parseFloat(modifiersTotal.toFixed(2)),
     totalPrice: parseFloat(total.toFixed(2))

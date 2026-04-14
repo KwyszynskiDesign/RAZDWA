@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { quoteVouchery } from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
+import { getPrice } from "../../services/priceService";
 
 export const VoucheryView: View = {
   id: "vouchery",
@@ -41,6 +42,8 @@ export const VoucheryView: View = {
     const envelopeSummaryRow = container.querySelector("#v-envelope-summary-row") as HTMLElement;
     const envelopeSummaryLabel = container.querySelector("#v-envelope-summary-label") as HTMLElement;
     const envelopeSummaryValue = container.querySelector("#v-envelope-summary-value") as HTMLElement;
+    const legendTitle = container.querySelector("#v-legend-title") as HTMLElement | null;
+    const legendRows = container.querySelector("#v-legend-rows") as HTMLElement | null;
 
     let currentResult: any = null;
     let currentOptions: any = null;
@@ -51,6 +54,27 @@ export const VoucheryView: View = {
 
     const getEnvelopeLabel = (key: string): string => `Koperta ${key.toUpperCase()}`;
 
+    const updateLegend = () => {
+      if (!legendRows) return;
+
+      const tiers = (getPrice("vouchery") as Array<{ qty: number; single: number; double: number }> | undefined) ?? [];
+      const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement | null;
+      const side = sidesInput?.value === "double" ? "dwu" : "jed";
+      const sideLabel = side === "jed" ? "jednostronne" : "dwustronne";
+
+      if (legendTitle) {
+        legendTitle.innerText = `CENNIK VOUCHERY A4 ${sideLabel}`;
+      }
+
+      legendRows.innerHTML = tiers
+        .map((tier) => {
+          const fallback = side === "jed" ? tier.single : tier.double;
+          const price = resolveStoredPrice(`vouchery-${tier.qty}-${side}`, fallback);
+          return `<tr><td>${tier.qty} szt</td><td>${formatPLN(price)}</td></tr>`;
+        })
+        .join("");
+    };
+
     const updateEnvelopeVisibility = () => {
       const enabled = envelopeEnabled?.checked;
       if (envelopeFields) envelopeFields.style.display = enabled ? "block" : "none";
@@ -58,6 +82,9 @@ export const VoucheryView: View = {
 
     envelopeEnabled?.addEventListener("change", updateEnvelopeVisibility);
     updateEnvelopeVisibility();
+    container.querySelectorAll('input[name="v-sides"]').forEach((el) => {
+      el.addEventListener("change", updateLegend);
+    });
 
     const renderBreakdown = (result: any, options: any) => {
       const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
@@ -82,6 +109,7 @@ export const VoucheryView: View = {
 
       const lines = [
         `<div><strong>Nakład i typ:</strong> ${options.qty} szt, ${materialLabel}</div>`,
+        `<div><strong>Próg cenowy:</strong> ${result.tierQty} szt (${materialLabel})</div>`,
         `<div><strong>Cena z tabeli:</strong> ${formatPLN(basePrice)}</div>`,
       ];
 
@@ -109,6 +137,7 @@ export const VoucheryView: View = {
     const performCalculation = (): boolean => {
       if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
         resultDisplay.style.display = 'none';
+        breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         return false;
       }
@@ -192,6 +221,7 @@ export const VoucheryView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation });
+    updateLegend();
 
     addToCartBtn.onclick = () => {
       if (!performCalculation()) return;
