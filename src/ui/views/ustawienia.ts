@@ -178,6 +178,9 @@ const PRICE_LABELS: Record<string, string> = {
   "cad-fold-a2": "Składanie CAD – A2",
   "cad-fold-a3": "Składanie CAD – A3",
   "cad-fold-a3l": "Składanie CAD – A3 poprzeczne",
+  "cad-klient-skladanie": "Składanie CAD – rysunki od klienta (szt)",
+  "cad-nieformatowe-skladanie": "Składanie CAD – nieformatowe (m²)",
+  "cad-paski-wzmacniajace": "CAD – doklejanie pasków wzmacniających (szt)",
   // Laminowanie
   "laminowanie-a3-1-50": "Laminowanie A3 – 1–50 szt.",
   "laminowanie-a3-51-100": "Laminowanie A3 – 51–100 szt.",
@@ -806,6 +809,9 @@ const CAD_SETTINGS_ORDER: string[] = [
   "cad-fold-a2",
   "cad-fold-a3",
   "cad-fold-a3l",
+  "cad-klient-skladanie",
+  "cad-nieformatowe-skladanie",
+  "cad-paski-wzmacniajace",
 ];
 
 const CAD_SETTINGS_ORDER_INDEX = new Map<string, number>(

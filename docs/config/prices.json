@@ -279,7 +279,10 @@
                                  "A1":  2.0,
                                  "A2":  1.5,
                                  "A3":  1.0,
-                                 "A3L":  0.5
+                                 "A3L":  0.5,
+                                 "klientSkladanie":  4.0,
+                                 "nieformatoweSkladanie":  2.5,
+                                 "paskiWzmacniajace":  0.8
                              },
                     "wfScanPerCm":  0.08,
                     "tolerance":  0.5
@@ -3082,6 +3085,9 @@
                           "cad-fold-a2":  1.50,
                           "cad-fold-a3":  1.00,
                           "cad-fold-a3l":  0.50,
+                          "cad-klient-skladanie":  4.00,
+                          "cad-nieformatowe-skladanie":  2.50,
+                          "cad-paski-wzmacniajace":  0.80,
                           "laminowanie-a3-1-50":  7.00,
                           "laminowanie-a3-51-100":  6.00,
                           "laminowanie-a3-101-200":  5.00,

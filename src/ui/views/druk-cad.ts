@@ -63,6 +63,16 @@ export const DrukCADView: View = {
     const cadOpsListItems = container.querySelector("#cad-ops-list-items") as HTMLElement | null;
     const cadOpsTotal = container.querySelector("#cad-ops-total") as HTMLElement | null;
 
+    const optKlientSkladanie = container.querySelector("#cad-opt-klient-skladanie") as HTMLInputElement | null;
+    const klientSkladanieQtyRow = container.querySelector("#cad-klient-skladanie-qty-row") as HTMLElement | null;
+    const klientSkladanieQtyInput = container.querySelector("#cad-klient-skladanie-qty") as HTMLInputElement | null;
+    const optNieformatoweSkladanie = container.querySelector("#cad-opt-nieformatowe-skladanie") as HTMLInputElement | null;
+    const nieformatoweSkladanieQtyRow = container.querySelector("#cad-nieformatowe-skladanie-qty-row") as HTMLElement | null;
+    const nieformatoweSkladanieQtyInput = container.querySelector("#cad-nieformatowe-skladanie-qty") as HTMLInputElement | null;
+    const optPaskiWzmacniajace = container.querySelector("#cad-opt-paski-wzmacniajace") as HTMLInputElement | null;
+    const paskiWzmacniajaceQtyRow = container.querySelector("#cad-paski-wzmacniajace-qty-row") as HTMLElement | null;
+    const paskiWzmacniajaceQtyInput = container.querySelector("#cad-paski-wzmacniajace-qty") as HTMLInputElement | null;
+
     const ensureLegend = () => {
       let legend = container.querySelector<HTMLElement>("#cad-dynamic-legend");
       if (!legend) {
@@ -109,6 +119,10 @@ export const DrukCADView: View = {
           ${bwRows}
           <tr><td colspan="4" class="cad-legend-section" style="border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${colorRows}
+          <tr><td colspan="4" class="cad-legend-section" style="border-top:2px solid #0f172a;background:#fff7ed;">USŁUGI DODATKOWE</td></tr>
+          <tr><td colspan="2">Składanie od klienta</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-klient-skladanie", 4.0))} / szt</td></tr>
+          <tr><td colspan="2">Składanie nieformatowych</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-nieformatowe-skladanie", 2.5))} / m²</td></tr>
+          <tr><td colspan="2">Doklejanie pasków wzmacniających</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-paski-wzmacniajace", 0.8))} / szt</td></tr>
         </table>
         <div class="hint" style="margin-top:8px;">Składanie i skan WF rozliczane wg aktualnych stawek z ustawień.</div>
       `;
@@ -167,17 +181,75 @@ export const DrukCADView: View = {
       }
     };
 
+    const getInlineKlientSkladanieOp = (): CadOpItem | null => {
+      if (!optKlientSkladanie?.checked || !klientSkladanieQtyInput) return null;
+      const qty = parseInt(klientSkladanieQtyInput.value, 10);
+      if (isNaN(qty) || qty <= 0) return null;
+      const price = resolveStoredPrice("cad-klient-skladanie", 4.0);
+      return {
+        id: "cad-klient-skladanie-inline",
+        name: "Składanie rysunków od klienta",
+        quantity: qty,
+        unit: "szt",
+        unitPrice: price,
+        totalPrice: parseFloat((price * qty).toFixed(2)),
+        optionsHint: `${qty} szt.`,
+        payload: { price, qty }
+      };
+    };
+
+    const getInlineNieformatoweSkladanieOp = (): CadOpItem | null => {
+      if (!optNieformatoweSkladanie?.checked || !nieformatoweSkladanieQtyInput) return null;
+      const qty = parseFloat(nieformatoweSkladanieQtyInput.value.replace(",", "."));
+      if (isNaN(qty) || qty <= 0) return null;
+      const price = resolveStoredPrice("cad-nieformatowe-skladanie", 2.5);
+      return {
+        id: "cad-nieformatowe-skladanie-inline",
+        name: "Składanie rysunków nieformatowych",
+        quantity: qty,
+        unit: "m²",
+        unitPrice: price,
+        totalPrice: parseFloat((price * qty).toFixed(2)),
+        optionsHint: `${qty} m²`,
+        payload: { price, qty }
+      };
+    };
+
+    const getInlinePaskiWzmacniajaceOp = (): CadOpItem | null => {
+      if (!optPaskiWzmacniajace?.checked || !paskiWzmacniajaceQtyInput) return null;
+      const qty = parseInt(paskiWzmacniajaceQtyInput.value, 10);
+      if (isNaN(qty) || qty <= 0) return null;
+      const price = resolveStoredPrice("cad-paski-wzmacniajace", 0.8);
+      return {
+        id: "cad-paski-wzmacniajace-inline",
+        name: "Doklejanie pasków wzmacniających",
+        quantity: qty,
+        unit: "szt",
+        unitPrice: price,
+        totalPrice: parseFloat((price * qty).toFixed(2)),
+        optionsHint: `${qty} szt.`,
+        payload: { price, qty }
+      };
+    };
+
     const getEffectiveCadOps = (): CadOpItem[] => {
+      const extra: CadOpItem[] = [];
       const inlineScan = getInlineWfScanOp();
-      if (!inlineScan) return cadOps;
-
-      const duplicateExists = cadOps.some(op =>
-        op.name === inlineScan.name &&
-        op.optionsHint === inlineScan.optionsHint &&
-        Math.abs(op.totalPrice - inlineScan.totalPrice) < 0.01
-      );
-
-      return duplicateExists ? cadOps : [...cadOps, inlineScan];
+      if (inlineScan) {
+        const duplicateExists = cadOps.some(op =>
+          op.name === inlineScan.name &&
+          op.optionsHint === inlineScan.optionsHint &&
+          Math.abs(op.totalPrice - inlineScan.totalPrice) < 0.01
+        );
+        if (!duplicateExists) extra.push(inlineScan);
+      }
+      const klientOp = getInlineKlientSkladanieOp();
+      if (klientOp) extra.push(klientOp);
+      const nieformatoweOp = getInlineNieformatoweSkladanieOp();
+      if (nieformatoweOp) extra.push(nieformatoweOp);
+      const paskiOp = getInlinePaskiWzmacniajaceOp();
+      if (paskiOp) extra.push(paskiOp);
+      return extra.length > 0 ? [...cadOps, ...extra] : cadOps;
     };
 
     const updateCadOpsSummary = () => {
@@ -298,6 +370,28 @@ export const DrukCADView: View = {
     });
 
     [wfScanCmInput, wfScanQtyInput].forEach((el) => {
+      el?.addEventListener("input", () => {
+        updateCadOpsSummary();
+        updateGrandTotal();
+      });
+    });
+
+    optKlientSkladanie?.addEventListener("change", () => {
+      if (klientSkladanieQtyRow) klientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
+      updateCadOpsSummary();
+      updateGrandTotal();
+    });
+    optNieformatoweSkladanie?.addEventListener("change", () => {
+      if (nieformatoweSkladanieQtyRow) nieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "block" : "none";
+      updateCadOpsSummary();
+      updateGrandTotal();
+    });
+    optPaskiWzmacniajace?.addEventListener("change", () => {
+      if (paskiWzmacniajaceQtyRow) paskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
+      updateCadOpsSummary();
+      updateGrandTotal();
+    });
+    [klientSkladanieQtyInput, nieformatoweSkladanieQtyInput, paskiWzmacniajaceQtyInput].forEach((el) => {
       el?.addEventListener("input", () => {
         updateCadOpsSummary();
         updateGrandTotal();

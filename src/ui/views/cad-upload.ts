@@ -37,6 +37,15 @@ export const CadUploadView: View = {
     const optFill = container.querySelector<HTMLInputElement>("#optZapelnienie");
     const optScale = container.querySelector<HTMLInputElement>("#optPowieksz");
     const optEmail = container.querySelector<HTMLInputElement>("#optEmail");
+    const optKlientSkladanie = container.querySelector<HTMLInputElement>("#optKlientSkladanie");
+    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-qty-row");
+    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadKlientSkladanieQty");
+    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#optNieformatoweSkladanie");
+    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-qty-row");
+    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadNieformatoweSkladanieQty");
+    const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#optPaskiWzmacniajace");
+    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-qty-row");
+    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -116,6 +125,10 @@ export const CadUploadView: View = {
           ${bwRows}
           <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${colorRows}
+          <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#fff7ed;">USŁUGI DODATKOWE</td></tr>
+          <tr><td colspan="2">Składanie od klienta</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-klient-skladanie", 4.0))} / szt</td></tr>
+          <tr><td colspan="2">Składanie nieformatowych</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-nieformatowe-skladanie", 2.5))} / m²</td></tr>
+          <tr><td colspan="2">Doklejanie pasków wzmacniających</td><td colspan="2">${formatPLN(resolveStoredPrice("cad-paski-wzmacniajace", 0.8))} / szt</td></tr>
         </table>
       `;
     };
@@ -161,6 +174,23 @@ export const CadUploadView: View = {
       if (optFill?.checked) m += resolveStoredPrice("modifier-druk-zadruk25", 0.5);
       if (optScale?.checked) m += 0.5;
       return m;
+    }
+
+    function getExtraServicesTotal(): number {
+      let total = 0;
+      if (optKlientSkladanie?.checked) {
+        const qty = parseInt(cadUploadKlientSkladanieQty?.value || "0", 10);
+        if (qty > 0) total += resolveStoredPrice("cad-klient-skladanie", 4.0) * qty;
+      }
+      if (optNieformatoweSkladanie?.checked) {
+        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || "0").replace(",", "."));
+        if (qty > 0) total += resolveStoredPrice("cad-nieformatowe-skladanie", 2.5) * qty;
+      }
+      if (optPaskiWzmacniajace?.checked) {
+        const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || "0", 10);
+        if (qty > 0) total += resolveStoredPrice("cad-paski-wzmacniajace", 0.8) * qty;
+      }
+      return parseFloat(total.toFixed(2));
     }
 
     function showStatus(message: string, isWarning = false): void {
@@ -432,9 +462,10 @@ export const CadUploadView: View = {
       totalPrintBwVariant *= surcharge;
       
       const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
-      
-      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee;
-      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee;
+      const extraServicesTotal = getExtraServicesTotal();
+
+      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee + extraServicesTotal;
+      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee + extraServicesTotal;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
@@ -486,6 +517,11 @@ export const CadUploadView: View = {
           <div class="summary-item">
             <span>Email:</span>
             <span>${formatPLN(emailFee)}</span>
+          </div>` : ''}
+          ${extraServicesTotal > 0 ? `
+          <div class="summary-item">
+            <span>Usługi dodatkowe:</span>
+            <span>${formatPLN(extraServicesTotal)}</span>
           </div>` : ''}
           <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
             <span><strong>🎨 RAZEM KOLOR:</strong></span>
@@ -651,6 +687,22 @@ export const CadUploadView: View = {
 
     [optFill, optScale, optEmail].forEach((el) => {
       el?.addEventListener("change", () => renderFiles());
+    });
+
+    optKlientSkladanie?.addEventListener("change", () => {
+      if (cadUploadKlientSkladanieQtyRow) cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
+      renderFiles();
+    });
+    optNieformatoweSkladanie?.addEventListener("change", () => {
+      if (cadUploadNieformatoweSkladanieQtyRow) cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "block" : "none";
+      renderFiles();
+    });
+    optPaskiWzmacniajace?.addEventListener("change", () => {
+      if (cadUploadPaskiWzmacniajaceQtyRow) cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
+      renderFiles();
+    });
+    [cadUploadKlientSkladanieQty, cadUploadNieformatoweSkladanieQty, cadUploadPaskiWzmacniajaceQty].forEach((el) => {
+      el?.addEventListener("input", () => renderFiles());
     });
 
     // DPI change
