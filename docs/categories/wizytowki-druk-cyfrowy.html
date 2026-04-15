@@ -56,19 +56,43 @@
 
         <div class="form-actions">
             <button id="w-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
-            <button id="w-go-external-inline" class="btn-primary" type="button" style="display:none;">Przejdź do ViperPrint</button>
         </div>
         </div>
 
-        <div id="w-external-redirect" class="card" style="display:none; margin-top:16px; padding:16px; border:1px solid rgba(255,255,255,0.08);">
-            <div id="w-viperprint-section" style="margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                <h3 style="margin:0 0 8px 0; font-size:16px;">SoftTouch / DELUXE</h3>
-                <div class="hint" style="margin-bottom:12px;">
-                    Ten wariant jest informacyjny i obsługiwany zewnętrznie. Skorzystaj z ViperPrint.
-                </div>
-                <div class="form-actions" style="margin-bottom:0;">
-                    <button id="w-go-external" class="btn-primary" type="button">Przejdź do ViperPrint</button>
-                </div>
+        <div id="w-external-form" style="display:none; margin-top:12px;">
+            <div class="hint" style="margin-bottom:14px; padding:10px; background:var(--surface-alt); border-radius:6px; font-size:0.9rem;">
+                ℹ️ <strong>SoftTouch</strong> i <strong>DELUXE</strong> są realizowane zewnętrznie.<br>
+                Uzupełnij dane, aby zapisać zlecenie.
+            </div>
+            <div class="form-group">
+                <label for="w-ext-type">Wariant:</label>
+                <select id="w-ext-type" class="form-control">
+                    <option value="softtouch_350">SoftTouch 350g</option>
+                    <option value="deluxe_uv3d_softtouch">DELUXE – UV 3D + SoftTouch</option>
+                    <option value="deluxe_uv3d_gold_softtouch">DELUXE – UV 3D + Gold + SoftTouch</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-size">Rozmiar:</label>
+                <select id="w-ext-size" class="form-control">
+                    <option value="85x55">85×55 mm</option>
+                    <option value="90x50">90×50 mm</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-finish">Wykończenie:</label>
+                <select id="w-ext-finish" class="form-control">
+                    <option value="mat">Mat</option>
+                    <option value="blyszczacy">Błyszczący</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-qty">Ilość (szt):</label>
+                <input type="number" id="w-ext-qty" class="form-control" min="1" placeholder="ilość" inputmode="numeric">
+            </div>
+            <div class="form-actions">
+                <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO BAZY</button>
+                <button id="w-go-viperprint" class="btn-primary" type="button">Przejdź do ViperPrint ↗</button>
             </div>
         </div>
     </div>
@@ -135,42 +159,5 @@
         </table>
     </div>
 
-    <div id="w-legend-softtouch" class="cennik-table pricing-legend" style="display:none;">
-        <div class="legend-head">
-            <div>
-                <h4>WIZYTÓWKI SOFTTOUCH</h4>
-                <p class="legend-subtitle">Ceny brutto dla wariantu SoftTouch.</p>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ilość</th>
-                    <th>85x55</th>
-                    <th>90x50</th>
-                </tr>
-            </thead>
-            <tbody id="w-legend-softtouch-rows"></tbody>
-        </table>
-    </div>
-
-    <div id="w-legend-deluxe" class="cennik-table pricing-legend" style="display:none;">
-        <div class="legend-head">
-            <div>
-                <h4>WIZYTÓWKI DELUXE</h4>
-                <p class="legend-subtitle">Ceny brutto dla wariantu DELUXE.</p>
-            </div>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Ilość</th>
-                    <th>UV 3D SoftTouch</th>
-                    <th>UV 3D Gold SoftTouch</th>
-                </tr>
-            </thead>
-            <tbody id="w-legend-deluxe-rows"></tbody>
-        </table>
-    </div>
 </div>
 

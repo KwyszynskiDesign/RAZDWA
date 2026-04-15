@@ -42,10 +42,13 @@ export const WizytowkiView: View = {
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#w-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
-    const externalRedirect = container.querySelector("#w-external-redirect") as HTMLElement;
-    const viperprintSection = container.querySelector("#w-viperprint-section") as HTMLElement;
-    const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
-    const goExternalInlineBtn = container.querySelector("#w-go-external-inline") as HTMLButtonElement | null;
+    const externalForm = container.querySelector("#w-external-form") as HTMLElement | null;
+    const extTypeSelect = container.querySelector("#w-ext-type") as HTMLSelectElement | null;
+    const extSizeSelect = container.querySelector("#w-ext-size") as HTMLSelectElement | null;
+    const extFinishSelect = container.querySelector("#w-ext-finish") as HTMLSelectElement | null;
+    const extQtyInput = container.querySelector("#w-ext-qty") as HTMLInputElement | null;
+    const extAddToCartBtn = container.querySelector("#w-ext-add-to-cart") as HTMLButtonElement | null;
+    const goViperprintBtn = container.querySelector("#w-go-viperprint") as HTMLButtonElement | null;
     const legendRows = container.querySelector("#w-legend-rows") as HTMLElement | null;
     const legendStandardEl = container.querySelector("#w-legend-standard") as HTMLElement | null;
 
@@ -70,21 +73,21 @@ export const WizytowkiView: View = {
     };
 
     const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
-    const shouldShowInlineRedirect = () => !isExternal() && lamSelect?.value === 'lam';
 
     const syncMode = () => {
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
       if (paperGroup) paperGroup.style.display = external ? 'none' : '';
       if (legendStandardEl) legendStandardEl.style.display = external ? 'none' : '';
-      if (externalRedirect) externalRedirect.style.display = external ? 'block' : 'none';
-      if (viperprintSection) viperprintSection.style.display = external ? 'block' : 'none';
+      if (externalForm) externalForm.style.display = external ? 'block' : 'none';
+      if (extTypeSelect && external) {
+        const fam = familySelect?.value;
+        if (fam === 'softtouch') extTypeSelect.value = 'softtouch_350';
+        else if (fam === 'deluxe') extTypeSelect.value = 'deluxe_uv3d_softtouch';
+      }
       if (addToCartBtn) {
         addToCartBtn.style.display = external ? 'none' : '';
         addToCartBtn.disabled = true;
-      }
-      if (goExternalInlineBtn) {
-        goExternalInlineBtn.style.display = 'none';
       }
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
@@ -96,12 +99,43 @@ export const WizytowkiView: View = {
 
     if (familySelect) familySelect.onchange = syncMode;
     if (lamSelect) lamSelect.onchange = syncMode;
-    if (goExternalBtn) goExternalBtn.onclick = () => {
-      window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
-    };
-    if (goExternalInlineBtn) goExternalInlineBtn.onclick = () => {
-      window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
-    };
+
+    extQtyInput?.addEventListener("input", () => {
+      const qty = parseInt(extQtyInput!.value, 10);
+      if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0);
+    });
+
+    if (goViperprintBtn) {
+      goViperprintBtn.onclick = () => window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
+    }
+
+    if (extAddToCartBtn) {
+      extAddToCartBtn.onclick = () => {
+        const qty = parseInt(extQtyInput?.value || "0", 10);
+        if (!qty || qty <= 0) return;
+        const typeVal = extTypeSelect?.value || "softtouch_350";
+        const typeLabels: Record<string, string> = {
+          "softtouch_350": "SoftTouch 350g",
+          "deluxe_uv3d_softtouch": "DELUXE – UV 3D + SoftTouch",
+          "deluxe_uv3d_gold_softtouch": "DELUXE – UV 3D + Gold + SoftTouch",
+        };
+        const typeLabel = typeLabels[typeVal] ?? typeVal;
+        const sizeLabel = extSizeSelect?.value || "85x55";
+        const finishLabel = extFinishSelect?.value === "blyszczacy" ? "Błyszczący" : "Mat";
+        ctx.cart.addItem({
+          id: `wizytowki-ext-${Date.now()}`,
+          category: "Wizytówki",
+          name: `Wizytówki ${typeLabel}`,
+          quantity: qty,
+          unit: "szt",
+          unitPrice: 0,
+          isExpress: false,
+          totalPrice: 0,
+          optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
+          payload: { type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
+        });
+      };
+    }
 
     let currentResult: any = null;
     let currentOptions: any = null;

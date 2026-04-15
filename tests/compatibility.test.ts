@@ -87,19 +87,6 @@ describe("Compatibility Tests (kalkulatorv2.html logic)", () => {
     expect(res.total).toBe(75);
   });
 
-  it("Test 6: Wizytówki DELUXE, UV 3D + SoftTouch, 180 sztuk", () => {
-    // Opcja: uv3d_softtouch
-    // Qty: 180 → zaokrąglenie do 200
-    // Oczekiwany wynik: 395 zł
-    const res = calculateBusinessCards({
-      family: "deluxe",
-      deluxeOpt: "uv3d_softtouch",
-      qty: 180,
-    });
-    expect(res.qtyBilled).toBe(200);
-    expect(res.total).toBe(395);
-  });
-
   it("Test 7: Skanowanie auto, 35 stron", () => {
     // Mode: auto
     // Qty: 35
