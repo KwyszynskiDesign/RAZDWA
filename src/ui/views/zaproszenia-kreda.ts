@@ -89,7 +89,20 @@ export const ZaproszeniaKredaView: View = {
     updateEnvelopeVisibility();
 
     const calculate = () => {
-      if (!formatSel.value) {
+      const qtyRaw = (qtyInput.value || "").trim();
+      const qty = parseInt(qtyRaw, 10);
+      const sides = parseInt(sidesSel.value, 10);
+
+      const hasAllRequiredInputs =
+        Boolean(formatSel.value) &&
+        Number.isFinite(sides) &&
+        sides > 0 &&
+        Boolean(paperSel.value) &&
+        qtyRaw.length > 0 &&
+        Number.isFinite(qty) &&
+        qty > 0;
+
+      if (!hasAllRequiredInputs) {
         resultArea.style.display = "none";
         breakdownBox.style.display = "none";
         addToCartBtn.disabled = true;
@@ -100,8 +113,8 @@ export const ZaproszeniaKredaView: View = {
       const isModigliani = paperVal === "modigliani";
       const options: ZaproszeniaKredaOptions = {
         format: formatSel.value,
-        qty: parseInt(qtyInput.value) || 10,
-        sides: parseInt(sidesSel.value) || 1,
+        qty,
+        sides,
         isFolded: foldedCheck.checked,
         isSatin,
         isModigliani,

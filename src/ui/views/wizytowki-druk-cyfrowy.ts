@@ -29,6 +29,7 @@ export const WizytowkiView: View = {
     const sizeSelect = container.querySelector("#w-size") as HTMLSelectElement;
     const lamSelect = container.querySelector("#w-lam") as HTMLSelectElement;
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
+    const paperGroup = container.querySelector("#w-paper-group") as HTMLElement | null;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement | null;
@@ -46,10 +47,10 @@ export const WizytowkiView: View = {
     const goExternalBtn = container.querySelector("#w-go-external") as HTMLButtonElement;
     const goExternalInlineBtn = container.querySelector("#w-go-external-inline") as HTMLButtonElement | null;
     const legendRows = container.querySelector("#w-legend-rows") as HTMLElement | null;
+    const legendStandardEl = container.querySelector("#w-legend-standard") as HTMLElement | null;
 
     const updateLegend = () => {
       if (!legendRows) return;
-
       const biz = getPrice("wizytowki") as any;
       const table85none = biz?.cyfrowe?.standardPrices?.["85x55"]?.noLam ?? {};
       const qtyList = Object.keys(table85none)
@@ -63,7 +64,6 @@ export const WizytowkiView: View = {
           const p85lam = resolveStoredPrice(`wizytowki-85x55-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["85x55"]?.lam?.[String(qty)] ?? 0));
           const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.noLam?.[String(qty)] ?? 0));
           const p90lam = resolveStoredPrice(`wizytowki-90x50-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.lam?.[String(qty)] ?? 0));
-
           return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p85lam)}</td><td>${formatPLN(p90none)}</td><td>${formatPLN(p90lam)}</td></tr>`;
         })
         .join("");
@@ -75,6 +75,8 @@ export const WizytowkiView: View = {
     const syncMode = () => {
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
+      if (paperGroup) paperGroup.style.display = external ? 'none' : '';
+      if (legendStandardEl) legendStandardEl.style.display = external ? 'none' : '';
       if (externalRedirect) externalRedirect.style.display = external ? 'block' : 'none';
       if (viperprintSection) viperprintSection.style.display = external ? 'block' : 'none';
       if (addToCartBtn) {
@@ -82,7 +84,7 @@ export const WizytowkiView: View = {
         addToCartBtn.disabled = true;
       }
       if (goExternalInlineBtn) {
-        goExternalInlineBtn.style.display = shouldShowInlineRedirect() ? '' : 'none';
+        goExternalInlineBtn.style.display = 'none';
       }
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
@@ -202,7 +204,7 @@ export const WizytowkiView: View = {
             name: 'Wizytówki Standard',
             quantity: currentOptions.qty,
             unit: "szt",
-            unitPrice: currentResult.totalPrice / currentOptions.qty,
+            unitPrice: parseFloat((currentResult.totalPrice / currentOptions.qty).toFixed(2)),
             isExpress: currentOptions.express,
             totalPrice: currentResult.totalPrice,
             optionsHint: parts.join(', '),

@@ -34,7 +34,7 @@
         </div>
         </div>
 
-        <div class="form-group">
+        <div id="w-paper-group" class="form-group">
             <label for="w-paper">Papier:</label>
             <select id="w-paper" class="form-control">
                 <optgroup label="Kreda (standard)">
@@ -94,14 +94,12 @@
         <div id="w-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
 
-    <div class="cennik-table pricing-legend">
+    <div id="w-legend-standard" class="cennik-table pricing-legend">
         <div class="legend-head">
             <div>
                 <h4>WIZYTÓWKI STANDARD</h4>
-                <p class="legend-subtitle">Legenda cenowa dla wariantu Standard (bez SoftTouch/DELUXE).</p>
+                <p class="legend-subtitle">Ceny brutto dla wariantu Standard.</p>
             </div>
-        </div>
-        <div class="legend-badges">
         </div>
         <table>
             <thead>
@@ -114,6 +112,64 @@
                 </tr>
             </thead>
             <tbody id="w-legend-rows"></tbody>
+        </table>
+    </div>
+</div>
+        <div class="legend-head">
+            <div>
+                <h4>WIZYTÓWKI STANDARD</h4>
+                <p class="legend-subtitle">Ceny brutto dla wariantu Standard.</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ilość</th>
+                    <th>85x55 bez folii</th>
+                    <th>85x55 foliowane</th>
+                    <th>90x50 bez folii</th>
+                    <th>90x50 foliowane</th>
+                </tr>
+            </thead>
+            <tbody id="w-legend-rows"></tbody>
+        </table>
+    </div>
+
+    <div id="w-legend-softtouch" class="cennik-table pricing-legend" style="display:none;">
+        <div class="legend-head">
+            <div>
+                <h4>WIZYTÓWKI SOFTTOUCH</h4>
+                <p class="legend-subtitle">Ceny brutto dla wariantu SoftTouch.</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ilość</th>
+                    <th>85x55</th>
+                    <th>90x50</th>
+                </tr>
+            </thead>
+            <tbody id="w-legend-softtouch-rows"></tbody>
+        </table>
+    </div>
+
+    <div id="w-legend-deluxe" class="cennik-table pricing-legend" style="display:none;">
+        <div class="legend-head">
+            <div>
+                <h4>WIZYTÓWKI DELUXE</h4>
+                <p class="legend-subtitle">Ceny brutto dla wariantu DELUXE.</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ilość</th>
+                    <th>UV 3D SoftTouch</th>
+                    <th>UV 3D Gold SoftTouch</th>
+                </tr>
+            </thead>
+            <tbody id="w-legend-deluxe-rows"></tbody>
         </table>
     </div>
 </div>
