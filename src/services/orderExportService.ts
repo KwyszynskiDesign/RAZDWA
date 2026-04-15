@@ -56,8 +56,8 @@ interface AppsScriptCompactRowPayload {
   "Materiał": string;
   "jedno/dwustronne": string;
   "Produkt": string;
-  "Ilosc sztuk": string;
-  "Cena za sztukę": string;
+  "Ilosc sztuk": number;
+  "Cena za sztukę": number;
   "Uwagi": string;
   "Suma (PLN)": number;
   "Priorytet": string;
@@ -87,29 +87,17 @@ function splitCustomerName(fullName: string): { firstName: string; lastName: str
   };
 }
 
+function stripQuantityPrefix(hint: string): string {
+  // Usuwa np. "100 szt, " / "10.5 m2, " / "50 str., " z początku
+  return hint
+    .trim()
+    .replace(/^\d[\d\s,.]*\s*(szt\.?|str\.?|m2?|mb)\s*[,;]?\s*/i, "")
+    .trim();
+}
+
 function extractMaterialFromItem(item: OrderExportPayload["items"][number]): string {
-  const payload = item.payload;
-
-  if (payload && typeof payload === "object" && !Array.isArray(payload)) {
-    const p = payload as Record<string, unknown>;
-    const candidates = [
-      p.material,
-      p.paper,
-      p.paperType,
-      p.substrate,
-      p.foilType,
-    ];
-
-    for (const candidate of candidates) {
-      if (candidate !== undefined && candidate !== null) {
-        const value = String(candidate).trim();
-        if (value) return value;
-      }
-    }
-  }
-
   const hint = String(item.optionsHint ?? "").trim();
-  return hint || "-";
+  return stripQuantityPrefix(hint) || String(item.name ?? "") || "-";
 }
 
 function extractFormatFromItem(item: OrderExportPayload["items"][number]): string {
@@ -181,7 +169,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     const quantity = Math.max(0, Number(item.quantity || 0));
     const unitPrice = Number(item.unitPrice || 0);
 
-    const key = `${product}|${material}|${sides}|${unitPrice.toFixed(2)}`;
+    const key = `${product}|${material}|${unitPrice.toFixed(2)}`;
     const existing = grouped.get(key);
     if (existing) {
       existing.quantity += quantity;
@@ -192,12 +180,22 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
   });
 
   const packedLines = Array.from(grouped.values());
+  const totalSum = parseFloat(Number(payload.summary.total || 0).toFixed(2));
 
   const products = packedLines.map(line => line.product).join(" | ");
-  const sides = packedLines.map(line => line.sides).join(" | ");
-  const quantities = packedLines.map(line => String(line.quantity)).join(" | ");
-  const unitPrices = packedLines.map(line => line.unitPrice.toFixed(2)).join(" | ");
   const materials = packedLines.map(line => line.material).join(" | ");
+
+  // jedno/dwustronne: unikalne, niepuste wartości
+  const uniqueSides = [...new Set(packedLines.map(l => l.sides).filter(Boolean))];
+  const sidesStr = uniqueSides.join(", ");
+
+  // Ilosc sztuk: zawsze liczba (suma wszystkich pozycji)
+  const totalQty = packedLines.reduce((s, l) => s + l.quantity, 0);
+
+  // Cena za sztukę: dokładna dla jednej grupy, suma/ilość dla mieszanych
+  const effectiveUnitPrice = packedLines.length === 1
+    ? parseFloat(packedLines[0].unitPrice.toFixed(2))
+    : (totalQty > 0 ? parseFloat((totalSum / totalQty).toFixed(2)) : 0);
 
   return {
     "Data": date,
@@ -209,12 +207,12 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Telefon": String(payload.customer.phone ?? ""),
     "Email": String(payload.customer.email ?? ""),
     "Materiał": materials,
-    "jedno/dwustronne": sides,
+    "jedno/dwustronne": sidesStr,
     "Produkt": products,
-    "Ilosc sztuk": quantities,
-    "Cena za sztukę": unitPrices,
+    "Ilosc sztuk": totalQty,
+    "Cena za sztukę": effectiveUnitPrice,
     "Uwagi": String(payload.customer.notes ?? ""),
-    "Suma (PLN)": parseFloat(Number(payload.summary.total || 0).toFixed(2)),
+    "Suma (PLN)": totalSum,
     "Priorytet": String(payload.customer.priority ?? ""),
     "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
   };

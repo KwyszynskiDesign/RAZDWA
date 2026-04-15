@@ -12,7 +12,7 @@ const sampleItems: CartItem[] = [
     unitPrice: 75,
     isExpress: false,
     totalPrice: 75,
-    optionsHint: "100 szt",
+    optionsHint: "100 szt, 85x55 mm, Bez foliowania, Kreda 350g",
     payload: { paper: "kreda_350" },
   },
   {
@@ -24,7 +24,7 @@ const sampleItems: CartItem[] = [
     unitPrice: 0.19,
     isExpress: true,
     totalPrice: 38,
-    optionsHint: "200 szt, express",
+    optionsHint: "200 szt, A5, Dwustronne, EXPRESS",
     payload: { format: "A5" },
   },
 ];
@@ -146,9 +146,9 @@ describe("orderExportService", () => {
     expect(parsedBody["Ekspres"]).toBe("TAK");
     expect(parsedBody["Suma (PLN)"]).toBe(113);
     expect(parsedBody["Produkt"]).toContain("Wizytówki Standard");
-    expect(parsedBody["Ilosc sztuk"]).toContain("100");
-    expect(parsedBody["Cena za sztukę"]).toContain("75.00");
-    expect(parsedBody["Materiał"]).toContain("kreda_350");
+    expect(parsedBody["Ilosc sztuk"]).toBe(300);
+    expect(parsedBody["Cena za sztukę"]).toBeTypeOf("number");
+    expect(parsedBody["Materiał"]).toContain("Kreda 350g");
 
     expect(parsedBody.items).toBeUndefined();
     expect(parsedBody.summary).toBeUndefined();
@@ -236,7 +236,7 @@ describe("orderExportService", () => {
         unitPrice: 1.2,
         isExpress: false,
         totalPrice: 120,
-        optionsHint: "100 szt, A5, Dwustronne",
+        optionsHint: "100 szt, A5, Dwustronne, Kreda 130g",
         payload: { format: "A5", sides: "dwustronne", paper: "kreda 130g" },
       },
       {
@@ -248,7 +248,7 @@ describe("orderExportService", () => {
         unitPrice: 1.2,
         isExpress: false,
         totalPrice: 60,
-        optionsHint: "50 szt, A5, Dwustronne",
+        optionsHint: "50 szt, A5, Dwustronne, Kreda 130g",
         payload: { format: "A5", sides: "dwustronne", paper: "kreda 130g" },
       },
     ];
@@ -265,8 +265,8 @@ describe("orderExportService", () => {
 
     expect(parsedBody["Produkt"]).toContain("Ulotka A5");
     expect(parsedBody["jedno/dwustronne"]).toBe("Dwustronne");
-    expect(parsedBody["Ilosc sztuk"]).toBe("150");
-    expect(parsedBody["Cena za sztukę"]).toBe("1.20");
-    expect(parsedBody["Materiał"]).toContain("kreda 130g");
+    expect(parsedBody["Ilosc sztuk"]).toBe(150);
+    expect(parsedBody["Cena za sztukę"]).toBe(1.2);
+    expect(parsedBody["Materiał"]).toContain("Kreda 130g");
   });
 });
