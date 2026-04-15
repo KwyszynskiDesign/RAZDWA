@@ -273,13 +273,13 @@
                                            }
                              },
                     "fold":  {
-                                 "A0p":  4.0,
-                                 "A0":  3.0,
+                                 "A0p":  3.0,
+                                 "A0":  2.5,
                                  "A1p":  3.0,
                                  "A1":  2.0,
                                  "A2":  1.5,
                                  "A3":  1.0,
-                                 "A3L":  0.7
+                                 "A3L":  0.5
                              },
                     "wfScanPerCm":  0.08,
                     "tolerance":  0.5
@@ -3075,13 +3075,13 @@
                           "druk-cad-bw-mb-a0":  9.00,
                           "druk-cad-bw-mb-a0plus":  10.00,
                           "druk-cad-bw-mb-mb1067":  12.00,
-                          "cad-fold-a0plus":  4.00,
-                          "cad-fold-a0":  3.00,
+                          "cad-fold-a0plus":  3.00,
+                          "cad-fold-a0":  2.50,
                           "cad-fold-a1plus":  3.00,
                           "cad-fold-a1":  2.00,
                           "cad-fold-a2":  1.50,
                           "cad-fold-a3":  1.00,
-                          "cad-fold-a3l":  0.70,
+                          "cad-fold-a3l":  0.50,
                           "laminowanie-a3-1-50":  7.00,
                           "laminowanie-a3-51-100":  6.00,
                           "laminowanie-a3-101-200":  5.00,
