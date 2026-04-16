@@ -173,17 +173,20 @@ export class Router {
     const categoriesById = new Map(this.categories.map((cat: any) => [cat.id, cat]));
     const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
       {
-        title: "Druk",
-        ids: ["druk-a4-a3", "druk-cad", "cad-upload", "banner", "ulotki-cyfrowe", "wlepki-naklejki", "plakaty", "plakaty-a4-a3"]
-      },
-
-      {
-        title: "Wykończenia",
-        ids: ["laminowanie", "wydruki-specjalne", "folia-szroniona", "wycinanie-folii", "canvas", "roll-up"]
+        title: "Druk cyfrowy",
+        ids: ["druk-a4-a3", "ulotki-cyfrowe", "wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery"]
       },
       {
-        title: "Pozostałe",
-        ids: ["wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
+        title: "Ploter i wielki format",
+        ids: ["druk-cad", "cad-upload", "plakaty-a4-a3", "plakaty", "banner", "canvas", "roll-up"]
+      },
+      {
+        title: "Cięcie i folie",
+        ids: ["wlepki-naklejki", "folia-szroniona", "wycinanie-folii"]
+      },
+      {
+        title: "Wykończenie i inne",
+        ids: ["laminowanie", "wydruki-specjalne", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
       }
     ];
 
