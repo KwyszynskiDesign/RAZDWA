@@ -88,10 +88,10 @@ export const PlakatyA4A3View: View = {
           return `
             <tr>
               <td>${label}</td>
-              <td>${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
-              <td>${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
+              <td style="white-space:nowrap">${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
+              <td style="white-space:nowrap">${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
+              <td style="white-space:nowrap">${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
+              <td style="white-space:nowrap">${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
             </tr>
           `;
         })
