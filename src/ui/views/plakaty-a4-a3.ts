@@ -88,14 +88,10 @@ export const PlakatyA4A3View: View = {
           return `
             <tr>
               <td>${label}</td>
-              <td>${getMalyPrice("margin-170", "A4", tier)}</td>
-              <td>${getMalyPrice("margin-170", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-170", "A4", tier)}</td>
-              <td>${getMalyPrice("no-margin-170", "A3", tier)}</td>
-              <td>${getMalyPrice("margin-200", "A4", tier)}</td>
-              <td>${getMalyPrice("margin-200", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-200", "A4", tier)}</td>
-              <td>${getMalyPrice("no-margin-200", "A3", tier)}</td>
+              <td>${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
+              <td>${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
             </tr>
           `;
         })
@@ -126,25 +122,21 @@ export const PlakatyA4A3View: View = {
 
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
-        <table>
+        <table style="width:auto; table-layout:auto;">
           <thead>
             <tr>
               <th>Ilość</th>
-              <th colspan="2">170 margines</th>
-              <th colspan="2">170 bez marginesu</th>
-              <th colspan="2">200 margines</th>
-              <th colspan="2">200 bez marginesu</th>
+              <th>170 margines</th>
+              <th>170 bez marginesu</th>
+              <th>200 margines</th>
+              <th>200 bez marginesu</th>
             </tr>
             <tr>
               <th></th>
-              <th>A4</th>
-              <th>A3</th>
-              <th>A4</th>
-              <th>A3</th>
-              <th>A4</th>
-              <th>A3</th>
-              <th>A4</th>
-              <th>A3</th>
+              <th>A4 | A3</th>
+              <th>A4 | A3</th>
+              <th>A4 | A3</th>
+              <th>A4 | A3</th>
             </tr>
           </thead>
           <tbody>${malyRows}</tbody>

@@ -690,15 +690,15 @@ export const CadUploadView: View = {
     });
 
     optKlientSkladanie?.addEventListener("change", () => {
-      if (cadUploadKlientSkladanieQtyRow) cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
+      if (cadUploadKlientSkladanieQtyRow) cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "inline-flex" : "none";
       renderFiles();
     });
     optNieformatoweSkladanie?.addEventListener("change", () => {
-      if (cadUploadNieformatoweSkladanieQtyRow) cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "block" : "none";
+      if (cadUploadNieformatoweSkladanieQtyRow) cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "inline-flex" : "none";
       renderFiles();
     });
     optPaskiWzmacniajace?.addEventListener("change", () => {
-      if (cadUploadPaskiWzmacniajaceQtyRow) cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
+      if (cadUploadPaskiWzmacniajaceQtyRow) cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "inline-flex" : "none";
       renderFiles();
     });
     [cadUploadKlientSkladanieQty, cadUploadNieformatoweSkladanieQty, cadUploadPaskiWzmacniajaceQty].forEach((el) => {
