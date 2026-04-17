@@ -166,9 +166,12 @@
   }
   .cad-extra-service-item {
     display: inline-flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 6px;
-    white-space: nowrap;
+    white-space: normal;
+  }
+  .cad-extra-service-item > span:first-of-type {
+    white-space: normal;
   }
   .cad-extra-qty-row {
     display: inline-flex;
@@ -625,35 +628,6 @@
     </label>
   </div>
 
-  <!-- Usługi dodatkowe (nie per-plik) -->
-  <div class="cad-options-bar cad-extra-services cad-options">
-    <label class="cad-extra-service-item">
-      <input type="checkbox" id="optKlientSkladanie">
-      Składanie od klienta (4,00 zł/szt)
-      <span id="cad-upload-klient-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
-        Ilość:
-        <input type="number" id="cadUploadKlientSkladanieQty" class="cad-extra-qty-input" min="1" placeholder="szt">
-      </span>
-    </label>
-
-    <label class="cad-extra-service-item">
-      <input type="checkbox" id="optNieformatoweSkladanie">
-      Składanie nieformatowych (2,50 zł/m²)
-      <span id="cad-upload-nieformatowe-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
-        Ilość:
-        <input type="number" id="cadUploadNieformatoweSkladanieQty" class="cad-extra-qty-input" min="0.01" step="0.01" placeholder="m²">
-      </span>
-    </label>
-
-    <label class="cad-extra-service-item">
-      <input type="checkbox" id="optPaskiWzmacniajace">
-      Doklejanie pasków wzmacniających (0,80 zł/szt)
-      <span id="cad-upload-paski-wzmacniajace-qty-row" class="cad-extra-qty-row" style="display:none">
-        Ilość:
-        <input type="number" id="cadUploadPaskiWzmacniajaceQty" class="cad-extra-qty-input" min="1" placeholder="szt">
-      </span>
-    </label>
-  </div>
 
   <div class="cad-drop-zone" id="cadDropZone" role="button" tabindex="0"
        aria-label="Strefa przesyłania plików – kliknij lub przeciągnij pliki">
@@ -666,6 +640,36 @@
     <p>lub kliknij, aby wybrać (wiele plików naraz, max 50)</p>
     <input type="file" id="cadFileInput" multiple style="display:none"
            aria-label="Wybierz pliki CAD" />
+  </div>
+
+  <!-- Usługi dodatkowe (nie per-plik) -->
+  <div class="cad-options-bar cad-extra-services cad-options">
+    <label class="cad-extra-service-item">
+      <input type="checkbox" id="optKlientSkladanie">
+      <span>Składanie od<br>klienta (4,00 zł/szt)</span>
+      <span id="cad-upload-klient-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadKlientSkladanieQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+      </span>
+    </label>
+
+    <label class="cad-extra-service-item">
+      <input type="checkbox" id="optNieformatoweSkladanie">
+      <span>Składanie<br>nieformatowych (2,50 zł/m²)</span>
+      <span id="cad-upload-nieformatowe-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadNieformatoweSkladanieQty" class="cad-extra-qty-input" min="0.01" step="0.01" placeholder="m²">
+      </span>
+    </label>
+
+    <label class="cad-extra-service-item">
+      <input type="checkbox" id="optPaskiWzmacniajace">
+      <span>Doklejanie pasków<br>wzmacniających (0,80 zł/szt)</span>
+      <span id="cad-upload-paski-wzmacniajace-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadPaskiWzmacniajaceQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+      </span>
+    </label>
   </div>
 
   <div id="cadWarning" class="cad-warning" role="alert" style="display:none">
