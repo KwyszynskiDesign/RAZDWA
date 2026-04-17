@@ -32,6 +32,7 @@ export const WizytowkiView: View = {
     const paperGroup = container.querySelector("#w-paper-group") as HTMLElement | null;
 
     const qtyInput = container.querySelector("#w-qty") as HTMLInputElement;
+    const qtyGroup = container.querySelector("#w-qty-group") as HTMLElement | null;
     const addToCartBtn = container.querySelector("#w-add-to-cart") as HTMLButtonElement | null;
     const resultDisplay = container.querySelector("#w-result-display") as HTMLElement;
     const totalPriceSpan = container.querySelector("#w-total-price") as HTMLElement;
@@ -42,6 +43,7 @@ export const WizytowkiView: View = {
     const tierHint = container.querySelector("#w-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#w-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
+    const externalTopInfo = container.querySelector("#w-external-top-info") as HTMLElement | null;
     const externalForm = container.querySelector("#w-external-form") as HTMLElement | null;
     const extTypeSelect = container.querySelector("#w-ext-type") as HTMLSelectElement | null;
     const extSizeSelect = container.querySelector("#w-ext-size") as HTMLSelectElement | null;
@@ -78,7 +80,9 @@ export const WizytowkiView: View = {
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
       if (paperGroup) paperGroup.style.display = external ? 'none' : '';
+      if (qtyGroup) qtyGroup.style.display = external ? 'none' : '';
       if (legendStandardEl) legendStandardEl.style.display = external ? 'none' : '';
+      if (externalTopInfo) externalTopInfo.style.display = external ? 'block' : 'none';
       if (externalForm) externalForm.style.display = external ? 'block' : 'none';
       if (extTypeSelect && external) {
         const fam = familySelect?.value;
