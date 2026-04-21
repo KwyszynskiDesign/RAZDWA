@@ -878,8 +878,8 @@ function sortVoucheryCategoryKeys(keys: string[]): string[] {
   return [...keys].sort((a, b) => {
     const pa = parse(a);
     const pb = parse(b);
-    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
     if (pa.side !== pb.side) return pa.side - pb.side;
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
     return pa.raw.localeCompare(pb.raw, "pl");
   });
 }
