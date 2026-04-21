@@ -771,35 +771,35 @@ function getRenderedCategories(prices: PriceMap): PriceCategory[] {
 
 const CAD_SETTINGS_ORDER: string[] = [
   // CZ-B formatowe
-  "druk-cad-bw-fmt-a0plus",
-  "druk-cad-bw-fmt-a0",
-  "druk-cad-bw-fmt-a1plus",
-  "druk-cad-bw-fmt-a1",
-  "druk-cad-bw-fmt-a2",
   "druk-cad-bw-fmt-a3",
+  "druk-cad-bw-fmt-a2",
+  "druk-cad-bw-fmt-a1",
+  "druk-cad-bw-fmt-a1plus",
+  "druk-cad-bw-fmt-a0",
+  "druk-cad-bw-fmt-a0plus",
   "druk-cad-bw-fmt-mb1067",
   // CZ-B nieformatowe (mb)
-  "druk-cad-bw-mb-a0plus",
-  "druk-cad-bw-mb-a0",
-  "druk-cad-bw-mb-a1plus",
-  "druk-cad-bw-mb-a1",
-  "druk-cad-bw-mb-a2",
   "druk-cad-bw-mb-a3",
+  "druk-cad-bw-mb-a2",
+  "druk-cad-bw-mb-a1",
+  "druk-cad-bw-mb-a1plus",
+  "druk-cad-bw-mb-a0",
+  "druk-cad-bw-mb-a0plus",
   "druk-cad-bw-mb-mb1067",
   // Kolor formatowe
-  "druk-cad-kolor-fmt-a0plus",
-  "druk-cad-kolor-fmt-a0",
-  "druk-cad-kolor-fmt-a1plus",
-  "druk-cad-kolor-fmt-a1",
-  "druk-cad-kolor-fmt-a2",
   "druk-cad-kolor-fmt-a3",
+  "druk-cad-kolor-fmt-a2",
+  "druk-cad-kolor-fmt-a1",
+  "druk-cad-kolor-fmt-a1plus",
+  "druk-cad-kolor-fmt-a0",
+  "druk-cad-kolor-fmt-a0plus",
   // Kolor nieformatowe (mb)
-  "druk-cad-kolor-mb-a0plus",
-  "druk-cad-kolor-mb-a0",
-  "druk-cad-kolor-mb-a1plus",
-  "druk-cad-kolor-mb-a1",
-  "druk-cad-kolor-mb-a2",
   "druk-cad-kolor-mb-a3",
+  "druk-cad-kolor-mb-a2",
+  "druk-cad-kolor-mb-a1",
+  "druk-cad-kolor-mb-a1plus",
+  "druk-cad-kolor-mb-a0",
+  "druk-cad-kolor-mb-a0plus",
   "druk-cad-kolor-mb-mb1067",
   // Składanie
   "cad-fold-a0plus",
@@ -830,14 +830,245 @@ function sortCadCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function getNumericStartFromKey(key: string): number {
+  const m = key.match(/-(\d+)(?:-|\+|szt|str)?/i);
+  return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+}
+
+function sortDrukA4A3CategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("druk-bw-a4-")) return 0;
+    if (key.startsWith("druk-kolor-a4-")) return 1;
+    if (key.startsWith("druk-bw-a3-")) return 2;
+    if (key.startsWith("druk-kolor-a3-")) return 3;
+    if (key.startsWith("skan-auto-")) return 4;
+    if (key.startsWith("skan-reczne-")) return 5;
+    if (key === "druk-email") return 6;
+    if (key === "druk-label-sticker") return 7;
+    if (key === "druk-koszulka") return 8;
+    if (key === "modifier-druk-zadruk25") return 9;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortVoucheryCategoryKeys(keys: string[]): string[] {
+  const parse = (key: string) => {
+    const m = key.match(/^vouchery-(\d+)-(jed|dwu)$/);
+    if (!m) return { qty: Number.POSITIVE_INFINITY, side: 99, raw: key };
+    return {
+      qty: Number.parseInt(m[1], 10),
+      side: m[2] === "jed" ? 0 : 1,
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    if (pa.side !== pb.side) return pa.side - pb.side;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
+function sortDyplomyCategoryKeys(keys: string[]): string[] {
+  const parse = (key: string) => {
+    const m = key.match(/^dyplomy-qty-(\d+)$/);
+    return {
+      qty: m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY,
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
+function sortUlotkiCategoryKeys(keys: string[]): string[] {
+  const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
+
+  const parse = (key: string) => {
+    const m = key.match(/^ulotki-(jed|dwu)-(a6|a5|dl)-(\d+)$/);
+    if (!m) {
+      return {
+        side: 99,
+        format: 99,
+        qty: Number.POSITIVE_INFINITY,
+        raw: key,
+      };
+    }
+
+    return {
+      side: m[1] === "jed" ? 0 : 1,
+      format: formatRank[m[2]] ?? 99,
+      qty: Number.parseInt(m[3], 10),
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.side !== pb.side) return pa.side - pb.side;
+    if (pa.format !== pb.format) return pa.format - pb.format;
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
+function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
+  const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
+
+  const parse = (key: string) => {
+    const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|folded)-(\d+)$/);
+    if (!m) {
+      return {
+        format: 99,
+        sides: 99,
+        folded: 99,
+        qty: Number.POSITIVE_INFINITY,
+        raw: key,
+      };
+    }
+
+    return {
+      format: formatRank[m[1]] ?? 99,
+      sides: m[2] === "single" ? 0 : 1,
+      folded: m[3] === "normal" ? 0 : 1,
+      qty: Number.parseInt(m[4], 10),
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.format !== pb.format) return pa.format - pb.format;
+    if (pa.sides !== pb.sides) return pa.sides - pb.sides;
+    if (pa.folded !== pb.folded) return pa.folded - pb.folded;
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
+function sortLaminowanieCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("laminowanie-a3-")) return 0;
+    if (key.startsWith("laminowanie-a4-")) return 1;
+    if (key.startsWith("laminowanie-a5-")) return 2;
+    if (key.startsWith("laminowanie-a6-")) return 3;
+    if (key.startsWith("laminowanie-intro-")) return 4;
+    if (key.startsWith("laminowanie-bindowanie-plastik-")) return 5;
+    if (key.startsWith("laminowanie-bindowanie-metal-")) return 6;
+    if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return 7;
+    if (key.startsWith("laminowanie-oprawa-kanalowa-")) return 8;
+    if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return 9;
+    if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-") || key.startsWith("laminowanie-oprawa-twarda-")) return 10;
+    if (key.startsWith("laminowanie-special-")) return 11;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortPlakatyCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("solwent-115g-")) return 0;
+    if (key.startsWith("solwent-150g-")) return 1;
+    if (key.startsWith("solwent-200g-")) return 2;
+    if (key.startsWith("solwent-blockout-200g-")) return 3;
+    if (key.startsWith("plakaty-format-120g-formatowe-")) return 4;
+    if (key.startsWith("plakaty-format-120g-nieformatowe-")) return 5;
+    if (key.startsWith("plakaty-format-260g-satyna-formatowe-")) return 6;
+    if (key.startsWith("plakaty-format-260g-satyna-nieformatowe-")) return 7;
+    if (key.startsWith("plakaty-format-180g-pp-formatowe-")) return 8;
+    if (key.startsWith("plakaty-format-180g-pp-nieformatowe-")) return 9;
+    if (key.startsWith("plakaty-maly-canon-margin-170-")) return 10;
+    if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return 11;
+    if (key.startsWith("plakaty-maly-canon-margin-200-")) return 12;
+    if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return 13;
+    if (key.startsWith("plakaty-duzy-canon-a4-170-kreda-130-170-")) return 14;
+    if (key.startsWith("plakaty-duzy-canon-a3-170-kreda-130-170-")) return 15;
+    if (key.startsWith("plakaty-duzy-canon-a4-200-kreda-200-")) return 16;
+    if (key.startsWith("plakaty-duzy-canon-a3-200-kreda-200-")) return 17;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
   }
 
   const keys = Object.keys(prices).filter((key) => keyMatchesCategory(key, category));
+  if (category.id === "druk-a4-a3") {
+    return sortDrukA4A3CategoryKeys(keys);
+  }
+
   if (category.id === "druk-cad") {
     return sortCadCategoryKeys(keys);
+  }
+
+  if (category.id === "vouchery") {
+    return sortVoucheryCategoryKeys(keys);
+  }
+
+  if (category.id === "dyplomy") {
+    return sortDyplomyCategoryKeys(keys);
+  }
+
+  if (category.id === "laminowanie") {
+    return sortLaminowanieCategoryKeys(keys);
+  }
+
+  if (category.id === "solwent") {
+    return sortPlakatyCategoryKeys(keys);
+  }
+
+  if (category.id === "zaproszenia") {
+    return sortZaproszeniaCategoryKeys(keys);
+  }
+
+  if (category.id === "ulotki") {
+    return sortUlotkiCategoryKeys(keys);
   }
 
   return keys.sort();
@@ -952,10 +1183,10 @@ export const UstawieniaView: View = {
       }
 
       const cadSectionTitles: Record<string, string> = {
-        "druk-cad-bw-fmt-a0plus": "CZARNO-BIAŁY FORMATOWY",
-        "druk-cad-bw-mb-a0plus": "NIEFORMATOWE CZARNO-BIAŁE",
-        "druk-cad-kolor-fmt-a0plus": "KOLOR FORMATOWY",
-        "druk-cad-kolor-mb-a0plus": "NIEFORMATOWE KOLOROWE",
+        "druk-cad-bw-fmt-a3": "CZARNO-BIAŁY FORMATOWY",
+        "druk-cad-bw-mb-a3": "NIEFORMATOWE CZARNO-BIAŁE",
+        "druk-cad-kolor-fmt-a3": "KOLOR FORMATOWY",
+        "druk-cad-kolor-mb-a3": "NIEFORMATOWE KOLOROWE",
         "cad-fold-a0plus": "SKŁADANIE CAD",
       };
 
