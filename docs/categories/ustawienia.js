@@ -223,6 +223,10 @@ const CATEGORIES = {
     label: "💼 Wizytówki",
     prefixes: ["wizytowki-"]
   },
+  "dyplomy": {
+    label: "📜 Dyplomy",
+    prefixes: ["dyplomy-"]
+  },
   "vouchery": {
     label: "🎟️ Vouchery",
     prefixes: ["vouchery-"]
@@ -393,6 +397,40 @@ function compareSolwentKeys(a, b) {
   return a.localeCompare(b);
 }
 
+function compareVoucheryKeys(a, b) {
+  const parseVoucher = (key) => {
+    const m = key.match(/^vouchery-(\d+)-(jed|dwu)$/);
+    if (!m) return { qty: Number.POSITIVE_INFINITY, side: 99, raw: key };
+    return {
+      qty: Number.parseInt(m[1], 10),
+      side: m[2] === 'jed' ? 0 : 1,
+      raw: key
+    };
+  };
+
+  const pa = parseVoucher(a);
+  const pb = parseVoucher(b);
+
+  if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+  if (pa.side !== pb.side) return pa.side - pb.side;
+
+  return pa.raw.localeCompare(pb.raw);
+}
+
+function compareDyplomyKeys(a, b) {
+  const parseDyplomy = (key) => {
+    const m = key.match(/^dyplomy-qty-(\d+)$/);
+    if (!m) return { qty: Number.POSITIVE_INFINITY, raw: key };
+    return { qty: Number.parseInt(m[1], 10), raw: key };
+  };
+
+  const pa = parseDyplomy(a);
+  const pb = parseDyplomy(b);
+
+  if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+  return pa.raw.localeCompare(pb.raw);
+}
+
 function getFilteredPrices() {
   if (currentCategory === "wszystkie") {
     return Object.keys(prices).sort();
@@ -422,6 +460,14 @@ function getFilteredPrices() {
 
   if (currentCategory === 'solwent') {
     return keys.sort(compareSolwentKeys);
+  }
+
+  if (currentCategory === 'vouchery') {
+    return keys.sort(compareVoucheryKeys);
+  }
+
+  if (currentCategory === 'dyplomy') {
+    return keys.sort(compareDyplomyKeys);
   }
 
   return keys.sort();
