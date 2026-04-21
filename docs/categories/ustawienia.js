@@ -230,7 +230,7 @@ const DEFAULT_PRICES = {
   // === WLEPKI – PO OBRYSIE (FOLIA) ===
   "wlepki-obrys-folia-1-5": 67.00,
   "wlepki-obrys-folia-6-25": 60.00,
-  "wlepki-obrys-folia-26-50": 52.00,
+  "wlepki-obrys-folia-26-50": 56.00,
   "wlepki-obrys-folia-51+": 48.00,
   // === WLEPKI – POLIPROPYLEN ===
   "wlepki-polipropylen-1-10": 50.00,
