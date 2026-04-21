@@ -93,6 +93,60 @@ const DEFAULT_PRICES = {
   "laminowanie-a6-1-50": 3.00,
   "laminowanie-a6-51-100": 2.50,
   "laminowanie-a6-101-200": 2.00,
+  // === INTROLIGATORNIA – USŁUGI JEDNOSTKOWE ===
+  "laminowanie-intro-gilotyna": 0.07,
+  "laminowanie-intro-trymer": 0.50,
+  "laminowanie-intro-dziurkowanie-powyzej-20": 0.05,
+  "laminowanie-intro-zszywanie": 0.30,
+  "laminowanie-intro-broszurowanie": 0.50,
+  "laminowanie-intro-bigowanie": 0.50,
+  // === OPRAWA GRZBIETOWA (listwa wsuwana) ===
+  "laminowanie-oprawa-grzbietowa-a4-do30": 3.50,
+  "laminowanie-oprawa-grzbietowa-a4-do60": 4.50,
+  "laminowanie-oprawa-grzbietowa-a4-do90": 5.50,
+  "laminowanie-oprawa-grzbietowa-a4-do150": 7.00,
+  "laminowanie-oprawa-grzbietowa-a3-do30": 7.00,
+  "laminowanie-oprawa-grzbietowa-a3-do60": 8.00,
+  "laminowanie-oprawa-grzbietowa-a3-do90": 9.00,
+  "laminowanie-oprawa-grzbietowa-a3-do150": 14.00,
+  // === OPRAWY KANAŁOWE – dyplomowe ===
+  "laminowanie-oprawa-kanalowa-standard": 25.00,
+  "laminowanie-oprawa-kanalowa-pozostale": 35.00,
+  "laminowanie-oprawa-kanalowa-bez-napisu": 20.00,
+  "laminowanie-oprawa-kanalowa-wkarta": 10.00,
+  // === OPRAWY ZACISKOWE I INNE ===
+  "laminowanie-oprawa-zaciskowa-thermo-biala": 8.00,
+  "laminowanie-oprawa-zaciskowa-miekka": 15.00,
+  "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": 7.00,
+  // === OPRAWA DOKUMENTACJI WYDRUKOWANEJ U NAS ===
+  "laminowanie-oprawa-zbijane-printed-here": 50.00,
+  "laminowanie-oprawa-skrecane-printed-here": 60.00,
+  "laminowanie-oprawa-zbijane-extra-per-cm-printed-here": 10.00,
+  // === OPRAWA DOKUMENTACJI DOSTARCZONEJ PRZEZ KLIENTA ===
+  "laminowanie-oprawa-zbijane-client-supplied": 60.00,
+  "laminowanie-oprawa-skrecane-client-supplied": 70.00,
+  "laminowanie-oprawa-zbijane-extra-per-cm-client-supplied": 12.00,
+  // === DODATKOWO PŁATNE (oprawy twarde) ===
+  "laminowanie-oprawa-twarda-rozszycie": 25.00,
+  "laminowanie-oprawa-twarda-ponowne-zszycie": 25.00,
+  // === BINDOWANIE – PLASTIK ===
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": 7.00,
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": 6.00,
+  "laminowanie-bindowanie-plastik-1-50-21-100": 5.00,
+  "laminowanie-bindowanie-plastik-1-50-100plus": 4.00,
+  "laminowanie-bindowanie-plastik-51-100-do20": 9.00,
+  "laminowanie-bindowanie-plastik-51-100-21-100": 8.00,
+  "laminowanie-bindowanie-plastik-51-100-100plus": 7.00,
+  "laminowanie-bindowanie-plastik-101-200-do20": 13.00,
+  "laminowanie-bindowanie-plastik-101-200-21-100": 12.00,
+  "laminowanie-bindowanie-plastik-101-200-100plus": 11.00,
+  // === BINDOWANIE – METAL ===
+  "laminowanie-bindowanie-metal-1-50-do40": 11.00,
+  "laminowanie-bindowanie-metal-1-50-do80": 13.00,
+  "laminowanie-bindowanie-metal-1-50-do120": 15.00,
+  "laminowanie-bindowanie-metal-51-100-do40": 10.00,
+  "laminowanie-bindowanie-metal-51-100-do80": 11.00,
+  "laminowanie-bindowanie-metal-51-100-do120": 13.00,
   // === SOLWENT – PAPIER 150G PÓŁMAT ===
   "solwent-150g-1-3": 65.00,
   "solwent-150g-4-9": 60.00,
@@ -196,7 +250,7 @@ const CATEGORIES = {
     prefixes: ["skan-"]
   },
   "laminowanie": {
-    label: "🔲 Laminowanie",
+    label: "🔲 Introligatornia",
     prefixes: ["laminowanie-"]
   },
   "solwent": {
@@ -262,6 +316,108 @@ let prices = (function() {
 
 function escAttr(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+}
+
+function getPriceKeyDescription(key) {
+  // Introligatornia / laminowanie – opisy zgodne z CSV (bez zmiany kluczy i cen)
+  if (key.startsWith('laminowanie-intro-')) {
+    const introMap = {
+      'laminowanie-intro-gilotyna': 'Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)',
+      'laminowanie-intro-trymer': 'Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)',
+      'laminowanie-intro-dziurkowanie-powyzej-20': 'Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)',
+      // Klucz historyczny – mapowany opisem na pozycję z CSV
+      'laminowanie-intro-druk-powyzej-20': 'Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)',
+      'laminowanie-intro-zszywanie': 'Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)',
+      'laminowanie-intro-broszurowanie': 'Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)',
+      'laminowanie-intro-bigowanie': 'Introligatornia – usługi jednostkowe • Bigowanie (za 1 big)'
+    };
+    return introMap[key] || 'Introligatornia • Usługa dodatkowa';
+  }
+
+  let m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-(do20|21-100|100plus)$/);
+  if (m) {
+    const naklad = m[1];
+    const gruboscMap = {
+      do20: 'do 20 kartek',
+      '21-100': '21-100 kartek',
+      '100plus': 'powyżej 100 kartek'
+    };
+    return `Bindowanie – plastik (listwa zatrzaskowa / spirala plastik) • ${naklad} szt. • ${gruboscMap[m[2]]}`;
+  }
+
+  m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-do20-(listwa|spirala)$/);
+  if (m) {
+    const naklad = m[1];
+    const typMap = { listwa: 'listwa', spirala: 'spirala' };
+    return `Bindowanie – plastik (listwa zatrzaskowa / spirala plastik) • ${naklad} szt. • do 20 kartek • ${typMap[m[2]]}`;
+  }
+
+  m = key.match(/^laminowanie-bindowanie-metal-(\d+-\d+)-(do40|do80|do120)$/);
+  if (m) {
+    const naklad = m[1];
+    const kartkiMap = { do40: 'do 40 kartek', do80: 'do 80 kartek', do120: 'do 120 kartek' };
+    return `Bindowanie – metal (spirala metalowa) • ${naklad} szt. • ${kartkiMap[m[2]]}`;
+  }
+
+  m = key.match(/^laminowanie-oprawa-grzbietowa-(a4|a3)-do(30|60|90|150)$/);
+  if (m) {
+    return `Oprawa grzbietowa (listwa wsuwana) • ${m[1].toUpperCase()} • do ${m[2]} stron`;
+  }
+
+  const kanalMap = {
+    'laminowanie-oprawa-kanalowa-standard': 'Oprawy kanałowe – dyplomowe • standard (z napisem)',
+    'laminowanie-oprawa-kanalowa-pozostale': 'Oprawy kanałowe – dyplomowe • pozostałe kolory',
+    'laminowanie-oprawa-kanalowa-bez-napisu': 'Oprawy kanałowe – dyplomowe • bez napisu',
+    'laminowanie-oprawa-kanalowa-wkarta': 'Oprawy kanałowe – dyplomowe • wkarta'
+  };
+  if (kanalMap[key]) return kanalMap[key];
+
+  const zaciskMap = {
+    'laminowanie-oprawa-zaciskowa-miekka': 'Oprawy zaciskowe i inne • oprawa zaciskowa miękka',
+    'laminowanie-oprawa-zaciskowa-thermo-biala': 'Oprawy zaciskowe i inne • oprawa zaciskowa biała (zszywka THERMO)',
+    'laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie': 'Oprawy zaciskowe i inne • skoroszyt + zszywanie'
+  };
+  if (zaciskMap[key]) return zaciskMap[key];
+
+  const zbijaneMap = {
+    'laminowanie-oprawa-zbijane-printed-here': 'Oprawa dokumentacji wydrukowanej u nas • zbijane (do 5 cm wysokości dokumentów)',
+    'laminowanie-oprawa-skrecane-printed-here': 'Oprawa dokumentacji wydrukowanej u nas • skręcane – śruby introligatorskie (do 5 cm wysokości dokumentów)',
+    'laminowanie-oprawa-zbijane-client-supplied': 'Oprawa dokumentacji dostarczonej przez klienta • zbijane (do 5 cm wysokości dokumentów)',
+    'laminowanie-oprawa-skrecane-client-supplied': 'Oprawa dokumentacji dostarczonej przez klienta • skręcane – śruby introligatorskie (do 5 cm wysokości dokumentów)',
+    'laminowanie-oprawa-zbijane-extra-per-cm-printed-here': 'Dopłata • każdy dodatkowy 1 cm oprawy powyżej 5 cm (dokumentacja wydrukowana u nas)',
+    'laminowanie-oprawa-zbijane-extra-per-cm-client-supplied': 'Dopłata • każdy dodatkowy 1 cm oprawy powyżej 5 cm (dokumentacja dostarczona przez klienta)'
+  };
+  if (zbijaneMap[key]) return zbijaneMap[key];
+
+  const twardaMap = {
+    'laminowanie-oprawa-twarda-rozszycie': 'Dodatkowo płatne (oprawy twarde) • Rozszycie oprawy twardej (od 25 do 40 zł)',
+    'laminowanie-oprawa-twarda-ponowne-zszycie': 'Dodatkowo płatne (oprawy twarde) • Ponowne zszycie oprawy twardej (od 25 do 40 zł)'
+  };
+  if (twardaMap[key]) return twardaMap[key];
+
+  const specjalneMap = {
+    'laminowanie-special-dyplom': 'Wydruki specjalne • Dyplom',
+    'laminowanie-special-zaproszenia-dodruk': 'Wydruki specjalne • Zaproszenia (dodruk)',
+    'laminowanie-special-katalog': 'Wydruki specjalne • Katalog',
+    'laminowanie-special-broszura': 'Wydruki specjalne • Broszura',
+    'laminowanie-special-koperty-nadruk': 'Wydruki specjalne • Koperty – nadruk',
+    'laminowanie-special-trymer-2x': 'Wydruki specjalne • Cięcie trymer 2x',
+    'laminowanie-special-trymer-4x': 'Wydruki specjalne • Cięcie trymer 4x',
+    'laminowanie-special-double-sided-factor': 'Wydruki specjalne • dopłata za dwustronność'
+  };
+  if (specjalneMap[key]) return specjalneMap[key];
+
+  m = key.match(/^laminowanie-([aA]\d)-(\d+)-(\d+)$/);
+  if (m) {
+    return `Laminowanie ${m[1].toUpperCase()} • zakres ilości: ${m[2]}-${m[3]} szt.`;
+  }
+
+  m = key.match(/^laminowanie-([aA]\d)-(\d+)\+$/);
+  if (m) {
+    return `Laminowanie ${m[1].toUpperCase()} • zakres ilości: od ${m[2]} szt.`;
+  }
+
+  return '';
 }
 
 function getCategoryForKey(key) {
@@ -365,6 +521,11 @@ function compareLaminowanieKeys(a, b) {
     if (key.startsWith('laminowanie-a4-')) return 1;
     if (key.startsWith('laminowanie-a5-')) return 2;
     if (key.startsWith('laminowanie-a6-')) return 3;
+    if (key.startsWith('laminowanie-intro-')) return 4;
+    if (key.startsWith('laminowanie-bindowanie-plastik-')) return 5;
+    if (key.startsWith('laminowanie-bindowanie-metal-')) return 6;
+    if (key.startsWith('laminowanie-oprawa-')) return 7;
+    if (key.startsWith('laminowanie-special-')) return 8;
     return 99;
   };
 
@@ -534,6 +695,9 @@ function updateTable() {
   tbody.innerHTML = filteredKeys.map(key => `
     <tr style="border-bottom: 1px solid var(--border);">
       <td style="padding: 6px 10px;">
+        ${getPriceKeyDescription(key)
+          ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`
+          : ''}
         <input value="${escAttr(key)}" data-key="${escAttr(key)}" data-field="key"
           style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: monospace; background: var(--surface); color: var(--text-primary);">
       </td>
