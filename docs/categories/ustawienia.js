@@ -560,10 +560,16 @@ function compareLaminowanieKeys(a, b) {
     if (key.startsWith('laminowanie-a5-')) return 2;
     if (key.startsWith('laminowanie-a6-')) return 3;
     if (key.startsWith('laminowanie-intro-')) return 4;
-    if (key.startsWith('laminowanie-bindowanie-plastik-')) return 5;
-    if (key.startsWith('laminowanie-bindowanie-metal-')) return 6;
-    if (key.startsWith('laminowanie-oprawa-')) return 7;
-    if (key.startsWith('laminowanie-special-')) return 8;
+    if (key.startsWith('laminowanie-oprawa-grzbietowa-a4-')) return 5;
+    if (key.startsWith('laminowanie-oprawa-grzbietowa-a3-')) return 6;
+    if (key.startsWith('laminowanie-oprawa-kanalowa-')) return 7;
+    if (key.startsWith('laminowanie-oprawa-zaciskowa-')) return 8;
+    if (key.startsWith('laminowanie-oprawa-zbijane-printed-here') || key.startsWith('laminowanie-oprawa-skrecane-printed-here') || key === 'laminowanie-oprawa-zbijane-extra-per-cm-printed-here') return 9;
+    if (key.startsWith('laminowanie-oprawa-zbijane-client-supplied') || key.startsWith('laminowanie-oprawa-skrecane-client-supplied') || key === 'laminowanie-oprawa-zbijane-extra-per-cm-client-supplied') return 10;
+    if (key.startsWith('laminowanie-oprawa-twarda-')) return 11;
+    if (key.startsWith('laminowanie-bindowanie-plastik-')) return 12;
+    if (key.startsWith('laminowanie-bindowanie-metal-')) return 13;
+    if (key.startsWith('laminowanie-special-')) return 14;
     return 99;
   };
 
@@ -581,8 +587,8 @@ function compareLaminowanieKeys(a, b) {
 function compareSolwentKeys(a, b) {
   const materialRank = (key) => {
     if (key.startsWith('solwent-150g-')) return 0;
-    if (key.startsWith('solwent-200g-')) return 1;
-    if (key.startsWith('solwent-115g-')) return 2;
+    if (key.startsWith('solwent-115g-')) return 1;
+    if (key.startsWith('solwent-200g-')) return 2;
     if (key.startsWith('solwent-blockout200g-')) return 3;
     return 99;
   };
