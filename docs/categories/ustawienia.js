@@ -159,8 +159,36 @@ const DEFAULT_PRICES = {
   "solwent-200g-10-20": 59.00,
   "solwent-200g-21-40": 53.00,
   "solwent-200g-41+": 45.00,
-  // === VOUCHERY A4 ===
-  "vouchery-a4-base": 2.50,
+  // === VOUCHERY A4 – JEDNOSTRONNE ===
+  "vouchery-1-jed": 20.00,
+  "vouchery-2-jed": 29.00,
+  "vouchery-3-jed": 30.00,
+  "vouchery-4-jed": 32.00,
+  "vouchery-5-jed": 35.00,
+  "vouchery-6-jed": 39.00,
+  "vouchery-7-jed": 41.00,
+  "vouchery-8-jed": 45.00,
+  "vouchery-9-jed": 48.00,
+  "vouchery-10-jed": 52.00,
+  "vouchery-15-jed": 60.00,
+  "vouchery-20-jed": 67.00,
+  "vouchery-25-jed": 74.00,
+  "vouchery-30-jed": 84.00,
+  // === VOUCHERY A4 – DWUSTRONNE ===
+  "vouchery-1-dwu": 25.00,
+  "vouchery-2-dwu": 32.00,
+  "vouchery-3-dwu": 37.00,
+  "vouchery-4-dwu": 39.00,
+  "vouchery-5-dwu": 43.00,
+  "vouchery-6-dwu": 45.00,
+  "vouchery-7-dwu": 48.00,
+  "vouchery-8-dwu": 50.00,
+  "vouchery-9-dwu": 52.00,
+  "vouchery-10-dwu": 58.00,
+  "vouchery-15-dwu": 70.00,
+  "vouchery-20-dwu": 82.00,
+  "vouchery-25-dwu": 100.00,
+  "vouchery-30-dwu": 120.00,
   // === BANNER – POWLEKANY ===
   "banner-powlekany-1-25": 53.00,
   "banner-powlekany-26-50": 49.00,
@@ -572,8 +600,8 @@ function compareVoucheryKeys(a, b) {
   const pa = parseVoucher(a);
   const pb = parseVoucher(b);
 
-  if (pa.qty !== pb.qty) return pa.qty - pb.qty;
   if (pa.side !== pb.side) return pa.side - pb.side;
+  if (pa.qty !== pb.qty) return pa.qty - pb.qty;
 
   return pa.raw.localeCompare(pb.raw);
 }
