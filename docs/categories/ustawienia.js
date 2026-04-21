@@ -271,6 +271,128 @@ function getCategoryForKey(key) {
   return "inne";  // fallback dla nieznanych kluczy
 }
 
+function getRangeStart(key) {
+  const m = key.match(/-(\d+)(?:-|\+|szt)/);
+  return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+}
+
+function compareDrukA4A3Keys(a, b) {
+  const groupRank = (key) => {
+    if (key.startsWith('druk-bw-a4-')) return 0;
+    if (key.startsWith('druk-kolor-a4-')) return 1;
+    if (key.startsWith('druk-bw-a3-')) return 2;
+    if (key.startsWith('druk-kolor-a3-')) return 3;
+    if (key === 'druk-email') return 4;
+    if (key === 'modifier-druk-zadruk25') return 5;
+    return 99;
+  };
+
+  const ga = groupRank(a);
+  const gb = groupRank(b);
+  if (ga !== gb) return ga - gb;
+
+  const ra = getRangeStart(a);
+  const rb = getRangeStart(b);
+  if (ra !== rb) return ra - rb;
+
+  return a.localeCompare(b);
+}
+
+function compareDrukCadKeys(a, b) {
+  const parseCad = (key) => {
+    const m = key.match(/^druk-cad-(bw|kolor)-(fmt|mb)-([a-z0-9]+)$/);
+    if (!m) return { mode: '', type: '', size: '', raw: key };
+    return { mode: m[1], type: m[2], size: m[3], raw: key };
+  };
+
+  const cadRank = (p) => {
+    if (p.mode === 'bw' && p.type === 'fmt') return 0;
+    if (p.mode === 'bw' && p.type === 'mb') return 1;
+    if (p.mode === 'kolor' && p.type === 'fmt') return 2;
+    if (p.mode === 'kolor' && p.type === 'mb') return 3;
+    return 99;
+  };
+
+  const sizeRank = {
+    a3: 0,
+    a2: 1,
+    a1: 2,
+    a1plus: 3,
+    a0: 4,
+    a0plus: 5,
+    mb1067: 6
+  };
+
+  const pa = parseCad(a);
+  const pb = parseCad(b);
+
+  const ra = cadRank(pa);
+  const rb = cadRank(pb);
+  if (ra !== rb) return ra - rb;
+
+  const sa = sizeRank[pa.size] ?? Number.POSITIVE_INFINITY;
+  const sb = sizeRank[pb.size] ?? Number.POSITIVE_INFINITY;
+  if (sa !== sb) return sa - sb;
+
+  return pa.raw.localeCompare(pb.raw);
+}
+
+function compareSkanowanieKeys(a, b) {
+  const groupRank = (key) => {
+    if (key.startsWith('skan-auto-')) return 0;
+    if (key.startsWith('skan-reczne-')) return 1;
+    return 99;
+  };
+
+  const ga = groupRank(a);
+  const gb = groupRank(b);
+  if (ga !== gb) return ga - gb;
+
+  const ra = getRangeStart(a);
+  const rb = getRangeStart(b);
+  if (ra !== rb) return ra - rb;
+
+  return a.localeCompare(b);
+}
+
+function compareLaminowanieKeys(a, b) {
+  const formatRank = (key) => {
+    if (key.startsWith('laminowanie-a3-')) return 0;
+    if (key.startsWith('laminowanie-a4-')) return 1;
+    if (key.startsWith('laminowanie-a5-')) return 2;
+    if (key.startsWith('laminowanie-a6-')) return 3;
+    return 99;
+  };
+
+  const fa = formatRank(a);
+  const fb = formatRank(b);
+  if (fa !== fb) return fa - fb;
+
+  const ra = getRangeStart(a);
+  const rb = getRangeStart(b);
+  if (ra !== rb) return ra - rb;
+
+  return a.localeCompare(b);
+}
+
+function compareSolwentKeys(a, b) {
+  const materialRank = (key) => {
+    if (key.startsWith('solwent-150g-')) return 0;
+    if (key.startsWith('solwent-200g-')) return 1;
+    return 99;
+  };
+
+  const ma = materialRank(a);
+  const mb = materialRank(b);
+  if (ma !== mb) return ma - mb;
+
+  const ra = getRangeStart(a);
+  const rb = getRangeStart(b);
+  if (ra !== rb) return ra - rb;
+
+  return a.localeCompare(b);
+}
+
 function getFilteredPrices() {
   if (currentCategory === "wszystkie") {
     return Object.keys(prices).sort();
@@ -278,10 +400,31 @@ function getFilteredPrices() {
   
   const catData = CATEGORIES[currentCategory];
   if (!catData) return [];
-  
-  return Object.keys(prices)
-    .filter(key => catData.prefixes.some(prefix => key.startsWith(prefix)))
-    .sort();
+
+  const keys = Object.keys(prices)
+    .filter(key => catData.prefixes.some(prefix => key.startsWith(prefix)));
+
+  if (currentCategory === 'druk-a4-a3') {
+    return keys.sort(compareDrukA4A3Keys);
+  }
+
+  if (currentCategory === 'druk-cad') {
+    return keys.sort(compareDrukCadKeys);
+  }
+
+  if (currentCategory === 'skanowanie') {
+    return keys.sort(compareSkanowanieKeys);
+  }
+
+  if (currentCategory === 'laminowanie') {
+    return keys.sort(compareLaminowanieKeys);
+  }
+
+  if (currentCategory === 'solwent') {
+    return keys.sort(compareSolwentKeys);
+  }
+
+  return keys.sort();
 }
 
 function renderCategoryTabs() {
