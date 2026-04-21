@@ -159,6 +159,16 @@ const DEFAULT_PRICES = {
   "solwent-200g-10-20": 59.00,
   "solwent-200g-21-40": 53.00,
   "solwent-200g-41+": 45.00,
+  // === SOLWENT – PAPIER 115G MATOWY ===
+  "solwent-115g-1-3": 45.00,
+  "solwent-115g-4-19": 40.00,
+  "solwent-115g-20+": 35.00,
+  // === SOLWENT – PAPIER BLOCKOUT 200G SATYNA ===
+  "solwent-blockout200g-1-3": 80.00,
+  "solwent-blockout200g-4-9": 75.00,
+  "solwent-blockout200g-10-20": 70.00,
+  "solwent-blockout200g-21-40": 65.00,
+  "solwent-blockout200g-41+": 60.00,
   // === VOUCHERY A4 – JEDNOSTRONNE ===
   "vouchery-1-jed": 20.00,
   "vouchery-2-jed": 29.00,
@@ -572,6 +582,8 @@ function compareSolwentKeys(a, b) {
   const materialRank = (key) => {
     if (key.startsWith('solwent-150g-')) return 0;
     if (key.startsWith('solwent-200g-')) return 1;
+    if (key.startsWith('solwent-115g-')) return 2;
+    if (key.startsWith('solwent-blockout200g-')) return 3;
     return 99;
   };
 
