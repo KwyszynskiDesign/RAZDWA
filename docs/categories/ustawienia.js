@@ -447,12 +447,12 @@ function getPriceKeyDescription(key) {
 
   m = key.match(/^laminowanie-([aA]\d)-(\d+)-(\d+)$/);
   if (m) {
-    return `Laminowanie ${m[1].toUpperCase()} • zakres ilości: ${m[2]}-${m[3]} szt.`;
+    return `Laminowanie na gorąco ${m[1].toUpperCase()} • zakres ilości: ${m[2]}-${m[3]} szt.`;
   }
 
   m = key.match(/^laminowanie-([aA]\d)-(\d+)\+$/);
   if (m) {
-    return `Laminowanie ${m[1].toUpperCase()} • zakres ilości: od ${m[2]} szt.`;
+    return `Laminowanie na gorąco ${m[1].toUpperCase()} • zakres ilości: od ${m[2]} szt.`;
   }
 
   return '';

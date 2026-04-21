@@ -603,10 +603,10 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   },
   {
     id: "laminowanie",
-    label: "Laminowanie",
+    label: "Introligatornia",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
     prefixes: ["laminowanie-"],
-    description: "Progi cenowe laminowania oraz stawki introligatorskie.",
+    description: "Laminowanie na gorąco, oprawy, bindowanie oraz usługi introligatorskie.",
     newKeyPrefix: "laminowanie-a4-"
   },
   {
