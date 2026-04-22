@@ -44,7 +44,7 @@ export const BannerView: View = {
         legend.id = "b-dynamic-legend";
         legend.className = "card";
         legend.style.marginTop = "16px";
-        resultDisplay.insertAdjacentElement("afterend", legend);
+        breakdownDisplay.insertAdjacentElement("afterend", legend);
       }
 
       const rows = (bannerData.materials ?? []).map((material: any) => {
