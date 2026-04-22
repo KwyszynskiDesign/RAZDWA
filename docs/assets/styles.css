@@ -1557,3 +1557,23 @@ a[href] {
 
 /* ===== CENNIK TABLE (hidden by default) ===== */
 .cennik-table:not(.pricing-legend) { display: none; }
+
+/* ===== PLAKATY A4-A3 ===== */
+.plakaty-a4a3-inner-grid {
+  --pa-left-shift: 7px;
+  --pa-right-trim: 5px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+  box-sizing: border-box;
+  margin-left: calc(var(--pa-left-shift) * -1);
+  width: calc(100% - var(--pa-right-trim));
+}
+
+@media (max-width: 768px) {
+  .plakaty-a4a3-inner-grid {
+    --pa-left-shift: 0px;
+    --pa-right-trim: 0px;
+  }
+}
