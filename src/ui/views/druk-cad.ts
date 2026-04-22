@@ -87,8 +87,8 @@ export const DrukCADView: View = {
         legend.id = "cad-dynamic-legend";
         legend.className = "card";
         legend.style.marginTop = "16px";
-        const anchor = container.querySelector("#cad-breakdown-display") as HTMLElement | null;
-        (anchor ?? resultDisplay).insertAdjacentElement("afterend", legend);
+        const anchor = container.querySelector("#cad-ops-list") as HTMLElement | null;
+        (anchor ?? container.querySelector("#cad-breakdown-display") ?? resultDisplay).insertAdjacentElement("afterend", legend);
       }
 
       const collectRowsForMode = (mode: "bw" | "color", modeLabel: string) => {
