@@ -53,6 +53,13 @@ export const DrukCADView: View = {
     const optEmailPriceSpan = container.querySelector("#cad-opt-email-price") as HTMLElement | null;
     const totalWithOptionsSpan = container.querySelector("#cad-total-with-options") as HTMLElement | null;
 
+    const extraKlientLine = container.querySelector("#cad-extra-klient-line") as HTMLElement | null;
+    const extraKlientPrice = container.querySelector("#cad-extra-klient-price") as HTMLElement | null;
+    const extraNieformatLine = container.querySelector("#cad-extra-nieformat-line") as HTMLElement | null;
+    const extraNieformatPrice = container.querySelector("#cad-extra-nieformat-price") as HTMLElement | null;
+    const extraPaskiLine = container.querySelector("#cad-extra-paski-line") as HTMLElement | null;
+    const extraPaskiPrice = container.querySelector("#cad-extra-paski-price") as HTMLElement | null;
+
     const foldFormatSelect = container.querySelector("#cad-fold-format") as HTMLSelectElement | null;
     const foldQtyInput = container.querySelector("#cad-fold-qty") as HTMLInputElement | null;
     const foldAddBtn = container.querySelector("#cad-fold-add") as HTMLButtonElement | null;
@@ -298,7 +305,21 @@ export const DrukCADView: View = {
       if (optZadruk25PriceSpan) optZadruk25PriceSpan.innerText = formatPLN(breakdown.zadruk25);
       if (optScalePriceSpan) optScalePriceSpan.innerText = formatPLN(breakdown.scale);
       if (optEmailPriceSpan) optEmailPriceSpan.innerText = formatPLN(breakdown.email);
-      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total);
+
+      // Extra services
+      const klientOp = getInlineKlientSkladanieOp();
+      const nieformatoweOp = getInlineNieformatoweSkladanieOp();
+      const paskiOp = getInlinePaskiWzmacniajaceOp();
+
+      if (extraKlientLine) extraKlientLine.style.display = klientOp ? "flex" : "none";
+      if (extraKlientPrice) extraKlientPrice.innerText = formatPLN(klientOp?.totalPrice ?? 0);
+      if (extraNieformatLine) extraNieformatLine.style.display = nieformatoweOp ? "flex" : "none";
+      if (extraNieformatPrice) extraNieformatPrice.innerText = formatPLN(nieformatoweOp?.totalPrice ?? 0);
+      if (extraPaskiLine) extraPaskiLine.style.display = paskiOp ? "flex" : "none";
+      if (extraPaskiPrice) extraPaskiPrice.innerText = formatPLN(paskiOp?.totalPrice ?? 0);
+
+      const extraTotal = (klientOp?.totalPrice ?? 0) + (nieformatoweOp?.totalPrice ?? 0) + (paskiOp?.totalPrice ?? 0);
+      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + extraTotal);
       if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
     };
 
