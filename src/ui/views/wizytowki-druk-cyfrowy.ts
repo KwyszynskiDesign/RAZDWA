@@ -27,7 +27,6 @@ export const WizytowkiView: View = {
     const familySelect = container.querySelector("#w-family") as HTMLSelectElement;
     const standardOpts = container.querySelector("#standard-options") as HTMLElement;
     const sizeSelect = container.querySelector("#w-size") as HTMLSelectElement;
-    const lamSelect = container.querySelector("#w-lam") as HTMLSelectElement;
     const paperSelect = container.querySelector("#w-paper") as HTMLSelectElement;
     const paperGroup = container.querySelector("#w-paper-group") as HTMLElement | null;
 
@@ -45,6 +44,7 @@ export const WizytowkiView: View = {
     const satinHint = container.querySelector("#w-satin-hint") as HTMLElement;
     const externalTopInfo = container.querySelector("#w-external-top-info") as HTMLElement | null;
     const externalForm = container.querySelector("#w-external-form") as HTMLElement | null;
+    const extTypeGroup = container.querySelector("#w-ext-type-group") as HTMLElement | null;
     const extTypeSelect = container.querySelector("#w-ext-type") as HTMLSelectElement | null;
     const extSizeSelect = container.querySelector("#w-ext-size") as HTMLSelectElement | null;
     const extFinishSelect = container.querySelector("#w-ext-finish") as HTMLSelectElement | null;
@@ -66,17 +66,26 @@ export const WizytowkiView: View = {
       legendRows.innerHTML = qtyList
         .map((qty) => {
           const p85none = resolveStoredPrice(`wizytowki-85x55-none-${qty}szt`, Number(table85none[String(qty)] ?? 0));
-          const p85lam = resolveStoredPrice(`wizytowki-85x55-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["85x55"]?.lam?.[String(qty)] ?? 0));
           const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.noLam?.[String(qty)] ?? 0));
-          const p90lam = resolveStoredPrice(`wizytowki-90x50-matt_gloss-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.lam?.[String(qty)] ?? 0));
-          return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p85lam)}</td><td>${formatPLN(p90none)}</td><td>${formatPLN(p90lam)}</td></tr>`;
+          return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p90none)}</td></tr>`;
         })
         .join("");
     };
 
-    const isExternal = () => familySelect?.value === 'softtouch' || familySelect?.value === 'deluxe';
+    const isExternal = () => {
+      const family = familySelect?.value;
+      return family === "foliowane" || family === "softtouch" || family === "deluxe";
+    };
+
+    const getExternalTypeValue = () => {
+      const family = familySelect?.value;
+      if (family === "foliowane") return "foliowane";
+      if (family === "softtouch") return "softtouch_350";
+      return extTypeSelect?.value || "deluxe_uv3d_softtouch";
+    };
 
     const syncMode = () => {
+      const family = familySelect?.value;
       const external = isExternal();
       if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
       if (paperGroup) paperGroup.style.display = external ? 'none' : '';
@@ -84,10 +93,10 @@ export const WizytowkiView: View = {
       if (legendStandardEl) legendStandardEl.style.display = external ? 'none' : '';
       if (externalTopInfo) externalTopInfo.style.display = external ? 'block' : 'none';
       if (externalForm) externalForm.style.display = external ? 'block' : 'none';
+      if (extTypeGroup) extTypeGroup.style.display = family === 'deluxe' ? 'block' : 'none';
       if (extTypeSelect && external) {
-        const fam = familySelect?.value;
-        if (fam === 'softtouch') extTypeSelect.value = 'softtouch_350';
-        else if (fam === 'deluxe') extTypeSelect.value = 'deluxe_uv3d_softtouch';
+        if (family === 'softtouch') extTypeSelect.value = 'softtouch_350';
+        else if (family === 'deluxe') extTypeSelect.value = 'deluxe_uv3d_softtouch';
       }
       if (addToCartBtn) {
         addToCartBtn.style.display = external ? 'none' : '';
@@ -102,7 +111,6 @@ export const WizytowkiView: View = {
     };
 
     if (familySelect) familySelect.onchange = syncMode;
-    if (lamSelect) lamSelect.onchange = syncMode;
 
     extQtyInput?.addEventListener("input", () => {
       const qty = parseInt(extQtyInput!.value, 10);
@@ -115,10 +123,12 @@ export const WizytowkiView: View = {
 
     if (extAddToCartBtn) {
       extAddToCartBtn.onclick = () => {
+        const family = familySelect?.value || "softtouch";
         const qty = parseInt(extQtyInput?.value || "0", 10);
         if (!qty || qty <= 0) return;
-        const typeVal = extTypeSelect?.value || "softtouch_350";
+        const typeVal = getExternalTypeValue();
         const typeLabels: Record<string, string> = {
+          "foliowane": "Foliowane",
           "softtouch_350": "SoftTouch 350g",
           "deluxe_uv3d_softtouch": "DELUXE – UV 3D + SoftTouch",
           "deluxe_uv3d_gold_softtouch": "DELUXE – UV 3D + Gold + SoftTouch",
@@ -136,7 +146,7 @@ export const WizytowkiView: View = {
           isExpress: false,
           totalPrice: 0,
           optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
-          payload: { type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
+          payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
         });
       };
     }
@@ -190,7 +200,7 @@ export const WizytowkiView: View = {
       currentOptions = {
         family: "standard",
         format: sizeSelect.value,
-        folia: lamSelect.value === 'lam' ? 'matt_gloss' : 'none',
+        folia: 'none',
         qty: parseInt(qtyInput.value),
         express: ctx.expressMode
       };
@@ -231,7 +241,6 @@ export const WizytowkiView: View = {
           const parts: string[] = [
             `${currentOptions.qty} szt`,
             `${sizeSelect.value} mm`,
-            lamSelect.value === 'lam' ? 'Foliowane' : 'Bez foliowania',
             paperLabel
           ];
           if (currentOptions.express) parts.push('EXPRESS (+20%)');

@@ -4,7 +4,7 @@
     </div>
 
     <div id="w-external-top-info" class="hint" style="display:none; margin-bottom:14px; padding:10px; background:var(--surface-alt); border-radius:6px; font-size:1.35rem;">
-        <strong>SoftTouch</strong> i <strong>DELUXE</strong> są realizowane zewnętrznie.<br>
+        <strong>Foliowane</strong>, <strong>SoftTouch</strong> i <strong>DELUXE</strong> są realizowane zewnętrznie.<br>
         Uzupełnij dane, aby zapisać zlecenie.
     </div>
 
@@ -14,6 +14,7 @@
             <select id="w-family" class="form-control">
                 <option value="" disabled selected>— wybierz rodzaj —</option>
                 <option value="standard">Standard</option>
+                <option value="foliowane">Foliowane</option>
                 <option value="softtouch">SoftTouch</option>
                 <option value="deluxe">DELUXE</option>
             </select>
@@ -30,13 +31,6 @@
                 </select>
             </div>
 
-        <div id="w-lam-group" class="form-group">
-            <label for="w-lam">Foliowanie:</label>
-            <select id="w-lam" class="form-control">
-                <option value="noLam">Bez foliowania</option>
-                <option value="lam">Foliowane</option>
-            </select>
-        </div>
         </div>
 
         <div id="w-paper-group" class="form-group">
@@ -65,7 +59,7 @@
         </div>
 
         <div id="w-external-form" style="display:none; margin-top:2px;">
-            <div class="form-group">
+            <div id="w-ext-type-group" class="form-group">
                 <label for="w-ext-type">Wariant:</label>
                 <select id="w-ext-type" class="form-control">
                     <option value="softtouch_350">SoftTouch 350g</option>
@@ -92,7 +86,7 @@
                 <input type="number" id="w-ext-qty" class="form-control" min="1" placeholder="ilość" inputmode="numeric">
             </div>
             <div class="form-actions">
-                <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO BAZY</button>
+                <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
                 <button id="w-go-viperprint" class="btn-primary" type="button">Przejdź do ViperPrint ↗</button>
             </div>
         </div>
@@ -123,7 +117,7 @@
         <div class="legend-head">
             <div>
                 <h4>WIZYTÓWKI STANDARD</h4>
-                <p class="legend-subtitle">Ceny brutto dla wariantu Standard.</p>
+                <p class="legend-subtitle">Ceny brutto dla wariantu Standard bez foliowania.</p>
             </div>
         </div>
         <table>
@@ -131,9 +125,7 @@
                 <tr>
                     <th>Ilość</th>
                     <th>85x55 bez folii</th>
-                    <th>85x55 foliowane</th>
                     <th>90x50 bez folii</th>
-                    <th>90x50 foliowane</th>
                 </tr>
             </thead>
             <tbody id="w-legend-rows"></tbody>
