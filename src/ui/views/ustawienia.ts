@@ -998,6 +998,37 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function getPlakatyRangeStart(key: string): number {
+  const m = key.match(/-(\d+)(?:-(\d+)|\+)?$/);
+  return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+}
+
+function getPlakatyFormatSizeRank(key: string): number {
+  const suffix = key.split("-").pop() ?? "";
+  const sizeRank: Record<string, number> = {
+    "297x420": 0,
+    "420x594": 1,
+    "610x841": 2,
+    "841x1189": 3,
+    "914x1292": 4,
+    rolka1067: 5,
+  };
+
+  const known = sizeRank[suffix];
+  if (known != null) return known;
+
+  const numericFallback = suffix.match(/(\d+)/);
+  return numericFallback ? Number.parseInt(numericFallback[1], 10) : Number.POSITIVE_INFINITY;
+}
+
+function getPlakatyDetailOrder(key: string): number {
+  if (key.startsWith("plakaty-format-")) {
+    return getPlakatyFormatSizeRank(key);
+  }
+
+  return getPlakatyRangeStart(key);
+}
+
 function sortPlakatyCategoryKeys(keys: string[]): string[] {
   const groupRank = (key: string): number => {
     if (key.startsWith("solwent-115g-")) return 0;
@@ -1026,8 +1057,8 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
     const gb = groupRank(b);
     if (ga !== gb) return ga - gb;
 
-    const na = getNumericStartFromKey(a);
-    const nb = getNumericStartFromKey(b);
+    const na = getPlakatyDetailOrder(a);
+    const nb = getPlakatyDetailOrder(b);
     if (na !== nb) return na - nb;
 
     return a.localeCompare(b, "pl");

@@ -1577,3 +1577,19 @@ a[href] {
     --pa-right-trim: 0px;
   }
 }
+
+/* ===== FOLIA SZRONIONA (legend width fix) ===== */
+.fs-pricing-legend {
+  --fs-legend-expand: 62px;
+  --fs-legend-offset: calc(var(--fs-legend-expand) / 2);
+  box-sizing: border-box;
+  width: calc(100% + var(--fs-legend-expand));
+  margin-left: calc(var(--fs-legend-offset) * -1);
+  margin-right: calc(var(--fs-legend-offset) * -1);
+}
+
+@media (max-width: 768px) {
+  .fs-pricing-legend {
+    --fs-legend-expand: 0px;
+  }
+}
