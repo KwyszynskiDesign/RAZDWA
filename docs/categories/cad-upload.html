@@ -166,18 +166,20 @@
   }
   .cad-extra-service-item {
     display: inline-flex;
+    flex-direction: column;
     align-items: flex-start;
-    gap: 6px;
+    gap: 4px;
     white-space: normal;
   }
   .cad-extra-service-item > span:first-of-type {
     white-space: normal;
   }
   .cad-extra-qty-row {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 6px;
-    margin-left: 6px;
+    margin-left: 0;
+    margin-top: 2px;
   }
   .cad-extra-qty-input {
     width: 78px;
@@ -610,7 +612,7 @@
 </style>
 
 <div class="cad-upload">
-  <h2>📄 CAD Upload – Wycena plików</h2>
+  <h2>CAD Upload – Wycena plików</h2>
 
   <!-- Opcje globalne -->
   <div class="cad-options-bar cad-options">
