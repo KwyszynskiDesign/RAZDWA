@@ -518,11 +518,25 @@ export const CadUploadView: View = {
             <span>Email:</span>
             <span>${formatPLN(emailFee)}</span>
           </div>` : ''}
-          ${extraServicesTotal > 0 ? `
-          <div class="summary-item">
-            <span>Usługi dodatkowe:</span>
-            <span>${formatPLN(extraServicesTotal)}</span>
-          </div>` : ''}
+          ${(() => {
+            let lines = '';
+            if (optKlientSkladanie?.checked) {
+              const qty = parseInt(cadUploadKlientSkladanieQty?.value || '0', 10);
+              const price = resolveStoredPrice('cad-klient-skladanie', 4.0) * qty;
+              if (qty > 0) lines += `<div class="summary-item"><span>Składanie od klienta (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
+            }
+            if (optNieformatoweSkladanie?.checked) {
+              const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || '0').replace(',', '.'));
+              const price = resolveStoredPrice('cad-nieformatowe-skladanie', 2.5) * qty;
+              if (qty > 0) lines += `<div class="summary-item"><span>Składanie nieformatowych (${qty} m²):</span><span>${formatPLN(price)}</span></div>`;
+            }
+            if (optPaskiWzmacniajace?.checked) {
+              const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || '0', 10);
+              const price = resolveStoredPrice('cad-paski-wzmacniajace', 0.8) * qty;
+              if (qty > 0) lines += `<div class="summary-item"><span>Paski wzmacniające (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
+            }
+            return lines;
+          })()}
           <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
             <span><strong>🎨 RAZEM KOLOR:</strong></span>
             <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>

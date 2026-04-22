@@ -163,16 +163,28 @@
   }
   .cad-extra-services {
     margin-top: 8px;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 12px 16px !important;
+    align-items: flex-start !important;
+    flex-wrap: unset !important;
   }
   .cad-extra-service-item {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 4px;
+    gap: 6px;
     white-space: normal;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
   }
   .cad-extra-service-item > span:first-of-type {
     white-space: normal;
+    font-size: 0.85rem;
+    line-height: 1.35;
   }
   .cad-extra-qty-row {
     display: flex;
@@ -647,8 +659,7 @@
   <!-- Usługi dodatkowe (nie per-plik) -->
   <div class="cad-options-bar cad-extra-services cad-options">
     <label class="cad-extra-service-item">
-      <input type="checkbox" id="optKlientSkladanie">
-      <span>Składanie od<br>klienta (4,00 zł/szt)</span>
+      <span style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="optKlientSkladanie"> Składanie od klienta (4,00 zł/szt)</span>
       <span id="cad-upload-klient-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadKlientSkladanieQty" class="cad-extra-qty-input" min="1" placeholder="szt">
@@ -656,8 +667,7 @@
     </label>
 
     <label class="cad-extra-service-item">
-      <input type="checkbox" id="optNieformatoweSkladanie">
-      <span>Składanie<br>nieformatowych (2,50 zł/m²)</span>
+      <span style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="optNieformatoweSkladanie"> Składanie nieformatowych (2,50 zł/m²)</span>
       <span id="cad-upload-nieformatowe-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadNieformatoweSkladanieQty" class="cad-extra-qty-input" min="0.01" step="0.01" placeholder="m²">
@@ -665,8 +675,7 @@
     </label>
 
     <label class="cad-extra-service-item">
-      <input type="checkbox" id="optPaskiWzmacniajace">
-      <span>Doklejanie pasków<br>wzmacniających (0,80 zł/szt)</span>
+      <span style="display:flex;align-items:center;gap:6px;"><input type="checkbox" id="optPaskiWzmacniajace"> Doklejanie pasków wzmacniających (0,80 zł/szt)</span>
       <span id="cad-upload-paski-wzmacniajace-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadPaskiWzmacniajaceQty" class="cad-extra-qty-input" min="1" placeholder="szt">

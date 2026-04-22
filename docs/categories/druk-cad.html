@@ -103,19 +103,34 @@
   }
 
   .cad-extra-services-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px 16px;
     align-items: flex-start;
     margin-top: 16px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
   }
 
+  .cad-extra-services-row > strong {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
   .cad-extra-option {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+  }
+
+  @media (max-width: 600px) {
+    .cad-extra-services-row {
+      grid-template-columns: 1fr;
+    }
   }
 
   @media (max-width: 700px) {
