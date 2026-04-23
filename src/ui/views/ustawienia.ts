@@ -933,6 +933,37 @@ function sortUlotkiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+export function sortWlepkiCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("wlepki-obrys-folia-")) return 0;
+    if (key.startsWith("wlepki-polipropylen-")) return 1;
+    if (key.startsWith("wlepki-standard-folia-")) return 2;
+    if (key.startsWith("wlepki-szt-papier-sra3-")) return 3;
+    if (key.startsWith("wlepki-szt-folia-sra3-")) return 4;
+    if (key.startsWith("wlepki-szt-plotowane-papier-")) return 5;
+    if (key.startsWith("wlepki-szt-plotowane-folia-")) return 6;
+    if (key.startsWith("wlepki-modifier-")) return 7;
+    return 99;
+  };
+
+  const getRangeStart = (key: string): number => {
+    const m = key.match(/-(\d+)(?:-(\d+)|\+)?$/);
+    return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getRangeStart(a);
+    const nb = getRangeStart(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
@@ -1101,6 +1132,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "wlepki") {
+    return sortWlepkiCategoryKeys(keys);
   }
 
   return keys.sort();
