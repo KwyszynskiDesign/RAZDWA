@@ -968,6 +968,38 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortWizytowkiCategoryKeys(keys: string[]): string[] {
+  const parse = (key: string) => {
+    // Match pattern: wizytowki-{size}-{type}-{qty}szt
+    // e.g., wizytowki-85x55-none-50szt or wizytowki-90x50-matt_gloss-1000szt
+    const m = key.match(/^wizytowki-(85x55|90x50)-(none|matt_gloss)-(\d+)szt$/);
+    if (!m) {
+      return {
+        size: 99,
+        type: 99,
+        qty: Number.POSITIVE_INFINITY,
+        raw: key,
+      };
+    }
+
+    return {
+      size: m[1] === "85x55" ? 0 : 1,  // 85x55 first, then 90x50
+      type: m[2] === "none" ? 0 : 1,    // none (bez laminatu) first, then matt_gloss
+      qty: Number.parseInt(m[3], 10),
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.size !== pb.size) return pa.size - pb.size;
+    if (pa.type !== pb.type) return pa.type - pb.type;
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
 function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   const groupRank = (key: string): number => {
     if (key.startsWith("laminowanie-a3-")) return 0;
@@ -1101,6 +1133,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "wizytowki") {
+    return sortWizytowkiCategoryKeys(keys);
   }
 
   return keys.sort();
