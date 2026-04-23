@@ -228,7 +228,8 @@ export const PlakatyView: View = {
         trimSurcharge,
       };
       currentOptions = { type: "format", matId, fmt, formatLabel, qty, customLengthMm, trimSurcharge };
-      unitPriceEl.innerText = formatPLN(res.pricePerPiece);
+      const unitWithTrim = parseFloat((res.pricePerPiece + (trimSurcharge / qty)).toFixed(2));
+      unitPriceEl.innerText = formatPLN(unitWithTrim);
       totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
