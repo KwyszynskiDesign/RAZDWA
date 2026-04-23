@@ -301,18 +301,7 @@
                                                                                          "400":  145,
                                                                                          "500":  170,
                                                                                          "1000":  290
-                                                                                     },
-                                                                           "lam":  {
-                                                                                       "50":  160,
-                                                                                       "100":  170,
-                                                                                       "150":  180,
-                                                                                       "200":  190,
-                                                                                       "250":  200,
-                                                                                       "300":  210,
-                                                                                       "400":  230,
-                                                                                       "500":  250,
-                                                                                       "1000":  355
-                                                                                   }
+                                                                                     }
                                                                        },
                                                              "90x50":  {
                                                                            "noLam":  {
@@ -325,98 +314,9 @@
                                                                                          "400":  155,
                                                                                          "500":  175,
                                                                                          "1000":  300
-                                                                                     },
-                                                                           "lam":  {
-                                                                                       "50":  170,
-                                                                                       "100":  180,
-                                                                                       "150":  190,
-                                                                                       "200":  200,
-                                                                                       "250":  210,
-                                                                                       "300":  220,
-                                                                                       "400":  240,
-                                                                                       "500":  260,
-                                                                                       "1000":  345
-                                                                                   }
+                                                                                     }
                                                                        }
-                                                         },
-                                      "softtouchPrices":  {
-                                                              "85x55":  {
-                                                                            "noLam":  {
-                                                                                          "50":  65,
-                                                                                          "100":  75,
-                                                                                          "150":  85,
-                                                                                          "200":  96,
-                                                                                          "250":  110,
-                                                                                          "300":  125,
-                                                                                          "400":  145,
-                                                                                          "500":  170,
-                                                                                          "1000":  290
-                                                                                      },
-                                                                            "lam":  {
-                                                                                        "50":  170,
-                                                                                        "100":  190,
-                                                                                        "150":  210,
-                                                                                        "200":  220,
-                                                                                        "250":  230,
-                                                                                        "300":  240,
-                                                                                        "400":  260,
-                                                                                        "500":  270,
-                                                                                        "1000":  380
-                                                                                    }
-                                                                        },
-                                                              "90x50":  {
-                                                                            "noLam":  {
-                                                                                          "50":  70,
-                                                                                          "100":  79,
-                                                                                          "150":  89,
-                                                                                          "200":  99,
-                                                                                          "250":  120,
-                                                                                          "300":  135,
-                                                                                          "400":  155,
-                                                                                          "500":  175,
-                                                                                          "1000":  300
-                                                                                      },
-                                                                            "lam":  {
-                                                                                        "50":  170,
-                                                                                        "100":  190,
-                                                                                        "150":  210,
-                                                                                        "200":  230,
-                                                                                        "250":  240,
-                                                                                        "300":  250,
-                                                                                        "400":  270,
-                                                                                        "500":  290,
-                                                                                        "1000":  390
-                                                                                    }
-                                                                        }
-                                                          },
-                                      "deluxe":  {
-                                                     "leadTime":  "4–5 dni roboczych",
-                                                     "options":  {
-                                                                     "uv3d_softtouch":  {
-                                                                                            "label":  "Maker UV 3D + folia SOFTTOUCH",
-                                                                                            "prices":  {
-                                                                                                           "50":  280,
-                                                                                                           "100":  320,
-                                                                                                           "200":  359,
-                                                                                                           "250":  379,
-                                                                                                           "300":  399,
-                                                                                                           "400":  449
-                                                                                                       }
-                                                                                        },
-                                                                     "uv3d_gold_softtouch":  {
-                                                                                                 "label":  "Maker UV 3D + złocenie + folia SOFTTOUCH",
-                                                                                                 "prices":  {
-                                                                                                                "50":  450,
-                                                                                                                "100":  550,
-                                                                                                                "200":  650,
-                                                                                                                "250":  720,
-                                                                                                                "300":  790,
-                                                                                                                "400":  850,
-                                                                                                                "500":  950
-                                                                                                            }
-                                                                                             }
-                                                                 }
-                                                 }
+                                                         }
                                   }
                   },
     "banner":  {
@@ -3392,15 +3292,6 @@
                           "wizytowki-85x55-none-400szt":  145.00,
                           "wizytowki-85x55-none-500szt":  170.00,
                           "wizytowki-85x55-none-1000szt":  290.00,
-                          "wizytowki-85x55-matt_gloss-50szt":  160.00,
-                          "wizytowki-85x55-matt_gloss-100szt":  170.00,
-                          "wizytowki-85x55-matt_gloss-150szt":  180.00,
-                          "wizytowki-85x55-matt_gloss-200szt":  190.00,
-                          "wizytowki-85x55-matt_gloss-250szt":  200.00,
-                          "wizytowki-85x55-matt_gloss-300szt":  210.00,
-                          "wizytowki-85x55-matt_gloss-400szt":  230.00,
-                          "wizytowki-85x55-matt_gloss-500szt":  250.00,
-                          "wizytowki-85x55-matt_gloss-1000szt":  355.00,
                           "wizytowki-90x50-none-50szt":  70.00,
                           "wizytowki-90x50-none-100szt":  79.00,
                           "wizytowki-90x50-none-150szt":  89.00,
@@ -3410,15 +3301,6 @@
                           "wizytowki-90x50-none-400szt":  155.00,
                           "wizytowki-90x50-none-500szt":  175.00,
                           "wizytowki-90x50-none-1000szt":  300.00,
-                          "wizytowki-90x50-matt_gloss-50szt":  170.00,
-                          "wizytowki-90x50-matt_gloss-100szt":  180.00,
-                          "wizytowki-90x50-matt_gloss-150szt":  190.00,
-                          "wizytowki-90x50-matt_gloss-200szt":  200.00,
-                          "wizytowki-90x50-matt_gloss-250szt":  210.00,
-                          "wizytowki-90x50-matt_gloss-300szt":  220.00,
-                          "wizytowki-90x50-matt_gloss-400szt":  240.00,
-                          "wizytowki-90x50-matt_gloss-500szt":  260.00,
-                          "wizytowki-90x50-matt_gloss-1000szt":  345.00,
                           "modifier-satyna":  0.12,
                           "modifier-express":  0.20,
                           "modifier-modigliani":  0.20,
