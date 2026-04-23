@@ -41,7 +41,10 @@ export function quoteArtykulyBiurowe(options: ArtykulyBiuroweOptions): any {
 export const artykulyBiuroweCategory: CategoryModule = {
   id: 'artykuly-biurowe',
   name: '📎 Artykuły Biurowe',
+  unmount: () => {},
   mount: (container, ctx) => {
+    const ac = new AbortController();
+    artykulyBiuroweCategory.unmount = () => ac.abort();
     container.innerHTML = `
       <div class="category-form">
         <h2>Artykuły Biurowe</h2>
@@ -170,6 +173,6 @@ export const artykulyBiuroweCategory: CategoryModule = {
         price: result.totalPrice,
         description: `${itemName} × ${quantity}`
       });
-    });
+    }, { signal: ac.signal });
   }
 };

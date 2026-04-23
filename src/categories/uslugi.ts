@@ -34,7 +34,10 @@ export function quoteUslugi(options: UslugiOptions): any {
 export const uslugiCategory: CategoryModule = {
   id: 'uslugi',
   name: '🛠️ Usługi',
+  unmount: () => {},
   mount: (container, ctx) => {
+    const ac = new AbortController();
+    uslugiCategory.unmount = () => ac.abort();
     const isTimeBasedService = (serviceId: string): boolean => {
       return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
     };
@@ -158,6 +161,6 @@ export const uslugiCategory: CategoryModule = {
           ? `${serviceName} × ${quantity} (${hours}h)`
           : `${serviceName} × ${quantity}`
       });
-    });
+    }, { signal: ac.signal });
   }
 };
