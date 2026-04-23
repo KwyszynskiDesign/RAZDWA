@@ -1065,6 +1065,34 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortCanvasCategoryKeys(keys: string[]): string[] {
+  const typeRank = (key: string): number => {
+    if (key.startsWith("canvas-framed-")) return 0;
+    if (key.startsWith("canvas-unframed-")) return 1;
+    if (key === "canvas-m2-unframed") return 2;
+    return 99;
+  };
+
+  const sizeRank = (key: string): number => {
+    if (key.includes("-custom-")) return Number.POSITIVE_INFINITY;
+    const m = key.match(/-(\d+)x(\d+)/);
+    if (!m) return Number.POSITIVE_INFINITY;
+    return Number.parseInt(m[1], 10) * 10000 + Number.parseInt(m[2], 10);
+  };
+
+  return [...keys].sort((a, b) => {
+    const ta = typeRank(a);
+    const tb = typeRank(b);
+    if (ta !== tb) return ta - tb;
+
+    const sa = sizeRank(a);
+    const sb = sizeRank(b);
+    if (sa !== sb) return sa - sb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -1101,6 +1129,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "canvas") {
+    return sortCanvasCategoryKeys(keys);
   }
 
   return keys.sort();
