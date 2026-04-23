@@ -600,6 +600,32 @@ function getProductGroupLabel(label: string): string {
     .trim();
 }
 
+function getSolwentPlakatySectionTitle(key: string): string {
+  if (key.startsWith("solwent-115g-")) return "SOLWENT 115G MATOWY";
+  if (key.startsWith("solwent-150g-")) return "SOLWENT 150G PÓŁMAT";
+  if (key.startsWith("solwent-200g-")) return "SOLWENT 200G POŁYSK";
+  if (key.startsWith("solwent-blockout-200g-") || key.startsWith("solwent-blockout200g-")) return "SOLWENT BLOCKOUT 200G SATYNA";
+
+  if (key.startsWith("plakaty-format-120g-formatowe-")) return "120G FORMATOWE";
+  if (key.startsWith("plakaty-format-120g-nieformatowe-")) return "120G NIEFORMATOWE";
+  if (key.startsWith("plakaty-format-260g-satyna-formatowe-")) return "260G SATYNA FORMATOWE";
+  if (key.startsWith("plakaty-format-260g-satyna-nieformatowe-")) return "260G SATYNA NIEFORMATOWE";
+  if (key.startsWith("plakaty-format-180g-pp-formatowe-")) return "180G PP FORMATOWE";
+  if (key.startsWith("plakaty-format-180g-pp-nieformatowe-")) return "180G PP NIEFORMATOWE";
+
+  if (key.startsWith("plakaty-maly-canon-margin-170-")) return "MAŁY CANON Z MARGINESEM 130G/170G";
+  if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return "MAŁY CANON BEZ MARGINESU 130G/170G";
+  if (key.startsWith("plakaty-maly-canon-margin-200-")) return "MAŁY CANON Z MARGINESEM 200G";
+  if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return "MAŁY CANON BEZ MARGINESU 200G";
+
+  if (key.startsWith("plakaty-duzy-canon-a4-170-kreda-130-170-")) return "DUŻY CANON A4 130G/170G";
+  if (key.startsWith("plakaty-duzy-canon-a3-170-kreda-130-170-")) return "DUŻY CANON A3 130G/170G";
+  if (key.startsWith("plakaty-duzy-canon-a4-200-kreda-200-")) return "DUŻY CANON A4 200G";
+  if (key.startsWith("plakaty-duzy-canon-a3-200-kreda-200-")) return "DUŻY CANON A3 200G";
+
+  return "SOLWENT / PLAKATY";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -629,9 +655,17 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "solwent",
     label: "Solwent / plakaty",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
-    prefixes: ["solwent-", "plakaty-format-", "plakaty-maly-canon-", "plakaty-duzy-canon-"],
-    description: "Cenniki solwentu oraz plakatów A3-A0+ i A4-A3 (mały/duży Canon; 130g i 170g mają tę samą cenę).",
+    prefixes: ["solwent-", "plakaty-format-"],
+    description: "Cenniki solwentu oraz plakatów A3-A0+.",
     newKeyPrefix: "solwent-150g-"
+  },
+  {
+    id: "plakaty-a4-a3",
+    label: "Plakaty A4-A3",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+    prefixes: ["plakaty-maly-canon-", "plakaty-duzy-canon-"],
+    description: "Cenniki plakatów A4-A3 (mały/duży Canon).",
+    newKeyPrefix: "plakaty-maly-canon-"
   },
   {
     id: "vouchery",
@@ -949,6 +983,66 @@ function sortUlotkiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortCanvasCategoryKeys(keys: string[]): string[] {
+  const typeRank = (key: string): number => {
+    if (key.startsWith("canvas-framed-")) return 0;
+    return 1; // canvas-unframed-* and canvas-m2-unframed
+  };
+
+  const sizeArea = (key: string): number => {
+    const m = key.match(/^canvas-(?:framed|unframed)-(\d+)x(\d+)$/);
+    if (!m) return Number.POSITIVE_INFINITY; // custom or m2
+    return Number.parseInt(m[1], 10) * Number.parseInt(m[2], 10);
+  };
+
+  return [...keys].sort((a, b) => {
+    const ta = typeRank(a);
+    const tb = typeRank(b);
+    if (ta !== tb) return ta - tb;
+
+    const sa = sizeArea(a);
+    const sb = sizeArea(b);
+    if (sa !== sb) return sa - sb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortWizytowkiCategoryKeys(keys: string[]): string[] {
+  const laminatRank = (key: string): number => {
+    if (key.includes("-none-")) return 0;
+    if (key.includes("-matt_gloss-")) return 1;
+    return 2;
+  };
+
+  const formatRank = (key: string): number => {
+    if (key.includes("-85x55-")) return 0;
+    if (key.includes("-90x50-")) return 1;
+    return 2;
+  };
+
+  const qtyFromKey = (key: string): number => {
+    const m = key.match(/^wizytowki-.*-(\d+)szt$/);
+    return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
+  return [...keys].sort((a, b) => {
+    const la = laminatRank(a);
+    const lb = laminatRank(b);
+    if (la !== lb) return la - lb;
+
+    const fa = formatRank(a);
+    const fb = formatRank(b);
+    if (fa !== fb) return fa - fb;
+
+    const qa = qtyFromKey(a);
+    const qb = qtyFromKey(b);
+    if (qa !== qb) return qa - qb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
@@ -1111,12 +1205,24 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
     return sortPlakatyCategoryKeys(keys);
   }
 
+  if (category.id === "plakaty-a4-a3") {
+    return sortPlakatyCategoryKeys(keys);
+  }
+
   if (category.id === "zaproszenia") {
     return sortZaproszeniaCategoryKeys(keys);
   }
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "canvas") {
+    return sortCanvasCategoryKeys(keys);
+  }
+
+  if (category.id === "wizytowki") {
+    return sortWizytowkiCategoryKeys(keys);
   }
 
   return keys.sort();
@@ -1239,6 +1345,7 @@ export const UstawieniaView: View = {
       };
 
       let previousGroup = "";
+      let previousSolwentPlakatySection = "";
       let isBoldGroup = false;
 
       const rows: string[] = [];
@@ -1251,8 +1358,20 @@ export const UstawieniaView: View = {
           `);
         }
 
+        if (active.id === "solwent" || active.id === "plakaty-a4-a3") {
+          const sectionTitle = getSolwentPlakatySectionTitle(key);
+          if (sectionTitle !== previousSolwentPlakatySection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousSolwentPlakatySection = sectionTitle;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad") {
+        if (active.id !== "druk-cad" && active.id !== "solwent") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;

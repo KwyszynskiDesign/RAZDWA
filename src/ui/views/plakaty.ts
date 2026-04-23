@@ -57,6 +57,8 @@ export const PlakatyView: View = {
     const lengthLabel   = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput   = container.querySelector("#p-length-mm") as HTMLInputElement;
     const qtyInput      = container.querySelector("#p-qty") as HTMLInputElement;
+    const trim2Checkbox = container.querySelector("#p-trim-2") as HTMLInputElement | null;
+    const trim4Checkbox = container.querySelector("#p-trim-4") as HTMLInputElement | null;
     const addBtn        = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox     = container.querySelector("#p-result-display") as HTMLElement;
     const unitPriceEl   = container.querySelector("#p-unit-price") as HTMLElement;
@@ -67,6 +69,7 @@ export const PlakatyView: View = {
     const qtyLabel      = container.querySelector("#p-qty-label") as HTMLElement | null;
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
+    const calcHintEl    = container.querySelector("#p-calc-hint") as HTMLElement | null;
 
     const requiredElements = [
       materialSelect,
@@ -148,6 +151,13 @@ export const PlakatyView: View = {
       return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
     };
 
+    const getTrimSurcharge = (): number => {
+      let surcharge = 0;
+      if (trim2Checkbox?.checked) surcharge += 1;
+      if (trim4Checkbox?.checked) surcharge += 2;
+      return surcharge;
+    };
+
     function updateFormatOptions(matId: string) {
       const mat = tableData.formatowe.materials.find((m: any) => m.id === matId);
       if (!mat) return;
@@ -210,10 +220,16 @@ export const PlakatyView: View = {
         : undefined;
       const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
       const formatLabel = getFormatLabel(fmt);
-      currentResult = res;
-      currentOptions = { type: "format", matId, fmt, formatLabel, qty, customLengthMm };
+      const trimSurcharge = getTrimSurcharge();
+      const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
+      currentResult = {
+        ...res,
+        totalPrice: totalWithTrim,
+        trimSurcharge,
+      };
+      currentOptions = { type: "format", matId, fmt, formatLabel, qty, customLengthMm, trimSurcharge };
       unitPriceEl.innerText = formatPLN(res.pricePerPiece);
-      totalPriceEl.innerText = formatPLN(res.totalPrice);
+      totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
         if (res.discountFactor < 1) {
@@ -229,6 +245,19 @@ export const PlakatyView: View = {
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${formatLabel}`;
 
+      if (calcHintEl) {
+        if (trimSurcharge > 0) {
+          const trimParts: string[] = [];
+          if (trim2Checkbox?.checked) trimParts.push("2 cięcia trymer (+1,00 zł)");
+          if (trim4Checkbox?.checked) trimParts.push("4 cięcia trymer (+2,00 zł)");
+          calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
+          calcHintEl.style.display = "block";
+        } else {
+          calcHintEl.style.display = "none";
+          calcHintEl.innerText = "";
+        }
+      }
+
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
@@ -236,6 +265,7 @@ export const PlakatyView: View = {
     };
 
     const calcMalyCanon = () => {
+      if (!canonQtyInput || !canonFormatSelect || !canonVariantSelect) return;
       const qty = parsePositiveInt(canonQtyInput.value);
       if (!qty) return;
       const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
@@ -264,6 +294,7 @@ export const PlakatyView: View = {
     };
 
     const calcDuzyCanon = () => {
+      if (!duzyCanonQtyInput) return;
       const qty = parsePositiveInt(duzyCanonQtyInput.value);
       if (!qty) return;
 
@@ -291,6 +322,12 @@ export const PlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: () => { try { calcWielkoformatowe(); } catch {} try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} } });
+
+    const recalcForTrimChange = () => {
+      try { calcWielkoformatowe(); } catch {}
+    };
+    trim2Checkbox?.addEventListener("change", recalcForTrimChange);
+    trim4Checkbox?.addEventListener("change", recalcForTrimChange);
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
@@ -328,7 +365,8 @@ export const PlakatyView: View = {
       } else {
         const lengthHint = currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "";
         const fmtLabel = currentOptions.formatLabel ?? getFormatLabel(currentOptions.fmt);
-        const hint = `${fmtLabel} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+        const hint = `${fmtLabel} × ${currentOptions.qty} szt${lengthHint}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",

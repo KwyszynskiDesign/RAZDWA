@@ -5,6 +5,13 @@
   }
 </script> 
 <style>
+  @media (min-width: 768px) {
+    .main-content-card:has(#cad-mode) {
+      margin-left: -5px;
+      margin-right: 50px;
+    }
+  }
+
   .cad-inline-row {
     display: flex;
     gap: 16px;
@@ -71,11 +78,10 @@
   .cad-options-title { margin: 0; }
 
   .cad-options-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 16px;
+    align-items: start;
   }
 
   .cad-option-item {
@@ -109,7 +115,7 @@
 
   .cad-extra-services-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px 24px;
     align-items: flex-start;
     margin-top: 16px;
@@ -141,6 +147,7 @@
   }
 
   @media (max-width: 600px) {
+    .cad-options-list,
     .cad-extra-services-row {
       grid-template-columns: 1fr;
     }
@@ -251,27 +258,30 @@
 
   .cad-ops-list {
     display: none;
-    margin-top: 10px;
-    padding: 12px;
-    background: rgba(59, 130, 246, 0.09);
-    border: 1px solid rgba(59, 130, 246, 0.32);
-    border-radius: 10px;
+    margin-top: 20px;
   }
 
   .cad-ops-list-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
 
   .cad-ops-total {
-    font-weight: 900;
-    color: #3b82f6;
+    font-weight: 700;
+    color: var(--primary);
   }
 
   .cad-ops-items {
     margin-top: 6px;
+    display: grid;
+    gap: 6px;
+  }
+
+  .cad-ops-items > div {
+    font-size: 13px;
+    color: #555;
   }
 
   /* Zwężona legenda CAD */
@@ -499,19 +509,12 @@
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
   </div>
 
-  <div id="cad-breakdown-display" class="card" style="display:none; margin-top: 16px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
-    <div id="cad-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;">
-      <div>Cena uwzględnia: stawkę druku CAD, format/nakład oraz zaznaczone opcje dodatkowe.</div>
-    </div>
-  </div>
-
-  <div id="cad-ops-list" class="cad-ops-list">
-    <div class="cad-ops-list-head">
-      <strong>Suma usług:</strong>
+  <div id="cad-ops-list" class="cad-ops-list result-area" style="display:none; margin-top: 20px;">
+    <div class="price-line highlight cad-ops-list-head">
+      <span>SUMA USŁUG:</span>
       <span id="cad-ops-total" class="cad-ops-total">0.00 zł</span>
     </div>
-    <strong>Dodane usługi:</strong>
+    <div class="modifier-hint"><strong>Dodane usługi:</strong></div>
     <div id="cad-ops-list-items" class="cad-ops-items"></div>
   </div>
 </div>
