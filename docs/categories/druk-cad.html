@@ -15,7 +15,7 @@
   }
 
   .cad-length-row .cad-inline-row {
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 12px;
   }
 
@@ -107,13 +107,16 @@
 
   .cad-extra-services-row {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 8px 24px;
     align-items: flex-start;
     margin-top: 16px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
     max-width: calc(100% - 20px);
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .cad-extra-services-row > strong {
@@ -263,7 +266,9 @@
 
   /* Zwężona legenda CAD */
   #cad-dynamic-legend {
-    overflow-x: auto;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
   }
 
   #cad-dynamic-legend table.cad-legend-table {

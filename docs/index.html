@@ -605,6 +605,10 @@
 
     #viewContainer {
       color: #0f172a;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     #viewContainer .category-view,
@@ -615,6 +619,10 @@
     #viewContainer .content {
       display: grid;
       gap: 20px;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     #viewContainer .view-header {
@@ -687,6 +695,11 @@
       border: 1px solid #dbe7f3 !important;
       border-radius: 18px !important;
       box-shadow: 0 14px 34px rgba(148, 163, 184, 0.12) !important;
+      min-width: 0;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: hidden;
     }
 
     #viewContainer .calculator-form.card,

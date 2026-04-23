@@ -164,10 +164,13 @@
   .cad-extra-services {
     margin-top: 8px;
     display: grid !important;
-    grid-template-columns: repeat(3, 1fr) !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
     gap: 12px 16px !important;
     align-items: flex-start !important;
     flex-wrap: unset !important;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
   .cad-extra-service-item {
     display: flex;
