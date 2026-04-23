@@ -439,6 +439,7 @@ export const LaminowanieView: View = {
     const resultDisplay = container.querySelector("#lam-result-display") as HTMLElement;
     const unitPriceSpan = container.querySelector("#lam-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#lam-total-price") as HTMLElement;
+    const lamCountedLine = container.querySelector("#lam-counted-line") as HTMLElement | null;
     const qtyHintSpan = container.querySelector("#lam-qty-hint") as HTMLElement;
     const expressHint = container.querySelector("#lam-express-hint") as HTMLElement;
 
@@ -471,6 +472,7 @@ export const LaminowanieView: View = {
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
         if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.totalPrice / qty);
+        if (lamCountedLine) lamCountedLine.innerText = `Liczone: ${qty} szt. × ${formatPLN(result.totalPrice / qty)} (${currentOptions.format})${ctx.expressMode ? " + EXPRESS 20%" : ""}.`;
         if (qtyHintSpan) qtyHintSpan.innerText = `${qty} szt × ${formatPLN(result.totalPrice / qty)}, format: ${currentOptions.format}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         resultDisplay.style.display = "block";
@@ -509,6 +511,7 @@ export const LaminowanieView: View = {
         currentOptions = null;
         resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
+        if (lamCountedLine) lamCountedLine.innerText = "";
         if (expressHint) expressHint.style.display = "none";
         clearCalcBreakdown();
       }
@@ -522,6 +525,7 @@ export const LaminowanieView: View = {
     const bindResultDisplay = container.querySelector("#bind-result-display") as HTMLElement | null;
     const bindUnitPrice = container.querySelector("#bind-unit-price") as HTMLElement | null;
     const bindTotalPrice = container.querySelector("#bind-total-price") as HTMLElement | null;
+    const bindCountedLine = container.querySelector("#bind-counted-line") as HTMLElement | null;
 
     const enforceSingleChoice = (checks: HTMLInputElement[]) => {
       checks.forEach((check) => {
@@ -580,6 +584,7 @@ export const LaminowanieView: View = {
       bindState = { type, subtype, color, qty, pages, unitPrice, total };
       if (bindUnitPrice) bindUnitPrice.innerText = formatPLN(unitPrice * expressFactor);
       if (bindTotalPrice) bindTotalPrice.innerText = formatPLN(total);
+      if (bindCountedLine) bindCountedLine.innerText = `Liczone: ${qty} szt. × ${formatPLN(unitPrice)}${ctx.expressMode ? " + EXPRESS 20%" : ""}.`;
       if (bindResultDisplay) bindResultDisplay.style.display = "block";
       if (bindAddBtn) bindAddBtn.disabled = false;
 
@@ -620,6 +625,7 @@ export const LaminowanieView: View = {
       if (bindQty) bindQty.value = "";
       if (bindPages) bindPages.value = "20";
       if (bindResultDisplay) bindResultDisplay.style.display = "none";
+      if (bindCountedLine) bindCountedLine.innerText = "";
       if (bindAddBtn) bindAddBtn.disabled = true;
       clearCalcBreakdown();
     });
@@ -645,6 +651,7 @@ export const LaminowanieView: View = {
     const oprResultDisplay = container.querySelector("#opr-result-display") as HTMLElement | null;
     const oprUnitPrice = container.querySelector("#opr-unit-price") as HTMLElement | null;
     const oprTotalPrice = container.querySelector("#opr-total-price") as HTMLElement | null;
+    const oprCountedLine = container.querySelector("#opr-counted-line") as HTMLElement | null;
     const oprExpressHint = container.querySelector("#opr-express-hint") as HTMLElement | null;
     const oprRozszycieRow = container.querySelector("#opr-rozszycie-row") as HTMLElement | null;
     const oprHardUnbindCheck = container.querySelector("#opr-hard-unbind-check") as HTMLInputElement | null;
@@ -896,6 +903,15 @@ export const LaminowanieView: View = {
       };
       if (oprUnitPrice) oprUnitPrice.innerText = formatPLN(unitPrice * expressFactor);
       if (oprTotalPrice) oprTotalPrice.innerText = formatPLN(total);
+      if (oprCountedLine) {
+        const extras: string[] = [];
+        if ((extraThicknessPrice ?? 0) > 0) extras.push(`dopłata grubości ${formatPLN(extraThicknessPrice)}`);
+        if (hardUnbind) extras.push(`rozszycie ${formatPLN(hardUnbindPrice)}`);
+        if (hardResew) extras.push(`ponowne zszycie ${formatPLN(hardResewPrice)}`);
+        if (cdBurn) extras.push(`płyta ${formatPLN(cdPrice)}`);
+        const extrasHint = extras.length ? ` + ${extras.join(" + ")}` : "";
+        oprCountedLine.innerText = `Liczone: ${qty} szt. × ${formatPLN(unitPrice)}${extrasHint}${ctx.expressMode ? " + EXPRESS 20%" : ""}.`;
+      }
       if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
       if (oprResultDisplay) oprResultDisplay.style.display = "block";
       if (oprAddBtn) oprAddBtn.disabled = false;
@@ -1025,6 +1041,7 @@ export const LaminowanieView: View = {
       if (oprCdCheck) oprCdCheck.checked = false;
       syncOprRows();
       if (oprResultDisplay) oprResultDisplay.style.display = "none";
+      if (oprCountedLine) oprCountedLine.innerText = "";
       if (oprAddBtn) oprAddBtn.disabled = true;
       if (oprExpressHint) oprExpressHint.style.display = "none";
       clearCalcBreakdown();
@@ -1046,6 +1063,7 @@ export const LaminowanieView: View = {
     const introResultDisplay = container.querySelector("#intro-result-display") as HTMLElement | null;
     const introUnitPrice = container.querySelector("#intro-unit-price") as HTMLElement | null;
     const introTotalPrice = container.querySelector("#intro-total-price") as HTMLElement | null;
+    const introCountedLine = container.querySelector("#intro-counted-line") as HTMLElement | null;
     const introExpressHint = container.querySelector("#intro-express-hint") as HTMLElement | null;
 
     let introState: ReturnType<typeof quoteIntroligatornia> | null = null;
@@ -1073,6 +1091,7 @@ export const LaminowanieView: View = {
       introState = result;
       if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
       if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
+      if (introCountedLine) introCountedLine.innerText = `Liczone: ${result.qty} operacji × ${formatPLN(result.totalPrice / result.qty)}.`;
       if (introExpressHint) introExpressHint.style.display = "none";
       if (introResultDisplay) introResultDisplay.style.display = "block";
       if (introAddBtn) introAddBtn.disabled = false;
@@ -1108,6 +1127,7 @@ export const LaminowanieView: View = {
       introService.selectedIndex = 0;
       introQty.value = "";
       if (introResultDisplay) introResultDisplay.style.display = "none";
+      if (introCountedLine) introCountedLine.innerText = "";
       if (introAddBtn) introAddBtn.disabled = true;
       if (introExpressHint) introExpressHint.style.display = "none";
       clearCalcBreakdown();
