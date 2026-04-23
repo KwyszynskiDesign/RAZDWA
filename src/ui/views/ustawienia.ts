@@ -940,7 +940,7 @@ function sortCanvasCategoryKeys(keys: string[]): string[] {
   };
 
   const sizeArea = (key: string): number => {
-    const m = key.match(/canvas-(?:framed|unframed)-(\d+)x(\d+)$/);
+    const m = key.match(/^canvas-(?:framed|unframed)-(\d+)x(\d+)$/);
     if (!m) return Number.POSITIVE_INFINITY; // custom or m2
     return Number.parseInt(m[1], 10) * Number.parseInt(m[2], 10);
   };
@@ -972,7 +972,7 @@ function sortWizytowkiCategoryKeys(keys: string[]): string[] {
   };
 
   const qtyFromKey = (key: string): number => {
-    const m = key.match(/-(\d+)szt$/);
+    const m = key.match(/^wizytowki-.*-(\d+)szt$/);
     return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
   };
 
