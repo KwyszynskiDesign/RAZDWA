@@ -933,6 +933,66 @@ function sortUlotkiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortCanvasCategoryKeys(keys: string[]): string[] {
+  const typeRank = (key: string): number => {
+    if (key.startsWith("canvas-framed-")) return 0;
+    return 1; // canvas-unframed-* and canvas-m2-unframed
+  };
+
+  const sizeArea = (key: string): number => {
+    const m = key.match(/canvas-(?:framed|unframed)-(\d+)x(\d+)$/);
+    if (!m) return Number.POSITIVE_INFINITY; // custom or m2
+    return Number.parseInt(m[1], 10) * Number.parseInt(m[2], 10);
+  };
+
+  return [...keys].sort((a, b) => {
+    const ta = typeRank(a);
+    const tb = typeRank(b);
+    if (ta !== tb) return ta - tb;
+
+    const sa = sizeArea(a);
+    const sb = sizeArea(b);
+    if (sa !== sb) return sa - sb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortWizytowkiCategoryKeys(keys: string[]): string[] {
+  const laminatRank = (key: string): number => {
+    if (key.includes("-none-")) return 0;
+    if (key.includes("-matt_gloss-")) return 1;
+    return 2;
+  };
+
+  const formatRank = (key: string): number => {
+    if (key.includes("-85x55-")) return 0;
+    if (key.includes("-90x50-")) return 1;
+    return 2;
+  };
+
+  const qtyFromKey = (key: string): number => {
+    const m = key.match(/-(\d+)szt$/);
+    return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
+  return [...keys].sort((a, b) => {
+    const la = laminatRank(a);
+    const lb = laminatRank(b);
+    if (la !== lb) return la - lb;
+
+    const fa = formatRank(a);
+    const fb = formatRank(b);
+    if (fa !== fb) return fa - fb;
+
+    const qa = qtyFromKey(a);
+    const qb = qtyFromKey(b);
+    if (qa !== qb) return qa - qb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
@@ -1101,6 +1161,14 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "canvas") {
+    return sortCanvasCategoryKeys(keys);
+  }
+
+  if (category.id === "wizytowki") {
+    return sortWizytowkiCategoryKeys(keys);
   }
 
   return keys.sort();
