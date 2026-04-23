@@ -933,6 +933,39 @@ function sortUlotkiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortWizytowkiCategoryKeys(keys: string[]): string[] {
+  const formatRank: Record<string, number> = { "85x55": 0, "90x50": 1 };
+  const typeRank: Record<string, number> = { none: 0, matt_gloss: 1 };
+
+  const parse = (key: string) => {
+    const m = key.match(/^wizytowki-(85x55|90x50)-(none|matt_gloss)-(\d+)szt$/);
+    if (!m) {
+      return {
+        type: 99,
+        qty: Number.POSITIVE_INFINITY,
+        format: 99,
+        raw: key,
+      };
+    }
+
+    return {
+      type: typeRank[m[2]] ?? 99,
+      qty: Number.parseInt(m[3], 10),
+      format: formatRank[m[1]] ?? 99,
+      raw: key,
+    };
+  };
+
+  return [...keys].sort((a, b) => {
+    const pa = parse(a);
+    const pb = parse(b);
+    if (pa.type !== pb.type) return pa.type - pb.type;
+    if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+    if (pa.format !== pb.format) return pa.format - pb.format;
+    return pa.raw.localeCompare(pb.raw, "pl");
+  });
+}
+
 function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
@@ -1101,6 +1134,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "ulotki") {
     return sortUlotkiCategoryKeys(keys);
+  }
+
+  if (category.id === "wizytowki") {
+    return sortWizytowkiCategoryKeys(keys);
   }
 
   return keys.sort();
