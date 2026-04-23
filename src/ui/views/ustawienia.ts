@@ -1065,6 +1065,51 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function getSortablePriceValue(value: PriceValue): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : Number.POSITIVE_INFINITY;
+}
+
+function sortByTypeThenPrice(
+  keys: string[],
+  prices: PriceMap,
+  getTypeRank: (key: string) => number
+): string[] {
+  return [...keys].sort((a, b) => {
+    const typeA = getTypeRank(a);
+    const typeB = getTypeRank(b);
+    if (typeA !== typeB) return typeA - typeB;
+
+    const priceA = getSortablePriceValue(prices[a]);
+    const priceB = getSortablePriceValue(prices[b]);
+    if (priceA !== priceB) return priceA - priceB;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortBannerCategoryKeys(keys: string[], prices: PriceMap): string[] {
+  const getTypeRank = (key: string): number => {
+    if (key.startsWith("banner-powlekany-")) return 0;
+    if (key.startsWith("banner-blockout-")) return 1;
+    if (key.startsWith("banner-oczkowanie")) return 2;
+    return 99;
+  };
+
+  return sortByTypeThenPrice(keys, prices, getTypeRank);
+}
+
+function sortFoliaCategoryKeys(keys: string[], prices: PriceMap): string[] {
+  const getTypeRank = (key: string): number => {
+    if (key.startsWith("folia-szroniona-wydruk-")) return 0;
+    if (key.startsWith("folia-szroniona-oklejanie-")) return 1;
+    if (key.startsWith("folia-szroniona-owv-wydruk-")) return 2;
+    if (key.startsWith("folia-szroniona-owv-oklejanie-")) return 3;
+    return 99;
+  };
+
+  return sortByTypeThenPrice(keys, prices, getTypeRank);
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -1103,7 +1148,21 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
     return sortUlotkiCategoryKeys(keys);
   }
 
+  if (category.id === "banner") {
+    return sortBannerCategoryKeys(keys, prices);
+  }
+
+  if (category.id === "folia") {
+    return sortFoliaCategoryKeys(keys, prices);
+  }
+
   return keys.sort();
+}
+
+export function getCategoryKeysForTest(prices: PriceMap, categoryId: string): string[] {
+  const category = BASE_PRICE_CATEGORIES.find((item) => item.id === categoryId);
+  if (!category) return [];
+  return getCategoryKeys(prices, category);
 }
 
 export const UstawieniaView: View = {
