@@ -639,9 +639,17 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "solwent",
     label: "Solwent / plakaty",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
-    prefixes: ["solwent-", "plakaty-format-", "plakaty-maly-canon-", "plakaty-duzy-canon-"],
-    description: "Cenniki solwentu oraz plakatów A3-A0+ i A4-A3 (mały/duży Canon; 130g i 170g mają tę samą cenę).",
+    prefixes: ["solwent-", "plakaty-format-"],
+    description: "Cenniki solwentu oraz plakatów A3-A0+.",
     newKeyPrefix: "solwent-150g-"
+  },
+  {
+    id: "plakaty-a4-a3",
+    label: "Plakaty A4-A3",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+    prefixes: ["plakaty-maly-canon-", "plakaty-duzy-canon-"],
+    description: "Cenniki plakatów A4-A3 (mały/duży Canon).",
+    newKeyPrefix: "plakaty-maly-canon-"
   },
   {
     id: "vouchery",
@@ -1121,6 +1129,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
     return sortPlakatyCategoryKeys(keys);
   }
 
+  if (category.id === "plakaty-a4-a3") {
+    return sortPlakatyCategoryKeys(keys);
+  }
+
   if (category.id === "zaproszenia") {
     return sortZaproszeniaCategoryKeys(keys);
   }
@@ -1262,7 +1274,7 @@ export const UstawieniaView: View = {
           `);
         }
 
-        if (active.id === "solwent") {
+        if (active.id === "solwent" || active.id === "plakaty-a4-a3") {
           const sectionTitle = getSolwentPlakatySectionTitle(key);
           if (sectionTitle !== previousSolwentPlakatySection) {
             rows.push(`

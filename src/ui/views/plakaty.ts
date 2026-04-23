@@ -265,6 +265,7 @@ export const PlakatyView: View = {
     };
 
     const calcMalyCanon = () => {
+      if (!canonQtyInput || !canonFormatSelect || !canonVariantSelect) return;
       const qty = parsePositiveInt(canonQtyInput.value);
       if (!qty) return;
       const fmt = (canonFormatSelect.value === "A3" ? "A3" : "A4") as "A4" | "A3";
@@ -293,6 +294,7 @@ export const PlakatyView: View = {
     };
 
     const calcDuzyCanon = () => {
+      if (!duzyCanonQtyInput) return;
       const qty = parsePositiveInt(duzyCanonQtyInput.value);
       if (!qty) return;
 
@@ -320,6 +322,12 @@ export const PlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: () => { try { calcWielkoformatowe(); } catch {} try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} } });
+
+    const recalcForTrimChange = () => {
+      try { calcWielkoformatowe(); } catch {}
+    };
+    trim2Checkbox?.addEventListener("change", recalcForTrimChange);
+    trim4Checkbox?.addEventListener("change", recalcForTrimChange);
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
