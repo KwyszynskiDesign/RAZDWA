@@ -584,6 +584,25 @@ function compareLaminowanieKeys(a, b) {
   return a.localeCompare(b);
 }
 
+function getLaminowanieGroupTitle(key) {
+  if (key.startsWith('laminowanie-a3-') || key.startsWith('laminowanie-a4-') || key.startsWith('laminowanie-a5-') || key.startsWith('laminowanie-a6-')) {
+    return 'LAMINOWANIE';
+  }
+  if (key.startsWith('laminowanie-bindowanie-')) {
+    return 'BINDOWANIE';
+  }
+  if (key.startsWith('laminowanie-oprawa-')) {
+    return 'OPRAWY';
+  }
+  if (key.startsWith('laminowanie-intro-')) {
+    return 'INTROLIGATORNIA';
+  }
+  if (key.startsWith('laminowanie-special-')) {
+    return 'WYDRUKI SPECJALNE';
+  }
+  return '';
+}
+
 function compareSolwentKeys(a, b) {
   const materialRank = (key) => {
     if (key.startsWith('solwent-150g-')) return 0;
@@ -738,25 +757,44 @@ function updateTable() {
     return;
   }
   
-  tbody.innerHTML = filteredKeys.map(key => `
-    <tr style="border-bottom: 1px solid var(--border);">
-      <td style="padding: 6px 10px;">
-        ${getPriceKeyDescription(key)
-          ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`
-          : ''}
-        <input value="${escAttr(key)}" data-key="${escAttr(key)}" data-field="key"
-          style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: monospace; background: var(--surface); color: var(--text-primary);">
-      </td>
-      <td style="padding: 6px 10px;">
-        <input type="number" value="${Number(prices[key]).toFixed(2)}" step="0.01" min="0"
-          data-key="${escAttr(key)}" data-field="unitPrice"
-          style="width: 120px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);">
-      </td>
-      <td style="padding: 6px 10px; text-align: center;">
-        <button data-remove="${escAttr(key)}" title="Usuń" style="background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;">🗑️</button>
-      </td>
-    </tr>
-  `).join('');
+  const rows = [];
+  let lastLaminowanieGroup = '';
+
+  filteredKeys.forEach((key) => {
+    if (currentCategory === 'laminowanie') {
+      const groupTitle = getLaminowanieGroupTitle(key);
+      if (groupTitle && groupTitle !== lastLaminowanieGroup) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastLaminowanieGroup = groupTitle;
+      }
+    }
+
+    rows.push(`
+      <tr style="border-bottom: 1px solid var(--border);">
+        <td style="padding: 6px 10px;">
+          ${getPriceKeyDescription(key)
+            ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`
+            : ''}
+          <input value="${escAttr(key)}" data-key="${escAttr(key)}" data-field="key"
+            style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: monospace; background: var(--surface); color: var(--text-primary);">
+        </td>
+        <td style="padding: 6px 10px;">
+          <input type="number" value="${Number(prices[key]).toFixed(2)}" step="0.01" min="0"
+            data-key="${escAttr(key)}" data-field="unitPrice"
+            style="width: 120px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);">
+        </td>
+        <td style="padding: 6px 10px; text-align: center;">
+          <button data-remove="${escAttr(key)}" title="Usuń" style="background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;">🗑️</button>
+        </td>
+      </tr>
+    `);
+  });
+
+  tbody.innerHTML = rows.join('');
 
   // Inline edit listeners
   tbody.querySelectorAll('input[data-key]').forEach(input => {
