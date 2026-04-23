@@ -7,10 +7,8 @@
 <style>
   @media (min-width: 768px) {
     .main-content-card:has(#cad-mode) {
-      width: calc(100% + 40px);
-      max-width: calc(100% + 40px);
-      margin-left: -20px;
-      margin-right: -20px;
+      margin-left: -5px;
+      margin-right: 20px;
     }
   }
 
@@ -511,13 +509,6 @@
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
   </div>
 
-  <div id="cad-breakdown-display" class="card" style="display:none; margin-top: 16px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
-    <div id="cad-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;">
-      <div>Cena uwzględnia: stawkę druku CAD, format/nakład oraz zaznaczone opcje dodatkowe.</div>
-    </div>
-  </div>
-
   <div id="cad-ops-list" class="cad-ops-list result-area" style="display:none; margin-top: 20px;">
     <div class="price-line highlight cad-ops-list-head">
       <span>SUMA USŁUG:</span>
@@ -525,13 +516,6 @@
     </div>
     <div class="modifier-hint"><strong>Dodane usługi:</strong></div>
     <div id="cad-ops-list-items" class="cad-ops-items"></div>
-  </div>
-
-  <div id="cad-ops-breakdown" class="card" style="margin-top: 16px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
-    <div id="cad-ops-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;">
-      <div>Suma usług to suma wszystkich dodanych usług dodatkowych i operacji (składanie, skanowanie, usługi od klienta).</div>
-    </div>
   </div>
 </div>
 
