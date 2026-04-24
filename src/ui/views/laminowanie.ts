@@ -449,15 +449,13 @@ export const LaminowanieView: View = {
     const performCalculation = () => {
         const qty = parseInt(qtyInput.value);
           if (isNaN(qty) || qty <= 0) {
-            resultDisplay.style.display = "none";
+            if (resultDisplay) resultDisplay.style.display = "none";
             addToCartBtn.disabled = true;
             clearCalcBreakdown();
             return;
           }
         if (!formatSelect.value) {
-          resultDisplay.style.display = "none";
-          addToCartBtn.disabled = true;
-          clearCalcBreakdown();
+          if (resultDisplay) resultDisplay.style.display = "none";
           return;
         }
 
@@ -509,7 +507,7 @@ export const LaminowanieView: View = {
         qtyInput.value = "";
         currentResult = null;
         currentOptions = null;
-        resultDisplay.style.display = "none";
+        if (resultDisplay) resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         if (lamCountedLine) lamCountedLine.innerText = "";
         if (expressHint) expressHint.style.display = "none";
