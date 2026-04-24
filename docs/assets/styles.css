@@ -235,8 +235,8 @@ h1 {
   color: white;
   border: 2px solid #4E7FA8;
   transition: all .2s ease;
-  min-width: 50px;
-  min-height: 50px;
+  min-width: 48px;
+  min-height: 48px;
   padding: 12px 18px;
   border-radius: 10px;
   display: flex;
@@ -1076,7 +1076,7 @@ button.ghost:hover {
   background: var(--surface);
   color: var(--text);
   font-size: 13px;
-  width: 50px;
+  width: 48px;
 }
 
 /* ===== CAD druk – tryb + format inline ===== */
