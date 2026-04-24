@@ -1104,6 +1104,31 @@ button.ghost:hover {
   }
 }
 
+/* ===== CAD Upload Section ===== */
+#cadUploadSection {
+  max-height: 100%;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+#cadUploadSection::-webkit-scrollbar {
+  width: 6px;
+}
+
+#cadUploadSection::-webkit-scrollbar-track {
+  background: var(--surface);
+  border-radius: 3px;
+}
+
+#cadUploadSection::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+#cadUploadSection::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
 .btn-primary {
   background: var(--primary);
   color: var(--primary-text);
