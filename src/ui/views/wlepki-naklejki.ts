@@ -167,12 +167,12 @@ export const WlepkiView: View = {
       const mode = modeSelect.value === "szt" ? "szt" : "m2";
 
       if (mode === "szt" && !pieceTableSelect.value) {
-        resultDiv.style.display = "none";
+        if (resultDiv) resultDiv.style.display = "none";
         addBtn.disabled = true;
         return;
       }
       if (mode === "m2" && !groupSelect.value) {
-        resultDiv.style.display = "none";
+        if (resultDiv) resultDiv.style.display = "none";
         addBtn.disabled = true;
         return;
       }
@@ -192,7 +192,7 @@ export const WlepkiView: View = {
           }
 
           if (!pieceQtyInput.value) {
-            resultDiv.style.display = "none";
+            if (resultDiv) resultDiv.style.display = "none";
             addBtn.disabled = true;
             return;
           }
@@ -300,13 +300,13 @@ export const WlepkiView: View = {
         }
 
         totalPriceEl.textContent = formatPLN(currentResult.totalPrice);
-        resultDiv.style.display = "block";
+        if (resultDiv) resultDiv.style.display = "block";
         if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "block";
         addBtn.disabled = false;
 
         ctx.updateLastCalculated(currentResult.totalPrice, "Wlepki");
       } catch (err) {
-        resultDiv.style.display = "none";
+        if (resultDiv) resultDiv.style.display = "none";
         if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "none";
         addBtn.disabled = true;
       }

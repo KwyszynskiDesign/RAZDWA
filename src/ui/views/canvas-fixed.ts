@@ -138,12 +138,12 @@ export const CanvasView: View = {
 
     const calculate = () => {
       if (!modeSel.value) {
-        resultEl.style.display = "none";
+        if (resultEl) resultEl.style.display = "none";
         addBtn.disabled = true;
         return;
       }
       if (!qtyInput.value) {
-        resultEl.style.display = "none";
+        if (resultEl) resultEl.style.display = "none";
         addBtn.disabled = true;
         return;
       }
@@ -159,13 +159,13 @@ export const CanvasView: View = {
       const result = calculateCanvas(options);
 
       if (result.totalPrice <= 0) {
-        resultEl.style.display = "none";
+        if (resultEl) resultEl.style.display = "none";
         addBtn.disabled = true;
         return;
       }
 
-      resultEl.style.display = "block";
-      normalEl.style.display = "block";
+      if (resultEl) resultEl.style.display = "block";
+      if (normalEl) normalEl.style.display = "block";
 
         modeLabelEl.innerText = result.modeLabel;
         formatLabelEl.innerText = result.formatLabel;

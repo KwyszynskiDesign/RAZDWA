@@ -127,7 +127,7 @@ export const WycinanieFoliiView: View = {
       if (unitEl) unitEl.innerText = formatPLN(result.tierPrice);
       totalEl.innerText = formatPLN(result.totalPrice);
       if (expressEl) expressEl.style.display = options.express ? "block" : "none";
-      resultEl.style.display = "block";
+      if (resultEl) resultEl.style.display = "block";
       if (breakdownDisplay && breakdownLines) {
         const lines: string[] = [
           `<div><strong>Parametry:</strong> ${options.widthMm} × ${options.heightMm} mm, kolor: ${colorLabel}</div>`,
@@ -146,7 +146,7 @@ export const WycinanieFoliiView: View = {
 
         lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
         breakdownLines.innerHTML = lines.join("");
-        breakdownDisplay.style.display = "block";
+        if (breakdownDisplay) breakdownDisplay.style.display = "block";
       }
       addBtn.disabled = false;
 
