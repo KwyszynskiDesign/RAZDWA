@@ -35,11 +35,12 @@ import categories from "../../data/categories.json";
 const cart = new Cart();
 
 // Loading popup functions
-function showOrderLoadingPopup(message: string = "WYSYŁANIE...") {
+function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending") {
   const popup = document.getElementById("orderLoadingPopup");
   const text = document.getElementById("loadingText");
   if (popup && text) {
     text.textContent = message;
+    popup.className = `loading-popup loading-popup--${type}`;
     popup.style.display = "flex";
   }
 }
@@ -655,13 +656,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
-      showOrderLoadingPopup("WYSYŁANIE...");
+      showOrderLoadingPopup("WYSYŁANIE...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
         if (result.ok) {
-          showOrderLoadingPopup("COMPLET - WYSŁANO");
+          showOrderLoadingPopup("COMPLET - WYSŁANO", "success");
           setTimeout(() => {
             hideOrderLoadingPopup();
             if (result.verified === false) {
@@ -671,7 +672,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             cart.clear();
             updateCartUI();
-          }, 1500);
+          }, 4500);
           return;
         }
 
