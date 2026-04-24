@@ -34,6 +34,23 @@ import categories from "../../data/categories.json";
 
 const cart = new Cart();
 
+// Loading popup functions
+function showOrderLoadingPopup(message: string = "WYSYŁANIE...") {
+  const popup = document.getElementById("orderLoadingPopup");
+  const text = document.getElementById("loadingText");
+  if (popup && text) {
+    text.textContent = message;
+    popup.style.display = "flex";
+  }
+}
+
+function hideOrderLoadingPopup() {
+  const popup = document.getElementById("orderLoadingPopup");
+  if (popup) {
+    popup.style.display = "none";
+  }
+}
+
 function getSummaryPercentValue(elementId: string): number {
   const el = document.getElementById(elementId) as HTMLSelectElement | null;
   if (!el) return 0;
@@ -638,19 +655,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
-      const payload = buildOrderExportPayload(items, customer);
-      const result = await sendOrderToAppsScript(payload, exportConfig);
+      showOrderLoadingPopup("WYSYŁANIE...");
+      try {
+        const payload = buildOrderExportPayload(items, customer);
+        const result = await sendOrderToAppsScript(payload, exportConfig);
 
-      if (result.ok) {
-        if (result.verified === false) {
-          showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
-        } else {
-          showToast("Wysłano do bazy (Google Sheets)", "success");
+        if (result.ok) {
+          showOrderLoadingPopup("COMPLET - WYSŁANO");
+          setTimeout(() => {
+            hideOrderLoadingPopup();
+            if (result.verified === false) {
+              showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
+            } else {
+              showToast("Wysłano do bazy (Google Sheets)", "success");
+            }
+            cart.clear();
+            updateCartUI();
+          }, 1500);
+          return;
         }
-        return;
-      }
 
-      showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
+        hideOrderLoadingPopup();
+        showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
+      } catch (error) {
+        hideOrderLoadingPopup();
+        showToast(`Błąd wysyłki: ${error}`, "error");
+      }
       return;
     }
 
