@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/styles.css?v=20260423-2">
+  <link rel="stylesheet" href="assets/styles.css?v=20260424-1">
   
   <!-- PDF.js for CAD Upload (global, loaded once) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -1957,7 +1957,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const isCADUpload = hash === '#/cad-upload';
     if (cadSection) {
       cadSection.style.display = isCADUpload ? 'block' : 'none';
-      document.getElementById('emptyState').style.display = isCADUpload ? 'none' : 'block';
+    }
+    const emptyState = document.getElementById('emptyState');
+    if (emptyState) {
+      emptyState.style.display = isCADUpload ? 'none' : 'block';
     }
   });
 
