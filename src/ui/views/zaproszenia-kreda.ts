@@ -59,7 +59,15 @@ export const ZaproszeniaKredaView: View = {
         legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
-        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
+        legendModeBadge.textContent = "";
+        const strong = document.createElement("strong");
+        strong.textContent = "Wariant:";
+        legendModeBadge.appendChild(strong);
+        legendModeBadge.appendChild(
+          document.createTextNode(
+            ` ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`
+          )
+        );
       }
 
       legendRows.innerHTML = qtyList
