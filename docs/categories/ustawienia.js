@@ -291,6 +291,10 @@ const DEFAULT_PRICES = {
 
 // === DEFINICJA KATEGORII ===
 const CATEGORIES = {
+    "pojedyncze-naklady": {
+      label: "🧾 Pojedyncze nakłady",
+      prefixes: ["laminowanie-special-"]
+    },
   "druk-a4-a3": {
     label: "📄 Druk A4/A3",
     prefixes: ["druk-bw-", "druk-kolor-", "druk-email", "modifier-druk-zadruk25"]
@@ -450,14 +454,14 @@ function getPriceKeyDescription(key) {
   if (twardaMap[key]) return twardaMap[key];
 
   const specjalneMap = {
-    'laminowanie-special-dyplom': 'Wydruki specjalne • Dyplom',
-    'laminowanie-special-zaproszenia-dodruk': 'Wydruki specjalne • Zaproszenia (dodruk)',
-    'laminowanie-special-katalog': 'Wydruki specjalne • Katalog',
-    'laminowanie-special-broszura': 'Wydruki specjalne • Broszura',
-    'laminowanie-special-koperty-nadruk': 'Wydruki specjalne • Koperty – nadruk',
-    'laminowanie-special-trymer-2x': 'Wydruki specjalne • Cięcie trymer 2x',
-    'laminowanie-special-trymer-4x': 'Wydruki specjalne • Cięcie trymer 4x',
-    'laminowanie-special-double-sided-factor': 'Wydruki specjalne • dopłata za dwustronność'
+    'laminowanie-special-dyplom': 'Pojedyncze nakłady • Dyplom',
+    'laminowanie-special-zaproszenia-dodruk': 'Pojedyncze nakłady • Zaproszenia (dodruk)',
+    'laminowanie-special-katalog': 'Pojedyncze nakłady • Katalog',
+    'laminowanie-special-broszura': 'Pojedyncze nakłady • Broszura',
+    'laminowanie-special-koperty-nadruk': 'Pojedyncze nakłady • Koperty – nadruk',
+    'laminowanie-special-trymer-2x': 'Pojedyncze nakłady • Cięcie trymer 2x',
+    'laminowanie-special-trymer-4x': 'Pojedyncze nakłady • Cięcie trymer 4x',
+    'laminowanie-special-double-sided-factor': 'Pojedyncze nakłady • dopłata za dwustronność'
   };
   if (specjalneMap[key]) return specjalneMap[key];
 
@@ -614,7 +618,7 @@ function getLaminowanieGroupTitle(key) {
     return 'INTROLIGATORNIA';
   }
   if (key.startsWith('laminowanie-special-')) {
-    return 'WYDRUKI SPECJALNE';
+    return 'POJEDYNCZE NAKŁADY';
   }
   return '';
 }
