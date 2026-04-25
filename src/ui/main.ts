@@ -35,22 +35,29 @@ import categories from "../../data/categories.json";
 const cart = new Cart();
 
 // Loading popup functions
+
+// Zamienia popup na ghost-toast
 function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending") {
-  const popup = document.getElementById("orderLoadingPopup");
-  const text = document.getElementById("loadingText");
-  if (popup && text) {
-    text.textContent = message;
-    popup.className = `loading-popup loading-popup--${type}`;
-    popup.style.display = "flex";
-  }
+  const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+  if (!host) return;
+  const toast = document.createElement("div");
+  let variant = "sending";
+  if (type === "success") variant = "sent";
+  toast.className = `ghost-toast ghost-toast--${variant}`;
+  let icon = type === "sending" ? "⏳" : "✔️";
+  toast.innerHTML = `
+    <span class="ghost-toast__icon">${icon}</span>
+    <span class="ghost-toast__message">${message}</span>
+  `;
+  host.prepend(toast);
+  setTimeout(() => toast.classList.add("is-visible"), 10);
+  setTimeout(() => {
+    toast.classList.remove("is-visible");
+    setTimeout(() => toast.remove(), 350);
+  }, 3500);
 }
 
-function hideOrderLoadingPopup() {
-  const popup = document.getElementById("orderLoadingPopup");
-  if (popup) {
-    popup.style.display = "none";
-  }
-}
+function hideOrderLoadingPopup() {/* niepotrzebne, zostawiam dla kompatybilności */}
 
 function getSummaryPercentValue(elementId: string): number {
   const el = document.getElementById(elementId) as HTMLSelectElement | null;
@@ -668,7 +675,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (result.verified === false) {
               showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
             } else {
-              showToast("Wysłano do bazy (Google Sheets)", "success");
+              showToast("Wysłano do bazy (Google Sheets)", "info");
             }
             cart.clear();
             updateCartUI();
