@@ -15,11 +15,19 @@ export const plakatyCategory: CategoryModule = {
   id: "solwent-plakaty",
   name: "Solwent - Plakaty",
   mount: (container: HTMLElement, ctx: CategoryContext) => {
+
     const table = getPrice('solwent-plakaty-200g') as PriceTable;
+    // Render dynamic legend/notes
+    const notesHtml = table.notes && table.notes.length
+      ? `<ul class="legend" style="margin: 10px 0 20px 0; padding-left: 20px; color: #444; font-size: 0.95em;">
+          ${table.notes.map((n: string) => `<li>${n}</li>`).join('')}
+        </ul>`
+      : '';
 
     container.innerHTML = `
       <div class="category-view">
         <h2>${table.title}</h2>
+        ${notesHtml}
         <div class="form" style="display: grid; gap: 15px;">
           <div class="row" style="display: flex; justify-content: space-between; align-items: center;">
             <label>Powierzchnia (m2)</label>
