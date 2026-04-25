@@ -626,6 +626,23 @@ function getSolwentPlakatySectionTitle(key: string): string {
   return "SOLWENT / PLAKATY";
 }
 
+function getLaminowanieSectionTitle(key: string): string {
+  if (key.startsWith("laminowanie-a3-")) return "LAMINOWANIE";
+  if (key.startsWith("laminowanie-a4-")) return "LAMINOWANIE";
+  if (key.startsWith("laminowanie-a5-")) return "LAMINOWANIE";
+  if (key.startsWith("laminowanie-a6-")) return "LAMINOWANIE";
+  if (key.startsWith("laminowanie-intro-")) return "INTROLIGATORNIA – USŁUGI JEDNOSTKOWE";
+  if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return "OPRAWA GRZBIETOWA";
+  if (key.startsWith("laminowanie-oprawa-kanalowa-")) return "OPRAWA KANAŁOWA";
+  if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return "OPRAWA ZACISKOWA";
+  if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-")) return "OPRAWA ZBIJANA / SKRĘCANA";
+  if (key.startsWith("laminowanie-oprawa-twarda-")) return "OPRAWY TWARDE";
+  if (key.startsWith("laminowanie-bindowanie-")) return "BINDOWANIE";
+  if (key.startsWith("laminowanie-special-")) return "WYDRUKI SPECJALNE";
+
+  return "LAMINOWANIE";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -1346,6 +1363,7 @@ export const UstawieniaView: View = {
 
       let previousGroup = "";
       let previousSolwentPlakatySection = "";
+      let previousLaminowanieSection = "";
       let isBoldGroup = false;
 
       const rows: string[] = [];
@@ -1370,8 +1388,20 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "laminowanie") {
+          const sectionTitle = getLaminowanieSectionTitle(key);
+          if (sectionTitle !== previousLaminowanieSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousLaminowanieSection = sectionTitle;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "solwent") {
+        if (active.id !== "druk-cad" && active.id !== "solwent" && active.id !== "laminowanie") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;

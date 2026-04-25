@@ -675,6 +675,8 @@ button.ghost:hover {
 }
 
 .left-col {
+  min-width: 0;
+  overflow-x: auto;
   overflow-y: auto;
   height: 100%;
   position: relative;

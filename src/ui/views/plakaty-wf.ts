@@ -41,6 +41,12 @@ export const PlakatyWFView: View = {
     const lengthLabel = container.querySelector("#p-length-label") as HTMLElement;
     const lengthInput = container.querySelector("#p-length-mm") as HTMLInputElement;
     const qtyInput = container.querySelector("#p-qty") as HTMLInputElement;
+    const trim2Checkbox = container.querySelector("#p-trim-2") as HTMLInputElement | null;
+    const trim4Checkbox = container.querySelector("#p-trim-4") as HTMLInputElement | null;
+    const trim2QtyGroup = container.querySelector("#p-trim-2-qty-group") as HTMLElement | null;
+    const trim4QtyGroup = container.querySelector("#p-trim-4-qty-group") as HTMLElement | null;
+    const trim2QtyInput = container.querySelector("#p-trim-2-qty") as HTMLInputElement | null;
+    const trim4QtyInput = container.querySelector("#p-trim-4-qty") as HTMLInputElement | null;
     const addBtn = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox = container.querySelector("#p-result-display") as HTMLElement;
     const unitPriceEl = container.querySelector("#p-unit-price") as HTMLElement;
@@ -182,6 +188,19 @@ export const PlakatyWFView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
+    const getTrimSurcharge = (): number => {
+      let surcharge = 0;
+      if (trim2Checkbox?.checked) {
+        const qty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
+        surcharge += qty * 1; // 1 zł per item for 2 cuts
+      }
+      if (trim4Checkbox?.checked) {
+        const qty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
+        surcharge += qty * 2; // 2 zł per item for 4 cuts
+      }
+      return surcharge;
+    };
+
     const calcWielkoformatowe = () => {
       const matId = materialSelect.value;
       const fmt = formatSelect.value;
@@ -198,10 +217,12 @@ export const PlakatyWFView: View = {
 
       const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
       currentResult = res;
-      currentOptions = { matId, fmt, qty, customLengthMm };
+      const trimSurcharge = getTrimSurcharge();
+      const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
+      currentOptions = { matId, fmt, qty, customLengthMm, trimSurcharge };
 
       unitPriceEl.innerText = formatPLN(res.pricePerPiece);
-      totalPriceEl.innerText = formatPLN(res.totalPrice);
+      totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
         if (res.discountFactor < 1) {
@@ -224,9 +245,27 @@ export const PlakatyWFView: View = {
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
 
       if (calcHintEl) {
-        const hint = buildNieformatCalcHint(res);
-        calcHintEl.innerHTML = hint;
-        calcHintEl.style.display = hint ? "block" : "none";
+        const nieformatHint = buildNieformatCalcHint(res);
+        const trimSurcharge = getTrimSurcharge();
+        
+        if (trimSurcharge > 0) {
+          const trimParts: string[] = [];
+          if (trim2Checkbox?.checked) {
+            const qty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
+            trimParts.push(`${qty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(qty * 1)}`);
+          }
+          if (trim4Checkbox?.checked) {
+            const qty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
+            trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
+          }
+          const trimText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
+          const fullHint = nieformatHint ? `${trimText} | ${nieformatHint}` : trimText;
+          calcHintEl.innerHTML = fullHint;
+          calcHintEl.style.display = "block";
+        } else {
+          calcHintEl.innerHTML = nieformatHint;
+          calcHintEl.style.display = nieformatHint ? "block" : "none";
+        }
       }
 
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
@@ -237,6 +276,29 @@ export const PlakatyWFView: View = {
     };
 
     autoCalc({ root: container, calc: calcWielkoformatowe });
+
+    // Handle trim checkboxes
+    const recalcForTrimChange = () => {
+      // Show/hide quantity inputs
+      if (trim2QtyGroup) trim2QtyGroup.style.display = trim2Checkbox?.checked ? "block" : "none";
+      if (trim4QtyGroup) trim4QtyGroup.style.display = trim4Checkbox?.checked ? "block" : "none";
+
+      // Set default values when shown
+      if (trim2Checkbox?.checked && trim2QtyInput && !trim2QtyInput.value) {
+        trim2QtyInput.value = qtyInput.value || "1";
+      }
+      if (trim4Checkbox?.checked && trim4QtyInput && !trim4QtyInput.value) {
+        trim4QtyInput.value = qtyInput.value || "1";
+      }
+
+      // Recalculate
+      calcWielkoformatowe();
+    };
+
+    trim2Checkbox?.addEventListener("change", recalcForTrimChange);
+    trim4Checkbox?.addEventListener("change", recalcForTrimChange);
+    trim2QtyInput?.addEventListener("input", calcWielkoformatowe);
+    trim4QtyInput?.addEventListener("input", calcWielkoformatowe);
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
@@ -249,8 +311,11 @@ export const PlakatyWFView: View = {
         : fmtLabel;
       const lengthHint = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm) ? "" : (currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "");
       const calcHint = buildNieformatCalcHint(currentResult);
-      const hintBase = `${sizeLabelCart} × ${currentOptions.qty} szt${lengthHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+      const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+      const hintBase = `${sizeLabelCart} × ${currentOptions.qty} szt${lengthHint}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
       const hint = calcHint ? `${hintBase} | ${calcHint.replace(/<br>/g, " ")}` : hintBase;
+
+      const totalPrice = parseFloat((currentResult.totalPrice + currentOptions.trimSurcharge).toFixed(2));
 
       ctx.cart.addItem({
         id: `plakaty-${Date.now()}`,
@@ -260,7 +325,7 @@ export const PlakatyWFView: View = {
         unit: "szt",
         unitPrice: currentResult.pricePerPiece,
         isExpress: ctx.expressMode,
-        totalPrice: currentResult.totalPrice,
+        totalPrice: totalPrice,
         optionsHint: hint,
         payload: currentResult,
       });

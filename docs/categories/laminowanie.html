@@ -614,11 +614,6 @@
       <button id="intro-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
     <div id="intro-result-display" class="lam-result-box" style="display:none">
-      <!-- PROCES OBLICZANIA -->
-      <div class="lam-calc-box">
-        <div class="lam-calc-title">Proces obliczania</div>
-        <div class="lam-calc-details"></div>
-      </div>
       <div class="lam-result-line">
         <span>SUMA ZA WSZYSTKO:</span>
         <span id="intro-total-price" class="lam-total-price">-</span>
@@ -629,6 +624,11 @@
       </div>
       <div id="intro-counted-line" class="lam-counted-line"></div>
       <div id="intro-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+    </div>
+
+    <div id="lam-calc-breakdown" class="card" style="display: none; margin-top: 16px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+        <div id="lam-calc-details" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
   </div>
 </div>
