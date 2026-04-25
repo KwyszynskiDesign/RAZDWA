@@ -309,7 +309,9 @@ const CATEGORIES = {
   },
   "laminowanie": {
     label: "🔲 Introligatornia",
-    prefixes: ["laminowanie-"]
+    prefixes: [
+      "laminowanie-",
+    ].filter(p => p !== "laminowanie-special-")
   },
   "solwent": {
     label: "🖼️ Solwent - Plakaty",
