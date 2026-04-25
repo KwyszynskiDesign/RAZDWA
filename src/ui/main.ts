@@ -669,17 +669,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
         if (result.ok) {
-          showOrderLoadingPopup("COMPLET - WYSŁANO", "success");
+          showOrderLoadingPopup("Wysłano do bazy (Google Sheets)", "sent");
           setTimeout(() => {
             hideOrderLoadingPopup();
             if (result.verified === false) {
               showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
-            } else {
-              showToast("Wysłano do bazy (Google Sheets)", "info");
             }
             cart.clear();
             updateCartUI();
-          }, 4500);
+          }, 3500);
           return;
         }
 
