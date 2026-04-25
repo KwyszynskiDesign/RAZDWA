@@ -604,7 +604,11 @@ function getSolwentPlakatySectionTitle(key: string): string {
   if (key.startsWith("solwent-115g-")) return "SOLWENT 115G MATOWY";
   if (key.startsWith("solwent-150g-")) return "SOLWENT 150G PÓŁMAT";
   if (key.startsWith("solwent-200g-")) return "SOLWENT 200G POŁYSK";
-  if (key.startsWith("solwent-blockout-200g-") || key.startsWith("solwent-blockout200g-")) return "SOLWENT BLOCKOUT 200G SATYNA";
+  if (
+    key.startsWith("solwent-blockout-200g-") ||
+    key.startsWith("solwent-blockout200g-") ||
+    key.startsWith("plakaty-blockout200g-")
+  ) return "SOLWENT BLOCKOUT 200G SATYNA";
 
   if (key.startsWith("plakaty-format-120g-formatowe-")) return "120G FORMATOWE";
   if (key.startsWith("plakaty-format-120g-nieformatowe-")) return "120G NIEFORMATOWE";
@@ -672,7 +676,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "solwent",
     label: "Solwent / plakaty",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
-    prefixes: ["solwent-", "plakaty-format-"],
+    prefixes: ["solwent-", "plakaty-format-", "plakaty-blockout200g-"],
     description: "Cenniki solwentu oraz plakatów A3-A0+.",
     newKeyPrefix: "solwent-150g-"
   },
@@ -810,7 +814,7 @@ function keyMatchesCategory(key: string, category: PriceCategory): boolean {
   return category.prefixes.some((prefix) => key.startsWith(prefix));
 }
 
-function getRenderedCategories(prices: PriceMap): PriceCategory[] {
+export function getRenderedCategories(prices: PriceMap): PriceCategory[] {
   const categories = [...BASE_PRICE_CATEGORIES];
   const matchedKeys = new Set<string>();
 
@@ -1161,7 +1165,10 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("solwent-115g-")) return 0;
     if (key.startsWith("solwent-150g-")) return 1;
     if (key.startsWith("solwent-200g-")) return 2;
-    if (key.startsWith("solwent-blockout-200g-")) return 3;
+    if (
+      key.startsWith("solwent-blockout-200g-") ||
+      key.startsWith("plakaty-blockout200g-")
+    ) return 3;
     if (key.startsWith("plakaty-format-120g-formatowe-")) return 4;
     if (key.startsWith("plakaty-format-120g-nieformatowe-")) return 5;
     if (key.startsWith("plakaty-format-260g-satyna-formatowe-")) return 6;

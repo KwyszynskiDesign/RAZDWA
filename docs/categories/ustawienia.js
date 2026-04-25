@@ -301,7 +301,7 @@ const CATEGORIES = {
   },
   "druk-cad": {
     label: "🖨️ Druk CAD",
-    prefixes: ["druk-cad-"]
+    prefixes: ["druk-cad-", "cad-fold-"]
   },
   "skanowanie": {
     label: "📸 Skanowanie",
@@ -315,7 +315,7 @@ const CATEGORIES = {
   },
   "solwent": {
     label: "🖼️ Solwent - Plakaty",
-    prefixes: ["solwent-"]
+    prefixes: ["solwent-", "plakaty-format-", "plakaty-blockout200g-"]
   },
   "banner": {
     label: "🎌 Banner",
@@ -625,12 +625,38 @@ function getLaminowanieGroupTitle(key) {
   return '';
 }
 
+function getFoliaSzronionaGroupTitle(key) {
+  if (key.startsWith('folia-szroniona-owv-')) {
+    return 'OWV';
+  }
+  return 'Szroniona';
+}
+
 function compareSolwentKeys(a, b) {
   const materialRank = (key) => {
     if (key.startsWith('solwent-150g-')) return 0;
     if (key.startsWith('solwent-115g-')) return 1;
     if (key.startsWith('solwent-200g-')) return 2;
     if (key.startsWith('solwent-blockout200g-')) return 3;
+    return 99;
+  };
+
+  const ma = materialRank(a);
+  const mb = materialRank(b);
+  if (ma !== mb) return ma - mb;
+
+  const ra = getRangeStart(a);
+  const rb = getRangeStart(b);
+  if (ra !== rb) return ra - rb;
+
+  return a.localeCompare(b);
+}
+
+function compareFoliaSzronionaKeys(a, b) {
+  const materialRank = (key) => {
+    if (key.startsWith('folia-szroniona-owv-')) return 0;
+    if (key.startsWith('folia-szroniona-wydruk-')) return 1;
+    if (key.startsWith('folia-szroniona-oklejanie-')) return 2;
     return 99;
   };
 
@@ -710,6 +736,10 @@ function getFilteredPrices() {
     return keys.sort(compareSolwentKeys);
   }
 
+  if (currentCategory === 'folia-szroniona') {
+    return keys.sort(compareFoliaSzronionaKeys);
+  }
+
   if (currentCategory === 'vouchery') {
     return keys.sort(compareVoucheryKeys);
   }
@@ -781,6 +811,7 @@ function updateTable() {
   
   const rows = [];
   let lastLaminowanieGroup = '';
+  let lastFoliaGroup = '';
 
   filteredKeys.forEach((key) => {
     if (currentCategory === 'laminowanie') {
@@ -795,8 +826,20 @@ function updateTable() {
       }
     }
 
+    if (currentCategory === 'folia-szroniona') {
+      const groupTitle = getFoliaSzronionaGroupTitle(key);
+      if (groupTitle && groupTitle !== lastFoliaGroup) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastFoliaGroup = groupTitle;
+      }
+    }
+
     rows.push(`
-      <tr style="border-bottom: 1px solid var(--border);">
+      <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''}">
         <td style="padding: 6px 10px;">
           ${getPriceKeyDescription(key)
             ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`
