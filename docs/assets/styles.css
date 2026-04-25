@@ -549,18 +549,18 @@ html {
 /* ===== ORDER SUMMARY EXPRESS STATE ===== */
 #orderSummary.is-express {
   border: 2px solid var(--danger);
-  background: #fffde7;
+.loading-popup {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-/* ===== DANE ZAMÓWIENIA FORM ===== */
-.order-form {
-  display: grid;
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.order-row {
-  display: grid;
   grid-template-columns: 30% 70%;
   align-items: center;
   gap: 6px;

@@ -1713,6 +1713,13 @@
       <!-- Right column: order summary -->
       <div class="right-col">
           <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
+          <!-- Loading popup for order submission (moved inside right-col) -->
+          <div id="orderLoadingPopup" class="loading-popup" style="display: none;">
+            <div class="loading-popup-content">
+              <div class="loading-spinner"></div>
+              <div class="loading-text" id="loadingText">WYSYŁANIE...</div>
+            </div>
+          </div>
         <div class="card" id="orderSummary">
           <h2>Podsumowanie</h2>
 
@@ -2304,13 +2311,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
-<!-- Loading popup for order submission -->
-<div id="orderLoadingPopup" class="loading-popup" style="display: none;">
-  <div class="loading-popup-content">
-    <div class="loading-spinner"></div>
-    <div class="loading-text" id="loadingText">WYSYŁANIE...</div>
-  </div>
-</div>
 
 <style>
 .loading-popup {
