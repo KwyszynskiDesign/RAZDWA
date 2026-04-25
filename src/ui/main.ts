@@ -14,7 +14,7 @@ import { WlepkiView } from "./views/wlepki-naklejki";
 import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan-view";
 import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
-import { WydrukiSpecjalneView } from "./views/wydruki-specjalne";
+import { PojedynczeNakladyView } from "./views/pojedyncze-naklady";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { WycinanieFoliiView } from "./views/wycinanie-folii";
 import { CanvasView } from "./views/canvas-fixed";
@@ -514,7 +514,12 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
-  router.addRoute(WydrukiSpecjalneView);
+  router.addRoute({
+    ...PojedynczeNakladyView,
+    id: "wydruki-specjalne",
+    name: "Pojedyncze nakłady"
+  });
+  router.addRoute(PojedynczeNakladyView);
   router.addRoute(FoliaSzronionaView);
   router.addRoute(WycinanieFoliiView);
   router.addRoute(CanvasView);

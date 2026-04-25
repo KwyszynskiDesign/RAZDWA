@@ -186,7 +186,7 @@ export class Router {
       },
       {
         title: "Wykończenie i inne",
-        ids: ["laminowanie", "wydruki-specjalne", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
+        ids: ["laminowanie", "pojedyncze-naklady", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
       }
     ];
 
@@ -196,6 +196,12 @@ export class Router {
         id: "zamowienia-zewnetrzne",
         name: "Zamówienia zewnętrzne",
         icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/external-link.svg",
+        implemented: true
+      },
+      "wydruki-specjalne": {
+        id: "wydruki-specjalne",
+        name: "Pojedyncze nakłady",
+        icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
         implemented: true
       }
     };
