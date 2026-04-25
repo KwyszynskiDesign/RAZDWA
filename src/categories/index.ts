@@ -6,7 +6,7 @@ import { DrukA4A3SkanView } from "../ui/views/druk-a4-a3-skan-view";
 import { DyplomyView } from "../ui/views/dyplomy";
 import { FoliaSzronionaView } from "../ui/views/folia-szroniona";
 import { LaminowanieView } from "../ui/views/laminowanie";
-import { PojedynczeNakladyView } from "./pojedyncze-naklady";
+import { PojedynczeNakladyView } from "../ui/views/pojedyncze-naklady";
 import { PlakatyView } from "../ui/views/plakaty";
 import { RollUpView } from "../ui/views/roll-up";
 import { UlotkiCyfroweView } from "../ui/views/ulotki-cyfrowe";
