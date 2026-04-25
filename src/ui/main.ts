@@ -20,6 +20,7 @@ import { WycinanieFoliiView } from "./views/wycinanie-folii";
 import { CanvasView } from "./views/canvas-fixed";
 import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
+import { PojedynczeNakladyView } from "./views/pojedyncze-naklady";
 import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
 import { uslugiCategory } from "../categories/uslugi";
@@ -519,6 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(CanvasView);
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
+  router.addRoute(PojedynczeNakladyView);
   router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);

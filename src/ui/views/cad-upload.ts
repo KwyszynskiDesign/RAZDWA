@@ -119,7 +119,7 @@ export const CadUploadView: View = {
       const colorRows = collectRowsForMode("color", "Kolorowy");
 
       legend.innerHTML = `
-        <table class="results-table" style="margin-top:6px;">
+        <table class="results-table cad-legend" style="margin-top:6px;">
           <tr><th>Tryb</th><th>Format</th><th>Cena formatowa</th><th>Cena nieformatowa</th></tr>
           <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
           ${bwRows}
