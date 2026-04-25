@@ -1,3 +1,8 @@
+.cad-legend-table {
+  width: calc(100% + 10px) !important;
+  margin-left: -5px !important;
+  margin-right: -5px !important;
+}
 .ghost-toast--sending {
   border-color: rgba(245, 158, 11, 0.30);
   background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,251,235,0.95));
