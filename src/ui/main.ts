@@ -15,12 +15,12 @@ import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan-view";
 import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
 import { PojedynczeNakladyView } from "./views/pojedyncze-naklady";
+import { WydrukiSpecjalneView } from "./views/wydruki-specjalne";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { WycinanieFoliiView } from "./views/wycinanie-folii";
 import { CanvasView } from "./views/canvas-fixed";
 import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
-import { PojedynczeNakladyView } from "./views/pojedyncze-naklady";
 import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
 import { uslugiCategory } from "../categories/uslugi";
@@ -514,18 +514,12 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(BannerView);
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
-  router.addRoute({
-    ...PojedynczeNakladyView,
-    id: "wydruki-specjalne",
-    name: "Pojedyncze nakłady"
-  });
-  router.addRoute(PojedynczeNakladyView);
+  router.addRoute(WydrukiSpecjalneView);
   router.addRoute(FoliaSzronionaView);
   router.addRoute(WycinanieFoliiView);
   router.addRoute(CanvasView);
   router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
-  router.addRoute(PojedynczeNakladyView);
   router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);

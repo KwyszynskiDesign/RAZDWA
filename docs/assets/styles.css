@@ -839,7 +839,7 @@ button.ghost:hover {
 
 .pricing-legend .legend-grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
   margin-bottom: 8px;
 }
@@ -1638,10 +1638,11 @@ a[href] {
 
 /* ===== FOLIA SZRONIONA (legend width fix) ===== */
 .fs-pricing-legend {
-  --fs-legend-expand: 62px;
+  --fs-legend-expand: 120px;
   --fs-legend-offset: calc(var(--fs-legend-expand) / 2);
   box-sizing: border-box;
   width: calc(100% + var(--fs-legend-expand));
+  max-width: calc(100% + var(--fs-legend-expand));
   margin-left: calc(var(--fs-legend-offset) * -1);
   margin-right: calc(var(--fs-legend-offset) * -1);
 }

@@ -12,7 +12,7 @@ const LEGACY_APPS_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
   "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
 ] as const;
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwl0tXoZe9U3TTj2grrjpo-Z_g4nfq9NxlnsySfnS6yEPs4EP13LOLScJY0HamffUeH/exec";
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwgooc22YOYJEDsRVAzMR3Q6dU10W90ZHgW7fptIB-ibtqvx7fzd7T9E_-uOnovehm7/exec";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
