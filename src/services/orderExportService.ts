@@ -189,13 +189,10 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
   const uniqueSides = [...new Set(packedLines.map(l => l.sides).filter(Boolean))];
   const sidesStr = uniqueSides.join(", ");
 
-  // Ilosc sztuk: zawsze liczba (suma wszystkich pozycji)
-  const totalQty = packedLines.reduce((s, l) => s + l.quantity, 0);
-
-  // Cena za sztukę: dokładna dla jednej grupy, suma/ilość dla mieszanych
-  const effectiveUnitPrice = packedLines.length === 1
-    ? parseFloat(packedLines[0].unitPrice.toFixed(2))
-    : (totalQty > 0 ? parseFloat((totalSum / totalQty).toFixed(2)) : 0);
+  // Ilosc sztuk: wartości każdego produktu rozdzielone separatorem " | "
+  const qtyStr = packedLines.map(l => l.quantity).join(" | ");
+  // Cena za sztukę: wartości każdego produktu rozdzielone separatorem " | "
+  const unitPriceStr = packedLines.map(l => l.unitPrice.toFixed(2)).join(" | ");
 
   return {
     "Data": date,
@@ -209,8 +206,8 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Materiał": materials,
     "jedno/dwustronne": sidesStr,
     "Produkt": products,
-    "Ilosc sztuk": totalQty,
-    "Cena za sztukę": effectiveUnitPrice,
+    "Ilosc sztuk": qtyStr,
+    "Cena za sztukę": unitPriceStr,
     "Uwagi": String(payload.customer.notes ?? ""),
     "Suma (PLN)": totalSum,
     "Priorytet": String(payload.customer.priority ?? ""),
