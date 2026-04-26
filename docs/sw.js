@@ -1,7 +1,7 @@
 <<<<<<< HEAD
-const CACHE_VERSION = 'razdwa-v202604261834';
+const CACHE_VERSION = 'razdwa-v202604261837';
 =======
-const CACHE_VERSION = 'razdwa-v202604261834';
+const CACHE_VERSION = 'razdwa-v202604261837';
 >>>>>>> aafdf79 (feat:add Pojedyncze nakłady+ fix folia szroniona)
 
 self.addEventListener('install', (e) => {
