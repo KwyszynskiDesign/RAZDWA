@@ -220,14 +220,14 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-skrecane-client-supplied": "Oprawa zbijana/skręcana – skręcane, dokumentacja dostarczona przez klienta (za 5 cm)",
   "laminowanie-oprawa-twarda-rozszycie": "Oprawy twarde – rozszycie oprawy twardej (25–40 zł)",
   "laminowanie-oprawa-twarda-ponowne-zszycie": "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
-  "laminowanie-special-dyplom": "Wydruki specjalne – Dyplom",
-  "laminowanie-special-zaproszenia-dodruk": "Wydruki specjalne – Zaproszenia (dodruk)",
-  "laminowanie-special-katalog": "Wydruki specjalne – Katalog",
-  "laminowanie-special-broszura": "Wydruki specjalne – Broszura",
-  "laminowanie-special-koperty-nadruk": "Wydruki specjalne – Koperty – nadruk",
-  "laminowanie-special-trymer-2x": "Wydruki specjalne – Cięcie trymer 2x",
-  "laminowanie-special-trymer-4x": "Wydruki specjalne – Cięcie trymer 4x",
-  "laminowanie-special-double-sided-factor": "Wydruki specjalne / dodruki – dopłata za dwustronność",
+  "laminowanie-special-dyplom": "Pojedyncze nakłady – Dyplom",
+  "laminowanie-special-zaproszenia-dodruk": "Pojedyncze nakłady – Zaproszenia (dodruk)",
+  "laminowanie-special-katalog": "Pojedyncze nakłady – Katalog",
+  "laminowanie-special-broszura": "Pojedyncze nakłady – Broszura",
+  "laminowanie-special-koperty-nadruk": "Pojedyncze nakłady – Koperty – nadruk",
+  "laminowanie-special-trymer-2x": "Pojedyncze nakłady – Cięcie trymer 2x",
+  "laminowanie-special-trymer-4x": "Pojedyncze nakłady – Cięcie trymer 4x",
+  "laminowanie-special-double-sided-factor": "Pojedyncze nakłady / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",
   "solwent-150g-4-9": "Solwent 150g półmat – 4–9 m²",
@@ -642,7 +642,7 @@ function getLaminowanieSectionTitle(key: string): string {
   if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-")) return "OPRAWA ZBIJANA / SKRĘCANA";
   if (key.startsWith("laminowanie-oprawa-twarda-")) return "OPRAWY TWARDE";
   if (key.startsWith("laminowanie-bindowanie-")) return "BINDOWANIE";
-  if (key.startsWith("laminowanie-special-")) return "WYDRUKI SPECJALNE";
+  if (key.startsWith("laminowanie-special-")) return "POJEDYNCZE NAKŁADY";
 
   return "LAMINOWANIE";
 }
