@@ -1,4 +1,8 @@
-const CACHE_VERSION = 'razdwa-v202604261239';
+<<<<<<< HEAD
+const CACHE_VERSION = 'razdwa-v202604261307';
+=======
+const CACHE_VERSION = 'razdwa-v202604261307';
+>>>>>>> aafdf79 (feat:add Pojedyncze nakłady+ fix folia szroniona)
 
 self.addEventListener('install', (e) => {
   self.skipWaiting(); // Force new SW to activate immediately
