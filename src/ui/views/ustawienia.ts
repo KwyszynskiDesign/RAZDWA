@@ -1207,6 +1207,114 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortBannerCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("banner-powlekany-")) return 0;
+    if (key.startsWith("banner-blockout-")) return 1;
+    if (key === "banner-oczkowanie") return 2;
+    if (key === "banner-express") return 3;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortRollupCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("rollup-85x200-")) return 0;
+    if (key.startsWith("rollup-100x200-")) return 1;
+    if (key.startsWith("rollup-120x200-")) return 2;
+    if (key.startsWith("rollup-150x200-")) return 3;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortFoliaSzronionaCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("folia-szroniona-owv-wydruk-")) return 0;
+    if (key.startsWith("folia-szroniona-wydruk-")) return 1;
+    if (key.startsWith("folia-szroniona-owv-oklejanie-")) return 2;
+    if (key.startsWith("folia-szroniona-oklejanie-")) return 3;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortWycinanieFoliiCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("wycinanie-folii-kolorowa")) return 0;
+    if (key.startsWith("wycinanie-folii-zloto-srebro")) return 1;
+    if (key === "wycinanie-folii-express") return 2;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
+function sortWlepkiCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("wlepki-obrys-folia-")) return 0;
+    if (key.startsWith("wlepki-polipropylen-")) return 1;
+    if (key.startsWith("wlepki-standard-folia-")) return 2;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+
+    const na = getNumericStartFromKey(a);
+    const nb = getNumericStartFromKey(b);
+    if (na !== nb) return na - nb;
+
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -1255,6 +1363,26 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "wizytowki") {
     return sortWizytowkiCategoryKeys(keys);
+  }
+
+  if (category.id === "banner") {
+    return sortBannerCategoryKeys(keys);
+  }
+
+  if (category.id === "rollup") {
+    return sortRollupCategoryKeys(keys);
+  }
+
+  if (category.id === "folia") {
+    return sortFoliaSzronionaCategoryKeys(keys);
+  }
+
+  if (category.id === "wycinanie-folii") {
+    return sortWycinanieFoliiCategoryKeys(keys);
+  }
+
+  if (category.id === "wlepki") {
+    return sortWlepkiCategoryKeys(keys);
   }
 
   return keys.sort();

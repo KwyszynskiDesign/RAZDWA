@@ -146,8 +146,8 @@ describe("orderExportService", () => {
     expect(parsedBody["Ekspres"]).toBe("TAK");
     expect(parsedBody["Suma (PLN)"]).toBe(113);
     expect(parsedBody["Produkt"]).toContain("Wizytówki Standard");
-    expect(parsedBody["Ilosc sztuk"]).toBe(300);
-    expect(parsedBody["Cena za sztukę"]).toBeTypeOf("number");
+    expect(parsedBody["Ilosc sztuk"]).toBe("100 | 200");
+    expect(parsedBody["Cena za sztukę"]).toBe("75.00 | 0.19");
     expect(parsedBody["Materiał"]).toContain("Kreda 350g");
 
     expect(parsedBody.items).toBeUndefined();
@@ -265,8 +265,8 @@ describe("orderExportService", () => {
 
     expect(parsedBody["Produkt"]).toContain("Ulotka A5");
     expect(parsedBody["jedno/dwustronne"]).toBe("Dwustronne");
-    expect(parsedBody["Ilosc sztuk"]).toBe(150);
-    expect(parsedBody["Cena za sztukę"]).toBe(1.2);
+    expect(parsedBody["Ilosc sztuk"]).toBe("150");
+    expect(parsedBody["Cena za sztukę"]).toBe("1.20");
     expect(parsedBody["Materiał"]).toContain("Kreda 130g");
   });
 });

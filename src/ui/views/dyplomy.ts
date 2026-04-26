@@ -42,7 +42,7 @@ export const DyplomyView: View = {
         resultArea.style.display = 'none';
         breakdownBox.style.display = 'none';
         addToCartBtn.disabled = true;
-        return;
+        return null;
       }
       const paperVal = paperSel.value;
       const isSatin = paperVal.startsWith("satyna");
@@ -130,7 +130,9 @@ export const DyplomyView: View = {
     updateLegend();
 
     addToCartBtn.addEventListener("click", () => {
-      const { options, result } = calculate();
+      const calc = calculate();
+      if (!calc) return;
+      const { options, result } = calc;
 
       const dpv = paperSel.value;
       const dPaperLabel = dpv === 'modigliani'

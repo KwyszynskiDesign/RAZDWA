@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
         if (result.ok) {
-          showOrderLoadingPopup("Wysłano do bazy (Google Sheets)", "sent");
+          showOrderLoadingPopup("Wysłano do bazy (Google Sheets)", "success");
           setTimeout(() => {
             hideOrderLoadingPopup();
             if (result.verified === false) {

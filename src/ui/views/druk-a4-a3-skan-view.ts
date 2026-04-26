@@ -61,8 +61,8 @@ export const DrukA4A3SkanView: View = {
     const renderDynamicLegend = () => {
       if (!pricingLegend) return;
 
-      const drukPricing = PRICE?.print ?? pricing?.print;
-      const scanPricing = PRICE?.scan ?? pricing?.scan;
+      const drukPricing = PRICE?.print ?? pricing;
+      const scanPricing = PRICE?.scan ?? pricing;
 
       const bwA4 = (drukPricing?.bw?.A4 ?? []).map((tier: any) => ({
         range: rangeLabel(tier.from, tier.to),
@@ -138,8 +138,8 @@ export const DrukA4A3SkanView: View = {
 
         <div class="d-note">
           <strong>Zadruk &gt;25% powierzchni:</strong> +${Math.round(resolveStoredPrice("modifier-druk-zadruk25", 0.5) * 100)}% ceny strony<br>
-          <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", pricing.email_price ?? 1))}<br>
-          <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", pricing.label_sticker_cost ?? 1.6))}
+          <strong>E-mail:</strong> ${formatPLN(resolveStoredPrice("druk-email", PRICE?.email_price ?? 1))}<br>
+          <strong>Naklejka A6:</strong> ${formatPLN(resolveStoredPrice("druk-label-sticker", PRICE?.label_sticker_cost ?? 1.6))}
         </div>
       `;
     };
@@ -255,7 +255,7 @@ export const DrukA4A3SkanView: View = {
       if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
       if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
-      const sleeveUnit = Number(pricing?.sleeve_price ?? 0.8);
+      const sleeveUnit = Number(PRICE?.sleeve_price ?? 0.8);
       const printQtySafe = Math.max(0, Number(currentOptions.printQty) || 0);
       const surchargeQtySafe = Math.max(0, Number(currentOptions.surchargeQty) || 0);
       const normalQty = Math.max(0, printQtySafe - surchargeQtySafe);

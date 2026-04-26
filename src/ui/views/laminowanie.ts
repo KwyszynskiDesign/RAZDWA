@@ -1122,8 +1122,8 @@ export const LaminowanieView: View = {
       });
 
       introState = null;
-      introService.selectedIndex = 0;
-      introQty.value = "";
+      if (introService) introService.selectedIndex = 0;
+      if (introQty) introQty.value = "";
       if (introResultDisplay) introResultDisplay.style.display = "none";
       if (introCountedLine) introCountedLine.innerText = "";
       if (introAddBtn) introAddBtn.disabled = true;

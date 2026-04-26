@@ -56,8 +56,8 @@ interface AppsScriptCompactRowPayload {
   "Materiał": string;
   "jedno/dwustronne": string;
   "Produkt": string;
-  "Ilosc sztuk": number;
-  "Cena za sztukę": number;
+  "Ilosc sztuk": string;
+  "Cena za sztukę": string;
   "Uwagi": string;
   "Suma (PLN)": number;
   "Priorytet": string;

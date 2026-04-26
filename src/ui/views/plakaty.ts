@@ -158,11 +158,11 @@ export const PlakatyView: View = {
     const getTrimSurcharge = (): number => {
       let surcharge = 0;
       if (trim2Checkbox?.checked) {
-        const qty = parsePositiveInt(trim2QtyInput?.value) || 1;
+        const qty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
         surcharge += qty * 1; // 1 zł per item for 2 cuts
       }
       if (trim4Checkbox?.checked) {
-        const qty = parsePositiveInt(trim4QtyInput?.value) || 1;
+        const qty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
         surcharge += qty * 2; // 2 zł per item for 4 cuts
       }
       return surcharge;
@@ -260,11 +260,11 @@ export const PlakatyView: View = {
         if (trimSurcharge > 0) {
           const trimParts: string[] = [];
           if (trim2Checkbox?.checked) {
-            const qty = parsePositiveInt(trim2QtyInput?.value) || 1;
+            const qty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
             trimParts.push(`${qty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(qty * 1)}`);
           }
           if (trim4Checkbox?.checked) {
-            const qty = parsePositiveInt(trim4QtyInput?.value) || 1;
+            const qty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
             trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
           }
           calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
