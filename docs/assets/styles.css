@@ -839,7 +839,7 @@ button.ghost:hover {
 
 .pricing-legend .legend-grid-2 {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 12px;
   margin-bottom: 8px;
 }
@@ -1621,12 +1621,13 @@ a[href] {
   --pa-left-shift: 7px;
   --pa-right-trim: 5px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 16px;
   align-items: start;
   box-sizing: border-box;
   margin-left: calc(var(--pa-left-shift) * -1);
   width: calc(100% - var(--pa-right-trim));
+  max-width: 700px;
 }
 
 @media (max-width: 768px) {
@@ -1638,7 +1639,7 @@ a[href] {
 
 /* ===== FOLIA SZRONIONA (legend width fix) ===== */
 .fs-pricing-legend {
-  --fs-legend-expand: 120px;
+  --fs-legend-expand: 150px;
   --fs-legend-offset: calc(var(--fs-legend-expand) / 2);
   box-sizing: border-box;
   width: calc(100% + var(--fs-legend-expand));

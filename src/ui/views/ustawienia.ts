@@ -801,6 +801,14 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     newKeyPrefix: "koperty-"
   },
   {
+    id: "pojedyncze-naklady",
+    label: "Pojedyncze nakłady",
+    icon: "🧾",
+    prefixes: ["laminowanie-special-"],
+    description: "Ceny usług dla pojedynczych nakładów i wydruki specjalne.",
+    newKeyPrefix: "laminowanie-special-"
+  },
+  {
     id: "modifiers",
     label: "Dopłaty globalne",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings.svg",
