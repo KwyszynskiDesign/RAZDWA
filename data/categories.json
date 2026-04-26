@@ -274,7 +274,7 @@
     },
     {
         "id":  "wydruki-specjalne",
-        "name":  "Wydruki specjalne",
+        "name":  "Pojedyncze nakłady",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sparkles.svg",
         "implemented":  true
     },
