@@ -1639,7 +1639,6 @@ a[href] {
 
 /* ===== FOLIA SZRONIONA (legend width fix) ===== */
 .fs-pricing-legend {
-  --fs-legend-expand: 150px;
   --fs-legend-offset: calc(var(--fs-legend-expand) / 2);
   box-sizing: border-box;
   width: calc(100% + var(--fs-legend-expand));
