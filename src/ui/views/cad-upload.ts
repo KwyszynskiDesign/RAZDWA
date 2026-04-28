@@ -4,9 +4,18 @@ import {
   updateCadFileEntry,
   CadUploadFileEntry,
 } from "../../categories/cad-upload";
+
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 import { getPrice } from "../../services/priceService";
+
+// Helper to load extra CAD options from JSON
+async function loadCadExtraOptions(): Promise<any[]> {
+  const resp = await fetch("data/normalized/cad-upload.json");
+  if (!resp.ok) return [];
+  const data = await resp.json();
+  return data.items || [];
+}
 
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
@@ -26,7 +35,7 @@ export const CadUploadView: View = {
     }
   },
 
-  initLogic(container: HTMLElement, ctx: ViewContext) {
+  async initLogic(container: HTMLElement, ctx: ViewContext) {
     // DOM elements
     const dropZone = container.querySelector<HTMLElement>("#cadDropZone") ||
                      container.querySelector<HTMLElement>("#uploadZone");
@@ -37,15 +46,38 @@ export const CadUploadView: View = {
     const optFill = container.querySelector<HTMLInputElement>("#optZapelnienie");
     const optScale = container.querySelector<HTMLInputElement>("#optPowieksz");
     const optEmail = container.querySelector<HTMLInputElement>("#optEmail");
-    const optKlientSkladanie = container.querySelector<HTMLInputElement>("#optKlientSkladanie");
-    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-qty-row");
-    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadKlientSkladanieQty");
-    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#optNieformatoweSkladanie");
-    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-qty-row");
-    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadNieformatoweSkladanieQty");
-    const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#optPaskiWzmacniajace");
-    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-qty-row");
-    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
+    // Dynamically render extra CAD options from JSON
+    const extraOptions = await loadCadExtraOptions();
+    const extraOptionsMap = Object.fromEntries(extraOptions.map(opt => [opt.id, opt]));
+
+    // Render extra options in the UI
+    const extraRow = container.querySelector<HTMLElement>(".cad-extra-services-row");
+    if (extraRow) {
+      extraRow.innerHTML = `<strong style=\"width:100%;margin-bottom:4px;\">Usługi dodatkowe</strong>` +
+        extraOptions.map(opt => `
+          <div class=\"cad-extra-option\">
+            <label class=\"cad-option-item\">
+              <input type=\"checkbox\" id=\"cad-opt-${opt.id}\">
+              <span>${opt.name} (${formatPLN(opt.price)} / ${opt.unit || (opt.id.includes('m2') ? 'm²' : 'szt')})</span>
+            </label>
+            <div id=\"cad-${opt.id}-qty-row\" style=\"display:none\" class=\"row cad-row-tight cad-qty-row\">
+              <label for=\"cad-${opt.id}-qty\">Ilość (${opt.unit || (opt.id.includes('m2') ? 'm²' : 'szt')}):</label>
+              <input type=\"number\" id=\"cad-${opt.id}-qty\" min=\"${opt.unit === 'm²' ? '0.01' : '1'}\" step=\"${opt.unit === 'm²' ? '0.01' : '1'}\" inputmode=\"decimal\" placeholder=\"np. 1\" class=\"cad-qty-input\" />
+            </div>
+          </div>
+        `).join("");
+    }
+
+    // Get references to option checkboxes and qty inputs
+    const optKlientSkladanie = container.querySelector<HTMLInputElement>("#cad-opt-cad-klient-skladanie");
+    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-cad-klient-skladanie-qty-row");
+    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cad-cad-klient-skladanie-qty");
+    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#cad-opt-cad-nieformatowe-skladanie");
+    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-cad-nieformatowe-skladanie-qty-row");
+    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cad-cad-nieformatowe-skladanie-qty");
+    const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#cad-opt-cad-paski-wzmacniajace");
+    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-cad-paski-wzmacniajace-qty-row");
+    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cad-cad-paski-wzmacniajace-qty");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -178,17 +210,15 @@ export const CadUploadView: View = {
 
     function getExtraServicesTotal(): number {
       let total = 0;
-      if (optKlientSkladanie?.checked) {
-        const qty = parseInt(cadUploadKlientSkladanieQty?.value || "0", 10);
-        if (qty > 0) total += resolveStoredPrice("cad-klient-skladanie", 4.0) * qty;
-      }
-      if (optNieformatoweSkladanie?.checked) {
-        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || "0").replace(",", "."));
-        if (qty > 0) total += resolveStoredPrice("cad-nieformatowe-skladanie", 2.5) * qty;
-      }
-      if (optPaskiWzmacniajace?.checked) {
-        const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || "0", 10);
-        if (qty > 0) total += resolveStoredPrice("cad-paski-wzmacniajace", 0.8) * qty;
+      for (const opt of extraOptions) {
+        const checkbox = container.querySelector<HTMLInputElement>(`#cad-opt-${opt.id}`);
+        const qtyInput = container.querySelector<HTMLInputElement>(`#cad-${opt.id}-qty`);
+        if (checkbox?.checked && qtyInput) {
+          let qty = opt.unit === 'm²' ? parseFloat(qtyInput.value.replace(",", ".")) : parseInt(qtyInput.value, 10);
+          if (!isNaN(qty) && qty > 0) {
+            total += opt.price * qty;
+          }
+        }
       }
       return parseFloat(total.toFixed(2));
     }
@@ -703,21 +733,17 @@ export const CadUploadView: View = {
       el?.addEventListener("change", () => renderFiles());
     });
 
-    optKlientSkladanie?.addEventListener("change", () => {
-      if (cadUploadKlientSkladanieQtyRow) cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "inline-flex" : "none";
-      renderFiles();
-    });
-    optNieformatoweSkladanie?.addEventListener("change", () => {
-      if (cadUploadNieformatoweSkladanieQtyRow) cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "inline-flex" : "none";
-      renderFiles();
-    });
-    optPaskiWzmacniajace?.addEventListener("change", () => {
-      if (cadUploadPaskiWzmacniajaceQtyRow) cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "inline-flex" : "none";
-      renderFiles();
-    });
-    [cadUploadKlientSkladanieQty, cadUploadNieformatoweSkladanieQty, cadUploadPaskiWzmacniajaceQty].forEach((el) => {
-      el?.addEventListener("input", () => renderFiles());
-    });
+    // Attach listeners for all extra options
+    for (const opt of extraOptions) {
+      const checkbox = container.querySelector<HTMLInputElement>(`#cad-opt-${opt.id}`);
+      const qtyRow = container.querySelector<HTMLElement>(`#cad-${opt.id}-qty-row`);
+      const qtyInput = container.querySelector<HTMLInputElement>(`#cad-${opt.id}-qty`);
+      checkbox?.addEventListener("change", () => {
+        if (qtyRow) qtyRow.style.display = checkbox.checked ? "inline-flex" : "none";
+        renderFiles();
+      });
+      qtyInput?.addEventListener("input", () => renderFiles());
+    }
 
     // DPI change
     if (dpiInput) {
