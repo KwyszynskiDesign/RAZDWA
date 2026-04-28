@@ -737,31 +737,31 @@
   
   <!-- ✅ GŁÓWNY EKRAN: Tabela wyników (u góry) -->
   <div id="results-container" class="results-table-container" style="display:none;">
-    <table id="resultsTable" class="results-table cad-legend-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)" style="width: calc(100% + 10px); margin-left: -5px; margin-right: -5px;">
+    <table id="resultsTable" class="results-table cad-legend-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
-          <th class="col-lp">NR.</th>
-          <th class="col-name">Nazwa</th>
-          <th class="col-size">Rozmiar</th>
-          <th class="col-fold">
+          <th class="col-lp" style="width:8%;min-width:40px;">NR.</th>
+          <th class="col-name" style="width:21%;min-width:120px;">Nazwa</th>
+          <th class="col-size" style="width:18%;min-width:90px;">Rozmiar</th>
+          <th class="col-fold" style="width:15%;min-width:80px;">
             <div class="header-toggle">
               <span>Składanie</span>
               <input type="checkbox" id="foldAllCheck" aria-label="Zaznacz składanie dla wszystkich plików" title="Zaznacz wszystkie: składanie">
             </div>
           </th>
-          <th class="col-scan">
+          <th class="col-scan" style="width:10%;min-width:60px;">
             <div class="header-toggle">
               <span>Skan</span>
               <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
             </div>
           </th>
-          <th class="col-price">
+          <th class="col-price" style="width:28%;min-width:120px;">
             <div class="cad-price-header">
               <span>Rodzaj</span>
               <span>Cena</span>
             </div>
           </th>
-          <th class="col-remove">X</th>
+          <th class="col-remove" style="width:6%;min-width:34px;">X</th>
         </tr>
       </thead>
       <tbody id="results-body"></tbody>
