@@ -11,6 +11,8 @@
       "id": "owv-material-only",
       "storageId": "owv-wydruk",
       "name": "OWV — tylko wydruk",
+      "title": "OWV — tylko wydruk",
+      "bold": true,
       "tiers": [
         { "min": 1, "max": 3, "price": 65.0 },
         { "min": 4, "max": 9, "price": 60.0 },
@@ -23,6 +25,8 @@
       "id": "material-only",
       "storageId": "wydruk",
       "name": "Szroniona — tylko wydruk",
+      "title": "Szroniona — tylko wydruk",
+      "bold": false,
       "tiers": [
         { "min": 1, "max": 5, "price": 65.0 },
         { "min": 6, "max": 25, "price": 60.0 },
@@ -34,6 +38,8 @@
       "id": "owv-full-service",
       "storageId": "owv-oklejanie",
       "name": "OWV — wydruk z oklejaniem",
+      "title": "OWV — wydruk z oklejaniem",
+      "bold": true,
       "tiers": [
         { "min": 1, "max": 5, "price": 140.0 },
         { "min": 6, "max": 10, "price": 130.0 },
@@ -45,6 +51,8 @@
       "id": "full-service",
       "storageId": "oklejanie",
       "name": "Szroniona — wydruk z oklejaniem",
+      "title": "Szroniona — wydruk z oklejaniem",
+      "bold": false,
       "tiers": [
         { "min": 1, "max": 5, "price": 140.0 },
         { "min": 6, "max": 10, "price": 130.0 },

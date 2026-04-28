@@ -4,6 +4,7 @@
     {
       "id": "wlepki_obrys_folia",
       "title": "Wlepki po obrysie (Folia Biała/Trans)",
+      "bold": true,
       "unit": "m2",
       "pricing": "per_unit",
       "tiers": [
@@ -19,6 +20,7 @@
     {
       "id": "wlepki_polipropylen",
       "title": "Wlepki po obrysie - Polipropylen",
+      "bold": false,
       "unit": "m2",
       "pricing": "per_unit",
       "tiers": [
@@ -32,6 +34,7 @@
     {
       "id": "wlepki_standard_folia",
       "title": "Folia Biała / Transparentna (standard)",
+      "bold": true,
       "unit": "m2",
       "pricing": "per_unit",
       "tiers": [
@@ -49,6 +52,7 @@
     {
       "id": "papier-sra3",
       "title": "Papier SRA3 (papier z klejem mat/błysk)",
+      "bold": false,
       "unit": "szt",
       "tiers": [
         { "qty": 1, "price": 20 },
@@ -70,6 +74,7 @@
     {
       "id": "folia-sra3",
       "title": "Folia SRA3 (folia biała / bezbarwna)",
+      "bold": true,
       "unit": "szt",
       "tiers": [
         { "qty": 1, "price": 59 },
@@ -91,6 +96,7 @@
     {
       "id": "plotowane-papier",
       "title": "Plotowane + cięte na sztuki (papier)",
+      "bold": false,
       "unit": "szt",
       "tiers": [
         { "qty": 1, "price": 40 },
@@ -112,6 +118,7 @@
     {
       "id": "plotowane-folia",
       "title": "Plotowane + cięte na sztuki (folia)",
+      "bold": true,
       "unit": "szt",
       "tiers": [
         { "qty": 1, "price": 50 },

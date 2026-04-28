@@ -7,6 +7,8 @@
     {
       "id": "powlekany",
       "name": "Banner powlekany",
+      "title": "Banner powlekany",
+      "bold": true,
       "tiers": [
         { "min": 1, "max": 25, "price": 53.0 },
         { "min": 26, "max": 50, "price": 49.0 },
@@ -16,6 +18,8 @@
     {
       "id": "blockout",
       "name": "Banner Blockout",
+      "title": "Banner Blockout",
+      "bold": false,
       "tiers": [
         { "min": 1, "max": 25, "price": 64.0 },
         { "min": 26, "max": 50, "price": 59.0 },
