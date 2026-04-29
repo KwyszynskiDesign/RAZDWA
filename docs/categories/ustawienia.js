@@ -499,8 +499,8 @@ function getRangeStart(key) {
 function compareDrukA4A3Keys(a, b) {
   const groupRank = (key) => {
     if (key.startsWith('druk-bw-a4-')) return 0;
-    if (key.startsWith('druk-kolor-a4-')) return 1;
-    if (key.startsWith('druk-bw-a3-')) return 2;
+    if (key.startsWith('druk-bw-a3-')) return 1;
+    if (key.startsWith('druk-kolor-a4-')) return 2;
     if (key.startsWith('druk-kolor-a3-')) return 3;
     if (key === 'druk-email') return 4;
     if (key === 'modifier-druk-zadruk25') return 5;
@@ -576,28 +576,18 @@ function compareSkanowanieKeys(a, b) {
 }
 
 function compareLaminowanieKeys(a, b) {
-  const formatRank = (key) => {
-    if (key.startsWith('laminowanie-a3-')) return 0;
-    if (key.startsWith('laminowanie-a4-')) return 1;
-    if (key.startsWith('laminowanie-a5-')) return 2;
-    if (key.startsWith('laminowanie-a6-')) return 3;
-    if (key.startsWith('laminowanie-intro-')) return 4;
-    if (key.startsWith('laminowanie-oprawa-grzbietowa-a4-')) return 5;
-    if (key.startsWith('laminowanie-oprawa-grzbietowa-a3-')) return 6;
-    if (key.startsWith('laminowanie-oprawa-kanalowa-')) return 7;
-    if (key.startsWith('laminowanie-oprawa-zaciskowa-')) return 8;
-    if (key.startsWith('laminowanie-oprawa-zbijane-printed-here') || key.startsWith('laminowanie-oprawa-skrecane-printed-here') || key === 'laminowanie-oprawa-zbijane-extra-per-cm-printed-here') return 9;
-    if (key.startsWith('laminowanie-oprawa-zbijane-client-supplied') || key.startsWith('laminowanie-oprawa-skrecane-client-supplied') || key === 'laminowanie-oprawa-zbijane-extra-per-cm-client-supplied') return 10;
-    if (key.startsWith('laminowanie-oprawa-twarda-')) return 11;
-    if (key.startsWith('laminowanie-bindowanie-plastik-')) return 12;
-    if (key.startsWith('laminowanie-bindowanie-metal-')) return 13;
-    if (key.startsWith('laminowanie-special-')) return 14;
+  const typeRank = (key) => {
+    if (key.startsWith('laminowanie-a3-') || key.startsWith('laminowanie-a4-') || key.startsWith('laminowanie-a5-') || key.startsWith('laminowanie-a6-')) return 0;
+    if (key.startsWith('laminowanie-intro-')) return 1;
+    if (key.startsWith('laminowanie-oprawa-')) return 2;
+    if (key.startsWith('laminowanie-bindowanie-')) return 3;
+    if (key.startsWith('laminowanie-special-')) return 4;
     return 99;
   };
 
-  const fa = formatRank(a);
-  const fb = formatRank(b);
-  if (fa !== fb) return fa - fb;
+  const ta = typeRank(a);
+  const tb = typeRank(b);
+  if (ta !== tb) return ta - tb;
 
   const ra = getRangeStart(a);
   const rb = getRangeStart(b);
@@ -630,6 +620,22 @@ function getFoliaSzronionaGroupTitle(key) {
     return 'OWV';
   }
   return 'Szroniona';
+}
+
+function getDrukA4A3GroupTitle(key) {
+  if (key.startsWith('druk-bw-a4-')) return 'DRUK CZARNO-BIAŁY A4';
+  if (key.startsWith('druk-kolor-a4-')) return 'DRUK KOLOROWY A4';
+  if (key.startsWith('druk-bw-a3-')) return 'DRUK CZARNO-BIAŁY A3';
+  if (key.startsWith('druk-kolor-a3-')) return 'DRUK KOLOROWY A3';
+  if (key === 'druk-email' || key === 'modifier-druk-zadruk25') return 'DOPŁATY DRUK';
+  return '';
+}
+
+function getBannerGroupTitle(key) {
+  if (key.startsWith('banner-blockout-')) return 'BLOCKOUT';
+  if (key.startsWith('banner-powlekany-')) return 'POWLEKANY';
+  if (key === 'banner-oczkowanie') return 'OCZKOWANIE';
+  return '';
 }
 
 function compareSolwentKeys(a, b) {
@@ -812,6 +818,8 @@ function updateTable() {
   const rows = [];
   let lastLaminowanieGroup = '';
   let lastFoliaGroup = '';
+  let lastDrukA4A3Group = '';
+  let lastBannerGroup = '';
 
   filteredKeys.forEach((key) => {
     if (currentCategory === 'laminowanie') {
@@ -838,8 +846,32 @@ function updateTable() {
       }
     }
 
+    if (currentCategory === 'druk-a4-a3') {
+      const groupTitle = getDrukA4A3GroupTitle(key);
+      if (groupTitle && groupTitle !== lastDrukA4A3Group) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastDrukA4A3Group = groupTitle;
+      }
+    }
+
+    if (currentCategory === 'banner') {
+      const groupTitle = getBannerGroupTitle(key);
+      if (groupTitle && groupTitle !== lastBannerGroup) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastBannerGroup = groupTitle;
+      }
+    }
+
     rows.push(`
-      <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''}">
+      <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''} ${currentCategory === 'banner' && getBannerGroupTitle(key) === 'BLOCKOUT' ? 'font-weight: bold;' : ''}">
         <td style="padding: 6px 10px;">
           ${getPriceKeyDescription(key)
             ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`

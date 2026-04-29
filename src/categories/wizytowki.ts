@@ -129,7 +129,7 @@ export const wizytowkiCategory: CategoryModule = {
       const quantity = (container.querySelector('#quantity') as HTMLSelectElement).value;
       const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
       if (foiling === 'foil') {
-        alert('Wizytówki foliowane –');
+        alert('Wizytówki foliowane –g');
         return;
       }
       ctx.addToBasket({
