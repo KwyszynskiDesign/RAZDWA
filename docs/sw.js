@@ -1,12 +1,12 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
-const CACHE_VERSION = 'razdwa-v202604292029';
+const CACHE_VERSION = 'razdwa-v202604292040';
 =======
-const CACHE_VERSION = 'razdwa-v202604292029';
+const CACHE_VERSION = 'razdwa-v202604292040';
 =======
-const CACHE_VERSION = 'razdwa-v202604292029';
+const CACHE_VERSION = 'razdwa-v202604292040';
 =======
-const CACHE_VERSION = 'razdwa-v202604292029';
+const CACHE_VERSION = 'razdwa-v202604292040';
 >>>>>>> 210734d248386a70649b3ad807bf5bb973360d43
 >>>>>>> aafdf79 (feat:add Pojedyncze nakłady+ fix folia szroniona)
 

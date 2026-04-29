@@ -575,7 +575,7 @@ function getPriceLabel(key: string): string {
   const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|folded)-(\d+)$/);
   if (zaproszeniaMatch) {
     const sidesLabel = zaproszeniaMatch[2] === "single" ? "jednostronne" : "dwustronne";
-    const foldLabel = zaproszeniaMatch[3] === "folded" ? "łamane" : "bez łamania";
+    const foldLabel = zaproszeniaMatch[3] === "folded" ? "składane" : "bez łamania";
     return `Zaproszenia KREDA ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel}, ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
   }
 

@@ -291,10 +291,6 @@ const DEFAULT_PRICES = {
 
 // === DEFINICJA KATEGORII ===
 const CATEGORIES = {
-    "pojedyncze-naklady": {
-      label: "🧾 Pojedyncze nakłady",
-      prefixes: ["laminowanie-special-"]
-    },
   "druk-a4-a3": {
     label: "📄 Druk A4/A3",
     prefixes: ["druk-bw-", "druk-kolor-", "druk-email", "modifier-druk-zadruk25"]
@@ -310,8 +306,14 @@ const CATEGORIES = {
   "laminowanie": {
     label: "🔲 Introligatornia",
     prefixes: [
-      "laminowanie-"
-    ].filter(p => !["laminowanie-special-"].includes(p))
+      "laminowanie-a3-",
+      "laminowanie-a4-",
+      "laminowanie-a5-",
+      "laminowanie-a6-",
+      "laminowanie-intro-",
+      "laminowanie-oprawa-",
+      "laminowanie-bindowanie-"
+    ]
   },
   "solwent": {
     label: "🖼️ Solwent - Plakaty",
