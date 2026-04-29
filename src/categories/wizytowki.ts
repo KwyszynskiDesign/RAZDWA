@@ -67,7 +67,7 @@ export const wizytowkiCategory: CategoryModule = {
           <label>Wykończenie:</label>
           <select id="foiling">
             <option value="plain">Bez foliowania</option>
-            <option value="foil">Z folią mat/błysk</option>
+            <option value="foil">Foliowanie mat/błysk </option>
           </select>
         </div>
 
@@ -97,8 +97,14 @@ export const wizytowkiCategory: CategoryModule = {
       const format = (container.querySelector('#format') as HTMLSelectElement).value as '85x55' | '90x50';
       const quantity = parseInt((container.querySelector('#quantity') as HTMLSelectElement).value);
       const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
-
-      currentPrice = getPriceForQuantity(format, quantity, foiling === 'foil');
+      if (foiling === 'foil') {
+        if (totalDisplay) totalDisplay.textContent = '-';
+        if (breakdownDisplay) breakdownDisplay.textContent = 'Wizytówki foliowane (mat/błysk) ';
+        ctx.updateLastCalculated(0, `Wizytówki foliowane - ${format} - ${quantity} szt`);
+        currentPrice = 0;
+        return;
+      }
+      currentPrice = getPriceForQuantity(format, quantity, false);
       if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
 
       if (totalDisplay) {
@@ -106,7 +112,7 @@ export const wizytowkiCategory: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = `Format ${format} mm, ${quantity} szt, ${foiling === 'foil' ? 'z folią' : 'bez foliowania'}`;
+        breakdownDisplay.textContent = `Format ${format} mm, ${quantity} szt, bez foliowania`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Wizytówki ${format} - ${quantity} szt`);
@@ -118,14 +124,18 @@ export const wizytowkiCategory: CategoryModule = {
         return;
       }
 
+
       const format = (container.querySelector('#format') as HTMLSelectElement).value;
       const quantity = (container.querySelector('#quantity') as HTMLSelectElement).value;
       const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
-
+      if (foiling === 'foil') {
+        alert('Wizytówki foliowane –');
+        return;
+      }
       ctx.addToBasket({
         category: 'Wizytówki',
         price: currentPrice,
-        description: `${format} mm, ${quantity} szt, ${foiling === 'foil' ? 'z folią' : 'bez foliowania'}`
+        description: `${format} mm, ${quantity} szt, bez foliowania`
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
