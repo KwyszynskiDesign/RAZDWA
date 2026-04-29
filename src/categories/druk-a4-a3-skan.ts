@@ -1,6 +1,7 @@
 import { CategoryModule } from "../ui/router";
 import { calculateSimplePrint, calculateSimpleScan } from "../core/compat-logic";
 import { PRICE, resolveStoredPrice } from "../core/compat";
+import { getPrice } from "../services/priceService";
 
 export interface DrukA4A3SkanOptions {
   mode: "bw" | "color";
@@ -95,6 +96,12 @@ export const drukA4A3Category: CategoryModule = {
   id: 'druk-a4-a3',
   name: '📄 Druk A4/A3 + skan',
   mount: (container, ctx) => {
+    const categoryData = getPrice("druk-a4-a3") as any;
+    const printBwTitle = categoryData?.pricing?.print_bw?.title || "Druk czarnobiały";
+    const printColorTitle = categoryData?.pricing?.print_color?.title || "Druk kolorowy";
+    const scanAutoTitle = categoryData?.pricing?.scan_auto?.title || "Skanowanie automatyczne";
+    const scanManualTitle = categoryData?.pricing?.scan_manual?.title || "Skanowanie ręczne";
+
     container.innerHTML = `
       <div class="category-form">
         <h2>Druk / Ksero A4/A3</h2>
@@ -102,26 +109,42 @@ export const drukA4A3Category: CategoryModule = {
           Cena za stronę zależy od nakładu. Im więcej stron, tym niższa cena jednostkowa.
         </p>
 
-        <div class="form-group">
-          <label>Format:</label>
-          <select id="format">
-            <option value="A4">A4 (210×297 mm)</option>
-            <option value="A3">A3 (297×420 mm)</option>
-          </select>
-        </div>
+        <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #667eea; margin: 0 0 15px 0;">Opcje druku</h3>
 
-        <div class="form-group">
-          <label>Ilość stron:</label>
-          <input type="number" id="quantity" value="1" min="1" max="10000" step="1">
-          <small style="color: #666;">Całkowita liczba stron do wydruku</small>
-        </div>
+          <div class="form-group">
+            <label>Format:</label>
+            <select id="format">
+              <option value="A4">A4 (210×297 mm)</option>
+              <option value="A3">A3 (297×420 mm)</option>
+            </select>
+          </div>
 
-        <div class="form-group">
-          <label>Druk:</label>
-          <select id="color">
-            <option value="czarnoBialy">Czarno-biały</option>
-            <option value="kolorowy">Kolorowy</option>
-          </select>
+          <div class="form-group">
+            <label>Ilość stron:</label>
+            <input type="number" id="quantity" value="1" min="1" max="10000" step="1">
+            <small style="color: #666;">Całkowita liczba stron do wydruku</small>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #667eea; font-weight: bold;">${printBwTitle}</label>
+            <div style="margin: 10px 0; padding: 10px; background: #2a2a2a; border-radius: 6px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="radio" name="color" value="czarnoBialy" checked style="width: 20px; height: 20px;">
+                <div>Czarno-biały</div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #667eea; font-weight: bold;">${printColorTitle}</label>
+            <div style="margin: 10px 0; padding: 10px; background: #2a2a2a; border-radius: 6px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="radio" name="color" value="kolorowy" style="width: 20px; height: 20px;">
+                <div>Kolorowy</div>
+              </label>
+            </div>
+          </div>
         </div>
 
         <div class="form-group" style="background: #2a2a2a; padding: 15px; border-radius: 8px;">
@@ -146,13 +169,41 @@ export const drukA4A3Category: CategoryModule = {
           </label>
         </div>
 
-        <div class="form-group">
-          <label>Skanowanie:</label>
-          <select id="scanType">
-            <option value="none">Brak skanowania</option>
-            <option value="auto">Automatyczne (podajnik)</option>
-            <option value="manual">Ręczne (szyba)</option>
-          </select>
+        <div style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="color: #667eea; margin: 0 0 15px 0;">Skanowanie</h3>
+
+          <div class="form-group">
+            <label style="color: #667eea; font-weight: bold;">${scanAutoTitle}</label>
+            <div style="margin: 10px 0; padding: 10px; background: #2a2a2a; border-radius: 6px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="radio" name="scanType" value="auto" style="width: 20px; height: 20px;">
+                <div>
+                  <div>Automatyczne (podajnik)</div>
+                  <small style="color: #999;">Szybsze dla dużych ilości stron</small>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="color: #667eea; font-weight: bold;">${scanManualTitle}</label>
+            <div style="margin: 10px 0; padding: 10px; background: #2a2a2a; border-radius: 6px;">
+              <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="radio" name="scanType" value="manual" style="width: 20px; height: 20px;">
+                <div>
+                  <div>Ręczne (szyba)</div>
+                  <small style="color: #999;">Dokładniejsze dla dokumentów</small>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+              <input type="radio" name="scanType" value="none" checked style="width: 20px; height: 20px;">
+              <div>Brak skanowania</div>
+            </label>
+          </div>
         </div>
 
         <div id="scan-qty-container" style="display: none;" class="form-group">
@@ -196,12 +247,12 @@ export const drukA4A3Category: CategoryModule = {
 
     const formatSelect = container.querySelector('#format') as HTMLSelectElement;
     const quantityInput = container.querySelector('#quantity') as HTMLInputElement;
-    const colorSelect = container.querySelector('#color') as HTMLSelectElement;
+    const colorRadios = container.querySelectorAll('input[name="color"]') as NodeListOf<HTMLInputElement>;
     const surchargeCheckbox = container.querySelector('#surcharge') as HTMLInputElement;
     const surchargeQtyInput = container.querySelector('#surchargeQty') as HTMLInputElement;
     const surchargeQtyContainer = container.querySelector('#surcharge-qty-container') as HTMLElement;
     const emailCheckbox = container.querySelector('#email') as HTMLInputElement;
-    const scanTypeSelect = container.querySelector('#scanType') as HTMLSelectElement;
+    const scanTypeRadios = container.querySelectorAll('input[name="scanType"]') as NodeListOf<HTMLInputElement>;
     const scanQtyInput = container.querySelector('#scanQty') as HTMLInputElement;
     const scanQtyContainer = container.querySelector('#scan-qty-container') as HTMLElement;
     const expressCheckbox = container.querySelector('#express') as HTMLInputElement;
@@ -212,10 +263,21 @@ export const drukA4A3Category: CategoryModule = {
     const totalDisplay = container.querySelector('#total-price');
     const breakdownDisplay = container.querySelector('#price-breakdown');
 
+    // Helper functions to get values from radio buttons
+    function getSelectedColor(): "czarnoBialy" | "kolorowy" {
+      const selected = Array.from(colorRadios).find(r => r.checked);
+      return (selected?.value as "czarnoBialy" | "kolorowy") || "czarnoBialy";
+    }
+
+    function getSelectedScanType(): "none" | "auto" | "manual" {
+      const selected = Array.from(scanTypeRadios).find(r => r.checked);
+      return (selected?.value as "none" | "auto" | "manual") || "none";
+    }
+
     // Update tiers display when format or color changes
     function updateTiersDisplay() {
       const format = formatSelect.value as "A4" | "A3";
-      const color = colorSelect.value as "czarnoBialy" | "kolorowy";
+      const color = getSelectedColor();
       const modeKey = color === "czarnoBialy" ? "bw" : "color";
       const tiers = (PRICE.print as any)[modeKey][format];
 
@@ -246,30 +308,35 @@ export const drukA4A3Category: CategoryModule = {
       }
     });
 
-    // Toggle scan quantity input
-    scanTypeSelect.addEventListener('change', () => {
-      if (scanQtyContainer) {
-        scanQtyContainer.style.display = scanTypeSelect.value !== 'none' ? 'block' : 'none';
-      }
-      if (scanTypeSelect.value === 'none') {
-        scanQtyInput.value = '0';
-      }
+    // Toggle scan quantity input based on selected scan type
+    scanTypeRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (scanQtyContainer) {
+          scanQtyContainer.style.display = getSelectedScanType() !== 'none' ? 'block' : 'none';
+        }
+        if (getSelectedScanType() === 'none') {
+          scanQtyInput.value = '0';
+        }
+      });
     });
 
+    // Update tiers when format or color changes
     formatSelect.addEventListener('change', updateTiersDisplay);
-    colorSelect.addEventListener('change', updateTiersDisplay);
+    colorRadios.forEach(radio => {
+      radio.addEventListener('change', updateTiersDisplay);
+    });
     updateTiersDisplay();
 
     calculateBtn?.addEventListener('click', () => {
       const format = formatSelect.value as "A4" | "A3";
       const quantity = parseInt(quantityInput.value) || 1;
-      const color = colorSelect.value as "czarnoBialy" | "kolorowy";
+      const color = getSelectedColor();
       const colorLabel = color === "czarnoBialy" ? "Czarno-biały" : "Kolorowy";
       const mode = color === "czarnoBialy" ? "bw" : "color";
       const surcharge = surchargeCheckbox.checked;
       const surchargeQty = parseInt(surchargeQtyInput.value) || 0;
       const email = emailCheckbox.checked;
-      const scanType = scanTypeSelect.value as "none" | "auto" | "manual";
+      const scanType = getSelectedScanType();
       const scanQty = parseInt(scanQtyInput.value) || 0;
       const express = expressCheckbox.checked;
 
@@ -336,11 +403,11 @@ export const drukA4A3Category: CategoryModule = {
 
       const format = formatSelect.value;
       const quantity = quantityInput.value;
-      const color = colorSelect.value === "czarnoBialy" ? "CZ-B" : "KOLOR";
+      const color = getSelectedColor() === "czarnoBialy" ? "CZ-B" : "KOLOR";
       const surcharge = surchargeCheckbox.checked;
       const surchargeQty = surchargeQtyInput.value;
       const email = emailCheckbox.checked;
-      const scanType = scanTypeSelect.value;
+      const scanType = getSelectedScanType();
       const scanQty = scanQtyInput.value;
       const express = expressCheckbox.checked;
 
