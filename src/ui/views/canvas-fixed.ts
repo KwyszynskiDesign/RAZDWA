@@ -32,20 +32,14 @@ export const CanvasView: View = {
 
     const addBtn = container.querySelector("#cv-add") as HTMLButtonElement;
 
-    const resultEl = container.querySelector("#cv-result") as HTMLElement;
-    const normalEl = container.querySelector("#cv-normal") as HTMLElement;
-    const modeLabelEl = container.querySelector("#cv-mode-label") as HTMLElement;
-    const formatLabelEl = container.querySelector("#cv-format-label") as HTMLElement;
-    const areaRowEl = container.querySelector("#cv-area-row") as HTMLElement;
-    const areaEl = container.querySelector("#cv-area") as HTMLElement;
-    const unitEl = container.querySelector("#cv-unit") as HTMLElement;
-    const printCostRowEl = container.querySelector("#cv-print-cost-row") as HTMLElement;
-    const printCostEl = container.querySelector("#cv-print-cost") as HTMLElement;
-    const frameCostRowEl = container.querySelector("#cv-frame-cost-row") as HTMLElement;
-    const frameCostEl = container.querySelector("#cv-frame-cost") as HTMLElement;
-    const qtyEl = container.querySelector("#cv-qty-val") as HTMLElement;
+    const resultEl = container.querySelector("#cvResult") as HTMLElement;
     const totalEl = container.querySelector("#cv-total") as HTMLElement;
-    const expressEl = container.querySelector("#cv-express") as HTMLElement;
+    const unitEl = container.querySelector("#cv-unit") as HTMLElement;
+    const tierHintEl = container.querySelector("#cvTierHint") as HTMLElement;
+    const expressHintEl = container.querySelector("#cvExpressHint") as HTMLElement;
+    const breakdownEl = container.querySelector("#cvBreakdown") as HTMLElement;
+    const breakdownLinesEl = container.querySelector("#cvBreakdownLines") as HTMLElement;
+    const priceTiersEl = container.querySelector("#cv-price-tiers") as HTMLElement;
     const legendM2Rate = container.querySelector("#cv-legend-m2-rate") as HTMLElement | null;
     const legendExpress = container.querySelector("#cv-legend-express") as HTMLElement | null;
     const legendFramedRows = container.querySelector("#cv-legend-framed-rows") as HTMLElement | null;
@@ -173,12 +167,14 @@ export const CanvasView: View = {
 
       if (resultEl) resultEl.style.display = "block";
       totalEl.innerText = formatPLN(result.totalPrice);
-      if (breakdownDisplay) {
-        const unitQty = options.modeId === "m2-unframed" ? (result.areaM2 ?? 0) : Math.max(1, options.quantity);
-        const unitPrice = unitQty > 0 ? result.basePrice / unitQty : result.tierPrice;
-        breakdownDisplay.textContent = `${result.modeLabel}, ${result.formatLabel}, ${Math.max(1, options.quantity)} szt → ${unitPrice.toFixed(2)} zł/szt${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
+      unitEl.innerText = formatPLN(result.tierPrice);
+      if (tierHintEl) tierHintEl.innerText = `${Math.max(1, options.quantity)} szt × ${formatPLN(result.tierPrice)}`;
+      if (expressHintEl) expressHintEl.style.display = options.express ? "block" : "none";
+
+      if (breakdownEl && breakdownLinesEl) {
+        breakdownEl.style.display = "block";
+        breakdownLinesEl.innerHTML = `<div>Cena zależy od trybu, formatu/wymiarów, ilości i ewentualnej dopłaty EXPRESS.</div>`;
       }
-      expressEl.style.display = options.express ? "block" : "none";
 
       addBtn.disabled = false;
       ctx.updateLastCalculated(result.totalPrice, "Canvas / P\u0142\u00F3tno");

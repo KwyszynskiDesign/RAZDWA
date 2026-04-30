@@ -30,15 +30,19 @@
 
   <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
     <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
-    <div id="cv-price-tiers" style="display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 13px; color: #ccc;"></div>
+    <div id="cv-price-tiers" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color: #ccc;"></div>
   </div>
 
-  <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <span style="color: #999;">Cena całkowita:</span>
-      <strong id="cv-total" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
-    </div>
-    <p id="cv-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
+  <div id="cvResult" class="result-area" style="display:none; margin-top: 20px;">
+    <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="cv-total">0.00</span></div>
+    <div class="price-line">Cena jednostkowa: <span id="cv-unit">0.00</span></div>
+    <div id="cvTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+    <div id="cvExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+  </div>
+
+  <div id="cvBreakdown" class="card" style="display: none; margin-top: 16px;">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+    <div id="cvBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
   </div>
 
   <div class="form-actions">

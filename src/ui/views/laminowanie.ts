@@ -1046,8 +1046,13 @@ export const LaminowanieView: View = {
     const introService = container.querySelector("#intro-service") as HTMLSelectElement | null;
     const introQty = container.querySelector("#intro-qty") as HTMLInputElement | null;
     const introAddBtn = container.querySelector("#intro-add-to-cart") as HTMLButtonElement | null;
+    const introResult = container.querySelector("#introResult") as HTMLElement | null;
     const introTotalPrice = container.querySelector("#intro-total-price") as HTMLElement | null;
-    const introBreakdown = container.querySelector("#intro-breakdown") as HTMLElement | null;
+    const introUnitPrice = container.querySelector("#intro-unit-price") as HTMLElement | null;
+    const introTierHint = container.querySelector("#introTierHint") as HTMLElement | null;
+    const introExpressHint = container.querySelector("#introExpressHint") as HTMLElement | null;
+    const introBreakdown = container.querySelector("#introBreakdown") as HTMLElement | null;
+    const introBreakdownLines = container.querySelector("#introBreakdownLines") as HTMLElement | null;
     const introPriceTiers = container.querySelector("#intro-price-tiers") as HTMLElement;
 
     // Fill intro price tiers
@@ -1062,13 +1067,13 @@ export const LaminowanieView: View = {
     const recalcIntro = () => {
       if (!introService || !introQty) return;
       if (!introService.value) {
-        if (introTotalPrice) introTotalPrice.innerText = "0.00 zł";
+        if (introResult) introResult.style.display = "none";
         if (introAddBtn) introAddBtn.disabled = true;
         clearCalcBreakdown();
         return;
       }
         if (!introQty.value) {
-          if (introTotalPrice) introTotalPrice.innerText = "0.00 zł";
+          if (introResult) introResult.style.display = "none";
           if (introAddBtn) introAddBtn.disabled = true;
           clearCalcBreakdown();
           return;
@@ -1080,12 +1085,24 @@ export const LaminowanieView: View = {
       });
 
       introState = result;
+      if (introResult) introResult.style.display = "block";
       if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
-      if (introBreakdown) {
-        const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
-        introBreakdown.textContent = `${result.qty} operacji, usługa: ${result.serviceName} → ${formatPLN(unitPrice)} zł/op.`;
-      }
+      if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
+      if (introTierHint) introTierHint.innerText = `Liczone: ${result.qty} operacji × ${formatPLN(result.totalPrice / result.qty)}.`;
+      if (introExpressHint) introExpressHint.style.display = "none";
       if (introAddBtn) introAddBtn.disabled = false;
+
+      const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
+      if (introBreakdown && introBreakdownLines) {
+        introBreakdown.style.display = "block";
+        introBreakdownLines.innerHTML = [
+          `<div>Usługa: ${result.serviceName}</div>`,
+          `<div>Ilość operacji: ${result.qty}</div>`,
+          `<div>Cena jednostkowa: ${formatPLN(unitPrice)}</div>`,
+          `<div>Cena bazowa: ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}</div>`,
+          `<div>Cena końcowa: ${formatPLN(result.totalPrice)}</div>`
+        ].join("");
+      }
 
       ctx.updateLastCalculated(result.totalPrice, "Introligatornia");
     };
