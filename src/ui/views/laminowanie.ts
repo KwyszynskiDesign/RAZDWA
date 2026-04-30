@@ -1048,6 +1048,14 @@ export const LaminowanieView: View = {
     const introAddBtn = container.querySelector("#intro-add-to-cart") as HTMLButtonElement | null;
     const introTotalPrice = container.querySelector("#intro-total-price") as HTMLElement | null;
     const introBreakdown = container.querySelector("#intro-breakdown") as HTMLElement | null;
+    const introPriceTiers = container.querySelector("#intro-price-tiers") as HTMLElement;
+
+    // Fill intro price tiers
+    const laminowanieData = getPrice("laminowanie") as any;
+    if (introPriceTiers && laminowanieData?.introligatornia?.items) {
+      const items = laminowanieData.introligatornia.items;
+      introPriceTiers.innerHTML = items.map((item: any) => `<div>${item.name} → ${formatPLN(resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price))}</div>`).join('');
+    }
 
     let introState: ReturnType<typeof quoteIntroligatornia> | null = null;
 
