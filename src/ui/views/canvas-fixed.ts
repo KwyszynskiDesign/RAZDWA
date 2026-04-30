@@ -51,6 +51,8 @@ export const CanvasView: View = {
     const legendFramedRows = container.querySelector("#cv-legend-framed-rows") as HTMLElement | null;
     const legendUnframedRows = container.querySelector("#cv-legend-unframed-rows") as HTMLElement | null;
     const legendNote = container.querySelector("#cv-legend-note") as HTMLElement | null;
+    const priceTiersEl = container.querySelector("#cv-price-tiers") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#cv-breakdown") as HTMLElement;
 
     let currentOptions: CanvasOptions | null = null;
     let currentResult: CanvasResult | null = null;
@@ -94,6 +96,11 @@ export const CanvasView: View = {
       if (legendNote) {
         const border = resolveStoredPrice("canvas-framed-custom-border", framedMode?.customPricePerCmBorder ?? 0.22);
         legendNote.innerText = `* Format niestandardowy wyceniany indywidualnie. Cena oprawy na zamówienie: ${formatPLN(border)} / cmb.`;
+      }
+
+      if (priceTiersEl) {
+        const m2Rate = resolveStoredPrice("canvas-m2-unframed", m2Mode?.pricePerM2 ?? 180);
+        priceTiersEl.innerHTML = `<div>Sam wydruk (m2): ${formatPLN(m2Rate)}/m²</div>`;
       }
     };
 
@@ -165,41 +172,13 @@ export const CanvasView: View = {
       }
 
       if (resultEl) resultEl.style.display = "block";
-      if (normalEl) normalEl.style.display = "block";
-
-        modeLabelEl.innerText = result.modeLabel;
-        formatLabelEl.innerText = result.formatLabel;
-
-        if (typeof result.areaM2 === "number") {
-          areaRowEl.hidden = false;
-          areaEl.innerText = `${result.areaM2.toFixed(2)} m2`;
-        } else {
-          areaRowEl.hidden = true;
-          areaEl.innerText = "-";
-        }
-
-        if (result.printCost !== undefined) {
-          printCostRowEl.hidden = false;
-          printCostEl.innerText = formatPLN(result.printCost);
-        } else {
-          printCostRowEl.hidden = true;
-        }
-
-        if (result.frameCost !== undefined) {
-          frameCostRowEl.hidden = false;
-          frameCostEl.innerText = formatPLN(result.frameCost);
-        } else {
-          frameCostRowEl.hidden = true;
-        }
-
-        const unitQty = options.modeId === "m2-unframed"
-          ? (result.areaM2 ?? 0)
-          : Math.max(1, options.quantity);
-
-        unitEl.innerText = formatPLN(unitQty > 0 ? result.basePrice / unitQty : result.tierPrice);
-        qtyEl.innerText = `${Math.max(1, options.quantity)} szt`;
-        totalEl.innerText = formatPLN(result.totalPrice);
-        expressEl.style.display = options.express ? "block" : "none";
+      totalEl.innerText = formatPLN(result.totalPrice);
+      if (breakdownDisplay) {
+        const unitQty = options.modeId === "m2-unframed" ? (result.areaM2 ?? 0) : Math.max(1, options.quantity);
+        const unitPrice = unitQty > 0 ? result.basePrice / unitQty : result.tierPrice;
+        breakdownDisplay.textContent = `${result.modeLabel}, ${result.formatLabel}, ${Math.max(1, options.quantity)} szt → ${unitPrice.toFixed(2)} zł/szt${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
+      }
+      expressEl.style.display = options.express ? "block" : "none";
 
       addBtn.disabled = false;
       ctx.updateLastCalculated(result.totalPrice, "Canvas / P\u0142\u00F3tno");

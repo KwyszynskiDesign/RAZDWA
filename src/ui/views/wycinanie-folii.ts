@@ -32,8 +32,7 @@ export const WycinanieFoliiView: View = {
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
     const resultEl = container.querySelector("#wf-result") as HTMLElement;
-    const breakdownDisplay = container.querySelector("#wf-breakdown-display") as HTMLElement | null;
-    const breakdownLines = container.querySelector("#wf-breakdown-lines") as HTMLElement | null;
+    const breakdownDisplay = container.querySelector("#wf-breakdown") as HTMLElement;
     const areaEl = container.querySelector("#wf-area") as HTMLElement | null;
     const unitEl = container.querySelector("#wf-unit") as HTMLElement | null;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
@@ -44,6 +43,7 @@ export const WycinanieFoliiView: View = {
     const legendZlotoBelowEl = container.querySelector("#wf-legend-zloto-below") as HTMLElement | null;
     const legendZlotoAboveEl = container.querySelector("#wf-legend-zloto-above") as HTMLElement | null;
     const legendNoteEl = container.querySelector("#wf-legend-note") as HTMLElement | null;
+    const priceTiersEl = container.querySelector("#wf-price-tiers") as HTMLElement;
 
     const updateLegend = () => {
       const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
@@ -65,6 +65,15 @@ export const WycinanieFoliiView: View = {
       if (legendNoteEl) {
         const note = (data?.notes ?? [])[0] ?? "Cena zawiera: folia + wycinanie + wybieranie";
         legendNoteEl.innerText = `* ${note}`;
+      }
+
+      if (priceTiersEl) {
+        priceTiersEl.innerHTML = [
+          `<div>Poniżej 1 m² → ${formatPLN(kolorowaBelow)}/m² (kolorowa)</div>`,
+          `<div>Od 1 m² → ${formatPLN(kolorowaAbove)}/m² (kolorowa)</div>`,
+          `<div>Poniżej 1 m² → ${formatPLN(zlotoBelow)}/m² (złoto/srebro)</div>`,
+          `<div>Od 1 m² → ${formatPLN(zlotoAbove)}/m² (złoto/srebro)</div>`
+        ].join('');
       }
     };
 
@@ -128,25 +137,8 @@ export const WycinanieFoliiView: View = {
       totalEl.innerText = formatPLN(result.totalPrice);
       if (expressEl) expressEl.style.display = options.express ? "block" : "none";
       if (resultEl) resultEl.style.display = "block";
-      if (breakdownDisplay && breakdownLines) {
-        const lines: string[] = [
-          `<div><strong>Parametry:</strong> ${options.widthMm} × ${options.heightMm} mm, kolor: ${colorLabel}</div>`,
-          `<div><strong>Powierzchnia:</strong> ${areaM2.toFixed(4)} m²</div>`,
-          `<div><strong>Stawka:</strong> ${formatPLN(appliedRate)} / m² (${areaM2 < 1 ? "poniżej 1 m²" : "od 1 m²"})</div>`,
-          `<div><strong>Cena bazowa:</strong> ${areaM2.toFixed(4)} × ${formatPLN(appliedRate)} = ${formatPLN(basePrice)}</div>`
-        ];
-
-        if (basePrice < minRule) {
-          lines.push(`<div><strong>Minimalna kwota:</strong> podniesiono do ${formatPLN(minRule)}</div>`);
-        }
-
-        if (options.express) {
-          lines.push(`<div><strong>EXPRESS:</strong> +20% = ${formatPLN(expressValue)}</div>`);
-        }
-
-        lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
-        breakdownLines.innerHTML = lines.join("");
-        if (breakdownDisplay) breakdownDisplay.style.display = "block";
+      if (breakdownDisplay) {
+        breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${appliedRate.toFixed(2)} zł/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
       }
       addBtn.disabled = false;
 

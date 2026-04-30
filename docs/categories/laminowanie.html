@@ -343,18 +343,12 @@
       <button id="lam-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
 
-    <div id="lam-result-display" class="lam-result-box" style="display:none">
-      <div id="lam-qty-hint" class="lam-qty-hint"></div>
-      <div class="lam-result-line lam-result-line-total">
-        <span>SUMA ZA WSZYSTKO:</span>
-        <span id="lam-total-price" class="lam-total-price">-</span>
+    <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #999;">Cena całkowita:</span>
+        <strong id="lam-total-price" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
       </div>
-      <div id="lam-counted-line" class="lam-counted-line"></div>
-      <div class="lam-result-line lam-result-line-gap">
-        <span>Cena za szt:</span>
-        <span id="lam-unit-price" class="lam-unit-price">-</span>
-      </div>
-      <div id="lam-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+      <p id="lam-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
     </div>
   </div>
 </div>
@@ -613,22 +607,12 @@
     <div class="form-actions">
       <button id="intro-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
-    <div id="intro-result-display" class="lam-result-box" style="display:none">
-      <div class="lam-result-line">
-        <span>SUMA ZA WSZYSTKO:</span>
-        <span id="intro-total-price" class="lam-total-price">-</span>
+    <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #999;">Cena całkowita:</span>
+        <strong id="intro-total-price" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
       </div>
-      <div class="lam-result-line">
-        <span>Cena jednostkowa:</span>
-        <span id="intro-unit-price" class="lam-unit-price">-</span>
-      </div>
-      <div id="intro-counted-line" class="lam-counted-line"></div>
-      <div id="intro-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
-    </div>
-
-    <div id="lam-calc-breakdown" class="card" style="display: none; margin-top: 16px;">
-        <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
-        <div id="lam-calc-details" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
+      <p id="intro-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
     </div>
   </div>
 </div>

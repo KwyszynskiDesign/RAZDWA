@@ -28,55 +28,21 @@
     <input type="number" id="cv-qty" min="1" placeholder="ilość" inputmode="numeric">
   </div>
 
+  <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
+    <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
+    <div id="cv-price-tiers" style="display: grid; grid-template-columns: 1fr; gap: 5px; font-size: 13px; color: #ccc;"></div>
+  </div>
+
+  <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <span style="color: #999;">Cena całkowita:</span>
+      <strong id="cv-total" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
+    </div>
+    <p id="cv-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
+  </div>
+
   <div class="form-actions">
     <button id="cv-add" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
-  </div>
-
-  <div id="cv-result" style="display:none; margin-top: 20px; padding: 14px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px;">
-    <div id="cv-normal">
-      <div style="display: flex; justify-content: space-between; font-weight: 900; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-        <span>SUMA ZA WSZYSTKO:</span>
-        <span id="cv-total" style="font-size: 18px; color: #22c55e;">-</span>
-      </div>
-      <hr style="margin: 10px 0; border-color: rgba(255,255,255,0.14);">
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Tryb:</span>
-        <span id="cv-mode-label">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Format:</span>
-        <span id="cv-format-label">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;" id="cv-area-row" hidden>
-        <span>Powierzchnia:</span>
-        <span id="cv-area">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;" id="cv-print-cost-row" hidden>
-        <span>Koszt wydruku:</span>
-        <span id="cv-print-cost">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;" id="cv-frame-cost-row" hidden>
-        <span>Koszt oprawy (ramki):</span>
-        <span id="cv-frame-cost">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Cena jednostkowa:</span>
-        <span id="cv-unit">-</span>
-      </div>
-      <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-        <span>Ilość:</span>
-        <span id="cv-qty-val">-</span>
-      </div>
-      <div id="cv-express" style="font-size: 12px; color: #f59e0b; display: none; margin-top: 5px;">Zawiera dopłatę EXPRESS +20%</div>
-    </div>
-
-  </div>
-
-  <div id="cv-breakdown-display" class="card" style="display:none; margin-top: 16px;">
-    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
-    <div id="cv-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;">
-      <div>Cena zależy od trybu, formatu/wymiarów, ilości i ewentualnej dopłaty EXPRESS.</div>
-    </div>
   </div>
 
   <div class="cennik-table pricing-legend" style="margin-top: 16px;">

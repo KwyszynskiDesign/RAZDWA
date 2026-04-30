@@ -436,12 +436,8 @@ export const LaminowanieView: View = {
     const formatSelect = container.querySelector("#lam-format") as HTMLSelectElement;
     const qtyInput = container.querySelector("#lam-qty") as HTMLInputElement;
     const addToCartBtn = container.querySelector("#lam-add-to-cart") as HTMLButtonElement;
-    const resultDisplay = container.querySelector("#lam-result-display") as HTMLElement;
-    const unitPriceSpan = container.querySelector("#lam-unit-price") as HTMLElement;
     const totalPriceSpan = container.querySelector("#lam-total-price") as HTMLElement;
-    const lamCountedLine = container.querySelector("#lam-counted-line") as HTMLElement | null;
-    const qtyHintSpan = container.querySelector("#lam-qty-hint") as HTMLElement;
-    const expressHint = container.querySelector("#lam-express-hint") as HTMLElement;
+    const lamBreakdown = container.querySelector("#lam-breakdown") as HTMLElement;
 
     let currentResult: any = null;
     let currentOptions: any = null;
@@ -449,15 +445,15 @@ export const LaminowanieView: View = {
     const performCalculation = () => {
         const qty = parseInt(qtyInput.value);
           if (isNaN(qty) || qty <= 0) {
-            if (resultDisplay) resultDisplay.style.display = "none";
+            if (totalPriceSpan) totalPriceSpan.innerText = "0.00 zł";
             addToCartBtn.disabled = true;
             clearCalcBreakdown();
             return;
           }
         if (!formatSelect.value) {
-          if (resultDisplay) resultDisplay.style.display = "none";
-          return;
-        }
+            if (totalPriceSpan) totalPriceSpan.innerText = "0.00 zł";
+            return;
+          }
 
         currentOptions = {
           format: formatSelect.value,
@@ -469,19 +465,11 @@ export const LaminowanieView: View = {
         currentResult = result;
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
-        if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.totalPrice / qty);
-        if (lamCountedLine) lamCountedLine.innerText = `Liczone: ${qty} szt. × ${formatPLN(result.totalPrice / qty)} (${currentOptions.format})${ctx.expressMode ? " + EXPRESS 20%" : ""}.`;
-        if (qtyHintSpan) qtyHintSpan.innerText = `${qty} szt × ${formatPLN(result.totalPrice / qty)}, format: ${currentOptions.format}`;
-        if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
-        resultDisplay.style.display = "block";
+        if (lamBreakdown) {
+          const unitPrice = result.totalPrice / qty;
+          lamBreakdown.textContent = `${qty} szt, format: ${currentOptions.format} → ${formatPLN(unitPrice)} zł/szt${ctx.expressMode ? ' × 1.20 (EXPRESS)' : ''}`;
+        }
         addToCartBtn.disabled = false;
-
-        renderCalcBreakdown("Laminowanie", [
-          `Format: ${currentOptions.format}`,
-          `Ilość: ${qty} szt`,
-          `Cena bazowa: ${formatPLN(result.totalPrice / (ctx.expressMode ? 1.2 : 1))}`,
-          ctx.expressMode ? "EXPRESS: +20%" : "EXPRESS: nie"
-        ]);
 
         ctx.updateLastCalculated(result.totalPrice, "Introligatornia - laminowanie");
     };
@@ -1058,24 +1046,21 @@ export const LaminowanieView: View = {
     const introService = container.querySelector("#intro-service") as HTMLSelectElement | null;
     const introQty = container.querySelector("#intro-qty") as HTMLInputElement | null;
     const introAddBtn = container.querySelector("#intro-add-to-cart") as HTMLButtonElement | null;
-    const introResultDisplay = container.querySelector("#intro-result-display") as HTMLElement | null;
-    const introUnitPrice = container.querySelector("#intro-unit-price") as HTMLElement | null;
     const introTotalPrice = container.querySelector("#intro-total-price") as HTMLElement | null;
-    const introCountedLine = container.querySelector("#intro-counted-line") as HTMLElement | null;
-    const introExpressHint = container.querySelector("#intro-express-hint") as HTMLElement | null;
+    const introBreakdown = container.querySelector("#intro-breakdown") as HTMLElement | null;
 
     let introState: ReturnType<typeof quoteIntroligatornia> | null = null;
 
     const recalcIntro = () => {
       if (!introService || !introQty) return;
       if (!introService.value) {
-        if (introResultDisplay) introResultDisplay.style.display = "none";
+        if (introTotalPrice) introTotalPrice.innerText = "0.00 zł";
         if (introAddBtn) introAddBtn.disabled = true;
         clearCalcBreakdown();
         return;
       }
         if (!introQty.value) {
-          if (introResultDisplay) introResultDisplay.style.display = "none";
+          if (introTotalPrice) introTotalPrice.innerText = "0.00 zł";
           if (introAddBtn) introAddBtn.disabled = true;
           clearCalcBreakdown();
           return;
@@ -1087,21 +1072,12 @@ export const LaminowanieView: View = {
       });
 
       introState = result;
-      if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
       if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
-      if (introCountedLine) introCountedLine.innerText = `Liczone: ${result.qty} operacji × ${formatPLN(result.totalPrice / result.qty)}.`;
-      if (introExpressHint) introExpressHint.style.display = "none";
-      if (introResultDisplay) introResultDisplay.style.display = "block";
+      if (introBreakdown) {
+        const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
+        introBreakdown.textContent = `${result.qty} operacji, usługa: ${result.serviceName} → ${formatPLN(unitPrice)} zł/op.`;
+      }
       if (introAddBtn) introAddBtn.disabled = false;
-
-      const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
-      renderCalcBreakdown("Introligatornia", [
-        `Usługa: ${result.serviceName}`,
-        `Ilość operacji: ${result.qty}`,
-        `Cena jednostkowa: ${formatPLN(unitPrice)}`,
-        `Cena bazowa: ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}`,
-        `Cena końcowa: ${formatPLN(result.totalPrice)}`
-      ]);
 
       ctx.updateLastCalculated(result.totalPrice, "Introligatornia");
     };
