@@ -1244,6 +1244,14 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
       const qa = bindowanieQtyRank(a);
       const qb = bindowanieQtyRank(b);
       if (qa !== qb) return qa - qb;
+    } else if (ga === 7) {
+      // Oprawa grzbietowa: A4 before A3, then by qty (do30 < do60 < do90 < do150)
+      const aIsA3 = a.includes("-a3-") ? 1 : 0;
+      const bIsA3 = b.includes("-a3-") ? 1 : 0;
+      if (aIsA3 !== bIsA3) return aIsA3 - bIsA3;
+      const aQty = Number.parseInt((a.match(/-do(\d+)$/) || [])[1] ?? "0", 10);
+      const bQty = Number.parseInt((b.match(/-do(\d+)$/) || [])[1] ?? "0", 10);
+      if (aQty !== bQty) return aQty - bQty;
     } else {
       const na = getNumericStartFromKey(a);
       const nb = getNumericStartFromKey(b);
@@ -1256,7 +1264,9 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
 
 function getPlakatyRangeStart(key: string): number {
   const m = key.match(/-(\d+)(?:-(\d+)|\+)?$/);
-  return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  if (!m) return Number.POSITIVE_INFINITY;
+  // Use the second capture group (last number) when present (e.g. "...-170-10" → 10)
+  return m[2] !== undefined ? Number.parseInt(m[2], 10) : Number.parseInt(m[1], 10);
 }
 
 function getPlakatyFormatSizeRank(key: string): number {
@@ -1705,6 +1715,9 @@ export const UstawieniaView: View = {
               </tr>
             `);
             previousLaminowanieSection = sectionTitle;
+            // Reset bold alternation at each new section so groups always start fresh
+            isBoldGroup = false;
+            previousGroup = "";
           }
         }
 
