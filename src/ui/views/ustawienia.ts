@@ -647,6 +647,29 @@ function getLaminowanieSectionTitle(key: string): string {
   return "LAMINOWANIE";
 }
 
+function getDrukA4A3SkanSectionTitle(key: string): string {
+  if (key.startsWith("druk-bw-a4-")) return "DRUK CZARNO-BIAŁY A4";
+  if (key.startsWith("druk-bw-a3-")) return "DRUK CZARNO-BIAŁY A3";
+  if (key.startsWith("druk-kolor-a4-")) return "DRUK KOLOROWY A4";
+  if (key.startsWith("druk-kolor-a3-")) return "DRUK KOLOROWY A3";
+  if (key.startsWith("skan-auto-")) return "SKANOWANIE AUTOMATYCZNE";
+  if (key.startsWith("skan-reczne-")) return "SKANOWANIE RĘCZNE";
+  if (key.startsWith("druk-") || key.startsWith("modifier-druk-")) return "DOPŁATY I USŁUGI DODATKOWE";
+  return "DRUK A4/A3 + SKAN";
+}
+
+function getWlepkiSectionTitle(key: string): string {
+  if (key.startsWith("wlepki-obrys-folia-")) return "WLEPKI PO OBRYSIE (FOLIA BIAŁA/TRANSPARENTNA)";
+  if (key.startsWith("wlepki-polipropylen-")) return "WLEPKI PO OBRYSIE – POLIPROPYLEN";
+  if (key.startsWith("wlepki-standard-folia-")) return "FOLIA BIAŁA / TRANSPARENTNA (STANDARD)";
+  if (key.startsWith("wlepki-szt-papier-sra3-")) return "NAKLEJKI PAPIER SRA3";
+  if (key.startsWith("wlepki-szt-folia-sra3-")) return "NAKLEJKI FOLIA SRA3";
+  if (key.startsWith("wlepki-szt-plotowane-papier-")) return "NAKLEJKI PLOTOWANE PAPIER";
+  if (key.startsWith("wlepki-szt-plotowane-folia-")) return "NAKLEJKI PLOTOWANE FOLIA";
+  if (key.startsWith("wlepki-modifier-")) return "DOPŁATY I USŁUGI DODATKOWE";
+  return "WLEPKI / NAKLEJKI";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -1299,6 +1322,11 @@ function sortWlepkiCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("wlepki-obrys-folia-")) return 0;
     if (key.startsWith("wlepki-polipropylen-")) return 1;
     if (key.startsWith("wlepki-standard-folia-")) return 2;
+    if (key.startsWith("wlepki-szt-papier-sra3-")) return 3;
+    if (key.startsWith("wlepki-szt-folia-sra3-")) return 4;
+    if (key.startsWith("wlepki-szt-plotowane-papier-")) return 5;
+    if (key.startsWith("wlepki-szt-plotowane-folia-")) return 6;
+    if (key.startsWith("wlepki-modifier-")) return 99;
     return 99;
   };
 
@@ -1507,6 +1535,8 @@ export const UstawieniaView: View = {
       let previousGroup = "";
       let previousSolwentPlakatySection = "";
       let previousLaminowanieSection = "";
+      let previousDrukA4A3Section = "";
+      let previousWlepkiSection = "";
       let isBoldGroup = false;
 
       const rows: string[] = [];
@@ -1517,6 +1547,18 @@ export const UstawieniaView: View = {
               <td colspan="3"><strong>${escapeHtml(cadSectionTitles[key])}</strong></td>
             </tr>
           `);
+        }
+
+        if (active.id === "druk-a4-a3") {
+          const sectionTitle = getDrukA4A3SkanSectionTitle(key);
+          if (sectionTitle !== previousDrukA4A3Section) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousDrukA4A3Section = sectionTitle;
+          }
         }
 
         if (active.id === "solwent" || active.id === "plakaty-a4-a3") {
@@ -1543,8 +1585,20 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "wlepki") {
+          const sectionTitle = getWlepkiSectionTitle(key);
+          if (sectionTitle !== previousWlepkiSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousWlepkiSection = sectionTitle;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "solwent" && active.id !== "laminowanie") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
