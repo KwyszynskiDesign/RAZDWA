@@ -554,11 +554,20 @@
   .summary-item {
     display: flex;
     justify-content: space-between;
-    padding: 4px 0;
+    padding: 6px 0;
     font-size: 0.95rem;
+    align-items: center;
   }
   .summary-item strong {
     font-weight: 700;
+  }
+  #summaryGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #summaryGrid .summary-item:last-of-type {
+    padding-bottom: 0;
   }
 
   @media (max-width: 600px) {
@@ -603,7 +612,7 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 15px;
+    padding: 16px 20px;
     max-height: 600px;
     overflow-y: auto;
   }
@@ -768,7 +777,8 @@
     </table>
 
     <div class="cad-summary-section">
-      <div class="cad-price-options" style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <div id="summaryGrid" style="padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border);"></div>
+      <div class="cad-price-options" style="display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 16px; background: var(--surface-alt); border-top: 1px solid var(--border);">
         <button type="button" id="selectColor" class="btn-primary" style="display:none;">
           🎨 DODAJ DO KOSZYKA - Kolor: <strong id="selectColorPrice">0,00 zł</strong>
         </button>

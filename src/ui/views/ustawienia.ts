@@ -683,8 +683,8 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "druk-cad",
     label: "CAD wielkoformatowy",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
-    prefixes: ["druk-cad-", "cad-fold-"],
-    description: "Stawki CAD formatowe, za metr bieżący oraz składanie.",
+    prefixes: ["druk-cad-", "cad-fold-", "cad-"],
+    description: "Stawki CAD formatowe, za metr bieżący, składanie i usługi dodatkowe.",
     newKeyPrefix: "druk-cad-bw-fmt-"
   },
   {
