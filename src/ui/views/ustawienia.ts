@@ -197,6 +197,7 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-intro-gilotyna": "Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)",
   "laminowanie-intro-trymer": "Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)",
   "laminowanie-intro-dziurkowanie-powyzej-20": "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
+  "laminowanie-intro-druk-powyzej-20": "Introligatornia – usługi jednostkowe • Wydruk dodatkowych kartek powyżej 20 szt. w zamówieniu (za 1 kartkę)",
   "laminowanie-intro-zszywanie": "Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)",
   "laminowanie-intro-broszurowanie": "Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)",
   "laminowanie-intro-bigowanie": "Introligatornia – usługi jednostkowe • Bigowanie (za 1 big)",
@@ -622,7 +623,9 @@ function getProductGroupLabel(label: string): string {
   if (label.startsWith("Bindowanie")) {
     const match = label.match(/Bindowanie – .+ – (Plastik \S+|Metal \S+)/);
     if (match) {
-      return `Bindowanie – ${match[1]}`;
+      // Normalize bare "Plastik 20" (do20 for 51-100/101-200) to same group as listwa
+      const type = match[1] === "Plastik 20" ? "Plastik listwa" : match[1];
+      return `Bindowanie – ${type}`;
     }
   }
   // For oprawa grzbietowa, group by format (A4 / A3)
@@ -1209,8 +1212,15 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("laminowanie-a5-")) return 2;
     if (key.startsWith("laminowanie-a6-")) return 3;
     if (key.startsWith("laminowanie-intro-")) return 4;
-    if (key.startsWith("laminowanie-bindowanie-plastik-")) return 5;
-    if (key.startsWith("laminowanie-bindowanie-metal-")) return 6;
+    // Bindowanie: sorted by type first (listwa/bare=50, spirala=51, 21-100=52, 100+=53, metal do40=54, do80=55, do120=56)
+    if (key.match(/laminowanie-bindowanie-plastik-.*-do20-listwa$/)) return 50;
+    if (key.match(/laminowanie-bindowanie-plastik-.*-do20-spirala$/)) return 51;
+    if (key.match(/laminowanie-bindowanie-plastik-.*-do20$/)) return 50; // bare do20 same group as listwa
+    if (key.match(/laminowanie-bindowanie-plastik-.*-21-100$/)) return 52;
+    if (key.match(/laminowanie-bindowanie-plastik-.*-100plus$/)) return 53;
+    if (key.match(/laminowanie-bindowanie-metal-.*-do40$/)) return 54;
+    if (key.match(/laminowanie-bindowanie-metal-.*-do80$/)) return 55;
+    if (key.match(/laminowanie-bindowanie-metal-.*-do120$/)) return 56;
     if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return 7;
     if (key.startsWith("laminowanie-oprawa-kanalowa-")) return 8;
     if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return 9;
@@ -1219,14 +1229,27 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
     return 99;
   };
 
+  // For bindowanie keys: secondary sort by qty start (the number after plastik-/metal-)
+  const bindowanieQtyRank = (key: string): number => {
+    const m = key.match(/bindowanie-(?:plastik|metal)-(\d+)-/);
+    return m ? Number.parseInt(m[1], 10) : 0;
+  };
+
   return [...keys].sort((a, b) => {
     const ga = groupRank(a);
     const gb = groupRank(b);
     if (ga !== gb) return ga - gb;
 
-    const na = getNumericStartFromKey(a);
-    const nb = getNumericStartFromKey(b);
-    if (na !== nb) return na - nb;
+    // For bindowanie groups (ranks 50-56), sort by qty
+    if (ga >= 50 && ga <= 56) {
+      const qa = bindowanieQtyRank(a);
+      const qb = bindowanieQtyRank(b);
+      if (qa !== qb) return qa - qb;
+    } else {
+      const na = getNumericStartFromKey(a);
+      const nb = getNumericStartFromKey(b);
+      if (na !== nb) return na - nb;
+    }
 
     return a.localeCompare(b, "pl");
   });

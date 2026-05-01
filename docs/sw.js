@@ -1,4 +1,4 @@
-﻿const CACHE_VERSION = 'razdwa-v202605011107';
+﻿const CACHE_VERSION = 'razdwa-v202605011128';
 
 self.addEventListener('install', (e) => {
   self.skipWaiting(); // Force new SW to activate immediately
