@@ -242,21 +242,11 @@ const PRICE_LABELS: Record<string, string> = {
   "solwent-115g-1-3": "Solwent 115g matowy – 1–3 m²",
   "solwent-115g-4-19": "Solwent 115g matowy – 4–19 m²",
   "solwent-115g-20+": "Solwent 115g matowy – 20+ m²",
-  "solwent-blockout-200g-1-3": "Solwent BLOCKOUT 200g satyna – 1–3 m²",
-  "solwent-blockout-200g-4-9": "Solwent BLOCKOUT 200g satyna – 4–9 m²",
-  "solwent-blockout-200g-10-20": "Solwent BLOCKOUT 200g satyna – 10–20 m²",
-  "solwent-blockout-200g-21-40": "Solwent BLOCKOUT 200g satyna – 21–40 m²",
-  "solwent-blockout-200g-41+": "Solwent BLOCKOUT 200g satyna – 41+ m²",
-  "solwent-blockout200g-1-3": "Solwent BLOCKOUT 200g satyna – 1–3 m²",
-  "solwent-blockout200g-4-9": "Solwent BLOCKOUT 200g satyna – 4–9 m²",
-  "solwent-blockout200g-10-20": "Solwent BLOCKOUT 200g satyna – 10–20 m²",
-  "solwent-blockout200g-21-40": "Solwent BLOCKOUT 200g satyna – 21–40 m²",
-  "solwent-blockout200g-41+": "Solwent BLOCKOUT 200g satyna – 41+ m²",
-  "plakaty-blockout200g-1-3": "Plakaty BLOCKOUT 200g satyna – 1–3 m²",
-  "plakaty-blockout200g-4-9": "Plakaty BLOCKOUT 200g satyna – 4–9 m²",
-  "plakaty-blockout200g-10-20": "Plakaty BLOCKOUT 200g satyna – 10–20 m²",
-  "plakaty-blockout200g-21-40": "Plakaty BLOCKOUT 200g satyna – 21–40 m²",
-  "plakaty-blockout200g-41+": "Plakaty BLOCKOUT 200g satyna – 41+ m²",
+  "solwent-blockout-200g-1-3": "Plakat blockout 200g – 1–3 m²",
+  "solwent-blockout-200g-4-9": "Plakat blockout 200g – 4–9 m²",
+  "solwent-blockout-200g-10-20": "Plakat blockout 200g – 10–20 m²",
+  "solwent-blockout-200g-21-40": "Plakat blockout 200g – 21–40 m²",
+  "solwent-blockout-200g-41+": "Plakat blockout 200g – 41+ m²",
   "plakaty-format-120g-formatowe-297x420": "Plakaty 120g formatowe – A3",
   "plakaty-format-120g-formatowe-420x594": "Plakaty 120g formatowe – A2",
   "plakaty-format-120g-formatowe-610x841": "Plakaty 120g formatowe – A1+",
@@ -620,9 +610,7 @@ function getSolwentPlakatySectionTitle(key: string): string {
   if (key.startsWith("solwent-150g-")) return "SOLWENT 150G PÓŁMAT";
   if (key.startsWith("solwent-200g-")) return "SOLWENT 200G POŁYSK";
   if (
-    key.startsWith("solwent-blockout-200g-") ||
-    key.startsWith("solwent-blockout200g-") ||
-    key.startsWith("plakaty-blockout200g-")
+    key.startsWith("solwent-blockout-200g-")
   ) return "SOLWENT BLOCKOUT 200G SATYNA";
 
   if (key.startsWith("plakaty-format-120g-formatowe-")) return "120G FORMATOWE";
