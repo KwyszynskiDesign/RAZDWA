@@ -728,6 +728,20 @@ function getZaproszeniaSectionTitle(key: string): string {
   return `ZAPROSZENIA ${formatLabel} ${sidesLabel} – ${foldLabel}`;
 }
 
+function getArtykulySectionTitle(key: string): string {
+  if (key.startsWith("artykuly-teczka-")) return "TECZKI";
+  if (key.startsWith("artykuly-skoroszyt-")) return "SKOROSZYTY";
+  if (key.startsWith("artykuly-segregator-")) return "SEGREGATORY";
+  if (key.startsWith("artykuly-koszulka-")) return "KOSZULKI NA DOKUMENTY";
+  if (key.startsWith("artykuly-papier-")) return "PAPIER";
+  if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-olowek")) return "ARTYKUŁY PIŚMIENNICZE";
+  if (key.startsWith("artykuly-pendrive-")) return "PENDRIVE'Y";
+  if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
+  if (key.startsWith("artykuly-pudelko-")) return "PUDEŁKA PAKOWE";
+  if (key.startsWith("artykuly-plyty-")) return "PŁYTY CD / DVD";
+  return "ARTYKUŁY BIUROWE";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -1402,6 +1416,29 @@ function sortWlepkiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortArtykulyCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key.startsWith("artykuly-teczka-")) return 0;
+    if (key.startsWith("artykuly-skoroszyt-")) return 1;
+    if (key.startsWith("artykuly-segregator-")) return 2;
+    if (key.startsWith("artykuly-koszulka-")) return 3;
+    if (key.startsWith("artykuly-papier-")) return 4;
+    if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-olowek")) return 5;
+    if (key.startsWith("artykuly-pendrive-")) return 6;
+    if (key.startsWith("artykuly-koperta-")) return 7;
+    if (key.startsWith("artykuly-pudelko-")) return 8;
+    if (key.startsWith("artykuly-plyty-")) return 9;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -1466,6 +1503,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "wycinanie-folii") {
     return sortWycinanieFoliiCategoryKeys(keys);
+  }
+
+  if (category.id === "artykuly") {
+    return sortArtykulyCategoryKeys(keys);
   }
 
   if (category.id === "wlepki") {
@@ -1693,8 +1734,21 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "artykuly") {
+          const sectionTitle = getArtykulySectionTitle(key);
+          if (sectionTitle !== previousGroup) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousGroup = sectionTitle;
+            isBoldGroup = !isBoldGroup;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "artykuly") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
