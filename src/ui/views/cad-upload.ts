@@ -116,7 +116,7 @@ export const CadUploadView: View = {
       if (!legend) {
         legend = document.createElement("div");
         legend.id = "cad-upload-legend";
-        legend.className = "card";
+        legend.className = "cennik-table pricing-legend";
         legend.style.marginTop = "16px";
         ekranObliczen.appendChild(legend);
       }
@@ -150,8 +150,12 @@ export const CadUploadView: View = {
       const bwRows = collectRowsForMode("bw", "Czarno-biały");
       const colorRows = collectRowsForMode("color", "Kolorowy");
 
-      legend.innerHTML = `
-        <table class="results-table cad-legend" style="margin-top:6px;">
+      legend.innerHTML = `        <div class="legend-head">
+          <div>
+            <h4>CENNIK CAD WIELKOFORMATOWY</h4>
+            <p class="legend-subtitle">Ceny za metr bieżący (MB) oraz formatowo. Inne usługi dostępne poniżej.</p>
+          </div>
+        </div>        <table class="results-table cad-legend" style="margin-top:6px;">
           <tr><th>Tryb</th><th>Format</th><th>Cena formatowa</th><th>Cena nieformatowa</th></tr>
           <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIAŁE</td></tr>
           ${bwRows}
@@ -570,10 +574,6 @@ export const CadUploadView: View = {
           <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
             <span><strong>🎨 RAZEM KOLOR:</strong></span>
             <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>
-          </div>
-          <div class="summary-item">
-            <span><strong>⚫ RAZEM CZARNO-BIAŁY:</strong></span>
-            <span><strong>${formatPLN(grandTotalBwVariant)}</strong></span>
           </div>
         `;
       }
