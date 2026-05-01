@@ -699,6 +699,17 @@ function getFoliaSectionTitle(key: string): string {
   return "FOLIA SZRONIONA / OWV";
 }
 
+function getZaproszeniaSectionTitle(key: string): string {
+  const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
+  if (!m) return "ZAPROSZENIA";
+  
+  const formatLabel = m[1].toUpperCase();
+  const sidesLabel = m[2] === "single" ? "JEDNOSTRONNE" : "DWUSTRONNE";
+  const foldLabel = m[3] === "skladane" ? "SKŁADANE" : "BEZ SKŁADANIA";
+  
+  return `ZAPROSZENIA ${formatLabel} ${sidesLabel} – ${foldLabel}`;
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -1567,6 +1578,7 @@ export const UstawieniaView: View = {
       let previousLaminowanieSection = "";
       let previousDrukA4A3Section = "";
       let previousWlepkiSection = "";
+      let previousZaproszeniaSection = "";
       let isBoldGroup = false;
 
       const rows: string[] = [];
@@ -1651,8 +1663,20 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "zaproszenia") {
+          const sectionTitle = getZaproszeniaSectionTitle(key);
+          if (sectionTitle !== previousZaproszeniaSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousZaproszeniaSection = sectionTitle;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
