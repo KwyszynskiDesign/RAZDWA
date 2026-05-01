@@ -685,6 +685,20 @@ function getWlepkiSectionTitle(key: string): string {
   return "WLEPKI / NAKLEJKI";
 }
 
+function getBannerSectionTitle(key: string): string {
+  if (key.startsWith("banner-powlekany-")) return "BANNER POWLEKANY";
+  if (key.startsWith("banner-blockout-")) return "BANNER BLOCKOUT";
+  return "BANNER";
+}
+
+function getFoliaSectionTitle(key: string): string {
+  if (key.startsWith("folia-szroniona-owv-wydruk-")) return "FOLIA SZRONIONA OWV – WYDRUK";
+  if (key.startsWith("folia-szroniona-owv-oklejanie-")) return "FOLIA SZRONIONA OWV – OKLEJANIE";
+  if (key.startsWith("folia-szroniona-wydruk-")) return "FOLIA SZRONIONA – WYDRUK";
+  if (key.startsWith("folia-szroniona-oklejanie-")) return "FOLIA SZRONIONA – OKLEJANIE";
+  return "FOLIA SZRONIONA / OWV";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -1613,8 +1627,32 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "banner") {
+          const sectionTitle = getBannerSectionTitle(key);
+          if (sectionTitle !== previousWlepkiSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousWlepkiSection = sectionTitle;
+          }
+        }
+
+        if (active.id === "folia") {
+          const sectionTitle = getFoliaSectionTitle(key);
+          if (sectionTitle !== previousWlepkiSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousWlepkiSection = sectionTitle;
+          }
+        }
+
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
