@@ -468,8 +468,12 @@ export const LaminowanieView: View = {
         currentResult = result;
 
         totalPriceSpan.innerText = formatPLN(result.totalPrice);
+        const unitPrice = result.totalPrice / qty;
+        const unitPriceSpan = container.querySelector("#lam-unit-price") as HTMLElement;
+        if (unitPriceSpan) {
+          unitPriceSpan.innerText = formatPLN(unitPrice);
+        }
         if (lamTierHint) {
-          const unitPrice = result.totalPrice / qty;
           lamTierHint.textContent = `${qty} szt, format: ${currentOptions.format} → ${formatPLN(unitPrice)} zł/szt${ctx.expressMode ? ' × 1.20 (EXPRESS)' : ''}`;
         }
         
