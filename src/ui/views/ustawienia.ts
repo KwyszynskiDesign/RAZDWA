@@ -230,10 +230,12 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – 51–100 stron – Metal 40",
   "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – 51–100 stron – Metal 80",
   "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – 51–100 stron – Metal 120",
-  "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana/skręcana – zbijane, dokumentacja drukowana u nas (za 5 cm)",
-  "laminowanie-oprawa-skrecane-printed-here": "Oprawa zbijana/skręcana – skręcane, dokumentacja drukowana u nas (za 5 cm)",
-  "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana/skręcana – zbijane, dokumentacja dostarczona przez klienta (za 5 cm)",
-  "laminowanie-oprawa-skrecane-client-supplied": "Oprawa zbijana/skręcana – skręcane, dokumentacja dostarczona przez klienta (za 5 cm)",
+  "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
+  "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
+  "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
+  "laminowanie-oprawa-skrecane-client-supplied": "Oprawa skręcana (śruby introligatorskie) – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
+  "laminowanie-oprawa-zbijane-extra-per-cm-printed-here": "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (drukowana u nas)",
+  "laminowanie-oprawa-zbijane-extra-per-cm-client-supplied": "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (dostarczona przez klienta)",
   "laminowanie-oprawa-twarda-rozszycie": "Oprawy twarde – rozszycie oprawy twardej (25–40 zł)",
   "laminowanie-oprawa-twarda-ponowne-zszycie": "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
   "laminowanie-special-dyplom": "Pojedyncze nakłady – Dyplom",
@@ -616,12 +618,17 @@ function getPriceLabel(key: string): string {
 }
 
 function getProductGroupLabel(label: string): string {
-  // For bindowanie, group by material type (Plastik, Metal)
+  // For bindowanie, group by variant type (listwa, spirala, 21–100, 100+, Metal do40/do80/do120)
   if (label.startsWith("Bindowanie")) {
-    const match = label.match(/Bindowanie – .+ – (Plastik|Metal)/);
+    const match = label.match(/Bindowanie – .+ – (Plastik \S+|Metal \S+)/);
     if (match) {
       return `Bindowanie – ${match[1]}`;
     }
+  }
+  // For oprawa grzbietowa, group by format (A4 / A3)
+  if (label.startsWith("Oprawa grzbietowa")) {
+    const match = label.match(/Oprawa grzbietowa .+ (A\d)/);
+    if (match) return `Oprawa grzbietowa – ${match[1]}`;
   }
 
   return label
@@ -742,7 +749,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "laminowanie",
     label: "Introligatornia",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
-    prefixes: ["laminowanie-"],
+    prefixes: ["laminowanie-a3-", "laminowanie-a4-", "laminowanie-a5-", "laminowanie-a6-", "laminowanie-intro-", "laminowanie-oprawa-", "laminowanie-bindowanie-"],
     description: "Laminowanie na gorąco, oprawy, bindowanie oraz usługi introligatorskie.",
     newKeyPrefix: "laminowanie-a4-"
   },
