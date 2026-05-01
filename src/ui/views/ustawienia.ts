@@ -213,23 +213,23 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-kanalowa-bez-napisu": "Oprawa kanałowa dyplomowa – bez napisu",
   "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – wkarta okładka",
   "laminowanie-oprawa-zaciskowa-miekka": "Oprawa zaciskowa (miękka)",
-  // Bindowanie
-  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – 1–50 stron – Plastik listwa",
-  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – 1–50 stron – Plastik spirala",
-  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – 1–50 stron – Plastik 21–100",
-  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – 1–50 stron – Plastik 100+",
-  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – 51–100 stron – Plastik 20",
-  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – 51–100 stron – Plastik 21–100",
-  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – 51–100 stron – Plastik 100+",
-  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – 101–200 stron – Plastik 20",
-  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – 101–200 stron – Plastik 21–100",
-  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – 101–200 stron – Plastik 100+",
-  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – 1–50 stron – Metal 40",
-  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – 1–50 stron – Metal 80",
-  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – 1–50 stron – Metal 120",
-  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – 51–100 stron – Metal 40",
-  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – 51–100 stron – Metal 80",
-  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – 51–100 stron – Metal 120",
+  // Bindowanie – format: TYP – ilość szt. (zgodnie z CSV: typ przed ilością)
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Plastik listwa – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Plastik spirala – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – Plastik 21–100 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – Plastik 100+ kart. – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Plastik listwa – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – Plastik 21–100 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – Plastik 100+ kart. – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Plastik listwa – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – Plastik 21–100 kart. – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – Plastik 100+ kart. – 101–200 szt.",
+  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – Metal do 40 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – Metal do 80 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – Metal do 120 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – Metal do 40 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – Metal do 80 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – Metal do 120 kart. – 51–100 szt.",
   "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
@@ -516,6 +516,50 @@ const PRICE_LABELS: Record<string, string> = {
   "wlepki-modifier-arkusze": "Naklejki – cena za arkusz (m²)",
   "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
   "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
+  // Artykuły biurowe – jawne etykiety (klucze mają zniekształcone polskie znaki wskutek podwójnego kodowania)
+  "artykuly-teczka-bia\u0139\u201Aa-gumka": "Teczka biała z gumką",
+  "artykuly-teczka-niebieska-twarda": "Teczka niebieska twarda",
+  "artykuly-teczka-kolor-gumka": "Teczka kolorowa z gumką",
+  "artykuly-teczka-biala-wie\u0139\u015Fanka": "Teczka biała z wieszakiem",
+  "artykuly-skoroszyt-durable": "Skoroszyt Durable",
+  "artykuly-skoroszyt-wasm": "Skoroszyt WASM",
+  "artykuly-skoroszyt-wasm-wpinanie": "Skoroszyt WASM (wpinanie)",
+  "artykuly-segregator-7cm": "Segregator 7 cm",
+  "artykuly-koszulka-dokumenty": "Koszulka na dokumenty",
+  "artykuly-papier-ryza-a4": "Papier – ryza A4",
+  "artykuly-papier-ryza-a3": "Papier – ryza A3",
+  "artykuly-d\u0139\u201Augopis": "Długopis",
+  "artykuly-o\u0139\u201A\u0102\u0142wek": "Ołówek",
+  "artykuly-pendrive-32gb": "Pendrive 32 GB",
+  "artykuly-pendrive-4gb": "Pendrive 4 GB",
+  "artykuly-koperta-zwyk\u0139\u201Aa": "Koperta zwykła",
+  "artykuly-koperta-rozszerzona": "Koperta rozszerzona",
+  "artykuly-koperta-wysy\u0139\u201Akowa": "Koperta wysyłkowa",
+  "artykuly-koperta-ozdobna": "Koperta ozdobna",
+  "artykuly-pude\u0139\u201Ako-pakowe-80": "Pudełko pakowe 80",
+  "artykuly-pude\u0139\u201Ako-pakowe-100": "Pudełko pakowe 100",
+  "artykuly-pude\u0139\u201Ako-pakowe-120": "Pudełko pakowe 120",
+  "artykuly-p\u0139\u201Ayty-cd": "Płyty CD",
+  "artykuly-p\u0139\u201Ayty-dvd": "Płyty DVD",
+  // Usługi – jawne etykiety
+  "uslugi-formatowanie": "Formatowanie dokumentu",
+  "uslugi-archiwizacja-cd": "Archiwizacja na CD",
+  "uslugi-archiwizacja-dvd": "Archiwizacja na DVD",
+  "uslugi-scalanie-1-9": "Scalanie plików – 1–9 szt.",
+  "uslugi-scalanie-9-19": "Scalanie plików – 9–19 szt.",
+  "uslugi-scalanie-20+": "Scalanie plików – 20+ szt.",
+  "uslugi-poprawki-graficzne": "Poprawki graficzne",
+  "uslugi-grafika-baner-prosty": "Grafika – baner prosty",
+  "uslugi-grafika-baner-z\u0139\u201Ao\u0139\u013Dony": "Grafika – baner złożony",
+  "uslugi-grafika-wizytowka-jednostronna": "Grafika – wizytówka jednostronna",
+  "uslugi-grafika-wizytowka-dwustronna": "Grafika – wizytówka dwustronna",
+  "uslugi-grafika-ulotka-jednostronna": "Grafika – ulotka jednostronna",
+  "uslugi-grafika-ulotka-dwustronna": "Grafika – ulotka dwustronna",
+  "uslugi-grafika-logotyp": "Grafika – logotyp",
+  "uslugi-pakiet-prosty": "Pakiet usług prosty",
+  "uslugi-pakiet-z\u0139\u201Ao\u0139\u013Dony": "Pakiet usług złożony",
+  "uslugi-social-media-1-projekt": "Social media – 1 projekt",
+  "uslugi-social-media-3-projekty": "Social media – 3 projekty",
   // Koperty (struktura wstępna)
   "koperty-a": "Koperta A",
   "koperty-b": "Koperta B",
@@ -598,8 +642,8 @@ function getPriceLabel(key: string): string {
   const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
   if (zaproszeniaMatch) {
     const sidesLabel = zaproszeniaMatch[2] === "single" ? "jednostronne" : "dwustronne";
-    const foldLabel = zaproszeniaMatch[3] === "skladane" ? "składane" : "bez łamania";
-    return `Zaproszenia ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel}, ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
+    const foldLabel = zaproszeniaMatch[3] === "skladane" ? "składane" : "nieskładane";
+    return `Zaproszenia ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel} ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
   }
 
   if (key.startsWith("artykuly-")) {
@@ -618,14 +662,10 @@ function getPriceLabel(key: string): string {
 }
 
 function getProductGroupLabel(label: string): string {
-  // For bindowanie, group by variant type (listwa, spirala, 21–100, 100+, Metal do40/do80/do120)
+  // For bindowanie, group by variant type (new format: "Bindowanie – TYPE – qty szt.")
   if (label.startsWith("Bindowanie")) {
-    const match = label.match(/Bindowanie – .+ – (Plastik \S+|Metal \S+)/);
-    if (match) {
-      // Normalize bare "Plastik 20" (do20 for 51-100/101-200) to same group as listwa
-      const type = match[1] === "Plastik 20" ? "Plastik listwa" : match[1];
-      return `Bindowanie – ${type}`;
-    }
+    const match = label.match(/^Bindowanie – (.+?) – \d/);
+    if (match) return `Bindowanie – ${match[1]}`;
   }
   // For oprawa grzbietowa, group by format (A4 / A3)
   if (label.startsWith("Oprawa grzbietowa")) {
@@ -736,11 +776,11 @@ function getArtykulySectionTitle(key: string): string {
   if (key.startsWith("artykuly-segregator-")) return "SEGREGATORY";
   if (key.startsWith("artykuly-koszulka-")) return "KOSZULKI NA DOKUMENTY";
   if (key.startsWith("artykuly-papier-")) return "PAPIER";
-  if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-olowek")) return "ARTYKUŁY PIŚMIENNICZE";
+  if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-d\u0139\u201Augopis") || key.startsWith("artykuly-olowek") || key.startsWith("artykuly-o\u0139\u201A")) return "ARTYKUŁY PIŚMIENNICZE";
   if (key.startsWith("artykuly-pendrive-")) return "PENDRIVE'Y";
   if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
-  if (key.startsWith("artykuly-pudelko-")) return "PUDEŁKA PAKOWE";
-  if (key.startsWith("artykuly-plyty-")) return "PŁYTY CD / DVD";
+  if (key.startsWith("artykuly-pudelko-") || key.startsWith("artykuly-pude\u0139\u201Ako-")) return "PUDEŁKA PAKOWE";
+  if (key.startsWith("artykuly-plyty-") || key.startsWith("artykuly-p\u0139\u201Ayty-")) return "PŁYTY CD / DVD";
   return "ARTYKUŁY BIUROWE";
 }
 
