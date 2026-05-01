@@ -58,7 +58,7 @@ function loadPrices(): PriceMap {
   if (formats) {
     Object.entries(formats).forEach(([formatKey, formatData]) => {
       ["single", "double"].forEach((sidesKey) => {
-        ["normal", "folded"].forEach((foldKey) => {
+        ["normal", "skladane"].forEach((foldKey) => {
           const tiers = formatData?.[sidesKey]?.[foldKey] as Record<string, number> | undefined;
           if (!tiers) return;
           Object.entries(tiers).forEach(([qty, price]) => {
@@ -587,10 +587,10 @@ function getPriceLabel(key: string): string {
     return `Ulotki dwustronne ${ulotkiDwuMatch[1].toUpperCase()} – ${ulotkiDwuMatch[2]} szt.`;
   }
 
-  const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|folded)-(\d+)$/);
+  const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
   if (zaproszeniaMatch) {
     const sidesLabel = zaproszeniaMatch[2] === "single" ? "jednostronne" : "dwustronne";
-    const foldLabel = zaproszeniaMatch[3] === "folded" ? "składane" : "bez łamania";
+    const foldLabel = zaproszeniaMatch[3] === "skladane" ? "składane" : "bez łamania";
     return `Zaproszenia KREDA ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel}, ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
   }
 
@@ -1114,7 +1114,7 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
   const parse = (key: string) => {
-    const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|folded)-(\d+)$/);
+    const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
     if (!m) {
       return {
         format: 99,

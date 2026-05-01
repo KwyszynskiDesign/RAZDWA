@@ -39,7 +39,7 @@ export const ZaproszeniaKredaView: View = {
       const format = formatSel.value || "A6";
       const sidesNum = parseInt(sidesSel.value, 10) || 1;
       const sidesKey = sidesNum === 1 ? "single" : "double";
-      const foldKey = foldedCheck.checked ? "folded" : "normal";
+      const foldKey = foldedCheck.checked ? "skladane" : "normal";
       const paperVal = paperSel.value;
       const isSatin = paperVal?.startsWith("satyna") || paperVal === "modigliani";
       const paperBase: "kreda" | "satyna" = isSatin ? "satyna" : "kreda";
@@ -53,13 +53,13 @@ export const ZaproszeniaKredaView: View = {
         .sort((a, b) => a - b);
 
       if (legendTitle) {
-        legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldKey === "folded" ? " SKŁADANE" : ""}`;
+        legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldKey === "skladane" ? " SKŁADANE" : ""}`;
       }
       if (legendSubtitle) {
         legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
-        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "folded" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
+        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "skladane" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
       }
 
       legendRows.innerHTML = qtyList

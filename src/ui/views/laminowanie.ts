@@ -472,6 +472,29 @@ export const LaminowanieView: View = {
           const unitPrice = result.totalPrice / qty;
           lamTierHint.textContent = `${qty} szt, format: ${currentOptions.format} → ${formatPLN(unitPrice)} zł/szt${ctx.expressMode ? ' × 1.20 (EXPRESS)' : ''}`;
         }
+        
+        // Add breakdown section for laminowanie
+        if (lamBreakdownBox && lamBreakdownLines) {
+          const breakdown = [
+            `<div><strong>Parametry:</strong> ${qty} szt, format ${currentOptions.format}</div>`,
+            `<div><strong>Cena z tabeli:</strong> ${formatPLN(result.tierPrice)}</div>`,
+            `<div><strong>Cena bazowa:</strong> ${formatPLN(result.basePrice)}</div>`,
+          ];
+          
+          if (result.appliedModifiers && result.appliedModifiers.length > 0) {
+            result.appliedModifiers.forEach(mod => {
+              if (mod === "express") {
+                const expressAmount = parseFloat((result.basePrice * 0.20).toFixed(2));
+                breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
+              }
+            });
+          }
+          
+          breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+          lamBreakdownLines.innerHTML = breakdown.join("");
+          lamBreakdownBox.style.display = "block";
+        }
+        
         if (resultDisplay) resultDisplay.style.display = "block";
         addToCartBtn.disabled = false;
 
@@ -589,6 +612,25 @@ export const LaminowanieView: View = {
         ctx.expressMode ? "EXPRESS: +20%" : "EXPRESS: nie",
         `Cena końcowa: ${formatPLN(total)}`
       ]);
+      
+      // Add breakdown section for bindowanie
+      if (bindBreakdown && bindBreakdownLines) {
+        const baseTotal = parseFloat((unitPrice * qty).toFixed(2));
+        const breakdown = [
+          `<div><strong>Parametry:</strong> ${qty} szt, ${type} ${subtype}, kolor: ${color}, ${pages} kartek</div>`,
+          `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
+          `<div><strong>Cena bazowa:</strong> ${qty} × ${formatPLN(unitPrice)} = ${formatPLN(baseTotal)}</div>`,
+        ];
+        
+        if (ctx.expressMode) {
+          const expressAmount = parseFloat((baseTotal * 0.20).toFixed(2));
+          breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(baseTotal)} = ${formatPLN(expressAmount)}</div>`);
+        }
+        
+        breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(total)}</div>`);
+        bindBreakdownLines.innerHTML = breakdown.join("");
+        bindBreakdown.style.display = "block";
+      }
 
       ctx.updateLastCalculated(total, "Bindowanie");
     };
@@ -953,6 +995,40 @@ export const LaminowanieView: View = {
       }
       details.push(`Cena końcowa: ${formatPLN(total)}`);
       renderCalcBreakdown("Oprawy", details);
+      
+      // Add breakdown section for oprawy
+      if (oprBreakdown && oprBreakdownLines) {
+        const breakdown = [
+          `<div><strong>Parametry:</strong> ${qty} szt, typ: ${type === "skrecana" ? "skręcana" : type}</div>`,
+          `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
+        ];
+        
+        const baseTotal = parseFloat((unitPrice * qty).toFixed(2));
+        if (extraThicknessPrice > 0) {
+          breakdown.push(`<div><strong>Dopłata grubości:</strong> ${extraCmUnits} cm × ${formatPLN(extraPerCm)} = ${formatPLN(extraThicknessPrice)}</div>`);
+        }
+        if (hardUnbind) {
+          breakdown.push(`<div><strong>Rozszycie:</strong> ${formatPLN(hardUnbindPrice)}</div>`);
+        }
+        if (hardResew) {
+          breakdown.push(`<div><strong>Ponowne zszycie:</strong> ${formatPLN(hardResewPrice)}</div>`);
+        }
+        if (cdBurn) {
+          breakdown.push(`<div><strong>Nagrywanie płyty:</strong> ${formatPLN(cdPrice)}</div>`);
+        }
+        
+        const baseWithAddons = parseFloat(((unitPrice * qty + extraThicknessPrice + hardUnbindPrice + hardResewPrice + cdPrice)).toFixed(2));
+        breakdown.push(`<div><strong>Cena bazowa:</strong> ${qty} × ${formatPLN(unitPrice)} + dopłaty = ${formatPLN(baseWithAddons)}</div>`);
+        
+        if (ctx.expressMode) {
+          const expressAmount = parseFloat((baseWithAddons * 0.20).toFixed(2));
+          breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(baseWithAddons)} = ${formatPLN(expressAmount)}</div>`);
+        }
+        
+        breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(total)}</div>`);
+        oprBreakdownLines.innerHTML = breakdown.join("");
+        oprBreakdown.style.display = "block";
+      }
 
       ctx.updateLastCalculated(total, "Oprawy");
     };
@@ -1104,11 +1180,11 @@ export const LaminowanieView: View = {
       if (introBreakdown && introBreakdownLines) {
         introBreakdown.style.display = "block";
         introBreakdownLines.innerHTML = [
-          `<div>Usługa: ${result.serviceName}</div>`,
-          `<div>Ilość operacji: ${result.qty}</div>`,
-          `<div>Cena jednostkowa: ${formatPLN(unitPrice)}</div>`,
-          `<div>Cena bazowa: ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}</div>`,
-          `<div>Razem: ${formatPLN(result.totalPrice)}</div>`
+          `<div><strong>Usługa:</strong> ${result.serviceName}</div>`,
+          `<div><strong>Ilość operacji:</strong> ${result.qty}</div>`,
+          `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
+          `<div><strong>Cena bazowa:</strong> ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}</div>`,
+          `<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`
         ].join("");
       }
 
