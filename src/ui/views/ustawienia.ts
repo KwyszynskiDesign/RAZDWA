@@ -197,7 +197,6 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-intro-gilotyna": "Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)",
   "laminowanie-intro-trymer": "Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)",
   "laminowanie-intro-dziurkowanie-powyzej-20": "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
-  "laminowanie-intro-druk-powyzej-20": "Introligatornia – usługi jednostkowe • Wydruk dodatkowych kartek powyżej 20 szt. w zamówieniu (za 1 kartkę)",
   "laminowanie-intro-zszywanie": "Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)",
   "laminowanie-intro-broszurowanie": "Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)",
   "laminowanie-intro-bigowanie": "Introligatornia – usługi jednostkowe • Bigowanie (za 1 big)",

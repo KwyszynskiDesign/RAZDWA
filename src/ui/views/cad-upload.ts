@@ -526,6 +526,27 @@ export const CadUploadView: View = {
       if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? '' : 'none';
       if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? '' : 'none';
 
+      // Update skan/skladanie monitor
+      const cadExtrasMonitor = container.querySelector<HTMLElement>("#cadExtrasMonitor");
+      const monitorSkanSum = container.querySelector<HTMLElement>("#monitorSkanSum");
+      const monitorSkladanieSum = container.querySelector<HTMLElement>("#monitorSkladanieSum");
+      const totalSkanDisplay = totalScanColorVariant;
+      let totalSkladanieDisplay = totalFoldingColorVariant;
+      // Add extra services folding totals
+      if (optKlientSkladanie?.checked) {
+        const qty = parseInt(cadUploadKlientSkladanieQty?.value || '0', 10);
+        totalSkladanieDisplay += resolveStoredPrice('cad-klient-skladanie', 4.0) * qty;
+      }
+      if (optNieformatoweSkladanie?.checked) {
+        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || '0').replace(',', '.'));
+        totalSkladanieDisplay += resolveStoredPrice('cad-nieformatowe-skladanie', 2.5) * qty;
+      }
+      if (cadExtrasMonitor) {
+        cadExtrasMonitor.style.display = (files.length > 0 && (totalSkanDisplay > 0 || totalSkladanieDisplay > 0)) ? 'flex' : 'none';
+      }
+      if (monitorSkanSum) monitorSkanSum.textContent = formatPLN(totalSkanDisplay);
+      if (monitorSkladanieSum) monitorSkladanieSum.textContent = formatPLN(totalSkladanieDisplay);
+
       if (summaryGrid) {
         summaryGrid.innerHTML = `
           ${files.length > 0 ? `
