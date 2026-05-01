@@ -197,7 +197,6 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-intro-gilotyna": "Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)",
   "laminowanie-intro-trymer": "Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)",
   "laminowanie-intro-dziurkowanie-powyzej-20": "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
-  "laminowanie-intro-druk-powyzej-20": "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
   "laminowanie-intro-zszywanie": "Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)",
   "laminowanie-intro-broszurowanie": "Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)",
   "laminowanie-intro-bigowanie": "Introligatornia – usługi jednostkowe • Bigowanie (za 1 big)",
@@ -214,6 +213,23 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-kanalowa-bez-napisu": "Oprawa kanałowa dyplomowa – bez napisu",
   "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – wkarta okładka",
   "laminowanie-oprawa-zaciskowa-miekka": "Oprawa zaciskowa (miękka)",
+  // Bindowanie
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – 1–50 stron – Plastik listwa",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – 1–50 stron – Plastik spirala",
+  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – 1–50 stron – Plastik 21–100",
+  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – 1–50 stron – Plastik 100+",
+  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – 51–100 stron – Plastik 20",
+  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – 51–100 stron – Plastik 21–100",
+  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – 51–100 stron – Plastik 100+",
+  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – 101–200 stron – Plastik 20",
+  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – 101–200 stron – Plastik 21–100",
+  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – 101–200 stron – Plastik 100+",
+  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – 1–50 stron – Metal 40",
+  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – 1–50 stron – Metal 80",
+  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – 1–50 stron – Metal 120",
+  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – 51–100 stron – Metal 40",
+  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – 51–100 stron – Metal 80",
+  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – 51–100 stron – Metal 120",
   "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana/skręcana – zbijane, dokumentacja drukowana u nas (za 5 cm)",
   "laminowanie-oprawa-skrecane-printed-here": "Oprawa zbijana/skręcana – skręcane, dokumentacja drukowana u nas (za 5 cm)",
   "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana/skręcana – zbijane, dokumentacja dostarczona przez klienta (za 5 cm)",
@@ -600,6 +616,14 @@ function getPriceLabel(key: string): string {
 }
 
 function getProductGroupLabel(label: string): string {
+  // For bindowanie, group by material type (Plastik, Metal)
+  if (label.startsWith("Bindowanie")) {
+    const match = label.match(/Bindowanie – .+ – (Plastik|Metal)/);
+    if (match) {
+      return `Bindowanie – ${match[1]}`;
+    }
+  }
+
   return label
     .replace(/\s+[–-]\s+\d[\d\s]*(?:[–-]\d[\d\s]*|\+)?\s*(szt\.?|str\.?|stron)\.?$/i, "")
     .trim();
@@ -645,7 +669,6 @@ function getLaminowanieSectionTitle(key: string): string {
   if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-")) return "OPRAWA ZBIJANA / SKRĘCANA";
   if (key.startsWith("laminowanie-oprawa-twarda-")) return "OPRAWY TWARDE";
   if (key.startsWith("laminowanie-bindowanie-")) return "BINDOWANIE";
-  if (key.startsWith("laminowanie-special-")) return "POJEDYNCZE NAKŁADY";
 
   return "LAMINOWANIE";
 }
@@ -1664,7 +1687,7 @@ export const UstawieniaView: View = {
         }
 
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "laminowanie" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
