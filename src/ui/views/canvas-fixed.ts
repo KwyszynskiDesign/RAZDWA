@@ -45,8 +45,6 @@ export const CanvasView: View = {
     const legendFramedRows = container.querySelector("#cv-legend-framed-rows") as HTMLElement | null;
     const legendUnframedRows = container.querySelector("#cv-legend-unframed-rows") as HTMLElement | null;
     const legendNote = container.querySelector("#cv-legend-note") as HTMLElement | null;
-    const priceTiersEl = container.querySelector("#cv-price-tiers") as HTMLElement;
-    const breakdownDisplay = container.querySelector("#cv-breakdown") as HTMLElement;
 
     let currentOptions: CanvasOptions | null = null;
     let currentResult: CanvasResult | null = null;
@@ -148,6 +146,11 @@ export const CanvasView: View = {
         addBtn.disabled = true;
         return;
       }
+      if (modeSel.value !== "m2-unframed" && !formatSel.value) {
+        if (resultEl) resultEl.style.display = "none";
+        addBtn.disabled = true;
+        return;
+      }
       const options: CanvasOptions = {
         modeId: modeSel.value as CanvasOptions["modeId"],
         formatId: formatSel.value,
@@ -168,12 +171,22 @@ export const CanvasView: View = {
       if (resultEl) resultEl.style.display = "block";
       totalEl.innerText = formatPLN(result.totalPrice);
       unitEl.innerText = formatPLN(result.tierPrice);
-      if (tierHintEl) tierHintEl.innerText = `${Math.max(1, options.quantity)} szt × ${formatPLN(result.tierPrice)}`;
+      if (tierHintEl) tierHintEl.innerText = `Cena jednostkowa: ${formatPLN(result.tierPrice)}`;
       if (expressHintEl) expressHintEl.style.display = options.express ? "block" : "none";
 
       if (breakdownEl && breakdownLinesEl) {
         breakdownEl.style.display = "block";
-        breakdownLinesEl.innerHTML = `<div>Cena zależy od trybu, formatu/wymiarów, ilości i ewentualnej dopłaty EXPRESS.</div>`;
+        const lines: string[] = [
+          `<div>Tryb: ${result.modeLabel}</div>`,
+          `<div>Format: ${result.formatLabel}</div>`,
+          `<div>Ilość: ${Math.max(1, options.quantity)} szt</div>`,
+          `<div>Cena jednostkowa: ${formatPLN(result.tierPrice)}</div>`,
+          `<div>Razem: ${formatPLN(result.totalPrice)}</div>`
+        ];
+        if (options.modeId === "m2-unframed" && typeof result.areaM2 === "number") {
+          lines.splice(3, 0, `<div>Powierzchnia: ${result.areaM2.toFixed(2)} m²</div>`);
+        }
+        breakdownLinesEl.innerHTML = lines.join("");
       }
 
       addBtn.disabled = false;

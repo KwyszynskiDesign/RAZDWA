@@ -318,12 +318,18 @@ export const PlakatyView: View = {
       const variantId = resolveDuzyCanonVariantId();
       const finish = resolveDuzyCanonFinishLabel();
       const res = calculatePlakatyDuzyCanon({ variantId, qty, express: ctx.expressMode });
+      const trimSurcharge = getTrimSurcharge();
+      const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
 
-      currentResult = res;
-      currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish };
+      currentResult = {
+        ...res,
+        totalPrice: totalWithTrim,
+        trimSurcharge,
+      };
+      currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, trimSurcharge };
 
       unitPriceEl.innerText = formatPLN(res.tierPrice);
-      totalPriceEl.innerText = formatPLN(res.totalPrice);
+      totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
         discountRow.style.display = "none";
@@ -331,6 +337,26 @@ export const PlakatyView: View = {
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${res.variantName}, ${finish}`;
+
+      if (calcHintEl) {
+        if (trimSurcharge > 0) {
+          const trimParts: string[] = [];
+          if (trim2Checkbox?.checked) {
+            const qty = parsePositiveInt(trim2QtyInput?.value) || 1;
+            trimParts.push(`${qty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(qty * 1)}`);
+          }
+          if (trim4Checkbox?.checked) {
+            const qty = parsePositiveInt(trim4QtyInput?.value) || 1;
+            trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
+          }
+          calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
+          calcHintEl.style.display = "block";
+        } else {
+          calcHintEl.style.display = "none";
+          calcHintEl.innerText = "";
+        }
+      }
+
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
 
       resultBox.style.display = "block";
@@ -354,11 +380,12 @@ export const PlakatyView: View = {
       }
       
       try { calcWielkoformatowe(); } catch {}
+      try { calcDuzyCanon(); } catch {}
     };
     trim2Checkbox?.addEventListener("change", recalcForTrimChange);
     trim4Checkbox?.addEventListener("change", recalcForTrimChange);
-    trim2QtyInput?.addEventListener("input", () => { try { calcWielkoformatowe(); } catch {} });
-    trim4QtyInput?.addEventListener("input", () => { try { calcWielkoformatowe(); } catch {} });
+    trim2QtyInput?.addEventListener("input", () => { try { calcWielkoformatowe(); } catch {} try { calcDuzyCanon(); } catch {} });
+    trim4QtyInput?.addEventListener("input", () => { try { calcWielkoformatowe(); } catch {} try { calcDuzyCanon(); } catch {} });
 
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
@@ -379,7 +406,8 @@ export const PlakatyView: View = {
           payload: currentResult,
         });
       } else if (currentOptions.type === "duzy-canon") {
-        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
 
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,

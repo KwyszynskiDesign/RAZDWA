@@ -47,7 +47,7 @@ export const PlakatyA4A3View: View = {
     const duzyCanonTrim4QtyInput = container.querySelector("#pa-duzy-canon-trim-4-qty") as HTMLInputElement | null;
 
     const addBtn = container.querySelector("#pa-add-to-cart") as HTMLButtonElement;
-    const resultBox = container.querySelector("#pa-result-display") as HTMLElement;
+    const resultBox = container.querySelector("#pa-result-area") as HTMLElement;
     const unitPriceEl = container.querySelector("#pa-unit-price") as HTMLElement;
     const totalPriceEl = container.querySelector("#pa-total-price") as HTMLElement;
     const discountRow = container.querySelector("#pa-discount-row") as HTMLElement | null;

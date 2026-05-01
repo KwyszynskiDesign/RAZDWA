@@ -35,14 +35,15 @@ export const WydrukiSpecjalneView: View = {
     const specialZapFolded = container.querySelector("#special-zap-folded") as HTMLInputElement | null;
     const specialZapPaper = container.querySelector("#special-zap-paper") as HTMLSelectElement | null;
     const specialAddBtn = container.querySelector("#special-add-to-cart") as HTMLButtonElement | null;
-    const specialResultDisplay = container.querySelector("#special-result-display") as HTMLElement | null;
-    const specialUnitPrice = container.querySelector("#special-unit-price") as HTMLElement | null;
-    const specialTotalPrice = container.querySelector("#special-total-price") as HTMLElement | null;
-    const specialExpressHint = container.querySelector("#special-express-hint") as HTMLElement | null;
+    const specialResultArea = container.querySelector("#specialResult") as HTMLElement | null;
+    const specialUnitPrice = container.querySelector("#special-unit") as HTMLElement | null;
+    const specialTotalPrice = container.querySelector("#special-total") as HTMLElement | null;
+    const specialTierHint = container.querySelector("#specialTierHint") as HTMLElement | null;
+    const specialExpressHint = container.querySelector("#specialExpressHint") as HTMLElement | null;
+    const specialBreakdown = container.querySelector("#specialBreakdown") as HTMLElement | null;
+    const specialBreakdownLines = container.querySelector("#specialBreakdownLines") as HTMLElement | null;
     const specialLegendDyplom = container.querySelector("#special-legend-dyplom") as HTMLElement | null;
     const specialLegendZap = container.querySelector("#special-legend-zap") as HTMLElement | null;
-    const specialBreakdown = container.querySelector("#special-breakdown") as HTMLElement | null;
-    const specialBreakdownLines = container.querySelector("#special-breakdown-lines") as HTMLElement | null;
 
     const dyplomyTiers = (getPrice("dyplomy") as Array<{ qty: number; price: number }>) ?? [];
     const zaproszeniaData = getPrice("zaproszeniaKreda") as any;
@@ -88,13 +89,13 @@ export const WydrukiSpecjalneView: View = {
     const performCalculation = () => {
       if (!specialVariant || !specialQty || !specialDouble) return;
       if (!specialVariant.value) {
-        if (specialResultDisplay) specialResultDisplay.style.display = "none";
+        if (specialResultArea) specialResultArea.style.display = "none";
         if (specialAddBtn) specialAddBtn.disabled = true;
         clearBreakdown();
         return;
       }
       if (!specialQty.value) {
-        if (specialResultDisplay) specialResultDisplay.style.display = "none";
+        if (specialResultArea) specialResultArea.style.display = "none";
         if (specialAddBtn) specialAddBtn.disabled = true;
         clearBreakdown();
         return;
@@ -208,7 +209,7 @@ export const WydrukiSpecjalneView: View = {
       if (specialUnitPrice) specialUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
       if (specialTotalPrice) specialTotalPrice.innerText = formatPLN(result.totalPrice);
       if (specialExpressHint) specialExpressHint.style.display = ctx.expressMode ? "block" : "none";
-      if (specialResultDisplay) specialResultDisplay.style.display = "block";
+      if (specialResultArea) specialResultArea.style.display = "block";
       if (specialAddBtn) specialAddBtn.disabled = false;
 
       ctx.updateLastCalculated(result.totalPrice, "Wydruki specjalne");

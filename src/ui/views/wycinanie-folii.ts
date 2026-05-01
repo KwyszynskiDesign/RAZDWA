@@ -31,12 +31,11 @@ export const WycinanieFoliiView: View = {
     const foilTypeCheckboxes = container.querySelectorAll(".wf-foil-type") as NodeListOf<HTMLInputElement>;
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
-    const resultEl = container.querySelector("#wf-result") as HTMLElement;
-    const breakdownDisplay = container.querySelector("#wf-breakdown") as HTMLElement;
-    const areaEl = container.querySelector("#wf-area") as HTMLElement | null;
+    const resultEl = container.querySelector("#wfResult") as HTMLElement;
+    const breakdownDisplay = container.querySelector("#wfBreakdownHint") as HTMLElement;
     const unitEl = container.querySelector("#wf-unit") as HTMLElement | null;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
-    const expressEl = container.querySelector("#wf-express") as HTMLElement | null;
+    const expressEl = container.querySelector("#wfExpressHint") as HTMLElement | null;
     const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
     const legendKolorowaBelowEl = container.querySelector("#wf-legend-kolorowa-below") as HTMLElement | null;
     const legendKolorowaAboveEl = container.querySelector("#wf-legend-kolorowa-above") as HTMLElement | null;
@@ -132,14 +131,13 @@ export const WycinanieFoliiView: View = {
         : (defaultPrices?.[`wycinanie-folii-${variantId}`] ?? (variantId === "zloto-srebro" ? 150 : 125));
       const colorLabel = color ?? "-";
 
-      if (areaEl) areaEl.innerText = `${areaM2.toFixed(2)} m2`;
       if (unitEl) unitEl.innerText = formatPLN(result.tierPrice);
       totalEl.innerText = formatPLN(result.totalPrice);
       if (expressEl) expressEl.style.display = options.express ? "block" : "none";
-      if (resultEl) resultEl.style.display = "block";
       if (breakdownDisplay) {
         breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${appliedRate.toFixed(2)} zł/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
       }
+      if (resultEl) resultEl.style.display = "block";
       addBtn.disabled = false;
 
       currentOptions = {

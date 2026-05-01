@@ -343,12 +343,15 @@
       <button id="lam-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
 
-    <div style="padding: 15px; background: #2a2a2a; border-radius: 8px; margin: 20px 0;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="color: #999;">Cena całkowita:</span>
-        <strong id="lam-total-price" style="font-size: 24px; color: #667eea;">0.00 zł</strong>
-      </div>
-      <p id="lam-breakdown" style="color: #666; font-size: 12px; margin: 10px 0 0 0;"></p>
+    <div id="lamResult" class="result-area" style="display:none; margin-top: 20px;">
+      <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="lam-total-price">0.00</span></div>
+      <div class="price-line">Cena za szt: <span id="lam-unit-price">0.00</span></div>
+      <div id="lamTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+    </div>
+
+    <div id="lamBreakdown" class="card" style="display: none; margin-top: 16px;">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+      <div id="lamBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
   </div>
 </div>
@@ -404,21 +407,15 @@
     <div class="form-actions">
       <button id="bind-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
-    <div id="bind-result-display" class="lam-result-box" style="display:none">
-      <div class="lam-result-line">
-        <span>SUMA ZA WSZYSTKO:</span>
-        <span id="bind-total-price" class="lam-total-price">-</span>
-      </div>
-      <div id="bind-counted-line" class="lam-counted-line"></div>
-      <!-- PROCES OBLICZANIA -->
-      <div class="lam-calc-box">
-        <div class="lam-calc-title">Proces obliczania</div>
-        <div class="lam-calc-details"></div>
-      </div>
-      <div class="lam-result-line">
-        <span>Cena jednostkowa:</span>
-        <span id="bind-unit-price" class="lam-unit-price">-</span>
-      </div>
+    <div id="bindResult" class="result-area" style="display:none; margin-top: 20px;">
+      <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="bind-total-price">0.00</span></div>
+      <div class="price-line">Cena za szt: <span id="bind-unit-price">0.00</span></div>
+      <div id="bindTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+    </div>
+
+    <div id="bindBreakdown" class="card" style="display: none; margin-top: 16px;">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+      <div id="bindBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
   </div>
 </div>
@@ -538,22 +535,16 @@
     <div class="form-actions">
       <button id="opr-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
     </div>
-    <div id="opr-result-display" class="lam-result-box" style="display:none">
-      <div class="lam-result-line">
-        <span>SUMA ZA WSZYSTKO:</span>
-        <span id="opr-total-price" class="lam-total-price">-</span>
-      </div>
-      <div id="opr-counted-line" class="lam-counted-line"></div>
-      <!-- PROCES OBLICZANIA -->
-      <div class="lam-calc-box">
-        <div class="lam-calc-title">Proces obliczania</div>
-        <div class="lam-calc-details"></div>
-      </div>
-      <div class="lam-result-line">
-        <span>Cena jednostkowa:</span>
-        <span id="opr-unit-price" class="lam-unit-price">-</span>
-      </div>
-      <div id="opr-express-hint" class="lam-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+    <div id="oprResult" class="result-area" style="display:none; margin-top: 20px;">
+      <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="opr-total-price">0.00</span></div>
+      <div class="price-line">Cena za szt: <span id="opr-unit-price">0.00</span></div>
+      <div id="oprTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+      <div id="opr-express-hint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+    </div>
+
+    <div id="oprBreakdown" class="card" style="display: none; margin-top: 16px;">
+      <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+      <div id="oprBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
     </div>
 
     <div class="opr-info-table-wrap cennik-table pricing-legend is-hidden" id="opr-zbijane-info-wrap">
@@ -605,8 +596,8 @@
       <input type="number" id="intro-qty" min="1" placeholder="ilość" inputmode="numeric">
     </div>
 
-    <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
-      <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
+    <div id="price-tiers" style=" padding: 15px; border-radius: 8px; margin: 20px 0;">
+      <h4 style="color: #22c55e; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
       <div id="intro-price-tiers" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color: #ccc;"></div>
     </div>
 
