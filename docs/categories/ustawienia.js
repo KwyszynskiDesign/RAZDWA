@@ -287,7 +287,57 @@ const DEFAULT_PRICES = {
   "modifier-express-vouchery": 0.30,
   "modifier-vouchery-dwustronne": 0.80,
   "modifier-vouchery-300g": 0.25,
-};
+  // === ARTYKUŁY BIUROWE ===
+  "artykuly-teczka-biala-gumka": 4.00,
+  "artykuly-teczka-niebieska-twarda": 15.00,
+  "artykuly-teczka-kolor-gumka": 5.50,
+  "artykuly-teczka-biala-wiezanka": 5.00,
+  "artykuly-skoroszyt-durable": 10.00,
+  "artykuly-skoroszyt-wasm": 4.50,
+  "artykuly-skoroszyt-wasm-wpinanie": 4.50,
+  "artykuly-segregator-7cm": 13.00,
+  "artykuly-koszulka-dokumenty": 0.80,
+  "artykuly-papier-ryza-a4": 19.00,
+  "artykuly-papier-ryza-a3": 36.00,
+  "artykuly-dugopis": 6.00,
+  "artykuly-olowek": 4.00,
+  "artykuly-pendrive-32gb": 28.00,
+  "artykuly-pendrive-4gb": 22.00,
+  "artykuly-koperta-zwykla": 0.65,
+  "artykuly-koperta-rozszerzona": 3.00,
+  "artykuly-koperta-wysylkowa": 3.00,
+  "artykuly-koperta-ozdobna": 1.40,
+  "artykuly-pudelko-pakowe-80": 4.50,
+  "artykuly-pudelko-pakowe-100": 5.00,
+  "artykuly-pudelko-pakowe-120": 6.00,
+  "artykuly-plyty-cd": 3.20,
+  "artykuly-plyty-dvd": 5.20,
+  "koperty-a": 0.00,
+  "koperty-b": 0.00,
+  "koperty-c": 0.00,
+  "koperty-d": 0.00,
+  "koperty-e": 0.00,
+  "koperty-f": 0.00,
+  "koperty-g": 0.00,
+  // === USŁUGI ===
+  "uslugi-formatowanie": 65.00,
+  "uslugi-archiwizacja-cd": 5.00,
+  "uslugi-archiwizacja-dvd": 7.00,
+  "uslugi-scalanie-1-9": 7.00,
+  "uslugi-scalanie-9-19": 12.00,
+  "uslugi-scalanie-20+": 20.00,
+  "uslugi-poprawki-graficzne": 65.00,
+  "uslugi-grafika-baner-prosty": 160.00,
+  "uslugi-grafika-baner-zlozony": 250.00,
+  "uslugi-grafika-wizytowka-jednostronna": 120.00,
+  "uslugi-grafika-wizytowka-dwustronna": 180.00,
+  "uslugi-grafika-ulotka-jednostronna": 150.00,
+  "uslugi-grafika-ulotka-dwustronna": 210.00,
+  "uslugi-grafika-logotyp": 550.00,
+  "uslugi-pakiet-prosty": 349.00,
+  "uslugi-pakiet-zlozony": 449.00,
+  "uslugi-social-media-1-projekt": 80.00,
+  "uslugi-social-media-3-projekty": 190.00,
 
 // === DEFINICJA KATEGORII ===
 const CATEGORIES = {
@@ -350,6 +400,18 @@ const CATEGORIES = {
   "modyfikatory": {
     label: "⚙️ Modyfikatory globalne",
     prefixes: ["modifier-"]
+  },
+  "artykuly-biurowe": {
+    label: "📎 Artykuły Biurowe",
+    prefixes: ["artykuly-", "koperty-"]
+  },
+  "uslugi": {
+    label: "🛠️ Usługi",
+    prefixes: ["uslugi-"]
+  },
+  "zaproszenia": {
+    label: "💌 Zaproszenia",
+    prefixes: ["zaproszenia-"]
   },
   "wszystkie": {
     label: "📋 Wszystkie",
@@ -477,6 +539,101 @@ function getPriceKeyDescription(key) {
   m = key.match(/^laminowanie-([aA]\d)-(\d+)\+$/);
   if (m) {
     return `Laminowanie na gorąco ${m[1].toUpperCase()} • zakres ilości: od ${m[2]} szt.`;
+  }
+
+  // === ARTYKUŁY BIUROWE ===
+  const artykulyBiuroweMap = {
+    'artykuly-teczka-biala-gumka': 'Artykuły Biurowe • Teczki • Teczka biała z gumką',
+    'artykuly-teczka-niebieska-twarda': 'Artykuły Biurowe • Teczki • Teczka niebieska twarda',
+    'artykuly-teczka-kolor-gumka': 'Artykuły Biurowe • Teczki • Teczka KOLOR z gumką',
+    'artykuly-teczka-biala-wiezanka': 'Artykuły Biurowe • Teczki • Teczka biała z wiązanką',
+    'artykuly-skoroszyt-durable': 'Artykuły Biurowe • Skoroszyt • Skoroszyt DURABLE',
+    'artykuly-skoroszyt-wasm': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem',
+    'artykuly-skoroszyt-wasm-wpinanie': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem do wpinania',
+    'artykuly-segregator-7cm': 'Artykuły Biurowe • Segregatory i akcesoria • SEGREGATOR 7 cm',
+    'artykuly-koszulka-dokumenty': 'Artykuły Biurowe • Segregatory i akcesoria • KOSZULKA na dokumenty',
+    'artykuly-papier-ryza-a4': 'Artykuły Biurowe • Segregatory i akcesoria • Papier RYZA A4',
+    'artykuly-papier-ryza-a3': 'Artykuły Biurowe • Segregatory i akcesoria • Papier RYZA A3',
+    'artykuly-dugopis': 'Artykuły Biurowe • Artykuły piszące • Długopis',
+    'artykuly-olowek': 'Artykuły Biurowe • Artykuły piszące • Ołówek',
+    'artykuly-pendrive-32gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 32GB',
+    'artykuly-pendrive-4gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 4GB',
+    'artykuly-koperta-zwykla': 'Artykuły Biurowe • Koperty • KOPERTY zwykłe',
+    'artykuly-koperta-rozszerzona': 'Artykuły Biurowe • Koperty • Koperta rozszerzona',
+    'artykuly-koperta-wysylkowa': 'Artykuły Biurowe • Koperty • Koperta wysyłkowa',
+    'artykuly-koperta-ozdobna': 'Artykuły Biurowe • Koperty • KOPERTY ozdobne/V',
+    'artykuly-pudelko-pakowe-80': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 80cm',
+    'artykuly-pudelko-pakowe-100': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 100cm',
+    'artykuly-pudelko-pakowe-120': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 120cm',
+    'artykuly-plyty-cd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty CD',
+    'artykuly-plyty-dvd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty DVD',
+    'koperty-a': 'Artykuły Biurowe • Koperty • Koperta A',
+    'koperty-b': 'Artykuły Biurowe • Koperty • Koperta B',
+    'koperty-c': 'Artykuły Biurowe • Koperty • Koperta C',
+    'koperty-d': 'Artykuły Biurowe • Koperty • Koperta D',
+    'koperty-e': 'Artykuły Biurowe • Koperty • Koperta E',
+    'koperty-f': 'Artykuły Biurowe • Koperty • Koperta F',
+    'koperty-g': 'Artykuły Biurowe • Koperty • Koperta G'
+  };
+  if (artykulyBiuroweMap[key]) return artykulyBiuroweMap[key];
+
+  // === USŁUGI ===
+  const uslugiMap = {
+    'uslugi-formatowanie': 'Usługi • Usługi formatowania i obróbki plików • Formatowanie',
+    'uslugi-archiwizacja-cd': 'Usługi • Usługi formatowania i obróbki plików • Nagranie płyty CD-ROM',
+    'uslugi-archiwizacja-dvd': 'Usługi • Usługi formatowania i obróbki plików • Nagranie płyty DVD',
+    'uslugi-scalanie-1-9': 'Usługi • Scalanie i przetwarzanie plików • Scalanie/Nazwanie plików (1-9 plików)',
+    'uslugi-scalanie-9-19': 'Usługi • Scalanie i przetwarzanie plików • Scalanie/Nazwanie plików (9-19 plików)',
+    'uslugi-scalanie-20+': 'Usługi • Scalanie i przetwarzanie plików • Scalanie/Nazwanie plików (powyżej 20 plików)',
+    'uslugi-poprawki-graficzne': 'Usługi • Usługi graficzne • Poprawki graficzne pliku klienta',
+    'uslugi-grafika-baner-prosty': 'Usługi • Usługi graficzne • Przygotowanie graficzne BANERU/ROLLUP (prosty)',
+    'uslugi-grafika-baner-zlozony': 'Usługi • Usługi graficzne • Przygotowanie graficzne BANERU/ROLLUP (złożony)',
+    'uslugi-grafika-wizytowka-jednostronna': 'Usługi • Usługi graficzne • Przygotowanie graficzne WIZYTÓWKI (jednostronna)',
+    'uslugi-grafika-wizytowka-dwustronna': 'Usługi • Usługi graficzne • Przygotowanie graficzne WIZYTÓWKI (dwustronna)',
+    'uslugi-grafika-ulotka-jednostronna': 'Usługi • Usługi graficzne • Przygotowanie graficzne ULOTKI (jednostronna)',
+    'uslugi-grafika-ulotka-dwustronna': 'Usługi • Usługi graficzne • Przygotowanie graficzne ULOTKI (dwustronna)',
+    'uslugi-grafika-logotyp': 'Usługi • Usługi graficzne • Przygotowanie graficzne LOGOTYPU (podstawowy)',
+    'uslugi-pakiet-prosty': 'Usługi • Pakiety graficzne • PAKIET PROSTY - wizytówka+ulotka+baner',
+    'uslugi-pakiet-zlozony': 'Usługi • Pakiety graficzne • PAKIET ZŁOŻONY - wizytówka+ulotka+baner',
+    'uslugi-social-media-1-projekt': 'Usługi • Grafika na SOCIAL MEDIA • Projekt grafik na SOCIAL MEDIA (1 projekt)',
+    'uslugi-social-media-3-projekty': 'Usługi • Grafika na SOCIAL MEDIA • Projekt grafik na SOCIAL MEDIA (3 projekty)'
+  };
+  if (uslugiMap[key]) return uslugiMap[key];
+
+  // === ZAPROSZENIA – ceny generowane dynamicznie z JSON ===
+  // KREDA: zaproszenia-{format}-{strony}-{fałdowanie}-{ilość}
+  // SATYNA: zaproszenia-satyna-{format}-{strony}-{fałdowanie}-{ilość}
+  // Przykłady: zaproszenia-a5-single-normal-10, zaproszenia-satyna-a5-double-folded-24, itp.
+  m = key.match(/^zaproszenia-satyna-([aA]\d)-([a-z]+)-([a-z]+)-(\d+)$/);
+  if (m) {
+    const [, format, sides, fold, qty] = m;
+    const formatName = {
+      'A6': 'A6 (105×148 mm)',
+      'a6': 'A6 (105×148 mm)',
+      'A5': 'A5 (148×210 mm)',
+      'a5': 'A5 (148×210 mm)',
+      'DL': 'DL (99×210 mm)',
+      'dl': 'DL (99×210 mm)'
+    }[format] || format;
+    const sideLabel = sides === 'single' ? 'jednokierunkowe' : 'dwustronne';
+    const foldLabel = fold === 'folded' ? 'składane' : 'nieskładane';
+    return `ZAPROSZENIA SATYNA • ${formatName} • ${sideLabel} • ${foldLabel} • ${qty} szt.`;
+  }
+
+  m = key.match(/^zaproszenia-([aA]\d)-([a-z]+)-([a-z]+)-(\d+)$/);
+  if (m && !key.includes('-satyna-')) {
+    const [, format, sides, fold, qty] = m;
+    const formatName = {
+      'A6': 'A6 (105×148 mm)',
+      'a6': 'A6 (105×148 mm)',
+      'A5': 'A5 (148×210 mm)',
+      'a5': 'A5 (148×210 mm)',
+      'DL': 'DL (99×210 mm)',
+      'dl': 'DL (99×210 mm)'
+    }[format] || format;
+    const sideLabel = sides === 'single' ? 'jednokierunkowe' : 'dwustronne';
+    const foldLabel = fold === 'folded' ? 'składane' : 'nieskładane';
+    return `ZAPROSZENIA KREDA • ${formatName} • ${sideLabel} • ${foldLabel} • ${qty} szt.`;
   }
 
   return '';
@@ -637,6 +794,12 @@ function getBannerGroupTitle(key) {
   if (key.startsWith('banner-blockout-')) return 'BLOCKOUT';
   if (key.startsWith('banner-powlekany-')) return 'POWLEKANY';
   if (key === 'banner-oczkowanie') return 'OCZKOWANIE';
+  return '';
+}
+
+function getZaproszeniaGroupTitle(key) {
+  if (key.startsWith('zaproszenia-satyna-')) return 'ZAPROSZENIA SATYNA';
+  if (key.startsWith('zaproszenia-') && !key.includes('-satyna-')) return 'ZAPROSZENIA KREDA';
   return '';
 }
 
@@ -822,6 +985,7 @@ function updateTable() {
   let lastFoliaGroup = '';
   let lastDrukA4A3Group = '';
   let lastBannerGroup = '';
+  let lastZaproszeniaGroup = '';
 
   filteredKeys.forEach((key) => {
     if (currentCategory === 'laminowanie') {
@@ -869,6 +1033,18 @@ function updateTable() {
           </tr>
         `);
         lastBannerGroup = groupTitle;
+      }
+    }
+
+    if (currentCategory === 'zaproszenia') {
+      const groupTitle = getZaproszeniaGroupTitle(key);
+      if (groupTitle && groupTitle !== lastZaproszeniaGroup) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastZaproszeniaGroup = groupTitle;
       }
     }
 

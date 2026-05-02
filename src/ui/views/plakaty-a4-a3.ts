@@ -424,8 +424,22 @@ export const PlakatyA4A3View: View = {
 
     duzyCanonTrim2Checkbox?.addEventListener("change", recalcForDuzyTrimChange);
     duzyCanonTrim4Checkbox?.addEventListener("change", recalcForDuzyTrimChange);
-    duzyCanonTrim2QtyInput?.addEventListener("input", recalcForDuzyTrimChange);
-    duzyCanonTrim4QtyInput?.addEventListener("input", recalcForDuzyTrimChange);
+    duzyCanonTrim2QtyInput?.addEventListener("input", () => {
+      const duzyQty = parsePositiveInt(duzyCanonQtyInput.value);
+      if (duzyQty) {
+        try {
+          calcDuzyCanon(duzyQty);
+        } catch {}
+      }
+    });
+    duzyCanonTrim4QtyInput?.addEventListener("input", () => {
+      const duzyQty = parsePositiveInt(duzyCanonQtyInput.value);
+      if (duzyQty) {
+        try {
+          calcDuzyCanon(duzyQty);
+        } catch {}
+      }
+    });
     ensureLegend();
 
     addBtn.onclick = () => {
