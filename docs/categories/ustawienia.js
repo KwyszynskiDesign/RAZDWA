@@ -1041,29 +1041,45 @@ function updateTable() {
       if (groupTitle && groupTitle !== lastZaproszeniaGroup) {
         rows.push(`
           <tr>
-            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+            <td colspan="3" style="padding: 6px 8px 5px; font-size: 10px; font-weight: 800; letter-spacing: 0.03em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
           </tr>
         `);
         lastZaproszeniaGroup = groupTitle;
       }
     }
 
+    const zaproszStyle = currentCategory === 'zaproszenia' 
+      ? 'padding: 3px 6px; font-size: 10px;' 
+      : 'padding: 6px 10px;';
+    const zaproszInputStyle = currentCategory === 'zaproszenia'
+      ? 'width: 100%; border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-size: 11px; font-family: monospace; background: var(--surface); color: var(--text-primary);'
+      : 'width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: monospace; background: var(--surface); color: var(--text-primary);';
+    const zaproszNumberStyle = currentCategory === 'zaproszenia'
+      ? 'width: 80px; border: 1px solid var(--border); border-radius: 4px; padding: 4px 6px; font-size: 12px; background: var(--surface); color: var(--text-primary);'
+      : 'width: 120px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);';
+    const zaproszLabelSize = currentCategory === 'zaproszenia'
+      ? '9px'
+      : '11px';
+    const zaproszButtonSize = currentCategory === 'zaproszenia'
+      ? '14px'
+      : '18px';
+
     rows.push(`
       <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''} ${currentCategory === 'banner' && getBannerGroupTitle(key) === 'BLOCKOUT' ? 'font-weight: bold;' : ''}">
-        <td style="padding: 6px 10px;">
+        <td style="${zaproszStyle}">
           ${getPriceKeyDescription(key)
-            ? `<div style="font-size: 11px; color: var(--text-secondary); margin: 0 0 6px 0; line-height: 1.35;">${escAttr(getPriceKeyDescription(key))}</div>`
+            ? `<div style="font-size: ${zaproszLabelSize}; color: var(--text-secondary); margin: 0 0 ${currentCategory === 'zaproszenia' ? '3px' : '6px'} 0; line-height: 1.3;">${escAttr(getPriceKeyDescription(key))}</div>`
             : ''}
           <input value="${escAttr(key)}" data-key="${escAttr(key)}" data-field="key"
-            style="width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 13px; font-family: monospace; background: var(--surface); color: var(--text-primary);">
+            style="${zaproszInputStyle}">
         </td>
-        <td style="padding: 6px 10px;">
+        <td style="${zaproszStyle}">
           <input type="number" value="${Number(prices[key]).toFixed(2)}" step="0.01" min="0"
             data-key="${escAttr(key)}" data-field="unitPrice"
-            style="width: 120px; border: 1px solid var(--border); border-radius: 6px; padding: 6px 8px; font-size: 14px; background: var(--surface); color: var(--text-primary);">
+            style="${zaproszNumberStyle}">
         </td>
-        <td style="padding: 6px 10px; text-align: center;">
-          <button data-remove="${escAttr(key)}" title="Usuń" style="background: none; border: none; cursor: pointer; font-size: 18px; line-height: 1;">🗑️</button>
+        <td style="${zaproszStyle} text-align: center;">
+          <button data-remove="${escAttr(key)}" title="Usuń" style="background: none; border: none; cursor: pointer; font-size: ${zaproszButtonSize}; line-height: 1;">🗑️</button>
         </td>
       </tr>
     `);
