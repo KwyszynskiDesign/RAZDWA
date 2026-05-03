@@ -1,4 +1,16 @@
-﻿const CACHE_VERSION = 'razdwa-v202605021027';
+<<<<<<< HEAD
+﻿const CACHE_VERSION = 'razdwa-v202605031432';
+=======
+<<<<<<< HEAD
+﻿const CACHE_VERSION = 'razdwa-v202605031432';
+=======
+<<<<<<< HEAD
+﻿const CACHE_VERSION = 'razdwa-v202605031432';
+=======
+﻿const CACHE_VERSION = 'razdwa-v202605031432';
+>>>>>>> be43392 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
+>>>>>>> 1db19ff (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
+>>>>>>> 5af7c27 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
 
 self.addEventListener('install', (e) => {
   self.skipWaiting(); // Force new SW to activate immediately

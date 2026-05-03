@@ -8,6 +8,11 @@
 			"problemMatcher": [
 				"$tsc"
 			]
+		},
+		{
+			"label": "Finalize sync and push",
+			"type": "shell",
+			"command": "git add docs/categories/ustawienia.js docs/assets/app.js .vscode/tasks.json; git commit -m \"chore: compact zaproszenia settings rows\"; git pull --rebase origin main; git push origin main; git restore .vscode/tasks.json; git --no-pager status --short"
 		}
 	]
 }
