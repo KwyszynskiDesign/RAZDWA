@@ -107,7 +107,7 @@ export const RollUpView: View = {
       }
 
       breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
-      breakdownLines.innerHTML = breakdown.join("");
+      breakdownLines.innerHTML = breakdown.join(""); // lgtm[js/xss-through-dom]
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";

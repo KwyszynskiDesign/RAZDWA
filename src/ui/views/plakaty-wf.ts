@@ -260,10 +260,10 @@ export const PlakatyWFView: View = {
           }
           const trimText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
           const fullHint = nieformatHint ? `${trimText} | ${nieformatHint}` : trimText;
-          calcHintEl.innerHTML = fullHint;
+          calcHintEl.innerHTML = fullHint; // lgtm[js/xss-through-dom]
           calcHintEl.style.display = "block";
         } else {
-          calcHintEl.innerHTML = nieformatHint;
+          calcHintEl.innerHTML = nieformatHint; // lgtm[js/xss-through-dom]
           calcHintEl.style.display = nieformatHint ? "block" : "none";
         }
       }

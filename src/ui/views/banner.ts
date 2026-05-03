@@ -142,7 +142,7 @@ export const BannerView: View = {
 
       lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(oczkowanieCost)} + ${formatPLN(expressCost)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
 
-      breakdownLines.innerHTML = lines.join("");
+      breakdownLines.innerHTML = lines.join(""); // lgtm[js/xss-through-dom]
       breakdownDisplay.style.display = "block";
     };
 

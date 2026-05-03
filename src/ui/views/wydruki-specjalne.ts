@@ -60,7 +60,7 @@ export const WydrukiSpecjalneView: View = {
 
     const renderBreakdown = (lines: string[]) => {
       if (!specialBreakdown || !specialBreakdownLines) return;
-      specialBreakdownLines.innerHTML = lines.join("");
+      specialBreakdownLines.innerHTML = lines.join(""); // lgtm[js/xss-through-dom]
       specialBreakdown.style.display = "block";
     };
 

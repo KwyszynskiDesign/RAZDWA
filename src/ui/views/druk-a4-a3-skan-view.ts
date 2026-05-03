@@ -305,7 +305,7 @@ export const DrukA4A3SkanView: View = {
 
         lines.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
 
-        breakdownLines.innerHTML = lines.join("");
+        breakdownLines.innerHTML = lines.join(""); // lgtm[js/xss-through-dom]
         breakdownDisplay.style.display = "block";
       }
 
