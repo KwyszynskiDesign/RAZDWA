@@ -1428,6 +1428,21 @@ button.ghost:hover {
   text-transform: uppercase;
 }
 
+.settings-table tbody[data-category="zaproszenia"] .settings-section-row td {
+  padding: 7px 12px !important;
+  font-size: 11px;
+}
+
+.settings-table tbody[data-category="zaproszenia"] tr[data-key] td {
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+.settings-table tbody[data-category="zaproszenia"] .settings-product-label {
+  font-size: 12px;
+  line-height: 1.2;
+}
+
 .settings-th-price,
 .settings-td-price {
   width: 180px;
@@ -1452,6 +1467,12 @@ button.ghost:hover {
   text-align: right;
 }
 
+.settings-table tbody[data-category="zaproszenia"] .settings-input--price {
+  min-height: 34px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .settings-btn-del {
   width: 40px;
   min-width: 40px;
@@ -1461,6 +1482,13 @@ button.ghost:hover {
   border: 1px solid rgba(201, 42, 42, 0.35);
   background: rgba(201, 42, 42, 0.08);
   color: var(--danger);
+}
+
+.settings-table tbody[data-category="zaproszenia"] .settings-btn-del {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  font-size: 12px;
 }
 
 .settings-btn-del:hover {

@@ -239,14 +239,14 @@ const PRICE_LABELS: Record<string, string> = {
   // Bindowanie – format: TYP – ilość szt. (zgodnie z CSV)
   "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Listwa (plastik) do 20 kart. – 1–50 szt.",
   "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Spirala (plastik) do 20 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – Plastik 21–100 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – Plastik 100+ kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Listwa/Spirala (plastik) do 20 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – Plastik 21–100 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – Plastik 100+ kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Listwa/Spirala (plastik) do 20 kart. – 101–200 szt.",
-  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – Plastik 21–100 kart. – 101–200 szt.",
-  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – Plastik 100+ kart. – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – Spirala (plastik) 21–100 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – Spirala (plastik) 100+ kart. – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Spirala (plastik) do 20 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – Spirala (plastik) 21–100 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – Spirala (plastik) 100+ kart. – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Spirala (plastik) do 20 kart. – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – Spirala (plastik) 21–100 kart. – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – Spirala (plastik) 100+ kart. – 101–200 szt.",
   "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – Spirala metalowa do 40 kart. – 1–50 szt.",
   "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – Spirala metalowa do 80 kart. – 1–50 szt.",
   "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – Spirala metalowa do 120 kart. – 1–50 szt.",
@@ -743,17 +743,17 @@ function getLaminowanieSectionTitle(key: string): string {
   return "LAMINOWANIE";
 }
 
-function getBindowanieSubgroupTitle(key: string): string {
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) {
-    return "SPIRALA (PLASTIK)";
+export function getBindowanieSubgroupTitle(key: string): string {
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) {
+    return "PLASTIK LISTWA";
+  }
+
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-spirala)?|21-100|100plus)$/)) {
+    return "PLASTIK SPIRALA";
   }
 
   if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) {
-    return "METAL (SPIRALA METALOWA)";
-  }
-
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa)?|21-100|100plus)$/)) {
-    return "LISTWA / PLASTIK";
+    return "METAL SPIRALA";
   }
 
   return "";
@@ -1310,11 +1310,11 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   });
 }
 
-function sortLaminowanieCategoryKeys(keys: string[]): string[] {
+export function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   const getBindowanieSubgroupRank = (key: string): number => {
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa)?|21-100|100plus)$/)) return 0;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 1;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-spirala)?|21-100|100plus)$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 2;
     return 99;
   };
 
@@ -1324,13 +1324,13 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   };
 
   const getBindowanieVariantRank = (key: string): number => {
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-listwa)?$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-spirala)?$/)) return 0;
     if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 1;
     if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 2;
     if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return 0;
     if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return 1;
     if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return 2;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 0;
     return 99;
   };
 
@@ -1768,6 +1768,8 @@ export const UstawieniaView: View = {
 
       if (!tbody) return;
 
+      tbody.dataset.category = active.id;
+
       if (keys.length === 0) {
         tbody.innerHTML = `
           <tr>
@@ -1962,8 +1964,13 @@ export const UstawieniaView: View = {
           ? value.toFixed(2)
           : "";
 
+        const rowClasses = ["settings-price-row"];
+        if (active.id === "zaproszenia") {
+          rowClasses.push("settings-price-row--compact");
+        }
+
         rows.push(`
-        <tr data-key="${escapeHtml(key)}">
+          <tr data-key="${escapeHtml(key)}" class="${rowClasses.join(" ")}">
           <td class="settings-td-product">
             <span class="settings-product-label${useAltLabel ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
           </td>
