@@ -54,15 +54,35 @@ function loadPrices(): PriceMap {
   }
   const zaproszenia = getPrice("zaproszeniaKreda") as any;
   const formats = zaproszenia?.formats as Record<string, any> | undefined;
+  const satynaFormats = zaproszenia?.satynaFormats as Record<string, any> | undefined;
 
-  if (formats) {
-    Object.entries(formats).forEach(([formatKey, formatData]) => {
+  const normalizeFold = (fold: string): string => {
+    const f = String(fold).toLowerCase();
+    if (f === "folded") return "skladane";
+    return f;
+  };
+
+  const addZaproszeniaFormats = (
+    sourceFormats: Record<string, any> | undefined,
+    materialPrefix: "" | "satyna"
+  ) => {
+    if (!sourceFormats) return;
+
+    Object.entries(sourceFormats).forEach(([formatKey, formatData]) => {
       ["single", "double"].forEach((sidesKey) => {
-        ["normal", "skladane"].forEach((foldKey) => {
-          const tiers = formatData?.[sidesKey]?.[foldKey] as Record<string, number> | undefined;
-          if (!tiers) return;
+        const foldEntries = formatData?.[sidesKey] && typeof formatData[sidesKey] === "object"
+          ? Object.entries(formatData[sidesKey] as Record<string, any>)
+          : [];
+
+        foldEntries.forEach(([foldKey, tiersRaw]) => {
+          const tiers = tiersRaw as Record<string, number> | undefined;
+          if (!tiers || typeof tiers !== "object") return;
+
+          const normalizedFold = normalizeFold(foldKey);
           Object.entries(tiers).forEach(([qty, price]) => {
-            const key = `zaproszenia-${formatKey.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`;
+            const key = materialPrefix
+              ? `zaproszenia-${materialPrefix}-${formatKey.toLowerCase()}-${sidesKey}-${normalizedFold}-${qty}`
+              : `zaproszenia-${formatKey.toLowerCase()}-${sidesKey}-${normalizedFold}-${qty}`;
             if (!(key in base)) {
               base[key] = Number(price);
             }
@@ -70,7 +90,10 @@ function loadPrices(): PriceMap {
         });
       });
     });
-  }
+  };
+
+  addZaproszeniaFormats(formats, "");
+  addZaproszeniaFormats(satynaFormats, "satyna");
 
   ENVELOPE_PLACEHOLDER_KEYS.forEach((key) => {
     if (!(key in base)) {
@@ -639,11 +662,12 @@ function getPriceLabel(key: string): string {
     return `Ulotki dwustronne ${ulotkiDwuMatch[1].toUpperCase()} – ${ulotkiDwuMatch[2]} szt.`;
   }
 
-  const zaproszeniaMatch = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
+  const zaproszeniaMatch = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
   if (zaproszeniaMatch) {
-    const sidesLabel = zaproszeniaMatch[2] === "single" ? "jednostronne" : "dwustronne";
-    const foldLabel = zaproszeniaMatch[3] === "skladane" ? "składane" : "nieskładane";
-    return `Zaproszenia ${zaproszeniaMatch[1].toUpperCase()} ${sidesLabel} ${foldLabel} – ${zaproszeniaMatch[4]} szt.`;
+    const materialLabel = zaproszeniaMatch[1] ? "SATYNA" : "KREDA";
+    const sidesLabel = zaproszeniaMatch[3] === "single" ? "jednostronne" : "dwustronne";
+    const foldLabel = zaproszeniaMatch[4] === "skladane" || zaproszeniaMatch[4] === "folded" ? "składane" : "nieskładane";
+    return `Zaproszenia ${materialLabel} ${zaproszeniaMatch[2].toUpperCase()} ${sidesLabel} ${foldLabel} – ${zaproszeniaMatch[5]} szt.`;
   }
 
   if (key.startsWith("artykuly-")) {
@@ -722,6 +746,32 @@ function getLaminowanieSectionTitle(key: string): string {
   return "LAMINOWANIE";
 }
 
+function getBindowanieSubgroupTitle(key: string): string {
+  let m = key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20)(?:-(listwa|spirala))?$/);
+  if (m) {
+    const variant = m[2] === "spirala" ? "SPIRALA" : "LISTWA";
+    return `PLASTIK • DO 20 KARTEK • ${variant}`;
+  }
+
+  m = key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(21-100|100plus)$/);
+  if (m) {
+    if (m[1] === "21-100") return "PLASTIK • 21–100 KARTEK";
+    return "PLASTIK • POWYŻEJ 100 KARTEK";
+  }
+
+  m = key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/);
+  if (m) {
+    const map: Record<string, string> = {
+      do40: "METAL • DO 40 KARTEK",
+      do80: "METAL • DO 80 KARTEK",
+      do120: "METAL • DO 120 KARTEK",
+    };
+    return map[m[1]] ?? "METAL";
+  }
+
+  return "";
+}
+
 function getDrukA4A3SkanSectionTitle(key: string): string {
   if (key.startsWith("druk-bw-a4-")) return "DRUK CZARNO-BIAŁY A4";
   if (key.startsWith("druk-bw-a3-")) return "DRUK CZARNO-BIAŁY A3";
@@ -760,14 +810,15 @@ function getFoliaSectionTitle(key: string): string {
 }
 
 function getZaproszeniaSectionTitle(key: string): string {
-  const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
+  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
   if (!m) return "ZAPROSZENIA";
-  
-  const formatLabel = m[1].toUpperCase();
-  const sidesLabel = m[2] === "single" ? "JEDNOSTRONNE" : "DWUSTRONNE";
-  const foldLabel = m[3] === "skladane" ? "SKŁADANE" : "BEZ SKŁADANIA";
-  
-  return `ZAPROSZENIA ${formatLabel} ${sidesLabel} – ${foldLabel}`;
+
+  const materialLabel = m[1] ? "SATYNA" : "KREDA";
+  const formatLabel = m[2].toUpperCase();
+  const sidesLabel = m[3] === "single" ? "JEDNOSTRONNE" : "DWUSTRONNE";
+  const foldLabel = m[4] === "skladane" || m[4] === "folded" ? "SKŁADANE" : "BEZ SKŁADANIA";
+
+  return `ZAPROSZENIA ${materialLabel} ${formatLabel} ${sidesLabel} – ${foldLabel}`;
 }
 
 function getArtykulySectionTitle(key: string): string {
@@ -1213,9 +1264,10 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
   const parse = (key: string) => {
-    const m = key.match(/^zaproszenia-(a6|a5|dl)-(single|double)-(normal|skladane)-(\d+)$/);
+    const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
     if (!m) {
       return {
+        material: 99,
         format: 99,
         sides: 99,
         folded: 99,
@@ -1225,10 +1277,11 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
     }
 
     return {
-      format: formatRank[m[1]] ?? 99,
-      sides: m[2] === "single" ? 0 : 1,
-      folded: m[3] === "normal" ? 0 : 1,
-      qty: Number.parseInt(m[4], 10),
+      material: m[1] ? 1 : 0,
+      format: formatRank[m[2]] ?? 99,
+      sides: m[3] === "single" ? 0 : 1,
+      folded: m[4] === "normal" ? 0 : 1,
+      qty: Number.parseInt(m[5], 10),
       raw: key,
     };
   };
@@ -1236,6 +1289,7 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   return [...keys].sort((a, b) => {
     const pa = parse(a);
     const pb = parse(b);
+    if (pa.material !== pb.material) return pa.material - pb.material;
     if (pa.format !== pb.format) return pa.format - pb.format;
     if (pa.sides !== pb.sides) return pa.sides - pb.sides;
     if (pa.folded !== pb.folded) return pa.folded - pb.folded;
@@ -1245,21 +1299,29 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
 }
 
 function sortLaminowanieCategoryKeys(keys: string[]): string[] {
+  const getBindowanieTypeRank = (key: string): number => {
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-listwa)?$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 3;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return 4;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return 5;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return 6;
+    return 99;
+  };
+
+  const getBindowanieQtyStart = (key: string): number => {
+    const m = key.match(/^laminowanie-bindowanie-(?:plastik|metal)-(\d+)-\d+-/);
+    return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
   const groupRank = (key: string): number => {
     if (key.startsWith("laminowanie-a3-")) return 0;
     if (key.startsWith("laminowanie-a4-")) return 1;
     if (key.startsWith("laminowanie-a5-")) return 2;
     if (key.startsWith("laminowanie-a6-")) return 3;
     if (key.startsWith("laminowanie-intro-")) return 4;
-    // Bindowanie: sorted by type first (listwa/bare=50, spirala=51, 21-100=52, 100+=53, metal do40=54, do80=55, do120=56)
-    if (key.match(/laminowanie-bindowanie-plastik-.*-do20-listwa$/)) return 50;
-    if (key.match(/laminowanie-bindowanie-plastik-.*-do20-spirala$/)) return 51;
-    if (key.match(/laminowanie-bindowanie-plastik-.*-do20$/)) return 50; // bare do20 same group as listwa
-    if (key.match(/laminowanie-bindowanie-plastik-.*-21-100$/)) return 52;
-    if (key.match(/laminowanie-bindowanie-plastik-.*-100plus$/)) return 53;
-    if (key.match(/laminowanie-bindowanie-metal-.*-do40$/)) return 54;
-    if (key.match(/laminowanie-bindowanie-metal-.*-do80$/)) return 55;
-    if (key.match(/laminowanie-bindowanie-metal-.*-do120$/)) return 56;
+    if (key.startsWith("laminowanie-bindowanie-")) return 50;
     if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return 7;
     if (key.startsWith("laminowanie-oprawa-kanalowa-")) return 8;
     if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return 9;
@@ -1268,21 +1330,19 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
     return 99;
   };
 
-  // For bindowanie keys: secondary sort by qty start (the number after plastik-/metal-)
-  const bindowanieQtyRank = (key: string): number => {
-    const m = key.match(/bindowanie-(?:plastik|metal)-(\d+)-/);
-    return m ? Number.parseInt(m[1], 10) : 0;
-  };
-
   return [...keys].sort((a, b) => {
     const ga = groupRank(a);
     const gb = groupRank(b);
     if (ga !== gb) return ga - gb;
 
-    // For bindowanie groups (ranks 50-56), sort by qty
-    if (ga >= 50 && ga <= 56) {
-      const qa = bindowanieQtyRank(a);
-      const qb = bindowanieQtyRank(b);
+    // Bindowanie: najpierw typ, potem ilość
+    if (ga === 50) {
+      const ta = getBindowanieTypeRank(a);
+      const tb = getBindowanieTypeRank(b);
+      if (ta !== tb) return ta - tb;
+
+      const qa = getBindowanieQtyStart(a);
+      const qb = getBindowanieQtyStart(b);
       if (qa !== qb) return qa - qb;
     } else if (ga === 7) {
       // Oprawa grzbietowa: A4 before A3, then by qty (do30 < do60 < do90 < do150)
@@ -1710,6 +1770,7 @@ export const UstawieniaView: View = {
       let previousDrukA4A3Section = "";
       let previousWlepkiSection = "";
       let previousZaproszeniaSection = "";
+      let previousBindowanieSubgroup = "";
       let isBoldGroup = false;
 
       const rows: string[] = [];
@@ -1758,6 +1819,20 @@ export const UstawieniaView: View = {
             // Reset bold alternation at each new section so groups always start fresh
             isBoldGroup = false;
             previousGroup = "";
+            previousBindowanieSubgroup = "";
+          }
+
+          if (sectionTitle === "BINDOWANIE") {
+            const subgroupTitle = getBindowanieSubgroupTitle(key);
+            if (subgroupTitle && subgroupTitle !== previousBindowanieSubgroup) {
+              rows.push(`
+                <tr class="settings-section-row">
+                  <td colspan="3">${escapeHtml(subgroupTitle)}</td>
+                </tr>
+              `);
+              previousBindowanieSubgroup = subgroupTitle;
+              isBoldGroup = !isBoldGroup;
+            }
           }
         }
 
@@ -1832,6 +1907,9 @@ export const UstawieniaView: View = {
         }
 
         const value = prices[key];
+        const useAltLabel = active.id === "laminowanie"
+          ? previousLaminowanieSection === "BINDOWANIE" && isBoldGroup
+          : isBoldGroup;
         const displayPrice = typeof value === "number" && Number.isFinite(value)
           ? value.toFixed(2)
           : "";
@@ -1839,7 +1917,7 @@ export const UstawieniaView: View = {
         rows.push(`
         <tr data-key="${escapeHtml(key)}">
           <td class="settings-td-product">
-            <span class="settings-product-label${isBoldGroup ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
+            <span class="settings-product-label${useAltLabel ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
           </td>
           <td class="settings-td-price">
             <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice}" placeholder="—" class="settings-input settings-input--price">
