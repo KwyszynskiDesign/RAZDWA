@@ -46,7 +46,7 @@ export function formatPriceAlternative(amount: number): string {
 export function parsePrice(priceStr: string): number | null {
   // Remove currency symbol and normalize
   const cleaned = priceStr
-    .replace(/[^-\d,\.\s-]/g, '')
+    .replace(/[^\d,\.\s+-]/g, '')
     .trim()
 
   // Try comma as decimal separator

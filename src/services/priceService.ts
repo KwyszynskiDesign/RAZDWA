@@ -9,6 +9,12 @@ import _config from "../../docs/config/prices.json";
 export const PRICES_STORAGE_KEY = "razdwa_prices";
 export const PRICES_UPDATED_EVENT = "razdwa:prices-updated";
 
+const FORBIDDEN_PATH_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+function isSafePathSegment(segment: string): boolean {
+  return Boolean(segment) && !FORBIDDEN_PATH_KEYS.has(segment);
+}
+
 let _prices: any = JSON.parse(JSON.stringify(_config));
 
 function getConfigRoot(): any {
@@ -47,7 +53,7 @@ function getConfigRoot(): any {
 
         const validated: Record<string, number> = {};
         for (const [key, value] of Object.entries(overrides)) {
-          if (!key) continue;
+          if (!isSafePathSegment(key)) continue;
           const n = typeof value === "number" ? value : Number.parseFloat(String(value));
           if (Number.isFinite(n)) {
             validated[key] = n;
@@ -65,6 +71,7 @@ function getConfigRoot(): any {
 
     export function getPrice(path: string): any {
       const keys = path.split(".");
+      if (keys.some((k) => !isSafePathSegment(k))) return undefined;
       let obj: any = getConfigRoot();
 
       for (const key of keys) {
@@ -77,6 +84,9 @@ function getConfigRoot(): any {
 
     export function setPrice(path: string, value: any): void {
       const keys = path.split(".");
+      if (keys.some((k) => !isSafePathSegment(k))) {
+        throw new Error(`Unsafe price path: ${path}`);
+      }
       const root = getConfigRoot();
       let obj: any = root;
 

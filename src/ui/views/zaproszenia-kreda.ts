@@ -59,17 +59,40 @@ export const ZaproszeniaKredaView: View = {
         legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
-        legendModeBadge.innerHTML = `<strong>Wariant:</strong> ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "skladane" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
+        legendModeBadge.textContent = `Wariant: ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "skladane" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
       }
 
-      legendRows.innerHTML = qtyList
-        .map((qty) => {
-          const base = Number(tiers[String(qty)] ?? 0);
-          const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
-          const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
-          return `<tr><td>${qty} szt</td><td>${formatPLN(price)}</td></tr>`;
-        })
-        .join("");
+      legendRows.replaceChildren();
+      qtyList.forEach((qty) => {
+        const base = Number(tiers[String(qty)] ?? 0);
+        const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
+        const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
+
+        const tr = document.createElement("tr");
+        const qtyTd = document.createElement("td");
+        qtyTd.textContent = `${qty} szt`;
+        const priceTd = document.createElement("td");
+        priceTd.textContent = formatPLN(price);
+        tr.append(qtyTd, priceTd);
+        legendRows.appendChild(tr);
+      });
+    };
+
+    const renderBreakdownRows = (rows: Array<{ label: string; value: string; isTotal?: boolean }>) => {
+      breakdownLines.replaceChildren();
+      rows.forEach((row) => {
+        const line = document.createElement("div");
+        if (row.isTotal) {
+          line.style.paddingTop = "8px";
+          line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+        }
+
+        const strong = document.createElement("strong");
+        strong.textContent = `${row.label}: `;
+        line.appendChild(strong);
+        line.appendChild(document.createTextNode(row.value));
+        breakdownLines.appendChild(line);
+      });
     };
 
     const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
@@ -137,27 +160,47 @@ export const ZaproszeniaKredaView: View = {
       }
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
-      const breakdown = [
-        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.format}, ${options.sides === 1 ? "jednostronne" : "dwustronne"}${options.isFolded ? ", składane" : ""}</div>`,
-        `<div><strong>Cena z tabeli:</strong> ${formatPLN(result.basePrice)}</div>`,
+      const breakdownRows: Array<{ label: string; value: string; isTotal?: boolean }> = [
+        {
+          label: "Parametry",
+          value: `${options.qty} szt, ${options.format}, ${options.sides === 1 ? "jednostronne" : "dwustronne"}${options.isFolded ? ", składane" : ""}`,
+        },
+        { label: "Cena z tabeli", value: formatPLN(result.basePrice) },
       ];
 
       if (options.isModigliani) {
-        breakdown.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(modiglianiAmount)}</div>`);
+        breakdownRows.push({
+          label: "Modigliani",
+          value: `${Math.round(modiglianiRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(modiglianiAmount)}`,
+        });
       } else if (options.isSatin) {
-        breakdown.push(`<div><strong>Satyna:</strong> cena z osobnej tabeli SATYNA (bez dodatkowego +12%)</div>`);
+        breakdownRows.push({
+          label: "Satyna",
+          value: "cena z osobnej tabeli SATYNA (bez dodatkowego +12%)",
+        });
       }
 
       if (options.express) {
-        breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
+        breakdownRows.push({
+          label: "EXPRESS",
+          value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}`,
+        });
       }
 
       if (withEnvelopes) {
-        breakdown.push(`<div><strong>${envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
+        breakdownRows.push({
+          label: envelopeLabel,
+          value: `${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}`,
+        });
       }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = <strong>${formatPLN(totalPrice)}</strong></div>`);
-      breakdownLines.innerHTML = breakdown.join("");
+      breakdownRows.push({
+        label: "Razem",
+        value: `${formatPLN(result.basePrice)} + ${formatPLN(modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = ${formatPLN(totalPrice)}`,
+        isTotal: true,
+      });
+
+      renderBreakdownRows(breakdownRows);
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";
