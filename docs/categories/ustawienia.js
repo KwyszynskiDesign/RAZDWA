@@ -604,6 +604,7 @@ const CATEGORIES = {
 let currentCategory = "wszystkie";
 
 let prices = (function() {
+  const base = Object.assign({}, DEFAULT_PRICES);
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -613,11 +614,13 @@ let prices = (function() {
         for (const [k, v] of Object.entries(parsed)) {
           if (k && typeof v === 'number' && isFinite(v)) validated[k] = v;
         }
-        if (Object.keys(validated).length > 0) return validated;
+        if (Object.keys(validated).length > 0) {
+          return Object.assign(base, validated);
+        }
       }
     }
   } catch { /* ignore */ }
-  return Object.assign({}, DEFAULT_PRICES);
+  return base;
 })();
 
 function escAttr(str) {
@@ -1055,6 +1058,48 @@ function compareDyplomyKeys(a, b) {
   const pb = parseDyplomy(b);
 
   if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+  return pa.raw.localeCompare(pb.raw);
+}
+
+function compareZaproszeniaKeys(a, b) {
+  const parseZaproszenia = (key) => {
+    const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|folded|skladane)-(\d+)$/i);
+    if (!m) {
+      return {
+        material: 99,
+        format: 99,
+        side: 99,
+        fold: 99,
+        qty: Number.POSITIVE_INFINITY,
+        raw: key
+      };
+    }
+
+    const material = m[1] ? 1 : 0; // KREDA first, then SATYNA
+    const formatRaw = m[2].toLowerCase();
+    const formatRank = { a6: 0, a5: 1, dl: 2 };
+    const sideRank = m[3] === 'single' ? 0 : 1;
+    const foldRank = (m[4] === 'folded' || m[4] === 'skladane') ? 1 : 0;
+
+    return {
+      material,
+      format: formatRank[formatRaw] ?? 99,
+      side: sideRank,
+      fold: foldRank,
+      qty: Number.parseInt(m[5], 10),
+      raw: key
+    };
+  };
+
+  const pa = parseZaproszenia(a);
+  const pb = parseZaproszenia(b);
+
+  if (pa.material !== pb.material) return pa.material - pb.material;
+  if (pa.format !== pb.format) return pa.format - pb.format;
+  if (pa.side !== pb.side) return pa.side - pb.side;
+  if (pa.fold !== pb.fold) return pa.fold - pb.fold;
+  if (pa.qty !== pb.qty) return pa.qty - pb.qty;
+
   return pa.raw.localeCompare(pb.raw);
 }
 

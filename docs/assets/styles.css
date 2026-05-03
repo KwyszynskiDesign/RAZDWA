@@ -1,4 +1,4 @@
-.cad-legend-table {
+#resultsTable.cad-legend-table {
   width: calc(100% + 10px) !important;
   margin-left: -5px !important;
   margin-right: -5px !important;
