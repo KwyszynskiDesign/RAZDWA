@@ -236,23 +236,23 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-kanalowa-bez-napisu": "Oprawa kanałowa dyplomowa – bez napisu",
   "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – wkarta okładka",
   "laminowanie-oprawa-zaciskowa-miekka": "Oprawa zaciskowa (miękka)",
-  // Bindowanie – format: TYP – ilość szt. (zgodnie z CSV: typ przed ilością)
-  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Plastik listwa – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Plastik spirala – 1–50 szt.",
+  // Bindowanie – format: TYP – ilość szt. (zgodnie z CSV)
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Listwa (plastik) do 20 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Spirala (plastik) do 20 kart. – 1–50 szt.",
   "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – Plastik 21–100 kart. – 1–50 szt.",
   "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – Plastik 100+ kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Plastik listwa – 51–100 szt.",
+  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Listwa/Spirala (plastik) do 20 kart. – 51–100 szt.",
   "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – Plastik 21–100 kart. – 51–100 szt.",
   "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – Plastik 100+ kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Plastik listwa – 101–200 szt.",
+  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Listwa/Spirala (plastik) do 20 kart. – 101–200 szt.",
   "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – Plastik 21–100 kart. – 101–200 szt.",
   "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – Plastik 100+ kart. – 101–200 szt.",
-  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – Metal do 40 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – Metal do 80 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – Metal do 120 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – Metal do 40 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – Metal do 80 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – Metal do 120 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – Spirala metalowa do 40 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – Spirala metalowa do 80 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – Spirala metalowa do 120 kart. – 1–50 szt.",
+  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – Spirala metalowa do 40 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – Spirala metalowa do 80 kart. – 51–100 szt.",
+  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – Spirala metalowa do 120 kart. – 51–100 szt.",
   "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
@@ -664,10 +664,7 @@ function getPriceLabel(key: string): string {
 
   const zaproszeniaMatch = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
   if (zaproszeniaMatch) {
-    const materialLabel = zaproszeniaMatch[1] ? "SATYNA" : "KREDA";
-    const sidesLabel = zaproszeniaMatch[3] === "single" ? "jednostronne" : "dwustronne";
-    const foldLabel = zaproszeniaMatch[4] === "skladane" || zaproszeniaMatch[4] === "folded" ? "składane" : "nieskładane";
-    return `Zaproszenia ${materialLabel} ${zaproszeniaMatch[2].toUpperCase()} ${sidesLabel} ${foldLabel} – ${zaproszeniaMatch[5]} szt.`;
+    return `${zaproszeniaMatch[5]} szt.`;
   }
 
   if (key.startsWith("artykuly-")) {
@@ -747,26 +744,16 @@ function getLaminowanieSectionTitle(key: string): string {
 }
 
 function getBindowanieSubgroupTitle(key: string): string {
-  let m = key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20)(?:-(listwa|spirala))?$/);
-  if (m) {
-    const variant = m[2] === "spirala" ? "SPIRALA" : "LISTWA";
-    return `PLASTIK • DO 20 KARTEK • ${variant}`;
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) {
+    return "SPIRALA (PLASTIK)";
   }
 
-  m = key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(21-100|100plus)$/);
-  if (m) {
-    if (m[1] === "21-100") return "PLASTIK • 21–100 KARTEK";
-    return "PLASTIK • POWYŻEJ 100 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) {
+    return "METAL (SPIRALA METALOWA)";
   }
 
-  m = key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/);
-  if (m) {
-    const map: Record<string, string> = {
-      do40: "METAL • DO 40 KARTEK",
-      do80: "METAL • DO 80 KARTEK",
-      do120: "METAL • DO 120 KARTEK",
-    };
-    return map[m[1]] ?? "METAL";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa)?|21-100|100plus)$/)) {
+    return "LISTWA / PLASTIK";
   }
 
   return "";
@@ -819,6 +806,31 @@ function getZaproszeniaSectionTitle(key: string): string {
   const foldLabel = m[4] === "skladane" || m[4] === "folded" ? "SKŁADANE" : "BEZ SKŁADANIA";
 
   return `ZAPROSZENIA ${materialLabel} ${formatLabel} ${sidesLabel} – ${foldLabel}`;
+}
+
+function getZaproszeniaMaterialTitle(key: string): string {
+  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/);
+  if (!m) return "ZAPROSZENIA";
+  return m[1] ? "ZAPROSZENIA SATYNA" : "ZAPROSZENIA KREDA";
+}
+
+function getZaproszeniaSubgroupTitle(key: string): string {
+  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/);
+  if (!m) return "";
+
+  const formatLabel = m[2].toUpperCase();
+  const sidesLabel = m[3] === "single" ? "JEDNOSTRONNE" : "DWUSTRONNE";
+  const foldLabel = m[4] === "skladane" || m[4] === "folded" ? "SKŁADANE" : "BEZ SKŁADANIA";
+  return `${formatLabel} ${sidesLabel} ${foldLabel}`;
+}
+
+function getUlotkiSectionTitle(key: string): string {
+  const m = key.match(/^ulotki-(jed|dwu)-(a6|a5|dl)-\d+$/);
+  if (!m) return "ULOTKI";
+
+  const sideLabel = m[1] === "jed" ? "JEDNOSTRONNE" : "DWUSTRONNE";
+  const formatLabel = m[2].toUpperCase();
+  return `ULOTKI ${sideLabel} ${formatLabel}`;
 }
 
 function getArtykulySectionTitle(key: string): string {
@@ -1299,20 +1311,27 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
 }
 
 function sortLaminowanieCategoryKeys(keys: string[]): string[] {
-  const getBindowanieTypeRank = (key: string): number => {
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-listwa)?$/)) return 0;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 1;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 2;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 3;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return 4;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return 5;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return 6;
+  const getBindowanieSubgroupRank = (key: string): number => {
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa)?|21-100|100plus)$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 2;
     return 99;
   };
 
   const getBindowanieQtyStart = (key: string): number => {
     const m = key.match(/^laminowanie-bindowanie-(?:plastik|metal)-(\d+)-\d+-/);
     return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
+  const getBindowanieVariantRank = (key: string): number => {
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-listwa)?$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 0;
+    return 99;
   };
 
   const groupRank = (key: string): number => {
@@ -1335,15 +1354,19 @@ function sortLaminowanieCategoryKeys(keys: string[]): string[] {
     const gb = groupRank(b);
     if (ga !== gb) return ga - gb;
 
-    // Bindowanie: najpierw typ, potem ilość
+    // Bindowanie: najpierw podkategoria (typ), potem ilość, na końcu wariant
     if (ga === 50) {
-      const ta = getBindowanieTypeRank(a);
-      const tb = getBindowanieTypeRank(b);
+      const ta = getBindowanieSubgroupRank(a);
+      const tb = getBindowanieSubgroupRank(b);
       if (ta !== tb) return ta - tb;
 
       const qa = getBindowanieQtyStart(a);
       const qb = getBindowanieQtyStart(b);
       if (qa !== qb) return qa - qb;
+
+      const va = getBindowanieVariantRank(a);
+      const vb = getBindowanieVariantRank(b);
+      if (va !== vb) return va - vb;
     } else if (ga === 7) {
       // Oprawa grzbietowa: A4 before A3, then by qty (do30 < do60 < do90 < do150)
       const aIsA3 = a.includes("-a3-") ? 1 : 0;
@@ -1769,7 +1792,9 @@ export const UstawieniaView: View = {
       let previousLaminowanieSection = "";
       let previousDrukA4A3Section = "";
       let previousWlepkiSection = "";
-      let previousZaproszeniaSection = "";
+      let previousZaproszeniaMaterial = "";
+      let previousZaproszeniaSubgroup = "";
+      let previousUlotkiSection = "";
       let previousBindowanieSubgroup = "";
       let isBoldGroup = false;
 
@@ -1873,14 +1898,37 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "zaproszenia") {
-          const sectionTitle = getZaproszeniaSectionTitle(key);
-          if (sectionTitle !== previousZaproszeniaSection) {
+          const materialTitle = getZaproszeniaMaterialTitle(key);
+          if (materialTitle !== previousZaproszeniaMaterial) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(materialTitle)}</strong></td>
+              </tr>
+            `);
+            previousZaproszeniaMaterial = materialTitle;
+            previousZaproszeniaSubgroup = "";
+          }
+
+          const subgroupTitle = getZaproszeniaSubgroupTitle(key);
+          if (subgroupTitle && subgroupTitle !== previousZaproszeniaSubgroup) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3">${escapeHtml(subgroupTitle)}</td>
+              </tr>
+            `);
+            previousZaproszeniaSubgroup = subgroupTitle;
+          }
+        }
+
+        if (active.id === "ulotki") {
+          const sectionTitle = getUlotkiSectionTitle(key);
+          if (sectionTitle !== previousUlotkiSection) {
             rows.push(`
               <tr class="settings-section-row">
                 <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
               </tr>
             `);
-            previousZaproszeniaSection = sectionTitle;
+            previousUlotkiSection = sectionTitle;
           }
         }
 
@@ -1898,7 +1946,7 @@ export const UstawieniaView: View = {
         }
 
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "artykuly") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "artykuly") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
