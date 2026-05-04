@@ -1658,6 +1658,38 @@ a[href] {
   max-width: 700px;
 }
 
+.plakaty-a4a3-legend {
+  overflow-x: hidden;
+}
+
+.plakaty-a4a3-maly-canon-table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.plakaty-a4a3-maly-canon-table th,
+.plakaty-a4a3-maly-canon-table td {
+  padding: 7px 6px;
+}
+
+.plakaty-a4a3-maly-canon-table thead th {
+  font-size: 11px;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.plakaty-a4a3-maly-canon-table tbody td {
+  font-size: 11px;
+}
+
+.plakaty-a4a3-maly-canon-table tbody td:first-child {
+  font-size: 12px;
+}
+
+.plakaty-a4a3-maly-canon-table tbody td:not(:first-child) {
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .plakaty-a4a3-inner-grid {
     --pa-left-shift: 0px;

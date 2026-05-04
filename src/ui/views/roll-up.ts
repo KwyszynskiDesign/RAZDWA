@@ -5,6 +5,40 @@ import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 const rollUpData: any = getPrice("rollUp");
 
 export const RollUpView: View = {
@@ -91,8 +125,8 @@ export const RollUpView: View = {
       const unitBase = parseFloat((result.basePrice / options.qty).toFixed(2));
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
-      const breakdown: string[] = [
-        `<div><strong>Parametry:</strong> ${options.format}, ${options.qty} szt, ${options.isReplacement ? "wymiana wkładu" : "komplet"}</div>`,
+      const breakdown: BreakdownRow[] = [
+        { label: "Parametry", value: `${options.format}, ${options.qty} szt, ${options.isReplacement ? "wymiana wkładu" : "komplet"}` },
       ];
 
       if (options.isReplacement) {
@@ -100,14 +134,14 @@ export const RollUpView: View = {
         const areaM2 = parseFloat((fmt.width * fmt.height).toFixed(4));
         const labor = resolveStoredPrice("rollup-wymiana-labor", rollUpData.replacement.labor);
         const perM2 = resolveStoredPrice("rollup-wymiana-m2", rollUpData.replacement.print_per_m2);
-        breakdown.push(`<div><strong>Wydruk wkładu:</strong> ${areaM2} m² × ${formatPLN(perM2)} = ${formatPLN(areaM2 * perM2)}</div>`);
-        breakdown.push(`<div><strong>Cena bazowa:</strong> ${options.qty} × (${formatPLN(areaM2 * perM2)} + ${formatPLN(labor)}) = ${formatPLN(result.basePrice)}</div>`);
+        breakdown.push({ label: "Wydruk wkładu", value: `${areaM2} m² × ${formatPLN(perM2)} = ${formatPLN(areaM2 * perM2)}` });
+        breakdown.push({ label: "Cena bazowa", value: `${options.qty} × (${formatPLN(areaM2 * perM2)} + ${formatPLN(labor)}) = ${formatPLN(result.basePrice)}` });
       } else {
-        breakdown.push(`<div><strong>Cena bazowa:</strong> ${options.qty} × ${formatPLN(unitBase)} = ${formatPLN(result.basePrice)}</div>`);
+        breakdown.push({ label: "Cena bazowa", value: `${options.qty} × ${formatPLN(unitBase)} = ${formatPLN(result.basePrice)}` });
       }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
-      breakdownLines.innerHTML = breakdown.join(""); // lgtm[js/xss-through-dom]
+      breakdown.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      renderBreakdownRows(breakdownLines, breakdown);
       breakdownBox.style.display = "block";
 
       resultArea.style.display = "block";

@@ -5,6 +5,30 @@ import { formatPLN } from "../../core/money";
 import categories from "../../../data/categories.json";
 import { PRICE, resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid #e2e8f0";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(` ${row.value}`));
+    target.appendChild(line);
+  }
+}
+
 export const DrukA4A3SkanView: View = {
   id: "druk-a4-a3",
   name: "Druk A4/A3 + skan",
@@ -267,45 +291,45 @@ export const DrukA4A3SkanView: View = {
         : 0;
 
       if (breakdownDisplay && breakdownLines) {
-        const lines: string[] = [];
+        const lines: BreakdownRow[] = [];
 
         const modeLabel = currentOptions.mode === "bw" ? "czarno-biały" : "kolorowy";
         const printParams = printQtySafe > 0 ? `${currentOptions.format}, ${printQtySafe} str., ${modeLabel}` : "bez druku";
         const scanParams = result.totalScanPrice > 0 ? `, skan ${currentOptions.scanType === "auto" ? "automatyczny" : "ręczny"}: ${currentOptions.scanQty} str.` : "";
-        lines.push(`<div><strong>Parametry:</strong> ${printParams}${scanParams}</div>`);
+        lines.push({ label: "Parametry", value: `${printParams}${scanParams}` });
 
         if (printQtySafe > 0) {
-          lines.push(`<div><strong>Cena druku bazowa:</strong> ${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}</div>`);
+          lines.push({ label: "Cena druku bazowa", value: `${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
         }
 
         if (currentOptions.surcharge && surchargeQtySafe > 0) {
-          lines.push(`<div><strong>Zadruk &gt;25%:</strong> ${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}</div>`);
-          lines.push(`<div><strong>Druk bez dopłaty:</strong> ${normalQty} str. = ${formatPLN(normalPrintCost)}</div>`);
+          lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
+          lines.push({ label: "Druk bez dopłaty", value: `${normalQty} str. = ${formatPLN(normalPrintCost)}` });
         }
 
         if (result.totalScanPrice > 0) {
-          lines.push(`<div><strong>Skanowanie:</strong> ${currentOptions.scanType === "auto" ? "automatyczne" : "ręczne"}, ${currentOptions.scanQty} str. = ${formatPLN(result.totalScanPrice)}</div>`);
+          lines.push({ label: "Skanowanie", value: `${currentOptions.scanType === "auto" ? "automatyczne" : "ręczne"}, ${currentOptions.scanQty} str. = ${formatPLN(result.totalScanPrice)}` });
         }
 
         if (result.emailPrice > 0) {
-          lines.push(`<div><strong>E-mail:</strong> ${formatPLN(result.emailPrice)}</div>`);
+          lines.push({ label: "E-mail", value: formatPLN(result.emailPrice) });
         }
 
         if (result.stickerPrice > 0) {
-          lines.push(`<div><strong>Naklejka A6:</strong> ${formatPLN(result.stickerPrice)}</div>`);
+          lines.push({ label: "Naklejka A6", value: formatPLN(result.stickerPrice) });
         }
 
         if (result.sleevePrice > 0) {
-          lines.push(`<div><strong>Koszulka:</strong> ${currentOptions.sleeveQty} szt. × ${formatPLN(sleeveUnit)} = ${formatPLN(result.sleevePrice)}</div>`);
+          lines.push({ label: "Koszulka", value: `${currentOptions.sleeveQty} szt. × ${formatPLN(sleeveUnit)} = ${formatPLN(result.sleevePrice)}` });
         }
 
         if (currentOptions.express) {
-          lines.push(`<div><strong>EXPRESS:</strong> +20% × ${formatPLN(baseWithoutExpress)} = ${formatPLN(expressCost)}</div>`);
+          lines.push({ label: "EXPRESS", value: `+20% × ${formatPLN(baseWithoutExpress)} = ${formatPLN(expressCost)}` });
         }
 
-        lines.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+        lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
 
-        breakdownLines.innerHTML = lines.join(""); // lgtm[js/xss-through-dom]
+        renderBreakdownRows(breakdownLines, lines);
         breakdownDisplay.style.display = "block";
       }
 

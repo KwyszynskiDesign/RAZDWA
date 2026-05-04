@@ -15,7 +15,23 @@ function isSafePathSegment(segment: string): boolean {
   return Boolean(segment) && !FORBIDDEN_PATH_KEYS.has(segment);
 }
 
-let _prices: any = JSON.parse(JSON.stringify(_config));
+function cloneToNullPrototype<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => cloneToNullPrototype(item)) as T;
+  }
+
+  if (value && typeof value === "object") {
+    const cloned = Object.create(null) as Record<string, unknown>;
+    for (const [key, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+      cloned[key] = cloneToNullPrototype(nestedValue);
+    }
+    return cloned as T;
+  }
+
+  return value;
+}
+
+let _prices: any = cloneToNullPrototype(JSON.parse(JSON.stringify(_config)));
 
 function getConfigRoot(): any {
   if (
@@ -62,7 +78,14 @@ function getConfigRoot(): any {
 
         if (Object.keys(validated).length > 0) {
           const root = getConfigRoot();
-          root.defaultPrices = { ...(root.defaultPrices ?? {}), ...validated };
+          const merged = Object.create(null) as Record<string, number>;
+          for (const [key, value] of Object.entries(root.defaultPrices ?? {})) {
+            if (isSafePathSegment(key)) merged[key] = Number(value);
+          }
+          for (const [key, value] of Object.entries(validated)) {
+            merged[key] = value;
+          }
+          root.defaultPrices = merged;
         }
       } catch {
         // ignore
@@ -92,8 +115,9 @@ function getConfigRoot(): any {
 
       for (let i = 0; i < keys.length - 1; i++) {
         const key = keys[i];
-        if (obj[key] == null || typeof obj[key] !== "object") {
-          obj[key] = {};
+        const next = obj[key];
+        if (next == null || typeof next !== "object" || Array.isArray(next)) {
+          obj[key] = Object.create(null);
         }
         obj = obj[key];
       }

@@ -5,6 +5,40 @@ import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 import { getPrice } from "../../services/priceService";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 const BINDOWANIE_FALLBACK = {
   plastik: {
     "1-50": { do20: { listwa: 7.00, spirala: 6.00 }, "21-100": 5.00, "100+": 4.00 },
@@ -213,10 +247,20 @@ export const LaminowanieView: View = {
     const renderCalcBreakdown = (title: string, lines: string[]) => {
       if (!calcBreakdownBox || !calcBreakdownDetails) return;
 
-      const header = `<div style="font-weight:700;margin-bottom:8px;">${title}</div>`;
-      const rows = lines.map(line => `<div>• ${line}</div>`).join("");
+      calcBreakdownDetails.replaceChildren();
 
-      calcBreakdownDetails.innerHTML = `${header}${rows}`; // lgtm[js/xss-through-dom]
+      const header = document.createElement("div");
+      header.style.fontWeight = "700";
+      header.style.marginBottom = "8px";
+      header.textContent = title;
+      calcBreakdownDetails.appendChild(header);
+
+      for (const line of lines) {
+        const row = document.createElement("div");
+        row.textContent = `• ${line}`;
+        calcBreakdownDetails.appendChild(row);
+      }
+
       calcBreakdownBox.style.display = "block";
     };
 
@@ -479,23 +523,23 @@ export const LaminowanieView: View = {
         
         // Add breakdown section for laminowanie
         if (lamBreakdownBox && lamBreakdownLines) {
-          const breakdown = [
-            `<div><strong>Parametry:</strong> ${qty} szt, format ${currentOptions.format}</div>`,
-            `<div><strong>Cena z tabeli:</strong> ${formatPLN(result.tierPrice)}</div>`,
-            `<div><strong>Cena bazowa:</strong> ${formatPLN(result.basePrice)}</div>`,
+          const breakdown: BreakdownRow[] = [
+            { label: "Parametry", value: `${qty} szt, format ${currentOptions.format}` },
+            { label: "Cena z tabeli", value: formatPLN(result.tierPrice) },
+            { label: "Cena bazowa", value: formatPLN(result.basePrice) },
           ];
           
           if (result.appliedModifiers && result.appliedModifiers.length > 0) {
             result.appliedModifiers.forEach(mod => {
               if (mod === "express") {
                 const expressAmount = parseFloat((result.basePrice * 0.20).toFixed(2));
-                breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
+                breakdown.push({ label: "EXPRESS", value: `20% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}` });
               }
             });
           }
           
-          breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
-          lamBreakdownLines.innerHTML = breakdown.join(""); // lgtm[js/xss-through-dom]
+          breakdown.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
+          renderBreakdownRows(lamBreakdownLines, breakdown);
           lamBreakdownBox.style.display = "block";
         }
         
@@ -620,19 +664,19 @@ export const LaminowanieView: View = {
       // Add breakdown section for bindowanie
       if (bindBreakdown && bindBreakdownLines) {
         const baseTotal = parseFloat((unitPrice * qty).toFixed(2));
-        const breakdown = [
-          `<div><strong>Parametry:</strong> ${qty} szt, ${type} ${subtype}, kolor: ${color}, ${pages} kartek</div>`,
-          `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
-          `<div><strong>Cena bazowa:</strong> ${qty} × ${formatPLN(unitPrice)} = ${formatPLN(baseTotal)}</div>`,
+        const breakdown: BreakdownRow[] = [
+          { label: "Parametry", value: `${qty} szt, ${type} ${subtype}, kolor: ${color}, ${pages} kartek` },
+          { label: "Cena jednostkowa", value: formatPLN(unitPrice) },
+          { label: "Cena bazowa", value: `${qty} × ${formatPLN(unitPrice)} = ${formatPLN(baseTotal)}` },
         ];
         
         if (ctx.expressMode) {
           const expressAmount = parseFloat((baseTotal * 0.20).toFixed(2));
-          breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(baseTotal)} = ${formatPLN(expressAmount)}</div>`);
+          breakdown.push({ label: "EXPRESS", value: `20% × ${formatPLN(baseTotal)} = ${formatPLN(expressAmount)}` });
         }
         
-        breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(total)}</div>`);
-        bindBreakdownLines.innerHTML = breakdown.join("");
+        breakdown.push({ label: "Razem", value: formatPLN(total), separatorTop: true });
+        renderBreakdownRows(bindBreakdownLines, breakdown);
         bindBreakdown.style.display = "block";
       }
 
@@ -1002,35 +1046,35 @@ export const LaminowanieView: View = {
       
       // Add breakdown section for oprawy
       if (oprBreakdown && oprBreakdownLines) {
-        const breakdown = [
-          `<div><strong>Parametry:</strong> ${qty} szt, typ: ${type === "skrecana" ? "skręcana" : type}</div>`,
-          `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
+        const breakdown: BreakdownRow[] = [
+          { label: "Parametry", value: `${qty} szt, typ: ${type === "skrecana" ? "skręcana" : type}` },
+          { label: "Cena jednostkowa", value: formatPLN(unitPrice) },
         ];
         
         const baseTotal = parseFloat((unitPrice * qty).toFixed(2));
         if (extraThicknessPrice > 0) {
-          breakdown.push(`<div><strong>Dopłata grubości:</strong> ${extraCmUnits} cm × ${formatPLN(extraPerCm)} = ${formatPLN(extraThicknessPrice)}</div>`);
+          breakdown.push({ label: "Dopłata grubości", value: `${extraCmUnits} cm × ${formatPLN(extraPerCm)} = ${formatPLN(extraThicknessPrice)}` });
         }
         if (hardUnbind) {
-          breakdown.push(`<div><strong>Rozszycie:</strong> ${formatPLN(hardUnbindPrice)}</div>`);
+          breakdown.push({ label: "Rozszycie", value: formatPLN(hardUnbindPrice) });
         }
         if (hardResew) {
-          breakdown.push(`<div><strong>Ponowne zszycie:</strong> ${formatPLN(hardResewPrice)}</div>`);
+          breakdown.push({ label: "Ponowne zszycie", value: formatPLN(hardResewPrice) });
         }
         if (cdBurn) {
-          breakdown.push(`<div><strong>Nagrywanie płyty:</strong> ${formatPLN(cdPrice)}</div>`);
+          breakdown.push({ label: "Nagrywanie płyty", value: formatPLN(cdPrice) });
         }
         
         const baseWithAddons = parseFloat(((unitPrice * qty + extraThicknessPrice + hardUnbindPrice + hardResewPrice + cdPrice)).toFixed(2));
-        breakdown.push(`<div><strong>Cena bazowa:</strong> ${qty} × ${formatPLN(unitPrice)} + dopłaty = ${formatPLN(baseWithAddons)}</div>`);
+        breakdown.push({ label: "Cena bazowa", value: `${qty} × ${formatPLN(unitPrice)} + dopłaty = ${formatPLN(baseWithAddons)}` });
         
         if (ctx.expressMode) {
           const expressAmount = parseFloat((baseWithAddons * 0.20).toFixed(2));
-          breakdown.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(baseWithAddons)} = ${formatPLN(expressAmount)}</div>`);
+          breakdown.push({ label: "EXPRESS", value: `20% × ${formatPLN(baseWithAddons)} = ${formatPLN(expressAmount)}` });
         }
         
-        breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(total)}</div>`);
-        oprBreakdownLines.innerHTML = breakdown.join(""); // lgtm[js/xss-through-dom]
+        breakdown.push({ label: "Razem", value: formatPLN(total), separatorTop: true });
+        renderBreakdownRows(oprBreakdownLines, breakdown);
         oprBreakdown.style.display = "block";
       }
 

@@ -5,6 +5,30 @@ import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(` ${row.value}`));
+    target.appendChild(line);
+  }
+}
+
 const data: any = getPrice("wlepkiNaklejki");
 
 export const WlepkiView: View = {
@@ -214,19 +238,19 @@ export const WlepkiView: View = {
           if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
           const selectedTitle = pieceTableSelect.options[pieceTableSelect.selectedIndex]?.text ?? selectedTable;
 
-          const detailsRows: string[] = [
-            `<div><strong>Parametry:</strong> ${result.requestedQty} szt, ${selectedTitle}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}</div>`,
-            `<div><strong>Próg rozliczeniowy:</strong> ${result.chargedQty} szt</div>`,
-            `<div><strong>Cena z tabeli:</strong> ${formatPLN(result.basePrice)}</div>`
+          const detailsRows: BreakdownRow[] = [
+            { label: "Parametry", value: `${result.requestedQty} szt, ${selectedTitle}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}` },
+            { label: "Próg rozliczeniowy", value: `${result.chargedQty} szt` },
+            { label: "Cena z tabeli", value: formatPLN(result.basePrice) }
           ];
 
           if (result.modifiersTotal > 0) {
-            detailsRows.push(`<div><strong>EXPRESS:</strong> +${formatPLN(result.modifiersTotal)}</div>`);
+            detailsRows.push({ label: "EXPRESS", value: `+${formatPLN(result.modifiersTotal)}` });
           }
 
-          detailsRows.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+          detailsRows.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
 
-          if (breakdownLinesEl) breakdownLinesEl.innerHTML = detailsRows.join(""); // lgtm[js/xss-through-dom]
+          if (breakdownLinesEl) renderBreakdownRows(breakdownLinesEl, detailsRows);
         } else {
           const modCheckboxes = container.querySelectorAll(".wlepki-mod:checked") as NodeListOf<HTMLInputElement>;
           const modifiers = Array.from(modCheckboxes).map(cb => cb.value);
@@ -259,7 +283,7 @@ export const WlepkiView: View = {
           const activeModifierIds = [...input.modifiers];
           if (input.express) activeModifierIds.push("express");
 
-          const modifierLines = activeModifierIds
+          const modifierRows = activeModifierIds
             .map((modId) => {
               const mod = allModifiers.find((m: any) => m.id === modId);
               if (!mod) return null;
@@ -278,25 +302,27 @@ export const WlepkiView: View = {
                 details = "dopłata stała";
               }
 
-              return `<div><strong>${mod.name}:</strong> ${details} = ${formatPLN(parseFloat(amount.toFixed(2)))}</div>`;
+              return {
+                label: mod.name,
+                value: `${details} = ${formatPLN(parseFloat(amount.toFixed(2)))}`,
+              } as BreakdownRow;
             })
-            .filter(Boolean)
-            .join("");
+            .filter((row): row is BreakdownRow => Boolean(row));
 
-          const breakdownRows: string[] = [
-            `<div><strong>Parametry:</strong> ${input.area} m², grupa: ${groupSelect.options[groupSelect.selectedIndex]?.text ?? input.groupId}</div>`,
-            `<div><strong>Rozliczona powierzchnia:</strong> ${result.effectiveQuantity} m²</div>`,
-            `<div><strong>Cena za m²:</strong> ${formatPLN(result.tierPrice)}</div>`,
-            `<div><strong>Cena bazowa:</strong> ${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}</div>`
+          const breakdownRows: BreakdownRow[] = [
+            { label: "Parametry", value: `${input.area} m², grupa: ${groupSelect.options[groupSelect.selectedIndex]?.text ?? input.groupId}` },
+            { label: "Rozliczona powierzchnia", value: `${result.effectiveQuantity} m²` },
+            { label: "Cena za m²", value: formatPLN(result.tierPrice) },
+            { label: "Cena bazowa", value: `${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}` }
           ];
 
-          if (modifierLines) breakdownRows.push(modifierLines);
-          if (input.foilType) breakdownRows.push(`<div><strong>Kolor folii:</strong> ${input.foilType === "biala" ? "biała" : "transparentna"}</div>`);
-          if (input.foilFinish) breakdownRows.push(`<div><strong>Wykończenie folii:</strong> ${input.foilFinish === "mat" ? "mat" : "błysk"}</div>`);
-          if (!modifierLines && !input.foilType && !input.foilFinish) breakdownRows.push(`<div><strong>Opcje dodatkowe:</strong> brak dopłat</div>`);
-          breakdownRows.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`);
+          breakdownRows.push(...modifierRows);
+          if (input.foilType) breakdownRows.push({ label: "Kolor folii", value: input.foilType === "biala" ? "biała" : "transparentna" });
+          if (input.foilFinish) breakdownRows.push({ label: "Wykończenie folii", value: input.foilFinish === "mat" ? "mat" : "błysk" });
+          if (!modifierRows.length && !input.foilType && !input.foilFinish) breakdownRows.push({ label: "Opcje dodatkowe", value: "brak dopłat" });
+          breakdownRows.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
 
-          if (breakdownLinesEl) breakdownLinesEl.innerHTML = breakdownRows.join(""); // lgtm[js/xss-through-dom]
+          if (breakdownLinesEl) renderBreakdownRows(breakdownLinesEl, breakdownRows);
         }
 
         totalPriceEl.textContent = formatPLN(currentResult.totalPrice);

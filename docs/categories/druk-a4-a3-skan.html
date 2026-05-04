@@ -374,6 +374,24 @@
           return `${Number(value || 0).toFixed(2).replace('.', ',')} zł`;
         };
 
+        const renderBreakdownRows = (target, rows) => {
+          target.replaceChildren();
+
+          rows.forEach((row) => {
+            const line = document.createElement('div');
+            if (row.separatorTop) {
+              line.style.paddingTop = '8px';
+              line.style.borderTop = '1px solid #e2e8f0';
+            }
+
+            const strong = document.createElement('strong');
+            strong.textContent = `${row.label}:`;
+            line.appendChild(strong);
+            line.appendChild(document.createTextNode(` ${row.value}`));
+            target.appendChild(line);
+          });
+        };
+
         const isVisible = (el) => {
           if (!el) return false;
           const style = window.getComputedStyle(el);
@@ -410,37 +428,37 @@
           const surchargeRow = root.querySelector('#d-surcharge-row');
 
           const lines = [];
-          lines.push(`<div><strong>Parametry:</strong> ${format}, ${printQty} str., ${mode}</div>`);
-          lines.push(`<div><strong>Cena druku bazowa:</strong> ${printQty} × ${formatPLN(unitPrint)} = ${formatPLN(totalPrint)}</div>`);
+          lines.push({ label: 'Parametry', value: `${format}, ${printQty} str., ${mode}` });
+          lines.push({ label: 'Cena druku bazowa', value: `${printQty} × ${formatPLN(unitPrint)} = ${formatPLN(totalPrint)}` });
 
           if (isVisible(surchargeRow) && surchargePrice > 0) {
-            lines.push(`<div><strong>Zadruk &gt;25%:</strong> ${surchargeQty} str. = ${formatPLN(surchargePrice)}</div>`);
+            lines.push({ label: 'Zadruk >25%', value: `${surchargeQty} str. = ${formatPLN(surchargePrice)}` });
           }
 
           if (isVisible(scanRow) && totalScan > 0) {
-            lines.push(`<div><strong>Skanowanie:</strong> ${scanQty} str. = ${formatPLN(totalScan)}</div>`);
+            lines.push({ label: 'Skanowanie', value: `${scanQty} str. = ${formatPLN(totalScan)}` });
           }
 
           if (isVisible(emailRow) && emailPrice > 0) {
-            lines.push(`<div><strong>E-mail:</strong> ${formatPLN(emailPrice)}</div>`);
+            lines.push({ label: 'E-mail', value: formatPLN(emailPrice) });
           }
 
           if (isVisible(stickerRow) && stickerPrice > 0) {
-            lines.push(`<div><strong>Naklejka A6:</strong> ${formatPLN(stickerPrice)}</div>`);
+            lines.push({ label: 'Naklejka A6', value: formatPLN(stickerPrice) });
           }
 
           if (isVisible(sleeveRow) && sleevePrice > 0) {
-            lines.push(`<div><strong>Koszulka:</strong> ${sleeveQty} szt. = ${formatPLN(sleevePrice)}</div>`);
+            lines.push({ label: 'Koszulka', value: `${sleeveQty} szt. = ${formatPLN(sleevePrice)}` });
           }
 
           const subtotal = totalPrint + totalScan + emailPrice + stickerPrice + sleevePrice + surchargePrice;
           if (isVisible(expressHint) && total > subtotal) {
-            lines.push(`<div><strong>EXPRESS:</strong> ${formatPLN(total - subtotal)}</div>`);
+            lines.push({ label: 'EXPRESS', value: formatPLN(total - subtotal) });
           }
 
-          lines.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> ${formatPLN(total)}</div>`);
+          lines.push({ label: 'Razem', value: formatPLN(total), separatorTop: true });
 
-          breakdownLines.innerHTML = lines.join(''); // lgtm[js/xss-through-dom]
+          renderBreakdownRows(breakdownLines, lines);
           breakdownDisplay.style.display = 'block';
         };
 

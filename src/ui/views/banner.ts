@@ -5,6 +5,40 @@ import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 const bannerData: any = getPrice("banner");
 
 export const BannerView: View = {
@@ -125,24 +159,24 @@ export const BannerView: View = {
         ? parseFloat((result.basePrice * expressRate).toFixed(2))
         : 0;
 
-      const lines = [
-        `<div><strong>Materiał:</strong> ${materialName}</div>`,
-        `<div><strong>Rozliczana powierzchnia:</strong> ${result.effectiveQuantity} m²${result.effectiveQuantity !== options.areaM2 ? ` (z podanej ${options.areaM2} m²)` : ""}</div>`,
-        `<div><strong>Próg cenowy:</strong> ${formatPLN(result.tierPrice)} / m²</div>`,
-        `<div><strong>Cena bazowa:</strong> ${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}</div>`,
+      const lines: BreakdownRow[] = [
+        { label: "Materiał", value: materialName },
+        { label: "Rozliczana powierzchnia", value: `${result.effectiveQuantity} m²${result.effectiveQuantity !== options.areaM2 ? ` (z podanej ${options.areaM2} m²)` : ""}` },
+        { label: "Próg cenowy", value: `${formatPLN(result.tierPrice)} / m²` },
+        { label: "Cena bazowa", value: `${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}` },
       ];
 
       if (options.oczkowanie) {
-        lines.push(`<div><strong>Oczkowanie:</strong> ${result.effectiveQuantity} m² × ${formatPLN(oczkowanieRate)} = ${formatPLN(oczkowanieCost)}</div>`);
+        lines.push({ label: "Oczkowanie", value: `${result.effectiveQuantity} m² × ${formatPLN(oczkowanieRate)} = ${formatPLN(oczkowanieCost)}` });
       }
 
       if (options.express) {
-        lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressCost)}</div>`);
+        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressCost)}` });
       }
 
-      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(oczkowanieCost)} + ${formatPLN(expressCost)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      lines.push({ label: "Razem", value: `${formatPLN(result.basePrice)} + ${formatPLN(oczkowanieCost)} + ${formatPLN(expressCost)} = ${formatPLN(result.totalPrice)}`, separatorTop: true, strongValue: true });
 
-      breakdownLines.innerHTML = lines.join(""); // lgtm[js/xss-through-dom]
+      renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };
 

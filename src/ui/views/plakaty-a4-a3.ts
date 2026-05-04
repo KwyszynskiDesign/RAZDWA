@@ -64,7 +64,7 @@ export const PlakatyA4A3View: View = {
       if (!legend) {
         legend = document.createElement("div");
         legend.id = "pa-dynamic-legend";
-        legend.className = "card";
+        legend.className = "card plakaty-a4a3-legend";
         legend.style.marginTop = "16px";
         resultBox.insertAdjacentElement("afterend", legend);
       }
@@ -129,7 +129,7 @@ export const PlakatyA4A3View: View = {
 
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
-        <table style="width:auto; table-layout:auto;">
+        <table class="plakaty-a4a3-maly-canon-table">
           <thead>
             <tr>
               <th>Ilość</th>

@@ -5,6 +5,15 @@ import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
+function renderHintContent(target: HTMLElement, lines: string[]): void {
+  target.replaceChildren();
+
+  lines.forEach((line, index) => {
+    if (index > 0) target.appendChild(document.createElement("br"));
+    target.appendChild(document.createTextNode(line));
+  });
+}
+
 const data: any = getPrice("plakaty");
 
 const FORMAT_LABELS: Record<string, string> = {
@@ -130,9 +139,9 @@ export const PlakatyWFView: View = {
       return materialName.includes("nieformat");
     };
 
-    const buildNieformatCalcHint = (res: any): string => {
+    const buildNieformatCalcHint = (res: any): string[] => {
       const isNieformat = isNieformatMaterial(materialSelect.value);
-      if (!isNieformat || !res || !res.baseLengthMm || !res.customLengthMm) return "";
+      if (!isNieformat || !res || !res.baseLengthMm || !res.customLengthMm) return [];
 
       const meterRate = parseFloat((res.unitPrice / (res.baseLengthMm / 1000)).toFixed(2));
       const lengthM = parseFloat((res.customLengthMm / 1000).toFixed(3));
@@ -142,7 +151,7 @@ export const PlakatyWFView: View = {
         `Nieformatowy bok: ${res.customLengthMm} mm (bazowo ${res.baseLengthMm} mm dla ${baseLabel}).`,
         `Przeliczenie jak CAD: ${formatPLN(res.unitPrice)} / ${(res.baseLengthMm / 1000).toFixed(3)} m = ${formatPLN(meterRate)}/mb.`,
         `${lengthM.toFixed(3)} m × ${formatPLN(meterRate)}/mb = ${formatPLN(res.effectiveUnitPrice)} za szt.`,
-      ].join("<br>");
+      ];
     };
 
     const updateFormatOptions = (matId: string) => {
@@ -245,7 +254,7 @@ export const PlakatyWFView: View = {
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
 
       if (calcHintEl) {
-        const nieformatHint = buildNieformatCalcHint(res);
+        const nieformatHintLines = buildNieformatCalcHint(res);
         const trimSurcharge = getTrimSurcharge();
         
         if (trimSurcharge > 0) {
@@ -259,12 +268,12 @@ export const PlakatyWFView: View = {
             trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
           }
           const trimText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
-          const fullHint = nieformatHint ? `${trimText} | ${nieformatHint}` : trimText;
-          calcHintEl.innerHTML = fullHint; // lgtm[js/xss-through-dom]
+          const fullHintLines = nieformatHintLines.length ? [trimText, ...nieformatHintLines] : [trimText];
+          renderHintContent(calcHintEl, fullHintLines);
           calcHintEl.style.display = "block";
         } else {
-          calcHintEl.innerHTML = nieformatHint; // lgtm[js/xss-through-dom]
-          calcHintEl.style.display = nieformatHint ? "block" : "none";
+          renderHintContent(calcHintEl, nieformatHintLines);
+          calcHintEl.style.display = nieformatHintLines.length ? "block" : "none";
         }
       }
 
