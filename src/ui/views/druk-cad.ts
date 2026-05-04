@@ -318,8 +318,8 @@ export const DrukCADView: View = {
       if (extraPaskiLine) extraPaskiLine.style.display = paskiOp ? "flex" : "none";
       if (extraPaskiPrice) extraPaskiPrice.innerText = formatPLN(paskiOp?.totalPrice ?? 0);
 
-      const extraTotal = (klientOp?.totalPrice ?? 0) + (nieformatoweOp?.totalPrice ?? 0) + (paskiOp?.totalPrice ?? 0);
-      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + extraTotal);
+      const opsTotal = getCadOpsTotal();
+      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + opsTotal);
       if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
     };
 
@@ -351,6 +351,7 @@ export const DrukCADView: View = {
           payload: result
         });
         updateCadOpsSummary();
+        updateOptionsSummary();
         updateGrandTotal();
       } catch (err) {
         console.warn("Składanie CAD:", (err as Error).message);
@@ -384,6 +385,7 @@ export const DrukCADView: View = {
           payload: result
         });
         updateCadOpsSummary();
+        updateOptionsSummary();
         updateGrandTotal();
       } catch (err) {
         console.warn("Skanowanie WF:", (err as Error).message);
@@ -393,6 +395,7 @@ export const DrukCADView: View = {
     [wfScanCmInput, wfScanQtyInput].forEach((el) => {
       el?.addEventListener("input", () => {
         updateCadOpsSummary();
+        updateOptionsSummary();
         updateGrandTotal();
       });
     });
@@ -400,21 +403,25 @@ export const DrukCADView: View = {
     optKlientSkladanie?.addEventListener("change", () => {
       if (klientSkladanieQtyRow) klientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
       updateCadOpsSummary();
+      updateOptionsSummary();
       updateGrandTotal();
     });
     optNieformatoweSkladanie?.addEventListener("change", () => {
       if (nieformatoweSkladanieQtyRow) nieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "block" : "none";
       updateCadOpsSummary();
+      updateOptionsSummary();
       updateGrandTotal();
     });
     optPaskiWzmacniajace?.addEventListener("change", () => {
       if (paskiWzmacniajaceQtyRow) paskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
       updateCadOpsSummary();
+      updateOptionsSummary();
       updateGrandTotal();
     });
     [klientSkladanieQtyInput, nieformatoweSkladanieQtyInput, paskiWzmacniajaceQtyInput].forEach((el) => {
       el?.addEventListener("input", () => {
         updateCadOpsSummary();
+        updateOptionsSummary();
         updateGrandTotal();
       });
     });

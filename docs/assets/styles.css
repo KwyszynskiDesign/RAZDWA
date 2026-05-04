@@ -886,6 +886,43 @@ button.ghost:hover {
   padding: 2px 0;
 }
 
+/* ===== BREAKDOWN PANEL ("Jak liczona jest cena") ===== */
+.category-view .card[id*="Breakdown"],
+.category-view .card[id*="breakdown-display"],
+.category-view .d-breakdown-box {
+  width: 100%;
+  max-width: 100%;
+  padding: 18px 20px;
+  border-radius: 12px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+
+.category-view .card[id*="Breakdown"] h3,
+.category-view .card[id*="breakdown-display"] h3,
+.category-view .d-breakdown-box .d-breakdown-title {
+  margin-bottom: 10px !important;
+  line-height: 1.25;
+}
+
+.category-view [id*="BreakdownLines"],
+.category-view [id*="breakdown-lines"],
+.category-view .d-breakdown-lines {
+  width: 100%;
+  max-width: 100%;
+  padding: 2px 2px 2px 4px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  box-sizing: border-box;
+}
+
+.category-view [id*="BreakdownLines"] > div,
+.category-view [id*="breakdown-lines"] > div,
+.category-view .d-breakdown-lines > div {
+  padding-left: 2px;
+  padding-right: 2px;
+}
+
 /* ===== LIVE TOTAL (always visible SUMA) ===== */
 .live-total {
   display: flex;

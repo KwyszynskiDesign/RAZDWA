@@ -61,15 +61,32 @@ export const VoucheryView: View = {
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement | null;
       const side = sidesInput?.value === "double" ? "dwu" : "jed";
       const sideLabel = side === "jed" ? "jednostronne" : "dwustronne";
+      const paperVal = paperSelect?.value ?? "kreda_200";
+      const isSatin = paperVal.startsWith("satyna");
+      const isModigliani = paperVal === "modigliani";
+      const paperLabel = isModigliani
+        ? "Modigliani"
+        : (isSatin ? "Satyna" : "Kreda");
 
       if (legendTitle) {
-        legendTitle.innerText = `CENNIK VOUCHERY A4 ${sideLabel}`;
+        legendTitle.innerText = `CENNIK VOUCHERY A4 ${sideLabel} (${paperLabel})`;
       }
 
       legendRows.innerHTML = tiers
         .map((tier) => {
           const fallback = side === "jed" ? tier.single : tier.double;
-          const price = resolveStoredPrice(`vouchery-${tier.qty}-${side}`, fallback);
+          const basePrice = resolveStoredPrice(`vouchery-${tier.qty}-${side}`, fallback);
+          let price = basePrice;
+
+          if (isModigliani) {
+            const satinAmount = basePrice * satinRate;
+            const modiglianiAmount = (basePrice + satinAmount) * modiglianiRate;
+            price = basePrice + satinAmount + modiglianiAmount;
+          } else if (isSatin) {
+            price = basePrice + basePrice * satinRate;
+          }
+
+          price = parseFloat(price.toFixed(2));
           return `<tr><td>${tier.qty} szt</td><td>${formatPLN(price)}</td></tr>`;
         })
         .join("");
@@ -85,6 +102,7 @@ export const VoucheryView: View = {
     container.querySelectorAll('input[name="v-sides"]').forEach((el) => {
       el.addEventListener("change", updateLegend);
     });
+    paperSelect?.addEventListener("change", updateLegend);
 
     const renderBreakdown = (result: any, options: any) => {
       const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
