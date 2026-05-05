@@ -274,7 +274,12 @@ export const DrukCADView: View = {
       const total = effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0);
       cadOpsList.style.display = "block";
       cadOpsListItems.innerHTML = effectiveOps
-        .map(op => `<div>• ${op.name}: ${formatPLN(op.totalPrice)} (${op.optionsHint})</div>`)
+        .map(op => `
+          <div class="cad-option-line">
+            <span>${op.name} (${op.optionsHint})</span>
+            <span>${formatPLN(op.totalPrice)}</span>
+          </div>
+        `)
         .join("");
       cadOpsTotal.innerText = formatPLN(total);
     };

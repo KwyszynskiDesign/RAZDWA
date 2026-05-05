@@ -11,6 +11,30 @@ type BreakdownRow = {
   separatorTop?: boolean;
 };
 
+const WLEPKI_CANONICAL_TITLES: Record<string, string> = {
+  "wlepki_obrys_folia": "Wlepki po obrysie (Folia Biała/Trans)",
+  "wlepki_polipropylen": "Wlepki po obrysie - Polipropylen",
+  "wlepki_standard_folia": "Folia Biała / Transparentna (standard)",
+  "papier-sra3": "Papier SRA3 (papier z klejem mat/błysk)",
+  "folia-sra3": "Folia SRA3 (folia biała / bezbarwna)",
+  "plotowane-papier": "Plotowane + cięte na sztuki (papier)",
+  "plotowane-folia": "Plotowane + cięte na sztuki (folia)",
+};
+
+function normalizePolishMojibake(text: string): string {
+  return text
+    .replace(/BiaĹ‚a|Biaa|Bia�a/g, "Biała")
+    .replace(/biaĹ‚a|biaa|bia�a/g, "biała")
+    .replace(/bĹ‚ysk|bysk|b�ysk/g, "błysk")
+    .replace(/ciÄ™te|ci�te/g, "cięte")
+    .replace(/CiÄ™te|Ci�te/g, "Cięte");
+}
+
+function getDisplayTitle(id: string | undefined, fallback: string | undefined): string {
+  if (id && WLEPKI_CANONICAL_TITLES[id]) return WLEPKI_CANONICAL_TITLES[id];
+  return normalizePolishMojibake(fallback ?? id ?? "");
+}
+
 function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
   target.replaceChildren();
 
@@ -161,7 +185,8 @@ export const WlepkiView: View = {
             return `<tr><td>${label}</td><td>${formatPLN(value)}</td></tr>`;
           }).join("");
 
-          return `<div class="wlepki-cennik-block"><h5>${group.title}</h5><table class="wlepki-cennik-table"><thead><tr><th>Zakres</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+          const groupTitle = getDisplayTitle(group.id, group.title);
+          return `<div class="wlepki-cennik-block"><h5>${groupTitle}</h5><table class="wlepki-cennik-table"><thead><tr><th>Zakres</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }).join("");
 
         cennikPanel.innerHTML = `
@@ -178,7 +203,8 @@ export const WlepkiView: View = {
           const value = resolveStoredPrice(`wlepki-szt-${piece.id}-${tier.qty}`, tier.price);
           return `<tr><td>${tier.qty}</td><td>${formatPLN(value)}</td></tr>`;
         }).join("");
-        return `<div class="wlepki-cennik-block" style="display:${visible ? "block" : "none"}"><h5>${piece.title}</h5><table class="wlepki-cennik-table"><thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        const pieceTitle = getDisplayTitle(piece.id, piece.title);
+        return `<div class="wlepki-cennik-block" style="display:${visible ? "block" : "none"}"><h5>${pieceTitle}</h5><table class="wlepki-cennik-table"><thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       }).join("");
 
       cennikPanel.innerHTML = `
@@ -236,7 +262,7 @@ export const WlepkiView: View = {
           const technicalDetails: string[] = [];
           if (input.paperFinish) technicalDetails.push(`Papier: ${input.paperFinish === "mat" ? "mat" : "błysk"}`);
           if (input.foilType) technicalDetails.push(`Folia: ${input.foilType === "biala" ? "biała" : "transparentna"}`);
-          const selectedTitle = pieceTableSelect.options[pieceTableSelect.selectedIndex]?.text ?? selectedTable;
+          const selectedTitle = getDisplayTitle(selectedTable, pieceTableSelect.options[pieceTableSelect.selectedIndex]?.text ?? selectedTable);
 
           const detailsRows: BreakdownRow[] = [
             { label: "Parametry", value: `${result.requestedQty} szt, ${selectedTitle}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}` },
@@ -354,7 +380,7 @@ export const WlepkiView: View = {
         ctx.cart.addItem({
           id: `wlepki-${Date.now()}`,
           category: "Wlepki / Naklejki",
-          name: selectedTitle,
+          name: getDisplayTitle(currentInput.tableId, selectedTitle),
           quantity: currentInput.qty,
           unit: "szt",
           unitPrice: currentResult.unitPrice,
@@ -389,7 +415,7 @@ export const WlepkiView: View = {
         ctx.cart.addItem({
           id: `wlepki-${Date.now()}`,
           category: "Wlepki / Naklejki",
-          name: group?.title || "Wlepki",
+          name: getDisplayTitle(group?.id, group?.title || "Wlepki"),
           quantity: currentInputM2.area,
           unit: "m2",
           unitPrice: currentResult.tierPrice,
