@@ -350,6 +350,7 @@ export const DrukCADView: View = {
           optionsHint: `${qty} szt.`,
           payload: result
         });
+        if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
         updateCadOpsSummary();
         updateOptionsSummary();
         updateGrandTotal();
@@ -384,6 +385,7 @@ export const DrukCADView: View = {
           optionsHint: `${qty} szt., ${cm} cm`,
           payload: result
         });
+        if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
         updateCadOpsSummary();
         updateOptionsSummary();
         updateGrandTotal();

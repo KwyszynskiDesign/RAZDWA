@@ -116,12 +116,12 @@ describe("Dyplomy logic", () => {
     expect(result.appliedModifiers).toContain("single-sided-discount");
   });
 
-  it("should apply -12% discount from 6 pcs for double-sided", () => {
+  it("should not apply -12% discount for double-sided even from 6 pcs", () => {
     const result = calculateDyplomy({ qty: 6, sides: 2, isSatin: false, express: false });
     expect((result as any).tierPrice).toBe(35.00);
-    expect((result as any).singleSidedDiscountAmount).toBe(4.20);
-    expect(result.basePrice).toBe(30.80);
-    expect(result.totalPrice).toBe(30.80);
+    expect((result as any).singleSidedDiscountAmount).toBe(0);
+    expect(result.basePrice).toBe(35.00);
+    expect(result.totalPrice).toBe(35.00);
   });
 
   it("should not apply single-sided discount below 6 pcs", () => {
@@ -146,7 +146,7 @@ describe("Dyplomy logic", () => {
     const a4 = calculateDyplomy({ qty: 10, sides: 2, format: "A4", isSatin: false, express: false });
     const a5 = calculateDyplomy({ qty: 10, sides: 2, format: "A5", isSatin: false, express: false });
     expect(a4.totalPrice).toBe(a5.totalPrice);
-    expect(a4.totalPrice).toBe(35.20);
+    expect(a4.totalPrice).toBe(40.00);
   });
 });
 

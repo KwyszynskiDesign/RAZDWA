@@ -1032,7 +1032,7 @@
                            "groups":  [
                                           {
                                               "id":  "wlepki_obrys_folia",
-                                            "title":  "Wlepki po obrysie (Folia BiaĹ‚a/Trans)",
+                                            "title":  "Wlepki po obrysie (Folia Biała/Trans)",
                                               "unit":  "m2",
                                               "pricing":  "per_unit",
                                               "tiers":  [
@@ -1092,7 +1092,7 @@
                                           },
                                           {
                                               "id":  "wlepki_standard_folia",
-                                            "title":  "Folia BiaĹ‚a / Transparentna (standard)",
+                                            "title":  "Folia Biała / Transparentna (standard)",
                                               "unit":  "m2",
                                               "pricing":  "per_unit",
                                               "tiers":  [
@@ -1129,7 +1129,7 @@
                            "pieceTables":  [
                                                {
                                                    "id":  "papier-sra3",
-                                                   "title":  "Papier SRA3 (papier z klejem mat/bĹ‚ysk)",
+                                                   "title":  "Papier SRA3 (papier z klejem mat/błysk)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1192,7 +1192,7 @@
                                                },
                                                {
                                                    "id":  "folia-sra3",
-                                                   "title":  "Folia SRA3 (folia biaĹ‚a / bezbarwna)",
+                                                   "title":  "Folia SRA3 (folia biała / bezbarwna)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1255,7 +1255,7 @@
                                                },
                                                {
                                                    "id":  "plotowane-papier",
-                                                   "title":  "Plotowane + ciÄ™te na sztuki (papier)",
+                                                   "title":  "Plotowane + cięte na sztuki (papier)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1318,7 +1318,7 @@
                                                },
                                                {
                                                    "id":  "plotowane-folia",
-                                                   "title":  "Plotowane + ciÄ™te na sztuki (folia)",
+                                                   "title":  "Plotowane + cięte na sztuki (folia)",
                                                    "unit":  "szt",
                                                    "tiers":  [
                                                                  {
@@ -1389,13 +1389,13 @@
                                              },
                                              {
                                                  "id":  "arkusze",
-                                                 "name":  "CiÄ™te na arkusze",
+                                                 "name":  "Cięte na arkusze",
                                                  "type":  "fixed_per_unit",
                                                  "value":  2
                                              },
                                              {
                                                  "id":  "pojedyncze",
-                                                 "name":  "CiÄ™te na pojedyncze sztuki",
+                                                 "name":  "Cięte na pojedyncze sztuki",
                                                  "type":  "fixed_per_unit",
                                                  "value":  10
                                              },
@@ -3421,7 +3421,7 @@
                           "ulotki-dwu-dl-500":  350.00,
                           "ulotki-dwu-dl-700":  460.00,
                           "ulotki-dwu-dl-1000":  590.00,
-                          "artykuly-teczka-biaĹ‚a-gumka":  4.00,
+                          "artykuly-teczka-Biaa-gumka":  4.00,
                           "artykuly-teczka-niebieska-twarda":  15.00,
                           "artykuly-teczka-kolor-gumka":  5.50,
                           "artykuly-teczka-biala-wieĹşanka":  5.00,

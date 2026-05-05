@@ -405,7 +405,7 @@ export const LaminowanieView: View = {
             <h4>Oprawy</h4>
           </div>
         </div>
-        <h5 style="margin:8px 0 6px;">Oprawa grzbietowa (listwa wsuwana)</h5>
+        <h5 style="margin:8px 0 6px; font-size:12px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">Oprawa grzbietowa (listwa wsuwana)</h5>
         <table>
           <tr><th>Ilość stron</th><th>A4</th><th>A3</th></tr>
           <tr><td>do 30</td><td>${formatPLN(oprawy.grzbietowa.do30.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do30.A3)}</td></tr>
@@ -413,7 +413,7 @@ export const LaminowanieView: View = {
           <tr><td>do 90</td><td>${formatPLN(oprawy.grzbietowa.do90.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do90.A3)}</td></tr>
           <tr><td>do 150</td><td>${formatPLN(oprawy.grzbietowa.do150.A4)}</td><td>${formatPLN(oprawy.grzbietowa.do150.A3)}</td></tr>
         </table>
-        <h5 style="margin:10px 0 6px;">Oprawy kanałowe / zaciskowe</h5>
+        <h5 style="margin:10px 0 6px; font-size:12px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.04em;">Oprawy kanałowe / zaciskowe</h5>
         <table>
           <tr><th>Pozycja</th><th>Cena</th></tr>
           <tr><td>Kanałowa standard</td><td>${formatPLN(oprawy.kanałowa.standard)}</td></tr>

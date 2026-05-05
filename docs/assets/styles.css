@@ -1702,6 +1702,8 @@ a[href] {
 .plakaty-a4a3-maly-canon-table {
   width: 100%;
   table-layout: fixed;
+  margin-left: -30px;
+  width: calc(100% + 30px);
 }
 
 .plakaty-a4a3-maly-canon-table th,
