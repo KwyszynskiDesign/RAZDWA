@@ -95,7 +95,7 @@ export const PlakatyA4A3View: View = {
 
           return `
             <div class="plakaty-a4a3-maly-canon-panel">
-              <h5 class="plakaty-a4a3-maly-canon-title">${panel.title}</h5>
+              <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${panel.title}</h5>
               <table class="plakaty-a4a3-maly-canon-table">
                 <thead>
                   <tr>

@@ -27,7 +27,7 @@
               </tr>
             `).join("");return`
             <div class="plakaty-a4a3-maly-canon-panel">
-              <h5 class="plakaty-a4a3-maly-canon-title">${Xe.title}</h5>
+              <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${Xe.title}</h5>
               <table class="plakaty-a4a3-maly-canon-table">
                 <thead>
                   <tr>

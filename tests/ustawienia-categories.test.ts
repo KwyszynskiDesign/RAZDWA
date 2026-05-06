@@ -40,4 +40,19 @@ describe("Ustawienia category mapping", () => {
     const cadCategory = categories.find((category) => category.id === "druk-cad");
     expect(cadCategory).toBeDefined();
   });
+
+  it("assigns Canvas keys to the Canvas / Płótno category", () => {
+    const prices = {
+      "canvas-m2-unframed": 180,
+      "canvas-unframed-custom-m2": 190,
+    };
+
+    const categories = getRenderedCategories(prices);
+    const hasFallback = categories.some((category) => category.id === "inne");
+    expect(hasFallback).toBe(false);
+
+    const canvasCategory = categories.find((category) => category.id === "canvas");
+    expect(canvasCategory).toBeDefined();
+    expect(canvasCategory?.label).toBe("Canvas / Płótno");
+  });
 });
