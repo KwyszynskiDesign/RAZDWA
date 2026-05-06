@@ -509,3 +509,45 @@ export function calculatePlakatyMalyCanon(input: PlakatyMalyCanonInput): Plakaty
     appliedModifiers,
   };
 }
+
+export type PlakatyMalyCanonLegendRow = {
+  label: string;
+  a4: string;
+  a3: string;
+};
+
+export type PlakatyMalyCanonLegendPanel = {
+  id: string;
+  title: string;
+  rows: PlakatyMalyCanonLegendRow[];
+};
+
+export function getPlakatyMalyCanonLegendPanels(): PlakatyMalyCanonLegendPanel[] {
+  const canon = fullData?.malyCanon;
+  const variants = Array.isArray(canon?.variants) ? canon.variants : [];
+
+  return variants.map((variant: any) => ({
+    id: variant.id,
+    title: variant.name ?? variant.id,
+    rows: Array.isArray(variant.tiers)
+      ? variant.tiers.map((tier: any) => {
+          const suffix = tier.max === null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+          const basePrice = tier?.prices?.A4 ?? tier?.priceA4 ?? tier?.price;
+          const a4 = resolveStoredPrice(
+            `plakaty-maly-canon-${variant.id}-A4-${suffix}`,
+            resolveStoredPrice(`plakaty-maly-canon-${variant.id}-${suffix}`, Number(basePrice))
+          );
+          const a3 = resolveStoredPrice(
+            `plakaty-maly-canon-${variant.id}-A3-${suffix}`,
+            resolveStoredPrice(`plakaty-maly-canon-${variant.id}-${suffix}`, Number(tier?.prices?.A3 ?? tier?.priceA3 ?? basePrice))
+          );
+
+          return {
+            label: suffix,
+            a4: formatPLN(a4),
+            a3: formatPLN(a3),
+          };
+        })
+      : [],
+  }));
+}

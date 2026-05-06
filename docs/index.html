@@ -214,7 +214,8 @@
     }
 
     body.home-compact-layout .main-content-card {
-      overflow-x: visible;
+      overflow: visible;
+      padding: 28px;
     }
 
     .category-sidebar {
@@ -400,10 +401,11 @@
 
     .home-mini-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-      gap: 10px;
-      padding: 8px;
-      margin: -8px;
+      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+      gap: 12px;
+      padding: 10px;
+      margin: 0;
+      overflow: visible;
     }
 
     .home-mini-tile {
@@ -412,7 +414,7 @@
       place-items: center;
       aspect-ratio: 1 / 1;
       border-radius: 12px;
-      padding: 10px 8px;
+      padding: 12px 10px;
       text-decoration: none;
       color: #0f172a;
       background: rgba(255, 255, 255, 0.82);

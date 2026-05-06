@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../src/categories/plakaty";
+import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon, getPlakatyMalyCanonLegendPanels } from "../src/categories/plakaty";
 
 describe("calculatePlakatyM2 – solwent m² materials", () => {
   it("applies minimalka: 0.5 m² → 1 m²  @ 70 zł (200g Połysk, tier 1-3)", () => {
@@ -178,6 +178,29 @@ describe("calculatePlakatyMalyCanon – do 9 szt", () => {
 
   it("throws above 9 szt", () => {
     expect(() => calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 10 })).toThrow();
+  });
+});
+
+describe("getPlakatyMalyCanonLegendPanels", () => {
+  it("builds legend panels from pricing data", () => {
+    const panels = getPlakatyMalyCanonLegendPanels();
+    const normalize = (value: string) => value.replace(/\u00a0/g, " ");
+
+    expect(panels.map((panel) => panel.title)).toEqual([
+      "Z marginesem 170g",
+      "Z marginesem 200g",
+      "Bez marginesu 170g",
+      "Bez marginesu 200g",
+    ]);
+    expect({
+      label: "1-3",
+      a4: normalize(panels[0].rows[0].a4),
+      a3: normalize(panels[0].rows[0].a3),
+    }).toEqual({
+      label: "1-3",
+      a4: "7,00 zł",
+      a3: "8,00 zł",
+    });
   });
 });
 

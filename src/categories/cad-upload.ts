@@ -260,7 +260,8 @@ export function calculateCadScanningPrice(
   // Do rozliczenia skanowania liczy się dłuższy wymiar (długość przejazdu przez skaner)
   const lengthCm = Math.round(longerSideMm / 10);
 
-  return qty * lengthCm * 0.08;
+  const scanPerCm = resolveStoredPrice("cad-skanowanie", WF_SCAN_PRICE_PER_CM || 0.08);
+  return qty * lengthCm * scanPerCm;
 }
 
 /**

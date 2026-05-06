@@ -204,6 +204,7 @@ const PRICE_LABELS: Record<string, string> = {
   "cad-klient-skladanie": "Składanie CAD – rysunki od klienta (szt)",
   "cad-nieformatowe-skladanie": "Składanie CAD – nieformatowe (m²)",
   "cad-paski-wzmacniajace": "CAD – doklejanie pasków wzmacniających (szt)",
+  "cad-skanowanie": "CAD – skanowanie wielkoformatowe (zł/cm)",
   // Laminowanie
   "laminowanie-a3-1-50": "Laminowanie A3 – 1–50 szt.",
   "laminowanie-a3-51-100": "Laminowanie A3 – 51–100 szt.",
@@ -234,7 +235,7 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-kanalowa-standard": "Oprawa kanałowa dyplomowa – standard (z napisem)",
   "laminowanie-oprawa-kanalowa-pozostale": "Oprawa kanałowa dyplomowa – pozostałe kolory",
   "laminowanie-oprawa-kanalowa-bez-napisu": "Oprawa kanałowa dyplomowa – bez napisu",
-  "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – wkarta okładka",
+  "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – własna okładka",
   "laminowanie-oprawa-zaciskowa-miekka": "Zaciskowa miękka",
   "laminowanie-oprawa-zaciskowa-thermo-biala": "Biała – zszywka THERMO",
   "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": "Skoroszyt + zszywanie",
@@ -1098,6 +1099,7 @@ const CAD_SETTINGS_ORDER: string[] = [
   "cad-klient-skladanie",
   "cad-nieformatowe-skladanie",
   "cad-paski-wzmacniajace",
+  "cad-skanowanie",
 ];
 
 const CAD_SETTINGS_ORDER_INDEX = new Map<string, number>(

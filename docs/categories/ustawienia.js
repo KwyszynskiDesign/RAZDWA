@@ -77,6 +77,8 @@ const DEFAULT_PRICES = {
   "druk-cad-bw-mb-a0": 9.00,
   "druk-cad-bw-mb-a0plus": 10.00,
   "druk-cad-bw-mb-mb1067": 12.00,
+  // === DRUK CAD – USŁUGI DODATKOWE ===
+  "cad-skanowanie": 0.08,
   // === LAMINOWANIE A3 ===
   "laminowanie-a3-1-50": 7.00,
   "laminowanie-a3-51-100": 6.00,
@@ -529,7 +531,7 @@ const CATEGORIES = {
   },
   "druk-cad": {
     label: "🖨️ Druk CAD",
-    prefixes: ["druk-cad-", "cad-fold-"]
+    prefixes: ["druk-cad-", "cad-fold-", "cad-"]
   },
   "skanowanie": {
     label: "📸 Skanowanie",
@@ -628,6 +630,10 @@ function escAttr(str) {
 }
 
 function getPriceKeyDescription(key) {
+  if (key === 'cad-skanowanie') {
+    return 'CAD • Skanowanie wielkoformatowe (zł/cm)';
+  }
+
   // Introligatornia / laminowanie – opisy zgodne z CSV (bez zmiany kluczy i cen)
   if (key.startsWith('laminowanie-intro-')) {
     const introMap = {
@@ -863,6 +869,20 @@ function compareDrukA4A3Keys(a, b) {
 }
 
 function compareDrukCadKeys(a, b) {
+  const cadExtraRank = {
+    'cad-klient-skladanie': 0,
+    'cad-nieformatowe-skladanie': 1,
+    'cad-paski-wzmacniajace': 2,
+    'cad-skanowanie': 3
+  };
+
+  const extraA = cadExtraRank[a];
+  const extraB = cadExtraRank[b];
+
+  if (extraA != null && extraB != null) return extraA - extraB;
+  if (extraA != null) return 1;
+  if (extraB != null) return -1;
+
   const parseCad = (key) => {
     const m = key.match(/^druk-cad-(bw|kolor)-(fmt|mb)-([a-z0-9]+)$/);
     if (!m) return { mode: '', type: '', size: '', raw: key };

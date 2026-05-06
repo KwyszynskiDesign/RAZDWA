@@ -27,4 +27,17 @@ describe("Ustawienia category mapping", () => {
     const cadCategory = categories.find((category) => category.id === "druk-cad");
     expect(cadCategory).toBeDefined();
   });
+
+  it("assigns CAD scanning key to the CAD wielkoformatowy category", () => {
+    const prices = {
+      "cad-skanowanie": 0.08
+    };
+
+    const categories = getRenderedCategories(prices);
+    const hasFallback = categories.some((category) => category.id === "inne");
+    expect(hasFallback).toBe(false);
+
+    const cadCategory = categories.find((category) => category.id === "druk-cad");
+    expect(cadCategory).toBeDefined();
+  });
 });

@@ -1,6 +1,7 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
 import { calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon } from "../../categories/plakaty";
+import { getPlakatyMalyCanonLegendPanels } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
@@ -69,18 +70,8 @@ export const PlakatyA4A3View: View = {
         resultBox.insertAdjacentElement("afterend", legend);
       }
 
-      const findMalyVariant = (variantId: string) =>
-        (tableData.malyCanon?.variants ?? []).find((variant: any) => variant.id === variantId);
-
       const findDuzyVariant = (variantId: string) =>
         (tableData.duzyCanon?.variants ?? []).find((variant: any) => variant.id === variantId);
-
-      const getMalyPrice = (variantId: string, format: "A4" | "A3", tier: any) => {
-        const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-        const base = tier?.prices?.[format] ?? (format === "A3" ? tier?.priceA3 : tier?.priceA4) ?? tier?.price;
-        const legacyAware = resolveStoredPrice(`plakaty-maly-canon-${variantId}-${suffix}`, Number(base));
-        return formatPLN(resolveStoredPrice(`plakaty-maly-canon-${variantId}-${format}-${suffix}`, legacyAware));
-      };
 
       const getDuzyPrice = (variantId: string, qty: number, fallback = "-") => {
         const variant = findDuzyVariant(variantId);
@@ -89,28 +80,33 @@ export const PlakatyA4A3View: View = {
         return formatPLN(resolveStoredPrice(`plakaty-duzy-canon-${variantId}-${qty}`, tier.price));
       };
 
-      const malyRows = ((findMalyVariant("margin-170")?.tiers ?? []) as any[])
-        .map((tier) => {
-          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
-          return `
-            <tr>
-              <td>${label}</td>
-              <td>${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
-            </tr>
-          `;
-        })
-        .join("");
+      const malyCanonPanels = getPlakatyMalyCanonLegendPanels();
+      const malyCanonPanelsHtml = malyCanonPanels
+        .map((panel) => {
+          const rows = panel.rows
+            .map((row) => `
+              <tr>
+                <td>${row.label} szt</td>
+                <td>${row.a4}</td>
+                <td>${row.a3}</td>
+              </tr>
+            `)
+            .join("");
 
-      const malyRows200 = ((findMalyVariant("margin-200")?.tiers ?? []) as any[])
-        .map((tier) => {
-          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
           return `
-            <tr>
-              <td>${label}</td>
-              <td>${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
-              <td>${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
-            </tr>
+            <div class="plakaty-a4a3-maly-canon-panel">
+              <h5 class="plakaty-a4a3-maly-canon-title">${panel.title}</h5>
+              <table class="plakaty-a4a3-maly-canon-table">
+                <thead>
+                  <tr>
+                    <th>Ilość</th>
+                    <th>A4</th>
+                    <th>A3</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
           `;
         })
         .join("");
@@ -141,32 +137,7 @@ export const PlakatyA4A3View: View = {
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
         <div class="plakaty-a4a3-maly-canon-grid">
-          <div class="plakaty-a4a3-maly-canon-panel">
-            <h5 class="plakaty-a4a3-maly-canon-title">170 g (kreda 130 g/170 g)</h5>
-            <table class="plakaty-a4a3-maly-canon-table">
-              <thead>
-                <tr>
-                  <th>Ilość</th>
-                  <th>Z marginesem<br><span>A4 | A3</span></th>
-                  <th>Bez marginesu<br><span>A4 | A3</span></th>
-                </tr>
-              </thead>
-              <tbody>${malyRows}</tbody>
-            </table>
-          </div>
-          <div class="plakaty-a4a3-maly-canon-panel">
-            <h5 class="plakaty-a4a3-maly-canon-title">200 g (kreda 200 g)</h5>
-            <table class="plakaty-a4a3-maly-canon-table">
-              <thead>
-                <tr>
-                  <th>Ilość</th>
-                  <th>Z marginesem<br><span>A4 | A3</span></th>
-                  <th>Bez marginesu<br><span>A4 | A3</span></th>
-                </tr>
-              </thead>
-              <tbody>${malyRows200}</tbody>
-            </table>
-          </div>
+          ${malyCanonPanelsHtml}
         </div>
         <h4 style="margin:16px 0 6px;">Duży Canon 170g</h4>
         <table>
