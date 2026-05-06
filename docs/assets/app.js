@@ -23,25 +23,25 @@
               <tr>
                 <td>${ee.label} szt</td>
                 <td>${ee.a4}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${ue.a4}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${ue.a4}</td>
                 <td>${ee.a3}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${ue.a3}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${ue.a3}</td>
               </tr>
             `}).join("");return`
           <div class="plakaty-a4a3-maly-canon-panel">
-            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${Ne}</h5>
+            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.02em;">${Ne}</h5>
             <table class="plakaty-a4a3-maly-canon-table">
               <thead>
                 <tr>
                   <th rowspan="2">Ilo\u015B\u0107</th>
-                  <th colspan="2">${De}</th>
-                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${_e}</th>
+                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${De}</th>
+                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.14);">${_e}</th>
                 </tr>
                 <tr>
-                  <th>A4</th>
-                  <th>A4</th>
                   <th style="color:#166534; background:rgba(34,197,94,0.08);">A4</th>
                   <th style="color:#166534; background:rgba(34,197,94,0.08);">A3</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A4</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A3</th>
                 </tr>
               </thead>
               <tbody>${B}</tbody>

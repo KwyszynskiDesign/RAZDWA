@@ -95,9 +95,9 @@ export const PlakatyA4A3View: View = {
               <tr>
                 <td>${row.label} szt</td>
                 <td>${row.a4}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${noMarginRow.a4}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${noMarginRow.a4}</td>
                 <td>${row.a3}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${noMarginRow.a3}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${noMarginRow.a3}</td>
               </tr>
             `;
           })
@@ -105,19 +105,19 @@ export const PlakatyA4A3View: View = {
 
         return `
           <div class="plakaty-a4a3-maly-canon-panel">
-            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${title}</h5>
+            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.02em;">${title}</h5>
             <table class="plakaty-a4a3-maly-canon-table">
               <thead>
                 <tr>
                   <th rowspan="2">Ilość</th>
-                  <th colspan="2">${marginGroupLabel}</th>
-                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${noMarginGroupLabel}</th>
+                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${marginGroupLabel}</th>
+                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.14);">${noMarginGroupLabel}</th>
                 </tr>
                 <tr>
-                  <th>A4</th>
-                  <th>A4</th>
                   <th style="color:#166534; background:rgba(34,197,94,0.08);">A4</th>
                   <th style="color:#166534; background:rgba(34,197,94,0.08);">A3</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A4</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A3</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>
