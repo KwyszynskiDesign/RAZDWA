@@ -15,14 +15,14 @@ const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
 
 export function getPlakatyA4A3LegendStyles() {
   return {
-    panelTitle: "margin:0 0 8px; padding:6px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:0.02em; color:#1d4ed8; background:rgba(59,130,246,0.14); font-weight:700;",
-    groupHeader: "color:#1d4ed8; background:rgba(59,130,246,0.16); font-weight:700;",
-    groupHeaderStrong: "color:#1d4ed8; background:rgba(59,130,246,0.22); font-weight:800;",
-    quantityHeader: "color:#1d4ed8; background:rgba(59,130,246,0.22); font-weight:800;",
-    priceHeaderStrong: "color:#1d4ed8; background:rgba(59,130,246,0.18); font-weight:800;",
-    priceCell: "color:#1d4ed8; background:rgba(59,130,246,0.12); font-weight:700;",
-    priceCellStrong: "color:#1d4ed8; background:rgba(59,130,246,0.18); font-weight:800;",
-    sizeHeader: "color:#1d4ed8; background:rgba(59,130,246,0.10); font-weight:700;",
+    panelTitle: "margin:0 0 8px; padding:6px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:0.02em; color:#1e3a8a; background:#eff6ff; font-weight:700;",
+    groupHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
+    groupHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
+    quantityHeader: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
+    priceHeaderStrong: "color:#1e3a8a; background:transparent; font-weight:800;",
+    priceCell: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
+    priceCellStrong: "color:#1e3a8a; background:transparent; font-weight:800;",
+    sizeHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
   };
 }
 

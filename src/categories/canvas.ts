@@ -83,7 +83,9 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         throw new Error("Podaj poprawne wymiary dla formatu niestandardowego");
       }
       const perimeterCm = 2 * (width + height) / 10;
-      const m2rate = resolveStoredPrice("canvas-" + options.modeId + "-custom-m2", mode.customPricePerM2 ?? 180);
+      const m2rate = options.modeId === "unframed"
+        ? resolveStoredPrice("canvas-m2-unframed", resolveStoredPrice("canvas-unframed-custom-m2", mode.customPricePerM2 ?? 180))
+        : resolveStoredPrice("canvas-framed-custom-m2", mode.customPricePerM2 ?? 180);
       const printCostUnit = parseFloat((areaM2 * m2rate).toFixed(2));
       let frameCostUnit = 0;
       if (options.modeId === "framed" && mode.customPricePerCmBorder) {

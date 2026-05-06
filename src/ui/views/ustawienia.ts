@@ -470,7 +470,6 @@ const PRICE_LABELS: Record<string, string> = {
   "canvas-unframed-120x80": "Canvas bez oprawy – 120×80",
   "canvas-m2-unframed": "Canvas bez oprawy – cena za m²",
   "canvas-framed-custom-m2": "Canvas z oprawą – własny rozmiar – cena za m²",
-  "canvas-unframed-custom-m2": "Canvas bez oprawy – własny rozmiar – cena za m²",
   "canvas-framed-custom-border": "Canvas z oprawą – własny rozmiar – cena za cmb ramki",
   // Wlepki / naklejki
   "wlepki-obrys-folia-1-5": "Naklejki wycinane po obrysie – 1–5 m²",

@@ -202,18 +202,25 @@ describe("getPlakatyMalyCanonLegendPanels", () => {
       a4: "7,00 zł",
       a3: "8,00 zł",
     });
+    expect(panels[1].title).toBe("Z marginesem 200g");
+    expect(panels[3].rows.at(-1)?.label).toBe("4-9");
   });
 });
 
 describe("getPlakatyA4A3LegendStyles", () => {
-  it("uses blue legend backgrounds instead of green ones", () => {
+  it("uses the requested blue palette and alternating no-background price columns", () => {
     const styles = getPlakatyA4A3LegendStyles();
-    expect(styles.quantityHeader).toContain("59,130,246");
-    expect(styles.groupHeader).toContain("59,130,246");
-    expect(styles.priceCell).toContain("59,130,246");
-    expect(styles.quantityHeader).not.toContain("34,197,94");
-    expect(styles.groupHeader).not.toContain("34,197,94");
-    expect(styles.priceCell).not.toContain("34,197,94");
+    expect(styles.panelTitle).toContain("#1e3a8a");
+    expect(styles.panelTitle).toContain("#eff6ff");
+    expect(styles.groupHeader).toContain("#1e3a8a");
+    expect(styles.groupHeader).toContain("#eff6ff");
+    expect(styles.quantityHeader).toContain("#1e3a8a");
+    expect(styles.quantityHeader).toContain("#eff6ff");
+    expect(styles.priceCell).toContain("#1e3a8a");
+    expect(styles.priceCell).toContain("#eff6ff");
+    expect(styles.priceCellStrong).toContain("#1e3a8a");
+    expect(styles.priceCellStrong).toContain("transparent");
+    expect(styles.priceHeaderStrong).toContain("transparent");
   });
 });
 
