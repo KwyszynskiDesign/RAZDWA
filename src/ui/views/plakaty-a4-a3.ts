@@ -95,10 +95,21 @@ export const PlakatyA4A3View: View = {
           return `
             <tr>
               <td>${label}</td>
-              <td style="white-space:nowrap">${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
-              <td style="white-space:nowrap">${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
-              <td style="white-space:nowrap">${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
-              <td style="white-space:nowrap">${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
+              <td>${getMalyPrice("margin-170", "A4", tier)} | ${getMalyPrice("margin-170", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-170", "A4", tier)} | ${getMalyPrice("no-margin-170", "A3", tier)}</td>
+            </tr>
+          `;
+        })
+        .join("");
+
+      const malyRows200 = ((findMalyVariant("margin-200")?.tiers ?? []) as any[])
+        .map((tier) => {
+          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `
+            <tr>
+              <td>${label}</td>
+              <td>${getMalyPrice("margin-200", "A4", tier)} | ${getMalyPrice("margin-200", "A3", tier)}</td>
+              <td>${getMalyPrice("no-margin-200", "A4", tier)} | ${getMalyPrice("no-margin-200", "A3", tier)}</td>
             </tr>
           `;
         })
@@ -129,25 +140,34 @@ export const PlakatyA4A3View: View = {
 
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">Mały Canon</h4>
-        <table class="plakaty-a4a3-maly-canon-table">
-          <thead>
-            <tr>
-              <th>Ilość</th>
-              <th>170 margines</th>
-              <th>170 bez marginesu</th>
-              <th>200 margines</th>
-              <th>200 bez marginesu</th>
-            </tr>
-            <tr>
-              <th></th>
-              <th>A4 | A3</th>
-              <th>A4 | A3</th>
-              <th>A4 | A3</th>
-              <th>A4 | A3</th>
-            </tr>
-          </thead>
-          <tbody>${malyRows}</tbody>
-        </table>
+        <div class="plakaty-a4a3-maly-canon-grid">
+          <div class="plakaty-a4a3-maly-canon-panel">
+            <h5 class="plakaty-a4a3-maly-canon-title">170 g (kreda 130 g/170 g)</h5>
+            <table class="plakaty-a4a3-maly-canon-table">
+              <thead>
+                <tr>
+                  <th>Ilość</th>
+                  <th>Z marginesem<br><span>A4 | A3</span></th>
+                  <th>Bez marginesu<br><span>A4 | A3</span></th>
+                </tr>
+              </thead>
+              <tbody>${malyRows}</tbody>
+            </table>
+          </div>
+          <div class="plakaty-a4a3-maly-canon-panel">
+            <h5 class="plakaty-a4a3-maly-canon-title">200 g (kreda 200 g)</h5>
+            <table class="plakaty-a4a3-maly-canon-table">
+              <thead>
+                <tr>
+                  <th>Ilość</th>
+                  <th>Z marginesem<br><span>A4 | A3</span></th>
+                  <th>Bez marginesu<br><span>A4 | A3</span></th>
+                </tr>
+              </thead>
+              <tbody>${malyRows200}</tbody>
+            </table>
+          </div>
+        </div>
         <h4 style="margin:16px 0 6px;">Duży Canon 170g</h4>
         <table>
           <thead>

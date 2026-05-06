@@ -1,13 +1,13 @@
 <<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605050729';
+﻿const CACHE_VERSION = 'razdwa-v202605060715';
 =======
 <<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605050729';
+﻿const CACHE_VERSION = 'razdwa-v202605060715';
 =======
 <<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605050729';
+﻿const CACHE_VERSION = 'razdwa-v202605060715';
 =======
-﻿const CACHE_VERSION = 'razdwa-v202605050729';
+﻿const CACHE_VERSION = 'razdwa-v202605060715';
 >>>>>>> be43392 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
 >>>>>>> 1db19ff (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
 >>>>>>> 5af7c27 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)

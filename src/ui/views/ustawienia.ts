@@ -235,7 +235,9 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-kanalowa-pozostale": "Oprawa kanałowa dyplomowa – pozostałe kolory",
   "laminowanie-oprawa-kanalowa-bez-napisu": "Oprawa kanałowa dyplomowa – bez napisu",
   "laminowanie-oprawa-kanalowa-wkarta": "Oprawa kanałowa dyplomowa – wkarta okładka",
-  "laminowanie-oprawa-zaciskowa-miekka": "Oprawa zaciskowa (miękka)",
+  "laminowanie-oprawa-zaciskowa-miekka": "Zaciskowa miękka",
+  "laminowanie-oprawa-zaciskowa-thermo-biala": "Biała – zszywka THERMO",
+  "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": "Skoroszyt + zszywanie",
   // Bindowanie – 3 podgrupy zgodne z CSV: plastik do 20 kart, plastik 21+ kart, metal
   "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Plastik do 20 kart. (listwa) – 1–50 szt.",
   "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Plastik do 20 kart. (spirala) – 1–50 szt.",
@@ -320,14 +322,14 @@ const PRICE_LABELS: Record<string, string> = {
   "plakaty-format-180g-pp-nieformatowe-610x841": "Plakaty 180g PP nieformatowe – A1+",
   "plakaty-format-180g-pp-nieformatowe-841x1189": "Plakaty 180g PP nieformatowe – A0",
   "plakaty-format-180g-pp-nieformatowe-914x1292": "Plakaty 180g PP nieformatowe – A0+",
-  "plakaty-maly-canon-margin-170-1-3": "Plakaty mały Canon z marginesem 130g/170g – 1–3 szt.",
-  "plakaty-maly-canon-margin-170-4-9": "Plakaty mały Canon z marginesem 130g/170g – 4–9 szt.",
-  "plakaty-maly-canon-margin-200-1-3": "Plakaty mały Canon z marginesem 200g – 1–3 szt.",
-  "plakaty-maly-canon-margin-200-4-9": "Plakaty mały Canon z marginesem 200g – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-170-1-3": "Plakaty mały Canon bez marginesu 130g/170g – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-170-4-9": "Plakaty mały Canon bez marginesu 130g/170g – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-200-1-3": "Plakaty mały Canon bez marginesu 200g – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-200-4-9": "Plakaty mały Canon bez marginesu 200g – 4–9 szt.",
+  "plakaty-maly-canon-margin-170-1-3": "Plakaty mały Canon z marginesem 130 g/170 g – 1–3 szt.",
+  "plakaty-maly-canon-margin-170-4-9": "Plakaty mały Canon z marginesem 130 g/170 g – 4–9 szt.",
+  "plakaty-maly-canon-margin-200-1-3": "Plakaty mały Canon z marginesem 200 g – 1–3 szt.",
+  "plakaty-maly-canon-margin-200-4-9": "Plakaty mały Canon z marginesem 200 g – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-170-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-170-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-200-1-3": "Plakaty mały Canon bez marginesu 200 g – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-200-4-9": "Plakaty mały Canon bez marginesu 200 g – 4–9 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-10": "Plakaty duży Canon A4 130g/170g – 10 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-20": "Plakaty duży Canon A4 130g/170g – 20 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-30": "Plakaty duży Canon A4 130g/170g – 30 szt.",
@@ -714,10 +716,10 @@ function getSolwentPlakatySectionTitle(key: string): string {
   if (key.startsWith("plakaty-format-180g-pp-formatowe-")) return "180G PP FORMATOWE";
   if (key.startsWith("plakaty-format-180g-pp-nieformatowe-")) return "180G PP NIEFORMATOWE";
 
-  if (key.startsWith("plakaty-maly-canon-margin-170-")) return "MAŁY CANON Z MARGINESEM 130G/170G";
-  if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return "MAŁY CANON BEZ MARGINESU 130G/170G";
-  if (key.startsWith("plakaty-maly-canon-margin-200-")) return "MAŁY CANON Z MARGINESEM 200G";
-  if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return "MAŁY CANON BEZ MARGINESU 200G";
+  if (key.startsWith("plakaty-maly-canon-margin-170-")) return "MAŁY CANON Z MARGINESEM 130 G/170 G";
+  if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return "MAŁY CANON BEZ MARGINESU 130 G/170 G";
+  if (key.startsWith("plakaty-maly-canon-margin-200-")) return "MAŁY CANON Z MARGINESEM 200 G";
+  if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return "MAŁY CANON BEZ MARGINESU 200 G";
 
   if (key.startsWith("plakaty-duzy-canon-a4-170-kreda-130-170-")) return "DUŻY CANON A4 130G/170G";
   if (key.startsWith("plakaty-duzy-canon-a3-170-kreda-130-170-")) return "DUŻY CANON A3 130G/170G";
@@ -1402,10 +1404,11 @@ function getPlakatyFormatSizeRank(key: string): number {
   const sizeRank: Record<string, number> = {
     "297x420": 0,
     "420x594": 1,
-    "610x841": 2,
-    "841x1189": 3,
-    "914x1292": 4,
-    rolka1067: 5,
+    "594x841": 2,
+    "610x841": 3,
+    "841x1189": 4,
+    "914x1292": 5,
+    rolka1067: 6,
   };
 
   const known = sizeRank[suffix];
@@ -1440,8 +1443,8 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("plakaty-format-180g-pp-formatowe-")) return 8;
     if (key.startsWith("plakaty-format-180g-pp-nieformatowe-")) return 9;
     if (key.startsWith("plakaty-maly-canon-margin-170-")) return 10;
-    if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return 11;
-    if (key.startsWith("plakaty-maly-canon-margin-200-")) return 12;
+    if (key.startsWith("plakaty-maly-canon-margin-200-")) return 11;
+    if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return 12;
     if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return 13;
     if (key.startsWith("plakaty-duzy-canon-a4-170-kreda-130-170-")) return 14;
     if (key.startsWith("plakaty-duzy-canon-a3-170-kreda-130-170-")) return 15;

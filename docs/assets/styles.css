@@ -1696,25 +1696,52 @@ a[href] {
 }
 
 .plakaty-a4a3-legend {
-  overflow-x: hidden;
+  overflow-x: auto;
+}
+
+.plakaty-a4a3-maly-canon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+.plakaty-a4a3-maly-canon-panel {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.plakaty-a4a3-maly-canon-title {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--primary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .plakaty-a4a3-maly-canon-table {
   width: 100%;
   table-layout: fixed;
-  margin-left: -50px;
-  width: calc(100% + 50px);
+  margin: 0;
 }
 
 .plakaty-a4a3-maly-canon-table th,
 .plakaty-a4a3-maly-canon-table td {
-  padding: 7px 6px;
+  padding: 6px 5px;
 }
 
 .plakaty-a4a3-maly-canon-table thead th {
   font-size: 11px;
   line-height: 1.2;
   overflow-wrap: anywhere;
+}
+
+.plakaty-a4a3-maly-canon-table thead th span {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .plakaty-a4a3-maly-canon-table tbody td {

@@ -29,7 +29,8 @@ export interface DyplomyOptions {
 
 export function calculateDyplomy(options: DyplomyOptions) {
   const tierPrice = getPriceForQuantity(options.qty);
-  const bulkDiscountRate = (options.qty >= 6 && options.sides === 1) ? 0.12 : 0;
+  const sides = options.sides ?? 1;
+  const bulkDiscountRate = (options.qty >= 6 && sides === 1) ? 0.12 : 0;
   const singleSidedDiscountRate = bulkDiscountRate;
   const singleSidedDiscountAmount = parseFloat((tierPrice * singleSidedDiscountRate).toFixed(2));
   const basePrice = parseFloat((tierPrice - singleSidedDiscountAmount).toFixed(2));

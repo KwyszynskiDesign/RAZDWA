@@ -38,6 +38,8 @@ export const WycinanieFoliiView: View = {
     const expressEl = container.querySelector("#wfExpressHint") as HTMLElement | null;
     const monitorAreaEl = container.querySelector("#wf-monitor-area") as HTMLElement | null;
     const monitorSizeEl = container.querySelector("#wf-monitor-size") as HTMLElement | null;
+    const areaInput = container.querySelector("#wf-area") as HTMLInputElement | null;
+    const computedAreaInfo = container.querySelector("#wf-computed-area-info") as HTMLElement | null;
     const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
     const legendKolorowaBelowEl = container.querySelector("#wf-legend-kolorowa-below") as HTMLElement | null;
     const legendKolorowaAboveEl = container.querySelector("#wf-legend-kolorowa-above") as HTMLElement | null;
@@ -112,6 +114,14 @@ export const WycinanieFoliiView: View = {
       const areaM2 = (width * height) / 1_000_000;
       if (monitorSizeEl) monitorSizeEl.textContent = `${width} × ${height} mm`;
       if (monitorAreaEl) monitorAreaEl.textContent = `${areaM2.toFixed(3).replace('.', ',')} m²`;
+      if (areaInput) {
+        areaInput.value = width > 0 && height > 0 ? String(parseFloat(areaM2.toFixed(4))) : "";
+      }
+      if (computedAreaInfo) {
+        computedAreaInfo.textContent = width > 0 && height > 0
+          ? `Wyliczona powierzchnia: ${areaM2.toFixed(4)} m² (${width} mm × ${height} mm)`
+          : "Wyliczona powierzchnia: -";
+      }
     };
 
     widthInput?.addEventListener("input", updateAreaMonitor);
