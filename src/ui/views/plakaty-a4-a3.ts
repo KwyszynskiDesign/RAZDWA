@@ -21,7 +21,7 @@ export function getPlakatyA4A3LegendStyles() {
     quantityHeader: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
     priceHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
     priceCell: "color:#1e3a8a; background:rgba(59,130,246,0.06); font-weight:700;",
-    priceCellStrong: "color:#1e3a8a; background:rgba(59,130,246,0.10); font-weight:800;",
+    priceCellStrong: "color:#1e3a8a; background:#ffffff; font-weight:800;",
     sizeHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
   };
 }
@@ -95,6 +95,7 @@ export const PlakatyA4A3View: View = {
       };
 
       const malyCanonPanels = getPlakatyMalyCanonLegendPanels();
+      const formatGroupLabel = (prefix: string, paperLabel: string) => `${prefix}<br>${paperLabel}`;
       const buildCombinedMalyCanonTable = (
         marginPanel: (typeof malyCanonPanels)[number],
         noMarginPanel: (typeof malyCanonPanels)[number],
@@ -141,8 +142,8 @@ export const PlakatyA4A3View: View = {
       };
 
       const malyCanonPanelsHtml = [
-        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "170 g (kreda 130 g/170 g)", "Z marginesem 170 g", "Bez marginesu 170 g"),
-        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g (kreda 200 g)", "Z marginesem 200 g", "Bez marginesu 200 g"),
+        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "170 g (kreda 130 g/170 g)", formatGroupLabel("Z marginesem", "130/170g"), formatGroupLabel("Bez marginesu", "130/170g")),
+        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g (kreda 200 g)", formatGroupLabel("Z marginesem", "200g"), formatGroupLabel("Bez marginesu", "200g")),
       ].join("");
 
       const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[])

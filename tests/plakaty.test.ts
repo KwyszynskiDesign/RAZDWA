@@ -208,7 +208,7 @@ describe("getPlakatyMalyCanonLegendPanels", () => {
 });
 
 describe("getPlakatyA4A3LegendStyles", () => {
-  it("uses the requested blue palette, tighter price backgrounds, and consistent no-margin size headers", () => {
+  it("uses the requested blue palette, white A3 cells, and consistent no-margin size headers", () => {
     const styles = getPlakatyA4A3LegendStyles();
     expect(styles.panelTitle).toContain("#1e3a8a");
     expect(styles.panelTitle).toContain("#eff6ff");
@@ -219,7 +219,7 @@ describe("getPlakatyA4A3LegendStyles", () => {
     expect(styles.priceCell).toContain("#1e3a8a");
     expect(styles.priceCell).toContain("rgba(59,130,246,0.06)");
     expect(styles.priceCellStrong).toContain("#1e3a8a");
-    expect(styles.priceCellStrong).toContain("rgba(59,130,246,0.10)");
+    expect(styles.priceCellStrong).toContain("#ffffff");
     expect(styles.priceHeaderStrong).toContain("#eff6ff");
   });
 });
