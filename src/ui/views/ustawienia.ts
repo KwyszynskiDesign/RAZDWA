@@ -239,23 +239,23 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-zaciskowa-miekka": "Zaciskowa miękka",
   "laminowanie-oprawa-zaciskowa-thermo-biala": "Biała – zszywka THERMO",
   "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": "Skoroszyt + zszywanie",
-  // Bindowanie – 3 podgrupy zgodne z CSV: plastik do 20 kart, plastik 21+ kart, metal
-  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – Plastik do 20 kart. (listwa) – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – Plastik do 20 kart. (spirala) – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – Plastik 21–100 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – Plastik powyżej 100 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – Plastik do 20 kart. (listwa / spirala) – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – Plastik 21–100 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – Plastik powyżej 100 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – Plastik do 20 kart. (listwa / spirala) – 101–200 szt.",
-  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – Plastik 21–100 kart. – 101–200 szt.",
-  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – Plastik powyżej 100 kart. – 101–200 szt.",
-  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – Spirala metalowa do 40 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – Spirala metalowa do 80 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – Spirala metalowa do 120 kart. – 1–50 szt.",
-  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – Spirala metalowa do 40 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – Spirala metalowa do 80 kart. – 51–100 szt.",
-  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – Spirala metalowa do 120 kart. – 51–100 szt.",
+  // Bindowanie – podział na 3 czytelne grupy: listwa zatrzaskowa, spirala plastik, spirala metal
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – listwa zatrzaskowa • 1–50 szt. • do 20 kart",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – spirala plastik • 1–50 szt. • do 20 kart",
+  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 1–50 szt. • 21–100 kart",
+  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 1–50 szt. • powyżej 100 kart",
+  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • do 20 kart",
+  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • 21–100 kart",
+  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • powyżej 100 kart",
+  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • do 20 kart",
+  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • 21–100 kart",
+  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • powyżej 100 kart",
+  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – spirala metal • 1–50 szt. • do 40 kart",
+  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – spirala metal • 1–50 szt. • do 80 kart",
+  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – spirala metal • 1–50 szt. • do 120 kart",
+  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – spirala metal • 51–100 szt. • do 40 kart",
+  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – spirala metal • 51–100 szt. • do 80 kart",
+  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – spirala metal • 51–100 szt. • do 120 kart",
   "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
@@ -747,21 +747,12 @@ function getLaminowanieSectionTitle(key: string): string {
 }
 
 export function getBindowanieSubgroupTitle(key: string): string {
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) {
-    return "PLASTIK DO 20 KART";
-  }
-
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-spirala)?$/)) {
-    return "PLASTIK DO 20 KART";
-  }
-
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(21-100|100plus)$/)) {
-    return "PLASTIK 21+ KART";
-  }
-
-  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) {
-    return "METAL SPIRALA";
-  }
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return "LISTWA ZATRZASKOWA • DO 20 KART";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return "SPIRALA PLASTIK • DO 20 KART";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • 21–100 KART";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • POWYŻEJ 100 KART";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • DO 20 KART";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return "SPIRALA METAL • FORMAT KARTKI";
 
   return "";
 }
@@ -1320,9 +1311,12 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
 
 export function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   const getBindowanieSubgroupRank = (key: string): number => {
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20(?:-listwa|-spirala)?$/)) return 0;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(21-100|100plus)$/)) return 1;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 3;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 4;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 5;
     return 99;
   };
 

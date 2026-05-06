@@ -131,7 +131,7 @@ const DEFAULT_PRICES = {
   // === DODATKOWO PŁATNE (oprawy twarde) ===
   "laminowanie-oprawa-twarda-rozszycie": 25.00,
   "laminowanie-oprawa-twarda-ponowne-zszycie": 25.00,
-  // === BINDOWANIE – PLASTIK ===
+  // === BINDOWANIE – LISTWA ZATRZASKOWA / SPIRALA PLASTIK ===
   "laminowanie-bindowanie-plastik-1-50-do20-listwa": 7.00,
   "laminowanie-bindowanie-plastik-1-50-do20-spirala": 6.00,
   "laminowanie-bindowanie-plastik-1-50-21-100": 5.00,
@@ -142,7 +142,7 @@ const DEFAULT_PRICES = {
   "laminowanie-bindowanie-plastik-101-200-do20": 13.00,
   "laminowanie-bindowanie-plastik-101-200-21-100": 12.00,
   "laminowanie-bindowanie-plastik-101-200-100plus": 11.00,
-  // === BINDOWANIE – METAL ===
+  // === BINDOWANIE – SPIRALA METAL ===
   "laminowanie-bindowanie-metal-1-50-do40": 11.00,
   "laminowanie-bindowanie-metal-1-50-do80": 13.00,
   "laminowanie-bindowanie-metal-1-50-do120": 15.00,
@@ -649,29 +649,30 @@ function getPriceKeyDescription(key) {
     return introMap[key] || 'Introligatornia • Usługa dodatkowa';
   }
 
-  let m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-(do20|21-100|100plus)$/);
+  m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-do20-listwa$/);
   if (m) {
-    const naklad = m[1];
+    return `Bindowanie – listwa zatrzaskowa • ${m[1]} szt. • do 20 kartek`;
+  }
+
+  m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-do20-spirala$/);
+  if (m) {
+    return `Bindowanie – spirala plastik • ${m[1]} szt. • do 20 kartek`;
+  }
+
+  m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-(do20|21-100|100plus)$/);
+  if (m) {
     const gruboscMap = {
       do20: 'do 20 kartek',
       '21-100': '21-100 kartek',
       '100plus': 'powyżej 100 kartek'
     };
-    return `Bindowanie – plastik (listwa zatrzaskowa / spirala plastik) • ${naklad} szt. • ${gruboscMap[m[2]]}`;
-  }
-
-  m = key.match(/^laminowanie-bindowanie-plastik-(\d+-\d+)-do20-(listwa|spirala)$/);
-  if (m) {
-    const naklad = m[1];
-    const typMap = { listwa: 'listwa', spirala: 'spirala' };
-    return `Bindowanie – plastik (listwa zatrzaskowa / spirala plastik) • ${naklad} szt. • do 20 kartek • ${typMap[m[2]]}`;
+    return `Bindowanie – listwa zatrzaskowa / spirala plastik • ${m[1]} szt. • ${gruboscMap[m[2]]}`;
   }
 
   m = key.match(/^laminowanie-bindowanie-metal-(\d+-\d+)-(do40|do80|do120)$/);
   if (m) {
-    const naklad = m[1];
     const kartkiMap = { do40: 'do 40 kartek', do80: 'do 80 kartek', do120: 'do 120 kartek' };
-    return `Bindowanie – metal (spirala metalowa) • ${naklad} szt. • ${kartkiMap[m[2]]}`;
+    return `Bindowanie – spirala metal • ${m[1]} szt. • ${kartkiMap[m[2]]}`;
   }
 
   m = key.match(/^laminowanie-oprawa-grzbietowa-(a4|a3)-do(30|60|90|150)$/);
