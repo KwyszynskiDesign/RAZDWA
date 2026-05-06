@@ -1701,7 +1701,7 @@ a[href] {
 
 .plakaty-a4a3-maly-canon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
 }
 
@@ -1710,6 +1710,8 @@ a[href] {
   border-radius: 10px;
   padding: 8px;
   background: rgba(255, 255, 255, 0.55);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .plakaty-a4a3-maly-canon-title {
@@ -1724,6 +1726,7 @@ a[href] {
   width: 100%;
   table-layout: fixed;
   margin: 0;
+  min-width: 0;
 }
 
 .plakaty-a4a3-maly-canon-table th,
@@ -1760,6 +1763,13 @@ a[href] {
   .plakaty-a4a3-inner-grid {
     --pa-left-shift: 0px;
     --pa-right-trim: 0px;
+  }
+}
+
+@media (max-width: 960px) {
+  .plakaty-a4a3-inner-grid {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 100%;
   }
 }
 

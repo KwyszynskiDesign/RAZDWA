@@ -19,9 +19,9 @@ export function getPlakatyA4A3LegendStyles() {
     groupHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
     groupHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
     quantityHeader: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
-    priceHeaderStrong: "color:#1e3a8a; background:transparent; font-weight:800;",
-    priceCell: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
-    priceCellStrong: "color:#1e3a8a; background:transparent; font-weight:800;",
+    priceHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
+    priceCell: "color:#1e3a8a; background:rgba(59,130,246,0.06); font-weight:700;",
+    priceCellStrong: "color:#1e3a8a; background:rgba(59,130,246,0.10); font-weight:800;",
     sizeHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
   };
 }
