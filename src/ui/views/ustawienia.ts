@@ -746,6 +746,10 @@ function getLaminowanieSectionTitle(key: string): string {
   return "LAMINOWANIE";
 }
 
+export function isLaminowanieEmphasizedRow(key: string): boolean {
+  return key.startsWith("laminowanie-a3-") || key.startsWith("laminowanie-a5-");
+}
+
 export function getBindowanieSubgroupTitle(key: string): string {
   if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return "LISTWA ZATRZASKOWA • DO 20 KART";
   if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return "SPIRALA PLASTIK • DO 20 KART";
@@ -1962,7 +1966,7 @@ export const UstawieniaView: View = {
 
         const value = prices[key];
         const useAltLabel = active.id === "laminowanie"
-          ? previousLaminowanieSection === "BINDOWANIE" && isBoldGroup
+          ? isLaminowanieEmphasizedRow(key) || (previousLaminowanieSection === "BINDOWANIE" && isBoldGroup)
           : isBoldGroup;
         const displayPrice = typeof value === "number" && Number.isFinite(value)
           ? value.toFixed(2)

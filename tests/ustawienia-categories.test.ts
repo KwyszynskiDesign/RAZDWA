@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getRenderedCategories } from "../src/ui/views/ustawienia";
+import { getRenderedCategories, isLaminowanieEmphasizedRow } from "../src/ui/views/ustawienia";
 
 describe("Ustawienia category mapping", () => {
   it("assigns plakaty blockout keys to the Solwent / plakaty category", () => {
@@ -54,5 +54,12 @@ describe("Ustawienia category mapping", () => {
     const canvasCategory = categories.find((category) => category.id === "canvas");
     expect(canvasCategory).toBeDefined();
     expect(canvasCategory?.label).toBe("Canvas / Płótno");
+  });
+
+  it("emphasizes A3 and A5 rows in laminowanie", () => {
+    expect(isLaminowanieEmphasizedRow("laminowanie-a3-1-50")).toBe(true);
+    expect(isLaminowanieEmphasizedRow("laminowanie-a5-1-50")).toBe(true);
+    expect(isLaminowanieEmphasizedRow("laminowanie-a4-1-50")).toBe(false);
+    expect(isLaminowanieEmphasizedRow("laminowanie-a6-1-50")).toBe(false);
   });
 });

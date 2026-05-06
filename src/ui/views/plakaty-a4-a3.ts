@@ -13,6 +13,19 @@ const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
   a3: "A3",
 };
 
+export function getPlakatyA4A3LegendStyles() {
+  return {
+    panelTitle: "margin:0 0 8px; padding:6px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:0.02em; color:#1d4ed8; background:rgba(59,130,246,0.14); font-weight:700;",
+    groupHeader: "color:#1d4ed8; background:rgba(59,130,246,0.16); font-weight:700;",
+    groupHeaderStrong: "color:#1d4ed8; background:rgba(59,130,246,0.22); font-weight:800;",
+    quantityHeader: "color:#1d4ed8; background:rgba(59,130,246,0.22); font-weight:800;",
+    priceHeaderStrong: "color:#1d4ed8; background:rgba(59,130,246,0.18); font-weight:800;",
+    priceCell: "color:#1d4ed8; background:rgba(59,130,246,0.12); font-weight:700;",
+    priceCellStrong: "color:#1d4ed8; background:rgba(59,130,246,0.18); font-weight:800;",
+    sizeHeader: "color:#1d4ed8; background:rgba(59,130,246,0.10); font-weight:700;",
+  };
+}
+
 export const PlakatyA4A3View: View = {
   id: "plakaty-a4-a3",
   name: "Plakaty A4-A3",
@@ -29,6 +42,7 @@ export const PlakatyA4A3View: View = {
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
     const tableData = data as any;
+    const legendStyles = getPlakatyA4A3LegendStyles();
 
     const canonVariantSelect = container.querySelector("#pa-canon-variant") as HTMLSelectElement;
     const canonPaperSelect = container.querySelector("#pa-canon-paper") as HTMLSelectElement;
@@ -94,10 +108,10 @@ export const PlakatyA4A3View: View = {
             return `
               <tr>
                 <td>${row.label} szt</td>
-                <td>${row.a4}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${noMarginRow.a4}</td>
-                <td>${row.a3}</td>
-                <td style="color:#166534; background:rgba(34,197,94,0.12); font-weight:700;">${noMarginRow.a3}</td>
+                <td style="${legendStyles.priceCell}">${row.a4}</td>
+                <td style="${legendStyles.priceCellStrong}">${noMarginRow.a4}</td>
+                <td style="${legendStyles.priceCell}">${row.a3}</td>
+                <td style="${legendStyles.priceCellStrong}">${noMarginRow.a3}</td>
               </tr>
             `;
           })
@@ -105,19 +119,19 @@ export const PlakatyA4A3View: View = {
 
         return `
           <div class="plakaty-a4a3-maly-canon-panel">
-            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.02em;">${title}</h5>
+            <h5 class="plakaty-a4a3-maly-canon-title" style="${legendStyles.panelTitle}">${title}</h5>
             <table class="plakaty-a4a3-maly-canon-table">
               <thead>
                 <tr>
-                  <th rowspan="2">Ilość</th>
-                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${marginGroupLabel}</th>
-                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.14);">${noMarginGroupLabel}</th>
+                  <th rowspan="2" style="${legendStyles.quantityHeader}">Ilość</th>
+                  <th colspan="2" style="${legendStyles.groupHeader}">${marginGroupLabel}</th>
+                  <th colspan="2" style="${legendStyles.groupHeaderStrong}">${noMarginGroupLabel}</th>
                 </tr>
                 <tr>
-                  <th style="color:#166534; background:rgba(34,197,94,0.08);">A4</th>
-                  <th style="color:#166534; background:rgba(34,197,94,0.08);">A3</th>
-                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A4</th>
-                  <th style="color:#166534; background:rgba(34,197,94,0.14);">A3</th>
+                  <th style="${legendStyles.sizeHeader}">A4</th>
+                  <th style="${legendStyles.sizeHeader}">A3</th>
+                  <th style="${legendStyles.priceHeaderStrong}">A4</th>
+                  <th style="${legendStyles.priceHeaderStrong}">A3</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>

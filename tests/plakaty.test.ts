@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon, getPlakatyMalyCanonLegendPanels } from "../src/categories/plakaty";
+import { getPlakatyA4A3LegendStyles } from "../src/ui/views/plakaty-a4-a3";
 
 describe("calculatePlakatyM2 – solwent m² materials", () => {
   it("applies minimalka: 0.5 m² → 1 m²  @ 70 zł (200g Połysk, tier 1-3)", () => {
@@ -201,6 +202,18 @@ describe("getPlakatyMalyCanonLegendPanels", () => {
       a4: "7,00 zł",
       a3: "8,00 zł",
     });
+  });
+});
+
+describe("getPlakatyA4A3LegendStyles", () => {
+  it("uses blue legend backgrounds instead of green ones", () => {
+    const styles = getPlakatyA4A3LegendStyles();
+    expect(styles.quantityHeader).toContain("59,130,246");
+    expect(styles.groupHeader).toContain("59,130,246");
+    expect(styles.priceCell).toContain("59,130,246");
+    expect(styles.quantityHeader).not.toContain("34,197,94");
+    expect(styles.groupHeader).not.toContain("34,197,94");
+    expect(styles.priceCell).not.toContain("34,197,94");
   });
 });
 

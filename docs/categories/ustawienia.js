@@ -1313,7 +1313,7 @@ function updateTable() {
       : '18px';
 
     rows.push(`
-      <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''} ${currentCategory === 'banner' && getBannerGroupTitle(key) === 'BLOCKOUT' ? 'font-weight: bold;' : ''}">
+      <tr style="border-bottom: 1px solid var(--border); ${currentCategory === 'folia-szroniona' && getFoliaSzronionaGroupTitle(key) === 'OWV' ? 'font-weight: bold;' : ''} ${currentCategory === 'banner' && getBannerGroupTitle(key) === 'BLOCKOUT' ? 'font-weight: bold;' : ''} ${currentCategory === 'laminowanie' && (key.startsWith('laminowanie-a3-') || key.startsWith('laminowanie-a5-')) ? 'font-weight: bold;' : ''}">
         <td style="${zaproszStyle}">
           ${getPriceKeyDescription(key)
             ? `<div style="font-size: ${zaproszLabelSize}; color: var(--text-secondary); margin: 0 0 ${currentCategory === 'zaproszenia' ? '3px' : '6px'} 0; line-height: 1.3;">${escAttr(getPriceKeyDescription(key))}</div>`
