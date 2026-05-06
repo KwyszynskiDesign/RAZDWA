@@ -81,35 +81,55 @@ export const PlakatyA4A3View: View = {
       };
 
       const malyCanonPanels = getPlakatyMalyCanonLegendPanels();
-      const malyCanonPanelsHtml = malyCanonPanels
-        .map((panel) => {
-          const rows = panel.rows
-            .map((row) => `
+      const buildCombinedMalyCanonTable = (
+        marginPanel: (typeof malyCanonPanels)[number],
+        noMarginPanel: (typeof malyCanonPanels)[number],
+        title: string,
+        marginGroupLabel: string,
+        noMarginGroupLabel: string
+      ) => {
+        const rows = marginPanel.rows
+          .map((row, rowIndex) => {
+            const noMarginRow = noMarginPanel.rows[rowIndex] ?? row;
+            return `
               <tr>
                 <td>${row.label} szt</td>
                 <td>${row.a4}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${noMarginRow.a4}</td>
                 <td>${row.a3}</td>
+                <td style="color:#166534; background:rgba(34,197,94,0.08); font-weight:700;">${noMarginRow.a3}</td>
               </tr>
-            `)
-            .join("");
+            `;
+          })
+          .join("");
 
-          return `
-            <div class="plakaty-a4a3-maly-canon-panel">
-              <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${panel.title}</h5>
-              <table class="plakaty-a4a3-maly-canon-table">
-                <thead>
-                  <tr>
-                    <th>Ilość</th>
-                    <th>A4</th>
-                    <th>A3</th>
-                  </tr>
-                </thead>
-                <tbody>${rows}</tbody>
-              </table>
-            </div>
-          `;
-        })
-        .join("");
+        return `
+          <div class="plakaty-a4a3-maly-canon-panel">
+            <h5 class="plakaty-a4a3-maly-canon-title" style="margin:0 0 8px; text-transform:uppercase; letter-spacing:0.04em;">${title}</h5>
+            <table class="plakaty-a4a3-maly-canon-table">
+              <thead>
+                <tr>
+                  <th rowspan="2">Ilość</th>
+                  <th colspan="2">${marginGroupLabel}</th>
+                  <th colspan="2" style="color:#166534; background:rgba(34,197,94,0.08);">${noMarginGroupLabel}</th>
+                </tr>
+                <tr>
+                  <th>A4</th>
+                  <th>A4</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.08);">A4</th>
+                  <th style="color:#166534; background:rgba(34,197,94,0.08);">A3</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        `;
+      };
+
+      const malyCanonPanelsHtml = [
+        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "170 g (kreda 130 g/170 g)", "Z marginesem 170 g", "Bez marginesu 170 g"),
+        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g (kreda 200 g)", "Z marginesem 200 g", "Bez marginesu 200 g"),
+      ].join("");
 
       const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[])
         .map((tier) => tier.qty);
