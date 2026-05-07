@@ -1701,7 +1701,7 @@ a[href] {
 
 .plakaty-a4a3-maly-canon-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 

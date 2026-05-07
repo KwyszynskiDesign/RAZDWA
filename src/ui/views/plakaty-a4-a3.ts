@@ -22,6 +22,7 @@ export function getPlakatyA4A3LegendStyles() {
     priceHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
     priceCell: "color:#1e3a8a; background:rgba(59,130,246,0.06); font-weight:700;",
     priceCellStrong: "color:#1e3a8a; background:#ffffff; font-weight:800;",
+    priceCellA3: "color:#1e3a8a; background:#ffffff; font-weight:700;",
     sizeHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
   };
 }
@@ -110,9 +111,9 @@ export const PlakatyA4A3View: View = {
               <tr>
                 <td>${row.label} szt</td>
                 <td style="${legendStyles.priceCell}">${row.a4}</td>
+                <td style="${legendStyles.priceCellA3}">${row.a3}</td>
                 <td style="${legendStyles.priceCellStrong}">${noMarginRow.a4}</td>
-                <td style="${legendStyles.priceCell}">${row.a3}</td>
-                <td style="${legendStyles.priceCellStrong}">${noMarginRow.a3}</td>
+                <td style="${legendStyles.priceCellA3}">${noMarginRow.a3}</td>
               </tr>
             `;
           })
@@ -142,8 +143,8 @@ export const PlakatyA4A3View: View = {
       };
 
       const malyCanonPanelsHtml = [
-        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "170 g (kreda 130 g/170 g)", formatGroupLabel("Z marginesem", "130/170g"), formatGroupLabel("Bez marginesu", "130/170g")),
-        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g (kreda 200 g)", formatGroupLabel("Z marginesem", "200g"), formatGroupLabel("Bez marginesu", "200g")),
+        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "130 g/170 g", formatGroupLabel("Z marginesem", "130/170g"), formatGroupLabel("Bez marginesu", "130/170g")),
+        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g", formatGroupLabel("Z marginesem", "200g"), formatGroupLabel("Bez marginesu", "200g")),
       ].join("");
 
       const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[])

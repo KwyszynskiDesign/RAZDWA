@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon, getPlakatyMalyCanonLegendPanels } from "../src/categories/plakaty";
 import { getPlakatyA4A3LegendStyles } from "../src/ui/views/plakaty-a4-a3";
+import { resetPrices, setPrice } from "../src/services/priceService";
 
 describe("calculatePlakatyM2 – solwent m² materials", () => {
   it("applies minimalka: 0.5 m² → 1 m²  @ 70 zł (200g Połysk, tier 1-3)", () => {
@@ -205,6 +206,39 @@ describe("getPlakatyMalyCanonLegendPanels", () => {
     expect(panels[1].title).toBe("Z marginesem 200g");
     expect(panels[3].rows.at(-1)?.label).toBe("4-9");
   });
+
+  it("reflects stored price overrides for the same keys used by settings", () => {
+    const stored: Record<string, string> = {};
+    const previousLocalStorage = (globalThis as any).localStorage;
+    const mockLocalStorage = {
+      getItem: (key: string) => stored[key] ?? null,
+      setItem: (key: string, value: string) => {
+        stored[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete stored[key];
+      },
+    };
+
+    (globalThis as any).localStorage = mockLocalStorage;
+    try {
+      setPrice("defaultPrices", {
+        "plakaty-maly-canon-margin-170-A4-1-3": 12.34,
+        "plakaty-maly-canon-margin-170-A3-1-3": 56.78,
+      });
+
+      const panels = getPlakatyMalyCanonLegendPanels();
+      expect(panels[0].rows[0].a4.replace(/\u00a0/g, " ")).toBe("12,34 zł");
+      expect(panels[0].rows[0].a3.replace(/\u00a0/g, " ")).toBe("56,78 zł");
+    } finally {
+      if (previousLocalStorage === undefined) {
+        delete (globalThis as any).localStorage;
+      } else {
+        (globalThis as any).localStorage = previousLocalStorage;
+      }
+      resetPrices();
+    }
+  });
 });
 
 describe("getPlakatyA4A3LegendStyles", () => {
@@ -220,6 +254,7 @@ describe("getPlakatyA4A3LegendStyles", () => {
     expect(styles.priceCell).toContain("rgba(59,130,246,0.06)");
     expect(styles.priceCellStrong).toContain("#1e3a8a");
     expect(styles.priceCellStrong).toContain("#ffffff");
+    expect(styles.priceCellA3).toContain("#ffffff");
     expect(styles.priceHeaderStrong).toContain("#eff6ff");
   });
 });
