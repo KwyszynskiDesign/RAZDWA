@@ -112,7 +112,7 @@ export const PlakatyA4A3View: View = {
                 <td>${row.label} szt</td>
                 <td style="${legendStyles.priceCell}">${row.a4}</td>
                 <td style="${legendStyles.priceCellA3}">${row.a3}</td>
-                <td style="${legendStyles.priceCellStrong}">${noMarginRow.a4}</td>
+                <td style="${legendStyles.priceCell}">${noMarginRow.a4}</td>
                 <td style="${legendStyles.priceCellA3}">${noMarginRow.a3}</td>
               </tr>
             `;

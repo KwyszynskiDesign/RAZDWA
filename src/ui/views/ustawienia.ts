@@ -239,23 +239,23 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-zaciskowa-miekka": "Zaciskowa miękka",
   "laminowanie-oprawa-zaciskowa-thermo-biala": "Biała – zszywka THERMO",
   "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": "Skoroszyt + zszywanie",
-  // Bindowanie – podział na 3 czytelne grupy: listwa zatrzaskowa, spirala plastik, spirala metal
-  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "Bindowanie – listwa zatrzaskowa • 1–50 szt. • do 20 kart",
-  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "Bindowanie – spirala plastik • 1–50 szt. • do 20 kart",
-  "laminowanie-bindowanie-plastik-1-50-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 1–50 szt. • 21–100 kart",
-  "laminowanie-bindowanie-plastik-1-50-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 1–50 szt. • powyżej 100 kart",
-  "laminowanie-bindowanie-plastik-51-100-do20": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • do 20 kart",
-  "laminowanie-bindowanie-plastik-51-100-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • 21–100 kart",
-  "laminowanie-bindowanie-plastik-51-100-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 51–100 szt. • powyżej 100 kart",
-  "laminowanie-bindowanie-plastik-101-200-do20": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • do 20 kart",
-  "laminowanie-bindowanie-plastik-101-200-21-100": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • 21–100 kart",
-  "laminowanie-bindowanie-plastik-101-200-100plus": "Bindowanie – listwa zatrzaskowa / spirala plastik • 101–200 szt. • powyżej 100 kart",
-  "laminowanie-bindowanie-metal-1-50-do40": "Bindowanie – spirala metal • 1–50 szt. • do 40 kart",
-  "laminowanie-bindowanie-metal-1-50-do80": "Bindowanie – spirala metal • 1–50 szt. • do 80 kart",
-  "laminowanie-bindowanie-metal-1-50-do120": "Bindowanie – spirala metal • 1–50 szt. • do 120 kart",
-  "laminowanie-bindowanie-metal-51-100-do40": "Bindowanie – spirala metal • 51–100 szt. • do 40 kart",
-  "laminowanie-bindowanie-metal-51-100-do80": "Bindowanie – spirala metal • 51–100 szt. • do 80 kart",
-  "laminowanie-bindowanie-metal-51-100-do120": "Bindowanie – spirala metal • 51–100 szt. • do 120 kart",
+  // Bindowanie – grupowanie zgodne z tabelą cennika (kolumny i zakresy kartek)
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • listwa zatrzaskowa",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • spirala plastikowa",
+  "laminowanie-bindowanie-plastik-1-50-21-100": "BINDOWANIE PLASTIK • 1–50 szt. • 21–100 kartek",
+  "laminowanie-bindowanie-plastik-1-50-100plus": "BINDOWANIE PLASTIK • 1–50 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-plastik-51-100-do20": "BINDOWANIE PLASTIK • 51–100 szt. • do 20 kartek",
+  "laminowanie-bindowanie-plastik-51-100-21-100": "BINDOWANIE PLASTIK • 51–100 szt. • 21–100 kartek",
+  "laminowanie-bindowanie-plastik-51-100-100plus": "BINDOWANIE PLASTIK • 51–100 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-plastik-101-200-do20": "BINDOWANIE PLASTIK • 101–200 szt. • do 20 kartek",
+  "laminowanie-bindowanie-plastik-101-200-21-100": "BINDOWANIE PLASTIK • 101–200 szt. • 21–100 kartek",
+  "laminowanie-bindowanie-plastik-101-200-100plus": "BINDOWANIE PLASTIK • 101–200 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-metal-1-50-do40": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 40 kartek",
+  "laminowanie-bindowanie-metal-1-50-do80": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 80 kartek",
+  "laminowanie-bindowanie-metal-1-50-do120": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 120 kartek",
+  "laminowanie-bindowanie-metal-51-100-do40": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 40 kartek",
+  "laminowanie-bindowanie-metal-51-100-do80": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 80 kartek",
+  "laminowanie-bindowanie-metal-51-100-do120": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 120 kartek",
   "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
   "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
@@ -325,12 +325,28 @@ const PRICE_LABELS: Record<string, string> = {
   "plakaty-format-180g-pp-nieformatowe-914x1292": "Plakaty 180g PP nieformatowe – A0+",
   "plakaty-maly-canon-margin-170-1-3": "Plakaty mały Canon z marginesem 130 g/170 g – 1–3 szt.",
   "plakaty-maly-canon-margin-170-4-9": "Plakaty mały Canon z marginesem 130 g/170 g – 4–9 szt.",
+  "plakaty-maly-canon-margin-170-A4-1-3": "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-margin-170-A3-1-3": "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-margin-170-A4-4-9": "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-margin-170-A3-4-9": "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-margin-200-1-3": "Plakaty mały Canon z marginesem 200 g – 1–3 szt.",
   "plakaty-maly-canon-margin-200-4-9": "Plakaty mały Canon z marginesem 200 g – 4–9 szt.",
+  "plakaty-maly-canon-margin-200-A4-1-3": "Plakaty mały Canon z marginesem 200 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-margin-200-A3-1-3": "Plakaty mały Canon z marginesem 200 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-margin-200-A4-4-9": "Plakaty mały Canon z marginesem 200 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-margin-200-A3-4-9": "Plakaty mały Canon z marginesem 200 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-no-margin-170-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g – 1–3 szt.",
   "plakaty-maly-canon-no-margin-170-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-170-A4-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-170-A3-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-170-A4-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-170-A3-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-no-margin-200-1-3": "Plakaty mały Canon bez marginesu 200 g – 1–3 szt.",
   "plakaty-maly-canon-no-margin-200-4-9": "Plakaty mały Canon bez marginesu 200 g – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-200-A4-1-3": "Plakaty mały Canon bez marginesu 200 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-200-A3-1-3": "Plakaty mały Canon bez marginesu 200 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-200-A4-4-9": "Plakaty mały Canon bez marginesu 200 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-200-A3-4-9": "Plakaty mały Canon bez marginesu 200 g (A3) – 4–9 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-10": "Plakaty duży Canon A4 130g/170g – 10 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-20": "Plakaty duży Canon A4 130g/170g – 20 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-30": "Plakaty duży Canon A4 130g/170g – 30 szt.",
@@ -750,12 +766,12 @@ export function isLaminowanieEmphasizedRow(key: string): boolean {
 }
 
 export function getBindowanieSubgroupTitle(key: string): string {
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return "LISTWA ZATRZASKOWA • DO 20 KART";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return "SPIRALA PLASTIK • DO 20 KART";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • 21–100 KART";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • POWYŻEJ 100 KART";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20$/)) return "LISTWA ZATRZASKOWA / SPIRALA PLASTIK • DO 20 KART";
-  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return "SPIRALA METAL • FORMAT KARTKI";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa|-spirala)?)$/)) return "PLASTIK • DO 20 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return "PLASTIK • 21–100 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return "PLASTIK • POWYŻEJ 100 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return "METAL (SPIRALA METALOWA) • DO 40 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return "METAL (SPIRALA METALOWA) • DO 80 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return "METAL (SPIRALA METALOWA) • DO 120 KARTEK";
 
   return "";
 }
@@ -1314,12 +1330,12 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
 
 export function sortLaminowanieCategoryKeys(keys: string[]): string[] {
   const getBindowanieSubgroupRank = (key: string): number => {
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-listwa$/)) return 0;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20-spirala$/)) return 1;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-do20$/)) return 2;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 3;
-    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 4;
-    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-(do40|do80|do120)$/)) return 5;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa|-spirala)?)$/)) return 0;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return 1;
+    if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return 2;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return 3;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return 4;
+    if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return 5;
     return 99;
   };
 
