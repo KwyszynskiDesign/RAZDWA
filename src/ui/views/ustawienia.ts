@@ -1441,6 +1441,18 @@ function getPlakatyDetailOrder(key: string): number {
   return getPlakatyRangeStart(key);
 }
 
+function filterPlakatyA4A3SettingsKeys(keys: string[]): string[] {
+  return keys.filter((key) => {
+    if (!key.startsWith("plakaty-maly-canon-")) {
+      return true;
+    }
+
+    // W ustawieniach pokazujemy tylko jawne warianty formatu (A4/A3),
+    // aby uniknąć duplikatów względem starszych kluczy ogólnych.
+    return /-A[34]-/.test(key);
+  });
+}
+
 function sortPlakatyCategoryKeys(keys: string[]): string[] {
   const groupRank = (key: string): number => {
     if (key.startsWith("solwent-115g-")) return 0;
@@ -1648,7 +1660,7 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   }
 
   if (category.id === "plakaty-a4-a3") {
-    return sortPlakatyCategoryKeys(keys);
+    return sortPlakatyCategoryKeys(filterPlakatyA4A3SettingsKeys(keys));
   }
 
   if (category.id === "zaproszenia") {
