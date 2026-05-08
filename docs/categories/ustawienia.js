@@ -314,13 +314,6 @@ const DEFAULT_PRICES = {
   "artykuly-pudelko-pakowe-120": 6.00,
   "artykuly-plyty-cd": 3.20,
   "artykuly-plyty-dvd": 5.20,
-  "koperty-a": 0.00,
-  "koperty-b": 0.00,
-  "koperty-c": 0.00,
-  "koperty-d": 0.00,
-  "koperty-e": 0.00,
-  "koperty-f": 0.00,
-  "koperty-g": 0.00,
   // === USŁUGI ===
   "uslugi-formatowanie": 65.00,
   "uslugi-archiwizacja-cd": 5.00,
@@ -587,7 +580,7 @@ const CATEGORIES = {
   },
   "artykuly-biurowe": {
     label: "📎 Artykuły Biurowe",
-    prefixes: ["artykuly-", "koperty-"]
+    prefixes: ["artykuly-"]
   },
   "uslugi": {
     label: "🛠️ Usługi",
@@ -738,7 +731,7 @@ function getPriceKeyDescription(key) {
     'artykuly-teczka-biala-gumka': 'Artykuły Biurowe • Teczki • Teczka biała z gumką',
     'artykuly-teczka-niebieska-twarda': 'Artykuły Biurowe • Teczki • Teczka niebieska twarda',
     'artykuly-teczka-kolor-gumka': 'Artykuły Biurowe • Teczki • Teczka KOLOR z gumką',
-    'artykuly-teczka-biala-wiezanka': 'Artykuły Biurowe • Teczki • Teczka biała z wiązanką',
+    'artykuly-teczka-biala-wiezanka': 'Artykuły Biurowe • Teczki • Teczka biała z wiązką',
     'artykuly-skoroszyt-durable': 'Artykuły Biurowe • Skoroszyt • Skoroszyt DURABLE',
     'artykuly-skoroszyt-wasm': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem',
     'artykuly-skoroszyt-wasm-wpinanie': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem do wpinania',
@@ -758,14 +751,7 @@ function getPriceKeyDescription(key) {
     'artykuly-pudelko-pakowe-100': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 100cm',
     'artykuly-pudelko-pakowe-120': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 120cm',
     'artykuly-plyty-cd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty CD',
-    'artykuly-plyty-dvd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty DVD',
-    'koperty-a': 'Artykuły Biurowe • Koperty • Koperta A',
-    'koperty-b': 'Artykuły Biurowe • Koperty • Koperta B',
-    'koperty-c': 'Artykuły Biurowe • Koperty • Koperta C',
-    'koperty-d': 'Artykuły Biurowe • Koperty • Koperta D',
-    'koperty-e': 'Artykuły Biurowe • Koperty • Koperta E',
-    'koperty-f': 'Artykuły Biurowe • Koperty • Koperta F',
-    'koperty-g': 'Artykuły Biurowe • Koperty • Koperta G'
+    'artykuly-plyty-dvd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty DVD'
   };
   if (artykulyBiuroweMap[key]) return artykulyBiuroweMap[key];
 
