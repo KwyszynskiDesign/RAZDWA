@@ -580,7 +580,22 @@ const CATEGORIES = {
   },
   "artykuly-biurowe": {
     label: "📎 Artykuły Biurowe",
-    prefixes: ["artykuly-"]
+    prefixes: [
+      "artykuly-teczka-",
+      "artykuly-skoroszyt-",
+      "artykuly-segregator-",
+      "artykuly-koszulka-",
+      "artykuly-papier-",
+      "artykuly-dugopis",
+      "artykuly-olowek",
+      "artykuly-pendrive-",
+      "artykuly-pudelko-",
+      "artykuly-plyty-"
+    ]
+  },
+  "koperty": {
+    label: "✉️ Koperty",
+    prefixes: ["artykuly-koperta-"]
   },
   "uslugi": {
     label: "🛠️ Usługi",
@@ -743,10 +758,6 @@ function getPriceKeyDescription(key) {
     'artykuly-olowek': 'Artykuły Biurowe • Artykuły piszące • Ołówek',
     'artykuly-pendrive-32gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 32GB',
     'artykuly-pendrive-4gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 4GB',
-    'artykuly-koperta-zwykla': 'Artykuły Biurowe • Koperty • KOPERTY zwykłe',
-    'artykuly-koperta-rozszerzona': 'Artykuły Biurowe • Koperty • Koperta rozszerzona',
-    'artykuly-koperta-wysylkowa': 'Artykuły Biurowe • Koperty • Koperta wysyłkowa',
-    'artykuly-koperta-ozdobna': 'Artykuły Biurowe • Koperty • KOPERTY ozdobne/V',
     'artykuly-pudelko-pakowe-80': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 80cm',
     'artykuly-pudelko-pakowe-100': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 100cm',
     'artykuly-pudelko-pakowe-120': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 120cm',
@@ -754,6 +765,14 @@ function getPriceKeyDescription(key) {
     'artykuly-plyty-dvd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty DVD'
   };
   if (artykulyBiuroweMap[key]) return artykulyBiuroweMap[key];
+
+  const kopertyMap = {
+    'artykuly-koperta-zwykla': 'Koperty • KOPERTY zwykłe',
+    'artykuly-koperta-rozszerzona': 'Koperty • Koperta rozszerzona',
+    'artykuly-koperta-wysylkowa': 'Koperty • Koperta wysyłkowa',
+    'artykuly-koperta-ozdobna': 'Koperty • KOPERTY ozdobne/V'
+  };
+  if (kopertyMap[key]) return kopertyMap[key];
 
   // === USŁUGI ===
   const uslugiMap = {
@@ -995,6 +1014,34 @@ function getZaproszeniaGroupTitle(key) {
   return '';
 }
 
+function getUslugiGroupTitle(key) {
+  if (key === 'uslugi-formatowanie' || key.startsWith('uslugi-archiwizacja-')) {
+    return 'FORMATOWANIE I ARCHIWIZACJA';
+  }
+  if (key.startsWith('uslugi-scalanie-')) {
+    return 'SCALANIE I PRZETWARZANIE PLIKÓW';
+  }
+  if (key.startsWith('uslugi-poprawki-graficzne') || key.startsWith('uslugi-grafika-') || key.startsWith('uslugi-pakiet-') || key.startsWith('uslugi-social-media-')) {
+    return 'USŁUGI GRAFICZNE I PAKIETY';
+  }
+  return '';
+}
+
+function compareUslugiKeys(a, b) {
+  const groupRank = (key) => {
+    if (key === 'uslugi-formatowanie' || key.startsWith('uslugi-archiwizacja-')) return 0;
+    if (key.startsWith('uslugi-scalanie-')) return 1;
+    if (key.startsWith('uslugi-poprawki-graficzne') || key.startsWith('uslugi-grafika-') || key.startsWith('uslugi-pakiet-') || key.startsWith('uslugi-social-media-')) return 2;
+    return 99;
+  };
+
+  const ga = groupRank(a);
+  const gb = groupRank(b);
+  if (ga !== gb) return ga - gb;
+
+  return a.localeCompare(b);
+}
+
 function compareSolwentKeys(a, b) {
   const materialRank = (key) => {
     if (key.startsWith('solwent-150g-')) return 0;
@@ -1153,6 +1200,10 @@ function getFilteredPrices() {
     return keys.sort(compareDyplomyKeys);
   }
 
+  if (currentCategory === 'uslugi') {
+    return keys.sort(compareUslugiKeys);
+  }
+
   return keys.sort();
 }
 
@@ -1220,6 +1271,7 @@ function updateTable() {
   let lastDrukA4A3Group = '';
   let lastBannerGroup = '';
   let lastZaproszeniaGroup = '';
+  let lastUslugiGroup = '';
 
   filteredKeys.forEach((key) => {
     if (currentCategory === 'laminowanie') {
@@ -1279,6 +1331,18 @@ function updateTable() {
           </tr>
         `);
         lastZaproszeniaGroup = groupTitle;
+      }
+    }
+
+    if (currentCategory === 'uslugi') {
+      const groupTitle = getUslugiGroupTitle(key);
+      if (groupTitle && groupTitle !== lastUslugiGroup) {
+        rows.push(`
+          <tr>
+            <td colspan="3" style="padding: 10px 10px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: var(--text-secondary); border-top: 1px solid var(--border); background: rgba(0,0,0,0.02);">${groupTitle}</td>
+          </tr>
+        `);
+        lastUslugiGroup = groupTitle;
       }
     }
 

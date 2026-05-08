@@ -558,10 +558,10 @@ const PRICE_LABELS: Record<string, string> = {
   "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
   "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
   // Artykuły biurowe – jawne etykiety (klucze mają zniekształcone polskie znaki wskutek podwójnego kodowania)
-  "artykuly-teczka-bia\u0139\u201Aa-gumka": "Teczka biała z gumką",
+  "artykuly-teczka-biala-gumka": "Teczka Biała z Gumką",
   "artykuly-teczka-niebieska-twarda": "Teczka niebieska twarda",
   "artykuly-teczka-kolor-gumka": "Teczka kolorowa z gumką",
-  "artykuly-teczka-biala-wie\u0139\u015Fanka": "Teczka biała z wieszakiem",
+  "artykuly-teczka-biala-wiezanka": "Teczka z wiązanką",
   "artykuly-skoroszyt-durable": "Skoroszyt Durable",
   "artykuly-skoroszyt-wasm": "Skoroszyt WASM",
   "artykuly-skoroszyt-wasm-wpinanie": "Skoroszyt WASM (wpinanie)",
@@ -864,6 +864,27 @@ function getArtykulySectionTitle(key: string): string {
   return "ARTYKUŁY BIUROWE";
 }
 
+export function getUslugiSectionTitle(key: string): string {
+  if (key === "uslugi-formatowanie" || key.startsWith("uslugi-archiwizacja-")) {
+    return "FORMATOWANIE I ARCHIWIZACJA";
+  }
+
+  if (key.startsWith("uslugi-scalanie-")) {
+    return "SCALANIE I PRZETWARZANIE PLIKÓW";
+  }
+
+  if (
+    key.startsWith("uslugi-poprawki-graficzne") ||
+    key.startsWith("uslugi-grafika-") ||
+    key.startsWith("uslugi-pakiet-") ||
+    key.startsWith("uslugi-social-media-")
+  ) {
+    return "USŁUGI GRAFICZNE I PAKIETY";
+  }
+
+  return "USŁUGI";
+}
+
 const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
@@ -997,7 +1018,22 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "artykuly",
     label: "Artykuły biurowe",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
-    prefixes: ["artykuly-"],
+    prefixes: [
+      "artykuly-teczka-",
+      "artykuly-skoroszyt-",
+      "artykuly-segregator-",
+      "artykuly-koszulka-",
+      "artykuly-papier-",
+      "artykuly-dlugopis",
+      "artykuly-d\u0139\u201Augopis",
+      "artykuly-olowek",
+      "artykuly-o\u0139\u201A",
+      "artykuly-pendrive-",
+      "artykuly-pudelko-",
+      "artykuly-pude\u0139\u201Ako-",
+      "artykuly-plyty-",
+      "artykuly-p\u0139\u201Ayty-"
+    ],
     description: "Ceny materiałów biurowych i akcesoriów.",
     newKeyPrefix: "artykuly-"
   },
@@ -1013,9 +1049,9 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "koperty",
     label: "Koperty",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
-    prefixes: ["koperty-"],
-    description: "Struktura wstępna cennika kopert (A–G). Ceny można uzupełnić później.",
-    newKeyPrefix: "koperty-"
+    prefixes: ["koperty-", "artykuly-koperta-"],
+    description: "Ceny kopert (A–G oraz pozycje kopert z artykułów biurowych).",
+    newKeyPrefix: "artykuly-koperta-"
   },
   {
     id: "pojedyncze-naklady",
@@ -1629,6 +1665,27 @@ function sortArtykulyCategoryKeys(keys: string[]): string[] {
   });
 }
 
+export function sortUslugiCategoryKeys(keys: string[]): string[] {
+  const groupRank = (key: string): number => {
+    if (key === "uslugi-formatowanie" || key.startsWith("uslugi-archiwizacja-")) return 0;
+    if (key.startsWith("uslugi-scalanie-")) return 1;
+    if (
+      key.startsWith("uslugi-poprawki-graficzne") ||
+      key.startsWith("uslugi-grafika-") ||
+      key.startsWith("uslugi-pakiet-") ||
+      key.startsWith("uslugi-social-media-")
+    ) return 2;
+    return 99;
+  };
+
+  return [...keys].sort((a, b) => {
+    const ga = groupRank(a);
+    const gb = groupRank(b);
+    if (ga !== gb) return ga - gb;
+    return a.localeCompare(b, "pl");
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -1701,6 +1758,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "wlepki") {
     return sortWlepkiCategoryKeys(keys);
+  }
+
+  if (category.id === "uslugi") {
+    return sortUslugiCategoryKeys(keys);
   }
 
   return keys.sort();
@@ -1832,6 +1893,7 @@ export const UstawieniaView: View = {
       let previousZaproszeniaMaterial = "";
       let previousZaproszeniaSubgroup = "";
       let previousUlotkiSection = "";
+      let previousUslugiSection = "";
       let previousBindowanieSubgroup = "";
       let isBoldGroup = false;
 
@@ -1969,6 +2031,18 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "uslugi") {
+          const sectionTitle = getUslugiSectionTitle(key);
+          if (sectionTitle !== previousUslugiSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousUslugiSection = sectionTitle;
+          }
+        }
+
         if (active.id === "artykuly") {
           const sectionTitle = getArtykulySectionTitle(key);
           if (sectionTitle !== previousGroup) {
@@ -1983,7 +2057,7 @@ export const UstawieniaView: View = {
         }
 
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "artykuly") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "artykuly" && active.id !== "uslugi") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
