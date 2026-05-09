@@ -8,11 +8,6 @@
       "name": "TECZKI",
       "items": [
         {
-          "id": "teczka-biala-gumka",
-          "name": "Teczka biała z gumką",
-          "price": 4.00
-        },
-        {
           "id": "teczka-niebieska-twarda",
           "name": "Teczka niebieska twarda",
           "price": 15.00
@@ -21,11 +16,6 @@
           "id": "teczka-kolor-gumka",
           "name": "Teczka KOLOR z gumką",
           "price": 5.50
-        },
-        {
-          "id": "teczka-biala-wiezanka",
-          "name": "Teczka biała z wiązką",
-          "price": 5.00
         }
       ]
     },

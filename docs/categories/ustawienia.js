@@ -290,10 +290,8 @@ const DEFAULT_PRICES = {
   "modifier-vouchery-dwustronne": 0.80,
   "modifier-vouchery-300g": 0.25,
   // === ARTYKUŁY BIUROWE ===
-  "artykuly-teczka-biala-gumka": 4.00,
   "artykuly-teczka-niebieska-twarda": 15.00,
   "artykuly-teczka-kolor-gumka": 5.50,
-  "artykuly-teczka-biala-wiezanka": 5.00,
   "artykuly-skoroszyt-durable": 10.00,
   "artykuly-skoroszyt-wasm": 4.50,
   "artykuly-skoroszyt-wasm-wpinanie": 4.50,
@@ -581,7 +579,6 @@ const CATEGORIES = {
   "artykuly-biurowe": {
     label: "📎 Artykuły Biurowe",
     prefixes: [
-      "artykuly-koperta-",
       "artykuly-teczka-",
       "artykuly-skoroszyt-",
       "artykuly-segregator-",
@@ -748,10 +745,8 @@ function getPriceKeyDescription(key) {
     'artykuly-koperta-rozszerzona': 'Koperty • Koperta rozszerzona',
     'artykuly-koperta-wysylkowa': 'Koperty • Koperta wysyłkowa',
     'artykuly-koperta-ozdobna': 'Koperty • Koperta ozdobna',
-    'artykuly-teczka-biala-gumka': 'Teczki • Teczka biała z gumką',
     'artykuly-teczka-niebieska-twarda': 'Teczki • Teczka niebieska twarda',
     'artykuly-teczka-kolor-gumka': 'Teczki • Teczka KOLOR z gumką',
-    'artykuly-teczka-biala-wiezanka': 'Teczki • Teczka biała z wiązką',
     'artykuly-skoroszyt-durable': 'Skoroszyt • Skoroszyt DURABLE',
     'artykuly-skoroszyt-wasm': 'Skoroszyt • Skoroszyt z wąsem',
     'artykuly-skoroszyt-wasm-wpinanie': 'Skoroszyt • Skoroszyt z wąsem do wpinania',
