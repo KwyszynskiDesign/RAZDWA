@@ -581,7 +581,6 @@ const CATEGORIES = {
   "artykuly-biurowe": {
     label: "📎 Artykuły Biurowe",
     prefixes: [
-      "artykuly-koperta-",
       "artykuly-teczka-",
       "artykuly-skoroszyt-",
       "artykuly-segregator-",
@@ -744,10 +743,6 @@ function getPriceKeyDescription(key) {
 
   // === ARTYKUŁY BIUROWE ===
   const artykulyBiuroweMap = {
-    'artykuly-koperta-zwykla': 'Koperty • Koperta zwykła',
-    'artykuly-koperta-rozszerzona': 'Koperty • Koperta rozszerzona',
-    'artykuly-koperta-wysylkowa': 'Koperty • Koperta wysyłkowa',
-    'artykuly-koperta-ozdobna': 'Koperty • Koperta ozdobna',
     'artykuly-teczka-biala-gumka': 'Teczki • Teczka biała z gumką',
     'artykuly-teczka-niebieska-twarda': 'Teczki • Teczka niebieska twarda',
     'artykuly-teczka-kolor-gumka': 'Teczki • Teczka KOLOR z gumką',
