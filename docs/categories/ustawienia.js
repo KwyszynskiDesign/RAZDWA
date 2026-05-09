@@ -743,34 +743,34 @@ function getPriceKeyDescription(key) {
 
   // === ARTYKUŁY BIUROWE ===
   const artykulyBiuroweMap = {
-    'artykuly-teczka-biala-gumka': 'Artykuły Biurowe • Teczki • Teczka biała z gumką',
-    'artykuly-teczka-niebieska-twarda': 'Artykuły Biurowe • Teczki • Teczka niebieska twarda',
-    'artykuly-teczka-kolor-gumka': 'Artykuły Biurowe • Teczki • Teczka KOLOR z gumką',
-    'artykuly-teczka-biala-wiezanka': 'Artykuły Biurowe • Teczki • Teczka biała z wiązką',
-    'artykuly-skoroszyt-durable': 'Artykuły Biurowe • Skoroszyt • Skoroszyt DURABLE',
-    'artykuly-skoroszyt-wasm': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem',
-    'artykuly-skoroszyt-wasm-wpinanie': 'Artykuły Biurowe • Skoroszyt • Skoroszyt z wąsem do wpinania',
-    'artykuly-segregator-7cm': 'Artykuły Biurowe • Segregatory i akcesoria • SEGREGATOR 7 cm',
-    'artykuly-koszulka-dokumenty': 'Artykuły Biurowe • Segregatory i akcesoria • KOSZULKA na dokumenty',
-    'artykuly-papier-ryza-a4': 'Artykuły Biurowe • Segregatory i akcesoria • Papier RYZA A4',
-    'artykuly-papier-ryza-a3': 'Artykuły Biurowe • Segregatory i akcesoria • Papier RYZA A3',
-    'artykuly-dugopis': 'Artykuły Biurowe • Artykuły piszące • Długopis',
-    'artykuly-olowek': 'Artykuły Biurowe • Artykuły piszące • Ołówek',
-    'artykuly-pendrive-32gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 32GB',
-    'artykuly-pendrive-4gb': 'Artykuły Biurowe • Nośniki danych • PENDRIVE 4GB',
-    'artykuly-pudelko-pakowe-80': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 80cm',
-    'artykuly-pudelko-pakowe-100': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 100cm',
-    'artykuly-pudelko-pakowe-120': 'Artykuły Biurowe • Pudełka i nośniki • Pudełko pakowe 120cm',
-    'artykuly-plyty-cd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty CD',
-    'artykuly-plyty-dvd': 'Artykuły Biurowe • Pudełka i nośniki • Płyty DVD'
+    'artykuly-teczka-biala-gumka': 'Teczki • Teczka biała z gumką',
+    'artykuly-teczka-niebieska-twarda': 'Teczki • Teczka niebieska twarda',
+    'artykuly-teczka-kolor-gumka': 'Teczki • Teczka KOLOR z gumką',
+    'artykuly-teczka-biala-wiezanka': 'Teczki • Teczka biała z wiązką',
+    'artykuly-skoroszyt-durable': 'Skoroszyt • Skoroszyt DURABLE',
+    'artykuly-skoroszyt-wasm': 'Skoroszyt • Skoroszyt z wąsem',
+    'artykuly-skoroszyt-wasm-wpinanie': 'Skoroszyt • Skoroszyt z wąsem do wpinania',
+    'artykuly-segregator-7cm': 'Segregatory i akcesoria • SEGREGATOR 7 cm',
+    'artykuly-koszulka-dokumenty': 'Segregatory i akcesoria • KOSZULKA na dokumenty',
+    'artykuly-papier-ryza-a4': 'Segregatory i akcesoria • Papier RYZA A4',
+    'artykuly-papier-ryza-a3': 'Segregatory i akcesoria • Papier RYZA A3',
+    'artykuly-dugopis': 'Artykuły piszące • Długopis',
+    'artykuly-olowek': 'Artykuły piszące • Ołówek',
+    'artykuly-pendrive-32gb': 'Nośniki danych • PENDRIVE 32GB',
+    'artykuly-pendrive-4gb': 'Nośniki danych • PENDRIVE 4GB',
+    'artykuly-pudelko-pakowe-80': 'Pudełka i nośniki • Pudełko pakowe 80cm',
+    'artykuly-pudelko-pakowe-100': 'Pudełka i nośniki • Pudełko pakowe 100cm',
+    'artykuly-pudelko-pakowe-120': 'Pudełka i nośniki • Pudełko pakowe 120cm',
+    'artykuly-plyty-cd': 'Pudełka i nośniki • Płyty CD',
+    'artykuly-plyty-dvd': 'Pudełka i nośniki • Płyty DVD'
   };
   if (artykulyBiuroweMap[key]) return artykulyBiuroweMap[key];
 
   const kopertyMap = {
-    'artykuly-koperta-zwykla': 'Koperty • KOPERTY zwykłe',
-    'artykuly-koperta-rozszerzona': 'Koperty • Koperta rozszerzona',
-    'artykuly-koperta-wysylkowa': 'Koperty • Koperta wysyłkowa',
-    'artykuly-koperta-ozdobna': 'Koperty • KOPERTY ozdobne/V'
+    'artykuly-koperta-zwykla': 'KOPERTY zwykłe',
+    'artykuly-koperta-rozszerzona': 'Koperta rozszerzona',
+    'artykuly-koperta-wysylkowa': 'Koperta wysyłkowa',
+    'artykuly-koperta-ozdobna': 'KOPERTY ozdobne/V'
   };
   if (kopertyMap[key]) return kopertyMap[key];
 

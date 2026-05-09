@@ -569,19 +569,19 @@ const PRICE_LABELS: Record<string, string> = {
   "artykuly-koszulka-dokumenty": "Koszulka na dokumenty",
   "artykuly-papier-ryza-a4": "Papier – ryza A4",
   "artykuly-papier-ryza-a3": "Papier – ryza A3",
-  "artykuly-d\u0139\u201Augopis": "Długopis",
-  "artykuly-o\u0139\u201A\u0102\u0142wek": "Ołówek",
+  "artykuly-dugopis": "Długopis",
+  "artykuly-olowek": "Ołówek",
   "artykuly-pendrive-32gb": "Pendrive 32 GB",
   "artykuly-pendrive-4gb": "Pendrive 4 GB",
-  "artykuly-koperta-zwyk\u0139\u201Aa": "Koperta zwykła",
+  "artykuly-koperta-zwykla": "Koperta zwykła",
   "artykuly-koperta-rozszerzona": "Koperta rozszerzona",
-  "artykuly-koperta-wysy\u0139\u201Akowa": "Koperta wysyłkowa",
+  "artykuly-koperta-wysylkowa": "Koperta wysyłkowa",
   "artykuly-koperta-ozdobna": "Koperta ozdobna",
-  "artykuly-pude\u0139\u201Ako-pakowe-80": "Pudełko pakowe 80",
-  "artykuly-pude\u0139\u201Ako-pakowe-100": "Pudełko pakowe 100",
-  "artykuly-pude\u0139\u201Ako-pakowe-120": "Pudełko pakowe 120",
-  "artykuly-p\u0139\u201Ayty-cd": "Płyty CD",
-  "artykuly-p\u0139\u201Ayty-dvd": "Płyty DVD",
+  "artykuly-pudelko-pakowe-80": "Pudełko pakowe 80",
+  "artykuly-pudelko-pakowe-100": "Pudełko pakowe 100",
+  "artykuly-pudelko-pakowe-120": "Pudełko pakowe 120",
+  "artykuly-plyty-cd": "Płyty CD",
+  "artykuly-plyty-dvd": "Płyty DVD",
   // Usługi – jawne etykiety
   "uslugi-formatowanie": "Formatowanie dokumentu",
   "uslugi-archiwizacja-cd": "Archiwizacja na CD",
@@ -856,11 +856,11 @@ function getArtykulySectionTitle(key: string): string {
   if (key.startsWith("artykuly-segregator-")) return "SEGREGATORY";
   if (key.startsWith("artykuly-koszulka-")) return "KOSZULKI NA DOKUMENTY";
   if (key.startsWith("artykuly-papier-")) return "PAPIER";
-  if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-d\u0139\u201Augopis") || key.startsWith("artykuly-olowek") || key.startsWith("artykuly-o\u0139\u201A")) return "ARTYKUŁY PIŚMIENNICZE";
+  if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return "ARTYKUŁY PIŚMIENNICZE";
   if (key.startsWith("artykuly-pendrive-")) return "PENDRIVE'Y";
   if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
-  if (key.startsWith("artykuly-pudelko-") || key.startsWith("artykuly-pude\u0139\u201Ako-")) return "PUDEŁKA PAKOWE";
-  if (key.startsWith("artykuly-plyty-") || key.startsWith("artykuly-p\u0139\u201Ayty-")) return "PŁYTY CD / DVD";
+  if (key.startsWith("artykuly-pudelko-")) return "PUDEŁKA PAKOWE";
+  if (key.startsWith("artykuly-plyty-")) return "PŁYTY CD / DVD";
   return "ARTYKUŁY BIUROWE";
 }
 
@@ -1024,15 +1024,12 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
       "artykuly-segregator-",
       "artykuly-koszulka-",
       "artykuly-papier-",
-      "artykuly-dlugopis",
-      "artykuly-d\u0139\u201Augopis",
+      "artykuly-dugopis",
       "artykuly-olowek",
-      "artykuly-o\u0139\u201A",
       "artykuly-pendrive-",
+      "artykuly-koperta-",
       "artykuly-pudelko-",
-      "artykuly-pude\u0139\u201Ako-",
-      "artykuly-plyty-",
-      "artykuly-p\u0139\u201Ayty-"
+      "artykuly-plyty-"
     ],
     description: "Ceny materiałów biurowych i akcesoriów.",
     newKeyPrefix: "artykuly-"
