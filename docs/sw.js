@@ -1,75 +1,63 @@
-<<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605091436';
-=======
-<<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605091436';
-=======
-<<<<<<< HEAD
-﻿const CACHE_VERSION = 'razdwa-v202605091436';
-=======
-﻿const CACHE_VERSION = 'razdwa-v202605091436';
->>>>>>> be43392 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
->>>>>>> 1db19ff (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
->>>>>>> 5af7c27 (feat: Add all zaproszenia KREDA and SATYNA prices to DEFAULT_PRICES)
+var CACHE_VERSION = 'razdwa-v202605091443';
 
-self.addEventListener('install', (e) => {
-  self.skipWaiting(); // Force new SW to activate immediately
+self.addEventListener('install', function (event) {
+  event.waitUntil(self.skipWaiting());
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
+    caches.keys().then(function (cacheNames) {
       return Promise.all(
         cacheNames
-          .filter(name => name !== CACHE_VERSION)
-          .map(name => caches.delete(name))
+          .filter(function (name) { return name !== CACHE_VERSION; })
+          .map(function (name) { return caches.delete(name); })
       );
-    }).then(() => self.clients.claim())
+    }).then(function () {
+      return self.clients.claim();
+    })
   );
 });
 
-self.addEventListener('fetch', (event) => {
-  const request = event.request;
-
-  // Only handle http/https requests
-  if (!request.url.startsWith('http')) {
+self.addEventListener('fetch', function (event) {
+  var request = event.request;
+  if (!request || request.method !== 'GET' || !request.url || request.url.indexOf('http') !== 0) {
     return;
   }
 
-  const url = new URL(request.url);
+  var url;
+  try {
+    url = new URL(request.url);
+  } catch (error) {
+    return;
+  }
 
-  // NEVER cache HTML - always fetch fresh
   if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/')) {
-    return event.respondWith(fetch(request));
+    event.respondWith(fetch(request));
+    return;
   }
 
-  // Prefer fresh JS/CSS to avoid stale UI after deployments
   if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
-    return event.respondWith(
-      fetch(request)
-        .then(response => {
-          const clone = response.clone();
-          caches.open(CACHE_VERSION).then(cache => {
-            const u = new URL(request.url);
-            if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
-            cache.put(request, clone);
-          });
-          return response;
-        })
-        .catch(() => caches.match(request))
+    event.respondWith(
+      fetch(request).then(function (response) {
+        var clone = response.clone();
+        caches.open(CACHE_VERSION).then(function (cache) {
+          cache.put(request, clone).catch(function () {});
+        });
+        return response;
+      }).catch(function () {
+        return caches.match(request);
+      })
     );
+    return;
   }
 
-  // Cache other assets normally
   event.respondWith(
-    caches.match(request).then(cached => {
+    caches.match(request).then(function (cached) {
       if (cached) return cached;
-      return fetch(request).then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_VERSION).then(cache => {
-          const u = new URL(request.url);
-          if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
-          cache.put(request, clone);
+      return fetch(request).then(function (response) {
+        var clone = response.clone();
+        caches.open(CACHE_VERSION).then(function (cache) {
+          cache.put(request, clone).catch(function () {});
         });
         return response;
       });
