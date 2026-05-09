@@ -766,14 +766,6 @@ function getPriceKeyDescription(key) {
   };
   if (artykulyBiuroweMap[key]) return artykulyBiuroweMap[key];
 
-  const kopertyMap = {
-    'artykuly-koperta-zwykla': 'KOPERTY zwykłe',
-    'artykuly-koperta-rozszerzona': 'Koperta rozszerzona',
-    'artykuly-koperta-wysylkowa': 'Koperta wysyłkowa',
-    'artykuly-koperta-ozdobna': 'KOPERTY ozdobne/V'
-  };
-  if (kopertyMap[key]) return kopertyMap[key];
-
   // === USŁUGI ===
   const uslugiMap = {
     'uslugi-formatowanie': 'Usługi • Usługi formatowania i obróbki plików • Formatowanie',

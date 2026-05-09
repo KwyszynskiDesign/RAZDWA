@@ -104,31 +104,7 @@
         }
       ]
     },
-    {
-      "name": "KOPERTY",
-      "items": [
-        {
-          "id": "koperta-zwykla",
-          "name": "KOPERTY zwykłe",
-          "price": 0.65
-        },
-        {
-          "id": "koperta-rozszerzona",
-          "name": "Koperta rozszerzona",
-          "price": 3.00
-        },
-        {
-          "id": "koperta-wysylkowa",
-          "name": "Koperta wysyłkowa",
-          "price": 3.00
-        },
-        {
-          "id": "koperta-ozdobna",
-          "name": "KOPERTY ozdobne/V",
-          "price": 1.40
-        }
-      ]
-    },
+
     {
       "name": "PUDEŁKA I NOŚNIKI",
       "items": [

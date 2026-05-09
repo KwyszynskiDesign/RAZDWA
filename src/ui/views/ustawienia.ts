@@ -573,10 +573,6 @@ const PRICE_LABELS: Record<string, string> = {
   "artykuly-olowek": "Ołówek",
   "artykuly-pendrive-32gb": "Pendrive 32 GB",
   "artykuly-pendrive-4gb": "Pendrive 4 GB",
-  "artykuly-koperta-zwykla": "Koperta zwykła",
-  "artykuly-koperta-rozszerzona": "Koperta rozszerzona",
-  "artykuly-koperta-wysylkowa": "Koperta wysyłkowa",
-  "artykuly-koperta-ozdobna": "Koperta ozdobna",
   "artykuly-pudelko-pakowe-80": "Pudełko pakowe 80",
   "artykuly-pudelko-pakowe-100": "Pudełko pakowe 100",
   "artykuly-pudelko-pakowe-120": "Pudełko pakowe 120",
@@ -858,7 +854,6 @@ function getArtykulySectionTitle(key: string): string {
   if (key.startsWith("artykuly-papier-")) return "PAPIER";
   if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return "ARTYKUŁY PIŚMIENNICZE";
   if (key.startsWith("artykuly-pendrive-")) return "PENDRIVE'Y";
-  if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
   if (key.startsWith("artykuly-pudelko-")) return "PUDEŁKA PAKOWE";
   if (key.startsWith("artykuly-plyty-")) return "PŁYTY CD / DVD";
   return "ARTYKUŁY BIUROWE";
@@ -1027,7 +1022,6 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
       "artykuly-dugopis",
       "artykuly-olowek",
       "artykuly-pendrive-",
-      "artykuly-koperta-",
       "artykuly-pudelko-",
       "artykuly-plyty-"
     ],
@@ -1648,9 +1642,8 @@ function sortArtykulyCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("artykuly-papier-")) return 4;
     if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-olowek")) return 5;
     if (key.startsWith("artykuly-pendrive-")) return 6;
-    if (key.startsWith("artykuly-koperta-")) return 7;
-    if (key.startsWith("artykuly-pudelko-")) return 8;
-    if (key.startsWith("artykuly-plyty-")) return 9;
+    if (key.startsWith("artykuly-pudelko-")) return 7;
+    if (key.startsWith("artykuly-plyty-")) return 8;
     return 99;
   };
 
