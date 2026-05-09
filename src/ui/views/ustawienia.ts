@@ -578,6 +578,10 @@ const PRICE_LABELS: Record<string, string> = {
   "artykuly-pudelko-pakowe-120": "Pudełko pakowe 120",
   "artykuly-plyty-cd": "Płyty CD",
   "artykuly-plyty-dvd": "Płyty DVD",
+  "artykuly-koperta-zwykla": "Koperta zwykła",
+  "artykuly-koperta-rozszerzona": "Koperta rozszerzona",
+  "artykuly-koperta-wysylkowa": "Koperta wysyłkowa",
+  "artykuly-koperta-ozdobna": "Koperta ozdobna",
   // Usługi – jawne etykiety
   "uslugi-formatowanie": "Formatowanie dokumentu",
   "uslugi-archiwizacja-cd": "Archiwizacja na CD",
@@ -847,6 +851,7 @@ function getUlotkiSectionTitle(key: string): string {
 }
 
 function getArtykulySectionTitle(key: string): string {
+  if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
   if (key.startsWith("artykuly-teczka-")) return "TECZKI";
   if (key.startsWith("artykuly-skoroszyt-")) return "SKOROSZYTY";
   if (key.startsWith("artykuly-segregator-")) return "SEGREGATORY";
@@ -1014,6 +1019,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     label: "Artykuły biurowe",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
     prefixes: [
+      "artykuly-koperta-",
       "artykuly-teczka-",
       "artykuly-skoroszyt-",
       "artykuly-segregator-",
@@ -1635,15 +1641,16 @@ function sortWlepkiCategoryKeys(keys: string[]): string[] {
 
 function sortArtykulyCategoryKeys(keys: string[]): string[] {
   const groupRank = (key: string): number => {
-    if (key.startsWith("artykuly-teczka-")) return 0;
-    if (key.startsWith("artykuly-skoroszyt-")) return 1;
-    if (key.startsWith("artykuly-segregator-")) return 2;
-    if (key.startsWith("artykuly-koszulka-")) return 3;
-    if (key.startsWith("artykuly-papier-")) return 4;
-    if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return 5;
-    if (key.startsWith("artykuly-pendrive-")) return 6;
-    if (key.startsWith("artykuly-pudelko-")) return 7;
-    if (key.startsWith("artykuly-plyty-")) return 8;
+    if (key.startsWith("artykuly-koperta-")) return 0;
+    if (key.startsWith("artykuly-teczka-")) return 1;
+    if (key.startsWith("artykuly-skoroszyt-")) return 2;
+    if (key.startsWith("artykuly-segregator-")) return 3;
+    if (key.startsWith("artykuly-koszulka-")) return 4;
+    if (key.startsWith("artykuly-papier-")) return 5;
+    if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return 6;
+    if (key.startsWith("artykuly-pendrive-")) return 7;
+    if (key.startsWith("artykuly-pudelko-")) return 8;
+    if (key.startsWith("artykuly-plyty-")) return 9;
     return 99;
   };
 
