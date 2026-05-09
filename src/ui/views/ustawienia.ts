@@ -558,10 +558,10 @@ const PRICE_LABELS: Record<string, string> = {
   "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
   "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
   // Artykuły biurowe – jawne etykiety (klucze mają zniekształcone polskie znaki wskutek podwójnego kodowania)
-  "artykuly-teczka-biala-gumka": "Teczka Biała z Gumką",
+  "artykuly-teczka-biala-gumka": "Teczka biała z gumką",
   "artykuly-teczka-niebieska-twarda": "Teczka niebieska twarda",
   "artykuly-teczka-kolor-gumka": "Teczka kolorowa z gumką",
-  "artykuly-teczka-biala-wiezanka": "Teczka z wiązanką",
+  "artykuly-teczka-biala-wiezanka": "Teczka biała z wiązką",
   "artykuly-skoroszyt-durable": "Skoroszyt Durable",
   "artykuly-skoroszyt-wasm": "Skoroszyt WASM",
   "artykuly-skoroszyt-wasm-wpinanie": "Skoroszyt WASM (wpinanie)",
@@ -1640,7 +1640,7 @@ function sortArtykulyCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("artykuly-segregator-")) return 2;
     if (key.startsWith("artykuly-koszulka-")) return 3;
     if (key.startsWith("artykuly-papier-")) return 4;
-    if (key.startsWith("artykuly-dlugopis") || key.startsWith("artykuly-olowek")) return 5;
+    if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return 5;
     if (key.startsWith("artykuly-pendrive-")) return 6;
     if (key.startsWith("artykuly-pudelko-")) return 7;
     if (key.startsWith("artykuly-plyty-")) return 8;
@@ -1672,6 +1672,20 @@ export function sortUslugiCategoryKeys(keys: string[]): string[] {
     const ga = groupRank(a);
     const gb = groupRank(b);
     if (ga !== gb) return ga - gb;
+
+    if (ga === 1) {
+      const scalanieRank = (key: string): number => {
+        if (key === "uslugi-scalanie-1-9") return 0;
+        if (key === "uslugi-scalanie-9-19") return 1;
+        if (key === "uslugi-scalanie-20+") return 2;
+        return 99;
+      };
+
+      const sa = scalanieRank(a);
+      const sb = scalanieRank(b);
+      if (sa !== sb) return sa - sb;
+    }
+
     return a.localeCompare(b, "pl");
   });
 }

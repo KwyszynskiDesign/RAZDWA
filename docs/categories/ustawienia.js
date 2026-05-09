@@ -1031,6 +1031,19 @@ function compareUslugiKeys(a, b) {
   const gb = groupRank(b);
   if (ga !== gb) return ga - gb;
 
+  if (ga === 1) {
+    const scalanieRank = (key) => {
+      if (key === 'uslugi-scalanie-1-9') return 0;
+      if (key === 'uslugi-scalanie-9-19') return 1;
+      if (key === 'uslugi-scalanie-20+') return 2;
+      return 99;
+    };
+
+    const sa = scalanieRank(a);
+    const sb = scalanieRank(b);
+    if (sa !== sb) return sa - sb;
+  }
+
   return a.localeCompare(b);
 }
 
