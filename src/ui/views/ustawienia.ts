@@ -558,8 +558,10 @@ const PRICE_LABELS: Record<string, string> = {
   "wlepki-modifier-pojedyncze": "Dopłata za krojenie na pojedyncze",
   "wlepki-modifier-mocny-klej": "Dopłata za mocny klej (za m²)",
   // Artykuły biurowe – jawne etykiety (klucze mają zniekształcone polskie znaki wskutek podwójnego kodowania)
+  "artykuly-teczka-biala-gumka": "Teczka biała z gumką",
   "artykuly-teczka-niebieska-twarda": "Teczka niebieska twarda",
   "artykuly-teczka-kolor-gumka": "Teczka kolorowa z gumką",
+  "artykuly-teczka-biala-wiezanka": "Teczka biała z wiązką",
   "artykuly-skoroszyt-durable": "Skoroszyt Durable",
   "artykuly-skoroszyt-wasm": "Skoroszyt WASM",
   "artykuly-skoroszyt-wasm-wpinanie": "Skoroszyt WASM (wpinanie)",
