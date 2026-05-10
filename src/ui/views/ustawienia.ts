@@ -962,6 +962,19 @@ function getSolwentPlakatySectionTitle(key: string): string {
   return "SOLWENT / PLAKATY";
 }
 
+function getCadSectionTitle(key: string): string {
+  if (key.startsWith("druk-cad-kolor-fmt-")) return "CAD KOLOROWE – FORMATOWE";
+  if (key.startsWith("druk-cad-kolor-mb-")) return "CAD KOLOROWE – NIEFORMATOWE";
+  if (key.startsWith("druk-cad-bw-fmt-")) return "CAD CZARNO-BIAŁE – FORMATOWE";
+  if (key.startsWith("druk-cad-bw-mb-")) return "CAD CZARNO-BIAŁE – NIEFORMATOWE";
+  if (key.startsWith("cad-fold-")) return "SKŁADANIE CAD";
+  if (key.startsWith("cad-klient-skladanie")) return "SKŁADANIE CAD";
+  if (key.startsWith("cad-nieformatowe-skladanie")) return "SKŁADANIE CAD";
+  if (key.startsWith("cad-paski-wzmacniajace")) return "SKŁADANIE CAD";
+  if (key.startsWith("cad-skanowanie")) return "SKŁADANIE CAD";
+  return "DRUK CAD";
+}
+
 function getLaminowanieSectionTitle(key: string): string {
   if (key.startsWith("laminowanie-a3-")) return "LAMINOWANIE";
   if (key.startsWith("laminowanie-a4-")) return "LAMINOWANIE";
@@ -1323,30 +1336,15 @@ function getAddableCategories(): PriceCategory[] {
 }
 
 const CAD_SETTINGS_ORDER: string[] = [
-  // CZ-B formatowe
-  "druk-cad-bw-fmt-a3",
-  "druk-cad-bw-fmt-a2",
-  "druk-cad-bw-fmt-a1",
-  "druk-cad-bw-fmt-a1plus",
-  "druk-cad-bw-fmt-a0",
-  "druk-cad-bw-fmt-a0plus",
-  "druk-cad-bw-fmt-mb1067",
-  // CZ-B nieformatowe (mb)
-  "druk-cad-bw-mb-a3",
-  "druk-cad-bw-mb-a2",
-  "druk-cad-bw-mb-a1",
-  "druk-cad-bw-mb-a1plus",
-  "druk-cad-bw-mb-a0",
-  "druk-cad-bw-mb-a0plus",
-  "druk-cad-bw-mb-mb1067",
-  // Kolor formatowe
+  // Kolorowe formatowe
   "druk-cad-kolor-fmt-a3",
   "druk-cad-kolor-fmt-a2",
   "druk-cad-kolor-fmt-a1",
   "druk-cad-kolor-fmt-a1plus",
   "druk-cad-kolor-fmt-a0",
   "druk-cad-kolor-fmt-a0plus",
-  // Kolor nieformatowe (mb)
+  "druk-cad-kolor-fmt-mb1067",
+  // Kolorowe nieformatowe (mb)
   "druk-cad-kolor-mb-a3",
   "druk-cad-kolor-mb-a2",
   "druk-cad-kolor-mb-a1",
@@ -1354,6 +1352,22 @@ const CAD_SETTINGS_ORDER: string[] = [
   "druk-cad-kolor-mb-a0",
   "druk-cad-kolor-mb-a0plus",
   "druk-cad-kolor-mb-mb1067",
+  // Czarno-białe formatowe
+  "druk-cad-bw-fmt-a3",
+  "druk-cad-bw-fmt-a2",
+  "druk-cad-bw-fmt-a1",
+  "druk-cad-bw-fmt-a1plus",
+  "druk-cad-bw-fmt-a0",
+  "druk-cad-bw-fmt-a0plus",
+  "druk-cad-bw-fmt-mb1067",
+  // Czarno-białe nieformatowe (mb)
+  "druk-cad-bw-mb-a3",
+  "druk-cad-bw-mb-a2",
+  "druk-cad-bw-mb-a1",
+  "druk-cad-bw-mb-a1plus",
+  "druk-cad-bw-mb-a0",
+  "druk-cad-bw-mb-a0plus",
+  "druk-cad-bw-mb-mb1067",
   // Składanie
   "cad-fold-a0plus",
   "cad-fold-a0",
@@ -2150,14 +2164,6 @@ export const UstawieniaView: View = {
         return;
       }
 
-      const cadSectionTitles: Record<string, string> = {
-        "druk-cad-bw-fmt-a3": "CZARNO-BIAŁY FORMATOWY",
-        "druk-cad-bw-mb-a3": "NIEFORMATOWE CZARNO-BIAŁE",
-        "druk-cad-kolor-fmt-a3": "KOLOR FORMATOWY",
-        "druk-cad-kolor-mb-a3": "NIEFORMATOWE KOLOROWE",
-        "cad-fold-a0plus": "SKŁADANIE CAD",
-      };
-
       let previousGroup = "";
       let previousSolwentPlakatySection = "";
       let previousLaminowanieSection = "";
@@ -2174,7 +2180,7 @@ export const UstawieniaView: View = {
       keys.forEach((key) => {
         if (active.id === "druk-cad") {
           const customTitle = getCustomSubgroupLabel(active.id, key);
-          const sectionTitle = customTitle ?? cadSectionTitles[key] ?? "DRUK CAD";
+          const sectionTitle = customTitle ?? getCadSectionTitle(key);
           if (sectionTitle !== previousGroup) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2359,7 +2365,7 @@ export const UstawieniaView: View = {
         rows.push(`
           <tr data-key="${escapeHtml(key)}" class="${rowClasses.join(" ")}">
           <td class="settings-td-product">
-            <input data-field="productLabel" type="text" value="${escapeHtml(label)}" class="settings-input settings-input--label${useAltLabel ? " settings-input--label-alt" : ""}" aria-label="Etykieta produktu">
+            <span class="settings-product-label${useAltLabel ? " settings-product-label--alt" : ""}" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
           </td>
           <td class="settings-td-price">
             <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice}" placeholder="—" class="settings-input settings-input--price">
@@ -2544,14 +2550,12 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-save")?.addEventListener("click", () => {
       flushInputs();
       const persisted: Record<string, number | null> = {};
-      const persistedLabels: PriceLabelMap = Object.create(null);
+      const persistedLabels: PriceLabelMap = { ...customPriceLabels };
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
         const key = row.dataset.key ?? "";
         const value = prices[key];
         persisted[key] = typeof value === "number" && Number.isFinite(value) ? value : null;
-        const labelInput = row.querySelector<HTMLInputElement>("input[data-field='productLabel']");
-        const label = (labelInput?.value ?? "").trim();
-        persistedLabels[key] = label || customPriceLabels[key] || getPriceLabel(key);
+        persistedLabels[key] = customPriceLabels[key] || getPriceLabel(key);
       });
 
       setPrice("defaultPrices", persisted);

@@ -1509,9 +1509,11 @@ body.settings-pricing-layout .left-col {
 }
 
 .settings-product-label {
+  display: block;
   font-size: 13px;
   color: var(--text-secondary);
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .settings-product-label--alt {
