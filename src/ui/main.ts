@@ -372,8 +372,16 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.classList.toggle("home-compact-layout", isHome);
   };
 
+  const syncSettingsLayoutMode = () => {
+    const hash = window.location.hash || "#/";
+    const isSettings = hash === "#/ustawienia" || hash === "#/ustawienia/";
+    document.body.classList.toggle("settings-pricing-layout", isSettings);
+  };
+
   window.addEventListener("hashchange", syncHomeLayoutMode);
+  window.addEventListener("hashchange", syncSettingsLayoutMode);
   syncHomeLayoutMode();
+  syncSettingsLayoutMode();
 
   // Event delegation for remove buttons rendered inside basket list
   document.addEventListener("click", (e) => {

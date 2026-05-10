@@ -1312,6 +1312,19 @@ button.ghost:hover {
   box-shadow: var(--shadow-sm);
 }
 
+body.settings-pricing-layout .right-col {
+  display: none;
+}
+
+body.settings-pricing-layout .app-grid {
+  gap: 24px;
+}
+
+body.settings-pricing-layout .left-col {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .settings-scroll-top-btn {
   position: fixed;
   right: 16px;
@@ -1652,10 +1665,6 @@ button.ghost:hover {
 
   .settings-action-btn {
     width: 100%;
-  }
-
-  .settings-summary-card {
-    display: none;
   }
 
   .settings-th-key {
