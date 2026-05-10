@@ -3,6 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateSolwentPlakaty } from "../../categories/solwent-plakaty";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 const data: any = getPrice("solwentPlakaty");
 
@@ -38,6 +39,51 @@ export const SolwentPlakatyView: View = {
 
     let currentResult: any = null;
 
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#solwent-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "solwent-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        resultDisplay.insertAdjacentElement("afterend", legend);
+      }
+
+      const materials = (tableData.materials ?? []) as Array<{ id: string; name: string; tiers: Array<{ min: number; max: number | null; price: number }> }>;
+      const selectedMaterial = materialSelect.value;
+
+      legend.innerHTML = `
+        <div class="legend-head">
+          <div>
+            <h4>SOLWENT / PLAKATY</h4>
+            <p class="legend-subtitle">Ceny poniżej aktualizują się po zmianie w ustawieniach cen.</p>
+          </div>
+          <div class="legend-badges">
+            <span class="legend-badge"><strong>Minimum:</strong> 1 m²</span>
+            <span class="legend-badge"><strong>EXPRESS:</strong> +20%</span>
+          </div>
+        </div>
+        ${materials.map((material) => {
+          const isActive = material.id === selectedMaterial;
+          const rows = material.tiers.map((tier) => {
+            const rangeLabel = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+            const price = resolveStoredPrice(`solwent-${material.id}`, tier.price);
+            return `<tr><td>${rangeLabel}</td><td>${formatPLN(price)}</td></tr>`;
+          }).join("");
+
+          return `
+            <div class="legend-block" style="margin-top:12px;${isActive ? "border:1px solid rgba(59,130,246,0.35);" : ""}">
+              <h5 style="margin:0 0 8px;">${material.name}</h5>
+              <table class="results-table">
+                <thead><tr><th>Zakres</th><th>Cena / m²</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          `;
+        }).join("")}
+      `;
+    };
+
     const performCalculation = () => {
       if (!materialSelect.value) {
         resultDisplay.style.display = "none";
@@ -70,6 +116,13 @@ export const SolwentPlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation });
+    ensureLegend();
+
+    materialSelect.addEventListener("change", ensureLegend);
+    ctx?.on?.("prices-updated", () => {
+      ensureLegend();
+      performCalculation();
+    });
 
     addToCartBtn.onclick = () => {
       if (currentResult) {

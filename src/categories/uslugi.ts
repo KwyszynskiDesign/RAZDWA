@@ -75,9 +75,9 @@ export const uslugiCategory: CategoryModule = {
 
       for (const service of category.items) {
         const servicePrice = service.price || service.priceMin || 0;
-        const priceDisplay = service.priceMin && service.priceMax 
-          ? `${service.priceMin.toFixed(2)} - ${service.priceMax.toFixed(2)} zł`
-          : `${servicePrice.toFixed(2)} zł`;
+        const currentPrice = resolveStoredPrice(`uslugi-${service.id}`, servicePrice);
+        const priceDisplay = `${currentPrice.toFixed(2)} zł`;
+        const storageKey = `uslugi-${service.id}`;
 
         const serviceDiv = document.createElement('div');
         serviceDiv.style.display = 'grid';
@@ -98,8 +98,8 @@ export const uslugiCategory: CategoryModule = {
             <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity" aria-label="Ilość sztuk">
           </div>
           ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:96px;"><span style="font-size:0.7em; color:#e07b00; font-weight:700;">⏱ wpisz czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" placeholder="np. 1.5" title="Wpisz czas pracy w godzinach" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Wpisz czas pracy w godzinach"><span style="font-size:0.66em; color:#8b97a3;">np. 0.5, 1, 1.5</span></div>` : '<span style="width: 96px;"></span>'}
-          <span style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
-          <button type="button" data-add-service-id="${service.id}" data-service-name="${service.name}" data-price="${servicePrice}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${service.name} do koszyka">+</button>
+          <span class="service-price" data-service-id="${service.id}" data-base-price="${servicePrice}" style="font-weight: bold; color: #0066cc; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
+          <button type="button" data-add-service-id="${service.id}" data-service-name="${service.name}" data-price="${currentPrice}" data-storage-key="${storageKey}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${service.name} do koszyka">+</button>
         `;
 
         servicesDiv.appendChild(serviceDiv);
@@ -119,6 +119,25 @@ export const uslugiCategory: CategoryModule = {
       categoryDiv.appendChild(servicesDiv);
       servicesList.appendChild(categoryDiv);
     }
+
+    const refreshServicePrices = () => {
+      const priceSpans = container.querySelectorAll('span.service-price') as NodeListOf<HTMLElement>;
+      priceSpans.forEach((span) => {
+        const serviceId = span.getAttribute('data-service-id') || '';
+        const basePrice = parseFloat(span.getAttribute('data-base-price') || '0');
+        const currentPrice = resolveStoredPrice(`uslugi-${serviceId}`, basePrice);
+        span.textContent = `${currentPrice.toFixed(2)} zł`;
+
+        const addButton = container.querySelector(`button[data-add-service-id="${serviceId}"]`) as HTMLButtonElement | null;
+        if (addButton) {
+          addButton.setAttribute('data-price', currentPrice.toString());
+        }
+      });
+    };
+
+    ctx?.on?.('prices-updated', () => {
+      refreshServicePrices();
+    });
 
     container.addEventListener('click', (event) => {
       const target = event.target as HTMLElement;

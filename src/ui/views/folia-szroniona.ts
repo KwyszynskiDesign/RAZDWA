@@ -2,6 +2,8 @@ import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
 import { calculateFoliaSzroniona } from "../../categories/folia-szroniona";
 import { formatPLN } from "../../core/money";
+import { getPrice } from "../../services/priceService";
+import { resolveStoredPrice } from "../../core/compat";
 
 export const FoliaSzronionaView: View = {
   id: "folia-szroniona",
@@ -19,6 +21,7 @@ export const FoliaSzronionaView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    const tableData = getPrice("foliaSzroniona") as any;
     const serviceSelect = container.querySelector("#fs-service") as HTMLSelectElement;
     const widthInput = container.querySelector("#fs-width") as HTMLInputElement;
     const heightInput = container.querySelector("#fs-height") as HTMLInputElement;
@@ -34,6 +37,49 @@ export const FoliaSzronionaView: View = {
 
     let currentResult: any = null;
     let currentOptions: any = null;
+
+    const ensureLegend = () => {
+      let legend = container.querySelector<HTMLElement>("#folia-dynamic-legend");
+      if (!legend) {
+        legend = document.createElement("div");
+        legend.id = "folia-dynamic-legend";
+        legend.className = "card";
+        legend.style.marginTop = "16px";
+        resultDisplay.insertAdjacentElement("afterend", legend);
+      }
+
+      const materials = (tableData.materials ?? []) as Array<{ id: string; storageId?: string; name: string; title?: string; bold?: boolean; tiers: Array<{ min: number; max: number | null; price: number }> }>;
+      legend.innerHTML = `
+        <div class="legend-head">
+          <div>
+            <h4>FOLIA SZRONIONA / OWV</h4>
+            <p class="legend-subtitle">Stawki w legendzie są pobierane dynamicznie z aktualnych cen ustawień.</p>
+          </div>
+          <div class="legend-badges">
+            <span class="legend-badge"><strong>Minimum:</strong> 1 m²</span>
+            <span class="legend-badge"><strong>EXPRESS:</strong> +20%</span>
+          </div>
+        </div>
+        ${materials.map((material) => {
+          const storageKey = material.storageId ?? material.id;
+          const rows = material.tiers.map((tier) => {
+            const rangeLabel = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+            const price = resolveStoredPrice(`folia-szroniona-${storageKey}`, tier.price);
+            return `<tr><td>${rangeLabel}</td><td>${formatPLN(price)}</td></tr>`;
+          }).join("");
+
+          return `
+            <div class="legend-block" style="margin-top:12px;${material.bold ? "border:1px solid rgba(59,130,246,0.35);" : ""}">
+              <h5 style="margin:0 0 8px;">${material.title ?? material.name}</h5>
+              <table class="results-table">
+                <thead><tr><th>Zakres</th><th>Cena / m²</th></tr></thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+          `;
+        }).join("")}
+      `;
+    };
 
     const performCalculation = () => {
       if (!serviceSelect.value) {
@@ -74,6 +120,12 @@ export const FoliaSzronionaView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation });
+    ensureLegend();
+    serviceSelect.addEventListener("change", ensureLegend);
+    ctx?.on?.("prices-updated", () => {
+      ensureLegend();
+      performCalculation();
+    });
 
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {

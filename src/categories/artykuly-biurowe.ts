@@ -106,18 +106,14 @@ export const artykulyBiuroweCategory: CategoryModule = {
       itemsList.appendChild(categoryDiv);
     }
 
-    const getCurrentPrice = (itemId: string, basePrice: number): number => {
-      const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
-      return resolveStoredPrice(storageKey, basePrice);
-    };
-
     const updatePriceDisplay = (itemId: string) => {
       const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
       const addButton = container.querySelector(`button[data-add-item-id="${itemId}"]`) as HTMLButtonElement | null;
       if (!priceSpan || !addButton) return;
 
       const basePrice = parseFloat(priceSpan.getAttribute('data-base-price') || '0');
-      const currentPrice = getCurrentPrice(itemId, basePrice);
+      const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
+      const currentPrice = resolveStoredPrice(storageKey, basePrice);
 
       priceSpan.textContent = `${currentPrice.toFixed(2)} zł`;
       addButton.setAttribute('data-price', currentPrice.toString());
@@ -144,7 +140,8 @@ export const artykulyBiuroweCategory: CategoryModule = {
       const itemId = addButton.getAttribute('data-add-item-id') || '';
       const itemName = addButton.getAttribute('data-item-name') || '';
       const basePrice = parseFloat(addButton.getAttribute('data-price') || '0');
-      const price = getCurrentPrice(itemId, basePrice);
+      const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
+      const price = resolveStoredPrice(storageKey, basePrice);
       const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement | null;
       const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
 

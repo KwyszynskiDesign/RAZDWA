@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { quoteArtykulyBiurowe } from "../src/categories/artykuly-biurowe";
 import { quoteUslugi } from "../src/categories/uslugi";
-import { setPrice, resetPrices, PRICES_STORAGE_KEY } from "../src/services/priceService";
+import { setPrice, setPriceSubgroups, getPriceSubgroups, resetPrices, PRICES_STORAGE_KEY, PRICE_SUBGROUPS_STORAGE_KEY } from "../src/services/priceService";
 
 // Mock localStorage
 let storageData: Record<string, string> = {};
@@ -269,6 +269,26 @@ describe("Price Persistence", () => {
 
       expect(artykulyResult.totalPrice).toBe(25.00); // Back to default
       expect(uslugiResult.totalPrice).toBe(50.00); // Back to default
+    });
+
+    it("should persist and clear custom subgroup metadata", () => {
+      setPriceSubgroups({
+        "plakaty-a4-a3": {
+          "plakaty-maly-canon-papier-350g-": "Papier 350g",
+        },
+      });
+
+      const stored = storageData[PRICE_SUBGROUPS_STORAGE_KEY];
+      expect(stored).toBeDefined();
+
+      const parsed = JSON.parse(stored);
+      expect(parsed["plakaty-a4-a3"]["plakaty-maly-canon-papier-350g-"]).toBe("Papier 350g");
+      expect(getPriceSubgroups()["plakaty-a4-a3"]["plakaty-maly-canon-papier-350g-"]).toBe("Papier 350g");
+
+      resetPrices();
+
+      expect(storageData[PRICE_SUBGROUPS_STORAGE_KEY]).toBeUndefined();
+      expect(getPriceSubgroups()["plakaty-a4-a3"]).toBeUndefined();
     });
   });
 });

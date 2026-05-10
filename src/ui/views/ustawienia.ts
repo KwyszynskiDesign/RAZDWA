@@ -1,5 +1,16 @@
 ﻿import { View, ViewContext } from "../types";
-import { getPrice, setPrice, resetPrices, PRICES_STORAGE_KEY } from "../../services/priceService";
+import {
+  getPrice,
+  getPriceLabels,
+  getPriceSubgroups,
+  setPrice,
+  setPriceLabels,
+  setPriceSubgroups,
+  resetPrices,
+  PRICES_STORAGE_KEY,
+  PRICE_LABELS_STORAGE_KEY,
+  PRICE_SUBGROUPS_STORAGE_KEY,
+} from "../../services/priceService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -14,6 +25,11 @@ type PriceCategory = {
 
 type PriceValue = number | null;
 type PriceMap = Record<string, PriceValue>;
+type PriceLabelMap = Record<string, string>;
+type PriceSubgroupMap = Record<string, Record<string, string>>;
+type PrefixOption = { value: string; label: string };
+
+const CUSTOM_PREFIX_VALUE = "__custom_prefix__";
 
 const ENVELOPE_PLACEHOLDER_KEYS = [
   "koperty-a",
@@ -26,6 +42,187 @@ const ENVELOPE_PLACEHOLDER_KEYS = [
 ] as const;
 
 let _cleanup: (() => void) | null = null;
+
+let customPriceLabels: PriceLabelMap = Object.create(null);
+let customPriceSubgroups: PriceSubgroupMap = Object.create(null);
+
+function slugifyKeySegment(value: string): string {
+  return String(value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[łŁ]/g, "l")
+    .replace(/[śŚ]/g, "s")
+    .replace(/[żŻźŹ]/g, "z")
+    .replace(/[ćĆ]/g, "c")
+    .replace(/[ńŃ]/g, "n")
+    .replace(/[ąĄ]/g, "a")
+    .replace(/[ęĘ]/g, "e")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .replace(/-{2,}/g, "-");
+}
+
+function normalizePricePrefix(prefix: string): string {
+  const trimmed = String(prefix ?? "").trim();
+  if (!trimmed) return "nowa-";
+  return trimmed.endsWith("-") ? trimmed : `${trimmed}-`;
+}
+
+function buildUniquePriceKey(prefix: string, label: string, prices: PriceMap): string {
+  const baseKey = `${normalizePricePrefix(prefix)}${slugifyKeySegment(label) || "nowy-produkt"}`;
+  if (!(baseKey in prices)) return baseKey;
+
+  let counter = 2;
+  let candidate = `${baseKey}-${counter}`;
+  while (candidate in prices) {
+    counter += 1;
+    candidate = `${baseKey}-${counter}`;
+  }
+  return candidate;
+}
+
+function getCustomSubgroupDefinitions(categoryId: string): PrefixOption[] {
+  const groups = customPriceSubgroups[categoryId] ?? Object.create(null);
+  return Object.entries(groups).map(([value, label]) => ({ value, label }));
+}
+
+function getCustomSubgroupLabel(categoryId: string, key: string): string | null {
+  const groups = customPriceSubgroups[categoryId] ?? Object.create(null);
+  const matches = Object.entries(groups)
+    .filter(([prefix]) => key.startsWith(prefix))
+    .sort((a, b) => b[0].length - a[0].length);
+  return matches[0]?.[1] ?? null;
+}
+
+function buildUniqueSubgroupPrefix(basePrefix: string, subgroupLabel: string, categoryId: string, prices: PriceMap): string {
+  const base = normalizePricePrefix(basePrefix);
+  const subgroupSegment = slugifyKeySegment(subgroupLabel) || "podkategoria";
+  const existing = new Set(Object.keys(prices));
+  Object.keys(customPriceSubgroups[categoryId] ?? {}).forEach((prefix) => existing.add(prefix));
+
+  let candidate = `${base}${subgroupSegment}-`;
+  let counter = 2;
+  while (existing.has(candidate)) {
+    candidate = `${base}${subgroupSegment}-${counter}`;
+    counter += 1;
+  }
+  return candidate;
+}
+
+function getCategorySectionTitle(category: PriceCategory, key: string): string {
+  const customTitle = getCustomSubgroupLabel(category.id, key);
+  if (customTitle) return customTitle;
+
+  switch (category.id) {
+    case "druk-a4-a3":
+      return getDrukA4A3SkanSectionTitle(key);
+    case "solwent":
+    case "plakaty-a4-a3":
+      return getSolwentPlakatySectionTitle(key);
+    case "laminowanie":
+      return getLaminowanieSectionTitle(key);
+    case "wlepki":
+      return getWlepkiSectionTitle(key);
+    case "banner":
+      return getBannerSectionTitle(key);
+    case "folia":
+      return getFoliaSectionTitle(key);
+    case "zaproszenia":
+      return getZaproszeniaMaterialTitle(key);
+    case "ulotki":
+      return getUlotkiSectionTitle(key);
+    case "artykuly":
+      return getArtykulySectionTitle(key);
+    case "uslugi":
+      return getUslugiSectionTitle(key);
+    default:
+      return category.label.toUpperCase();
+  }
+}
+
+function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
+  const options: PrefixOption[] = [];
+  switch (category.id) {
+    case "druk-a4-a3":
+      options.push(
+        { value: "druk-bw-a4-", label: "Druk czarno-biały A4" },
+        { value: "druk-kolor-a4-", label: "Druk kolorowy A4" },
+        { value: "druk-bw-a3-", label: "Druk czarno-biały A3" },
+        { value: "druk-kolor-a3-", label: "Druk kolorowy A3" },
+        { value: "skan-auto-", label: "Skanowanie automatyczne" },
+        { value: "skan-reczne-", label: "Skanowanie ręczne" },
+        { value: "druk-email", label: "Dopłata e-mail" },
+        { value: "druk-label-sticker", label: "Dopłata naklejka A6" },
+        { value: "druk-koszulka", label: "Dopłata koszulka" },
+        { value: "modifier-druk-", label: "Dopłaty druk" },
+      );
+      break;
+    case "solwent":
+      options.push(
+        { value: "solwent-115g-", label: "Solwent 115g matowy" },
+        { value: "solwent-150g-", label: "Solwent 150g półmat" },
+        { value: "solwent-200g-", label: "Solwent 200g połysk" },
+        { value: "solwent-blockout-200g-", label: "Solwent blockout 200g satyna" },
+        { value: "plakaty-format-120g-formatowe-", label: "Plakaty 120g formatowe" },
+        { value: "plakaty-format-120g-nieformatowe-", label: "Plakaty 120g nieformatowe" },
+        { value: "plakaty-format-260g-satyna-formatowe-", label: "Fotoplakaty 260g satyna formatowe" },
+        { value: "plakaty-format-260g-satyna-nieformatowe-", label: "Fotoplakaty 260g satyna nieformatowe" },
+        { value: "plakaty-format-180g-pp-formatowe-", label: "Plakaty 180g PP formatowe" },
+        { value: "plakaty-format-180g-pp-nieformatowe-", label: "Plakaty 180g PP nieformatowe" },
+      );
+      break;
+    case "plakaty-a4-a3":
+      options.push(
+        { value: "plakaty-maly-canon-margin-170-", label: "Mały Canon z marginesem 130/170g" },
+        { value: "plakaty-maly-canon-no-margin-170-", label: "Mały Canon bez marginesu 130/170g" },
+        { value: "plakaty-maly-canon-margin-200-", label: "Mały Canon z marginesem 200g" },
+        { value: "plakaty-maly-canon-no-margin-200-", label: "Mały Canon bez marginesu 200g" },
+        { value: "plakaty-duzy-canon-a4-170-kreda-130-170-", label: "Duży Canon A4 130/170g" },
+        { value: "plakaty-duzy-canon-a3-170-kreda-130-170-", label: "Duży Canon A3 130/170g" },
+        { value: "plakaty-duzy-canon-a4-200-kreda-200-", label: "Duży Canon A4 200g" },
+        { value: "plakaty-duzy-canon-a3-200-kreda-200-", label: "Duży Canon A3 200g" },
+      );
+      break;
+    case "artykuly":
+      options.push(
+        { value: "artykuly-teczka-", label: "Teczki" },
+        { value: "artykuly-skoroszyt-", label: "Skoroszyty" },
+        { value: "artykuly-segregator-", label: "Segregatory" },
+        { value: "artykuly-koszulka-", label: "Koszulki na dokumenty" },
+        { value: "artykuly-papier-", label: "Papier" },
+        { value: "artykuly-dugopis", label: "Artykuły piśmiennicze – długopisy" },
+        { value: "artykuly-olowek", label: "Artykuły piśmiennicze – ołówki" },
+        { value: "artykuly-pendrive-", label: "Pendrive’y" },
+        { value: "artykuly-pudelko-", label: "Pudełka pakowe" },
+        { value: "artykuly-plyty-", label: "Płyty CD/DVD" },
+      );
+      break;
+    case "uslugi":
+      options.push(
+        { value: "uslugi-formatowanie", label: "Formatowanie i archiwizacja" },
+        { value: "uslugi-archiwizacja-", label: "Archiwizacja" },
+        { value: "uslugi-scalanie-", label: "Scalanie i przetwarzanie plików" },
+        { value: "uslugi-poprawki-graficzne", label: "Poprawki graficzne" },
+        { value: "uslugi-grafika-", label: "Usługi graficzne" },
+        { value: "uslugi-pakiet-", label: "Pakiety graficzne" },
+        { value: "uslugi-social-media-", label: "Social media" },
+      );
+      break;
+    default:
+      if (category.prefixes.length > 0) {
+        options.push(...category.prefixes.map((prefix) => ({ value: prefix, label: humanizeSegment(prefix.replace(/-$/g, "")) })));
+      } else {
+        options.push({ value: category.newKeyPrefix ?? "nowa-", label: category.label });
+      }
+      break;
+  }
+
+  options.push(...getCustomSubgroupDefinitions(category.id));
+  options.push({ value: CUSTOM_PREFIX_VALUE, label: "Nowa podkategoria…" });
+  return options;
+}
 
 function isIconUrl(icon: string): boolean {
   return /^https?:\/\//i.test(icon);
@@ -119,6 +316,20 @@ function loadPrices(): PriceMap {
   delete base["wycinanie-folii-zloto-srebro-powyzej-1m2"];
 
   return base;
+}
+
+function loadPriceLabels(): PriceLabelMap {
+  const loaded = getPriceLabels();
+  const labels: PriceLabelMap = Object.create(null);
+
+  Object.entries(loaded).forEach(([key, value]) => {
+    if (typeof value === "string") {
+      const label = value.trim();
+      if (label) labels[key] = label;
+    }
+  });
+
+  return labels;
 }
 
 /** Czytelne opisy polskie dla każdego klucza cennika */
@@ -663,6 +874,7 @@ function humanizeSegment(value: string): string {
 }
 
 function getPriceLabel(key: string): string {
+  if (customPriceLabels[key]) return customPriceLabels[key];
   if (PRICE_LABELS[key]) return PRICE_LABELS[key];
 
   const dyplomyMatch = key.match(/^dyplomy-qty-(\d+)$/);
@@ -1068,7 +1280,10 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
 ];
 
 function keyMatchesCategory(key: string, category: PriceCategory): boolean {
-  return category.prefixes.some((prefix) => key.startsWith(prefix));
+  if (category.prefixes.some((prefix) => key.startsWith(prefix))) return true;
+
+  const customPrefixes = Object.keys(customPriceSubgroups[category.id] ?? Object.create(null));
+  return customPrefixes.some((prefix) => key.startsWith(prefix));
 }
 
 export function getRenderedCategories(prices: PriceMap): PriceCategory[] {
@@ -1096,6 +1311,10 @@ export function getRenderedCategories(prices: PriceMap): PriceCategory[] {
   }
 
   return categories;
+}
+
+function getAddableCategories(): PriceCategory[] {
+  return BASE_PRICE_CATEGORIES.filter((category) => category.id !== "inne");
 }
 
 const CAD_SETTINGS_ORDER: string[] = [
@@ -1788,8 +2007,11 @@ export const UstawieniaView: View = {
     }
 
     let prices = loadPrices();
+    customPriceLabels = loadPriceLabels();
+    customPriceSubgroups = getPriceSubgroups();
     let renderedCategories = getRenderedCategories(prices);
     let activeCategory = renderedCategories[0]?.id ?? "druk-a4-a3";
+    let lastBasePrefix = "";
 
     function getActiveCategory(): PriceCategory {
       return renderedCategories.find((category) => category.id === activeCategory) ?? renderedCategories[0];
@@ -1845,8 +2067,44 @@ export const UstawieniaView: View = {
           activeCategory = button.dataset.cat ?? activeCategory;
           renderTabs();
           renderTable();
+          syncAddCategorySelection();
         });
       });
+    }
+
+    function syncAddCategorySelection(): void {
+      const addCategorySelect = container.querySelector<HTMLSelectElement>("#new-price-category");
+      if (!addCategorySelect) return;
+      const addPrefixSelect = container.querySelector<HTMLSelectElement>("#new-price-prefix");
+      const addSubgroupInput = container.querySelector<HTMLInputElement>("#new-price-subgroup");
+      const nextValue = renderedCategories.some((category) => category.id === activeCategory)
+        ? activeCategory
+        : renderedCategories[0]?.id ?? addCategorySelect.value;
+      addCategorySelect.value = nextValue;
+
+      if (!addPrefixSelect) return;
+
+      const selectedCategory = renderedCategories.find((category) => category.id === addCategorySelect.value) ?? renderedCategories[0];
+      if (!selectedCategory) return;
+
+      const previousPrefix = addPrefixSelect.value;
+      const prefixOptions = getAddablePrefixOptions(selectedCategory);
+      addPrefixSelect.innerHTML = prefixOptions.map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join("");
+      const nextPrefix = prefixOptions.some((option) => option.value === previousPrefix)
+        ? previousPrefix
+        : prefixOptions[0]?.value ?? "";
+      addPrefixSelect.value = nextPrefix;
+
+      if (nextPrefix !== CUSTOM_PREFIX_VALUE) {
+        lastBasePrefix = nextPrefix || lastBasePrefix;
+      }
+
+      if (addSubgroupInput) {
+        addSubgroupInput.disabled = addPrefixSelect.value !== CUSTOM_PREFIX_VALUE;
+        if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
+          addSubgroupInput.value = "";
+        }
+      }
     }
 
     function renderTable(): void {
@@ -1909,16 +2167,21 @@ export const UstawieniaView: View = {
 
       const rows: string[] = [];
       keys.forEach((key) => {
-        if (active.id === "druk-cad" && cadSectionTitles[key]) {
-          rows.push(`
-            <tr class="settings-section-row">
-              <td colspan="3"><strong>${escapeHtml(cadSectionTitles[key])}</strong></td>
-            </tr>
-          `);
+        if (active.id === "druk-cad") {
+          const customTitle = getCustomSubgroupLabel(active.id, key);
+          const sectionTitle = customTitle ?? cadSectionTitles[key] ?? "DRUK CAD";
+          if (sectionTitle !== previousGroup) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousGroup = sectionTitle;
+          }
         }
 
         if (active.id === "druk-a4-a3") {
-          const sectionTitle = getDrukA4A3SkanSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousDrukA4A3Section) {
             rows.push(`
               <tr class="settings-section-row">
@@ -1930,7 +2193,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "solwent" || active.id === "plakaty-a4-a3") {
-          const sectionTitle = getSolwentPlakatySectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousSolwentPlakatySection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -1942,7 +2205,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "laminowanie") {
-          const sectionTitle = getLaminowanieSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousLaminowanieSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -1971,7 +2234,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "wlepki") {
-          const sectionTitle = getWlepkiSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousWlepkiSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -1983,7 +2246,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "banner") {
-          const sectionTitle = getBannerSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousWlepkiSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -1995,7 +2258,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "folia") {
-          const sectionTitle = getFoliaSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousWlepkiSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2007,7 +2270,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "zaproszenia") {
-          const materialTitle = getZaproszeniaMaterialTitle(key);
+          const materialTitle = getCategorySectionTitle(active, key);
           if (materialTitle !== previousZaproszeniaMaterial) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2030,7 +2293,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "ulotki") {
-          const sectionTitle = getUlotkiSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousUlotkiSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2042,7 +2305,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "uslugi") {
-          const sectionTitle = getUslugiSectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousUslugiSection) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2054,7 +2317,7 @@ export const UstawieniaView: View = {
         }
 
         if (active.id === "artykuly") {
-          const sectionTitle = getArtykulySectionTitle(key);
+          const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousGroup) {
             rows.push(`
               <tr class="settings-section-row">
@@ -2091,7 +2354,7 @@ export const UstawieniaView: View = {
         rows.push(`
           <tr data-key="${escapeHtml(key)}" class="${rowClasses.join(" ")}">
           <td class="settings-td-product">
-            <span class="settings-product-label${useAltLabel ? " settings-product-label--alt" : ""}">${escapeHtml(label)}</span>
+            <input data-field="productLabel" type="text" value="${escapeHtml(label)}" class="settings-input settings-input--label${useAltLabel ? " settings-input--label-alt" : ""}" aria-label="Etykieta produktu">
           </td>
           <td class="settings-td-price">
             <input data-field="unitPrice" type="number" step="0.01" min="0" value="${displayPrice}" placeholder="—" class="settings-input settings-input--price">
@@ -2110,8 +2373,10 @@ export const UstawieniaView: View = {
           const key = button.dataset.key ?? "";
           if (!key) return;
           delete prices[key];
+          delete customPriceLabels[key];
           renderTabs();
           renderTable();
+          syncAddCategorySelection();
         });
       });
     }
@@ -2154,7 +2419,27 @@ export const UstawieniaView: View = {
 
 
         <div class="settings-actions">
-          <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj pozycję</button>
+          <div class="settings-add-group" style="display:grid;gap:8px;grid-template-columns:minmax(220px,260px) minmax(220px,260px) minmax(220px,1fr) auto;align-items:end;width:100%;">
+            <label style="display:grid;gap:4px;">
+              <span class="settings-action-label">Kategoria docelowa</span>
+              <select id="new-price-category" class="settings-input">
+                ${getAddableCategories().map((category) => `<option value="${category.id}">${category.label}</option>`).join("")}
+              </select>
+            </label>
+            <label style="display:grid;gap:4px;">
+              <span class="settings-action-label">Podgrupa / prefiks</span>
+              <select id="new-price-prefix" class="settings-input"></select>
+            </label>
+            <label style="display:grid;gap:4px;">
+              <span class="settings-action-label">Nazwa nowej podgrupy</span>
+              <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazwę podgrupy" disabled>
+            </label>
+            <label style="display:grid;gap:4px;">
+              <span class="settings-action-label">Nazwa produktu</span>
+              <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazwę nowego produktu">
+            </label>
+            <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
+          </div>
           <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz zmiany</button>
           <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
         </div>
@@ -2165,16 +2450,75 @@ export const UstawieniaView: View = {
 
     renderTabs();
     renderTable();
+    syncAddCategorySelection();
+
+    const addCategorySelect = container.querySelector<HTMLSelectElement>("#new-price-category");
+    const addPrefixSelect = container.querySelector<HTMLSelectElement>("#new-price-prefix");
+    const addSubgroupInput = container.querySelector<HTMLInputElement>("#new-price-subgroup");
+    const addLabelInput = container.querySelector<HTMLInputElement>("#new-price-label");
+
+    addCategorySelect?.addEventListener("change", () => {
+      activeCategory = addCategorySelect.value || activeCategory;
+      renderTabs();
+      renderTable();
+      syncAddCategorySelection();
+    });
+
+    addPrefixSelect?.addEventListener("change", () => {
+      if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
+        lastBasePrefix = addPrefixSelect.value;
+      }
+      if (addSubgroupInput) {
+        addSubgroupInput.disabled = addPrefixSelect.value !== CUSTOM_PREFIX_VALUE;
+        if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
+          addSubgroupInput.value = "";
+        }
+      }
+    });
 
     container.querySelector("#btn-add-row")?.addEventListener("click", () => {
       flushInputs();
-      const active = getActiveCategory();
-      const prefix = active.newKeyPrefix || active.prefixes[0] || "nowa-";
-      const normalizedPrefix = prefix.endsWith("-") ? prefix : `${prefix}-`;
-      const newKey = `${normalizedPrefix}nowa-${Date.now()}`;
+      const chosenCategoryId = addCategorySelect?.value || activeCategory;
+      const chosenCategory = renderedCategories.find((category) => category.id === chosenCategoryId) ?? getActiveCategory();
+      const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+      const subgroupName = addSubgroupInput?.value.trim() || "";
+      const productLabel = addLabelInput?.value.trim() || "";
+      if (!productLabel) {
+        showStatus("⚠️ Wpisz nazwę produktu.", "error");
+        addLabelInput?.focus();
+        return;
+      }
+
+      let chosenPrefix = selectedPrefix;
+      if (selectedPrefix === CUSTOM_PREFIX_VALUE) {
+        if (!subgroupName) {
+          showStatus("⚠️ Wpisz nazwę nowej podgrupy.", "error");
+          addSubgroupInput?.focus();
+          return;
+        }
+        const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, chosenCategory.id, prices);
+        const currentGroups = customPriceSubgroups[chosenCategory.id] ?? Object.create(null);
+        customPriceSubgroups = {
+          ...customPriceSubgroups,
+          [chosenCategory.id]: {
+            ...currentGroups,
+            [chosenPrefix]: subgroupName,
+          },
+        };
+        setPriceSubgroups(customPriceSubgroups);
+      }
+
+      const newKey = buildUniquePriceKey(chosenPrefix, productLabel, prices);
       prices[newKey] = null;
+      customPriceLabels[newKey] = productLabel;
       renderTabs();
       renderTable();
+      syncAddCategorySelection();
+      if (addLabelInput) {
+        addLabelInput.value = "";
+        addLabelInput.focus();
+      }
       const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");
       const lastPriceInput = priceInputs[priceInputs.length - 1];
       lastPriceInput?.focus();
@@ -2184,16 +2528,27 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-save")?.addEventListener("click", () => {
       flushInputs();
       const persisted: Record<string, number> = {};
-      Object.entries(prices).forEach(([key, value]) => {
-        if (typeof value === "number" && Number.isFinite(value)) {
-          persisted[key] = value;
+      const persistedLabels: PriceLabelMap = Object.create(null);
+      container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
+        const key = row.dataset.key ?? "";
+        const value = prices[key];
+        if (typeof value !== "number" || !Number.isFinite(value)) {
+          return;
         }
+
+        persisted[key] = value;
+        const labelInput = row.querySelector<HTMLInputElement>("input[data-field='productLabel']");
+        const label = (labelInput?.value ?? "").trim();
+        persistedLabels[key] = label || customPriceLabels[key] || getPriceLabel(key);
       });
 
       setPrice("defaultPrices", persisted);
+      setPriceLabels(persistedLabels);
+      customPriceLabels = persistedLabels;
       prices = loadPrices();
       renderTabs();
       renderTable();
+      syncAddCategorySelection();
       showStatus("✓ Zapisano ceny.");
       // Emit event to notify all views about price changes
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
@@ -2206,21 +2561,27 @@ export const UstawieniaView: View = {
 
       resetPrices();
       prices = loadPrices();
+      customPriceLabels = loadPriceLabels();
+      customPriceSubgroups = Object.create(null);
       renderTabs();
       renderTable();
+      syncAddCategorySelection();
       showStatus("✓ Przywrócono domyślne ceny.");
       // Emit event to notify all views about price changes
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key !== STORAGE_KEY) {
+      if (event.key !== STORAGE_KEY && event.key !== PRICE_LABELS_STORAGE_KEY && event.key !== PRICE_SUBGROUPS_STORAGE_KEY) {
         return;
       }
 
       prices = loadPrices();
+      customPriceLabels = loadPriceLabels();
+      customPriceSubgroups = getPriceSubgroups();
       renderTabs();
       renderTable();
+      syncAddCategorySelection();
       // Emit event to notify all views about price changes
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     };

@@ -7,6 +7,8 @@
 import _config from "../../docs/config/prices.json";
 
 export const PRICES_STORAGE_KEY = "razdwa_prices";
+export const PRICE_LABELS_STORAGE_KEY = "razdwa_price_labels";
+export const PRICE_SUBGROUPS_STORAGE_KEY = "razdwa_price_subgroups";
 export const PRICES_UPDATED_EVENT = "razdwa:prices-updated";
 
 const FORBIDDEN_PATH_KEYS = new Set(["__proto__", "prototype", "constructor"]);
@@ -45,6 +47,77 @@ function getConfigRoot(): any {
     return _prices.default;
   }
   return _prices;
+}
+
+function readStoredJsonMap(storageKey: string): Record<string, string> {
+  try {
+    if (typeof localStorage === "undefined") return Object.create(null);
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return Object.create(null);
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return Object.create(null);
+
+    const result = Object.create(null) as Record<string, string>;
+    for (const [key, value] of Object.entries(parsed)) {
+      if (!isSafePathSegment(key)) continue;
+      const label = String(value ?? "").trim();
+      if (label) result[key] = label;
+    }
+    return result;
+  } catch {
+    return Object.create(null);
+  }
+}
+
+function writeStoredJsonMap(storageKey: string, value: Record<string, string>): void {
+  try {
+    if (typeof localStorage === "undefined") return;
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  } catch {
+    // ignore
+  }
+}
+
+function readStoredJsonNestedMap(storageKey: string): Record<string, Record<string, string>> {
+  try {
+    if (typeof localStorage === "undefined") return Object.create(null);
+    const raw = localStorage.getItem(storageKey);
+    if (!raw) return Object.create(null);
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return Object.create(null);
+
+    const result = Object.create(null) as Record<string, Record<string, string>>;
+    for (const [outerKey, outerValue] of Object.entries(parsed)) {
+      if (!isSafePathSegment(outerKey)) continue;
+      if (!outerValue || typeof outerValue !== "object" || Array.isArray(outerValue)) continue;
+
+      const nested = Object.create(null) as Record<string, string>;
+      for (const [innerKey, innerValue] of Object.entries(outerValue as Record<string, unknown>)) {
+        if (!isSafePathSegment(innerKey)) continue;
+        const label = String(innerValue ?? "").trim();
+        if (label) nested[innerKey] = label;
+      }
+
+      if (Object.keys(nested).length > 0) {
+        result[outerKey] = nested;
+      }
+    }
+
+    return result;
+  } catch {
+    return Object.create(null);
+  }
+}
+
+function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Record<string, string>>): void {
+  try {
+    if (typeof localStorage === "undefined") return;
+    localStorage.setItem(storageKey, JSON.stringify(value));
+  } catch {
+    // ignore
+  }
 }
 
     function notifyPricesUpdated(path: string): void {
@@ -148,5 +221,71 @@ function getConfigRoot(): any {
         // ignore
       }
 
+      try {
+        if (typeof localStorage !== "undefined") {
+          localStorage.removeItem(PRICE_LABELS_STORAGE_KEY);
+          localStorage.removeItem(PRICE_SUBGROUPS_STORAGE_KEY);
+        }
+      } catch {
+        // ignore
+      }
+
       notifyPricesUpdated("defaultPrices");
+    }
+
+    export function getPriceLabels(): Record<string, string> {
+      return readStoredJsonMap(PRICE_LABELS_STORAGE_KEY);
+    }
+
+    export function setPriceLabels(labels: Record<string, string>): void {
+      const cleaned = Object.create(null) as Record<string, string>;
+      for (const [key, value] of Object.entries(labels)) {
+        if (!isSafePathSegment(key)) continue;
+        const label = String(value ?? "").trim();
+        if (label) cleaned[key] = label;
+      }
+
+      writeStoredJsonMap(PRICE_LABELS_STORAGE_KEY, cleaned);
+    }
+
+    export function deletePriceLabel(key: string): void {
+      const labels = readStoredJsonMap(PRICE_LABELS_STORAGE_KEY);
+      delete labels[key];
+      writeStoredJsonMap(PRICE_LABELS_STORAGE_KEY, labels);
+    }
+
+    export function getPriceSubgroups(): Record<string, Record<string, string>> {
+      return readStoredJsonNestedMap(PRICE_SUBGROUPS_STORAGE_KEY);
+    }
+
+    export function setPriceSubgroups(groups: Record<string, Record<string, string>>): void {
+      const cleaned = Object.create(null) as Record<string, Record<string, string>>;
+
+      for (const [categoryId, subgroups] of Object.entries(groups)) {
+        if (!isSafePathSegment(categoryId)) continue;
+        if (!subgroups || typeof subgroups !== "object" || Array.isArray(subgroups)) continue;
+
+        const nested = Object.create(null) as Record<string, string>;
+        for (const [prefix, labelValue] of Object.entries(subgroups as Record<string, unknown>)) {
+          if (!isSafePathSegment(prefix)) continue;
+          const label = String(labelValue ?? "").trim();
+          if (label) nested[prefix] = label;
+        }
+
+        if (Object.keys(nested).length > 0) {
+          cleaned[categoryId] = nested;
+        }
+      }
+
+      writeStoredJsonNestedMap(PRICE_SUBGROUPS_STORAGE_KEY, cleaned);
+    }
+
+    export function deletePriceSubgroup(categoryId: string, prefix: string): void {
+      const groups = readStoredJsonNestedMap(PRICE_SUBGROUPS_STORAGE_KEY);
+      if (!groups[categoryId]) return;
+      delete groups[categoryId][prefix];
+      if (Object.keys(groups[categoryId]).length === 0) {
+        delete groups[categoryId];
+      }
+      writeStoredJsonNestedMap(PRICE_SUBGROUPS_STORAGE_KEY, groups);
     }
