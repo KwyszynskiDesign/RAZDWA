@@ -140,9 +140,14 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
         const overrides = JSON.parse(raw);
         if (!overrides || typeof overrides !== "object" || Array.isArray(overrides)) return;
 
-        const validated: Record<string, number> = {};
+        const validated: Record<string, number | null> = {};
         for (const [key, value] of Object.entries(overrides)) {
           if (!isSafePathSegment(key)) continue;
+          if (value === null) {
+            validated[key] = null;
+            continue;
+          }
+
           const n = typeof value === "number" ? value : Number.parseFloat(String(value));
           if (Number.isFinite(n)) {
             validated[key] = n;
@@ -151,9 +156,10 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
 
         if (Object.keys(validated).length > 0) {
           const root = getConfigRoot();
-          const merged = Object.create(null) as Record<string, number>;
+          const merged = Object.create(null) as Record<string, number | null>;
           for (const [key, value] of Object.entries(root.defaultPrices ?? {})) {
-            if (isSafePathSegment(key)) merged[key] = Number(value);
+            if (!isSafePathSegment(key)) continue;
+            merged[key] = value === null ? null : Number(value);
           }
           for (const [key, value] of Object.entries(validated)) {
             merged[key] = value;

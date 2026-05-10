@@ -1284,8 +1284,8 @@ button.ghost:hover {
 
 .settings-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 420px);
-  gap: 20px;
+  grid-template-columns: minmax(0, 1.35fr) clamp(260px, 24vw, 320px);
+  gap: 16px;
   align-items: start;
 }
 
@@ -1302,6 +1302,7 @@ button.ghost:hover {
   position: sticky;
   top: 16px;
   align-self: start;
+  width: 100%;
 }
 
 .settings-header {
@@ -1497,14 +1498,14 @@ body.settings-pricing-layout .left-col {
 }
 
 .settings-th-key {
-  width: 150px;
-  min-width: 150px;
+  width: 132px;
+  min-width: 132px;
 }
 
 .settings-th-product,
 .settings-td-product {
   width: auto;
-  min-width: 180px;
+  min-width: 148px;
 }
 
 .settings-product-label {
@@ -1545,12 +1546,12 @@ body.settings-pricing-layout .left-col {
 
 .settings-th-price,
 .settings-td-price {
-  width: 150px;
+  width: 128px;
 }
 
 .settings-th-del,
 .settings-td-del {
-  width: 68px;
+  width: 56px;
   text-align: center;
 }
 
@@ -1560,6 +1561,7 @@ body.settings-pricing-layout .left-col {
 
 .settings-input--label {
   min-width: 0;
+  width: 100%;
 }
 
 .settings-field {
@@ -1732,11 +1734,11 @@ body.settings-pricing-layout .left-col {
 
   .settings-th-product,
   .settings-td-product {
-    min-width: 160px;
+    min-width: 140px;
   }
 
   .settings-th-key {
-    min-width: 220px;
+    min-width: 200px;
   }
 }
 

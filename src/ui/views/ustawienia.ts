@@ -243,6 +243,11 @@ function loadPrices(): PriceMap {
 
   if (loaded && typeof loaded === "object") {
     Object.entries(loaded).forEach(([key, value]) => {
+      if (value === null) {
+        base[key] = null;
+        return;
+      }
+
       const numeric = typeof value === "number" ? value : Number.parseFloat(String(value));
       if (Number.isFinite(numeric)) {
         base[key] = numeric;
@@ -2538,16 +2543,12 @@ export const UstawieniaView: View = {
 
     container.querySelector("#btn-save")?.addEventListener("click", () => {
       flushInputs();
-      const persisted: Record<string, number> = {};
+      const persisted: Record<string, number | null> = {};
       const persistedLabels: PriceLabelMap = Object.create(null);
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
         const key = row.dataset.key ?? "";
         const value = prices[key];
-        if (typeof value !== "number" || !Number.isFinite(value)) {
-          return;
-        }
-
-        persisted[key] = value;
+        persisted[key] = typeof value === "number" && Number.isFinite(value) ? value : null;
         const labelInput = row.querySelector<HTMLInputElement>("input[data-field='productLabel']");
         const label = (labelInput?.value ?? "").trim();
         persistedLabels[key] = label || customPriceLabels[key] || getPriceLabel(key);
