@@ -2388,10 +2388,6 @@ export const UstawieniaView: View = {
             <h2 class="settings-title">⚙️ Ustawienia cen</h2>
             <p class="settings-subtitle">Cennik jest podzielony na kategorie. Wybierz sekcję i zmieniaj tylko te ceny, które do niej należą.</p>
           </div>
-          <div class="settings-summary-card">
-            <span class="settings-summary-label">Wszystkie pozycje</span>
-            <strong id="all-prices-count" class="settings-summary-value">0</strong>
-          </div>
         </div>
 
         <div id="category-tabs" class="settings-tabs"></div>
@@ -2447,6 +2443,17 @@ export const UstawieniaView: View = {
         <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
       </div>
     `;
+
+    const scrollTopButton = document.createElement("button");
+    scrollTopButton.type = "button";
+    scrollTopButton.className = "settings-scroll-top-btn";
+    scrollTopButton.setAttribute("aria-label", "Wróć na górę");
+    scrollTopButton.title = "Wróć na górę";
+    scrollTopButton.textContent = "↑";
+    scrollTopButton.addEventListener("click", () => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+    container.appendChild(scrollTopButton);
 
     renderTabs();
     renderTable();
@@ -2587,7 +2594,10 @@ export const UstawieniaView: View = {
     };
 
     window.addEventListener("storage", onStorage);
-    _cleanup = () => window.removeEventListener("storage", onStorage);
+    _cleanup = () => {
+      window.removeEventListener("storage", onStorage);
+      scrollTopButton.remove();
+    };
   },
 
   unmount() {

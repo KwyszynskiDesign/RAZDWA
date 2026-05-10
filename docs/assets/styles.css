@@ -1312,6 +1312,31 @@ button.ghost:hover {
   box-shadow: var(--shadow-sm);
 }
 
+.settings-scroll-top-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 18px;
+  z-index: 40;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(30, 58, 138, 0.18);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
+  color: var(--primary);
+  font-size: 20px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.settings-scroll-top-btn:hover {
+  transform: translateY(-1px);
+  background: var(--surface);
+}
+
 .settings-summary-label {
   display: block;
   font-size: 12px;
@@ -1627,6 +1652,10 @@ button.ghost:hover {
 
   .settings-action-btn {
     width: 100%;
+  }
+
+  .settings-summary-card {
+    display: none;
   }
 
   .settings-th-key {
