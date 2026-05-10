@@ -2390,57 +2390,61 @@ export const UstawieniaView: View = {
           </div>
         </div>
 
-        <div id="category-tabs" class="settings-tabs"></div>
+        <div class="settings-layout">
+          <div class="settings-main-col">
+            <div id="category-tabs" class="settings-tabs"></div>
 
-        <div class="settings-active-meta">
-          <div>
-            <div id="active-category-label" class="settings-active-label">—</div>
-            <div id="active-category-desc" class="settings-active-desc"></div>
+            <div class="settings-active-meta">
+              <div>
+                <div id="active-category-label" class="settings-active-label">—</div>
+                <div id="active-category-desc" class="settings-active-desc"></div>
+              </div>
+              <div class="settings-count-badge">Pozycji: <span id="prices-count">0</span></div>
+            </div>
+
+            <div class="settings-table-wrap">
+              <table class="settings-table">
+                <thead>
+                  <tr>
+                    <th class="settings-th-product">Produkt / opis</th>
+                    <th class="settings-th-price">Cena (zł)</th>
+                    <th class="settings-th-del">Usuń</th>
+                  </tr>
+                </thead>
+                <tbody id="prices-tbody"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="settings-count-badge">Pozycji: <span id="prices-count">0</span></div>
+
+          <aside class="settings-actions-panel">
+            <div class="settings-actions">
+              <div class="settings-add-group">
+                <label class="settings-field">
+                  <span class="settings-action-label">Kategoria docelowa</span>
+                  <select id="new-price-category" class="settings-input">
+                    ${getAddableCategories().map((category) => `<option value="${category.id}">${category.label}</option>`).join("")}
+                  </select>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Podgrupa / prefiks</span>
+                  <select id="new-price-prefix" class="settings-input"></select>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Nazwa nowej podgrupy</span>
+                  <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazwę podgrupy" disabled>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Nazwa produktu</span>
+                  <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazwę nowego produktu">
+                </label>
+                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
+              </div>
+              <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz zmiany</button>
+              <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
+              <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
+            </div>
+          </aside>
         </div>
-
-        <div class="settings-table-wrap">
-          <table class="settings-table">
-            <thead>
-              <tr>
-                <th class="settings-th-product">Produkt / opis</th>
-                <th class="settings-th-price">Cena (zł)</th>
-                <th class="settings-th-del">Usuń</th>
-              </tr>
-            </thead>
-            <tbody id="prices-tbody"></tbody>
-          </table>
-        </div>
-
-
-        <div class="settings-actions">
-          <div class="settings-add-group" style="display:grid;gap:8px;grid-template-columns:minmax(220px,260px) minmax(220px,260px) minmax(220px,1fr) auto;align-items:end;width:100%;">
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Kategoria docelowa</span>
-              <select id="new-price-category" class="settings-input">
-                ${getAddableCategories().map((category) => `<option value="${category.id}">${category.label}</option>`).join("")}
-              </select>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Podgrupa / prefiks</span>
-              <select id="new-price-prefix" class="settings-input"></select>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Nazwa nowej podgrupy</span>
-              <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazwę podgrupy" disabled>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Nazwa produktu</span>
-              <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazwę nowego produktu">
-            </label>
-            <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
-          </div>
-          <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz zmiany</button>
-          <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
-        </div>
-
-        <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
       </div>
     `;
 

@@ -545,57 +545,61 @@ end`},Sf=function(){for(var e=[],t=0;t<arguments.length;t++)e[t]=arguments[t];re
           </div>
         </div>
 
-        <div id="category-tabs" class="settings-tabs"></div>
+        <div class="settings-layout">
+          <div class="settings-main-col">
+            <div id="category-tabs" class="settings-tabs"></div>
 
-        <div class="settings-active-meta">
-          <div>
-            <div id="active-category-label" class="settings-active-label">\u2014</div>
-            <div id="active-category-desc" class="settings-active-desc"></div>
+            <div class="settings-active-meta">
+              <div>
+                <div id="active-category-label" class="settings-active-label">\u2014</div>
+                <div id="active-category-desc" class="settings-active-desc"></div>
+              </div>
+              <div class="settings-count-badge">Pozycji: <span id="prices-count">0</span></div>
+            </div>
+
+            <div class="settings-table-wrap">
+              <table class="settings-table">
+                <thead>
+                  <tr>
+                    <th class="settings-th-product">Produkt / opis</th>
+                    <th class="settings-th-price">Cena (z\u0142)</th>
+                    <th class="settings-th-del">Usu\u0144</th>
+                  </tr>
+                </thead>
+                <tbody id="prices-tbody"></tbody>
+              </table>
+            </div>
           </div>
-          <div class="settings-count-badge">Pozycji: <span id="prices-count">0</span></div>
+
+          <aside class="settings-actions-panel">
+            <div class="settings-actions">
+              <div class="settings-add-group">
+                <label class="settings-field">
+                  <span class="settings-action-label">Kategoria docelowa</span>
+                  <select id="new-price-category" class="settings-input">
+                    ${l1().map(k=>`<option value="${k.id}">${k.label}</option>`).join("")}
+                  </select>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Podgrupa / prefiks</span>
+                  <select id="new-price-prefix" class="settings-input"></select>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Nazwa nowej podgrupy</span>
+                  <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazw\u0119 podgrupy" disabled>
+                </label>
+                <label class="settings-field">
+                  <span class="settings-action-label">Nazwa produktu</span>
+                  <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazw\u0119 nowego produktu">
+                </label>
+                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
+              </div>
+              <button id="btn-save" type="button" class="btn-primary settings-action-btn">\u{1F4BE} Zapisz zmiany</button>
+              <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">\u{1F504} Przywr\xF3\u0107 domy\u015Blne</button>
+              <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
+            </div>
+          </aside>
         </div>
-
-        <div class="settings-table-wrap">
-          <table class="settings-table">
-            <thead>
-              <tr>
-                <th class="settings-th-product">Produkt / opis</th>
-                <th class="settings-th-price">Cena (z\u0142)</th>
-                <th class="settings-th-del">Usu\u0144</th>
-              </tr>
-            </thead>
-            <tbody id="prices-tbody"></tbody>
-          </table>
-        </div>
-
-
-        <div class="settings-actions">
-          <div class="settings-add-group" style="display:grid;gap:8px;grid-template-columns:minmax(220px,260px) minmax(220px,260px) minmax(220px,1fr) auto;align-items:end;width:100%;">
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Kategoria docelowa</span>
-              <select id="new-price-category" class="settings-input">
-                ${l1().map(k=>`<option value="${k.id}">${k.label}</option>`).join("")}
-              </select>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Podgrupa / prefiks</span>
-              <select id="new-price-prefix" class="settings-input"></select>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Nazwa nowej podgrupy</span>
-              <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazw\u0119 podgrupy" disabled>
-            </label>
-            <label style="display:grid;gap:4px;">
-              <span class="settings-action-label">Nazwa produktu</span>
-              <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazw\u0119 nowego produktu">
-            </label>
-            <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
-          </div>
-          <button id="btn-save" type="button" class="btn-primary settings-action-btn">\u{1F4BE} Zapisz zmiany</button>
-          <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">\u{1F504} Przywr\xF3\u0107 domy\u015Blne</button>
-        </div>
-
-        <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
       </div>
     `;let p=document.createElement("button");p.type="button",p.className="settings-scroll-top-btn",p.setAttribute("aria-label","Wr\xF3\u0107 na g\xF3r\u0119"),p.title="Wr\xF3\u0107 na g\xF3r\u0119",p.textContent="\u2191",p.addEventListener("click",()=>{window.scrollTo({top:0,behavior:"smooth"})}),e.appendChild(p),l(),d(),u();let m=e.querySelector("#new-price-category"),f=e.querySelector("#new-price-prefix"),y=e.querySelector("#new-price-subgroup"),v=e.querySelector("#new-price-label");m==null||m.addEventListener("change",()=>{n=m.value||n,l(),d(),u()}),f==null||f.addEventListener("change",()=>{f.value!==Ja&&(o=f.value),y&&(y.disabled=f.value!==Ja,f.value!==Ja&&(y.value=""))}),(x=e.querySelector("#btn-add-row"))==null||x.addEventListener("click",()=>{var G,W;c();let k=(m==null?void 0:m.value)||n,S=(G=a.find(O=>O.id===k))!=null?G:i(),F=(f==null?void 0:f.value)||S.newKeyPrefix||S.prefixes[0]||"nowa-",L=(y==null?void 0:y.value.trim())||"",A=(v==null?void 0:v.value.trim())||"";if(!A){s("\u26A0\uFE0F Wpisz nazw\u0119 produktu.","error"),v==null||v.focus();return}let D=F;if(F===Ja){if(!L){s("\u26A0\uFE0F Wpisz nazw\u0119 nowej podgrupy.","error"),y==null||y.focus();return}let O=o||S.newKeyPrefix||S.prefixes[0]||"nowa-";D=Kw(O,L,S.id,r);let q=(W=Xr[S.id])!=null?W:Object.create(null);Xr={...Xr,[S.id]:{...q,[D]:L}},hu(Xr)}let C=Uw(D,A,r);r[C]=null,za[C]=A,l(),d(),u(),v&&(v.value="",v.focus());let R=e.querySelectorAll("tbody tr input[data-field='unitPrice']"),j=R[R.length-1];j==null||j.focus(),j==null||j.select()}),(P=e.querySelector("#btn-save"))==null||P.addEventListener("click",()=>{var F;c();let k={},S=Object.create(null);e.querySelectorAll("tbody tr[data-key]").forEach(L=>{var j,G;let A=(j=L.dataset.key)!=null?j:"",D=r[A];if(typeof D!="number"||!Number.isFinite(D))return;k[A]=D;let C=L.querySelector("input[data-field='productLabel']"),R=((G=C==null?void 0:C.value)!=null?G:"").trim();S[A]=R||za[A]||jm(A)}),pu("defaultPrices",k),yu(S),za=S,r=el(),l(),d(),u(),s("\u2713 Zapisano ceny."),(F=t==null?void 0:t.emit)==null||F.call(t,"prices-updated",{timestamp:Date.now()})}),(T=e.querySelector("#btn-reset"))==null||T.addEventListener("click",()=>{var k;confirm("Przywr\xF3ci\u0107 domy\u015Blne ceny? Twoje zmiany zostan\u0105 utracone.")&&(fu(),r=el(),za=Zc(),Xr=Object.create(null),l(),d(),u(),s("\u2713 Przywr\xF3cono domy\u015Blne ceny."),(k=t==null?void 0:t.emit)==null||k.call(t,"prices-updated",{timestamp:Date.now()}))});let g=k=>{var S;k.key!==Bw&&k.key!==Po&&k.key!==Eo||(r=el(),za=Zc(),Xr=cl(),l(),d(),u(),(S=t==null?void 0:t.emit)==null||S.call(t,"prices-updated",{timestamp:Date.now()}))};window.addEventListener("storage",g),Ln=()=>{window.removeEventListener("storage",g),p.remove()}},unmount(){Ln&&(Ln(),Ln=null)}};function Pt(e){return e.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;")}var Jm={id:"artykuly-biurowe",title:"Artyku\u0142y Biurowe",unit:"szt",pricing:"flat",categories:[{name:"TECZKI",items:[{id:"teczka-biala-gumka",name:"Teczka bia\u0142a z gumk\u0105",price:4},{id:"teczka-niebieska-twarda",name:"Teczka niebieska twarda",price:15},{id:"teczka-kolor-gumka",name:"Teczka KOLOR z gumk\u0105",price:5.5},{id:"teczka-biala-wiezanka",name:"Teczka bia\u0142a z wi\u0105zk\u0105",price:5}]},{name:"SKOROSZYT",items:[{id:"skoroszyt-durable",name:"Skoroszyt DURABLE",price:10},{id:"skoroszyt-wasm",name:"Skoroszyt z w\u0105sem",price:4.5},{id:"skoroszyt-wasm-wpinanie",name:"Skoroszyt z w\u0105sem do wpinania",price:4.5}]},{name:"SEGREGATORY I AKCESORIA",items:[{id:"segregator-7cm",name:"SEGREGATOR 7 cm",price:13},{id:"koszulka-dokumenty",name:"KOSZULKA na dokumenty",price:.8},{id:"papier-ryza-a4",name:"Papier RYZA A4",price:19},{id:"papier-ryza-a3",name:"Papier RYZA A3",price:36}]},{name:"ARTYKU\u0141Y PISZ\u0104CE",items:[{id:"dugopis",name:"D\u0142ugopis",price:6},{id:"olowek",name:"O\u0142\xF3wek",price:4}]},{name:"NO\u015ANIKI DANYCH",items:[{id:"pendrive-32gb",name:"PENDRIVE 32GB",price:28},{id:"pendrive-4gb",name:"PENDRIVE 4GB",price:22}]},{name:"KOPERTY",items:[{id:"koperta-zwykla",name:"Koperta zwyk\u0142a",price:.65},{id:"koperta-rozszerzona",name:"Koperta rozszerzona",price:3},{id:"koperta-wysylkowa",name:"Koperta wysy\u0142kowa",price:3},{id:"koperta-ozdobna",name:"Koperta ozdobna",price:1.4}]},{name:"PUDE\u0141KA I NO\u015ANIKI",items:[{id:"pudelko-pakowe-80",name:"Pude\u0142ko pakowe 80cm",price:4.5},{id:"pudelko-pakowe-100",name:"Pude\u0142ko pakowe 100cm",price:5},{id:"pudelko-pakowe-120",name:"Pude\u0142ko pakowe 120cm",price:6},{id:"plyty-cd",name:"P\u0142yty CD",price:3.2},{id:"plyty-dvd",name:"P\u0142yty DVD",price:5.2}]}]};var C1=Jm,M1=["a","b","c","d","e","f","g"];function Qc(e){return/^koperty-[a-g]$/i.test(e)}function L1(e){let t=0,r=0;for(let a of e.selectedItems){let n=Qc(a.itemId)?a.itemId.toLowerCase():`artykuly-${a.itemId}`,i=M(n,a.price)*a.quantity;t+=i,r+=a.quantity}return{itemsCount:e.selectedItems.length,totalQuantity:r,totalPrice:parseFloat(t.toFixed(2))}}var _m={id:"artykuly-biurowe",name:"\u{1F4CE} Artyku\u0142y Biurowe",mount:(e,t)=>{var s;e.innerHTML=`
       <div class="category-form">

@@ -1282,6 +1282,28 @@ button.ghost:hover {
   gap: 16px;
 }
 
+.settings-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(320px, 28vw, 420px);
+  gap: 20px;
+  align-items: start;
+}
+
+.settings-main-col {
+  min-width: 0;
+  display: grid;
+  gap: 16px;
+  overflow: auto;
+  max-height: calc(100vh - 220px);
+  padding-right: 4px;
+}
+
+.settings-actions-panel {
+  position: sticky;
+  top: 16px;
+  align-self: start;
+}
+
 .settings-header {
   display: flex;
   justify-content: space-between;
@@ -1479,7 +1501,7 @@ body.settings-pricing-layout .left-col {
 
 .settings-th-product,
 .settings-td-product {
-  min-width: 240px;
+  min-width: 210px;
 }
 
 .settings-product-label {
@@ -1531,6 +1553,18 @@ body.settings-pricing-layout .left-col {
 
 .settings-input {
   width: 100%;
+}
+
+.settings-field {
+  display: grid;
+  gap: 4px;
+}
+
+.settings-action-label {
+  font-size: 12px;
+  line-height: 1.2;
+  color: var(--text-secondary);
+  font-weight: 600;
 }
 
 .settings-input--mono {
@@ -1614,12 +1648,20 @@ body.settings-pricing-layout .left-col {
 
 .settings-actions {
   display: flex;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.settings-add-group {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .settings-action-btn {
-  min-width: 170px;
+  min-width: 0;
+  width: 100%;
 }
 
 .settings-save-msg {
@@ -1639,6 +1681,20 @@ body.settings-pricing-layout .left-col {
 }
 
 @media (max-width: 768px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-main-col {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .settings-actions-panel {
+    position: static;
+  }
+
   .settings-header,
   .settings-active-meta {
     grid-template-columns: 1fr;
@@ -1665,6 +1721,11 @@ body.settings-pricing-layout .left-col {
 
   .settings-action-btn {
     width: 100%;
+  }
+
+  .settings-th-product,
+  .settings-td-product {
+    min-width: 180px;
   }
 
   .settings-th-key {
