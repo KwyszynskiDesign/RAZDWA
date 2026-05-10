@@ -1,9 +1,111 @@
 import { CategoryModule } from "../ui/router";
+import { getDefaultPricesMap, getStoredPriceLabel } from "../core/compat";
 import { resolveStoredPrice } from "../core/compat";
+import { getPriceSubgroups } from "../services/priceService";
 import artykulyData from "../../data/normalized/artykuly-biurowe.json";
 
 const artykulyBiuroweData: any = artykulyData as any;
 const ENVELOPE_LETTERS = ["a", "b", "c", "d", "e", "f", "g"] as const;
+const CUSTOM_ARTYKULY_PREFIX = "artykuly-";
+const BASE_ARTYKULY_IDS = new Set<string>([
+  ...(artykulyBiuroweData.categories ?? []).flatMap((category: any) => (category.items ?? []).map((item: any) => item.id)),
+  ...ENVELOPE_LETTERS.map((letter) => `koperty-${letter}`),
+]);
+
+type RenderedArticleItem = {
+  id: string;
+  name: string;
+  price: number | null;
+  isCustom?: boolean;
+};
+
+type RenderedArticleCategory = {
+  name: string;
+  items: RenderedArticleItem[];
+};
+
+function getEnvelopeArticleCategory(): RenderedArticleCategory {
+  return {
+    name: "KOPERTY (A–G)",
+    items: ENVELOPE_LETTERS.map((letter) => ({
+      id: `koperty-${letter}`,
+      name: `Koperta ${letter.toUpperCase()}`,
+      price: resolveStoredPrice(`koperty-${letter}`, 0),
+    })),
+  };
+}
+
+function getMatchingArticleGroupTitle(key: string): string | null {
+  const subgroupMap = getPriceSubgroups()["artykuly"] ?? Object.create(null);
+  const matches = Object.entries(subgroupMap)
+    .filter(([prefix]) => key.startsWith(prefix))
+    .sort((a, b) => b[0].length - a[0].length);
+
+  return matches[0]?.[1] ?? null;
+}
+
+function getCustomArticleCategories(): RenderedArticleCategory[] {
+  const storedPrices = getDefaultPricesMap();
+  const groups = new Map<string, RenderedArticleItem[]>();
+  const groupOrder: string[] = [];
+
+  for (const [key, value] of Object.entries(storedPrices)) {
+    if (!key.startsWith(CUSTOM_ARTYKULY_PREFIX)) continue;
+    const itemId = key.slice(CUSTOM_ARTYKULY_PREFIX.length);
+    if (!itemId || BASE_ARTYKULY_IDS.has(itemId)) continue;
+
+    const groupTitle = getMatchingArticleGroupTitle(key) ?? "DODANE RĘCZNIE";
+    if (!groups.has(groupTitle)) {
+      groups.set(groupTitle, []);
+      groupOrder.push(groupTitle);
+    }
+
+    groups.get(groupTitle)!.push({
+      id: itemId,
+      name: getStoredPriceLabel(key),
+      price: typeof value === "number" ? value : null,
+      isCustom: true,
+    });
+  }
+
+  return groupOrder.map((name) => ({
+    name,
+    items: groups.get(name) ?? [],
+  }));
+}
+
+export function getRenderedArtykulyBiuroweCategories(): RenderedArticleCategory[] {
+  return [
+    ...(artykulyBiuroweData.categories ?? []).map((category: any) => ({
+      name: category.name,
+      items: (category.items ?? []).map((item: any) => ({
+        id: item.id,
+        name: item.name,
+        price: resolveStoredPrice(`artykuly-${item.id}`, item.price || (item.prices ? item.prices[0] : 0)),
+      })),
+    })),
+    getEnvelopeArticleCategory(),
+    ...getCustomArticleCategories(),
+  ];
+}
+
+function renderArticleItem(item: RenderedArticleItem): string {
+  const itemPrice = typeof item.price === "number" ? item.price : 0;
+  const priceDisplay = typeof item.price === "number" ? `${itemPrice.toFixed(2)} zł` : "—";
+  const priceColor = typeof item.price === "number" ? "#0066cc" : "#9aa7b2";
+  const addDisabled = typeof item.price !== "number";
+
+  return `
+    <div style="display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; column-gap: 8px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">
+      <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
+        <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
+      </label>
+      <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
+      <span class="item-price" data-item-id="${item.id}" data-base-price="${itemPrice}" data-has-price="${typeof item.price === "number" ? "1" : "0"}" style="font-weight: bold; color: ${priceColor}; min-width: 68px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
+      <button type="button" data-add-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="btn btn-success item-add-btn add-pill-btn" aria-label="Dodaj artykuł ${item.name} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
+    </div>
+  `;
+}
 
 function isEnvelopeLetterItem(itemId: string): boolean {
   return /^koperty-[a-g]$/i.test(itemId);
@@ -54,57 +156,36 @@ export const artykulyBiuroweCategory: CategoryModule = {
     `;
 
     const itemsList = container.querySelector('#items-list') as HTMLElement;
-    const envelopeLetterCategory = {
-      name: 'KOPERTY (A–G)',
-      items: ENVELOPE_LETTERS.map((letter) => ({
-        id: `koperty-${letter}`,
-        name: `Koperta ${letter.toUpperCase()}`,
-        price: resolveStoredPrice(`koperty-${letter}`, 0)
-      }))
-    };
-    const displayCategories = [...artykulyBiuroweData.categories, envelopeLetterCategory];
+    const renderItems = () => {
+      itemsList.innerHTML = "";
 
-    for (const category of displayCategories) {
-      const categoryDiv = document.createElement('div');
-      categoryDiv.style.marginBottom = '10px';
-      categoryDiv.style.padding = '8px 10px';
-      categoryDiv.style.backgroundColor = '#f7f9fb';
-      categoryDiv.style.border = '1px solid #e3e8ef';
-      categoryDiv.style.borderRadius = '8px';
-      categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${category.name}</h3>`;
+      const displayCategories = getRenderedArtykulyBiuroweCategories();
 
-      const itemsDiv = document.createElement('div');
-      itemsDiv.style.display = 'grid';
-      itemsDiv.style.gap = '5px';
+      for (const category of displayCategories) {
+        const categoryDiv = document.createElement('div');
+        categoryDiv.style.marginBottom = '10px';
+        categoryDiv.style.padding = '8px 10px';
+        categoryDiv.style.backgroundColor = '#f7f9fb';
+        categoryDiv.style.border = '1px solid #e3e8ef';
+        categoryDiv.style.borderRadius = '8px';
+        categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${category.name}</h3>`;
 
-      for (const item of category.items) {
-        const itemPrice = item.price || (item.prices ? item.prices[0] : 0);
+        const itemsDiv = document.createElement('div');
+        itemsDiv.style.display = 'grid';
+        itemsDiv.style.gap = '5px';
 
-        const itemDiv = document.createElement('div');
-        itemDiv.style.display = 'grid';
-        itemDiv.style.gridTemplateColumns = '1fr auto auto auto';
-        itemDiv.style.alignItems = 'center';
-        itemDiv.style.columnGap = '8px';
-        itemDiv.style.padding = '5px 8px';
-        itemDiv.style.backgroundColor = '#ffffff';
-        itemDiv.style.border = '1px solid #e7edf5';
-        itemDiv.style.borderRadius = '6px';
+        for (const item of category.items) {
+          const itemDiv = document.createElement('div');
+          itemDiv.innerHTML = renderArticleItem(item);
+          itemsDiv.appendChild(itemDiv.firstElementChild as HTMLElement);
+        }
 
-        itemDiv.innerHTML = `
-          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
-            <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
-          </label>
-          <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
-          <span class="item-price" data-item-id="${item.id}" data-base-price="${itemPrice}" style="font-weight: bold; color: #0066cc; min-width: 68px; text-align: right; font-size: 0.9em;">${itemPrice.toFixed(2)} zł</span>
-          <button type="button" data-add-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="btn btn-success item-add-btn add-pill-btn" aria-label="Dodaj artykuł ${item.name} do koszyka">+</button>
-        `;
-
-        itemsDiv.appendChild(itemDiv);
+        categoryDiv.appendChild(itemsDiv);
+        itemsList.appendChild(categoryDiv);
       }
+    };
 
-      categoryDiv.appendChild(itemsDiv);
-      itemsList.appendChild(categoryDiv);
-    }
+    renderItems();
 
     const updatePriceDisplay = (itemId: string) => {
       const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
@@ -126,10 +207,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
     });
 
     ctx?.on?.('prices-updated', () => {
-      priceSpans.forEach((span) => {
-        const itemId = span.getAttribute('data-item-id') || '';
-        updatePriceDisplay(itemId);
-      });
+      renderItems();
     });
 
     container.addEventListener('click', (event) => {

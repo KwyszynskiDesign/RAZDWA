@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
 import { quoteVouchery } from "../src/categories/vouchery";
+import { getPrice, resetPrices, setPrice } from "../src/services/priceService";
+
+afterEach(() => {
+  resetPrices();
+});
 
 describe("Vouchery Category", () => {
   it("should calculate 5 szt dwustronne without modifiers", () => {
@@ -37,5 +42,18 @@ describe("Vouchery Category", () => {
     // baza 43; Modigliani = 14.79; express = 8.60; razem 66.39
     expect(result.modifiersTotal).toBe(23.39);
     expect(result.totalPrice).toBe(66.39);
+  });
+
+  it("should use a newly added 50 szt voucher tier from stored prices", () => {
+    const prices = getPrice("defaultPrices") as Record<string, number | null>;
+    setPrice("defaultPrices", {
+      ...prices,
+      "vouchery-1-jed-50szt-180zl": 180,
+    });
+
+    const result = quoteVouchery({ qty: 50, sides: "single", satin: false, modigliani: false, express: false });
+
+    expect(result.tierQty).toBe(50);
+    expect(result.totalPrice).toBe(180);
   });
 });

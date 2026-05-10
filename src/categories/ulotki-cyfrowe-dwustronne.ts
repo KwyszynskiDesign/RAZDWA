@@ -2,7 +2,7 @@ import { getPrice } from "../services/priceService";
 import { calculatePrice } from "../core/pricing";
 
 import { PriceTable, CalculationResult } from "../core/types";
-import { resolveStoredPrice } from "../core/compat";
+import { mergeStoredNumericTiers, resolveStoredPrice } from "../core/compat";
 
 const prices: any = getPrice("ulotkiDwustronne");
 
@@ -20,10 +20,19 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
   }
 
   const fk = formatKey.toLowerCase();
-  const tiersWithOverrides = formatData.tiers.map((tier: any) => ({
-    ...tier,
-    price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price)
-  }));
+  const tiersWithOverrides = mergeStoredNumericTiers(
+    `ulotki-dwu-${fk}-`,
+    formatData.tiers.map((tier: any) => ({
+      ...tier,
+      price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price)
+    })),
+    (key) => {
+      const match = key.match(/^(?:.*-)?(\d+)$/i);
+      return match ? Number.parseInt(match[1], 10) : null;
+    },
+    (tier) => tier.min,
+    (quantity, price) => ({ min: quantity, max: quantity, price })
+  );
 
   return {
     id: `ulotki-cyfrowe-dwustronne-${formatKey.toLowerCase()}`,

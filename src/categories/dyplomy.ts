@@ -1,13 +1,43 @@
 import { CategoryModule } from "../ui/router";
 import { getPrice } from "../services/priceService";
-import { resolveStoredPrice } from "../core/compat";
+import {
+  extractQuantityFromText,
+  getDefaultPricesMap,
+  getStoredPriceLabel,
+  resolveStoredPrice,
+} from "../core/compat";
 
-const DYPLOMY_PRICING: Array<{ qty: number; price: number }> = getPrice("dyplomy") as Array<{ qty: number; price: number }>;
+type DyplomyTier = { qty: number; price: number };
 
-function getPriceForQuantity(qty: number): number {
-  let selectedTier = DYPLOMY_PRICING[0];
+function getResolvedDyplomyTiers(): DyplomyTier[] {
+  const baseTiers = (getPrice("dyplomy") as DyplomyTier[] | undefined) ?? [];
+  const tiersByQty = new Map<number, DyplomyTier>();
 
-  for (const tier of DYPLOMY_PRICING) {
+  for (const tier of baseTiers) {
+    tiersByQty.set(tier.qty, {
+      qty: tier.qty,
+      price: resolveStoredPrice(`dyplomy-qty-${tier.qty}`, tier.price),
+    });
+  }
+
+  const storedPrices = getDefaultPricesMap();
+  for (const [key, priceValue] of Object.entries(storedPrices)) {
+    if (typeof priceValue !== "number" || !key.startsWith("dyplomy-qty-")) continue;
+
+    const label = getStoredPriceLabel(key);
+    const quantity = extractQuantityFromText(label) ?? extractQuantityFromText(key);
+    if (!quantity) continue;
+
+    tiersByQty.set(quantity, { qty: quantity, price: priceValue });
+  }
+
+  return [...tiersByQty.values()].sort((a, b) => a.qty - b.qty);
+}
+
+function getSelectedDyplomyTier(qty: number, tiers: DyplomyTier[]): DyplomyTier {
+  let selectedTier = tiers[0];
+
+  for (const tier of tiers) {
     if (qty >= tier.qty) {
       selectedTier = tier;
     } else {
@@ -15,7 +45,13 @@ function getPriceForQuantity(qty: number): number {
     }
   }
 
-  return resolveStoredPrice(`dyplomy-qty-${selectedTier.qty}`, selectedTier.price);
+  return selectedTier;
+}
+
+function getPriceForQuantity(qty: number): number {
+  const tiers = getResolvedDyplomyTiers();
+  const selectedTier = getSelectedDyplomyTier(qty, tiers);
+  return selectedTier.price;
 }
 
 export interface DyplomyOptions {
@@ -110,7 +146,7 @@ export const dyplomyCategory: CategoryModule = {
         <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color: #ccc;">
-            ${DYPLOMY_PRICING.map(t => `<div>${t.qty} szt → ${t.price} zł</div>`).join('')}
+            ${getResolvedDyplomyTiers().map(t => `<div>${t.qty} szt → ${t.price} zł</div>`).join('')}
           </div>
         </div>
 
@@ -151,14 +187,7 @@ export const dyplomyCategory: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        let selectedTier = DYPLOMY_PRICING[0];
-        for (const tier of DYPLOMY_PRICING) {
-          if (quantity >= tier.qty) {
-            selectedTier = tier;
-          } else {
-            break;
-          }
-        }
+        const selectedTier = getSelectedDyplomyTier(quantity, getResolvedDyplomyTiers());
         breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ` × ${paperMultiplier.toFixed(2)} (satyna)` : ''}`;
       }
 

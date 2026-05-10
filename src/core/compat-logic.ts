@@ -11,6 +11,7 @@ import {
   resolveStoredPrice,
   money,
   readStoredPrices,
+  mergeStoredQuantityTable,
 } from "./compat";
 
 /** Returns a storage-range suffix: "1-5" or "5000+" (sentinel to > 50000). */
@@ -209,6 +210,19 @@ export function calculateBusinessCards(options: {
 
   if (!table) {
     throw new Error("Błąd: brak tabeli cenowej");
+  }
+
+  if (options.family !== "deluxe" && options.size) {
+    const foliaKey = options.lam === "noLam" ? "none" : "matt_gloss";
+    const storagePrefix = `wizytowki-${options.size}-${foliaKey}-`;
+    table = mergeStoredQuantityTable(
+      storagePrefix,
+      table,
+      (key) => {
+        const match = key.match(/^(?:.*-)?(\d+)szt$/i);
+        return match ? Number.parseInt(match[1], 10) : null;
+      }
+    );
   }
 
   const qtyBilled = pickNearestCeilKey(table, options.qty);

@@ -3,7 +3,7 @@ import { autoCalc } from "../autoCalc";
 import { calculateWlepki, calculateWlepkiSzt, WlepkiCalculation } from "../../categories/wlepki-naklejki";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
-import { resolveStoredPrice } from "../../core/compat";
+import { mergeStoredNumericTiers, resolveStoredPrice } from "../../core/compat";
 
 type BreakdownRow = {
   label: string;
@@ -199,7 +199,17 @@ export const WlepkiView: View = {
       const selectedTableId = pieceTableSelect.value || "papier-sra3";
       const blocks = (tableData.pieceTables ?? []).map((piece: any) => {
         const visible = piece.id === selectedTableId;
-        const rows = (piece.tiers ?? []).map((tier: any) => {
+        const mergedTiers = mergeStoredNumericTiers(
+          `wlepki-szt-${piece.id}-`,
+          piece.tiers ?? [],
+          (key) => {
+            const match = key.match(/^(?:.*-)?(\d+)$/i);
+            return match ? Number.parseInt(match[1], 10) : null;
+          },
+          (tier) => tier.qty,
+          (quantity, price) => ({ qty: quantity, price })
+        );
+        const rows = mergedTiers.map((tier: any) => {
           const value = resolveStoredPrice(`wlepki-szt-${piece.id}-${tier.qty}`, tier.price);
           return `<tr><td>${tier.qty}</td><td>${formatPLN(value)}</td></tr>`;
         }).join("");

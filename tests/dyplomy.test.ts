@@ -1,5 +1,10 @@
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
 import { calculateDyplomy } from "../src/categories/dyplomy";
+import { getPrice, resetPrices, setPrice } from "../src/services/priceService";
+
+afterEach(() => {
+  resetPrices();
+});
 
 describe("Dyplomy logic", () => {
   it("should calculate 1szt correctly", () => {
@@ -114,6 +119,24 @@ describe("Dyplomy logic", () => {
     expect(result.basePrice).toBe(30.80);
     expect(result.totalPrice).toBe(30.80);
     expect(result.appliedModifiers).toContain("single-sided-discount");
+  });
+
+  it("should use a newly added 50 szt dyplomy tier from stored prices", () => {
+    const prices = getPrice("defaultPrices") as Record<string, number | null>;
+    setPrice("defaultPrices", {
+      ...prices,
+      "dyplomy-qty-50szt-180zl": 180,
+    });
+
+    const result = calculateDyplomy({
+      qty: 50,
+      sides: 2,
+      isSatin: false,
+      express: false
+    });
+
+    expect(result.tierPrice).toBe(180);
+    expect(result.totalPrice).toBe(180);
   });
 
   it("should not apply -12% discount for double-sided even from 6 pcs", () => {

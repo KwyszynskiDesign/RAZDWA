@@ -1,7 +1,7 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import { getPrice } from "../services/priceService";
-import { overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
+import { mergeStoredNumericTiers, overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
 
 const data: any = getPrice("wlepkiNaklejki");
 
@@ -70,8 +70,19 @@ export function calculateWlepkiSzt(input: WlepkiSztCalculation): WlepkiSztResult
     throw new Error(`Unknown piece table: ${input.tableId}`);
   }
 
+  const mergedTiers = mergeStoredNumericTiers(
+    `wlepki-szt-${input.tableId}-`,
+    table.tiers ?? [],
+    (key) => {
+      const match = key.match(/^(?:.*-)?(\d+)$/i);
+      return match ? Number.parseInt(match[1], 10) : null;
+    },
+    (tier) => tier.qty,
+    (quantity, price) => ({ qty: quantity, price })
+  );
+
   const requestedQty = Math.max(1, Math.floor(input.qty || 1));
-  const sortedTiers = [...(table.tiers ?? [])].sort((a: any, b: any) => a.qty - b.qty);
+  const sortedTiers = [...mergedTiers].sort((a: any, b: any) => a.qty - b.qty);
   const chargedTier = sortedTiers.find((t: any) => requestedQty <= t.qty) ?? sortedTiers[sortedTiers.length - 1];
 
   if (!chargedTier) {

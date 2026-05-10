@@ -133,6 +133,8 @@ function getCategorySectionTitle(category: PriceCategory, key: string): string {
       return getZaproszeniaMaterialTitle(key);
     case "ulotki":
       return getUlotkiSectionTitle(key);
+    case "canvas":
+      return getCanvasSectionTitle(key);
     case "artykuly":
       return getArtykulySectionTitle(key);
     case "uslugi":
@@ -208,6 +210,13 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "uslugi-grafika-", label: "Usługi graficzne" },
         { value: "uslugi-pakiet-", label: "Pakiety graficzne" },
         { value: "uslugi-social-media-", label: "Social media" },
+      );
+      break;
+    case "canvas":
+      options.push(
+        { value: "canvas-framed-", label: "Canvas z oprawą" },
+        { value: "canvas-unframed-", label: "Canvas bez oprawy" },
+        { value: "canvas-m2-unframed", label: "Canvas bez oprawy – cena za m²" },
       );
       break;
     default:
@@ -1080,6 +1089,14 @@ function getUlotkiSectionTitle(key: string): string {
   return `ULOTKI ${sideLabel} ${formatLabel}`;
 }
 
+function getCanvasSectionTitle(key: string): string {
+  if (key.startsWith("canvas-framed-custom-")) return "CANVAS Z OPRAWĄ — WŁASNY ROZMIAR";
+  if (key.startsWith("canvas-framed-")) return "CANVAS Z OPRAWĄ";
+  if (key.startsWith("canvas-unframed-")) return "CANVAS BEZ OPRAWY";
+  if (key === "canvas-m2-unframed") return "CANVAS BEZ OPRAWY — CENA ZA M²";
+  return "CANVAS / PŁÓTNO";
+}
+
 function getArtykulySectionTitle(key: string): string {
   if (key.startsWith("artykuly-koperta-")) return "KOPERTY";
   if (key.startsWith("artykuly-teczka-")) return "TECZKI";
@@ -1502,8 +1519,11 @@ function sortUlotkiCategoryKeys(keys: string[]): string[] {
 
 function sortCanvasCategoryKeys(keys: string[]): string[] {
   const typeRank = (key: string): number => {
-    if (key.startsWith("canvas-framed-")) return 0;
-    return 1; // canvas-unframed-* and canvas-m2-unframed
+    if (key.startsWith("canvas-framed-custom-")) return 0;
+    if (key.startsWith("canvas-framed-")) return 1;
+    if (key.startsWith("canvas-unframed-")) return 2;
+    if (key === "canvas-m2-unframed") return 3;
+    return 4;
   };
 
   const sizeArea = (key: string): number => {
@@ -2172,6 +2192,7 @@ export const UstawieniaView: View = {
       let previousZaproszeniaMaterial = "";
       let previousZaproszeniaSubgroup = "";
       let previousUlotkiSection = "";
+      let previousCanvasSection = "";
       let previousUslugiSection = "";
       let previousBindowanieSubgroup = "";
       let isBoldGroup = false;
@@ -2315,6 +2336,18 @@ export const UstawieniaView: View = {
           }
         }
 
+        if (active.id === "canvas") {
+          const sectionTitle = getCategorySectionTitle(active, key);
+          if (sectionTitle !== previousCanvasSection) {
+            rows.push(`
+              <tr class="settings-section-row">
+                <td colspan="3"><strong>${escapeHtml(sectionTitle)}</strong></td>
+              </tr>
+            `);
+            previousCanvasSection = sectionTitle;
+          }
+        }
+
         if (active.id === "uslugi") {
           const sectionTitle = getCategorySectionTitle(active, key);
           if (sectionTitle !== previousUslugiSection) {
@@ -2341,7 +2374,7 @@ export const UstawieniaView: View = {
         }
 
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "artykuly" && active.id !== "uslugi") {
+        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "canvas" && active.id !== "artykuly" && active.id !== "uslugi") {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;

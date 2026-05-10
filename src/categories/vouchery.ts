@@ -1,13 +1,81 @@
 import { CategoryModule } from "../ui/router";
 import { getPrice } from "../services/priceService";
-import { resolveStoredPrice } from "../core/compat";
+import {
+  extractQuantityFromText,
+  extractVoucherSide,
+  getDefaultPricesMap,
+  getStoredPriceLabel,
+  resolveStoredPrice,
+} from "../core/compat";
 
-const voucheryData: any[] = getPrice("vouchery") as any[];
+type VoucherSide = "jed" | "dwu";
 
-function getPriceForQuantity(qty: number, isSingle: boolean): number {
-  let selectedTier = voucheryData[0];
+type VoucherTier = {
+  qty: number;
+  single: number;
+  double: number;
+};
 
-  for (const tier of voucheryData) {
+function getResolvedBaseTiers(): VoucherTier[] {
+  const baseTiers = (getPrice("vouchery") as Array<{ qty: number; single: number; double: number }> | undefined) ?? [];
+  const tiersByQty = new Map<number, VoucherTier>();
+
+  for (const tier of baseTiers) {
+    tiersByQty.set(tier.qty, {
+      qty: tier.qty,
+      single: resolveStoredPrice(`vouchery-${tier.qty}-jed`, tier.single),
+      double: resolveStoredPrice(`vouchery-${tier.qty}-dwu`, tier.double),
+    });
+  }
+
+  const storedPrices = getDefaultPricesMap();
+  for (const [key, priceValue] of Object.entries(storedPrices)) {
+    if (typeof priceValue !== "number" || !key.startsWith("vouchery-")) continue;
+
+    const label = getStoredPriceLabel(key);
+    const quantity = extractQuantityFromText(label) ?? extractQuantityFromText(key);
+    const side = extractVoucherSide(`${key} ${label}`) as VoucherSide | null;
+
+    if (!quantity || !side) continue;
+
+    const currentTier = tiersByQty.get(quantity) ?? {
+      qty: quantity,
+      single: Number.NaN,
+      double: Number.NaN,
+    };
+
+    if (side === "jed") {
+      currentTier.single = priceValue;
+    } else {
+      currentTier.double = priceValue;
+    }
+
+    tiersByQty.set(quantity, currentTier);
+  }
+
+  const tiers = [...tiersByQty.values()].sort((a, b) => a.qty - b.qty);
+  let previousSingle = 0;
+  let previousDouble = 0;
+
+  for (const tier of tiers) {
+    if (!Number.isFinite(tier.single)) {
+      tier.single = previousSingle;
+    }
+    if (!Number.isFinite(tier.double)) {
+      tier.double = previousDouble;
+    }
+
+    previousSingle = tier.single;
+    previousDouble = tier.double;
+  }
+
+  return tiers;
+}
+
+function getSelectedTier(qty: number, tiers: VoucherTier[]): VoucherTier {
+  let selectedTier = tiers[0];
+
+  for (const tier of tiers) {
     if (qty >= tier.qty) {
       selectedTier = tier;
     } else {
@@ -15,10 +83,13 @@ function getPriceForQuantity(qty: number, isSingle: boolean): number {
     }
   }
 
-  const side = isSingle ? "jed" : "dwu";
-  const storageKey = `vouchery-${selectedTier.qty}-${side}`;
-  const defaultPrice = isSingle ? selectedTier.single : selectedTier.double;
-  return resolveStoredPrice(storageKey, defaultPrice);
+  return selectedTier;
+}
+
+function getPriceForQuantity(qty: number, isSingle: boolean): number {
+  const tiers = getResolvedBaseTiers();
+  const selectedTier = getSelectedTier(qty, tiers);
+  return isSingle ? selectedTier.single : selectedTier.double;
 }
 
 export interface VoucheryOptions {
@@ -30,14 +101,8 @@ export interface VoucheryOptions {
 }
 
 export function quoteVouchery(options: VoucheryOptions): any {
-  let selectedTier = voucheryData[0];
-  for (const tier of voucheryData) {
-    if (options.qty >= tier.qty) {
-      selectedTier = tier;
-    } else {
-      break;
-    }
-  }
+  const voucheryData = getResolvedBaseTiers();
+  const selectedTier = getSelectedTier(options.qty, voucheryData);
 
   const basePrice = getPriceForQuantity(options.qty, options.sides === 'single');
   const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
@@ -65,6 +130,14 @@ export function quoteVouchery(options: VoucheryOptions): any {
     modifiersTotal: parseFloat(modifiersTotal.toFixed(2)),
     totalPrice: parseFloat(total.toFixed(2))
   };
+}
+
+export function getVoucheryTiers(): VoucherTier[] {
+  return getResolvedBaseTiers();
+}
+
+export function getVoucheryPriceForQuantity(qty: number, isSingle: boolean): number {
+  return getPriceForQuantity(qty, isSingle);
 }
 
 export const voucheryCategory: CategoryModule = {

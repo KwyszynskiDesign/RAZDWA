@@ -1,9 +1,8 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { quoteVouchery } from "../../categories/vouchery";
+import { getVoucheryPriceForQuantity, getVoucheryTiers, quoteVouchery } from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
-import { getPrice } from "../../services/priceService";
 
 export const VoucheryView: View = {
   id: "vouchery",
@@ -57,7 +56,7 @@ export const VoucheryView: View = {
     const updateLegend = () => {
       if (!legendRows) return;
 
-      const tiers = (getPrice("vouchery") as Array<{ qty: number; single: number; double: number }> | undefined) ?? [];
+      const tiers = getVoucheryTiers();
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement | null;
       const side = sidesInput?.value === "double" ? "dwu" : "jed";
       const sideLabel = side === "jed" ? "jednostronne" : "dwustronne";
@@ -74,8 +73,7 @@ export const VoucheryView: View = {
 
       legendRows.innerHTML = tiers
         .map((tier) => {
-          const fallback = side === "jed" ? tier.single : tier.double;
-          const basePrice = resolveStoredPrice(`vouchery-${tier.qty}-${side}`, fallback);
+          const basePrice = getVoucheryPriceForQuantity(tier.qty, side === "jed");
           let price = basePrice;
 
           if (isModigliani) {

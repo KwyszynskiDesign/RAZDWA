@@ -1,9 +1,8 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
-import { quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
+import { getUlotkiDwustronneTable, quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
+import { getUlotkiJednostronneTable, quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
-import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
 const SATIN_MULTIPLIER = 1.12;
@@ -100,17 +99,16 @@ export const UlotkiCyfroweView: View = {
       const isSatin = paperVal.startsWith("satyna");
       const factor = isSatin ? SATIN_MULTIPLIER : 1;
       const formatOrder: Array<"A5" | "A6" | "DL"> = ["A5", "A6", "DL"];
-      const sidePrefix = sides === "dwustronne" ? "dwu" : "jed";
-      const sidePath = sides === "dwustronne" ? "ulotkiDwustronne" : "ulotkiJednostronne";
 
       const priceByFormatByQty: Record<string, Record<number, number>> = {};
       const qtySet = new Set<number>();
 
       formatOrder.forEach((format) => {
-        const tiers = (getPrice(`${sidePath}.formats.${format}.tiers`) as any[]) ?? [];
+        const table = sides === "dwustronne" ? getUlotkiDwustronneTable(format) : getUlotkiJednostronneTable(format);
+        const tiers = table.tiers ?? [];
         const map: Record<number, number> = {};
         tiers.forEach((tier: any) => {
-          const base = resolveStoredPrice(`ulotki-${sidePrefix}-${format.toLowerCase()}-${tier.min}`, tier.price);
+          const base = tier.price;
           const final = parseFloat((base * factor).toFixed(2));
           map[Number(tier.min)] = final;
           qtySet.add(Number(tier.min));
@@ -119,6 +117,17 @@ export const UlotkiCyfroweView: View = {
       });
 
       const qtyList = Array.from(qtySet).sort((a, b) => a - b);
+
+      if (qtySelect) {
+        const currentValue = qtySelect.value;
+        qtySelect.innerHTML = [
+          '<option value="" disabled>— ilość —</option>',
+          ...qtyList.map((qty) => `<option value="${qty}">${qty}</option>`),
+        ].join("");
+        if (qtyList.includes(Number.parseInt(currentValue, 10))) {
+          qtySelect.value = currentValue;
+        }
+      }
 
       if (legendTbody) {
         legendTbody.innerHTML = qtyList.map((qty) => {

@@ -1,7 +1,7 @@
 import { View, ViewContext } from "../types";
 import { quoteWizytowki } from "../../categories/wizytowki-druk-cyfrowy";
 import { formatPLN } from "../../core/money";
-import { resolveStoredPrice } from "../../core/compat";
+import { mergeStoredQuantityTable, resolveStoredPrice } from "../../core/compat";
 import { autoCalc } from "../autoCalc";
 import { getPrice } from "../../services/priceService";
 
@@ -57,16 +57,34 @@ export const WizytowkiView: View = {
     const updateLegend = () => {
       if (!legendRows) return;
       const biz = getPrice("wizytowki") as any;
-      const table85none = biz?.cyfrowe?.standardPrices?.["85x55"]?.noLam ?? {};
-      const qtyList = Object.keys(table85none)
+      const table85none = mergeStoredQuantityTable(
+        "wizytowki-85x55-none-",
+        biz?.cyfrowe?.standardPrices?.["85x55"]?.noLam ?? {},
+        (key) => {
+          const match = key.match(/^(?:.*-)?(\d+)szt$/i);
+          return match ? Number.parseInt(match[1], 10) : null;
+        }
+      );
+      const table90none = mergeStoredQuantityTable(
+        "wizytowki-90x50-none-",
+        biz?.cyfrowe?.standardPrices?.["90x50"]?.noLam ?? {},
+        (key) => {
+          const match = key.match(/^(?:.*-)?(\d+)szt$/i);
+          return match ? Number.parseInt(match[1], 10) : null;
+        }
+      );
+      const qtyList = [...new Set([
+        ...Object.keys(table85none),
+        ...Object.keys(table90none),
+      ])]
         .map((k) => Number(k))
         .filter((n) => Number.isFinite(n))
         .sort((a, b) => a - b);
 
       legendRows.innerHTML = qtyList
         .map((qty) => {
-          const p85none = resolveStoredPrice(`wizytowki-85x55-none-${qty}szt`, Number(table85none[String(qty)] ?? 0));
-          const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(biz?.cyfrowe?.standardPrices?.["90x50"]?.noLam?.[String(qty)] ?? 0));
+          const p85none = resolveStoredPrice(`wizytowki-85x55-none-${qty}szt`, Number(table85none[qty] ?? 0));
+          const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(table90none[qty] ?? 0));
           return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p90none)}</td></tr>`;
         })
         .join("");

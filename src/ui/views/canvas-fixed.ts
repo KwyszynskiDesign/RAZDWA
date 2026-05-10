@@ -87,12 +87,12 @@ export const CanvasView: View = {
 
       if (legendNote) {
         const border = resolveStoredPrice("canvas-framed-custom-border", framedMode?.customPricePerCmBorder ?? 0.22);
-        legendNote.innerText = `* Format niestandardowy wyceniany indywidualnie. Cena oprawy na zamówienie: ${formatPLN(border)} / cmb.`;
+        legendNote.innerText = `* Format niestandardowy wyceniany indywidualnie. Cena oprawy na zamówienie: ${formatPLN(border)} / cm.`;
       }
 
       if (priceTiersEl) {
         const m2Rate = resolveStoredPrice("canvas-m2-unframed", m2Mode?.pricePerM2 ?? 180);
-        priceTiersEl.innerHTML = `<div>Sam wydruk (m2): ${formatPLN(m2Rate)}/m²</div>`;
+        priceTiersEl.innerHTML = `<div>Sam wydruk (m²): ${formatPLN(m2Rate)}/m²</div>`;
       }
     };
 
@@ -177,14 +177,14 @@ export const CanvasView: View = {
       if (breakdownEl && breakdownLinesEl) {
         breakdownEl.style.display = "block";
         const lines: string[] = [
-          `<div>Tryb: ${result.modeLabel}</div>`,
-          `<div>Format: ${result.formatLabel}</div>`,
-          `<div>Ilość: ${Math.max(1, options.quantity)} szt</div>`,
-          `<div>Cena jednostkowa: ${formatPLN(result.tierPrice)}</div>`,
-          `<div>Razem: ${formatPLN(result.totalPrice)}</div>`
+          `<div class="canvas-breakdown-line">Tryb: ${result.modeLabel}</div>`,
+          `<div class="canvas-breakdown-line">Format: ${result.formatLabel}</div>`,
+          `<div class="canvas-breakdown-line">Ilość: ${Math.max(1, options.quantity)} szt</div>`,
+          `<div class="canvas-breakdown-line">Cena jednostkowa: ${formatPLN(result.tierPrice)}</div>`,
+          `<div class="canvas-breakdown-line">Razem: ${formatPLN(result.totalPrice)}</div>`
         ];
         if (options.modeId === "m2-unframed" && typeof result.areaM2 === "number") {
-          lines.splice(3, 0, `<div>Powierzchnia: ${result.areaM2.toFixed(2)} m²</div>`);
+          lines.splice(3, 0, `<div class="canvas-breakdown-line">Powierzchnia: ${result.areaM2.toFixed(2)} m²</div>`);
         }
         breakdownLinesEl.innerHTML = lines.join("");
       }
@@ -209,7 +209,7 @@ export const CanvasView: View = {
         currentResult.formatLabel,
         `${Math.max(1, currentOptions.quantity)} szt`,
         currentOptions.modeId === "m2-unframed" && typeof currentResult.areaM2 === "number"
-          ? `${currentResult.areaM2.toFixed(2)} m2 / szt`
+          ? `${currentResult.areaM2.toFixed(2)} m² / szt`
           : "",
         currentOptions.express ? "EXPRESS" : ""
       ].filter(Boolean);
