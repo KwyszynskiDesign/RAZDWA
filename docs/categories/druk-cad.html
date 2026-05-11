@@ -233,6 +233,16 @@
     margin-bottom: 6px;
   }
 
+  .cad-print-line {
+    align-items: center;
+  }
+
+  .cad-print-meta {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+  }
+
   .cad-result-line {
     display: flex;
     justify-content: space-between;
@@ -494,9 +504,8 @@
       <span id="cad-total-with-options" class="cad-option-total">-</span>
     </div>
     <hr>
-    <div id="cad-qty-hint" class="cad-qty-hint"></div>
-    <div class="cad-result-line cad-result-line-total">
-      <span>Cena łączna (druk):</span>
+    <div class="cad-result-line cad-print-line">
+      <span>Cena druku: <span id="cad-qty-hint" class="cad-print-meta"></span></span>
       <span id="cad-total-price" class="cad-total-price">-</span>
     </div>
     <div id="cad-options-summary" class="cad-options-summary">
@@ -523,13 +532,6 @@
       <div class="cad-option-line" id="cad-extra-paski-line" style="display:none">
         <span>Paski wzmacniające:</span>
         <span id="cad-extra-paski-price">0,00 zł</span>
-      </div>
-      <div id="cad-ops-list" style="display:none; margin-top: 2px;">
-        <div id="cad-ops-list-items"></div>
-        <div class="cad-option-line" style="font-weight:600;">
-          <span>Suma składania/skanu:</span>
-          <span id="cad-ops-total">0,00 zł</span>
-        </div>
       </div>
     </div>
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>

@@ -86,7 +86,7 @@ export const DrukCADView: View = {
         legend = document.createElement("div");
         legend.id = "cad-dynamic-legend";
         legend.className = "card";
-        legend.style.marginTop = "16px";
+        legend.style.marginTop = "50px";
         const anchor = container.querySelector("#cad-ops-list") as HTMLElement | null;
         (anchor ?? container.querySelector("#cad-breakdown-display") ?? resultDisplay).insertAdjacentElement("afterend", legend);
       }
@@ -514,7 +514,7 @@ export const DrukCADView: View = {
       if (qtyHintSpan) {
         const qty = currentOptions.qty || 1;
         const unit = result.isMeter ? "mb" : "szt";
-        qtyHintSpan.innerText = `${qty} ${unit} • format: ${displayCadFormat(currentOptions.format)} • baza: ${formatPLN(result.basePrice)}`;
+        qtyHintSpan.innerText = `${qty} ${unit} • format: ${displayCadFormat(currentOptions.format)} • baza:`;
       }
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";

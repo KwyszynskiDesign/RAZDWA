@@ -301,12 +301,13 @@ export const DrukA4A3SkanView: View = {
         lines.push({ label: "Parametry", value: `${printParams}${scanParams}` });
 
         if (printQtySafe > 0) {
-          lines.push({ label: "Cena druku bazowa", value: `${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
-        }
-
-        if (currentOptions.surcharge && surchargeQtySafe > 0) {
-          lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
-          lines.push({ label: "Druk bez dopłaty", value: `${normalQty} str. = ${formatPLN(normalPrintCost)}` });
+          if (currentOptions.surcharge && surchargeQtySafe > 0) {
+            lines.push({ label: "Cena druku bazowa", value: `${normalQty} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(normalPrintCost)}` });
+            lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
+            lines.push({ label: "Cena łączna (druk)", value: formatPLN(normalPrintCost + Number(result.surchargePrice || 0)), separatorTop: true });
+          } else {
+            lines.push({ label: "Cena druku bazowa", value: `${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
+          }
         }
 
         if (result.totalScanPrice > 0) {
