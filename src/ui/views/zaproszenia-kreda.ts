@@ -39,7 +39,7 @@ export const ZaproszeniaKredaView: View = {
       const format = formatSel.value || "A6";
       const sidesNum = parseInt(sidesSel.value, 10) || 1;
       const sidesKey = sidesNum === 1 ? "single" : "double";
-      const foldKey = foldedCheck.checked ? "skladane" : "normal";
+      const foldKey = foldedCheck.checked ? "folded" : "normal";
       const paperVal = paperSel.value;
       const isSatin = paperVal?.startsWith("satyna") || paperVal === "modigliani";
       const paperBase: "kreda" | "satyna" = isSatin ? "satyna" : "kreda";

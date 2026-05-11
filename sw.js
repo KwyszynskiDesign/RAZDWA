@@ -1,8 +1,8 @@
 <<<<<<< HEAD
-var CACHE_VERSION = 'razdwa-v202605111657';
+var CACHE_VERSION = 'razdwa-v202605111707';
 
 =======
-var CACHE_VERSION = 'razdwa-v202605111657';
+var CACHE_VERSION = 'razdwa-v202605111707';
 >>>>>>> db9fcba (feat: expand custom category tiers)
 
 self.addEventListener('install', function (event) {
