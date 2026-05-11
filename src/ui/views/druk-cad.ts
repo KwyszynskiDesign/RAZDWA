@@ -35,12 +35,12 @@ export const DrukCADView: View = {
     const qtySheetsGroup = container.querySelector("#qty-sheets-group") as HTMLElement;
     const useBaseBtn = container.querySelector("#cad-use-base") as HTMLButtonElement;
     const baseInfo = container.querySelector("#cad-base-info") as HTMLElement;
+    const foldStatus = container.querySelector("#cad-fold-status") as HTMLElement | null;
+    const scanStatus = container.querySelector("#cad-scan-status") as HTMLElement | null;
 
     const addToCartBtn = container.querySelector("#cad-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#cad-result-display") as HTMLElement;
-    const priceTypeSpan = container.querySelector("#cad-price-type") as HTMLElement;
     const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement;
-    const unitPriceSpan = container.querySelector("#cad-unit-price") as HTMLElement | null;
     const qtyHintSpan = container.querySelector("#cad-qty-hint") as HTMLElement | null;
     const grandTotalSpan = container.querySelector("#cad-grand-total") as HTMLElement | null;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
@@ -147,6 +147,25 @@ export const DrukCADView: View = {
     };
 
     const cadOps: CadOpItem[] = [];
+    let foldStatusTimer: number | null = null;
+    let scanStatusTimer: number | null = null;
+
+    const flashAddedStatus = (element: HTMLElement | null, kind: "fold" | "scan") => {
+      if (!element) return;
+
+      element.textContent = "DODANO do podsumowania";
+      element.style.display = "block";
+
+      const previousTimer = kind === "fold" ? foldStatusTimer : scanStatusTimer;
+      if (previousTimer != null) window.clearTimeout(previousTimer);
+
+      const nextTimer = window.setTimeout(() => {
+        element.style.display = "none";
+      }, 2000);
+
+      if (kind === "fold") foldStatusTimer = nextTimer;
+      else scanStatusTimer = nextTimer;
+    };
 
     const normalizeFoldFormat = (format: string): string => {
       if (format === "A0+") return "A0p";
@@ -356,6 +375,7 @@ export const DrukCADView: View = {
           payload: result
         });
         if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
+        flashAddedStatus(foldStatus, "fold");
         updateCadOpsSummary();
         updateOptionsSummary();
         updateGrandTotal();
@@ -391,6 +411,7 @@ export const DrukCADView: View = {
           payload: result
         });
         if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
+        flashAddedStatus(scanStatus, "scan");
         updateCadOpsSummary();
         updateOptionsSummary();
         updateGrandTotal();
@@ -490,12 +511,10 @@ export const DrukCADView: View = {
       const result = calculateDrukCAD(currentOptions, data);
       currentResult = result;
 
-      priceTypeSpan.innerText = result.isMeter ? "Cena za mb:" : "Cena za szt:";
-      if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.rate ?? 0);
       if (qtyHintSpan) {
         const qty = currentOptions.qty || 1;
         const unit = result.isMeter ? "mb" : "szt";
-        qtyHintSpan.innerText = `${qty} ${unit} × ${formatPLN(result.rate ?? 0)} = ${formatPLN(result.basePrice)}${result.isMeter ? "" : ""}, format: ${displayCadFormat(currentOptions.format)}`;
+        qtyHintSpan.innerText = `${qty} ${unit} • format: ${displayCadFormat(currentOptions.format)} • baza: ${formatPLN(result.basePrice)}`;
       }
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";

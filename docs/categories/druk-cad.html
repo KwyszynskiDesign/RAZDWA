@@ -49,6 +49,17 @@
     min-width: 100px;
   }
 
+  .cad-base-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .cad-base-actions .cad-use-base-btn {
+    width: fit-content;
+  }
+
   @media (max-width: 900px) {
     .cad-length-row .cad-inline-row {
           margin-left: 0;
@@ -109,6 +120,16 @@
 
   .cad-ops-col {
     min-width: 0;
+  }
+
+  .cad-added-status {
+    display: none;
+    margin: 0 0 8px;
+    color: #16a34a;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
   }
 
   .cad-extra-services-row {
@@ -191,9 +212,10 @@
   }
 
   .cad-grand-total-value {
-    font-size: 18px;
-    font-weight: 900;
+    font-size: 22px;
+    font-weight: 950;
     color: #22c55e;
+    line-height: 1.05;
   }
 
   .cad-result-box {
@@ -214,6 +236,7 @@
   .cad-result-line {
     display: flex;
     justify-content: space-between;
+    gap: 12px;
   }
 
   .cad-result-line-top { margin-bottom: 4px; }
@@ -226,9 +249,25 @@
 
   .cad-unit-price { font-weight: 700; }
 
-  .cad-total-price {
-    font-size: 18px;
+  .cad-result-line-total:first-of-type {
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .cad-result-line-total:first-of-type .cad-option-total {
+    font-size: 24px;
     font-weight: 950;
+    line-height: 1.05;
+  }
+
+  .cad-result-line-total:last-of-type {
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .cad-total-price {
+    font-size: 19px;
+    font-weight: 900;
     color: #22c55e;
   }
 
@@ -340,9 +379,11 @@
         </select>
       </div>
       <input type="number" id="cad-length" value="1292" min="1" class="cad-length-input" aria-label="Długość (mm)">
-      <button id="cad-use-base" class="secondary btn-use-base cad-use-base-btn">Użyj bazowej</button>
     </div>
     <div id="cad-base-info" class="hint">Wymiar bazowy: 1292 mm</div>
+    <div class="cad-base-actions">
+      <button id="cad-use-base" class="secondary btn-use-base cad-use-base-btn">Użyj bazowej</button>
+    </div>
   </div>
 
   <div class="row cad-qty-row" id="qty-sheets-group">
@@ -374,6 +415,7 @@
     <div class="cad-ops-columns">
       <div class="cad-ops-col">
         <strong>Składanie</strong>
+        <div id="cad-fold-status" class="cad-added-status">DODANO do podsumowania</div>
         <div class="row cad-row-tight">
           <label for="cad-fold-format">Format:</label>
           <select id="cad-fold-format">
@@ -393,6 +435,7 @@
       </div>
       <div class="cad-ops-col">
         <strong>Skanowanie wielkoformatowe</strong>
+        <div id="cad-scan-status" class="cad-added-status">DODANO do podsumowania</div>
         <div class="row cad-row-tight">
           <label for="cad-wf-scan-cm">Długość (cm):</label>
           <input type="number" id="cad-wf-scan-cm" placeholder="np. 110" min="1" step="0.1" />
@@ -452,10 +495,6 @@
     </div>
     <hr>
     <div id="cad-qty-hint" class="cad-qty-hint"></div>
-    <div class="cad-result-line cad-result-line-top">
-      <span id="cad-price-type">Cena formatowa:</span>
-      <span id="cad-unit-price" class="cad-unit-price">-</span>
-    </div>
     <div class="cad-result-line cad-result-line-total">
       <span>Cena łączna (druk):</span>
       <span id="cad-total-price" class="cad-total-price">-</span>
