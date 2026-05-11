@@ -84,6 +84,7 @@ describe("Druk A4/A3 + skan", () => {
     // Surcharge: 5 * 0.60 * 0.5 = 1.50
     // Total: 7.50
     expect(result.totalPrice).toBe(7.50);
+    expect(result.surchargePrice).toBe(1.50);
   });
 
   it("should charge +50% only for selected surcharge pages", () => {

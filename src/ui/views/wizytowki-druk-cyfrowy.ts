@@ -10,7 +10,7 @@ const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=2
 
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",
-  name: "Wizytówki - druk cyfrowy",
+  name: "Wizytówki",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/wizytowki-druk-cyfrowy.html");

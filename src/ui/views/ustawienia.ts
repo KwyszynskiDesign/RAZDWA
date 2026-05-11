@@ -1247,7 +1247,7 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   },
   {
     id: "ulotki",
-    label: "Ulotki cyfrowe",
+    label: "Ulotki",
     icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
     prefixes: ["ulotki-jed-", "ulotki-dwu-"],
     description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",

@@ -225,7 +225,9 @@ export const DrukA4A3SkanView: View = {
       }
 
       const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
-      const surchargeQty = Math.min(Math.max(requestedSurchargeQty, 0), Math.max(printQty, 0));
+      const surchargeQty = surchargeCheck?.checked
+        ? Math.min(Math.max(requestedSurchargeQty > 0 ? requestedSurchargeQty : printQty, 0), Math.max(printQty, 0))
+        : 0;
       const requestedSleeveQty = Math.max(0, parseInt(sleeveQtyInput?.value || "0") || 0);
       const sleeveQty = (sleeveCheck?.checked ?? false) ? Math.max(1, requestedSleeveQty) : 0;
       const surcharge = (surchargeCheck ? surchargeCheck.checked : requestedSurchargeQty > 0) && printQty > 0 && surchargeQty > 0;

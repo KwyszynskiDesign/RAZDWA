@@ -9,7 +9,7 @@ const SATIN_MULTIPLIER = 1.12;
 
 export const WizytowkiView: View = {
   id: "wizytowki-druk-cyfrowy",
-  name: "Wizytówki - druk cyfrowy",
+  name: "Wizytówki",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/wizytowki-druk-cyfrowy.html");

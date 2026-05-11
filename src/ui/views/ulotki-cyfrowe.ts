@@ -9,7 +9,7 @@ const SATIN_MULTIPLIER = 1.12;
 
 export const UlotkiCyfroweView: View = {
   id: "ulotki-cyfrowe",
-  name: "Ulotki cyfrowe",
+  name: "Ulotki",
   async mount(container, ctx) {
     try {
       const response = await fetch("categories/ulotki-cyfrowe.html");

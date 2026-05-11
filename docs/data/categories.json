@@ -214,7 +214,7 @@
     },
     {
         "id":  "wizytowki-druk-cyfrowy",
-        "name":  "Wizytówki - druk cyfrowy",
+        "name":  "Wizytówki",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
         "implemented":  true
     },
@@ -226,7 +226,7 @@
     },
     {
         "id":  "ulotki-cyfrowe",
-        "name":  "Ulotki cyfrowe",
+        "name":  "Ulotki",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/newspaper.svg",
         "implemented":  true
     },
