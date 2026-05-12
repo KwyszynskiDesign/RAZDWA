@@ -293,6 +293,11 @@
     margin-top: 8px;
   }
 
+  .cad-summary-lines {
+    display: grid;
+    gap: 4px;
+  }
+
   .cad-option-line {
     display: flex;
     justify-content: space-between;
@@ -516,37 +521,7 @@
       <span id="cad-total-price" class="cad-total-price">-</span>
     </div>
     <div id="cad-options-summary" class="cad-options-summary">
-      <div class="cad-option-line">
-        <span>Zadruk &gt;25% (+50%):</span>
-        <span id="cad-opt-zadruk25-price">0,00 zł</span>
-      </div>
-      <div class="cad-option-line">
-        <span>Skalowanie (+50%):</span>
-        <span id="cad-opt-scale-price">0,00 zł</span>
-      </div>
-      <div class="cad-option-line">
-        <span>Wysyłka e-mail:</span>
-        <span id="cad-opt-email-price">0,00 zł</span>
-      </div>
-      <div class="cad-option-line" id="cad-extra-klient-line" style="display:none">
-        <span>Składanie od klienta:</span>
-        <span id="cad-extra-klient-price">0,00 zł</span>
-      </div>
-      <div class="cad-option-line" id="cad-extra-nieformat-line" style="display:none">
-        <span>Składanie nieformatowych:</span>
-        <span id="cad-extra-nieformat-price">0,00 zł</span>
-      </div>
-      <div class="cad-option-line" id="cad-extra-paski-line" style="display:none">
-        <span>Paski wzmacniające:</span>
-        <span id="cad-extra-paski-price">0,00 zł</span>
-      </div>
-    </div>
-    <div id="cad-ops-list" class="cad-options-summary">
-      <div class="cad-option-line cad-option-line-total">
-        <span>Dodatkowe pozycje CAD:</span>
-        <span id="cad-ops-total">0,00 zł</span>
-      </div>
-      <div id="cad-ops-list-items" class="cad-ops-items"></div>
+      <div id="cad-summary-lines" class="cad-summary-lines"></div>
     </div>
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
   </div>

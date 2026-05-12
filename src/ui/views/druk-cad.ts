@@ -48,17 +48,11 @@ export const DrukCADView: View = {
     const optScale = container.querySelector("#cad-opt-scale") as HTMLInputElement | null;
     const optEmail = container.querySelector("#cad-opt-email") as HTMLInputElement | null;
     const optionsSummary = container.querySelector("#cad-options-summary") as HTMLElement | null;
+    const summaryLines = container.querySelector("#cad-summary-lines") as HTMLElement | null;
     const optZadruk25PriceSpan = container.querySelector("#cad-opt-zadruk25-price") as HTMLElement | null;
     const optScalePriceSpan = container.querySelector("#cad-opt-scale-price") as HTMLElement | null;
     const optEmailPriceSpan = container.querySelector("#cad-opt-email-price") as HTMLElement | null;
     const totalWithOptionsSpan = container.querySelector("#cad-total-with-options") as HTMLElement | null;
-
-    const extraKlientLine = container.querySelector("#cad-extra-klient-line") as HTMLElement | null;
-    const extraKlientPrice = container.querySelector("#cad-extra-klient-price") as HTMLElement | null;
-    const extraNieformatLine = container.querySelector("#cad-extra-nieformat-line") as HTMLElement | null;
-    const extraNieformatPrice = container.querySelector("#cad-extra-nieformat-price") as HTMLElement | null;
-    const extraPaskiLine = container.querySelector("#cad-extra-paski-line") as HTMLElement | null;
-    const extraPaskiPrice = container.querySelector("#cad-extra-paski-price") as HTMLElement | null;
 
     const foldFormatSelect = container.querySelector("#cad-fold-format") as HTMLSelectElement | null;
     const foldQtyInput = container.querySelector("#cad-fold-qty") as HTMLInputElement | null;
@@ -66,9 +60,6 @@ export const DrukCADView: View = {
     const wfScanCmInput = container.querySelector("#cad-wf-scan-cm") as HTMLInputElement | null;
     const wfScanQtyInput = container.querySelector("#cad-wf-scan-qty") as HTMLInputElement | null;
     const wfScanAddBtn = container.querySelector("#cad-wf-scan-add") as HTMLButtonElement | null;
-    const cadOpsList = container.querySelector("#cad-ops-list") as HTMLElement | null;
-    const cadOpsListItems = container.querySelector("#cad-ops-list-items") as HTMLElement | null;
-    const cadOpsTotal = container.querySelector("#cad-ops-total") as HTMLElement | null;
 
     const optKlientSkladanie = container.querySelector("#cad-opt-klient-skladanie") as HTMLInputElement | null;
     const klientSkladanieQtyRow = container.querySelector("#cad-klient-skladanie-qty-row") as HTMLElement | null;
@@ -87,7 +78,7 @@ export const DrukCADView: View = {
         legend.id = "cad-dynamic-legend";
         legend.className = "card";
         legend.style.marginTop = "50px";
-        const anchor = container.querySelector("#cad-ops-list") as HTMLElement | null;
+        const anchor = container.querySelector("#cad-summary-lines") as HTMLElement | null;
         (anchor ?? container.querySelector("#cad-breakdown-display") ?? resultDisplay).insertAdjacentElement("afterend", legend);
       }
 
@@ -279,28 +270,36 @@ export const DrukCADView: View = {
     };
 
     const updateCadOpsSummary = () => {
-      if (!cadOpsList || !cadOpsListItems || !cadOpsTotal) return;
+      if (!summaryLines) return;
 
       const effectiveOps = getEffectiveCadOps();
+      const lines: string[] = [];
 
-      if (effectiveOps.length === 0) {
-        cadOpsList.style.display = "none";
-        cadOpsListItems.innerHTML = "";
-        cadOpsTotal.innerText = formatPLN(0);
-        return;
+      const pushLine = (label: string, value: number) => {
+        lines.push(`
+          <div class="cad-option-line">
+            <span>${label}</span>
+            <span>${formatPLN(value)}</span>
+          </div>
+        `);
+      };
+
+      const pushIfValue = (label: string, value: number) => {
+        if (value > 0) pushLine(label, value);
+      };
+
+      const printBreakdown = currentResult ? getPrintOptionsBreakdown(currentResult.totalPrice) : { zadruk25: 0, scale: 0, email: 0, total: 0 };
+      pushIfValue("Zadruk >25% (+50%):", printBreakdown.zadruk25);
+      pushIfValue("Skalowanie (+50%):", printBreakdown.scale);
+      pushIfValue("Wysyłka e-mail:", printBreakdown.email);
+
+      for (const op of effectiveOps) {
+        if (!op.id.includes("inline")) continue;
+        pushLine(`${op.name} (${op.optionsHint})`, op.totalPrice);
       }
 
-      const total = effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0);
-      cadOpsList.style.display = "block";
-      cadOpsListItems.innerHTML = effectiveOps
-        .map(op => `
-          <div class="cad-option-line">
-            <span>${op.name} (${op.optionsHint})</span>
-            <span>${formatPLN(op.totalPrice)}</span>
-          </div>
-        `)
-        .join("");
-      cadOpsTotal.innerText = formatPLN(total);
+      summaryLines.innerHTML = lines.join("");
+      if (optionsSummary) optionsSummary.style.display = lines.length > 0 ? "block" : "none";
     };
 
     const getCadOpsTotal = () => getEffectiveCadOps().reduce((sum, op) => sum + op.totalPrice, 0);
@@ -330,21 +329,9 @@ export const DrukCADView: View = {
       if (optScalePriceSpan) optScalePriceSpan.innerText = formatPLN(breakdown.scale);
       if (optEmailPriceSpan) optEmailPriceSpan.innerText = formatPLN(breakdown.email);
 
-      // Extra services
-      const klientOp = getInlineKlientSkladanieOp();
-      const nieformatoweOp = getInlineNieformatoweSkladanieOp();
-      const paskiOp = getInlinePaskiWzmacniajaceOp();
-
-      if (extraKlientLine) extraKlientLine.style.display = klientOp ? "flex" : "none";
-      if (extraKlientPrice) extraKlientPrice.innerText = formatPLN(klientOp?.totalPrice ?? 0);
-      if (extraNieformatLine) extraNieformatLine.style.display = nieformatoweOp ? "flex" : "none";
-      if (extraNieformatPrice) extraNieformatPrice.innerText = formatPLN(nieformatoweOp?.totalPrice ?? 0);
-      if (extraPaskiLine) extraPaskiLine.style.display = paskiOp ? "flex" : "none";
-      if (extraPaskiPrice) extraPaskiPrice.innerText = formatPLN(paskiOp?.totalPrice ?? 0);
-
       const opsTotal = getCadOpsTotal();
       if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + opsTotal);
-      if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
+      updateCadOpsSummary();
     };
 
     const updateGrandTotal = () => {
