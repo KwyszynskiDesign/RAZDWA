@@ -1,7 +1,7 @@
 <<<<<<< HEAD
-var CACHE_VERSION = 'razdwa-v202605122130';
+var CACHE_VERSION = 'razdwa-v202605122133';
 =======
-var CACHE_VERSION = 'razdwa-v202605122130';
+var CACHE_VERSION = 'razdwa-v202605122133';
 >>>>>>> a1f8a56 (fix: CAD jedna pozycja w koszyku, folia legenda poprawne polskie znaki w prices.json)
 
 self.addEventListener('install', function (event) {

@@ -318,6 +318,22 @@ export const PlakatyA4A3View: View = {
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
+      // Build detailed breakdown similar to Dyplomy
+      const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
+      const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
+      if (paBreakdownBox && paBreakdownLines) {
+        const breakdown: string[] = [];
+        breakdown.push(`<div><strong>Parametry:</strong> ${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}</div>`);
+        breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.tierPrice)}</div>`);
+        if (res.singleTierPrice && res.singleTierPrice > res.tierPrice) {
+          const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
+          breakdown.push(`<div><strong>Rabat ilościowy:</strong> -${formatPLN(saved)}</div>`);
+        }
+        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(res.totalPrice)}</div>`);
+        paBreakdownLines.innerHTML = breakdown.join("");
+        paBreakdownBox.style.display = "block";
+      }
+
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
@@ -371,6 +387,24 @@ export const PlakatyA4A3View: View = {
           calcHintEl.style.display = "none";
           calcHintEl.innerText = "";
         }
+      }
+
+      // Build detailed breakdown similar to Dyplomy
+      const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
+      const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
+      if (paBreakdownBox && paBreakdownLines) {
+        const breakdown: string[] = [];
+        breakdown.push(`<div><strong>Parametry:</strong> ${res.qty} szt, papier ${paper}g, wykończenie ${finish}</div>`);
+        breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.tierPrice)}</div>`);
+        if (res.tierQty && res.tierQty !== res.qty) {
+          breakdown.push(`<div><strong>Próg ilościowy:</strong> ${res.qty} → ${res.tierQty} szt</div>`);
+        }
+        if (trimSurcharge > 0) {
+          breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
+        }
+        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(currentResult.totalPrice)}</div>`);
+        paBreakdownLines.innerHTML = breakdown.join("");
+        paBreakdownBox.style.display = "block";
       }
 
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
