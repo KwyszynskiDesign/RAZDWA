@@ -541,6 +541,7 @@ export const DrukCADView: View = {
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
         const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
         const effectiveOps = getEffectiveCadOps();
+        const opsTotalBeforeClear = parseFloat(effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0).toFixed(2));
         const printBreakdownHint = currentResult.isMeter
           ? `${currentOptions.qty} × ${(currentOptions.lengthMm / 1000).toFixed(3)} mb (${displayCadFormat(currentOptions.format)}) = ${formatPLN(currentResult.basePrice)}`
           : `${currentOptions.qty} × ${displayCadFormat(currentOptions.format)} = ${formatPLN(currentResult.basePrice)}`;
@@ -551,7 +552,6 @@ export const DrukCADView: View = {
           optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
           optScale?.checked ? "Skalowanie (+50%)" : "",
           optEmail?.checked ? `Wysyłka e-mail (+${formatPLN(emailFeeUnit)})` : "",
-          ...effectiveOps.map((op) => `${op.name}: ${op.optionsHint} (${formatPLN(op.totalPrice)})`),
           ctx.expressMode ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");
 
@@ -583,7 +583,7 @@ export const DrukCADView: View = {
         for (const op of effectiveOps) {
           ctx.cart.addItem({
             id: `${op.id}-${Date.now()}`,
-            category: "CAD",
+            category: "Druk CAD wielkoformatowy",
             name: op.name,
             quantity: op.quantity,
             unit: op.unit,
@@ -601,7 +601,7 @@ export const DrukCADView: View = {
           updateGrandTotal();
         }
 
-        ctx.updateLastCalculated(printTotalWithOptions + getCadOpsTotal(), "Druk CAD + usługi");
+        ctx.updateLastCalculated(printTotalWithOptions + opsTotalBeforeClear, "Druk CAD + usługi");
       }
     };
 

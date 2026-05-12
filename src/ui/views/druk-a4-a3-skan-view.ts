@@ -170,6 +170,12 @@ export const DrukA4A3SkanView: View = {
 
     renderDynamicLegend();
 
+    const setHiddenState = (element: HTMLElement | null, hidden: boolean) => {
+      if (!element) return;
+      element.classList.toggle("d-hidden", hidden);
+      element.style.display = hidden ? "none" : "";
+    };
+
     container.querySelectorAll<HTMLElement>(".option-card").forEach(card => {
       const toggleCard = () => {
         const isChecked = card.dataset.checked === "true";
@@ -193,8 +199,9 @@ export const DrukA4A3SkanView: View = {
     });
 
     scanTypeSelect.onchange = () => {
-      scanQtyRow.style.display = scanTypeSelect.value !== "none" ? "flex" : "none";
+      setHiddenState(scanQtyRow, scanTypeSelect.value === "none");
     };
+    setHiddenState(scanQtyRow, scanTypeSelect.value === "none");
 
     const updateSleeveQtyState = () => {
       if (!sleeveQtyInput || !sleeveCheck) return;
@@ -270,15 +277,15 @@ export const DrukA4A3SkanView: View = {
       if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
       if (printRow) printRow.style.display = printQty > 0 ? "" : "none";
       if (unitPrintRow) unitPrintRow.style.display = printQty > 0 ? "" : "none";
-      if (scanRow) scanRow.style.display = result.totalScanPrice > 0 ? "" : "none";
+      setHiddenState(scanRow, !(result.totalScanPrice > 0));
       if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
-      if (emailRow) emailRow.style.display = result.emailPrice > 0 ? "" : "none";
+      setHiddenState(emailRow, !(result.emailPrice > 0));
       if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
-      if (stickerRow) stickerRow.style.display = result.stickerPrice > 0 ? "" : "none";
+      setHiddenState(stickerRow, !(result.stickerPrice > 0));
       if (stickerPrice) stickerPrice.innerText = formatPLN(result.stickerPrice);
-      if (sleeveRow) sleeveRow.style.display = result.sleevePrice > 0 ? "" : "none";
+      setHiddenState(sleeveRow, !(result.sleevePrice > 0));
       if (sleevePriceEl) sleevePriceEl.innerText = formatPLN(result.sleevePrice);
-      if (surchargeRow) surchargeRow.style.display = result.surchargePrice > 0 ? "" : "none";
+      setHiddenState(surchargeRow, !(result.surchargePrice > 0));
       if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
 
       const sleeveUnit = Number(PRICE?.sleeve_price ?? 0.8);
@@ -337,7 +344,7 @@ export const DrukA4A3SkanView: View = {
       }
 
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      setHiddenState(expressHint, !ctx.expressMode);
       resultDisplay.style.display = "block";
       addToCartBtn.disabled = false;
 
