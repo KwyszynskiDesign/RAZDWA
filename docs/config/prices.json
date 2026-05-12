@@ -774,7 +774,7 @@
                                              {
                                                  "id":  "material-only",
                                                  "storageId":  "wydruk",
-                                                 "name":  "Szroniona â€” tylko wydruk",
+                                                 "name":  "Szroniona — tylko wydruk",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -801,7 +801,7 @@
                                              {
                                                  "id":  "full-service",
                                                  "storageId":  "oklejanie",
-                                                 "name":  "Szroniona â€” wydruk z oklejaniem",
+                                                 "name":  "Szroniona — wydruk z oklejaniem",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -828,7 +828,7 @@
                                              {
                                                  "id":  "owv-material-only",
                                                  "storageId":  "owv-wydruk",
-                                                 "name":  "OWV â€” tylko wydruk",
+                                                 "name":  "OWV — tylko wydruk",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,
@@ -860,7 +860,7 @@
                                              {
                                                  "id":  "owv-full-service",
                                                  "storageId":  "owv-oklejanie",
-                                                 "name":  "OWV â€” wydruk z oklejaniem",
+                                                 "name":  "OWV — wydruk z oklejaniem",
                                                  "tiers":  [
                                                                {
                                                                    "min":  1,

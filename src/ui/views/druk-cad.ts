@@ -564,8 +564,11 @@ export const DrukCADView: View = {
           unit: "mm",
           unitPrice: printTotalWithOptions / currentOptions.lengthMm,
           isExpress: ctx.expressMode,
-          totalPrice: printTotalWithOptions,
-          optionsHint: opts,
+          totalPrice: parseFloat((printTotalWithOptions + opsTotalBeforeClear).toFixed(2)),
+          optionsHint: [
+            opts,
+            ...effectiveOps.map(op => `${op.name}: ${op.optionsHint} = ${formatPLN(op.totalPrice)}`)
+          ].filter(Boolean).join(" | "),
           payload: {
             ...currentResult,
             options: {
@@ -577,30 +580,15 @@ export const DrukCADView: View = {
               emailPrice: printOptions.email,
               optionsTotal: printOptions.total,
             },
-            totalWithOptions: printTotalWithOptions,
+            ops: effectiveOps,
+            opsTotal: opsTotalBeforeClear,
+            totalWithOptions: parseFloat((printTotalWithOptions + opsTotalBeforeClear).toFixed(2)),
           }
         });
 
-        for (const op of effectiveOps) {
-          ctx.cart.addItem({
-            id: `${op.id}-${Date.now()}`,
-            category: "Druk CAD wielkoformatowy",
-            name: op.name,
-            quantity: op.quantity,
-            unit: op.unit,
-            unitPrice: op.unitPrice,
-            isExpress: false,
-            totalPrice: op.totalPrice,
-            optionsHint: op.optionsHint,
-            payload: op.payload
-          });
-        }
-
-        if (cadOps.length > 0) {
-          cadOps.splice(0, cadOps.length);
-          updateCadOpsSummary();
-          updateGrandTotal();
-        }
+        cadOps.splice(0, cadOps.length);
+        updateCadOpsSummary();
+        updateGrandTotal();
 
         ctx.updateLastCalculated(printTotalWithOptions + opsTotalBeforeClear, "Druk CAD + usługi");
       }
