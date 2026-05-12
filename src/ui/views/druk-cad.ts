@@ -289,8 +289,17 @@ export const DrukCADView: View = {
       };
 
       // Zawsze pokazuj linię druku bazowego gdy jest wynik
-      if (currentResult) {
-        pushLine("Druk (cena bazowa):", currentResult.totalPrice);
+      if (currentResult && currentOptions) {
+        const qty = currentOptions.qty || 1;
+        const formatLabel = displayCadFormat(currentOptions.format);
+        let drukHint: string;
+        if (currentResult.isMeter) {
+          const mbPerSheet = currentOptions.lengthMm / 1000;
+          drukHint = `${qty} × ${mbPerSheet.toFixed(3)} mb (${formatLabel}, ${currentOptions.lengthMm} mm)`;
+        } else {
+          drukHint = `${qty} × ${formatLabel}`;
+        }
+        pushLine(`Druk (${drukHint}):`, currentResult.totalPrice);
       }
 
       const printBreakdown = currentResult ? getPrintOptionsBreakdown(currentResult.totalPrice) : { zadruk25: 0, scale: 0, email: 0, total: 0 };
