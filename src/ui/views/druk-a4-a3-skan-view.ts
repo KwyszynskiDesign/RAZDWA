@@ -183,7 +183,10 @@ export const DrukA4A3SkanView: View = {
         card.classList.toggle("checked", !isChecked);
         card.setAttribute("aria-checked", String(!isChecked));
         const checkbox = card.querySelector<HTMLInputElement>("input[type='checkbox']");
-        if (checkbox) checkbox.checked = !isChecked;
+        if (checkbox) {
+          checkbox.checked = !isChecked;
+          checkbox.dispatchEvent(new Event("change", { bubbles: true }));
+        }
         if (card.id === "d-surcharge-card" && surchargeQtyRow) {
           surchargeQtyRow.style.display = !isChecked ? "flex" : "none";
         }
