@@ -36,8 +36,6 @@ export const WycinanieFoliiView: View = {
     const unitEl = container.querySelector("#wf-unit") as HTMLElement | null;
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wfExpressHint") as HTMLElement | null;
-    const monitorAreaEl = container.querySelector("#wf-monitor-area") as HTMLElement | null;
-    const monitorSizeEl = container.querySelector("#wf-monitor-size") as HTMLElement | null;
     const areaInput = container.querySelector("#wf-area") as HTMLInputElement | null;
     const computedAreaInfo = container.querySelector("#wf-computed-area-info") as HTMLElement | null;
     const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
@@ -112,8 +110,6 @@ export const WycinanieFoliiView: View = {
       const width = parseInt(widthInput.value, 10) || 0;
       const height = parseInt(heightInput.value, 10) || 0;
       const areaM2 = (width * height) / 1_000_000;
-      if (monitorSizeEl) monitorSizeEl.textContent = `${width} × ${height} mm`;
-      if (monitorAreaEl) monitorAreaEl.textContent = `${areaM2.toFixed(3).replace('.', ',')} m²`;
       if (areaInput) {
         areaInput.value = width > 0 && height > 0 ? String(parseFloat(areaM2.toFixed(4))) : "";
       }
