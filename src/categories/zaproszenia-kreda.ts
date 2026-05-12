@@ -26,9 +26,10 @@ function getBasePrice(format: string, qty: number, sides: number, isFolded: bool
 
   const sidesKey = sides === 1 ? "single" : "double";
   const foldKey = isFolded ? "folded" : "normal";
+  const foldStorageKey = isFolded ? "skladane" : "normal";
   const tiers = (paperBase === "satyna"
-    ? satynaFormats?.[format]?.[sidesKey]?.[foldKey]
-    : formatData[sidesKey][foldKey]) as Record<string, number>;
+    ? (satynaFormats?.[format]?.[sidesKey]?.[foldKey] ?? satynaFormats?.[format]?.[sidesKey]?.["skladane"])
+    : (formatData[sidesKey][foldKey] ?? formatData[sidesKey]["skladane"])) as Record<string, number>;
 
   if (!tiers) {
     throw new Error(`Missing price tiers for ${format}/${sidesKey}/${foldKey}/${paperBase}`);
@@ -50,7 +51,7 @@ function getBasePrice(format: string, qty: number, sides: number, isFolded: bool
   }
 
   const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
-  return resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldKey}-${selectedTierQty}`, selectedPrice);
+  return resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-${selectedTierQty}`, selectedPrice);
 }
 
 export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): ZaproszeniaKredaResult {
