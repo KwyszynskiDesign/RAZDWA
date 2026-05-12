@@ -507,7 +507,16 @@
     #viewContainer .calculator-form,
     #orderSummary .order-form {
       display: grid;
-      gap: 16px;
+      gap: 10px;
+    }
+
+    #orderSummary .order-row {
+      margin: 2px 0;
+      gap: 4px;
+    }
+
+    #orderSummary .order-row label {
+      margin-bottom: 1px;
     }
 
     #viewContainer .form .row,
@@ -1278,6 +1287,30 @@
       gap: 12px;
     }
 
+    #orderSummary .order-summary-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    #orderSummary .order-summary-head h2 {
+      margin: 0;
+    }
+
+    #goToBaseBtn {
+      width: auto;
+      min-height: 34px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(30, 64, 175, 0.25);
+      background: rgba(255, 255, 255, 0.95);
+      color: #1e40af;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
     #orderSummary .order-actions button,
     #clearBtn,
     #sendBtn,
@@ -1750,7 +1783,10 @@
             </div>
           </div>
         <div class="card" id="orderSummary">
-          <h2>Podsumowanie</h2>
+          <div class="order-summary-head">
+            <h2>Podsumowanie</h2>
+            <button id="goToBaseBtn" type="button">Przejdź do bazy</button>
+          </div>
 
           <div class="order-row order-row--express" style="margin-top: 10px;">
             <div class="express-toggle-wrap">
@@ -1807,6 +1843,10 @@
 
           <h3>Dane zam&#xF3;wienia</h3>
           <div class="order-form">
+            <div class="order-row">
+              <label for="custAddedBy">Kto doda&#x142;</label>
+              <input id="custAddedBy" type="text" placeholder="Np. Adam / Biuro">
+            </div>
             <div class="order-row">
               <label for="custName">Imi&#x119; i nazwisko</label>
               <input id="custName" type="text" placeholder="Jan Kowalski">
