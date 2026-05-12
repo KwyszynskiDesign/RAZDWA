@@ -312,7 +312,7 @@
         </div>
         ${z.map(w=>{var M,F;let S=(M=w.storageId)!=null?M:w.id,A=w.tiers.map(R=>{let D=R.max==null?`${R.min}+ m\xB2`:`${R.min}-${R.max} m\xB2`,C=L(`folia-szroniona-${S}`,R.price);return`<tr><td>${D}</td><td>${g(C)}</td></tr>`}).join("");return`
             <div class="legend-block" style="margin-top:12px;${w.bold?"border:1px solid rgba(59,130,246,0.35);":""}">
-              <h5 style="margin:0 0 8px;">${(F=w.title)!=null?F:w.name}</h5>
+              <h5 style="margin:0 0 8px;">${((F=w.title)!=null?F:w.name).replace(/\u2014/g,"&mdash;").replace(/\u2013/g,"&ndash;")}</h5>
               <table class="results-table">
                 <thead><tr><th>Zakres</th><th>Cena / m\xB2</th></tr></thead>
                 <tbody>${A}</tbody>

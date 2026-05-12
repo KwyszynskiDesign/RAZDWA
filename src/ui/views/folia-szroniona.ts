@@ -70,7 +70,7 @@ export const FoliaSzronionaView: View = {
 
           return `
             <div class="legend-block" style="margin-top:12px;${material.bold ? "border:1px solid rgba(59,130,246,0.35);" : ""}">
-              <h5 style="margin:0 0 8px;">${material.title ?? material.name}</h5>
+              <h5 style="margin:0 0 8px;">${(material.title ?? material.name).replace(/\u2014/g, '&mdash;').replace(/\u2013/g, '&ndash;')}</h5>
               <table class="results-table">
                 <thead><tr><th>Zakres</th><th>Cena / m²</th></tr></thead>
                 <tbody>${rows}</tbody>
