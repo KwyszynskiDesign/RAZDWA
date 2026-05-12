@@ -234,7 +234,14 @@
   }
 
   .cad-print-line {
-    align-items: center;
+    align-items: flex-start;
+  }
+
+  .cad-print-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    line-height: 1.35;
   }
 
   .cad-print-meta {
@@ -505,7 +512,7 @@
     </div>
     <hr>
     <div class="cad-result-line cad-print-line">
-      <span>Cena druku: <span id="cad-qty-hint" class="cad-print-meta"></span></span>
+      <span class="cad-print-label">Cena druku: <span id="cad-qty-hint" class="cad-print-meta"></span></span>
       <span id="cad-total-price" class="cad-total-price">-</span>
     </div>
     <div id="cad-options-summary" class="cad-options-summary">
@@ -533,6 +540,13 @@
         <span>Paski wzmacniające:</span>
         <span id="cad-extra-paski-price">0,00 zł</span>
       </div>
+    </div>
+    <div id="cad-ops-list" class="cad-options-summary">
+      <div class="cad-option-line cad-option-line-total">
+        <span>Dodatkowe pozycje CAD:</span>
+        <span id="cad-ops-total">0,00 zł</span>
+      </div>
+      <div id="cad-ops-list-items" class="cad-ops-items"></div>
     </div>
     <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
   </div>
