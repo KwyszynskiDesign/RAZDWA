@@ -69,15 +69,21 @@ export const CadUploadView: View = {
     }
 
     // Get references to option checkboxes and qty inputs
-    const optKlientSkladanie = container.querySelector<HTMLInputElement>("#cad-opt-cad-klient-skladanie");
-    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-cad-klient-skladanie-qty-row");
-    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cad-cad-klient-skladanie-qty");
-    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#cad-opt-cad-nieformatowe-skladanie");
-    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-cad-nieformatowe-skladanie-qty-row");
-    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cad-cad-nieformatowe-skladanie-qty");
-    const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#cad-opt-cad-paski-wzmacniajace");
-    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-cad-paski-wzmacniajace-qty-row");
-    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cad-cad-paski-wzmacniajace-qty");
+    const optKlientSkladanie = container.querySelector<HTMLInputElement>("#optKlientSkladanie");
+    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-qty-row");
+    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadKlientSkladanieQty");
+    const cadUploadKlientSkladanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadKlientSkladanieAdd");
+    const cadUploadKlientSkladaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-price");
+    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#optNieformatoweSkladanie");
+    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-qty-row");
+    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadNieformatoweSkladanieQty");
+    const cadUploadNieformatoweSkladanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadNieformatoweSkladanieAdd");
+    const cadUploadNieformatoweSkladaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-price");
+    const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#optPaskiWzmacniajace");
+    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-qty-row");
+    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
+    const cadUploadPaskiWzmacniajaceAdd = container.querySelector<HTMLButtonElement>("#cadUploadPaskiWzmacniajaceAdd");
+    const cadUploadPaskiWzmacniajacePriceLine = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-price");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -212,18 +218,109 @@ export const CadUploadView: View = {
       return m;
     }
 
+    const klientUnitPrice = resolveStoredPrice("cad-klient-skladanie", 4.0);
+    const nieformatoweUnitPrice = resolveStoredPrice("cad-nieformatowe-skladanie", 2.5);
+    const paskiUnitPrice = resolveStoredPrice("cad-paski-wzmacniajace", 0.8);
+
+    const parsePositiveQty = (input: HTMLInputElement | null, unit: "szt" | "m²"): number => {
+      if (!input) return 0;
+      const raw = (input.value || "").trim().replace(",", ".");
+      if (!raw) return 0;
+      const parsed = unit === "m²" ? parseFloat(raw) : parseInt(raw, 10);
+      if (!Number.isFinite(parsed) || parsed <= 0) return 0;
+      return parsed;
+    };
+
+    const updateExtraServicePriceLine = (
+      checkbox: HTMLInputElement | null,
+      qtyInput: HTMLInputElement | null,
+      priceLine: HTMLElement | null,
+      unitPrice: number,
+      unit: "szt" | "m²"
+    ) => {
+      if (!priceLine) return;
+      const qty = parsePositiveQty(qtyInput, unit);
+      const shouldShow = !!checkbox?.checked && qty > 0;
+      priceLine.style.display = shouldShow ? "block" : "none";
+      if (!shouldShow) {
+        priceLine.textContent = "";
+        return;
+      }
+      const total = parseFloat((unitPrice * qty).toFixed(2));
+      priceLine.textContent = `Cena: ${formatPLN(total)}`;
+    };
+
+    const addExtraServiceToCart = (params: {
+      id: string;
+      name: string;
+      unit: "szt" | "m²";
+      qtyInput: HTMLInputElement | null;
+      checkbox: HTMLInputElement | null;
+      qtyRow: HTMLElement | null;
+      priceLine: HTMLElement | null;
+      unitPrice: number;
+    }) => {
+      const qty = parsePositiveQty(params.qtyInput, params.unit);
+      if (qty <= 0) return;
+
+      const totalPrice = parseFloat((params.unitPrice * qty).toFixed(2));
+      ctx.cart.addItem({
+        id: `cad-upload-extra-${params.id}-${Date.now()}`,
+        category: "CAD Upload",
+        name: params.name,
+        quantity: qty,
+        unit: params.unit,
+        unitPrice: params.unitPrice,
+        isExpress: false,
+        totalPrice,
+        optionsHint: `${qty} ${params.unit}`,
+        payload: {
+          type: "cad-upload-extra-service",
+          serviceId: params.id,
+          quantity: qty,
+          unit: params.unit,
+          unitPrice: params.unitPrice,
+          totalPrice,
+        }
+      });
+
+      ctx.updateLastCalculated(totalPrice, `CAD Upload - ${params.name}`);
+
+      if (params.qtyInput) params.qtyInput.value = "";
+      if (params.checkbox) params.checkbox.checked = false;
+      if (params.qtyRow) params.qtyRow.style.display = "none";
+      if (params.priceLine) {
+        params.priceLine.textContent = "";
+        params.priceLine.style.display = "none";
+      }
+
+      renderFiles();
+    };
+
     function getExtraServicesTotal(): number {
       let total = 0;
-      for (const opt of extraOptions) {
-        const checkbox = container.querySelector<HTMLInputElement>(`#cad-opt-${opt.id}`);
-        const qtyInput = container.querySelector<HTMLInputElement>(`#cad-${opt.id}-qty`);
-        if (checkbox?.checked && qtyInput) {
-          let qty = opt.unit === 'm²' ? parseFloat(qtyInput.value.replace(",", ".")) : parseInt(qtyInput.value, 10);
-          if (!isNaN(qty) && qty > 0) {
-            total += opt.price * qty;
-          }
+
+      if (optKlientSkladanie?.checked) {
+        const qty = parseInt(cadUploadKlientSkladanieQty?.value || "0", 10);
+        if (!isNaN(qty) && qty > 0) {
+          total += klientUnitPrice * qty;
         }
       }
+
+      if (optNieformatoweSkladanie?.checked) {
+        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || "0").replace(",", "."));
+        if (!isNaN(qty) && qty > 0) {
+          total += nieformatoweUnitPrice * qty;
+        }
+      }
+
+      if (optPaskiWzmacniajace?.checked) {
+        const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || "0", 10);
+        if (!isNaN(qty) && qty > 0) {
+          total += paskiUnitPrice * qty;
+        }
+      }
+
       return parseFloat(total.toFixed(2));
     }
 
@@ -754,17 +851,79 @@ export const CadUploadView: View = {
       el?.addEventListener("change", () => renderFiles());
     });
 
-    // Attach listeners for all extra options
-    for (const opt of extraOptions) {
-      const checkbox = container.querySelector<HTMLInputElement>(`#cad-opt-${opt.id}`);
-      const qtyRow = container.querySelector<HTMLElement>(`#cad-${opt.id}-qty-row`);
-      const qtyInput = container.querySelector<HTMLInputElement>(`#cad-${opt.id}-qty`);
-      checkbox?.addEventListener("change", () => {
-        if (qtyRow) qtyRow.style.display = checkbox.checked ? "inline-flex" : "none";
-        renderFiles();
+    optKlientSkladanie?.addEventListener("change", () => {
+      if (cadUploadKlientSkladanieQtyRow) {
+        cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "flex" : "none";
+      }
+      updateExtraServicePriceLine(optKlientSkladanie, cadUploadKlientSkladanieQty, cadUploadKlientSkladaniePriceLine, klientUnitPrice, "szt");
+      renderFiles();
+    });
+
+    optNieformatoweSkladanie?.addEventListener("change", () => {
+      if (cadUploadNieformatoweSkladanieQtyRow) {
+        cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "flex" : "none";
+      }
+      updateExtraServicePriceLine(optNieformatoweSkladanie, cadUploadNieformatoweSkladanieQty, cadUploadNieformatoweSkladaniePriceLine, nieformatoweUnitPrice, "m²");
+      renderFiles();
+    });
+
+    optPaskiWzmacniajace?.addEventListener("change", () => {
+      if (cadUploadPaskiWzmacniajaceQtyRow) {
+        cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "flex" : "none";
+      }
+      updateExtraServicePriceLine(optPaskiWzmacniajace, cadUploadPaskiWzmacniajaceQty, cadUploadPaskiWzmacniajacePriceLine, paskiUnitPrice, "szt");
+      renderFiles();
+    });
+
+    cadUploadKlientSkladanieQty?.addEventListener("input", () => {
+      updateExtraServicePriceLine(optKlientSkladanie, cadUploadKlientSkladanieQty, cadUploadKlientSkladaniePriceLine, klientUnitPrice, "szt");
+      renderFiles();
+    });
+    cadUploadNieformatoweSkladanieQty?.addEventListener("input", () => {
+      updateExtraServicePriceLine(optNieformatoweSkladanie, cadUploadNieformatoweSkladanieQty, cadUploadNieformatoweSkladaniePriceLine, nieformatoweUnitPrice, "m²");
+      renderFiles();
+    });
+    cadUploadPaskiWzmacniajaceQty?.addEventListener("input", () => {
+      updateExtraServicePriceLine(optPaskiWzmacniajace, cadUploadPaskiWzmacniajaceQty, cadUploadPaskiWzmacniajacePriceLine, paskiUnitPrice, "szt");
+      renderFiles();
+    });
+
+    cadUploadKlientSkladanieAdd?.addEventListener("click", () => {
+      addExtraServiceToCart({
+        id: "cad-klient-skladanie",
+        name: "Składanie od klienta",
+        unit: "szt",
+        qtyInput: cadUploadKlientSkladanieQty,
+        checkbox: optKlientSkladanie,
+        qtyRow: cadUploadKlientSkladanieQtyRow,
+        priceLine: cadUploadKlientSkladaniePriceLine,
+        unitPrice: klientUnitPrice,
       });
-      qtyInput?.addEventListener("input", () => renderFiles());
-    }
+    });
+    cadUploadNieformatoweSkladanieAdd?.addEventListener("click", () => {
+      addExtraServiceToCart({
+        id: "cad-nieformatowe-skladanie",
+        name: "Składanie nieformatowych",
+        unit: "m²",
+        qtyInput: cadUploadNieformatoweSkladanieQty,
+        checkbox: optNieformatoweSkladanie,
+        qtyRow: cadUploadNieformatoweSkladanieQtyRow,
+        priceLine: cadUploadNieformatoweSkladaniePriceLine,
+        unitPrice: nieformatoweUnitPrice,
+      });
+    });
+    cadUploadPaskiWzmacniajaceAdd?.addEventListener("click", () => {
+      addExtraServiceToCart({
+        id: "cad-paski-wzmacniajace",
+        name: "Doklejanie pasków wzmacniających",
+        unit: "szt",
+        qtyInput: cadUploadPaskiWzmacniajaceQty,
+        checkbox: optPaskiWzmacniajace,
+        qtyRow: cadUploadPaskiWzmacniajaceQtyRow,
+        priceLine: cadUploadPaskiWzmacniajacePriceLine,
+        unitPrice: paskiUnitPrice,
+      });
+    });
 
     // DPI change
     if (dpiInput) {

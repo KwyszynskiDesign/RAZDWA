@@ -196,6 +196,33 @@
     margin-left: 22px;
     margin-top: 2px;
   }
+  .cad-extra-add-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border: 0;
+    border-radius: 999px;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .cad-extra-add-btn:hover {
+    background: #15803d;
+  }
+  .cad-extra-price-line {
+    display: none;
+    margin-left: 22px;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #16a34a;
+  }
   .cad-extra-service-col {
     min-width: 0;
     width: 100%;
@@ -741,7 +768,9 @@
       <span id="cad-upload-klient-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadKlientSkladanieQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+        <button type="button" id="cadUploadKlientSkladanieAdd" class="cad-extra-add-btn" aria-label="Dodaj składanie od klienta">+</button>
       </span>
+      <div id="cad-upload-klient-skladanie-price" class="cad-extra-price-line"></div>
     </div>
 
     <div class="cad-extra-service-col">
@@ -752,7 +781,9 @@
       <span id="cad-upload-nieformatowe-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadNieformatoweSkladanieQty" class="cad-extra-qty-input" min="0.01" step="0.01" placeholder="m²">
+        <button type="button" id="cadUploadNieformatoweSkladanieAdd" class="cad-extra-add-btn" aria-label="Dodaj składanie nieformatowych">+</button>
       </span>
+      <div id="cad-upload-nieformatowe-skladanie-price" class="cad-extra-price-line"></div>
     </div>
 
     <div class="cad-extra-service-col">
@@ -763,7 +794,9 @@
       <span id="cad-upload-paski-wzmacniajace-qty-row" class="cad-extra-qty-row" style="display:none">
         Ilość:
         <input type="number" id="cadUploadPaskiWzmacniajaceQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+        <button type="button" id="cadUploadPaskiWzmacniajaceAdd" class="cad-extra-add-btn" aria-label="Dodaj paski wzmacniające">+</button>
       </span>
+      <div id="cad-upload-paski-wzmacniajace-price" class="cad-extra-price-line"></div>
     </div>
   </div>
 
