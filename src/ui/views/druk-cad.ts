@@ -513,8 +513,13 @@ export const DrukCADView: View = {
 
       if (qtyHintSpan) {
         const qty = currentOptions.qty || 1;
-        const unit = result.isMeter ? "mb" : "szt";
-        qtyHintSpan.innerText = `${qty} ${unit} • format: ${displayCadFormat(currentOptions.format)} • baza:`;
+        const formatLabel = displayCadFormat(currentOptions.format);
+        if (result.isMeter) {
+          const mbPerSheet = currentOptions.lengthMm / 1000;
+          qtyHintSpan.innerText = `${qty} × ${mbPerSheet.toFixed(3)} mb (${formatLabel}, ${currentOptions.lengthMm} mm) = ${formatPLN(result.basePrice)}`;
+        } else {
+          qtyHintSpan.innerText = `${qty} × ${formatLabel} = ${formatPLN(result.basePrice)}`;
+        }
       }
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
@@ -536,14 +541,18 @@ export const DrukCADView: View = {
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
         const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
         const effectiveOps = getEffectiveCadOps();
+        const printBreakdownHint = currentResult.isMeter
+          ? `${currentOptions.qty} × ${(currentOptions.lengthMm / 1000).toFixed(3)} mb (${displayCadFormat(currentOptions.format)}) = ${formatPLN(currentResult.basePrice)}`
+          : `${currentOptions.qty} × ${displayCadFormat(currentOptions.format)} = ${formatPLN(currentResult.basePrice)}`;
         const opts = [
           `${displayCadFormat(currentOptions.format)} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
             `${qtyLabel}${currentOptions.lengthMm} mm`,
+          `Cena druku: ${printBreakdownHint}`,
           optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
           optScale?.checked ? "Skalowanie (+50%)" : "",
           optEmail?.checked ? `Wysyłka e-mail (+${formatPLN(emailFeeUnit)})` : "",
-            effectiveOps.some(op => op.name === "Skanowanie wielkoformatowe") ? "Skanowanie wielkoformatowe" : "",
-            ctx.expressMode ? "EXPRESS" : ""
+          ...effectiveOps.map((op) => `${op.name}: ${op.optionsHint} (${formatPLN(op.totalPrice)})`),
+          ctx.expressMode ? "EXPRESS" : ""
         ].filter(Boolean).join(", ");
 
         ctx.cart.addItem({
