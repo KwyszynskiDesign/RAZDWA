@@ -84,7 +84,6 @@ export const WlepkiView: View = {
     const basePriceEl = container.querySelector("#base-price") as HTMLElement | null;
     const totalPriceEl = container.querySelector("#total-price") as HTMLElement;
     const breakdownLinesEl = container.querySelector("#wlepki-breakdown-lines") as HTMLElement | null;
-    const modifiersBreakdownEl = container.querySelector("#modifiers-breakdown") as HTMLElement | null;
     const detailedBreakdownDisplay = container.querySelector("#wlepki-breakdown-display") as HTMLElement | null;
     const unitLabelEl = container.querySelector("#wlepki-unit-label") as HTMLElement | null;
     const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement | null;
@@ -276,15 +275,23 @@ export const WlepkiView: View = {
 
           const detailsRows: BreakdownRow[] = [
             { label: "Parametry", value: `${result.requestedQty} szt, ${selectedTitle}${technicalDetails.length ? `, ${technicalDetails.join(", ")}` : ""}` },
-            { label: "Próg rozliczeniowy", value: `${result.chargedQty} szt` },
-            { label: "Cena z tabeli", value: formatPLN(result.basePrice) }
+            { label: "Próg rozliczeniowy", value: `${result.requestedQty} → ${result.chargedQty} szt` },
+            { label: "Cena z tabeli", value: `${formatPLN(result.basePrice)} (próg ${result.chargedQty} szt)` }
           ];
 
           if (result.modifiersTotal > 0) {
-            detailsRows.push({ label: "EXPRESS", value: `+${formatPLN(result.modifiersTotal)}` });
+            const expressRate = resolveStoredPrice("modifier-express", 0.2);
+            detailsRows.push({
+              label: "EXPRESS",
+              value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(result.modifiersTotal)}`
+            });
           }
 
-          detailsRows.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
+          detailsRows.push({
+            label: "Razem",
+            value: `${formatPLN(result.basePrice)} + ${formatPLN(result.modifiersTotal)} = ${formatPLN(result.totalPrice)}`,
+            separatorTop: true
+          });
 
           if (breakdownLinesEl) renderBreakdownRows(breakdownLinesEl, detailsRows);
         } else {
@@ -319,7 +326,7 @@ export const WlepkiView: View = {
           const activeModifierIds = [...input.modifiers];
           if (input.express) activeModifierIds.push("express");
 
-          const modifierRows = activeModifierIds
+          const modifierDetails = activeModifierIds
             .map((modId) => {
               const mod = allModifiers.find((m: any) => m.id === modId);
               if (!mod) return null;
@@ -338,16 +345,37 @@ export const WlepkiView: View = {
                 details = "dopłata stała";
               }
 
+              const roundedAmount = parseFloat(amount.toFixed(2));
+
               return {
                 label: mod.name,
-                value: `${details} = ${formatPLN(parseFloat(amount.toFixed(2)))}`,
-              } as BreakdownRow;
+                value: `${details} = ${formatPLN(roundedAmount)}`,
+                amount: roundedAmount,
+              };
             })
-            .filter((row): row is BreakdownRow => Boolean(row));
+            .filter((row): row is { label: string; value: string; amount: number } => Boolean(row));
+
+          const modifierRows: BreakdownRow[] = modifierDetails.map((row) => ({
+            label: row.label,
+            value: row.value,
+          }));
+
+          const modifiersTotal = parseFloat(modifierDetails.reduce((sum, row) => sum + row.amount, 0).toFixed(2));
+
+          const groupData = tableData.groups.find((g: any) => g.id === input.groupId);
+          const appliedTier = (groupData?.tiers ?? []).find((tier: any) => {
+            const withinMin = result.effectiveQuantity >= Number(tier.min ?? 0);
+            const withinMax = tier.max == null || result.effectiveQuantity <= Number(tier.max);
+            return withinMin && withinMax;
+          });
+          const tierLabel = appliedTier
+            ? (appliedTier.max == null ? `${appliedTier.min}+ m²` : `${appliedTier.min}-${appliedTier.max} m²`)
+            : "-";
 
           const breakdownRows: BreakdownRow[] = [
             { label: "Parametry", value: `${input.area} m², grupa: ${groupSelect.options[groupSelect.selectedIndex]?.text ?? input.groupId}` },
             { label: "Rozliczona powierzchnia", value: `${result.effectiveQuantity} m²` },
+            { label: "Próg cenowy", value: tierLabel },
             { label: "Cena za m²", value: formatPLN(result.tierPrice) },
             { label: "Cena bazowa", value: `${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}` }
           ];
@@ -356,7 +384,11 @@ export const WlepkiView: View = {
           if (input.foilType) breakdownRows.push({ label: "Kolor folii", value: input.foilType === "biala" ? "biała" : "transparentna" });
           if (input.foilFinish) breakdownRows.push({ label: "Wykończenie folii", value: input.foilFinish === "mat" ? "mat" : "błysk" });
           if (!modifierRows.length && !input.foilType && !input.foilFinish) breakdownRows.push({ label: "Opcje dodatkowe", value: "brak dopłat" });
-          breakdownRows.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
+          breakdownRows.push({
+            label: "Razem",
+            value: `${formatPLN(result.basePrice)} + ${formatPLN(modifiersTotal)} = ${formatPLN(result.totalPrice)}`,
+            separatorTop: true
+          });
 
           if (breakdownLinesEl) renderBreakdownRows(breakdownLinesEl, breakdownRows);
         }

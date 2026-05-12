@@ -99,6 +99,7 @@ export interface CartItem {
 }
 
 export interface CustomerData {
+  addedBy?: string
   name: string
   company?: string
   nip?: string

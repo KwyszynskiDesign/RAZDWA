@@ -40,12 +40,13 @@ export const ZaproszeniaKredaView: View = {
       const sidesNum = parseInt(sidesSel.value, 10) || 1;
       const sidesKey = sidesNum === 1 ? "single" : "double";
       const foldKey = foldedCheck.checked ? "folded" : "normal";
+      const foldStorageKey = foldedCheck.checked ? "skladane" : "normal";
       const paperVal = paperSel.value;
       const isSatin = paperVal?.startsWith("satyna") || paperVal === "modigliani";
       const paperBase: "kreda" | "satyna" = isSatin ? "satyna" : "kreda";
       const tiers = (paperBase === "satyna"
-        ? data?.satynaFormats?.[format]?.[sidesKey]?.[foldKey]
-        : data?.formats?.[format]?.[sidesKey]?.[foldKey]) ?? {};
+        ? (data?.satynaFormats?.[format]?.[sidesKey]?.[foldKey] ?? data?.satynaFormats?.[format]?.[sidesKey]?.["skladane"])
+        : (data?.formats?.[format]?.[sidesKey]?.[foldKey] ?? data?.formats?.[format]?.[sidesKey]?.["skladane"])) ?? {};
 
       const qtyList = Object.keys(tiers)
         .map((k) => Number(k))
@@ -53,20 +54,20 @@ export const ZaproszeniaKredaView: View = {
         .sort((a, b) => a - b);
 
       if (legendTitle) {
-        legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldKey === "skladane" ? " SKŁADANE" : ""}`;
+        legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldedCheck.checked ? " SKŁADANE" : ""}`;
       }
       if (legendSubtitle) {
         legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
-        legendModeBadge.textContent = `Wariant: ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldKey === "skladane" ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
+        legendModeBadge.textContent = `Wariant: ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldedCheck.checked ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;
       }
 
       legendRows.replaceChildren();
       qtyList.forEach((qty) => {
         const base = Number(tiers[String(qty)] ?? 0);
         const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
-        const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldKey}-${qty}`, base);
+        const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-${qty}`, base);
 
         const tr = document.createElement("tr");
         const qtyTd = document.createElement("td");

@@ -194,6 +194,10 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
   // Cena za sztukę: wartości każdego produktu rozdzielone separatorem " | "
   const unitPriceStr = packedLines.map(l => l.unitPrice.toFixed(2)).join(" | ");
 
+  const notes = String(payload.customer.notes ?? "").trim();
+  const addedBy = String(payload.customer.addedBy ?? "").trim();
+  const notesCombined = [addedBy ? `Dodał: ${addedBy}` : "", notes].filter(Boolean).join(" | ");
+
   return {
     "Data": date,
     "Godzina": time,
@@ -208,7 +212,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Produkt": products,
     "Ilosc sztuk": qtyStr,
     "Cena za sztukę": unitPriceStr,
-    "Uwagi": String(payload.customer.notes ?? ""),
+    "Uwagi": notesCombined,
     "Suma (PLN)": totalSum,
     "Priorytet": String(payload.customer.priority ?? ""),
     "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",

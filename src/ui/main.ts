@@ -204,6 +204,7 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
   spacer(10);
 
   writeWrapped("Dane zamówienia", { size: 13, bold: true });
+  writeWrapped(`Kto dodał: ${customer.addedBy || "-"}`);
   writeWrapped(`Imię i nazwisko: ${customer.name || "-"}`);
   writeWrapped(`Nazwa firmy: ${customer.company || "-"}`);
   writeWrapped(`NIP: ${customer.nip || "-"}`);
@@ -616,6 +617,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  document.getElementById("goToBaseBtn")?.addEventListener("click", () => {
+    const targetUrl = "https://docs.google.com/spreadsheets/d/1tGX4WAC5LZIRtvyOxpnA1vMVRFAV57HrJphrnI0-ac4/edit?ouid=111999598461461559445&usp=sheets_home&ths=true";
+    const opened = window.open(targetUrl, "_blank", "noopener,noreferrer");
+    if (!opened) {
+      showToast("Nie udało się otworzyć bazy (sprawdź blokadę popup)", "warning");
+    }
+  });
+
   // Generate PDF report with order data + basket summary
   document.getElementById("copyBtn")?.addEventListener("click", async () => {
     if (cart.isEmpty()) {
@@ -625,6 +634,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const customer: CustomerData = {
+      addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
       nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
@@ -653,6 +663,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Send order: Apps Script (if configured) or local Excel fallback
   document.getElementById("sendBtn")?.addEventListener("click", async () => {
     const customer: CustomerData = {
+      addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
       nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
