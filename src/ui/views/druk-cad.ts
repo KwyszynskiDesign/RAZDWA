@@ -40,7 +40,7 @@ export const DrukCADView: View = {
 
     const addToCartBtn = container.querySelector("#cad-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#cad-result-display") as HTMLElement;
-    const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement;
+    const totalPriceSpan = container.querySelector("#cad-total-price") as HTMLElement | null;
     const qtyHintSpan = container.querySelector("#cad-qty-hint") as HTMLElement | null;
     const grandTotalSpan = container.querySelector("#cad-grand-total") as HTMLElement | null;
     const expressHint = container.querySelector("#cad-express-hint") as HTMLElement;
@@ -275,9 +275,9 @@ export const DrukCADView: View = {
       const effectiveOps = getEffectiveCadOps();
       const lines: string[] = [];
 
-      const pushLine = (label: string, value: number) => {
+      const pushLine = (label: string, value: number, cls = "") => {
         lines.push(`
-          <div class="cad-option-line">
+          <div class="cad-option-line${cls ? " " + cls : ""}">
             <span>${label}</span>
             <span>${formatPLN(value)}</span>
           </div>
@@ -288,18 +288,23 @@ export const DrukCADView: View = {
         if (value > 0) pushLine(label, value);
       };
 
+      // Zawsze pokazuj linię druku bazowego gdy jest wynik
+      if (currentResult) {
+        pushLine("Druk (cena bazowa):", currentResult.totalPrice);
+      }
+
       const printBreakdown = currentResult ? getPrintOptionsBreakdown(currentResult.totalPrice) : { zadruk25: 0, scale: 0, email: 0, total: 0 };
       pushIfValue("Zadruk >25% (+50%):", printBreakdown.zadruk25);
       pushIfValue("Skalowanie (+50%):", printBreakdown.scale);
       pushIfValue("Wysyłka e-mail:", printBreakdown.email);
 
+      // Wszystkie usługi dodatkowe (składanie, skan, inne)
       for (const op of effectiveOps) {
-        if (!op.id.includes("inline")) continue;
         pushLine(`${op.name} (${op.optionsHint})`, op.totalPrice);
       }
 
       summaryLines.innerHTML = lines.join("");
-      if (optionsSummary) optionsSummary.style.display = lines.length > 0 ? "block" : "none";
+      if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
     };
 
     const getCadOpsTotal = () => getEffectiveCadOps().reduce((sum, op) => sum + op.totalPrice, 0);
@@ -508,7 +513,7 @@ export const DrukCADView: View = {
           qtyHintSpan.innerText = `${qty} × ${formatLabel} = ${formatPLN(result.basePrice)}`;
         }
       }
-      totalPriceSpan.innerText = formatPLN(result.totalPrice);
+      if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
       addToCartBtn.disabled = false;
