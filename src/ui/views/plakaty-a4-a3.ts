@@ -302,11 +302,18 @@ export const PlakatyA4A3View: View = {
       const paper = canonPaperSelect.value;
 
       const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
-      currentResult = res;
-      currentOptions = { type: "canon", matId, fmt, qty, finish, paper };
+      const trimSurcharge = getDuzyCanonTrimSurcharge();
+      const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
+
+      currentResult = {
+        ...res,
+        totalPrice: totalWithTrim,
+        trimSurcharge,
+      };
+      currentOptions = { type: "canon", matId, fmt, qty, finish, paper, trimSurcharge };
 
       unitPriceEl.innerText = formatPLN(res.tierPrice);
-      totalPriceEl.innerText = formatPLN(res.totalPrice);
+      totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
         if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
@@ -321,6 +328,26 @@ export const PlakatyA4A3View: View = {
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
+
+      if (calcHintEl) {
+        if (trimSurcharge > 0) {
+          const trimParts: string[] = [];
+          if (duzyCanonTrim2Checkbox?.checked) {
+            const trimQty = parsePositiveInt(duzyCanonTrim2QtyInput?.value || "") || 1;
+            trimParts.push(`${trimQty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(trimQty * 1)}`);
+          }
+          if (duzyCanonTrim4Checkbox?.checked) {
+            const trimQty = parsePositiveInt(duzyCanonTrim4QtyInput?.value || "") || 1;
+            trimParts.push(`${trimQty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(trimQty * 2)}`);
+          }
+          calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
+          calcHintEl.style.display = "block";
+        } else {
+          calcHintEl.style.display = "none";
+          calcHintEl.innerText = "";
+        }
+      }
+
       // Build detailed breakdown similar to Dyplomy
       const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
       const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
@@ -332,15 +359,18 @@ export const PlakatyA4A3View: View = {
           const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
           breakdown.push(`<div><strong>Rabat ilościowy:</strong> -${formatPLN(saved)}</div>`);
         }
-        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(res.totalPrice)}</div>`);
+        if (trimSurcharge > 0) {
+          breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
+        }
+        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
         paBreakdownLines.innerHTML = breakdown.join("");
         paBreakdownBox.style.display = "block";
       }
 
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (expressHint) expressHint.style.display = "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
-      ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Mały Canon)");
+      ctx.updateLastCalculated(totalWithTrim, "Plakaty A4-A3 (Mały Canon)");
     };
 
     const calcDuzyCanon = (qty: number) => {
@@ -410,7 +440,7 @@ export const PlakatyA4A3View: View = {
         paBreakdownBox.style.display = "block";
       }
 
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (expressHint) expressHint.style.display = "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty A4-A3 (Duży Canon)");
@@ -477,13 +507,8 @@ export const PlakatyA4A3View: View = {
         duzyCanonTrim4QtyInput.value = duzyCanonQtyInput.value || "1";
       }
 
-      // Recalculate
-      const duzyQty = parsePositiveInt(duzyCanonQtyInput.value);
-      if (duzyQty) {
-        try {
-          calcDuzyCanon(duzyQty);
-        } catch {}
-      }
+      // Recalculate active mode
+      recalculate();
     };
 
     duzyCanonTrim2Checkbox?.addEventListener("change", recalcForDuzyTrimChange);
@@ -511,7 +536,8 @@ export const PlakatyA4A3View: View = {
 
       if (currentOptions.type === "canon") {
         const canonTypeName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
-        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${trimHint}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,
           category: "Plakaty A4-A3",
@@ -526,7 +552,7 @@ export const PlakatyA4A3View: View = {
         });
       } else {
         const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
-        const hint = `${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${trimHint}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,
           category: "Plakaty A4-A3",

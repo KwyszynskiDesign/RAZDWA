@@ -74,6 +74,8 @@ export const PlakatyView: View = {
     const qtyValEl      = container.querySelector("#p-qty-val") as HTMLElement | null;
     const expressHint   = container.querySelector("#p-express-hint") as HTMLElement;
     const calcHintEl    = container.querySelector("#p-calc-hint") as HTMLElement | null;
+    const breakdownBox  = container.querySelector("#p-breakdown-display") as HTMLElement | null;
+    const breakdownLines = container.querySelector("#p-breakdown-lines") as HTMLElement | null;
 
     const requiredElements = [
       materialSelect,
@@ -275,7 +277,36 @@ export const PlakatyView: View = {
         }
       }
 
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (breakdownBox && breakdownLines) {
+        const lines: string[] = [];
+        lines.push(`<div><strong>Parametry:</strong> ${qty} szt, ${formatLabel}, materiał: ${res.materialName}</div>`);
+        lines.push(`<div><strong>Cena po rabacie za 1 szt.:</strong> ${formatPLN(res.pricePerPiece)}</div>`);
+        lines.push(`<div><strong>Cena bazowa:</strong> ${qty} szt × ${formatPLN(res.pricePerPiece)} = ${formatPLN(res.basePrice)}</div>`);
+
+        if (res.discountFactor < 1) {
+          const pct = Math.round((1 - res.discountFactor) * 100);
+          lines.push(`<div><strong>Rabat ilościowy:</strong> ${pct}% (z ${formatPLN(res.effectiveUnitPrice)} do ${formatPLN(res.pricePerPiece)} / szt.)</div>`);
+        }
+
+        if (trimSurcharge > 0) {
+          const trimParts: string[] = [];
+          if (trim2Checkbox?.checked) {
+            const trimQty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
+            trimParts.push(`${trimQty} × 2 cięcia = ${formatPLN(trimQty * 1)}`);
+          }
+          if (trim4Checkbox?.checked) {
+            const trimQty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
+            trimParts.push(`${trimQty} × 4 cięcia = ${formatPLN(trimQty * 2)}`);
+          }
+          lines.push(`<div><strong>Trymer:</strong> ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}</div>`);
+        }
+
+        lines.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
+        breakdownLines.innerHTML = lines.join("");
+        breakdownBox.style.display = "block";
+      }
+
+      if (expressHint) expressHint.style.display = "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty");
@@ -304,7 +335,7 @@ export const PlakatyView: View = {
       }
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}`;
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (expressHint) expressHint.style.display = "none";
       resultBox.style.display = "block";
       addBtn.disabled = false;
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty (Mały Canon)");
@@ -357,7 +388,7 @@ export const PlakatyView: View = {
         }
       }
 
-      if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
+      if (expressHint) expressHint.style.display = "none";
 
       resultBox.style.display = "block";
       addBtn.disabled = false;
@@ -392,7 +423,7 @@ export const PlakatyView: View = {
       const matName = materialSelect.options[materialSelect.selectedIndex].text;
       if (currentOptions.type === "canon") {
         const canonName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
-        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
@@ -407,7 +438,7 @@ export const PlakatyView: View = {
         });
       } else if (currentOptions.type === "duzy-canon") {
         const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
-        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${currentOptions.qty} szt, ${currentResult.variantName}, ${currentOptions.finish}${trimHint}`;
 
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
@@ -425,7 +456,7 @@ export const PlakatyView: View = {
         const lengthHint = currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "";
         const fmtLabel = currentOptions.formatLabel ?? getFormatLabel(currentOptions.fmt);
         const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
-        const hint = `${fmtLabel} × ${currentOptions.qty} szt${lengthHint}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
+        const hint = `${fmtLabel} × ${currentOptions.qty} szt${lengthHint}${trimHint}`;
         ctx.cart.addItem({
           id: `plakaty-${Date.now()}`,
           category: "Plakaty",
