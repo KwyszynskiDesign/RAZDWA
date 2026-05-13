@@ -28,6 +28,7 @@ export const FoliaSzronionaView: View = {
     const addToCartBtn = container.querySelector("#fs-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#fs-result-display") as HTMLElement;
     const breakdownDisplay = container.querySelector("#fs-breakdown-display") as HTMLElement;
+    const breakdownLines = container.querySelector("#fs-breakdown-lines") as HTMLElement;
     const normalResult = container.querySelector("#fs-normal-result") as HTMLElement;
     const customQuote = container.querySelector("#fs-custom-quote") as HTMLElement;
     const areaValSpan = container.querySelector("#fs-area-val") as HTMLElement;
@@ -45,7 +46,7 @@ export const FoliaSzronionaView: View = {
         legend.id = "folia-dynamic-legend";
         legend.className = "card";
         legend.style.marginTop = "16px";
-        resultDisplay.insertAdjacentElement("afterend", legend);
+        (breakdownDisplay ?? resultDisplay).insertAdjacentElement("afterend", legend);
       }
 
       const materials = (tableData.materials ?? []) as Array<{ id: string; storageId?: string; name: string; title?: string; bold?: boolean; tiers: Array<{ min: number; max: number | null; price: number }> }>;
@@ -85,6 +86,7 @@ export const FoliaSzronionaView: View = {
       if (!serviceSelect.value) {
         resultDisplay.style.display = "none";
         if (breakdownDisplay) breakdownDisplay.style.display = "none";
+        if (breakdownLines) breakdownLines.innerHTML = "";
         addToCartBtn.disabled = true;
         return;
       }
@@ -101,22 +103,34 @@ export const FoliaSzronionaView: View = {
       if (result.isCustom) {
           normalResult.style.display = "none";
           customQuote.style.display = "block";
+          if (breakdownLines) breakdownLines.innerHTML = "";
           addToCartBtn.disabled = true;
         ctx.updateLastCalculated(0, "Folia szroniona / OWV (wycena ind.)");
       } else {
           normalResult.style.display = "block";
           customQuote.style.display = "none";
           const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1000000;
-          if (areaValSpan) areaValSpan.innerText = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? ' (min. 1m2)' : ''}`;
+          const areaLabel = `${areaM2.toFixed(2)} m2${result.effectiveQuantity > areaM2 ? " (min. 1m2)" : ""}`;
+          if (areaValSpan) areaValSpan.innerText = areaLabel;
           if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
           if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
+          if (breakdownLines) {
+            breakdownLines.innerHTML = `
+              <div class="breakdown-line"><span>Usługa:</span><strong>${serviceSelect.options[serviceSelect.selectedIndex].text}</strong></div>
+              <div class="breakdown-line"><span>Wymiary:</span><strong>${currentOptions.widthMm} × ${currentOptions.heightMm} mm</strong></div>
+              <div class="breakdown-line"><span>Powierzchnia:</span><strong>${areaLabel}</strong></div>
+              <div class="breakdown-line"><span>Cena za m2:</span><strong>${formatPLN(result.tierPrice)}</strong></div>
+              ${ctx.expressMode ? `<div class="breakdown-line"><span>Tryb:</span><strong>EXPRESS (+20%)</strong></div>` : ""}
+              <div class="breakdown-line total-line"><span>Łącznie:</span><strong>${formatPLN(result.totalPrice)}</strong></div>
+            `;
+          }
           addToCartBtn.disabled = false;
           ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
       }
 
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
-      if (breakdownDisplay) breakdownDisplay.style.display = "block";
+      if (breakdownDisplay) breakdownDisplay.style.display = result.isCustom ? "none" : "block";
     };
 
     autoCalc({ root: container, calc: performCalculation });
