@@ -58,6 +58,8 @@ export const PlakatyWFView: View = {
     const trim4QtyInput = container.querySelector("#p-trim-4-qty") as HTMLInputElement | null;
     const addBtn = container.querySelector("#p-add-to-cart") as HTMLButtonElement;
     const resultBox = container.querySelector("#p-result-display") as HTMLElement;
+    const breakdownBox = container.querySelector("#p-breakdown-display") as HTMLElement | null;
+    const breakdownLines = container.querySelector("#p-breakdown-lines") as HTMLElement | null;
     const unitPriceEl = container.querySelector("#p-unit-price") as HTMLElement;
     const totalPriceEl = container.querySelector("#p-total-price") as HTMLElement;
     const discountRow = container.querySelector("#p-discount-row") as HTMLElement | null;
@@ -75,7 +77,7 @@ export const PlakatyWFView: View = {
         legend.id = "p-dynamic-legend";
         legend.className = "card";
         legend.style.marginTop = "16px";
-        resultBox.insertAdjacentElement("afterend", legend);
+        (breakdownBox ?? resultBox).insertAdjacentElement("afterend", legend);
       }
 
       const selectedMaterial = (tableData.formatowe?.materials ?? []).find((m: any) => m.id === materialSelect.value);
@@ -216,6 +218,8 @@ export const PlakatyWFView: View = {
       const qty = parsePositiveInt(qtyInput.value);
         if (!qty) {
           resultBox.style.display = "none";
+          if (breakdownBox) breakdownBox.style.display = "none";
+          if (breakdownLines) breakdownLines.innerHTML = "";
           addBtn.disabled = true;
           return;
         }
@@ -275,6 +279,24 @@ export const PlakatyWFView: View = {
           renderHintContent(calcHintEl, nieformatHintLines);
           calcHintEl.style.display = nieformatHintLines.length ? "block" : "none";
         }
+      }
+
+      if (breakdownBox && breakdownLines) {
+        const breakdown: string[] = [];
+        const materialName = materialSelect.options[materialSelect.selectedIndex]?.text ?? matId;
+        breakdown.push(`<div><strong>Parametry:</strong> ${qty} szt, ${FORMAT_LABELS[fmt] ?? fmt}, ${materialName}</div>`);
+        breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.unitPrice)}</div>`);
+        if (res.discountFactor < 1) {
+          const pct = Math.round((1 - res.discountFactor) * 100);
+          const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
+          breakdown.push(`<div><strong>Rabat ilościowy (${pct}%):</strong> -${formatPLN(saved)}</div>`);
+        }
+        if (trimSurcharge > 0) {
+          breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
+        }
+        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
+        breakdownLines.innerHTML = breakdown.join("");
+        breakdownBox.style.display = "block";
       }
 
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";

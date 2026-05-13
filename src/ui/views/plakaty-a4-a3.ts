@@ -82,7 +82,8 @@ export const PlakatyA4A3View: View = {
         legend.id = "pa-dynamic-legend";
         legend.className = "card plakaty-a4a3-legend";
         legend.style.marginTop = "16px";
-        resultBox.insertAdjacentElement("afterend", legend);
+        const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
+        (paBreakdownBox ?? resultBox).insertAdjacentElement("afterend", legend);
       }
 
       const findDuzyVariant = (variantId: string) =>
@@ -277,6 +278,8 @@ export const PlakatyA4A3View: View = {
 
     const clearResult = () => {
       resultBox.style.display = "none";
+      const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
+      if (paBreakdownBox) paBreakdownBox.style.display = "none";
       addBtn.disabled = true;
       if (discountRow) discountRow.style.display = "none";
     };
