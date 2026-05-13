@@ -12,6 +12,17 @@ type BreakdownRow = {
   strongValue?: boolean;
 };
 
+function normalizePolishText(text: string): string {
+  return text
+    .replace(/CiÄ™cie/g, "Cięcie")
+    .replace(/ciÄ™cie/g, "cięcie")
+    .replace(/rÄ™czne/g, "ręczne")
+    .replace(/powyĹĽej/g, "powyżej")
+    .replace(/Zszywanie/g, "Zszywanie")
+    .replace(/Broszurowanie/g, "Broszurowanie")
+    .replace(/docinanie/g, "docinanie");
+}
+
 function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
   target.replaceChildren();
 
@@ -336,7 +347,7 @@ export const LaminowanieView: View = {
 
       const introRows = (data?.introligatornia?.items ?? []).map((item: any) => {
         const price = resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price);
-        return `<tr><td>${item.name}</td><td>${formatPLN(price)}</td></tr>`;
+        return `<tr><td>${normalizePolishText(String(item.name ?? ""))}</td><td>${formatPLN(price)}</td></tr>`;
       }).join("");
 
       const oprawy = getOprawyPrices();
@@ -1191,7 +1202,7 @@ export const LaminowanieView: View = {
     const laminowanieData = getPrice("laminowanie") as any;
     if (introPriceTiers && laminowanieData?.introligatornia?.items) {
       const items = laminowanieData.introligatornia.items;
-      introPriceTiers.innerHTML = items.map((item: any) => `<div>${item.name} → ${formatPLN(resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price))}</div>`).join('');
+      introPriceTiers.innerHTML = items.map((item: any) => `<div>${normalizePolishText(String(item.name ?? ""))} → ${formatPLN(resolveStoredPrice(`laminowanie-intro-${item.id}`, item.price))}</div>`).join('');
     }
 
     let introState: ReturnType<typeof quoteIntroligatornia> | null = null;
@@ -1217,6 +1228,7 @@ export const LaminowanieView: View = {
       });
 
       introState = result;
+      const serviceName = normalizePolishText(result.serviceName);
       if (introResult) introResult.style.display = "block";
       if (introTotalPrice) introTotalPrice.innerText = formatPLN(result.totalPrice);
       if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
@@ -1228,7 +1240,7 @@ export const LaminowanieView: View = {
       if (introBreakdown && introBreakdownLines) {
         introBreakdown.style.display = "block";
         introBreakdownLines.innerHTML = [
-          `<div><strong>Usługa:</strong> ${result.serviceName}</div>`,
+          `<div><strong>Usługa:</strong> ${serviceName}</div>`,
           `<div><strong>Ilość operacji:</strong> ${result.qty}</div>`,
           `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
           `<div><strong>Cena bazowa:</strong> ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}</div>`,
