@@ -1010,6 +1010,8 @@ export const CadUploadView: View = {
     // Initial render
     renderFiles();
     renderLegend();
+
+    ctx?.on?.("prices-updated", () => { renderLegend(); });
   },
 
   unmount() {

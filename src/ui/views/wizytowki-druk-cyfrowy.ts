@@ -247,6 +247,7 @@ export const WizytowkiView: View = {
 
     autoCalc({ root: container, calc: calculate });
     updateLegend();
+    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
     if (addToCartBtn) {
       addToCartBtn.onclick = () => {

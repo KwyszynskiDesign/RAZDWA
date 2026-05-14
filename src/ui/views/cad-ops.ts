@@ -23,6 +23,12 @@ export const CadOpsView: View = {
     const foldQty = container.querySelector("#fold-qty") as HTMLInputElement;
     const foldAddBtn = container.querySelector("#fold-add") as HTMLButtonElement;
 
+    const recalcCadOps = () => {
+      // Placeholder for recalc if needed
+    };
+
+    ctx?.on?.("prices-updated", () => { recalcCadOps(); });
+
     foldAddBtn.onclick = () => {
       const qty = parseInt(foldQty.value);
       if (isNaN(qty) || qty <= 0) return;
