@@ -1242,11 +1242,11 @@
 
     #orderSummary .order-form {
       display: grid;
-      gap: 8px;
+      gap: 6px;
     }
 
     #orderSummary .order-row {
-      margin: 3px 0;
+      margin: 2px 0;
       gap: 1px;
     }
 
@@ -1265,8 +1265,7 @@
 
     #orderSummary .order-row-half label {
       font-size: 11px;
-      color: rgba(255,255,255,0.7);
-      font-weight: 500;
+      font-weight: 600;
     }
 
     #orderSummary .order-row-half select,
@@ -1363,6 +1362,7 @@
     #orderSummary .order-actions button,
     #clearBtn,
     #sendBtn,
+    #sendBtn2,
     #copyBtn {
       width: 100%;
     }
@@ -1503,6 +1503,7 @@
     #orderSummary .danger,
     #orderSummary .ghost,
     #orderSummary #sendBtn,
+    #orderSummary #sendBtn2,
     #orderSummary #clearBtn,
     #orderSummary #copyBtn {
       background: #0f2035;
@@ -1515,6 +1516,7 @@
     #orderSummary .danger:hover,
     #orderSummary .ghost:hover,
     #orderSummary #sendBtn:hover,
+    #orderSummary #sendBtn2:hover,
     #orderSummary #clearBtn:hover,
     #orderSummary #copyBtn:hover {
       background: #1e3a5f;
@@ -1928,9 +1930,15 @@
             </div>
             <div class="order-row order-row--full">
               <label for="custNotes">Uwagi do zam&#xF3;wienia</label>
-              <textarea id="custNotes" rows="3" placeholder="Dodatkowe informacje, instrukcje, termin&#x2026;"></textarea>
+              <textarea id="custNotes" rows="2" placeholder="Dodatkowe informacje, instrukcje, termin&#x2026;"></textarea>
             </div>
           </div>
+
+          <div class="order-actions" style="margin-top:10px;">
+            <button id="sendBtn2" class="primary">Wy&#x15B;lij do bazy</button>
+          </div>
+
+          <div style="height:50px;"></div>
 
           <div class="order-actions">
             <button id="copyBtn" class="ghost order-btn--ghost">Raport PDF</button>

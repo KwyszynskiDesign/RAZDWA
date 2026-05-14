@@ -661,7 +661,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Send order: Apps Script (if configured) or local Excel fallback
-  document.getElementById("sendBtn")?.addEventListener("click", async () => {
+  const handleSendOrder = async () => {
     const customer: CustomerData = {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
@@ -711,7 +711,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     showToast("Brak aktywnej integracji Apps Script — skonfiguruj URL w ustawieniach.", "error");
-  });
+  };
+
+  document.getElementById("sendBtn")?.addEventListener("click", handleSendOrder);
+  document.getElementById("sendBtn2")?.addEventListener("click", handleSendOrder);
 
   updateCartUI();
   filterCategoryTiles();
