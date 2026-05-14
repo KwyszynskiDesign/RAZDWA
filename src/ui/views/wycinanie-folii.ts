@@ -169,6 +169,7 @@ export const WycinanieFoliiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate });
+    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;

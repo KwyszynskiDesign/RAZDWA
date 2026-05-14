@@ -307,6 +307,7 @@ export const PlakatyWFView: View = {
     };
 
     autoCalc({ root: container, calc: calcWielkoformatowe });
+    ctx?.on?.("prices-updated", () => { calcWielkoformatowe(); });
 
     // Handle trim checkboxes
     const recalcForTrimChange = () => {

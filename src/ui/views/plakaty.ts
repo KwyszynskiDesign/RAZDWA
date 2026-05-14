@@ -396,6 +396,7 @@ export const PlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: () => { try { calcWielkoformatowe(); } catch {} try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} } });
+    ctx?.on?.("prices-updated", () => { try { calcWielkoformatowe(); } catch {} try { calcMalyCanon(); } catch {} try { calcDuzyCanon(); } catch {} });
 
     const recalcForTrimChange = () => {
       // Show/hide quantity inputs
