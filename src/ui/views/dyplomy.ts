@@ -95,7 +95,10 @@ export const DyplomyView: View = {
         breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
       }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.basePrice)} + ${formatPLN(satinAmount + modiglianiAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      const modifiersSum = satinAmount + modiglianiAmount;
+      const razem = [formatPLN(result.basePrice)];
+      if (modifiersSum > 0) razem.push(formatPLN(modifiersSum));
+      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${razem.join(" + ")} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
 
