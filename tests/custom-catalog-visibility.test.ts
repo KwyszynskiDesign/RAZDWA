@@ -44,6 +44,22 @@ describe("custom catalog visibility", () => {
     );
   });
 
+  it("ignores mojibake duplicate uslugi keys and applies their price to canonical services", () => {
+    const brokenBannerId = "grafika-baner-z\u00C5\u201Ao\u00C5\u00BCony";
+    const brokenPakietId = "pakiet-z\u00C5\u201Ao\u00C5\u00BCony";
+
+    setPrice(`defaultPrices.uslugi-${brokenBannerId}`, 251);
+    setPrice(`defaultPrices.uslugi-${brokenPakietId}`, 450);
+
+    const categories = getRenderedUslugiCategories();
+    const allItems = categories.flatMap((category) => category.items);
+
+    expect(allItems.find((item) => item.id === "grafika-baner-zlozony")?.price).toBe(250);
+    expect(allItems.find((item) => item.id === "pakiet-zlozony")?.price).toBe(449);
+    expect(allItems.some((item) => item.id === brokenBannerId)).toBe(false);
+    expect(allItems.some((item) => item.id === brokenPakietId)).toBe(false);
+  });
+
   it("shows a newly added office article in the artykuly catalog", () => {
     setPrice("defaultPrices.artykuly-nowy-archiwizer", 19.5);
     setPriceLabels({

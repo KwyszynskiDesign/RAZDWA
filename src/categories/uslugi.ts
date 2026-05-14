@@ -9,6 +9,9 @@ const CUSTOM_SERVICE_PREFIX = "uslugi-";
 const BASE_SERVICE_IDS = new Set<string>(
   (uslugiCategoryData.categories ?? []).flatMap((category: any) => (category.items ?? []).map((item: any) => item.id))
 );
+const BASE_SERVICE_IDS_NORMALIZED = new Set<string>(
+  [...BASE_SERVICE_IDS].map((id) => normalizeServiceToken(id))
+);
 
 type RenderedServiceItem = {
   id: string;
@@ -24,6 +27,71 @@ type RenderedServiceCategory = {
   items: RenderedServiceItem[];
 };
 
+function repairMojibake(value: string): string {
+  const withCommonFixes = String(value ?? "")
+    .replace(/Ä…/g, "ą")
+    .replace(/Ä‡/g, "ć")
+    .replace(/Ä™/g, "ę")
+    .replace(/Å‚/g, "ł")
+    .replace(/Å„/g, "ń")
+    .replace(/Ã³/g, "ó")
+    .replace(/Å›/g, "ś")
+    .replace(/Åº/g, "ź")
+    .replace(/Å¼/g, "ż")
+    .replace(/Ĺ‚/g, "ł")
+    .replace(/Ĺ„/g, "ń")
+    .replace(/Ĺ›/g, "ś")
+    .replace(/Ĺş/g, "ź")
+    .replace(/ĹĽ/g, "ż");
+
+  try {
+    return decodeURIComponent(escape(withCommonFixes));
+  } catch {
+    return withCommonFixes;
+  }
+}
+
+function normalizeServiceToken(value: string): string {
+  return repairMojibake(String(value ?? ""))
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[łŁ]/g, "l")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .toLowerCase();
+}
+
+function findEquivalentStoredServiceKey(serviceId: string, storedPrices: Record<string, number | null>): string | null {
+  const directKey = `${CUSTOM_SERVICE_PREFIX}${serviceId}`;
+  if (typeof storedPrices[directKey] === "number") return directKey;
+
+  const target = normalizeServiceToken(serviceId);
+  for (const [key, value] of Object.entries(storedPrices)) {
+    if (!key.startsWith(CUSTOM_SERVICE_PREFIX) || typeof value !== "number") continue;
+    const candidateId = key.slice(CUSTOM_SERVICE_PREFIX.length);
+    if (normalizeServiceToken(candidateId) === target) return key;
+  }
+
+  return null;
+}
+
+function resolveServicePrice(serviceId: string, defaultValue: number): number {
+  const storedPrices = getDefaultPricesMap();
+  const canonicalKey = `${CUSTOM_SERVICE_PREFIX}${serviceId}`;
+
+  if (typeof storedPrices[canonicalKey] === "number") {
+    return resolveStoredPrice(canonicalKey, defaultValue);
+  }
+
+  const aliasKey = findEquivalentStoredServiceKey(serviceId, storedPrices);
+  if (aliasKey && typeof storedPrices[aliasKey] === "number") {
+    return Number(storedPrices[aliasKey]);
+  }
+
+  return resolveStoredPrice(canonicalKey, defaultValue);
+}
+
 function getMatchingServiceGroupTitle(key: string): string | null {
   const subgroupMap = getPriceSubgroups()["uslugi"] ?? Object.create(null);
   const matches = Object.entries(subgroupMap)
@@ -37,11 +105,19 @@ function getCustomServiceCategories(): RenderedServiceCategory[] {
   const storedPrices = getDefaultPricesMap();
   const groups = new Map<string, RenderedServiceItem[]>();
   const groupOrder: string[] = [];
+  const seenNormalizedCustomIds = new Set<string>();
 
   for (const [key, value] of Object.entries(storedPrices)) {
     if (!key.startsWith(CUSTOM_SERVICE_PREFIX)) continue;
     const serviceId = key.slice(CUSTOM_SERVICE_PREFIX.length);
     if (!serviceId || BASE_SERVICE_IDS.has(serviceId)) continue;
+    const normalizedServiceId = normalizeServiceToken(serviceId);
+
+    // Hide duplicated entries added with mojibake/variant keys when they map
+    // to existing base services (e.g. "uslugi-pakiet-zÅ‚oÅ¼ony").
+    if (BASE_SERVICE_IDS_NORMALIZED.has(normalizedServiceId)) continue;
+    if (seenNormalizedCustomIds.has(normalizedServiceId)) continue;
+    seenNormalizedCustomIds.add(normalizedServiceId);
 
     const groupTitle = getMatchingServiceGroupTitle(key) ?? "DODANE RĘCZNIE";
     if (!groups.has(groupTitle)) {
@@ -70,7 +146,7 @@ export function getRenderedUslugiCategories(): RenderedServiceCategory[] {
       items: (category.items ?? []).map((service: any) => ({
         id: service.id,
         name: service.name,
-        price: resolveStoredPrice(`uslugi-${service.id}`, service.price || service.priceMin || 0),
+        price: resolveServicePrice(service.id, service.price || service.priceMin || 0),
         note: service.note,
         priceMin: service.priceMin,
       })),
@@ -113,8 +189,7 @@ export function quoteUslugi(options: UslugiOptions): any {
   let totalPrice = 0;
 
   for (const service of options.selectedServices) {
-    const storageKey = `uslugi-${service.serviceId}`;
-    const price = resolveStoredPrice(storageKey, service.price);
+    const price = resolveServicePrice(service.serviceId, service.price);
     const qty = service.quantity || 1;
     const hours = service.hours || 1;
     totalPrice += price * qty * hours;
@@ -205,7 +280,7 @@ export const uslugiCategory: CategoryModule = {
       priceSpans.forEach((span) => {
         const serviceId = span.getAttribute('data-service-id') || '';
         const basePrice = parseFloat(span.getAttribute('data-base-price') || '0');
-        const currentPrice = resolveStoredPrice(`uslugi-${serviceId}`, basePrice);
+        const currentPrice = resolveServicePrice(serviceId, basePrice);
         span.textContent = `${currentPrice.toFixed(2)} zł`;
 
         const addButton = container.querySelector(`button[data-add-service-id="${serviceId}"]`) as HTMLButtonElement | null;
