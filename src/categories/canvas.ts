@@ -21,6 +21,39 @@ export type CanvasResult = CalculationResult & {
   frameCost?: number;
 };
 
+const CANVAS_MODE_LABELS: Record<CanvasOptions["modeId"], string> = {
+  framed: "Płótno Canvas z oprawą 240g",
+  unframed: "Płótno Canvas bez oprawy (ramki) 240g",
+  "m2-unframed": "Sam wydruk (cena za m2)"
+};
+
+function repairMojibake(value: string): string {
+  try {
+    return decodeURIComponent(escape(value));
+  } catch {
+    return value;
+  }
+}
+
+function normalizeCanvasText(value: string): string {
+  return repairMojibake(String(value ?? ""))
+    .replace(/PĹ‚/g, "Pł")
+    .replace(/pĹ‚/g, "pł")
+    .replace(/Ăł/g, "ó")
+    .replace(/Ä…/g, "ą")
+    .replace(/Å›/g, "ś")
+    .replace(/Ä‡/g, "ć")
+    .replace(/Å‚/g, "ł")
+    .replace(/Å¼/g, "ż")
+    .replace(/Åº/g, "ź")
+    .replace(/Ä™/g, "ę")
+    .replace(/Å„/g, "ń");
+}
+
+function getCanvasModeLabel(modeId: CanvasOptions["modeId"], rawName: string): string {
+  return CANVAS_MODE_LABELS[modeId] ?? normalizeCanvasText(rawName);
+}
+
 export function calculateCanvas(options: CanvasOptions): CanvasResult {
   const data = getPrice("canvas") as any;
   const mode = data?.modes?.find((m: any) => m.id === options.modeId);
@@ -70,8 +103,8 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         effectiveQuantity: Math.max(1, options.quantity),
         appliedModifiers: [],
         isCustom: true,
-        modeLabel: mode.name,
-        formatLabel
+        modeLabel: getCanvasModeLabel(options.modeId, mode.name),
+        formatLabel: normalizeCanvasText(formatLabel)
       };
     }
 
@@ -106,8 +139,8 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         discountFactor: 1,
         appliedModifiers: options.express ? ["express"] : [],
         isCustom: true,
-        modeLabel: mode.name,
-        formatLabel,
+        modeLabel: getCanvasModeLabel(options.modeId, mode.name),
+        formatLabel: normalizeCanvasText(formatLabel),
         areaM2,
         printCost: printCostUnit,
         frameCost: frameCostUnit > 0 ? frameCostUnit : undefined
@@ -135,8 +168,8 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
   return {
     ...result,
     isCustom,
-    modeLabel: mode.name,
-    formatLabel,
+    modeLabel: getCanvasModeLabel(options.modeId, mode.name),
+    formatLabel: normalizeCanvasText(formatLabel),
     areaM2
   };
 }
