@@ -1250,6 +1250,31 @@
       gap: 1px;
     }
 
+    #orderSummary .order-row--paired {
+      display: flex;
+      gap: 8px;
+    }
+
+    #orderSummary .order-row-half {
+      flex: 1 1 0;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    #orderSummary .order-row-half label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.7);
+      font-weight: 500;
+    }
+
+    #orderSummary .order-row-half select,
+    #orderSummary .order-row-half input {
+      width: 100%;
+      box-sizing: border-box;
+    }
+
     #orderSummary input,
     #orderSummary select,
     #orderSummary textarea {
@@ -1868,10 +1893,6 @@
           <h3>Dane zam&#xF3;wienia</h3>
           <div class="order-form">
             <div class="order-row">
-              <label for="custAddedBy">Kto doda&#x142;</label>
-              <input id="custAddedBy" type="text" placeholder="Np. Adam / Biuro">
-            </div>
-            <div class="order-row">
               <label for="custName">Imi&#x119; i nazwisko</label>
               <input id="custName" type="text" placeholder="Jan Kowalski">
             </div>
@@ -1891,13 +1912,19 @@
               <label for="custEmail">E-mail</label>
               <input id="custEmail" type="email" placeholder="jan@przyklad.pl">
             </div>
-            <div class="order-row">
-              <label for="custPriority">Realizacja</label>
-              <select id="custPriority">
-                <option value="Normalny">&#x1F7E2; Normalny (7 dni)</option>
-                <option value="Podwy&#x17C;szony">&#x1F7E1; Podwy&#x17C;szony (3 dni)</option>
-                <option value="Express">&#x1F534; Express (1 dzie&#x144;)</option>
-              </select>
+            <div class="order-row order-row--paired">
+              <div class="order-row-half">
+                <label for="custPriority">Realizacja</label>
+                <select id="custPriority" style="font-size:11px;">
+                  <option value="Normalny">&#x1F7E2; Normalny (7 dni)</option>
+                  <option value="Podwy&#x17C;szony">&#x1F7E1; Podwy&#x17C;szony (3 dni)</option>
+                  <option value="Express">&#x1F534; Express (1 dzie&#x144;)</option>
+                </select>
+              </div>
+              <div class="order-row-half">
+                <label for="custAddedBy">Kto doda&#x142;</label>
+                <input id="custAddedBy" type="text" placeholder="Np. Adam / Biuro">
+              </div>
             </div>
             <div class="order-row order-row--full">
               <label for="custNotes">Uwagi do zam&#xF3;wienia</label>

@@ -11,8 +11,9 @@ export interface OrderExportConfig {
 const LEGACY_APPS_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
   "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
+  "https://script.google.com/macros/s/AKfycbwTpUgmnb3rU37002mEH6hsNVNIIW0eRNO1pG_0WQWBz5CN0BwSpTmaOABIJSAFJDwp/exec",
 ] as const;
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTpUgmnb3rU37002mEH6hsNVNIIW0eRNO1pG_0WQWBz5CN0BwSpTmaOABIJSAFJDwp/exec";
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1_WAWeJxAXSkvoxOAqEI-kSPRMZjf9vtMtXNw1ykbMCHPVa3A0HH0c5PfhHoO_4_c/exec";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
