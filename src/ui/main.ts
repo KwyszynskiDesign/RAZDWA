@@ -697,6 +697,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             cart.clear();
             updateCartUI();
+            // Clear form fields
+            (document.getElementById("custAddedBy") as HTMLInputElement | null)!.value = "";
+            (document.getElementById("custName") as HTMLInputElement).value = "";
+            (document.getElementById("custCompany") as HTMLInputElement | null)!.value = "";
+            (document.getElementById("custNip") as HTMLInputElement | null)!.value = "";
+            (document.getElementById("custPhone") as HTMLInputElement).value = "";
+            (document.getElementById("custEmail") as HTMLInputElement).value = "";
+            (document.getElementById("custPriority") as HTMLSelectElement).value = "Normalny";
+            (document.getElementById("custNotes") as HTMLTextAreaElement | null)!.value = "";
           }, 3500);
           return;
         }
