@@ -198,6 +198,11 @@ export const UlotkiCyfroweView: View = {
       el.addEventListener("change", populateTables);
     });
 
+    ctx?.on?.("prices-updated", () => {
+      populateTables();
+      performCalculation();
+    });
+
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const pv = paperSelect.value;

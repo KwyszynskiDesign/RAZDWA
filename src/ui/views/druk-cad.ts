@@ -535,6 +535,11 @@ export const DrukCADView: View = {
 
     autoCalc({ root: container, calc: performCalculation });
 
+    ctx?.on?.("prices-updated", () => {
+      ensureLegend();
+      performCalculation();
+    });
+
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;

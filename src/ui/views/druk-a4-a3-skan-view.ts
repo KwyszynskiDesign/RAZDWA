@@ -357,6 +357,11 @@ export const DrukA4A3SkanView: View = {
 
     autoCalc({ root: container, calc: performCalculation });
 
+    ctx?.on?.("prices-updated", () => {
+      renderDynamicLegend();
+      performCalculation();
+    });
+
     addToCartBtn.onclick = () => {
       performCalculation();
 

@@ -531,6 +531,11 @@ export const PlakatyA4A3View: View = {
     });
     ensureLegend();
 
+    ctx?.on?.("prices-updated", () => {
+      ensureLegend();
+      recalculate();
+    });
+
     addBtn.onclick = () => {
       if (!currentResult || !currentOptions) return;
 
