@@ -421,12 +421,11 @@ export const DrukCADView: View = {
       }
     });
 
-    [wfScanCmInput, wfScanQtyInput].forEach((el) => {
-      el?.addEventListener("input", () => {
-        updateCadOpsSummary();
-        updateOptionsSummary();
-        updateGrandTotal();
-      });
+    wfScanQtyInput?.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        wfScanAddBtn?.click();
+      }
     });
 
     optKlientSkladanie?.addEventListener("change", () => {
