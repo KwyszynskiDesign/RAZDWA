@@ -239,45 +239,49 @@ export const WydrukiSpecjalneView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Wydruki specjalne");
     };
 
+    const updateLegends = () => {
+      if (specialLegendDyplom && dyplomyTiers.length > 0) {
+        specialLegendDyplom.innerHTML = `
+          <div class="legend-head"><div><h4>CENNIK DYPLOMY</h4><p class="legend-subtitle">Progi ilościowe (cena bazowa).</p></div></div>
+          <div class="legend-badges">
+            <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
+            <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.20) * 100)}%</span>
+            <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
+          </div>
+          <table>
+            <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
+            <tbody>${dyplomyTiers.map((tier) => `<tr><td>${tier.qty}+</td><td>${formatPLN(resolveStoredPrice(`dyplomy-qty-${tier.qty}`, tier.price))}</td></tr>`).join("")}</tbody>
+          </table>
+        `;
+      }
+
+      if (specialLegendZap && zaproszeniaData?.formats?.A6?.single?.normal) {
+        const a6Single = zaproszeniaData.formats.A6.single.normal as Record<string, number>;
+        const rows = Object.keys(a6Single).map((qtyKey) => {
+          const price = resolveStoredPrice(`zaproszenia-a6-single-normal-${qtyKey}`, a6Single[qtyKey]);
+          return `<tr><td>${qtyKey}</td><td>${formatPLN(price)}</td></tr>`;
+        }).join("");
+
+        specialLegendZap.innerHTML = `
+          <div class="legend-head"><div><h4>CENNIK ZAPROSZENIA (A6 1-str)</h4><p class="legend-subtitle">Legenda bazowa. Dokładna cena zależy od parametrów.</p></div></div>
+          <div class="legend-badges">
+            <span class="legend-badge"><strong>Składane:</strong> osobna stawka</span>
+            <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
+            <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
+          </div>
+          <table>
+            <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `;
+      }
+    };
+
     autoCalc({ root: container, calc: performCalculation });
     specialVariant?.addEventListener("change", updateVariantUI);
     updateVariantUI();
-
-    if (specialLegendDyplom && dyplomyTiers.length > 0) {
-      specialLegendDyplom.innerHTML = `
-        <div class="legend-head"><div><h4>CENNIK DYPLOMY</h4><p class="legend-subtitle">Progi ilościowe (cena bazowa).</p></div></div>
-        <div class="legend-badges">
-          <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
-          <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.20) * 100)}%</span>
-          <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
-        </div>
-        <table>
-          <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
-          <tbody>${dyplomyTiers.map((tier) => `<tr><td>${tier.qty}+</td><td>${formatPLN(resolveStoredPrice(`dyplomy-qty-${tier.qty}`, tier.price))}</td></tr>`).join("")}</tbody>
-        </table>
-      `;
-    }
-
-    if (specialLegendZap && zaproszeniaData?.formats?.A6?.single?.normal) {
-      const a6Single = zaproszeniaData.formats.A6.single.normal as Record<string, number>;
-      const rows = Object.keys(a6Single).map((qtyKey) => {
-        const price = resolveStoredPrice(`zaproszenia-a6-single-normal-${qtyKey}`, a6Single[qtyKey]);
-        return `<tr><td>${qtyKey}</td><td>${formatPLN(price)}</td></tr>`;
-      }).join("");
-
-      specialLegendZap.innerHTML = `
-        <div class="legend-head"><div><h4>CENNIK ZAPROSZENIA (A6 1-str)</h4><p class="legend-subtitle">Legenda bazowa. Dokładna cena zależy od parametrów.</p></div></div>
-        <div class="legend-badges">
-          <span class="legend-badge"><strong>Składane:</strong> osobna stawka</span>
-          <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
-          <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
-        </div>
-        <table>
-          <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>
-      `;
-    }
+    updateLegends();
+    ctx?.on?.("prices-updated", () => { updateLegends(); performCalculation(); });
 
     specialAddBtn?.addEventListener("click", () => {
       if (!specialState) return;

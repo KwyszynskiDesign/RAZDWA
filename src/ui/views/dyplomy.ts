@@ -133,6 +133,11 @@ export const DyplomyView: View = {
     autoCalc({ root: container, calc: calculate });
     updateLegend();
 
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      calculate();
+    });
+
     addToCartBtn.addEventListener("click", () => {
       const calc = calculate();
       if (!calc) return;

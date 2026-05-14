@@ -241,6 +241,7 @@ export const ZaproszeniaKredaView: View = {
 
     autoCalc({ root: container, calc: calculate });
     updateLegend();
+    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
     addToCartBtn.addEventListener("click", () => {
       const calc = calculate();

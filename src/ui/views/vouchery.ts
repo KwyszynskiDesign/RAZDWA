@@ -238,6 +238,7 @@ export const VoucheryView: View = {
 
     autoCalc({ root: container, calc: performCalculation });
     updateLegend();
+    ctx?.on?.("prices-updated", () => { updateLegend(); performCalculation(); });
 
     addToCartBtn.onclick = () => {
       if (!performCalculation()) return;
