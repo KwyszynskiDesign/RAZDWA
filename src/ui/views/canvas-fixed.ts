@@ -200,6 +200,7 @@ export const CanvasView: View = {
 
     autoCalc({ root: container, calc: calculate });
     updateLegend();
+    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;

@@ -1297,6 +1297,7 @@ export const LaminowanieView: View = {
     };
 
     autoCalc({ root: container, calc: recalcAll });
+    ctx?.on?.("prices-updated", () => { ensureLegend(getActiveTab()); recalcAll(); });
 
   }
 };
