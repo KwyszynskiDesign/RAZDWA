@@ -14,7 +14,6 @@ import { WlepkiView } from "./views/wlepki-naklejki";
 import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan-view";
 import { DrukCADView } from "./views/druk-cad";
 import { LaminowanieView } from "./views/laminowanie";
-import { PojedynczeNakladyView } from "./views/pojedyncze-naklady";
 import { WydrukiSpecjalneView } from "./views/wydruki-specjalne";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { WycinanieFoliiView } from "./views/wycinanie-folii";
