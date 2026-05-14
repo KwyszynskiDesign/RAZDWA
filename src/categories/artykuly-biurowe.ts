@@ -11,6 +11,9 @@ const BASE_ARTYKULY_IDS = new Set<string>([
   ...(artykulyBiuroweData.categories ?? []).flatMap((category: any) => (category.items ?? []).map((item: any) => item.id)),
   ...ENVELOPE_LETTERS.map((letter) => `koperty-${letter}`),
 ]);
+const BASE_ARTYKULY_IDS_NORMALIZED = new Set<string>(
+  [...BASE_ARTYKULY_IDS].map((id) => normalizeArticleToken(id))
+);
 
 type RenderedArticleItem = {
   id: string;
@@ -23,6 +26,55 @@ type RenderedArticleCategory = {
   name: string;
   items: RenderedArticleItem[];
 };
+
+function repairMojibake(value: string): string {
+  try {
+    return decodeURIComponent(escape(value));
+  } catch {
+    return value;
+  }
+}
+
+function normalizeArticleToken(value: string): string {
+  return repairMojibake(String(value ?? ""))
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[łŁ]/g, "l")
+    .replace(/[^a-zA-Z0-9]+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/(^-|-$)/g, "")
+    .toLowerCase();
+}
+
+function findEquivalentStoredArticleKey(itemId: string, storedPrices: Record<string, number | null>): string | null {
+  const directKey = `${CUSTOM_ARTYKULY_PREFIX}${itemId}`;
+  if (typeof storedPrices[directKey] === "number") return directKey;
+
+  const target = normalizeArticleToken(itemId);
+  for (const [key, value] of Object.entries(storedPrices)) {
+    if (!key.startsWith(CUSTOM_ARTYKULY_PREFIX) || typeof value !== "number") continue;
+    const candidateId = key.slice(CUSTOM_ARTYKULY_PREFIX.length);
+    if (normalizeArticleToken(candidateId) === target) return key;
+  }
+
+  return null;
+}
+
+function resolveArticlePrice(itemId: string, defaultValue: number): number {
+  const storedPrices = getDefaultPricesMap();
+  const canonicalKey = `${CUSTOM_ARTYKULY_PREFIX}${itemId}`;
+
+  if (typeof storedPrices[canonicalKey] === "number") {
+    return resolveStoredPrice(canonicalKey, defaultValue);
+  }
+
+  const aliasKey = findEquivalentStoredArticleKey(itemId, storedPrices);
+  if (aliasKey && typeof storedPrices[aliasKey] === "number") {
+    return Number(storedPrices[aliasKey]);
+  }
+
+  return resolveStoredPrice(canonicalKey, defaultValue);
+}
 
 function getEnvelopeArticleCategory(): RenderedArticleCategory {
   return {
@@ -54,6 +106,10 @@ function getCustomArticleCategories(): RenderedArticleCategory[] {
     const itemId = key.slice(CUSTOM_ARTYKULY_PREFIX.length);
     if (!itemId || BASE_ARTYKULY_IDS.has(itemId)) continue;
 
+    // Hide duplicated entries added with mojibake/variant keys when they map
+    // to existing base products (e.g. "artykuly-teczka-biaĹ‚a-gumka").
+    if (BASE_ARTYKULY_IDS_NORMALIZED.has(normalizeArticleToken(itemId))) continue;
+
     const groupTitle = getMatchingArticleGroupTitle(key) ?? "DODANE RĘCZNIE";
     if (!groups.has(groupTitle)) {
       groups.set(groupTitle, []);
@@ -81,7 +137,7 @@ export function getRenderedArtykulyBiuroweCategories(): RenderedArticleCategory[
       items: (category.items ?? []).map((item: any) => ({
         id: item.id,
         name: item.name,
-        price: resolveStoredPrice(`artykuly-${item.id}`, item.price || (item.prices ? item.prices[0] : 0)),
+        price: resolveArticlePrice(item.id, item.price || (item.prices ? item.prices[0] : 0)),
       })),
     })),
     getEnvelopeArticleCategory(),
