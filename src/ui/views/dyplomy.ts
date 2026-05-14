@@ -98,6 +98,7 @@ export const DyplomyView: View = {
       const modifiersSum = satinAmount + modiglianiAmount;
       const razem = [formatPLN(result.basePrice)];
       if (modifiersSum > 0) razem.push(formatPLN(modifiersSum));
+      if (expressAmount > 0) razem.push(formatPLN(expressAmount));
       breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${razem.join(" + ")} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
