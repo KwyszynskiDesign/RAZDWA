@@ -411,6 +411,11 @@ export const WlepkiView: View = {
     modeSelect.addEventListener("change", renderDynamicLegend);
     renderDynamicLegend();
 
+    ctx?.on?.("prices-updated", () => {
+      renderDynamicLegend();
+      calculate();
+    });
+
     addBtn.addEventListener("click", () => {
       if (!currentResult || !currentInput) return;
 

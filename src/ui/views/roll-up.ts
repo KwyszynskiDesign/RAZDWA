@@ -154,6 +154,11 @@ export const RollUpView: View = {
 
     autoCalc({ root: container, calc: calculate });
 
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      calculate();
+    });
+
     addToCartBtn.addEventListener("click", () => {
       if (!currentOptions || !currentResult) return;
 

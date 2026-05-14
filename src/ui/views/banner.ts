@@ -212,6 +212,10 @@ export const BannerView: View = {
 
     autoCalc({ root: container, calc: performCalculation });
 
+    ctx?.on?.("prices-updated", () => {
+      performCalculation();
+    });
+
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const matName = materialSelect.options[materialSelect.selectedIndex].text;
