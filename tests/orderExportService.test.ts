@@ -122,6 +122,7 @@ describe("orderExportService", () => {
       "Data",
       "Godzina",
       "Firma",
+      "Kto dodał",
       "Imię",
       "Nazwisko",
       "NIP",
@@ -140,6 +141,7 @@ describe("orderExportService", () => {
 
     expect(parsedBody["Data"]).toBeTypeOf("string");
     expect(parsedBody["Godzina"]).toBeTypeOf("string");
+    expect(parsedBody["Kto dodał"]).toBe("");
     expect(parsedBody["Imię"]).toBe("Jan");
     expect(parsedBody["Nazwisko"]).toBe("Kowalski");
     expect(parsedBody["Firma"]).toBe("");
@@ -149,10 +151,42 @@ describe("orderExportService", () => {
     expect(parsedBody["Ilosc sztuk"]).toBe("100 | 200");
     expect(parsedBody["Cena za sztukę"]).toBe("75.00 | 0.19");
     expect(parsedBody["Materiał"]).toContain("Kreda 350g");
+    expect(parsedBody["Uwagi"]).toBe("Do odbioru jutro");
 
     expect(parsedBody.items).toBeUndefined();
     expect(parsedBody.summary).toBeUndefined();
     expect(parsedBody.customer).toBeUndefined();
+  });
+
+  it("includes addedBy as a separate column in the compact payload", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: {
+        get: () => "application/json",
+      },
+      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      text: async () => "",
+    }));
+
+    (globalThis as any).fetch = fetchMock;
+
+    const payload = buildOrderExportPayload(sampleItems, {
+      ...sampleCustomer,
+      addedBy: "Adam / Biuro",
+    });
+
+    await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const parsedBody = JSON.parse(requestBody);
+
+    expect(parsedBody["Kto dodał"]).toBe("Adam / Biuro");
+    expect(parsedBody["Uwagi"]).toBe("Do odbioru jutro");
   });
 
   it("sendOrderToAppsScript returns failure for HTTP error", async () => {

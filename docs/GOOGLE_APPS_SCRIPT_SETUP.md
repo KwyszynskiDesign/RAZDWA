@@ -8,6 +8,7 @@
 - Data
 - Godzina
 - Firma
+- Kto dodał
 - Imię
 - Nazwisko
 - NIP
@@ -31,7 +32,7 @@
 ```javascript
 const SHEET_NAME = 'orders';
 const HEADERS = [
-  'Data', 'Godzina', 'Firma', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
+  'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
   'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
   'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres'
 ];
@@ -81,6 +82,7 @@ function doPost(e) {
       row['Data'] || '',
       row['Godzina'] || '',
       row['Firma'] || '',
+      row['Kto dodał'] || '',
       row['Imię'] || '',
       row['Nazwisko'] || '',
       row['NIP'] || '',

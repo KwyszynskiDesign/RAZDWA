@@ -48,6 +48,7 @@ interface AppsScriptCompactRowPayload {
   "Data": string;
   "Godzina": string;
   "Firma": string;
+  "Kto dodał": string;
   "Imię": string;
   "Nazwisko": string;
   "NIP": string;
@@ -196,12 +197,12 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
 
   const notes = String(payload.customer.notes ?? "").trim();
   const addedBy = String(payload.customer.addedBy ?? "").trim();
-  const notesCombined = [addedBy ? `Dodał: ${addedBy}` : "", notes].filter(Boolean).join(" | ");
 
   return {
     "Data": date,
     "Godzina": time,
     "Firma": String(payload.customer.company ?? ""),
+    "Kto dodał": addedBy,
     "Imię": firstName,
     "Nazwisko": lastName,
     "NIP": String(payload.customer.nip ?? ""),
@@ -212,7 +213,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Produkt": products,
     "Ilosc sztuk": qtyStr,
     "Cena za sztukę": unitPriceStr,
-    "Uwagi": notesCombined,
+    "Uwagi": notes,
     "Suma (PLN)": totalSum,
     "Priorytet": String(payload.customer.priority ?? ""),
     "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
