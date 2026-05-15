@@ -312,6 +312,7 @@ export const DrukA4A3SkanView: View = {
         lines.push({ label: "Parametry", value: `${printParams}${scanParams}` });
 
         if (printQtySafe > 0) {
+          // Always show base price
           if (currentOptions.surcharge && surchargeQtySafe > 0) {
             lines.push({ label: "Cena druku bazowa", value: `${normalQty} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(normalPrintCost)}` });
             lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
