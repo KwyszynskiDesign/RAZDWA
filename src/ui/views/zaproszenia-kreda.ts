@@ -195,9 +195,14 @@ export const ZaproszeniaKredaView: View = {
         });
       }
 
+      const parts: string[] = [formatPLN(result.basePrice)];
+      if (modiglianiAmount > 0) parts.push(formatPLN(modiglianiAmount));
+      if (expressAmount > 0) parts.push(formatPLN(expressAmount));
+      if (envelopeTotal > 0) parts.push(formatPLN(envelopeTotal));
+      const equation = parts.join(" + ");
       breakdownRows.push({
         label: "Razem",
-        value: `${formatPLN(result.basePrice)} + ${formatPLN(modiglianiAmount)} + ${formatPLN(expressAmount)} + ${formatPLN(envelopeTotal)} = ${formatPLN(totalPrice)}`,
+        value: `${equation} = ${formatPLN(totalPrice)}`,
         isTotal: true,
       });
 
