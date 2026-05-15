@@ -384,9 +384,12 @@ export const WlepkiView: View = {
           if (input.foilType) breakdownRows.push({ label: "Kolor folii", value: input.foilType === "biala" ? "biała" : "transparentna" });
           if (input.foilFinish) breakdownRows.push({ label: "Wykończenie folii", value: input.foilFinish === "mat" ? "mat" : "błysk" });
           if (!modifierRows.length && !input.foilType && !input.foilFinish) breakdownRows.push({ label: "Opcje dodatkowe", value: "brak dopłat" });
+          const parts: string[] = [formatPLN(result.basePrice)];
+          if (modifiersTotal > 0) parts.push(formatPLN(modifiersTotal));
+          const equation = parts.join(" + ");
           breakdownRows.push({
             label: "Razem",
-            value: `${formatPLN(result.basePrice)} + ${formatPLN(modifiersTotal)} = ${formatPLN(result.totalPrice)}`,
+            value: `${equation} = ${formatPLN(result.totalPrice)}`,
             separatorTop: true
           });
 
