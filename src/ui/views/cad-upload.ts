@@ -84,6 +84,11 @@ export const CadUploadView: View = {
     const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
     const cadUploadPaskiWzmacniajaceAdd = container.querySelector<HTMLButtonElement>("#cadUploadPaskiWzmacniajaceAdd");
     const cadUploadPaskiWzmacniajacePriceLine = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-price");
+    const optSkanowanie = container.querySelector<HTMLInputElement>("#optSkanowanie");
+    const cadUploadSkanowanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-skanowanie-qty-row");
+    const cadUploadSkanowanieQty = container.querySelector<HTMLInputElement>("#cadUploadSkanowanieQty");
+    const cadUploadSkanowanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadSkanowanieAdd");
+    const cadUploadSkanowaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-skanowanie-price");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -113,6 +118,7 @@ export const CadUploadView: View = {
     let dpi = 300;
     let grandTotalColorVariant = 0;
     let grandTotalBwVariant = 0;
+    let additionalScanPrice = 0;
     const cadPricing: any = getPrice("drukCAD");
 
     const renderLegend = () => {
@@ -394,7 +400,7 @@ export const CadUploadView: View = {
     function calculateRowTotal(file: CadUploadFileEntry, mode: "color" | "bw", surcharge: number): number {
       const recalculated = updateCadFileEntry({ ...file, mode }, mode);
       const print = recalculated.printPrice * surcharge;
-      return print + recalculated.foldingPrice + recalculated.scanPrice;
+      return print + recalculated.foldingPrice;
     }
 
     function renderCalculations(): void {
@@ -572,31 +578,27 @@ export const CadUploadView: View = {
       
       let totalPrintColorVariant = 0;
       let totalFoldingColorVariant = 0;
-      let totalScanColorVariant = 0;
       
       for (const file of files) {
         totalPrintColorVariant += calculateVariantPrint(file, "color");
         totalFoldingColorVariant += file.foldingPrice;
-        totalScanColorVariant += file.scanPrice;
       }
       totalPrintColorVariant *= surcharge;
       
       let totalPrintBwVariant = 0;
       let totalFoldingBwVariant = 0;
-      let totalScanBwVariant = 0;
       
       for (const file of files) {
         totalPrintBwVariant += calculateVariantPrint(file, "bw");
         totalFoldingBwVariant += file.foldingPrice;
-        totalScanBwVariant += file.scanPrice;
       }
       totalPrintBwVariant *= surcharge;
       
       const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
       const extraServicesTotal = getExtraServicesTotal();
 
-      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + totalScanColorVariant + emailFee + extraServicesTotal;
-      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + totalScanBwVariant + emailFee + extraServicesTotal;
+      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + emailFee + extraServicesTotal + additionalScanPrice;
+      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + emailFee + extraServicesTotal + additionalScanPrice;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
@@ -808,6 +810,9 @@ export const CadUploadView: View = {
 
       const id = Number(row.dataset.fileId || "0");
       files = files.filter((f) => f.id !== id);
+      if (files.length === 0) {
+        additionalScanPrice = 0;
+      }
       syncSequentialIds();
       renderFiles();
     });
@@ -923,6 +928,48 @@ export const CadUploadView: View = {
         priceLine: cadUploadPaskiWzmacniajacePriceLine,
         unitPrice: paskiUnitPrice,
       });
+    });
+
+    optSkanowanie?.addEventListener("change", () => {
+      if (cadUploadSkanowanieQtyRow) {
+        cadUploadSkanowanieQtyRow.style.display = optSkanowanie.checked ? "flex" : "none";
+      }
+      renderFiles();
+    });
+
+    cadUploadSkanowanieQty?.addEventListener("input", () => {
+      const qty = parsePositiveInt(cadUploadSkanowanieQty?.value || "");
+      if (cadUploadSkanowaniePriceLine) {
+        if (optSkanowanie?.checked && qty > 0) {
+          const scanUnitPrice = resolveStoredPrice("cad-skanowanie", 0.04);
+          const total = parseFloat((scanUnitPrice * qty).toFixed(2));
+          cadUploadSkanowaniePriceLine.textContent = `Cena: ${formatPLN(total)}`;
+          cadUploadSkanowaniePriceLine.style.display = "block";
+        } else {
+          cadUploadSkanowaniePriceLine.textContent = "";
+          cadUploadSkanowaniePriceLine.style.display = "none";
+        }
+      }
+    });
+
+    cadUploadSkanowanieAdd?.addEventListener("click", () => {
+      const qty = parsePositiveInt(cadUploadSkanowanieQty?.value || "");
+      if (qty <= 0) return;
+
+      const scanUnitPrice = resolveStoredPrice("cad-skanowanie", 0.04);
+      const scanPrice = parseFloat((scanUnitPrice * qty).toFixed(2));
+      additionalScanPrice = parseFloat((additionalScanPrice + scanPrice).toFixed(2));
+
+      if (cadUploadSkanowanieQty) cadUploadSkanowanieQty.value = "";
+      if (optSkanowanie) optSkanowanie.checked = false;
+      if (cadUploadSkanowanieQtyRow) cadUploadSkanowanieQtyRow.style.display = "none";
+      if (cadUploadSkanowaniePriceLine) {
+        cadUploadSkanowaniePriceLine.textContent = "";
+        cadUploadSkanowaniePriceLine.style.display = "none";
+      }
+
+      renderFiles();
+      ctx.updateLastCalculated(scanPrice, "CAD Upload - Skanowanie");
     });
 
     // DPI change
