@@ -444,13 +444,16 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
   // Use linear interpolation to find the price
   const basePrice = interpolatePrice(qty, variant.tiers);
 
-  // Find tier info for reference (closest matching tier)
+  // Calculate unit price from interpolated basePrice
+  const unitPrice = parseFloat((basePrice / qty).toFixed(2));
+
+  // Find tier info for reference (closest matching tier) - for display purposes only
   const tier = variant.tiers.find((t: any) => t.qty === qty) ??
                variant.tiers.reduce((closest: any, t: any) =>
                  Math.abs(t.qty - qty) < Math.abs(closest.qty - qty) ? t : closest
                );
   const tierQty = tier?.qty || qty;
-  const tierPrice = tier?.price || basePrice;
+  const tierPrice = unitPrice;  // Use interpolated unit price, not tier price
 
   // For single-tier price reference
   const singleTier = variant.tiers.find((t: any) => t.qty === 1) ?? variant.tiers[0];
