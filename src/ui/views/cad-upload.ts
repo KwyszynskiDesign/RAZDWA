@@ -937,7 +937,7 @@ export const CadUploadView: View = {
       renderFiles();
     });
 
-    cadUploadSkanowanieQty?.addEventListener("input", () => {
+    cadUploadSkanowanieQty?.addEventListener("change", () => {
       const qty = parsePositiveInt(cadUploadSkanowanieQty?.value || "");
       if (cadUploadSkanowaniePriceLine) {
         if (optSkanowanie?.checked && qty > 0) {

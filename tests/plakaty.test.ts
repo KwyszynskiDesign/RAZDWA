@@ -259,35 +259,40 @@ describe("getPlakatyA4A3LegendStyles", () => {
   });
 });
 
-describe("calculatePlakatyDuzyCanon – A4/A3, progi 10-200 szt", () => {
-  it("A4 170g, 10 szt -> próg 10 i poprawna cena", () => {
+describe("calculatePlakatyDuzyCanon – A4/A3, linear interpolation between tiers", () => {
+  it("A4 170g, 10 szt -> exact tier price", () => {
     const res = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 10 });
-    expect(res.tierQty).toBe(10);
-    expect(res.tierPrice).toBe(47);
+    expect(res.qty).toBe(10);
+    expect(res.basePrice).toBe(47); // exact tier
     expect(res.totalPrice).toBe(47);
   });
 
-  it("A3 200g, ilość poza progiem (11) -> nalicza najbliższy wyższy próg 20", () => {
-    const res = calculatePlakatyDuzyCanon({ variantId: "a3-200-kreda-200", qty: 11 });
-    expect(res.qty).toBe(11);
-    expect(res.tierQty).toBe(20);
-    expect(res.tierPrice).toBe(86);
+  it("A4 170g, 15 szt -> interpolated between tier 10 (47) and tier 20 (55)", () => {
+    const res = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 15 });
+    expect(res.qty).toBe(15);
+    // 47 + (15-10)/(20-10) * (55-47) = 47 + 0.5 * 8 = 51.00
+    expect(res.basePrice).toBe(51);
+    expect(res.totalPrice).toBe(51);
+  });
+
+  it("A3 200g, 20 szt -> exact tier price", () => {
+    const res = calculatePlakatyDuzyCanon({ variantId: "a3-200-kreda-200", qty: 20 });
+    expect(res.qty).toBe(20);
+    expect(res.basePrice).toBe(86); // exact tier for qty 20
     expect(res.totalPrice).toBe(86);
   });
 
-  it("applies express +20%", () => {
+  it("applies express +20% with interpolated base price", () => {
     const res = calculatePlakatyDuzyCanon({ variantId: "a4-200-kreda-200", qty: 10, express: true });
     expect(res.basePrice).toBe(52);
-    expect(res.totalPrice).toBe(62.4);
+    expect(res.totalPrice).toBe(62.4); // 52 * 1.20
   });
 
   it("clamps qty to minimum 10 i maximum 200", () => {
     const below = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 1 });
     expect(below.qty).toBe(10);
-    expect(below.tierQty).toBe(10);
 
     const above = calculatePlakatyDuzyCanon({ variantId: "a4-170-kreda-130-170", qty: 999 });
     expect(above.qty).toBe(200);
-    expect(above.tierQty).toBe(200);
   });
 });
