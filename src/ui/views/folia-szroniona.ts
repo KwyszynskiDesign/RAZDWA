@@ -58,7 +58,6 @@ export const FoliaSzronionaView: View = {
           </div>
           <div class="legend-badges">
             <span class="legend-badge"><strong>Minimum:</strong> 1 m²</span>
-            <span class="legend-badge"><strong>EXPRESS:</strong> +20%</span>
           </div>
         </div>
         ${materials.map((material) => {
