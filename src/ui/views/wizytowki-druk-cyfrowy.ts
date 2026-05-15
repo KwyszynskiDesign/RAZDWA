@@ -194,7 +194,10 @@ export const WizytowkiView: View = {
         lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
       }
 
-      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      const razem = [formatPLN(basePrice)];
+      if (satinAmount > 0) razem.push(formatPLN(satinAmount));
+      if (expressAmount > 0) razem.push(formatPLN(expressAmount));
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${razem.join(" + ")} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
 
       if (breakdownLines) breakdownLines.innerHTML = lines.join("");
       if (breakdownDisplay) breakdownDisplay.style.display = "block";

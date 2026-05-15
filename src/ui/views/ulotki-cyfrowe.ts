@@ -143,7 +143,7 @@ export const UlotkiCyfroweView: View = {
       }
 
       if (dynamicLegendNote) {
-        dynamicLegendNote.innerText = `Papier: ${isSatin ? "satyna" : "kreda"}. Satyna +${Math.round((SATIN_MULTIPLIER - 1) * 100)}%, EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.`;
+        dynamicLegendNote.innerText = "";
       }
     };
 
