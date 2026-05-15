@@ -190,7 +190,7 @@ export const WlepkiView: View = {
 
         cennikPanel.innerHTML = `
           ${m2Blocks}
-          <p class="wlepki-cennik-note">Dopłaty: mocny klej +${Math.round(resolveStoredPrice("wlepki-modifier-mocny-klej", 0.12) * 100)}%, arkusze ${formatPLN(resolveStoredPrice("wlepki-modifier-arkusze", 2))}/m², pojedyncze ${formatPLN(resolveStoredPrice("wlepki-modifier-pojedyncze", 10))}/m², EXPRESS +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%.</p>
+          <p class="wlepki-cennik-note">Dopłaty: mocny klej +${Math.round(resolveStoredPrice("wlepki-modifier-mocny-klej", 0.12) * 100)}%, arkusze ${formatPLN(resolveStoredPrice("wlepki-modifier-arkusze", 2))}/m², pojedyncze ${formatPLN(resolveStoredPrice("wlepki-modifier-pojedyncze", 10))}/m².</p>
         `;
         return;
       }

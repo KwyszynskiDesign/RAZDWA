@@ -134,10 +134,11 @@ export const RollUpView: View = {
         const areaM2 = parseFloat((fmt.width * fmt.height).toFixed(4));
         const labor = resolveStoredPrice("rollup-wymiana-labor", rollUpData.replacement.labor);
         const perM2 = resolveStoredPrice("rollup-wymiana-m2", rollUpData.replacement.print_per_m2);
-        breakdown.push({ label: "Wydruk wkładu", value: `${areaM2} m² × ${formatPLN(perM2)} = ${formatPLN(areaM2 * perM2)}` });
-        breakdown.push({ label: "Cena bazowa", value: `${options.qty} × (${formatPLN(areaM2 * perM2)} + ${formatPLN(labor)}) = ${formatPLN(result.basePrice)}` });
+        breakdown.push({ label: "Wymiana wkładu - praca", value: formatPLN(labor) });
+        breakdown.push({ label: "Wymiana wkładu - wydruk", value: `${areaM2} m² × ${formatPLN(perM2)} = ${formatPLN(areaM2 * perM2)}` });
+        breakdown.push({ label: "Cena za szt", value: formatPLN(result.totalPrice / options.qty) });
       } else {
-        breakdown.push({ label: "Cena bazowa", value: `${options.qty} × ${formatPLN(unitBase)} = ${formatPLN(result.basePrice)}` });
+        breakdown.push({ label: "Cena za szt", value: formatPLN(unitBase) });
       }
 
       breakdown.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
