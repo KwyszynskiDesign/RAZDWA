@@ -261,37 +261,6 @@ export const DrukA4A3SkanView: View = {
       const result = calculateDrukA4A3Skan(currentOptions, pricing);
       currentResult = result;
 
-      const unitPrint = container.querySelector("#d-unit-print-price") as HTMLElement | null;
-      const totalPrint = container.querySelector("#d-total-print-price") as HTMLElement | null;
-      const totalScan = container.querySelector("#d-total-scan-price") as HTMLElement | null;
-      const emailPrice = container.querySelector("#d-email-price") as HTMLElement | null;
-      const stickerPrice = container.querySelector("#d-label-sticker-price") as HTMLElement | null;
-      const surchargePrice = container.querySelector("#d-surcharge-price") as HTMLElement | null;
-      const scanRow = container.querySelector("#d-scan-row") as HTMLElement | null;
-      const emailRow = container.querySelector("#d-email-row") as HTMLElement | null;
-      const stickerRow = container.querySelector("#d-label-sticker-row") as HTMLElement | null;
-      const sleeveRow = container.querySelector("#d-sleeve-row") as HTMLElement | null;
-      const sleevePriceEl = container.querySelector("#d-sleeve-price") as HTMLElement | null;
-      const surchargeRow = container.querySelector("#d-surcharge-row") as HTMLElement | null;
-
-      const printRow = container.querySelector("#d-total-print-price")?.closest(".result-row") as HTMLElement | null;
-      const unitPrintRow = container.querySelector("#d-unit-print-price")?.closest(".result-row") as HTMLElement | null;
-
-      if (unitPrint) unitPrint.innerText = formatPLN(result.unitPrintPrice);
-      if (totalPrint) totalPrint.innerText = formatPLN(result.totalPrintPrice);
-      if (printRow) printRow.style.display = printQty > 0 ? "" : "none";
-      if (unitPrintRow) unitPrintRow.style.display = printQty > 0 ? "" : "none";
-      setHiddenState(scanRow, !(result.totalScanPrice > 0));
-      if (totalScan) totalScan.innerText = formatPLN(result.totalScanPrice);
-      setHiddenState(emailRow, !(result.emailPrice > 0));
-      if (emailPrice) emailPrice.innerText = formatPLN(result.emailPrice);
-      setHiddenState(stickerRow, !(result.stickerPrice > 0));
-      if (stickerPrice) stickerPrice.innerText = formatPLN(result.stickerPrice);
-      setHiddenState(sleeveRow, !(result.sleevePrice > 0));
-      if (sleevePriceEl) sleevePriceEl.innerText = formatPLN(result.sleevePrice);
-      setHiddenState(surchargeRow, !(result.surchargePrice > 0));
-      if (surchargePrice) surchargePrice.innerText = formatPLN(result.surchargePrice);
-
       const sleeveUnit = Number(PRICE?.sleeve_price ?? 0.8);
       const printQtySafe = Math.max(0, Number(currentOptions.printQty) || 0);
       const surchargeQtySafe = Math.max(0, Number(currentOptions.surchargeQty) || 0);
