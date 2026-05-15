@@ -391,6 +391,7 @@ export interface PlakatyDuzyCanonResult {
   qty: number;
   tierQty: number;
   tierPrice: number;
+  singleTierPrice: number;
   basePrice: number;
   modifiersTotal: number;
   totalPrice: number;
@@ -409,6 +410,8 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
     variant.tiers.find((t: any) => qty <= t.qty) ??
     variant.tiers[variant.tiers.length - 1];
 
+  const singleTier = variant.tiers.find((t: any) => t.qty === 1) ?? variant.tiers[0];
+  const singleTierPrice = resolveStoredPrice(`plakaty-duzy-canon-${input.variantId}-${singleTier.qty}`, singleTier.price);
   const tierPrice = resolveStoredPrice(`plakaty-duzy-canon-${input.variantId}-${tier.qty}`, tier.price);
   const basePrice = parseFloat(tierPrice.toFixed(2));
 
@@ -427,6 +430,7 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
     qty,
     tierQty: tier.qty,
     tierPrice,
+    singleTierPrice,
     basePrice,
     modifiersTotal,
     totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),

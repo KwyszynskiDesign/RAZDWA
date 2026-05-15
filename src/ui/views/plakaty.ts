@@ -363,7 +363,14 @@ export const PlakatyView: View = {
       totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow && discountLabel && discountVal) {
-        discountRow.style.display = "none";
+        if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
+          const saved = parseFloat((res.singleTierPrice - res.tierPrice).toFixed(2));
+          discountLabel.innerText = `Rabat ilościowy (${res.qty} szt):`;
+          discountVal.innerText = `-${formatPLN(saved)}`;
+          discountRow.style.display = "";
+        } else {
+          discountRow.style.display = "none";
+        }
       }
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
