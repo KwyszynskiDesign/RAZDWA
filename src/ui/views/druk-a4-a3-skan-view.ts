@@ -312,13 +312,14 @@ export const DrukA4A3SkanView: View = {
         lines.push({ label: "Parametry", value: `${printParams}${scanParams}` });
 
         if (printQtySafe > 0) {
-          // Always show base price
           if (currentOptions.surcharge && surchargeQtySafe > 0) {
-            lines.push({ label: "Cena druku bazowa", value: `${normalQty} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(normalPrintCost)}` });
+            // Normal pages
+            lines.push({ label: "Druk normalne", value: `${normalQty} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(normalPrintCost)}` });
+            // Surcharge pages
             lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
-            lines.push({ label: "Cena łączna (druk)", value: formatPLN(normalPrintCost + Number(result.surchargePrice || 0)), separatorTop: true });
           } else {
-            lines.push({ label: "Cena druku bazowa", value: `${printQtySafe} × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
+            // All pages at normal price
+            lines.push({ label: "Druk", value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
           }
         }
 
