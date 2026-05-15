@@ -315,15 +315,8 @@ export const PlakatyA4A3View: View = {
       unitPriceEl.innerText = formatPLN(res.tierPrice);
       totalPriceEl.innerText = formatPLN(totalWithTrim);
 
-      if (discountRow && discountLabel && discountVal) {
-        if (res.qty > 1 && res.singleTierPrice > res.tierPrice) {
-          const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
-          discountLabel.innerText = `Rabat ilościowy (${res.qty} szt):`;
-          discountVal.innerText = `-${formatPLN(saved)}`;
-          discountRow.style.display = "";
-        } else {
-          discountRow.style.display = "none";
-        }
+      if (discountRow) {
+        discountRow.style.display = "none";
       }
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
@@ -354,11 +347,8 @@ export const PlakatyA4A3View: View = {
       if (paBreakdownBox && paBreakdownLines) {
         const breakdown: string[] = [];
         breakdown.push(`<div><strong>Parametry:</strong> ${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}</div>`);
-        breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.tierPrice)}</div>`);
-        if (res.singleTierPrice && res.singleTierPrice > res.tierPrice) {
-          const saved = parseFloat(((res.singleTierPrice - res.tierPrice) * res.qty).toFixed(2));
-          breakdown.push(`<div><strong>Rabat ilościowy:</strong> -${formatPLN(saved)}</div>`);
-        }
+        breakdown.push(`<div><strong>Cena za szt.:</strong> ${formatPLN(res.tierPrice)}</div>`);
+        breakdown.push(`<div><strong>Cena bazowa:</strong> ${qty} szt × ${formatPLN(res.tierPrice)} = ${formatPLN(res.basePrice)}</div>`);
         if (trimSurcharge > 0) {
           breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
         }
@@ -388,16 +378,11 @@ export const PlakatyA4A3View: View = {
       };
       currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper, trimSurcharge };
 
-      unitPriceEl.innerText = formatPLN(res.tierPrice);
+      unitPriceEl.innerText = formatPLN(res.singleTierPrice);
       totalPriceEl.innerText = formatPLN(totalWithTrim);
-      if (discountRow && discountLabel && discountVal) {
-        if (res.tierQty !== res.qty) {
-          discountLabel.innerText = "Próg ilościowy:";
-          discountVal.innerText = `${res.qty} → ${res.tierQty} szt`;
-          discountRow.style.display = "";
-        } else {
-          discountRow.style.display = "none";
-        }
+
+      if (discountRow) {
+        discountRow.style.display = "none";
       }
 
       if (qtyLabel) qtyLabel.innerText = "Ilość:";
@@ -428,10 +413,8 @@ export const PlakatyA4A3View: View = {
       if (paBreakdownBox && paBreakdownLines) {
         const breakdown: string[] = [];
         breakdown.push(`<div><strong>Parametry:</strong> ${res.qty} szt, papier ${paper}g, wykończenie ${finish}</div>`);
-        breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.tierPrice)}</div>`);
-        if (res.tierQty && res.tierQty !== res.qty) {
-          breakdown.push(`<div><strong>Próg ilościowy:</strong> ${res.qty} → ${res.tierQty} szt</div>`);
-        }
+        breakdown.push(`<div><strong>Cena za szt.:</strong> ${formatPLN(res.singleTierPrice)}</div>`);
+        breakdown.push(`<div><strong>Cena bazowa:</strong> ${res.qty} szt × ${formatPLN(res.singleTierPrice)} = ${formatPLN(res.basePrice)}</div>`);
         if (trimSurcharge > 0) {
           breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
         }
