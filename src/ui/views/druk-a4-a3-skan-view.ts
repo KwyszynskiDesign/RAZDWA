@@ -282,10 +282,10 @@ export const DrukA4A3SkanView: View = {
 
         if (printQtySafe > 0) {
           if (currentOptions.surcharge && surchargeQtySafe > 0) {
-            // Normal pages
-            lines.push({ label: "Druk normalne", value: `${normalQty} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(normalPrintCost)}` });
-            // Surcharge pages
-            lines.push({ label: "Zadruk >25%", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
+            // All pages at base price, then surcharge as extra on top
+            const allPagesCost = parseFloat((printQtySafe * unitPrintValue).toFixed(2));
+            lines.push({ label: "Druk", value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(allPagesCost)}` });
+            lines.push({ label: "Zadruk >25% (dopłata)", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
           } else {
             // All pages at normal price
             lines.push({ label: "Druk", value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
