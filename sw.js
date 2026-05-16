@@ -1,7 +1,7 @@
 <<<<<<< HEAD
-var CACHE_VERSION = 'razdwa-v202605152204';
+var CACHE_VERSION = 'razdwa-v202605161147';
 =======
-var CACHE_VERSION = 'razdwa-v202605152204';
+var CACHE_VERSION = 'razdwa-v202605161147';
 >>>>>>> 2803f4fc1d33a92c16e59fdbfdc55df5ed659eae
 
 self.addEventListener('install', function (event) {
