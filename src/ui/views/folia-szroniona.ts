@@ -82,17 +82,23 @@ export const FoliaSzronionaView: View = {
     };
 
     const performCalculation = () => {
-      if (!serviceSelect.value) {
+      const widthMm = parseInt(widthInput.value) || 0;
+      const heightMm = parseInt(heightInput.value) || 0;
+      const hasDimensions = widthMm > 0 && heightMm > 0;
+
+      if (!serviceSelect.value || !hasDimensions) {
         resultDisplay.style.display = "none";
         if (breakdownDisplay) breakdownDisplay.style.display = "none";
         if (breakdownLines) breakdownLines.innerHTML = "";
         addToCartBtn.disabled = true;
+        currentResult = null;
         return;
       }
+
       currentOptions = {
         serviceId: serviceSelect.value,
-        widthMm: parseInt(widthInput.value) || 0,
-        heightMm: parseInt(heightInput.value) || 0,
+        widthMm,
+        heightMm,
         express: ctx.expressMode
       };
 

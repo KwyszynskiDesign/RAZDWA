@@ -287,9 +287,12 @@ export const WlepkiView: View = {
             });
           }
 
+          const razem = result.modifiersTotal > 0
+            ? `${formatPLN(result.basePrice)} + ${formatPLN(result.modifiersTotal)} = ${formatPLN(result.totalPrice)}`
+            : formatPLN(result.totalPrice);
           detailsRows.push({
             label: "Razem",
-            value: `${formatPLN(result.basePrice)} + ${formatPLN(result.modifiersTotal)} = ${formatPLN(result.totalPrice)}`,
+            value: razem,
             separatorTop: true
           });
 

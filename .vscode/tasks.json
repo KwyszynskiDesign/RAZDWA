@@ -13,6 +13,96 @@
 			"label": "Finalize sync and push",
 			"type": "shell",
 			"command": "git add docs/categories/ustawienia.js docs/assets/app.js .vscode/tasks.json; git commit -m \"chore: compact zaproszenia settings rows\"; git pull --rebase origin main; git push origin main; git restore .vscode/tasks.json; git --no-pager status --short"
+		},
+		{
+			"label": "git-push-main",
+			"type": "shell",
+			"command": "Remove-Item -Recurse -Force .git\\rebase-merge -ErrorAction SilentlyContinue; git push origin main"
+		},
+		{
+			"label": "git-log",
+			"type": "shell",
+			"command": "git log --oneline -5"
+		},
+		{
+			"label": "git-fetch",
+			"type": "shell",
+			"command": "git fetch origin main; git log --oneline origin/main -3"
+		},
+		{
+			"label": "git-diff-log",
+			"type": "shell",
+			"command": "git log --oneline e738407..HEAD"
+		},
+		{
+			"label": "git-rebase-and-push",
+			"type": "shell",
+			"command": "git rebase origin/main; git push origin main"
+		},
+		{
+			"label": "git-compare",
+			"type": "shell",
+			"command": "git log --oneline -5; git log --oneline origin/main -3"
+		},
+		{
+			"label": "git-force-push",
+			"type": "shell",
+			"command": "git push --force-with-lease origin main"
+		},
+		{
+			"label": "git-cleanup",
+			"type": "shell",
+			"command": "Remove-Item -Force cleanup-rebase.ps1, finalize-push.ps1, finalize.bat, finalize.py -ErrorAction SilentlyContinue; git status --short"
+		},
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "npm run build"
+		},
+		{
+			"label": "git-commit-push",
+			"type": "shell",
+			"command": "git add docs/categories/wlepki-naklejki.html docs/categories/banner.html src/ui/views/wlepki-naklejki.ts docs/assets/app.js; git commit -m \"fix: unify breakdown styles in wlepki/banner; hide zero modifier in wlepki szt summary\"; git push origin main"
+		},
+		{
+			"label": "git-commit-push2",
+			"type": "shell",
+			"command": "git add docs/categories/wlepki-naklejki.html docs/categories/banner.html src/ui/views/wlepki-naklejki.ts docs/assets/app.js; git commit -m 'fix: unify breakdown styles wlepki/banner, hide zero modifier in szt summary'; git push origin main"
+		},
+		{
+			"label": "git-status-check",
+			"type": "shell",
+			"command": "git status --short; git log --oneline -3; git log --oneline origin/main -3"
+		},
+		{
+			"label": "git-diff-check",
+			"type": "shell",
+			"command": "git diff HEAD -- docs/categories/wlepki-naklejki.html src/ui/views/wlepki-naklejki.ts docs/assets/app.js"
+		},
+		{
+			"label": "git-show-check",
+			"type": "shell",
+			"command": "git show HEAD -- docs/categories/wlepki-naklejki.html | head -30"
+		},
+		{
+			"label": "git-show-check2",
+			"type": "shell",
+			"command": "git show HEAD:docs/categories/wlepki-naklejki.html | Select-String 'display' | Select-Object -First 5"
+		},
+		{
+			"label": "git-show-breakdown",
+			"type": "shell",
+			"command": "git show HEAD:docs/categories/wlepki-naklejki.html | Select-String 'breakdown-display'"
+		},
+		{
+			"label": "git-check-ts",
+			"type": "shell",
+			"command": "git show HEAD:src/ui/views/wlepki-naklejki.ts | Select-String 'modifiersTotal > 0'"
+		},
+		{
+			"label": "git-force-push2",
+			"type": "shell",
+			"command": "git push --force-with-lease origin main"
 		}
 	]
 }
