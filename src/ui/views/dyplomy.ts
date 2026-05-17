@@ -82,7 +82,9 @@ export const DyplomyView: View = {
         breakdown.push(`<div><strong>Rabat jednostronne:</strong> ${Math.round(singleSidedDiscountRate * 100)}% × ${formatPLN(tierPrice)} = ${formatPLN(singleSidedDiscountAmount)} (od 6 szt.)</div>`);
       }
 
-      breakdown.push(`<div><strong>Cena bazowa po rabacie:</strong> ${formatPLN(result.basePrice)}</div>`);
+      if (options.sides === 1) {
+        breakdown.push(`<div><strong>Cena bazowa po rabacie:</strong> ${formatPLN(result.basePrice)}</div>`);
+      }
 
       if (options.isModigliani) {
         breakdown.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`);
@@ -95,11 +97,7 @@ export const DyplomyView: View = {
         breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
       }
 
-      const modifiersSum = satinAmount + modiglianiAmount;
-      const razem = [formatPLN(result.basePrice)];
-      if (modifiersSum > 0) razem.push(formatPLN(modifiersSum));
-      if (expressAmount > 0) razem.push(formatPLN(expressAmount));
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${razem.join(" + ")} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
       breakdownLines.innerHTML = breakdown.join("");
       breakdownBox.style.display = "block";
 
