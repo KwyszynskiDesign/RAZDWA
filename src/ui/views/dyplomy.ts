@@ -75,7 +75,7 @@ export const DyplomyView: View = {
 
       const breakdown = [
         `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format} (bez wpływu na cenę)</div>`,
-        `<div><strong>Cena z tabeli (dwustronne):</strong> ${formatPLN(tierPrice)}</div>`,
+        `<div><strong>Cena z tabeli (${options.sides === 1 ? "jednostronne" : "dwustronne"}):</strong> ${formatPLN(tierPrice)}</div>`,
       ];
 
       if (options.sides === 1 && singleSidedDiscountRate > 0) {
