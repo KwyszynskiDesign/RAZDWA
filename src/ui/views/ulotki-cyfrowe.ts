@@ -66,9 +66,12 @@ export const UlotkiCyfroweView: View = {
         rows.push({ label: "EXPRESS", value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
       }
 
+      const summaryParts = [formatPLN(basePrice)];
+      if (satinAmount > 0) summaryParts.push(formatPLN(satinAmount));
+      if (expressAmount > 0) summaryParts.push(formatPLN(expressAmount));
       rows.push({
         label: "Razem",
-        value: `${formatPLN(basePrice)} + ${formatPLN(satinAmount)} + ${formatPLN(expressAmount)} = ${formatPLN(result.totalPrice)}`,
+        value: `${summaryParts.join(" + ")} = ${formatPLN(result.totalPrice)}`,
         isTotal: true,
       });
 

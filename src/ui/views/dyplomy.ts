@@ -78,8 +78,8 @@ export const DyplomyView: View = {
         `<div><strong>Cena z tabeli (dwustronne):</strong> ${formatPLN(tierPrice)}</div>`,
       ];
 
-      if (singleSidedDiscountRate > 0) {
-        breakdown.push(`<div><strong>Rabat jednostronne:</strong> ${Math.round(singleSidedDiscountRate * 100)}% × ${formatPLN(tierPrice)} = -${formatPLN(singleSidedDiscountAmount)} (od 6 szt.)</div>`);
+      if (options.sides === 1 && singleSidedDiscountRate > 0) {
+        breakdown.push(`<div><strong>Rabat jednostronne:</strong> ${Math.round(singleSidedDiscountRate * 100)}% × ${formatPLN(tierPrice)} = ${formatPLN(singleSidedDiscountAmount)} (od 6 szt.)</div>`);
       }
 
       breakdown.push(`<div><strong>Cena bazowa po rabacie:</strong> ${formatPLN(result.basePrice)}</div>`);
@@ -110,17 +110,17 @@ export const DyplomyView: View = {
       const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
       if (tierHintEl) {
         const sideLabel = options.sides === 1 ? "jednostronne" : "dwustronne";
-        const discountHint = singleSidedDiscountRate > 0
-          ? `; rabat jednostronne -${Math.round(singleSidedDiscountRate * 100)}% = -${singleSidedDiscountAmount.toFixed(2)} zł`
+        const discountHint = options.sides === 1 && singleSidedDiscountRate > 0
+          ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${singleSidedDiscountAmount.toFixed(2)} zł`
           : "";
         tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${tierPrice.toFixed(2)} zł (${sideLabel}${discountHint}; format ${options.format} nie wpływa na cenę; papier: ${paperVal.replace("_", " ")})`;
       }
       const discountHintEl = container.querySelector("#resDiscountHint") as HTMLElement;
       if (discountHintEl) {
-        discountHintEl.textContent = singleSidedDiscountRate > 0
-          ? `Zastosowano rabat jednostronne: -${Math.round(singleSidedDiscountRate * 100)}% (−${formatPLN(singleSidedDiscountAmount)})`
+        discountHintEl.textContent = options.sides === 1 && singleSidedDiscountRate > 0
+          ? `Zastosowano rabat jednostronne: ${Math.round(singleSidedDiscountRate * 100)}% (${formatPLN(singleSidedDiscountAmount)})`
           : "";
-        discountHintEl.style.display = singleSidedDiscountRate > 0 ? "block" : "none";
+        discountHintEl.style.display = options.sides === 1 && singleSidedDiscountRate > 0 ? "block" : "none";
       }
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
       (container.querySelector("#resSatinHint") as HTMLElement).style.display = usesSatinBase ? "block" : "none";

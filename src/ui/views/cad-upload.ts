@@ -84,11 +84,6 @@ export const CadUploadView: View = {
     const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
     const cadUploadPaskiWzmacniajaceAdd = container.querySelector<HTMLButtonElement>("#cadUploadPaskiWzmacniajaceAdd");
     const cadUploadPaskiWzmacniajacePriceLine = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-price");
-    const optSkanowanie = container.querySelector<HTMLInputElement>("#optSkanowanie");
-    const cadUploadSkanowanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-skanowanie-qty-row");
-    const cadUploadSkanowanieQty = container.querySelector<HTMLInputElement>("#cadUploadSkanowanieQty");
-    const cadUploadSkanowanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadSkanowanieAdd");
-    const cadUploadSkanowaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-skanowanie-price");
     const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
                        container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
@@ -629,6 +624,7 @@ export const CadUploadView: View = {
       const cadExtrasMonitor = container.querySelector<HTMLElement>("#cadExtrasMonitor");
       const monitorSkanSum = container.querySelector<HTMLElement>("#monitorSkanSum");
       const monitorSkladanieSum = container.querySelector<HTMLElement>("#monitorSkladanieSum");
+      const totalScanColorVariant = files.reduce((sum, f) => sum + f.scanPrice, 0);
       const totalSkanDisplay = totalScanColorVariant;
       let totalSkladanieDisplay = totalFoldingColorVariant;
       // Add extra services folding totals
@@ -928,48 +924,6 @@ export const CadUploadView: View = {
         priceLine: cadUploadPaskiWzmacniajacePriceLine,
         unitPrice: paskiUnitPrice,
       });
-    });
-
-    optSkanowanie?.addEventListener("change", () => {
-      if (cadUploadSkanowanieQtyRow) {
-        cadUploadSkanowanieQtyRow.style.display = optSkanowanie.checked ? "flex" : "none";
-      }
-      renderFiles();
-    });
-
-    cadUploadSkanowanieQty?.addEventListener("change", () => {
-      const qty = parsePositiveInt(cadUploadSkanowanieQty?.value || "");
-      if (cadUploadSkanowaniePriceLine) {
-        if (optSkanowanie?.checked && qty > 0) {
-          const scanUnitPrice = resolveStoredPrice("cad-skanowanie", 0.04);
-          const total = parseFloat((scanUnitPrice * qty).toFixed(2));
-          cadUploadSkanowaniePriceLine.textContent = `Cena: ${formatPLN(total)}`;
-          cadUploadSkanowaniePriceLine.style.display = "block";
-        } else {
-          cadUploadSkanowaniePriceLine.textContent = "";
-          cadUploadSkanowaniePriceLine.style.display = "none";
-        }
-      }
-    });
-
-    cadUploadSkanowanieAdd?.addEventListener("click", () => {
-      const qty = parsePositiveInt(cadUploadSkanowanieQty?.value || "");
-      if (qty <= 0) return;
-
-      const scanUnitPrice = resolveStoredPrice("cad-skanowanie", 0.04);
-      const scanPrice = parseFloat((scanUnitPrice * qty).toFixed(2));
-      additionalScanPrice = parseFloat((additionalScanPrice + scanPrice).toFixed(2));
-
-      if (cadUploadSkanowanieQty) cadUploadSkanowanieQty.value = "";
-      if (optSkanowanie) optSkanowanie.checked = false;
-      if (cadUploadSkanowanieQtyRow) cadUploadSkanowanieQtyRow.style.display = "none";
-      if (cadUploadSkanowaniePriceLine) {
-        cadUploadSkanowaniePriceLine.textContent = "";
-        cadUploadSkanowaniePriceLine.style.display = "none";
-      }
-
-      renderFiles();
-      ctx.updateLastCalculated(scanPrice, "CAD Upload - Skanowanie");
     });
 
     // DPI change

@@ -18,8 +18,6 @@ function normalizePolishText(text: string): string {
     .replace(/ciÄ™cie/g, "cięcie")
     .replace(/rÄ™czne/g, "ręczne")
     .replace(/powyĹĽej/g, "powyżej")
-    .replace(/Zszywanie/g, "Zszywanie")
-    .replace(/Broszurowanie/g, "Broszurowanie")
     .replace(/docinanie/g, "docinanie");
 }
 
