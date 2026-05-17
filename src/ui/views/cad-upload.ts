@@ -592,8 +592,8 @@ export const CadUploadView: View = {
       const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
       const extraServicesTotal = getExtraServicesTotal();
 
-      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + emailFee + extraServicesTotal + additionalScanPrice;
-      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + emailFee + extraServicesTotal + additionalScanPrice;
+      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + emailFee + extraServicesTotal + totalScanColorVariant;
+      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + emailFee + extraServicesTotal + totalScanColorVariant;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
@@ -624,7 +624,7 @@ export const CadUploadView: View = {
       const cadExtrasMonitor = container.querySelector<HTMLElement>("#cadExtrasMonitor");
       const monitorSkanSum = container.querySelector<HTMLElement>("#monitorSkanSum");
       const monitorSkladanieSum = container.querySelector<HTMLElement>("#monitorSkladanieSum");
-      const totalScanColorVariant = files.reduce((sum, f) => sum + f.scanPrice, 0);
+      const totalScanColorVariant = files.reduce((sum, f) => sum + (f.scanning ? f.scanPrice : 0), 0);
       const totalSkanDisplay = totalScanColorVariant;
       let totalSkladanieDisplay = totalFoldingColorVariant;
       // Add extra services folding totals

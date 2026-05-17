@@ -353,7 +353,7 @@ export const WlepkiView: View = {
                 amount: roundedAmount,
               };
             })
-            .filter((row): row is { label: string; value: string; amount: number } => Boolean(row));
+            .filter((row): row is { label: string; value: string; amount: number } => Boolean(row) && row.amount > 0);
 
           const modifierRows: BreakdownRow[] = modifierDetails.map((row) => ({
             label: row.label,
