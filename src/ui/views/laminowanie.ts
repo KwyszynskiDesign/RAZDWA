@@ -1241,7 +1241,6 @@ export const LaminowanieView: View = {
           `<div><strong>Usługa:</strong> ${serviceName}</div>`,
           `<div><strong>Ilość operacji:</strong> ${result.qty}</div>`,
           `<div><strong>Cena jednostkowa:</strong> ${formatPLN(unitPrice)}</div>`,
-          `<div><strong>Cena bazowa:</strong> ${result.qty} × ${formatPLN(unitPrice)} = ${formatPLN(result.totalPrice)}</div>`,
           `<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(result.totalPrice)}</div>`
         ].join("");
       }
