@@ -73,8 +73,14 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
     expect(res.totalPrice).toBe(parseFloat((49.68 * 6).toFixed(2)));
   });
 
-  it("120g formatowe A3 (297x420) × 21 szt → rabat 21-30 = 0.87 → 12 × 0.87 = 10.44 zł/szt", () => {
+  it("120g formatowe A3 (297x420) × 21 szt → rabat 21-300 = 0.87 → 12 × 0.87 = 10.44 zł/szt", () => {
     const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "297x420", qty: 21 });
+    expect(res.discountFactor).toBe(0.87);
+    expect(res.pricePerPiece).toBe(10.44);
+  });
+
+  it("120g formatowe A3 (297x420) × 300 szt → nadal rabat 21-300 = 0.87", () => {
+    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "297x420", qty: 300 });
     expect(res.discountFactor).toBe(0.87);
     expect(res.pricePerPiece).toBe(10.44);
   });

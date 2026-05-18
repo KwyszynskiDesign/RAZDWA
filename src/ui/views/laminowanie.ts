@@ -1075,7 +1075,9 @@ export const LaminowanieView: View = {
         }
         
         const baseWithAddons = parseFloat(((unitPrice * qty + extraThicknessPrice + hardUnbindPrice + hardResewPrice + cdPrice)).toFixed(2));
-        breakdown.push({ label: "Cena bazowa", value: formatPLN(baseWithAddons) });
+        if (type !== "skrecana") {
+          breakdown.push({ label: "Cena bazowa", value: formatPLN(baseWithAddons) });
+        }
         
         if (ctx.expressMode) {
           const expressAmount = parseFloat((baseWithAddons * 0.20).toFixed(2));
