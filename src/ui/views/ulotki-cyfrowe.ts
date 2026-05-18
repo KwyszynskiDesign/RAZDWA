@@ -53,41 +53,25 @@ export const UlotkiCyfroweView: View = {
       const satinAmount = result.isSatin ? parseFloat((basePrice * 0.12).toFixed(2)) : 0;
       const expressAmount = options.express ? parseFloat((basePrice * 0.20).toFixed(2)) : 0;
 
-      const rows: Array<{ label: string; value: string; isTotal?: boolean }> = [
-        { label: "Parametry", value: `${options.qty} szt, ${options.format}, ${options.sides}` },
-        { label: "Cena z tabeli", value: formatPLN(basePrice) },
+      const lines = [
+        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.format}, ${options.sides}</div>`,
+        `<div><strong>Cena z tabeli:</strong> ${formatPLN(basePrice)}</div>`,
       ];
 
       if (result.isSatin) {
-        rows.push({ label: "Satyna", value: `12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
+        lines.push(`<div><strong>Satyna:</strong> 12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
       }
 
       if (options.express) {
-        rows.push({ label: "EXPRESS", value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
+        lines.push(`<div><strong>EXPRESS:</strong> 20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
       }
 
       const summaryParts = [formatPLN(basePrice)];
       if (satinAmount > 0) summaryParts.push(formatPLN(satinAmount));
       if (expressAmount > 0) summaryParts.push(formatPLN(expressAmount));
-      rows.push({
-        label: "Razem",
-        value: `${summaryParts.join(" + ")} = ${formatPLN(result.totalPrice)}`,
-        isTotal: true,
-      });
+      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${summaryParts.join(" + ")} = ${formatPLN(result.totalPrice)}</strong></div>`);
 
-      breakdownLines.replaceChildren();
-      rows.forEach((row) => {
-        const line = document.createElement("div");
-        if (row.isTotal) {
-          line.style.paddingTop = "8px";
-          line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
-        }
-        const strong = document.createElement("strong");
-        strong.textContent = `${row.label}: `;
-        line.appendChild(strong);
-        line.appendChild(document.createTextNode(row.value));
-        breakdownLines.appendChild(line);
-      });
+      breakdownLines.innerHTML = lines.join("");
       breakdownDisplay.style.display = "block";
     };
 
