@@ -1,11 +1,4 @@
-#!/usr/bin/env node
-/**
- * Inject current timestamp as CACHE_VERSION into sw.js files
- * Format: 'razdwa-vYYYYMMDDHHMM' (e.g., 'razdwa-v202605201456')
- * Run before build to ensure all SW files use the same cache version
- */
-
-const fs = require('fs');
+﻿const fs = require('fs');
 const path = require('path');
 
 function formatTimestamp() {
@@ -28,8 +21,13 @@ function injectVersion(filePath) {
     let content = fs.readFileSync(filePath, 'utf8');
     const newVersion = formatTimestamp();
     
-    // Replace CACHE_VERSION line (handles any previous version)
-    const versionRegex = /var\s+CACHE_VERSION\s*=\s*['"][^'"]*['"]/;
+    const versionRegex = /var\s+CACHE_VERSION\s*=\s*['`"]([^'"`]*)['`"]/;
+    
+    if (!versionRegex.test(content)) {
+      console.warn(`⚠ CACHE_VERSION pattern not found in ${filePath}`);
+      return;
+    }
+    
     const newContent = content.replace(
       versionRegex,
       `var CACHE_VERSION = '${newVersion}'`
@@ -38,8 +36,6 @@ function injectVersion(filePath) {
     if (newContent !== content) {
       fs.writeFileSync(filePath, newContent, 'utf8');
       console.log(`✓ Updated ${filePath} → ${newVersion}`);
-    } else {
-      console.warn(`⚠ CACHE_VERSION pattern not found in ${filePath}`);
     }
   } catch (error) {
     console.error(`✗ Error processing ${filePath}:`, error.message);
@@ -47,7 +43,6 @@ function injectVersion(filePath) {
   }
 }
 
-// Inject version into both SW files
 const rootDir = path.join(__dirname, '..');
 const swFiles = [
   path.join(rootDir, 'sw.js'),
