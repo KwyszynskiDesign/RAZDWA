@@ -886,13 +886,17 @@ button.ghost:hover {
   padding: 2px 0;
 }
 
+
 /* ===== BREAKDOWN PANEL ("Jak liczona jest cena") ===== */
-.category-view .card[id*="Breakdown"],
-.category-view .card[id*="breakdown-display"] {
+.category-view [id*="Breakdown"],
+.category-view [id*="breakdown-display"] {
   width: 100%;
   max-width: 100%;
-  padding: 18px 20px;
-  border-radius: 12px;
+  padding: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
   overflow: visible;
   box-sizing: border-box;
 }
