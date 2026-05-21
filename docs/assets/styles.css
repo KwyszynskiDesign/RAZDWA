@@ -209,45 +209,92 @@ header {
 
 
 
-/*===================START POPRAWEK===================*/
+/*==========================================================*/
+/*                ZOPTYMALIZOWANY LAYOUT (App Style)        */
+/*==========================================================*/
 
-
-/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Symetryczne Paddingi */
-
-/* Wewnętrzny elastyczny pionowy układ */
-.category-sidebar-inner, 
-.left-col, 
-.right-col {
-  display: flex;
-  flex-direction: column;
-  gap: 24px; /* Zapewnia to "24 w środku" między elementami danej kolumny */
+/* 1. KONTENERY GŁÓWNE */
+body {
+  overflow: hidden !important; 
+  margin: 0;
 }
 
+.wrap {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 
-/* Krawędzie wewnętrzne dolne (wymuszają suwak jeśli elementy się ucinają) */
+.site-header {
+  flex-shrink: 0; 
+}
+
+/* 2. GŁÓWNA SIATKA */
+.app-grid {
+  display: grid;
+  grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
+  gap: 24px;
+  flex: 1; /* Pozwala siatce wypełnić miejsce pod nagłówkiem */
+  min-height: 0; /* Gwarantuje, że grid nie wypadnie poza 100vh */
+  align-items: stretch; 
+}
+
+/* 3. WSPÓLNE ZASADY KOLUMN */
+.category-sidebar,
+.left-col,
+.right-col {
+  height: 100% !important;
+  max-height: 100% !important; 
+  overflow-y: auto !important; 
+  box-sizing: border-box; 
+  padding: 16px 0 0 0 !important; /* Odstęp TYLKO od góry na poziomie kontenera */
+}
+
+/* GWARANTOWANY MARGINES NA DOLE */
+/* Tworzy fałszywy, pusty blok na dole w każdej kolumnie - dzięki temu suwak ma oddech do zjechania */
 .category-sidebar::after,
 .left-col::after,
 .right-col::after {
   content: "";
   display: block;
-  height: 32px; /* Daje margines bezpieczeństwa na dole, jeśli treść dotyka granicy */
-  flex-shrink: 0;
+  height: 24px;
+  width: 100%;
 }
 
-/* Zabezpieczenia komponentów sidebaru */
-.category-search-wrap,
-.category-sidebar-search {
-  flex-shrink: 0; 
+/* 4. POJEDYNCZE KOLUMNY */
+.left-col {
+  position: relative;
+  z-index: 10;
+  border-right: 1px solid var(--border);
+  padding-right: 16px !important; 
 }
 
-
-
-orderSummary {
-  flex-shrink: 0;
+/* KARTY KALKULATORÓW - Stabilne zachowanie dla skryptów */
+.main-content-card {
+  height: auto !important; /* Koniec z zacinaniem w skryptach JS */
+  margin-bottom: 24px; 
 }
 
+/* PODSUMOWANIE (Koszyk) */
+.right-col {
+  width: min(437px, 100%);
+  min-width: 399px;
+  position: relative;
+  z-index: 11;
+  background: var(--surface);
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
 
-/* 5. SPECYFICZNE WIDOKI */
+#orderSummary {
+  height: auto !important;
+  margin-bottom: 24px;
+}
+
+/* 5. WIDOKI DODATKOWE */
 body.home-compact-layout .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
@@ -259,7 +306,7 @@ body.settings-pricing-layout .app-grid {
   gap: 24px;
 }
 
-/* 6. RWD - WIDOKI MOBILNE I TABLETOWE */
+/* 6. RESPONSYWNOŚĆ */
 @media (max-width: 1200px) {
   body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
     grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(250px, 40%);
@@ -267,7 +314,7 @@ body.settings-pricing-layout .app-grid {
 }
 
 @media (max-width: 1024px) {
-  body { overflow: auto; } 
+  body { overflow: auto !important; } 
   
   .wrap { 
     height: auto; 
@@ -285,15 +332,29 @@ body.settings-pricing-layout .app-grid {
   .left-col, 
   .right-col {
     height: auto !important;
-    overflow-y: visible; 
+    max-height: none !important;
+    overflow-y: visible !important; 
   }
-  .category-sidebar::after, .left-col::after, .right-col::after {
+
+  /* Usunięcie dolnych pustych bloków (marginesów) z widoku mobilnego */
+  .category-sidebar::after,
+  .left-col::after,
+  .right-col::after {
     display: none;
   }
 }
 
-
-/*===================KONIEC POPRAWEK===================*/  
+@media (max-width: 768px) {
+  .right-col {
+    width: 100%;
+    min-width: 0;
+  }
+  .category-sidebar {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+/*==========================================================*/
 
 @media (max-width: 768px) {
   .site-header {
