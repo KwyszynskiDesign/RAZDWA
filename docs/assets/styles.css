@@ -194,52 +194,60 @@ header {
 }
 
 /*===================START POPRAWEK===================*/
-/* 1. GŁÓWNY KONTENER */
+/* 1. KONTENER GŁÓWNY - 100vh bez chowania uciętych fragmentów */
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
-  min-height: 100dvh;
-  height: auto;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
 }
 
-/* 2. BAZOWY UKŁAD SIATKI */
+/* 2. SIATKA - Rozkłada obszar roboczy pod nagłówkiem w równe 3 kolumny */
 .app-grid {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1; /* Pozwala gridowi zająć resztę okna pod nagłówkiem */
-  align-items: start;
+  flex: 1; /* Pozwala siatce zająć całą dostępną wysokość .wrap */
+  min-height: 0;
+  overflow: hidden; /* KLUCZ: Zatrzymuje siatkę, by nie wypchnęła strony */
 }
 
-/* 3. ŚRODKOWA I PRAWA KOLUMNA - NATURALNE TŁO */
+/* 3. LEWA KOLUMNA Z FORMULARZEM (ŚRODKOWA W WIDOKU) I LEWA (KATEGORIE) */
 .left-col {
-  height: auto;
+  height: 100%; /* MUSI mieć 100%, aby własny scroll zadziałał */
+  overflow-y: auto; /* Oddajemy scroll dla środkowej kolumny ODDZIELNIE */
   position: relative;
   z-index: 10;
-  border-right: 1px solid var(--border);
-  padding: var(--left-col-padding);
+  padding: var(--left-col-padding) 0; /* Padding tylko góra-dół dla zlicowania */
 }
 
-/* KARTA Z KALKULATOREM - NIE WYPYCHA W DÓŁ, ROŚNIE NATURALNIE */
 .main-content-card {
-  height: auto; 
-  padding-bottom: 24px;
+  height: auto;
+  min-height: 100%;
 }
 
+/* 4. PRAWA KOLUMNA (PODSUMOWANIE) */
 .right-col {
   width: min(437px, 100%);
   min-width: 399px;
-  height: auto;
+  height: 100%; /* Prawa kolumna również rośnie na 100% i ma SWOJEGO scrolla */
+  overflow-y: auto; 
   position: relative;
-  align-self: start;
+  align-self: stretch; /* Licuje górę prawej kolumny z lewą */
   padding: 1rem;
   background: var(--surface);
 }
 
-/* 4. SPECYFICZNE WIDOKI (Dla innych podstron) */
+/* SIDEBAR KATEGORII - Odstęp od góry (Wyrównanie z resztą) */
+.category-sidebar {
+  margin-top: var(--left-col-padding);
+  height: calc(100% - var(--left-col-padding));
+}
+
+
+/* 5. SPECYFICZNE WIDOKI (Dla innych podstron) */
 body.home-compact-layout .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
@@ -249,11 +257,11 @@ body.home-compact-layout .app-grid {
 body.settings-pricing-layout .app-grid {
   display: flex;
   flex-direction: row;
-  align-items: start; /* start sprawia, że kolumny na ustawieniach są u góry */
+  align-items: stretch;
   gap: 24px;
 }
 
-/* 5. WIDOKI MOBILNE */
+/* 6. WIDOKI MOBILNE */
 @media (max-width: 1200px) {
   body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
     grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(250px, 40%);
@@ -264,18 +272,26 @@ body.settings-pricing-layout .app-grid {
   .app-grid {
     display: flex;
     flex-direction: column;
+    overflow: auto; /* NA TABLECIE ODBLOKOWUJEMY PIONOWY SCROLL CAŁOŚCI */
   }
+  .left-col, .right-col { height: auto; overflow: visible; }
 }
 
 @media (max-width: 768px) {
   .app-grid {
     display: flex;
     flex-direction: column;
+    overflow: auto; /* NA MOBILE ODBLOKOWUJEMY PIONOWY SCROLL CAŁOŚCI */
   }
   
   .right-col {
     width: 100%;
     min-width: 0;
+  }
+  
+  .category-sidebar {
+    height: 100vh;
+    margin-top: 0;
   }
 }
 /*===================KONIEC POPRAWEK===================*/
