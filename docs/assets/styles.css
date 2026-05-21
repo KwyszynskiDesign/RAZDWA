@@ -2192,7 +2192,6 @@ body.settings-pricing-layout .left-col {
   top: 0;
   height: 100vh;
   overflow: hidden;
-  display: flex;
   flex-direction: column;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
   z-index: 20;
@@ -2326,7 +2325,6 @@ body.settings-pricing-layout .left-col {
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(148, 163, 184, 0.16);
   padding: 24px;
-  height: max-content;
   flex-shrink: 0;
 }
 
