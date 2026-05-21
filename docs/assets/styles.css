@@ -195,14 +195,14 @@ header {
 /*===================START POPRAWEK===================*/
 /* 1. GŁÓWNY KONTENER I BODY - Sztywna aplikacja */
 body {
-  overflow: hidden; /* Aplikacja ma jeden sztywny ekran */
+  overflow: hidden; 
 }
 
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
-  height: 100vh; /* Sztywna wysokość */
+  height: 100vh; 
   display: flex;
   flex-direction: column;
 }
@@ -217,14 +217,12 @@ body {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1 1 auto; /* Grid pożera tylko miejsce pod headerem */
+  flex: 1 1 auto; 
   min-height: 0; 
   align-items: stretch; 
-  /* Zwróć uwagę: brak padding-bottom. Wymusimy go W ŚRODKU kolumn */
 }
 
-/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN */
-/* Musimy zresetować max-height i paddingi ze starych klas! */
+/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Symetryczne Paddingi */
 .category-sidebar,
 .left-col,
 .right-col,
@@ -234,29 +232,33 @@ body {
   min-height: 0;
   overflow-y: auto; 
   box-sizing: border-box; 
-  padding-bottom: 0 !important; /* Reset starych paddingów */
+  
+  /* RÓWNE PADDINGI GÓRA/DÓŁ (zgodnie z życzeniem) */
+  padding-top: 16px !important; 
+  padding-bottom: 16px !important; 
 }
 
-/* Krawędzie wewnętrzne - dla każdej kolumny tworzymy pusty blok DOKŁADNIE na samym końcu. 
-Dzięki temu przeglądarka musi zeskrolować do jego końca, dając "oddech". */
-.category-sidebar::after,
-.left-col::after,
-.right-col::after {
-  content: "";
-  display: block;
-  height: 48px; /* Tyle wolnego miejsca chcemy na samym dole każdej kolumny */
-  flex-shrink: 0;
-}
-
-/* Dodatkowo musimy upewnić się, że bezpośrednie dzieci traktują pozycjonowanie poprawnie */
+/* Wewnętrzny elastyczny pionowy układ */
 .category-sidebar-inner, 
 .left-col, 
 .right-col {
   display: flex;
   flex-direction: column;
+  gap: 24px; /* Zapewnia to "24 w środku" między elementami danej kolumny */
 }
 
-/* Upewnijmy się, że "Szukaj kategorii..." w menu nie zsuwa się w górę! */
+
+/* Krawędzie wewnętrzne dolne (wymuszają suwak jeśli elementy się ucinają) */
+.category-sidebar::after,
+.left-col::after,
+.right-col::after {
+  content: "";
+  display: block;
+  height: 32px; /* Daje margines bezpieczeństwa na dole, jeśli treść dotyka granicy */
+  flex-shrink: 0;
+}
+
+/* Zabezpieczenia komponentów sidebaru */
 .category-search-wrap,
 .category-sidebar-search {
   flex-shrink: 0; 
@@ -266,7 +268,7 @@ Dzięki temu przeglądarka musi zeskrolować do jego końca, dając "oddech". */
 /* ŚRODKOWA KOLUMNA (Formularz kalkulatora) */
 .left-col {
   border-right: 1px solid var(--border);
-  padding: 0 var(--left-col-padding) 0 0;
+  padding-right: var(--left-col-padding); /* Dodajemy tylko prawy do linii separacyjnej */
 }
 
 .main-content-card {
@@ -274,13 +276,14 @@ Dzięki temu przeglądarka musi zeskrolować do jego końca, dając "oddech". */
   flex-shrink: 0;
 }
 
-
 /* PRAWA KOLUMNA (Podsumowanie Koszyka) */
 .right-col {
   width: min(437px, 100%);
   min-width: 399px;
   background: var(--surface);
-  padding: 0 1rem 0 1rem; 
+  /* Pozostawiamy jedynie prawy/lewy padding z pliku bazowego */
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
 }
 
 orderSummary {
@@ -308,7 +311,7 @@ body.settings-pricing-layout .app-grid {
 }
 
 @media (max-width: 1024px) {
-  body { overflow: auto; } /* Przywracamy scrolla całej strony na komórkach */
+  body { overflow: auto; } 
   
   .wrap { 
     height: auto; 
@@ -322,7 +325,6 @@ body.settings-pricing-layout .app-grid {
     overflow: visible;
   }
   
-  /* Reset kolumn na mobile - usuwamy pseudoelementy i oddajemy swobodę rośnięcia */
   .category-sidebar, 
   .left-col, 
   .right-col {
@@ -341,7 +343,6 @@ body.settings-pricing-layout .app-grid {
   }
 }
 /*===================KONIEC POPRAWEK===================*/  
-
 
 @media (max-width: 768px) {
   .site-header {
