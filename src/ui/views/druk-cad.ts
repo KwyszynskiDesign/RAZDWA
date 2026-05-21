@@ -11,13 +11,17 @@ export const DrukCADView: View = {
   name: "Druk CAD wielkoformatowy",
   async mount(container, ctx) {
     try {
-      const response = await fetch("categories/druk-cad.html");
-      if (!response.ok) throw new Error("Failed to load template");
+      const templateUrl = new URL("categories/druk-cad.html", document.baseURI).href;
+      const controller = new AbortController();
+      const timeout = window.setTimeout(() => controller.abort(), 10000);
+      const response = await fetch(templateUrl, { signal: controller.signal });
+      window.clearTimeout(timeout);
+      if (!response.ok) throw new Error(`Failed to load template: ${response.status}`);
       container.innerHTML = await response.text();
 
       this.initLogic?.(container, ctx);
     } catch (err) {
-      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err instanceof Error ? err.message : err}</div>`;
     }
   },
 
