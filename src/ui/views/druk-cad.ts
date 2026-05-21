@@ -11,22 +11,27 @@ export const DrukCADView: View = {
   name: "Druk CAD wielkoformatowy",
   async mount(container, ctx) {
     try {
+      console.debug('[DrukCAD] mount start');
       const templateUrl = new URL("categories/druk-cad.html", document.baseURI).href;
+      console.debug('[DrukCAD] fetching template', templateUrl);
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 10000);
       const response = await fetch(templateUrl, { signal: controller.signal });
       window.clearTimeout(timeout);
       if (!response.ok) throw new Error(`Failed to load template: ${response.status}`);
       container.innerHTML = await response.text();
-
+      console.debug('[DrukCAD] template loaded, initializing logic');
       this.initLogic?.(container, ctx);
     } catch (err) {
+      console.error('[DrukCAD] mount error', err);
       container.innerHTML = `<div class="error">Błąd ładowania: ${err instanceof Error ? err.message : err}</div>`;
     }
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    console.debug('[DrukCAD] initLogic start');
     const data = getPrice("drukCAD");
+    console.debug('[DrukCAD] price data present?', !!data);
     if (!data?.price || !data?.base) {
       container.innerHTML = `<div class="error">Błąd: brak danych cennika CAD</div>`;
       return;
@@ -493,6 +498,7 @@ export const DrukCADView: View = {
     let currentOptions: any = null;
 
     const performCalculation = () => {
+      console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput.value, lengthValue: lengthInput.value });
       const parsedQty = parseInt(qtySheetsInput.value, 10);
       const parsedLength = parseInt(lengthInput.value, 10);
       if (!qtySheetsInput.value || isNaN(parsedQty) || parsedQty <= 0 || isNaN(parsedLength) || parsedLength <= 0) {
@@ -514,6 +520,7 @@ export const DrukCADView: View = {
 
       const result = calculateDrukCAD(currentOptions, data);
       currentResult = result;
+      console.debug('[DrukCAD] calculateDrukCAD result', result);
 
       if (qtyHintSpan) {
         const qty = currentOptions.qty || 1;
