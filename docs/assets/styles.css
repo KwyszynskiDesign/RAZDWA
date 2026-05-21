@@ -54,14 +54,14 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   overflow-x: clip;
+  overflow: hidden;
 }
 
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
-  min-height: 100dvh;
-  height: auto;
+  height: 100vh;
   display: flex;
   flex-direction: column;
 }
@@ -92,6 +92,7 @@ header {
   margin-bottom: 0;
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 
 .site-header h1 {
@@ -192,37 +193,7 @@ header {
   background: white;
   color: #004080;
 }
-/*===================START POPRAWEK===================*/
-/* 1. GŁÓWNY KONTENER I BODY - Sztywna aplikacja */
-body {
-  overflow: hidden; 
-}
 
-.wrap {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 16px;
-  height: 100vh; 
-  display: flex;
-  flex-direction: column;
-}
-
-/* 2. HEADER - nie może zniknąć */
-.site-header {
-  flex-shrink: 0;
-}
-
-/* 3. SIATKA TRZYKOLUMNOWA */
-.app-grid {
-  display: grid;
-  grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
-  gap: 24px;
-  flex: 1 1 auto; 
-  min-height: 0; 
-  align-items: stretch; 
-}
-
-/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Symetryczne Paddingi */
 .category-sidebar,
 .left-col,
 .right-col,
@@ -232,11 +203,16 @@ body {
   min-height: 0;
   overflow-y: auto; 
   box-sizing: border-box; 
-  
-  /* RÓWNE PADDINGI GÓRA/DÓŁ (zgodnie z życzeniem) */
   padding-top: 16px !important; 
   padding-bottom: 16px !important; 
 }
+
+
+
+/*===================START POPRAWEK===================*/
+
+
+/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Symetryczne Paddingi */
 
 /* Wewnętrzny elastyczny pionowy układ */
 .category-sidebar-inner, 
@@ -843,9 +819,10 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
+  align-items: stretch; 
 }
 
 .left-col {
