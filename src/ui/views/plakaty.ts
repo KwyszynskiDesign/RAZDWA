@@ -6,6 +6,40 @@ import { getPrice } from "../../services/priceService";
 
 const data: any = getPrice("plakaty");
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 const FORMAT_LABELS: Record<string, string> = {
   "297x420":  "A3 (297×420 mm)",
   "420x594":  "A2 (420×594 mm)",
@@ -278,14 +312,14 @@ export const PlakatyView: View = {
       }
 
       if (breakdownBox && breakdownLines) {
-        const lines: string[] = [];
-        lines.push(`<div><strong>Parametry:</strong> ${qty} szt, ${formatLabel}, materiał: ${res.materialName}</div>`);
-        lines.push(`<div><strong>Cena po rabacie za 1 szt.:</strong> ${formatPLN(res.pricePerPiece)}</div>`);
-        lines.push(`<div><strong>Cena bazowa:</strong> ${qty} szt × ${formatPLN(res.pricePerPiece)} = ${formatPLN(res.basePrice)}</div>`);
+        const lines: BreakdownRow[] = [];
+        lines.push({ label: "Parametry", value: `${qty} szt, ${formatLabel}, materiał: ${res.materialName}` });
+        lines.push({ label: "Cena po rabacie za 1 szt.", value: formatPLN(res.pricePerPiece) });
+        lines.push({ label: "Cena bazowa", value: `${qty} szt × ${formatPLN(res.pricePerPiece)} = ${formatPLN(res.basePrice)}` });
 
         if (res.discountFactor < 1) {
           const pct = Math.round((1 - res.discountFactor) * 100);
-          lines.push(`<div><strong>Rabat ilościowy:</strong> ${pct}% (z ${formatPLN(res.effectiveUnitPrice)} do ${formatPLN(res.pricePerPiece)} / szt.)</div>`);
+          lines.push({ label: "Rabat ilościowy", value: `${pct}% (z ${formatPLN(res.effectiveUnitPrice)} do ${formatPLN(res.pricePerPiece)} / szt.)` });
         }
 
         if (trimSurcharge > 0) {
@@ -298,11 +332,11 @@ export const PlakatyView: View = {
             const trimQty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
             trimParts.push(`${trimQty} × 4 cięcia = ${formatPLN(trimQty * 2)}`);
           }
-          lines.push(`<div><strong>Trymer:</strong> ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}</div>`);
+          lines.push({ label: "Trymer", value: `${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}` });
         }
 
-        lines.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
-        breakdownLines.innerHTML = lines.join("");
+        lines.push({ label: "Razem", value: formatPLN(totalWithTrim), separatorTop: true, strongValue: true });
+        renderBreakdownRows(breakdownLines, lines);
         breakdownBox.style.display = "block";
       }
 

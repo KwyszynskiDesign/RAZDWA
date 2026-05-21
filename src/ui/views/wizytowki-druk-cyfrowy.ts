@@ -6,6 +6,40 @@ import { autoCalc } from "../autoCalc";
 import { getPrice } from "../../services/priceService";
 
 const SATIN_MULTIPLIER = 1.12;
+
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
 const VIPERPRINT_URL = "https://www.viperprint.pl/?gad_source=1&gad_campaignid=21018362364&gbraid=0AAAAAD968vUsT1IYHnVYtLWCKF6brvsG5&gclid=Cj0KCQjw4PPNBhD8ARIsAMo-icws7E1EMoiecw063F64yWTCzjVQYAGv8B9VfaX9vnGa6MI9rM6KAh8aAncwEALw_wcB";
 
 export const WizytowkiView: View = {
@@ -180,23 +214,23 @@ export const WizytowkiView: View = {
       const satinAmount = isSatin ? parseFloat((basePrice * satinRate).toFixed(2)) : 0;
       const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
 
-      const lines = [
-        `<div><strong>Nakład podany:</strong> ${options.qty} szt</div>`,
-        `<div><strong>Próg rozliczeniowy:</strong> ${result.qtyBilled} szt</div>`,
-        `<div><strong>Cena z cennika (próg):</strong> ${formatPLN(basePrice)}</div>`,
+      const lines: BreakdownRow[] = [
+        { label: "Nakład podany", value: `${options.qty} szt` },
+        { label: "Próg rozliczeniowy", value: `${result.qtyBilled} szt` },
+        { label: "Cena z cennika (próg)", value: formatPLN(basePrice) },
       ];
 
       if (isSatin) {
-        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
       }
 
       if (options.express) {
-        lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
+        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
       }
 
-      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
+      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
 
-      if (breakdownLines) breakdownLines.innerHTML = lines.join("");
+      if (breakdownLines) renderBreakdownRows(breakdownLines, lines);
       if (breakdownDisplay) breakdownDisplay.style.display = "block";
     };
 

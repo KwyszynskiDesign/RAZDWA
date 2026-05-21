@@ -5,6 +5,40 @@ import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 export const FoliaSzronionaView: View = {
   id: "folia-szroniona",
   name: "Folia szroniona",
@@ -120,14 +154,19 @@ export const FoliaSzronionaView: View = {
           if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
           if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
           if (breakdownLines) {
-            breakdownLines.innerHTML = `
-              <div class="breakdown-line"><span>Usługa:</span><strong>${serviceSelect.options[serviceSelect.selectedIndex].text}</strong></div>
-              <div class="breakdown-line"><span>Wymiary:</span><strong>${currentOptions.widthMm} × ${currentOptions.heightMm} mm</strong></div>
-              <div class="breakdown-line"><span>Powierzchnia:</span><strong>${areaLabel}</strong></div>
-              <div class="breakdown-line"><span>Cena za m2:</span><strong>${formatPLN(result.tierPrice)}</strong></div>
-              ${ctx.expressMode ? `<div class="breakdown-line"><span>Tryb:</span><strong>EXPRESS (+20%)</strong></div>` : ""}
-              <div class="breakdown-line total-line"><span>Łącznie:</span><strong>${formatPLN(result.totalPrice)}</strong></div>
-            `;
+            const lines: BreakdownRow[] = [
+              { label: "Usługa", value: serviceSelect.options[serviceSelect.selectedIndex].text },
+              { label: "Wymiary", value: `${currentOptions.widthMm} × ${currentOptions.heightMm} mm` },
+              { label: "Powierzchnia", value: areaLabel },
+              { label: "Cena za m2", value: formatPLN(result.tierPrice) },
+            ];
+
+            if (ctx.expressMode) {
+              lines.push({ label: "Tryb", value: "EXPRESS (+20%)" });
+            }
+
+            lines.push({ label: "Łącznie", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+            renderBreakdownRows(breakdownLines, lines);
           }
           addToCartBtn.disabled = false;
           ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");

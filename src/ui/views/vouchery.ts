@@ -4,6 +4,40 @@ import { getVoucheryPriceForQuantity, getVoucheryTiers, quoteVouchery } from "..
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 export const VoucheryView: View = {
   id: "vouchery",
   name: "Vouchery",
@@ -123,35 +157,29 @@ export const VoucheryView: View = {
       const envelopeQty = typeof options.envelopeQty === "number" ? options.envelopeQty : 0;
       const envelopeTotal = typeof options.envelopeTotal === "number" ? options.envelopeTotal : 0;
 
-      const lines = [
-        `<div><strong>Nakład i typ:</strong> ${options.qty} szt, ${materialLabel}</div>`,
-        `<div><strong>Próg cenowy:</strong> ${result.tierQty} szt (${materialLabel})</div>`,
-        `<div><strong>Cena z tabeli:</strong> ${formatPLN(basePrice)}</div>`,
+      const lines: BreakdownRow[] = [
+        { label: "Nakład i typ", value: `${options.qty} szt, ${materialLabel}` },
+        { label: "Próg cenowy", value: `${result.tierQty} szt (${materialLabel})` },
+        { label: "Cena z tabeli", value: formatPLN(basePrice) },
       ];
 
       if (options.modigliani) {
-        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
-        lines.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`);
+        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
+        lines.push({ label: "Modigliani", value: `${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}` });
       } else if (options.satin) {
-        lines.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}</div>`);
+        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
       }
 
       if (options.express) {
-        lines.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}</div>`);
+        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
       }
 
       if (options.withEnvelopes) {
-        lines.push(`<div><strong>${options.envelopeLabel}:</strong> ${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}</div>`);
+        lines.push({ label: options.envelopeLabel, value: `${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}` });
       }
 
-      const parts: string[] = [formatPLN(basePrice)];
-      if (materialTotal > 0) parts.push(formatPLN(materialTotal));
-      if (expressAmount > 0) parts.push(formatPLN(expressAmount));
-      if (envelopeTotal > 0) parts.push(formatPLN(envelopeTotal));
-      const equation = parts.join(" + ");
-      lines.push(`<div style="padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${equation} = <strong>${formatPLN(result.totalPrice)}</strong></div>`);
-
-      breakdownLines.innerHTML = lines.join("");
+      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };
 

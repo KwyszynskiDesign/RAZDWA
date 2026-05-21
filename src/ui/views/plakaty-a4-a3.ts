@@ -8,6 +8,40 @@ import { resolveStoredPrice } from "../../core/compat";
 
 const data: any = getPrice("plakaty");
 
+type BreakdownRow = {
+  label: string;
+  value: string;
+  separatorTop?: boolean;
+  strongValue?: boolean;
+};
+
+function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
+  target.replaceChildren();
+
+  for (const row of rows) {
+    const line = document.createElement("div");
+    if (row.separatorTop) {
+      line.style.paddingTop = "8px";
+      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+    }
+
+    const strong = document.createElement("strong");
+    strong.textContent = `${row.label}:`;
+    line.appendChild(strong);
+    line.appendChild(document.createTextNode(" "));
+
+    if (row.strongValue) {
+      const valueStrong = document.createElement("strong");
+      valueStrong.textContent = row.value;
+      line.appendChild(valueStrong);
+    } else {
+      line.appendChild(document.createTextNode(row.value));
+    }
+
+    target.appendChild(line);
+  }
+}
+
 const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
   a4: "A4",
   a3: "A3",
@@ -345,15 +379,16 @@ export const PlakatyA4A3View: View = {
       const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
       const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
       if (paBreakdownBox && paBreakdownLines) {
-        const breakdown: string[] = [];
-        breakdown.push(`<div><strong>Parametry:</strong> ${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}</div>`);
-        breakdown.push(`<div><strong>Cena za szt.:</strong> ${formatPLN(res.tierPrice)}</div>`);
-        breakdown.push(`<div><strong>Cena bazowa:</strong> ${qty} szt × ${formatPLN(res.tierPrice)} = ${formatPLN(res.basePrice)}</div>`);
+        const breakdown: BreakdownRow[] = [
+          { label: "Parametry", value: `${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}` },
+          { label: "Cena za szt.", value: formatPLN(res.tierPrice) },
+          { label: "Cena bazowa", value: `${qty} szt × ${formatPLN(res.tierPrice)} = ${formatPLN(res.basePrice)}` },
+        ];
         if (trimSurcharge > 0) {
-          breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
+          breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });
         }
-        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
-        paBreakdownLines.innerHTML = breakdown.join("");
+        breakdown.push({ label: "Razem", value: formatPLN(totalWithTrim), separatorTop: true, strongValue: true });
+        renderBreakdownRows(paBreakdownLines, breakdown);
         paBreakdownBox.style.display = "block";
       }
 
@@ -411,15 +446,16 @@ export const PlakatyA4A3View: View = {
       const paBreakdownBox = container.querySelector<HTMLElement>("#pa-breakdown-display");
       const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
       if (paBreakdownBox && paBreakdownLines) {
-        const breakdown: string[] = [];
-        breakdown.push(`<div><strong>Parametry:</strong> ${res.qty} szt, papier ${paper}g, wykończenie ${finish}</div>`);
-        breakdown.push(`<div><strong>Cena za szt.:</strong> ${formatPLN(res.singleTierPrice)}</div>`);
-        breakdown.push(`<div><strong>Cena bazowa:</strong> ${res.qty} szt × ${formatPLN(res.singleTierPrice)} = ${formatPLN(res.basePrice)}</div>`);
+        const breakdown: BreakdownRow[] = [
+          { label: "Parametry", value: `${res.qty} szt, papier ${paper}g, wykończenie ${finish}` },
+          { label: "Cena za szt.", value: formatPLN(res.singleTierPrice) },
+          { label: "Cena bazowa", value: `${res.qty} szt × ${formatPLN(res.singleTierPrice)} = ${formatPLN(res.basePrice)}` },
+        ];
         if (trimSurcharge > 0) {
-          breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
+          breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });
         }
-        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(currentResult.totalPrice)}</div>`);
-        paBreakdownLines.innerHTML = breakdown.join("");
+        breakdown.push({ label: "Razem", value: formatPLN(currentResult.totalPrice), separatorTop: true, strongValue: true });
+        renderBreakdownRows(paBreakdownLines, breakdown);
         paBreakdownBox.style.display = "block";
       }
 
