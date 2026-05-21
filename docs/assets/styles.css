@@ -193,69 +193,95 @@ header {
   color: #004080;
 }
 /*===================START POPRAWEK===================*/
-/* 1. GŁÓWNY KONTENER I BODY - Sztywna aplikacja, blokujemy główny scroll strony */
+/* 1. GŁÓWNY KONTENER I BODY - Blokujemy główny scroll strony (layout aplikacji) */
 body {
-  overflow: hidden; /* Wyłączamy podwójny suwak z okna przeglądarki */
+  overflow: hidden; 
 }
 
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
-  height: 100dvh; /* Aplikacja zajmuje dokładnie 100% wysokości okna */
+  height: 100vh; /* Sztywna wysokość okna na 100% (nie dVH z powodu iOS barów) */
   display: flex;
   flex-direction: column;
 }
 
-/* 2. SIATKA TRZYKOLUMNOWA */
+/* NAGŁÓWEK - musi mieć określoną elastyczność */
+.site-header {
+  flex-shrink: 0; /* Zapewnia, że nagłówek się nie zgniecie */
+}
+
+/* 2. SIATKA TRZYKOLUMNOWA - Działa elastycznie pod nagłówkiem */
 .app-grid {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1; /* Grid wypełnia całe wolne miejsce pod nagłówkiem */
-  min-height: 0; /* KLUCZOWE: Zmusza grid do niewychodzenia poza ekran */
-  align-items: stretch; /* Wszystkie kolumny rosną równo od góry do dołu */
-  padding-bottom: 24px; /* Odstęp, żeby karty nie dotykały paska zadań Windowsa na samym dole */
+  flex: 1 1 0%; /* Ważne: zajmuje DOKŁADNIE to, co zostanie po nagłówku */
+  min-height: 0; 
+  align-items: stretch; 
+  padding-bottom: 24px; 
 }
 
-/* 3. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Każda zyskuje swój scroll */
+/* 3. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Każda kolumna ma swój wewnętrzny Scroll */
 .category-sidebar,
 .left-col,
 .right-col {
-  height: 100%; /* Zajmują 100% dostępnego miejsca w gridzie */
   min-height: 0;
-  overflow-y: auto; /* Własny pionowy suwak */
-  box-sizing: border-box; /* Zabezpiecza przed wypychaniem przez paddingi */
+  height: 100%; /* Pudełko kolumny będzie teraz wysokie idealnie do samej linii paska Windows */
+  overflow-y: auto; 
+  box-sizing: border-box; 
+  /* Poprawka dla Chrome / Safari aby prawidłowo łapały dole odstępy */
+  display: flex;
+  flex-direction: column;
 }
 
-/* ŚRODKOWA KOLUMNA (Formularz) */
+/* Wewnętrzne pozycjonowanie na krawędzi bloku zamiast overflowów */
+.left-col::after, 
+.right-col::after, 
+.category-sidebar::after {
+  content: "";
+  display: block;
+  min-height: 40px; /* Sztuczne miejsce (40px) "powietrza" dodane DOKŁADNIE na sam koniec scrolla, bez obcinania CSSem */
+  flex-shrink: 0;
+}
+
+
+/* ŚRODKOWA KOLUMNA (Formularz kalkulatora) */
 .left-col {
   position: relative;
   z-index: 10;
   border-right: 1px solid var(--border);
-  padding: 0 var(--left-col-padding) 24px 0; /* Zdejmujemy padding z góry, aby zrównać linię, dodajemy dół, żeby było widać końcówkę scrolla */
+  padding: 0 var(--left-col-padding) 0 0;
 }
 
 .main-content-card {
-  min-height: min-content; /* Chroni układ przed zgnieceniem przez flex */
-  height: auto; 
+  height: max-content;
+  flex-shrink: 0;
 }
 
-/* PRAWA KOLUMNA (Podsumowanie) */
+/* PRAWA KOLUMNA (Podsumowanie Koszyka) */
 .right-col {
   width: min(437px, 100%);
   min-width: 399px;
   position: relative;
   background: var(--surface);
-  padding: 0 1rem 24px 1rem; /* Podobnie z paddingiem */
+  padding: 0 1rem 0 1rem; 
 }
 
-/* LEWA KOLUMNA (Sidebar / Kategorie) */
+/* Karta koszyka musi się nie ściskać w dół */
+orderSummary {
+  flex-shrink: 0;
+}
+
+
+/* LEWA KOLUMNA (Sidebar Kategorie) */
 .category-sidebar {
-  padding-bottom: 24px;
+  /* Usuwam padding, przestrzeń zostaje dodana przez pseudoelement ::after */
 }
 
-/* 4. SPECYFICZNE WIDOKI (Dla ustawień i mobilnych) */
+
+/* 4. SPECYFICZNE WIDOKI */
 body.home-compact-layout .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
@@ -274,13 +300,12 @@ body.settings-pricing-layout .app-grid {
   }
 }
 
-/* Poniżej rozbijamy sztywny układ "App", bo na małych ekranach musimy przewijać całą stronę palcem */
 @media (max-width: 1024px) {
-  body { overflow: auto; } /* Wracamy do scrollowania całej strony na tabletach/komórkach */
+  body { overflow: auto; } /* Przywracamy scrolla całej strony */
   
   .wrap { 
     height: auto; 
-    min-height: 100dvh; 
+    min-height: 100vh; 
   }
   
   .app-grid {
@@ -290,12 +315,15 @@ body.settings-pricing-layout .app-grid {
     overflow: visible;
   }
   
+  /* Reset kolumn na mobile - usuwamy pseudoelementy i oddajemy swobodę rośnięcia */
   .category-sidebar, 
   .left-col, 
   .right-col {
     height: auto;
-    overflow-y: visible; /* Zdejmujemy 3 osobne suwaki dla mniejszych ekranów */
-    padding-bottom: 0;
+    overflow-y: visible; 
+  }
+  .left-col::after, .right-col::after, .category-sidebar::after {
+    display: none;
   }
 }
 
