@@ -29,6 +29,10 @@ export const DrukCADView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
+    // --- DIAGNOSTIC COUNTERS ---
+    let calcCount = 0;
+    let updateUICount = 0;
+    let listenersBound = false;
     console.debug('[DrukCAD] initLogic start');
     const data = getPrice("drukCAD");
     console.debug('[DrukCAD] price data present?', !!data);
@@ -464,6 +468,10 @@ export const DrukCADView: View = {
     });
 
     const updateUI = () => {
+      updateUICount++;
+      if (updateUICount < 10 || updateUICount % 10 === 0) {
+        console.debug('[DrukCAD] updateUI', updateUICount);
+      }
       const format = formatSelect.value;
       const mode = modeSelect.value;
       const baseLen = data.base[format]?.l;
@@ -474,22 +482,28 @@ export const DrukCADView: View = {
       return baseLen;
     };
 
-    formatSelect.onchange = () => {
-      const baseLen = data.base[formatSelect.value]?.l;
-      if (baseLen != null) lengthInput.value = String(baseLen);
-      updateUI();
-      ensureLegend();
-    };
-    modeSelect.onchange = () => {
-      updateUI();
-      ensureLegend();
-    };
-    lengthInput.oninput = updateUI;
-
-    useBaseBtn.onclick = () => {
-      lengthInput.value = updateUI().toString();
-      updateUI();
-    };
+    // --- Bind listeners only once ---
+    if (!listenersBound) {
+      formatSelect.onchange = () => {
+        const baseLen = data.base[formatSelect.value]?.l;
+        if (baseLen != null) lengthInput.value = String(baseLen);
+        updateUI();
+        ensureLegend();
+      };
+      modeSelect.onchange = () => {
+        updateUI();
+        ensureLegend();
+      };
+      lengthInput.oninput = updateUI;
+      useBaseBtn.onclick = () => {
+        lengthInput.value = updateUI().toString();
+        updateUI();
+      };
+      listenersBound = true;
+      console.debug('[DrukCAD] listeners bound');
+    } else {
+      console.warn('[DrukCAD] listeners already bound, skipping');
+    }
 
     // Ensure qty input has a safe default before any calculation runs
     try {
@@ -514,6 +528,14 @@ export const DrukCADView: View = {
     let currentOptions: any = null;
 
     const performCalculation = () => {
+      calcCount++;
+      if (calcCount < 10 || calcCount % 10 === 0) {
+        console.debug('[DrukCAD] performCalculation', calcCount);
+      }
+          // --- PDF.js DIAGNOSTIC ---
+          if ((window as any).pdfjsLib) {
+            console.debug('[DrukCAD] pdfjsLib present', typeof (window as any).pdfjsLib);
+          }
       console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput?.value, lengthValue: lengthInput?.value });
       if (!qtySheetsInput) {
         console.warn('[DrukCAD] performCalculation aborted: qty input missing');
