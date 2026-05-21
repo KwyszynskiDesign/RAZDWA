@@ -2277,12 +2277,10 @@ body.settings-pricing-layout .left-col {
 }
 
 .category-sidebar-scroll {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0 0 120px;
-  scroll-padding-bottom: 120px;
+  flex: none; 
+  height: auto;
+  overflow: visible; 
+  padding: 0; 
 }
 
 .category-sidebar-search {
