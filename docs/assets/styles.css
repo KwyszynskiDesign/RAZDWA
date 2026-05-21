@@ -194,7 +194,7 @@ header {
 }
 
 /*===================START POPRAWEK===================*/
-/* 1. GŁÓWNY KONTENER - Pozwalamy stronie swobodnie rosnąć w dół */
+/* 1. GŁÓWNY KONTENER */
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
@@ -205,92 +205,72 @@ header {
   flex-direction: column;
 }
 
-/* 2. BAZOWY UKŁAD SIATKI - Kolumny dostosowują się do swojej zawartości */
+/* 2. BAZOWY UKŁAD SIATKI */
 .app-grid {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1 1 auto;
-  min-height: 0;
+  flex: 1; /* Pozwala gridowi zająć resztę okna pod nagłówkiem */
   align-items: start;
-  overflow: visible;
 }
 
-/* 3. LEWA I PRAWA KOLUMNA - Odblokowanie scrolla */
+/* 3. ŚRODKOWA I PRAWA KOLUMNA - NATURALNE TŁO */
 .left-col {
-  min-width: 0;
-  min-height: 0;
   height: auto;
-  overflow: visible;
-  display: flex;
-  flex-direction: column;
   position: relative;
   z-index: 10;
   border-right: 1px solid var(--border);
   padding: var(--left-col-padding);
 }
 
+/* KARTA Z KALKULATOREM - NIE WYPYCHA W DÓŁ, ROŚNIE NATURALNIE */
 .main-content-card {
-  flex: 0 0 auto;
-  min-width: 0;
-  min-height: 0;
-  overflow: visible;
+  height: auto; 
+  padding-bottom: 24px;
 }
 
 .right-col {
   width: min(437px, 100%);
   min-width: 399px;
-  min-height: 0;
   height: auto;
   position: relative;
-  top: auto;
-  overflow: visible;
   align-self: start;
   padding: 1rem;
   background: var(--surface);
 }
 
-/* 4. SPECYFICZNE WIDOKI (Zastąpienie stretch przez start) */
+/* 4. SPECYFICZNE WIDOKI (Dla innych podstron) */
 body.home-compact-layout .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
   align-items: start;
-  overflow: visible;
 }
 
 body.settings-pricing-layout .app-grid {
   display: flex;
   flex-direction: row;
-  align-items: start;
+  align-items: start; /* start sprawia, że kolumny na ustawieniach są u góry */
   gap: 24px;
-  overflow: visible;
 }
 
+/* 5. WIDOKI MOBILNE */
+@media (max-width: 1200px) {
+  body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
+    grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(250px, 40%);
+  }
+}
 
 @media (max-width: 1024px) {
   .app-grid {
-    flex-direction: column;
-  }
-  body.home-compact-layout .app-grid {
     display: flex;
-    overflow: visible;
+    flex-direction: column;
   }
 }
 
 @media (max-width: 768px) {
   .app-grid {
-    grid-template-columns: 1fr;
-    flex: none;
-    overflow: visible;
     display: flex;
     flex-direction: column;
-  }
-  
-  .left-col,
-  .right-col {
-    height: auto;
-    min-height: auto;
-    overflow: visible;
   }
   
   .right-col {
@@ -298,8 +278,7 @@ body.settings-pricing-layout .app-grid {
     min-width: 0;
   }
 }
-
-/*===================KONIEC POPRAWE===================K*/
+/*===================KONIEC POPRAWEK===================*/
 
 
 @media (max-width: 768px) {
