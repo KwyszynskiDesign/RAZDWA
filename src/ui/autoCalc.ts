@@ -18,6 +18,7 @@ export interface AutoCalcOptions {
 
 export function autoCalc({ root, calc, delay = 120 }: AutoCalcOptions): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null;
+  let initialRunScheduled = false;
 
   const run = () => {
     if (timer) clearTimeout(timer);
@@ -30,8 +31,17 @@ export function autoCalc({ root, calc, delay = 120 }: AutoCalcOptions): () => vo
     }, delay);
   };
 
-  // Immediate first run
-  try { calc(); } catch (_) { /* initial values may be incomplete */ }
+  // Schedule immediate first run asynchronously to avoid blocking
+  if (!initialRunScheduled) {
+    initialRunScheduled = true;
+    Promise.resolve().then(() => {
+      try {
+        calc();
+      } catch (_) {
+        /* initial values may be incomplete */
+      }
+    });
+  }
 
   root.addEventListener("input", run, true);   // captures typing in inputs
   root.addEventListener("change", run, true);   // captures selects, checkboxes, radios
