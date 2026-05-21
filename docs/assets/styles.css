@@ -193,64 +193,78 @@ header {
   color: #004080;
 }
 /*===================START POPRAWEK===================*/
-/* 1. GŁÓWNY KONTENER I BODY - Blokujemy główny scroll strony (layout aplikacji) */
+/* 1. GŁÓWNY KONTENER I BODY - Sztywna aplikacja */
 body {
-  overflow: hidden; 
+  overflow: hidden; /* Aplikacja ma jeden sztywny ekran */
 }
 
 .wrap {
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 16px;
-  height: 100vh; /* Sztywna wysokość okna na 100% (nie dVH z powodu iOS barów) */
+  height: 100vh; /* Sztywna wysokość */
   display: flex;
   flex-direction: column;
 }
 
-/* NAGŁÓWEK - musi mieć określoną elastyczność */
+/* 2. HEADER - nie może zniknąć */
 .site-header {
-  flex-shrink: 0; /* Zapewnia, że nagłówek się nie zgniecie */
+  flex-shrink: 0;
 }
 
-/* 2. SIATKA TRZYKOLUMNOWA - Działa elastycznie pod nagłówkiem */
+/* 3. SIATKA TRZYKOLUMNOWA */
 .app-grid {
   display: grid;
   grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
   gap: 24px;
-  flex: 1 1 0%; /* Ważne: zajmuje DOKŁADNIE to, co zostanie po nagłówku */
+  flex: 1 1 auto; /* Grid pożera tylko miejsce pod headerem */
   min-height: 0; 
   align-items: stretch; 
-  padding-bottom: 24px; 
+  /* Zwróć uwagę: brak padding-bottom. Wymusimy go W ŚRODKU kolumn */
 }
 
-/* 3. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN - Każda kolumna ma swój wewnętrzny Scroll */
+/* 4. WSPÓLNE ZASADY DLA WSZYSTKICH 3 KOLUMN */
+/* Musimy zresetować max-height i paddingi ze starych klas! */
 .category-sidebar,
 .left-col,
-.right-col {
+.right-col,
+.main-content {
+  height: 100% !important;
+  max-height: none !important;
   min-height: 0;
-  height: 100%; /* Pudełko kolumny będzie teraz wysokie idealnie do samej linii paska Windows */
   overflow-y: auto; 
   box-sizing: border-box; 
-  /* Poprawka dla Chrome / Safari aby prawidłowo łapały dole odstępy */
+  padding-bottom: 0 !important; /* Reset starych paddingów */
+}
+
+/* Krawędzie wewnętrzne - dla każdej kolumny tworzymy pusty blok DOKŁADNIE na samym końcu. 
+Dzięki temu przeglądarka musi zeskrolować do jego końca, dając "oddech". */
+.category-sidebar::after,
+.left-col::after,
+.right-col::after {
+  content: "";
+  display: block;
+  height: 48px; /* Tyle wolnego miejsca chcemy na samym dole każdej kolumny */
+  flex-shrink: 0;
+}
+
+/* Dodatkowo musimy upewnić się, że bezpośrednie dzieci traktują pozycjonowanie poprawnie */
+.category-sidebar-inner, 
+.left-col, 
+.right-col {
   display: flex;
   flex-direction: column;
 }
 
-/* Wewnętrzne pozycjonowanie na krawędzi bloku zamiast overflowów */
-.left-col::after, 
-.right-col::after, 
-.category-sidebar::after {
-  content: "";
-  display: block;
-  min-height: 40px; /* Sztuczne miejsce (40px) "powietrza" dodane DOKŁADNIE na sam koniec scrolla, bez obcinania CSSem */
-  flex-shrink: 0;
+/* Upewnijmy się, że "Szukaj kategorii..." w menu nie zsuwa się w górę! */
+.category-search-wrap,
+.category-sidebar-search {
+  flex-shrink: 0; 
 }
 
 
 /* ŚRODKOWA KOLUMNA (Formularz kalkulatora) */
 .left-col {
-  position: relative;
-  z-index: 10;
   border-right: 1px solid var(--border);
   padding: 0 var(--left-col-padding) 0 0;
 }
@@ -260,28 +274,21 @@ body {
   flex-shrink: 0;
 }
 
+
 /* PRAWA KOLUMNA (Podsumowanie Koszyka) */
 .right-col {
   width: min(437px, 100%);
   min-width: 399px;
-  position: relative;
   background: var(--surface);
   padding: 0 1rem 0 1rem; 
 }
 
-/* Karta koszyka musi się nie ściskać w dół */
 orderSummary {
   flex-shrink: 0;
 }
 
 
-/* LEWA KOLUMNA (Sidebar Kategorie) */
-.category-sidebar {
-  /* Usuwam padding, przestrzeń zostaje dodana przez pseudoelement ::after */
-}
-
-
-/* 4. SPECYFICZNE WIDOKI */
+/* 5. SPECYFICZNE WIDOKI */
 body.home-compact-layout .app-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
@@ -293,7 +300,7 @@ body.settings-pricing-layout .app-grid {
   gap: 24px;
 }
 
-/* 5. RWD - WIDOKI MOBILNE I TABLETOWE */
+/* 6. RWD - WIDOKI MOBILNE I TABLETOWE */
 @media (max-width: 1200px) {
   body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
     grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(250px, 40%);
@@ -301,7 +308,7 @@ body.settings-pricing-layout .app-grid {
 }
 
 @media (max-width: 1024px) {
-  body { overflow: auto; } /* Przywracamy scrolla całej strony */
+  body { overflow: auto; } /* Przywracamy scrolla całej strony na komórkach */
   
   .wrap { 
     height: auto; 
@@ -319,10 +326,10 @@ body.settings-pricing-layout .app-grid {
   .category-sidebar, 
   .left-col, 
   .right-col {
-    height: auto;
+    height: auto !important;
     overflow-y: visible; 
   }
-  .left-col::after, .right-col::after, .category-sidebar::after {
+  .category-sidebar::after, .left-col::after, .right-col::after {
     display: none;
   }
 }
@@ -333,7 +340,7 @@ body.settings-pricing-layout .app-grid {
     min-width: 0;
   }
 }
-/*===================KONIEC POPRAWEK===================*/
+/*===================KONIEC POPRAWEK===================*/  
 
 
 @media (max-width: 768px) {
