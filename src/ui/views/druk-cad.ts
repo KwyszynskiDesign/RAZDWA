@@ -491,6 +491,22 @@ export const DrukCADView: View = {
       updateUI();
     };
 
+    // Ensure qty input has a safe default before any calculation runs
+    try {
+      if (qtySheetsInput) {
+        if (!qtySheetsInput.value) {
+          console.debug('[DrukCAD] qty input empty - setting default -> 1');
+          qtySheetsInput.value = '1';
+        } else {
+          console.debug('[DrukCAD] qty input initial value', qtySheetsInput.value);
+        }
+      } else {
+        console.warn('[DrukCAD] qtySheets input not found - calculations will be disabled');
+      }
+    } catch (e) {
+      console.error('[DrukCAD] error while ensuring qty default', e);
+    }
+
     updateUI();
     ensureLegend();
 
@@ -498,10 +514,30 @@ export const DrukCADView: View = {
     let currentOptions: any = null;
 
     const performCalculation = () => {
-      console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput.value, lengthValue: lengthInput.value });
+      console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput?.value, lengthValue: lengthInput?.value });
+      if (!qtySheetsInput) {
+        console.warn('[DrukCAD] performCalculation aborted: qty input missing');
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        updateOptionsSummary();
+        updateGrandTotal();
+        return;
+      }
+
       const parsedQty = parseInt(qtySheetsInput.value, 10);
       const parsedLength = parseInt(lengthInput.value, 10);
-      if (!qtySheetsInput.value || isNaN(parsedQty) || parsedQty <= 0 || isNaN(parsedLength) || parsedLength <= 0) {
+      if (isNaN(parsedQty) || parsedQty <= 0) {
+        console.warn('[DrukCAD] performCalculation aborted: invalid qty', qtySheetsInput.value);
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        updateOptionsSummary();
+        updateGrandTotal();
+        return;
+      }
+      if (isNaN(parsedLength) || parsedLength <= 0) {
+        console.warn('[DrukCAD] performCalculation aborted: invalid length', lengthInput.value);
         resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         currentResult = null;
