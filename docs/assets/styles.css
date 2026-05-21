@@ -241,26 +241,6 @@ header {
 }
 
 
-/* ŚRODKOWA KOLUMNA (Formularz kalkulatora) */
-.left-col {
-  border-right: 1px solid var(--border);
-  padding-right: var(--left-col-padding); /* Dodajemy tylko prawy do linii separacyjnej */
-}
-
-.main-content-card {
-  height: max-content;
-  flex-shrink: 0;
-}
-
-/* PRAWA KOLUMNA (Podsumowanie Koszyka) */
-.right-col {
-  width: min(437px, 100%);
-  min-width: 399px;
-  background: var(--surface);
-  /* Pozostawiamy jedynie prawy/lewy padding z pliku bazowego */
-  padding-left: 1rem !important;
-  padding-right: 1rem !important;
-}
 
 orderSummary {
   flex-shrink: 0;
@@ -312,12 +292,7 @@ body.settings-pricing-layout .app-grid {
   }
 }
 
-@media (max-width: 768px) {
-  .right-col {
-    width: 100%;
-    min-width: 0;
-  }
-}
+
 /*===================KONIEC POPRAWEK===================*/  
 
 @media (max-width: 768px) {
@@ -833,7 +808,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   position: relative;
   z-index: 10;
   border-right: 1px solid var(--border);
-  padding: var(--left-col-padding) var(--left-col-padding) var(--left-col-padding);
+  padding: var(--left-col-padding);
 }
 
 .right-col {
@@ -844,6 +819,11 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   padding: 1rem;
   background: var(--surface);
   align-self: stretch;
+  width: min(437px, 100%);
+  min-width: 399px;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+
 }
 
 
@@ -870,6 +850,9 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   .right-col {
     height: auto;
     position: relative;
+     width: 100%;
+    min-width: 0;
+    
   }
 }
 
@@ -2343,6 +2326,8 @@ body.settings-pricing-layout .left-col {
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(148, 163, 184, 0.16);
   padding: 24px;
+  height: max-content;
+  flex-shrink: 0;
 }
 
 /* Home page */
