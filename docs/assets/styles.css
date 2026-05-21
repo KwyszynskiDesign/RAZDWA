@@ -687,10 +687,10 @@ button.ghost:hover {
 
 /* ===== APP GRID (elastic layout) ===== */
 
-.app-grid {
+body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   display: grid;
-  grid-template-columns: 1fr minmax(280px, 35%);
-  gap: 0;
+  grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(280px, 35%);
+  gap: 24px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
@@ -718,8 +718,8 @@ button.ghost:hover {
 }
 
 @media (max-width: 1200px) {
-  .app-grid {
-    grid-template-columns: 1fr minmax(250px, 40%);
+  body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
+    grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(250px, 40%);
   }
 }
 
@@ -742,8 +742,8 @@ button.ghost:hover {
 
 
 @media (max-width: 1024px) and (min-width: 769px) {
-  .app-grid {
-    grid-template-columns: 1fr minmax(240px, 40%);
+  body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
+    grid-template-columns: minmax(247px, 247px) minmax(0, 1fr) minmax(240px, 40%);
   }
 }
 
@@ -2589,6 +2589,13 @@ body.settings-pricing-layout .left-col {
   max-width: 100%;
   box-sizing: border-box;
   overflow-x: hidden;
+}
+
+/* Allow breakdown cards to expand vertically/horizontally when needed
+   to avoid clipping long generated breakdown lines (labels or formulas). */
+#viewContainer [id*="-breakdown-display"],
+#viewContainer .auto-breakdown-card {
+  overflow: visible !important;
 }
 
 #viewContainer .calculator-form.card,
