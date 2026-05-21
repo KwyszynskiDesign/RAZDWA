@@ -2265,7 +2265,7 @@ body.settings-pricing-layout .left-col {
   flex-direction: column;
   min-height: 0;
   height: 100%;
-  padding: var(--left-col-padding) 0 0;
+  padding: calc(var(--left-col-padding) + 24px) 0 0;
 }
 
 .category-search-wrap {
