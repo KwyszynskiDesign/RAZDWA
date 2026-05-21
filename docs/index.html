@@ -471,16 +471,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let cadFiles = [];
 
-  // Show CAD Upload when hash is #/cad-upload
+   // Show CAD Upload when hash is #/cad-upload
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash;
     const isCADUpload = hash === '#/cad-upload';
+    const isHome = hash === '' || hash === '#/'; // Sprawdzamy czy to strona startowa
+    
     if (cadSection) {
       cadSection.style.display = isCADUpload ? 'block' : 'none';
     }
+    
     const emptyState = document.getElementById('emptyState');
     if (emptyState) {
-      emptyState.style.display = isCADUpload ? 'none' : 'block';
+      // Ekran "Wybierz kategorię" włączy się TYLKO gdy klikniesz w "Start"
+      emptyState.style.display = isHome ? 'block' : 'none';
     }
   });
 
