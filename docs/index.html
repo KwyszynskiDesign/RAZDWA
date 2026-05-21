@@ -706,7 +706,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!parent) return;
 
     const hasNativeBreakdown = !!parent.querySelector('[id*="breakdown" i], [class*="breakdown" i]');
-    if (hasNativeBreakdown) return;
+    if (hasNativeBreakdown) {
+      const existingAuto = parent.querySelector('.auto-breakdown-card');
+      if (existingAuto instanceof HTMLElement) existingAuto.remove();
+      return;
+    }
 
     let card = panel.nextElementSibling;
     if (!(card instanceof HTMLElement) || !card.classList.contains('auto-breakdown-card')) {
