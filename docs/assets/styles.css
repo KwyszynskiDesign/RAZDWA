@@ -297,7 +297,7 @@ body {
 /* 5. WIDOKI DODATKOWE */
 body.home-compact-layout .app-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
 }
 
 body.settings-pricing-layout .app-grid {
@@ -2216,7 +2216,7 @@ a[href] {
 
 body.home-compact-layout .app-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 460px);
+  grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
   align-items: start;
 }
 
@@ -2227,6 +2227,11 @@ body.home-compact-layout .mobile-sidebar-backdrop {
 
 body.home-compact-layout .left-col {
   min-width: 0;
+}
+
+body.home-compact-layout .right-col {
+  min-width: 0;
+  margin-left: 0;
 }
 
 body.home-compact-layout .main-content-card {
@@ -2378,7 +2383,7 @@ body.settings-pricing-layout .left-col {
   height: 100vh;
   overflow-y: auto;
   align-self: flex-start;
-  margin-left: 42px;
+  margin-left: 26px;
 }
 
 .main-content-card {
