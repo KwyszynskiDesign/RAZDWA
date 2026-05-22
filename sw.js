@@ -7,7 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202605220500'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202605220538'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
@@ -70,8 +70,8 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // HTML files: NetworkFirst strategy
-  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/')) {
+  // HTML files AND app.js: NetworkFirst strategy (always pull latest bundle/templates)
+  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/') || url.pathname.endsWith('/app.js')) {
     event.respondWith(
       fetch(request)
         .then(function (response) {
