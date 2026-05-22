@@ -769,7 +769,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!root) return;
 
     const routeObserver = new MutationObserver(() => {
+      routeObserver.disconnect();
       enhanceCurrentView();
+      routeObserver.observe(root, { childList: true, subtree: true });
     });
     routeObserver.observe(root, { childList: true, subtree: true });
 
