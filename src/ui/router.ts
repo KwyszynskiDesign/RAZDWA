@@ -253,6 +253,9 @@ export class Router {
   }
 
   start() {
-    this.handleRoute();
+    this.handleRoute().catch((err) => {
+      console.error("❌ Router initialization error:", err);
+      this.renderHome();
+    });
   }
 }
