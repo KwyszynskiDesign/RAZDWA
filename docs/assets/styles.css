@@ -328,12 +328,16 @@ body.settings-pricing-layout .app-grid {
     overflow: visible;
   }
   
-  .category-sidebar, 
-  .left-col, 
+  .category-sidebar,
+  .left-col,
   .right-col {
     height: auto !important;
     max-height: none !important;
-    overflow-y: visible !important; 
+    overflow-y: visible !important;
+  }
+
+  .right-col {
+    margin-left: 0;
   }
 
   /* Usunięcie dolnych pustych bloków (marginesów) z widoku mobilnego */
@@ -348,6 +352,7 @@ body.settings-pricing-layout .app-grid {
   .right-col {
     width: 100%;
     min-width: 0;
+    margin-left: 0;
   }
   .category-sidebar {
     width: 100%;
@@ -2373,6 +2378,7 @@ body.settings-pricing-layout .left-col {
   height: 100vh;
   overflow-y: auto;
   align-self: flex-start;
+  margin-left: 42px;
 }
 
 .main-content-card {
