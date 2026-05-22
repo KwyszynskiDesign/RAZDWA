@@ -35,7 +35,7 @@ import categories from "../../data/categories.json";
 const cart = new Cart();
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '2026-05-21-cad-fix-1';
+;(window as any).__APP_BUILD__ = '2026-05-22-router-fix-2';
 console.debug('[App] build', (window as any).__APP_BUILD__);
 
 // Loading popup functions
