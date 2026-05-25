@@ -19,7 +19,7 @@ function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
     const line = document.createElement("div");
     if (row.separatorTop) {
       line.style.paddingTop = "8px";
-      line.style.borderTop = "1px solid rgba(255,255,255,0.08)";
+      line.style.borderTop = "1px solid #e2e8f0";
     }
 
     const strong = document.createElement("strong");
