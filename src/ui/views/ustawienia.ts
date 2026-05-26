@@ -2138,9 +2138,11 @@ export const UstawieniaView: View = {
         lastBasePrefix = nextPrefix || lastBasePrefix;
       }
 
-      if (addSubgroupInput) {
-        addSubgroupInput.disabled = addPrefixSelect.value !== CUSTOM_PREFIX_VALUE;
-        if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
+      const subgroupWrapper = container.querySelector<HTMLElement>("#new-subgroup-wrapper");
+      if (subgroupWrapper) {
+        const isCustom = addPrefixSelect.value === CUSTOM_PREFIX_VALUE;
+        subgroupWrapper.style.display = isCustom ? "" : "none";
+        if (!isCustom && addSubgroupInput) {
           addSubgroupInput.value = "";
         }
       }
@@ -2463,28 +2465,58 @@ export const UstawieniaView: View = {
           <aside class="settings-actions-panel">
             <div class="settings-actions">
               <div class="settings-add-group">
+                <div class="settings-wizard-header">
+                  <span class="settings-wizard-title">Nowy wariant / produkt</span>
+                  <span id="pending-count-badge" class="settings-pending-badge" style="display:none"></span>
+                </div>
+
                 <label class="settings-field">
-                  <span class="settings-action-label">Kategoria docelowa</span>
+                  <span class="settings-action-label">1. Kategoria</span>
                   <select id="new-price-category" class="settings-input">
                     ${getAddableCategories().map((category) => `<option value="${category.id}">${category.label}</option>`).join("")}
                   </select>
                 </label>
+
                 <label class="settings-field">
-                  <span class="settings-action-label">Podgrupa / prefiks</span>
+                  <span class="settings-action-label">2. Podgrupa</span>
                   <select id="new-price-prefix" class="settings-input"></select>
                 </label>
-                <label class="settings-field">
+
+                <div id="new-subgroup-wrapper" class="settings-field" style="display:none">
                   <span class="settings-action-label">Nazwa nowej podgrupy</span>
-                  <input id="new-price-subgroup" type="text" class="settings-input" placeholder="Wpisz nazwę podgrupy" disabled>
-                </label>
+                  <input id="new-price-subgroup" type="text" class="settings-input" placeholder="np. Ulotki kwadratowe">
+                </div>
+
                 <label class="settings-field">
-                  <span class="settings-action-label">Nazwa produktu</span>
-                  <input id="new-price-label" type="text" class="settings-input" placeholder="Wpisz nazwę nowego produktu">
+                  <span class="settings-action-label">3. Nazwa wariantu / produktu</span>
+                  <input id="new-price-label" type="text" class="settings-input" placeholder="np. 2000 szt.">
                 </label>
-                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj produkt</button>
+
+                <label class="settings-field">
+                  <span class="settings-action-label">Cena (zł) — opcjonalnie</span>
+                  <input id="new-price-value" type="number" min="0" step="0.01" class="settings-input" placeholder="np. 45.00">
+                </label>
+
+                <label class="settings-field">
+                  <span class="settings-action-label">Opis legendy — opcjonalnie</span>
+                  <input id="new-price-legend" type="text" class="settings-input" placeholder="np. Ulotki A5 dwustronne 2000 szt.">
+                </label>
+
+                <div id="key-preview-wrap" class="settings-key-preview" style="display:none">
+                  <span class="settings-key-preview-label">Klucz:</span>
+                  <code id="key-preview-value" class="settings-key-preview-code"></code>
+                </div>
+
+                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj do cennika</button>
               </div>
-              <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz zmiany</button>
-              <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
+
+              <hr class="settings-divider">
+
+              <div class="settings-persist-group">
+                <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz cały cennik</button>
+                <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
+              </div>
+
               <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
             </div>
           </aside>
@@ -2511,25 +2543,63 @@ export const UstawieniaView: View = {
     const addPrefixSelect = container.querySelector<HTMLSelectElement>("#new-price-prefix");
     const addSubgroupInput = container.querySelector<HTMLInputElement>("#new-price-subgroup");
     const addLabelInput = container.querySelector<HTMLInputElement>("#new-price-label");
+    const addPriceInput = container.querySelector<HTMLInputElement>("#new-price-value");
+    const addLegendInput = container.querySelector<HTMLInputElement>("#new-price-legend");
+
+    function updateKeyPreview(): void {
+      const previewWrap = container.querySelector<HTMLElement>("#key-preview-wrap");
+      const previewValue = container.querySelector<HTMLElement>("#key-preview-value");
+      const chosenCategoryId = addCategorySelect?.value || activeCategory;
+      const chosenCategory = renderedCategories.find((c) => c.id === chosenCategoryId) ?? getActiveCategory();
+      const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+      const subgroupName = addSubgroupInput?.value.trim() || "";
+      const productLabel = addLabelInput?.value.trim() || "";
+
+      if (!productLabel) {
+        if (previewWrap) previewWrap.style.display = "none";
+        return;
+      }
+
+      let chosenPrefix = selectedPrefix;
+      if (selectedPrefix === CUSTOM_PREFIX_VALUE) {
+        if (!subgroupName) {
+          if (previewWrap) previewWrap.style.display = "none";
+          return;
+        }
+        const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, chosenCategory.id, prices);
+      }
+
+      const preview = buildUniquePriceKey(chosenPrefix, productLabel, prices);
+      if (previewWrap) previewWrap.style.display = "";
+      if (previewValue) previewValue.textContent = preview;
+    }
 
     addCategorySelect?.addEventListener("change", () => {
       activeCategory = addCategorySelect.value || activeCategory;
       renderTabs();
       renderTable();
       syncAddCategorySelection();
+      updateKeyPreview();
     });
 
     addPrefixSelect?.addEventListener("change", () => {
       if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
         lastBasePrefix = addPrefixSelect.value;
       }
-      if (addSubgroupInput) {
-        addSubgroupInput.disabled = addPrefixSelect.value !== CUSTOM_PREFIX_VALUE;
-        if (addPrefixSelect.value !== CUSTOM_PREFIX_VALUE) {
+      const subgroupWrapper = container.querySelector<HTMLElement>("#new-subgroup-wrapper");
+      if (subgroupWrapper) {
+        const isCustom = addPrefixSelect.value === CUSTOM_PREFIX_VALUE;
+        subgroupWrapper.style.display = isCustom ? "" : "none";
+        if (!isCustom && addSubgroupInput) {
           addSubgroupInput.value = "";
         }
       }
+      updateKeyPreview();
     });
+
+    addSubgroupInput?.addEventListener("input", updateKeyPreview);
+    addLabelInput?.addEventListener("input", updateKeyPreview);
 
     container.querySelector("#btn-add-row")?.addEventListener("click", () => {
       flushInputs();
@@ -2538,8 +2608,11 @@ export const UstawieniaView: View = {
       const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
+      const priceValueRaw = addPriceInput?.value.trim() || "";
+      const legendText = addLegendInput?.value.trim() || "";
+
       if (!productLabel) {
-        showStatus("⚠️ Wpisz nazwę produktu.", "error");
+        showStatus("⚠️ Wpisz nazwę wariantu / produktu.", "error");
         addLabelInput?.focus();
         return;
       }
@@ -2565,19 +2638,29 @@ export const UstawieniaView: View = {
       }
 
       const newKey = buildUniquePriceKey(chosenPrefix, productLabel, prices);
-      prices[newKey] = null;
-      customPriceLabels[newKey] = productLabel;
+
+      const parsedPrice = priceValueRaw !== "" ? Number.parseFloat(priceValueRaw) : NaN;
+      prices[newKey] = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
+
+      customPriceLabels[newKey] = legendText || productLabel;
+
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      if (addLabelInput) {
-        addLabelInput.value = "";
-        addLabelInput.focus();
-      }
+
+      if (addLabelInput) addLabelInput.value = "";
+      if (addPriceInput) addPriceInput.value = "";
+      if (addLegendInput) addLegendInput.value = "";
+      updateKeyPreview();
+
       const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");
       const lastPriceInput = priceInputs[priceInputs.length - 1];
-      lastPriceInput?.focus();
-      lastPriceInput?.select();
+      if (lastPriceInput) {
+        lastPriceInput.focus();
+        lastPriceInput.select();
+      } else {
+        addLabelInput?.focus();
+      }
     });
 
     container.querySelector("#btn-save")?.addEventListener("click", () => {
