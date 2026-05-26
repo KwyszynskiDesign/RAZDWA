@@ -221,12 +221,148 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "canvas-m2-unframed", label: "Canvas bez oprawy – cena za m²" },
       );
       break;
-    default:
-      if (category.prefixes.length > 0) {
-        options.push(...category.prefixes.map((prefix) => ({ value: prefix, label: humanizeSegment(prefix.replace(/-$/g, "")) })));
-      } else {
-        options.push({ value: category.newKeyPrefix ?? "nowa-", label: category.label });
-      }
+    case "ulotki":
+      options.push(
+        { value: "ulotki-jed-a5-", label: "Ulotki jednostronne A5" },
+        { value: "ulotki-jed-a6-", label: "Ulotki jednostronne A6" },
+        { value: "ulotki-jed-dl-", label: "Ulotki jednostronne DL" },
+        { value: "ulotki-dwu-a5-", label: "Ulotki dwustronne A5" },
+        { value: "ulotki-dwu-a6-", label: "Ulotki dwustronne A6" },
+        { value: "ulotki-dwu-dl-", label: "Ulotki dwustronne DL" },
+      );
+      break;
+    case "wizytowki":
+      options.push(
+        { value: "wizytowki-85x55-none-", label: "Wizytówki 85×55 bez laminatu" },
+        { value: "wizytowki-85x55-matt_gloss-", label: "Wizytówki 85×55 z laminatem mat/błysk" },
+        { value: "wizytowki-90x50-none-", label: "Wizytówki 90×50 bez laminatu" },
+        { value: "wizytowki-90x50-matt_gloss-", label: "Wizytówki 90×50 z laminatem mat/błysk" },
+      );
+      break;
+    case "broszury-katalogi":
+      options.push(
+        { value: "broszury-katalogi-a4-", label: "Broszury i katalogi A4" },
+        { value: "broszury-katalogi-a5-", label: "Broszury i katalogi A5" },
+        { value: "broszury-katalogi-dl-", label: "Broszury i katalogi DL" },
+      );
+      break;
+    case "wlepki":
+      options.push(
+        { value: "wlepki-obrys-folia-", label: "Naklejki po obrysie – folia (m²)" },
+        { value: "wlepki-polipropylen-", label: "Naklejki polipropylen (m²)" },
+        { value: "wlepki-standard-folia-", label: "Naklejki standardowe folia (m²)" },
+        { value: "wlepki-szt-papier-sra3-", label: "Naklejki papier SRA3 (szt)" },
+        { value: "wlepki-szt-folia-sra3-", label: "Naklejki folia SRA3 (szt)" },
+        { value: "wlepki-szt-plotowane-papier-", label: "Naklejki plotowane papier (szt)" },
+        { value: "wlepki-szt-plotowane-folia-", label: "Naklejki plotowane folia (szt)" },
+      );
+      break;
+    case "banner":
+      options.push(
+        { value: "banner-powlekany-", label: "Banner powlekany (m²)" },
+        { value: "banner-blockout-", label: "Banner blockout (m²)" },
+      );
+      break;
+    case "rollup":
+      options.push(
+        { value: "rollup-85x200-", label: "Roll-up 85×200 cm" },
+        { value: "rollup-100x200-", label: "Roll-up 100×200 cm" },
+        { value: "rollup-120x200-", label: "Roll-up 120×200 cm" },
+        { value: "rollup-150x200-", label: "Roll-up 150×200 cm" },
+        { value: "rollup-wymiana-", label: "Wymiana wkładu roll-up" },
+      );
+      break;
+    case "folia":
+      options.push(
+        { value: "folia-szroniona-wydruk-", label: "Folia szroniona – wydruk (m²)" },
+        { value: "folia-szroniona-oklejanie-", label: "Folia szroniona – oklejanie (m²)" },
+        { value: "folia-szroniona-owv-wydruk-", label: "Folia OWV – wydruk (m²)" },
+        { value: "folia-szroniona-owv-oklejanie-", label: "Folia OWV – oklejanie (m²)" },
+      );
+      break;
+    case "zaproszenia":
+      options.push(
+        { value: "zaproszenia-a6-single-normal-", label: "Kreda A6 jednostronne bez składania" },
+        { value: "zaproszenia-a6-single-skladane-", label: "Kreda A6 jednostronne składane" },
+        { value: "zaproszenia-a6-double-normal-", label: "Kreda A6 dwustronne bez składania" },
+        { value: "zaproszenia-a6-double-skladane-", label: "Kreda A6 dwustronne składane" },
+        { value: "zaproszenia-a5-single-normal-", label: "Kreda A5 jednostronne bez składania" },
+        { value: "zaproszenia-a5-single-skladane-", label: "Kreda A5 jednostronne składane" },
+        { value: "zaproszenia-a5-double-normal-", label: "Kreda A5 dwustronne bez składania" },
+        { value: "zaproszenia-a5-double-skladane-", label: "Kreda A5 dwustronne składane" },
+        { value: "zaproszenia-dl-single-normal-", label: "Kreda DL jednostronne bez składania" },
+        { value: "zaproszenia-dl-single-skladane-", label: "Kreda DL jednostronne składane" },
+        { value: "zaproszenia-dl-double-normal-", label: "Kreda DL dwustronne bez składania" },
+        { value: "zaproszenia-dl-double-skladane-", label: "Kreda DL dwustronne składane" },
+        { value: "zaproszenia-satyna-a6-single-normal-", label: "Satyna A6 jednostronne bez składania" },
+        { value: "zaproszenia-satyna-a6-single-skladane-", label: "Satyna A6 jednostronne składane" },
+        { value: "zaproszenia-satyna-a6-double-normal-", label: "Satyna A6 dwustronne bez składania" },
+        { value: "zaproszenia-satyna-a6-double-skladane-", label: "Satyna A6 dwustronne składane" },
+        { value: "zaproszenia-satyna-a5-single-normal-", label: "Satyna A5 jednostronne bez składania" },
+        { value: "zaproszenia-satyna-a5-single-skladane-", label: "Satyna A5 jednostronne składane" },
+        { value: "zaproszenia-satyna-a5-double-normal-", label: "Satyna A5 dwustronne bez składania" },
+        { value: "zaproszenia-satyna-a5-double-skladane-", label: "Satyna A5 dwustronne składane" },
+        { value: "zaproszenia-satyna-dl-single-normal-", label: "Satyna DL jednostronne bez składania" },
+        { value: "zaproszenia-satyna-dl-single-skladane-", label: "Satyna DL jednostronne składane" },
+        { value: "zaproszenia-satyna-dl-double-normal-", label: "Satyna DL dwustronne bez składania" },
+        { value: "zaproszenia-satyna-dl-double-skladane-", label: "Satyna DL dwustronne składane" },
+      );
+      break;
+    case "druk-cad":
+      options.push(
+        { value: "druk-cad-kolor-fmt-", label: "CAD kolorowy – formatowy" },
+        { value: "druk-cad-kolor-mb-", label: "CAD kolorowy – metr bieżący" },
+        { value: "druk-cad-bw-fmt-", label: "CAD czarno-biały – formatowy" },
+        { value: "druk-cad-bw-mb-", label: "CAD czarno-biały – metr bieżący" },
+        { value: "cad-fold-", label: "Składanie CAD (wg formatu)" },
+        { value: "cad-", label: "Usługi CAD (inne: skanowanie, paski, klienci)" },
+      );
+      break;
+    case "laminowanie":
+      options.push(
+        { value: "laminowanie-a4-", label: "Laminowanie A4" },
+        { value: "laminowanie-a5-", label: "Laminowanie A5" },
+        { value: "laminowanie-a3-", label: "Laminowanie A3" },
+        { value: "laminowanie-a6-", label: "Laminowanie A6" },
+        { value: "laminowanie-intro-", label: "Introligatornia – usługi jednostkowe" },
+        { value: "laminowanie-oprawa-grzbietowa-", label: "Oprawa grzbietowa (listwa wsuwana)" },
+        { value: "laminowanie-oprawa-kanalowa-", label: "Oprawa kanałowa dyplomowa" },
+        { value: "laminowanie-oprawa-zaciskowa-", label: "Oprawa zaciskowa" },
+        { value: "laminowanie-oprawa-zbijane-", label: "Oprawa zbijana" },
+        { value: "laminowanie-oprawa-skrecane-", label: "Oprawa skręcana (śruby introligatorskie)" },
+        { value: "laminowanie-bindowanie-", label: "Bindowanie (plastik / metal)" },
+      );
+      break;
+    case "vouchery":
+      options.push(
+        { value: "vouchery-jed-", label: "Voucher jednostronny – nowy próg (etykieta: ilość, np. '40 szt')" },
+        { value: "vouchery-dwu-", label: "Voucher dwustronny – nowy próg (etykieta: ilość, np. '40 szt')" },
+      );
+      break;
+    case "wycinanie-folii":
+      // Kalkulator czyta dokładnie 4 stałe klucze (kolorowa/zloto-srebro × ponizej/powyzej 1m²).
+      // Dodawanie nowych wariantów nie ma efektu – brak opcji prefiksu jest celowy.
+      break;
+    case "dyplomy":
+      options.push(
+        { value: "dyplomy-qty-", label: "Dyplomy – nowy próg ilościowy (etykieta = ilość szt.)" },
+      );
+      break;
+    case "koperty":
+      options.push(
+        { value: "koperty-", label: "Koperta (typ A–G, etykieta = litera)" },
+        { value: "artykuly-koperta-", label: "Koperta – pozycja artykułu biurowego" },
+      );
+      break;
+    case "pojedyncze-naklady":
+      options.push(
+        { value: "laminowanie-special-", label: "Pojedynczy nakład – nowa pozycja" },
+      );
+      break;
+    case "modifiers":
+      options.push(
+        { value: "modifier-", label: "Nowa dopłata globalna (mnożnik procentowy)" },
+      );
       break;
   }
 
@@ -2690,9 +2826,16 @@ export const UstawieniaView: View = {
       const newKey = buildUniquePriceKey(chosenPrefix, productLabel, prices);
 
       const parsedPrice = priceValueRaw !== "" ? Number.parseFloat(priceValueRaw) : NaN;
-      prices[newKey] = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
+      const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
+      console.log("Zapis do:", { categoryKey: chosenCategoryId, subcategoryKey: chosenPrefix, newVariant: { key: newKey, price: newVariantPrice, legend: legendText || productLabel } });
+      prices[newKey] = newVariantPrice;
 
       customPriceLabels[newKey] = legendText || productLabel;
+
+      const currentDefaultPrices = (getPrice("defaultPrices") as Record<string, number | null>) ?? {};
+      setPrice("defaultPrices", { ...currentDefaultPrices, [newKey]: newVariantPrice });
+      setPriceLabels({ ...customPriceLabels });
+      showStatus(`✓ Dodano: ${newKey}`);
 
       renderTabs();
       renderTable();

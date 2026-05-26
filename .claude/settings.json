@@ -7,7 +7,10 @@
       "PowerShell(Get-ChildItem *)",
       "PowerShell(Select-String *)",
       "PowerShell(Set-Location *)",
-      "Read(//h/RAZ DWA/RAZDWA/**)"
+      "Read(//h/RAZ DWA/RAZDWA/**)",
+      "Bash(Get-ChildItem -Path \"h:\\\\RAZ DWA\\\\RAZDWA\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)"
     ],
     "additionalDirectories": [
       "D:\\KWdesign"
