@@ -23,3 +23,11 @@ service-account.json
 .env
 .env.local
 .env.production
+
+# Claude Code — lokalne / skill data
+.claude/skills/
+.claude/settings.local.json
+
+# Przypadkowe pliki
+result-display
+\#e2e8f0

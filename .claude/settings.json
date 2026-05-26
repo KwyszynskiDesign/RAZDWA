@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(kalkulator)",
+      "Bash(cad\" -i)",
+      "PowerShell(Get-ChildItem \"D:\\\\KWdesign\\\\assets\\\\images\" | Where-Object { $_.Name -match \"razdwa|kalkulator|cad\" -and $_ -match \".\" })",
+      "PowerShell(Get-ChildItem \"D:\\\\KWdesign\\\\projects\" | Where-Object { $_.Name -match \"razdwa\" })",
+      "Read(//h/RAZ DWA/RAZDWA/**)",
+      "PowerShell(Get-ChildItem \"H:\\\\RAZ DWA\\\\RAZDWA\\\\docs\" -Recurse | Where-Object { -not $_.PSIsContainer } | Select-Object Name, Length | Sort-Object Name | Format-Table -AutoSize)",
+      "Bash(git commit -m ' *)",
+      "Bash(npm run *)",
+      "Bash(Get-ChildItem -Path . -Recurse -File -Filter \"*.ts\" -o ErrorAction SilentlyContinue)",
+      "Bash(Select-Object -First 20 FullName)",
+      "PowerShell(Select-String -Path \"h:\\\\RAZ DWA\\\\RAZDWA\\\\docs\\\\assets\\\\styles.css\" -Pattern \"settings\" | Select-Object -First 30 | ForEach-Object { $_.Line })"
+    ],
+    "additionalDirectories": [
+      "D:\\KWdesign"
+    ]
+  }
+}
