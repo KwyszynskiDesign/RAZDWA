@@ -179,11 +179,11 @@ export class Router {
     const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
       {
         title: "Druk cyfrowy",
-        ids: ["druk-a4-a3", "ulotki-cyfrowe", "wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery"]
+        ids: ["druk-a4-a3", "ulotki-cyfrowe", "wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "plakaty-a4-a3", "broszury-katalogi"]
       },
       {
         title: "Ploter i wielki format",
-        ids: ["druk-cad", "cad-upload", "plakaty-a4-a3", "plakaty", "banner", "canvas", "roll-up"]
+        ids: ["druk-cad", "cad-upload", "plakaty", "banner", "canvas", "roll-up"]
       },
       {
         title: "Cięcie i folie",

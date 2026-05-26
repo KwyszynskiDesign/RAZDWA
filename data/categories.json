@@ -309,6 +309,12 @@
         "implemented":  true
     },
     {
+        "id":  "broszury-katalogi",
+        "name":  "Broszury i katalogi",
+        "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-text.svg",
+        "implemented":  true
+    },
+    {
         "id":  "artykuly-biurowe",
         "name":  "Artykuły Biurowe",
         "icon":  "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",

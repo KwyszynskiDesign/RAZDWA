@@ -10,6 +10,7 @@ import { RollUpView } from "./views/roll-up";
 import { ZaproszeniaKredaView } from "./views/zaproszenia-kreda";
 import { UlotkiCyfroweView } from "./views/ulotki-cyfrowe";
 import { BannerView } from "./views/banner";
+import { BroszuryKatalogiView } from "./views/broszury-katalogi";
 import { WlepkiView } from "./views/wlepki-naklejki";
 import { DrukA4A3SkanView } from "./views/druk-a4-a3-skan-view";
 import { DrukCADView } from "./views/druk-cad";
@@ -524,6 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(ZaproszeniaKredaView);
   router.addRoute(UlotkiCyfroweView);
   router.addRoute(BannerView);
+  router.addRoute(BroszuryKatalogiView);
   router.addRoute(WlepkiView);
   router.addRoute(LaminowanieView);
   router.addRoute(WydrukiSpecjalneView);

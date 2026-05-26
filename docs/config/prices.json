@@ -3596,6 +3596,19 @@
                           "zaproszenia-dl-double-skladane-50":  115.00,
                           "zaproszenia-dl-double-skladane-75":  156.00,
                           "zaproszenia-dl-double-skladane-100":  186.00,
-                          "zaproszenia-dl-double-skladane-150":  245.00
+                          "zaproszenia-dl-double-skladane-150":  245.00,
+
+                          "broszury-katalogi-a4-1-50":  0.00,
+                          "broszury-katalogi-a4-51-100":  0.00,
+                          "broszury-katalogi-a4-101-200":  0.00,
+                          "broszury-katalogi-a4-201-500":  0.00,
+                          "broszury-katalogi-a5-1-50":  0.00,
+                          "broszury-katalogi-a5-51-100":  0.00,
+                          "broszury-katalogi-a5-101-200":  0.00,
+                          "broszury-katalogi-a5-201-500":  0.00,
+                          "broszury-katalogi-dl-1-50":  0.00,
+                          "broszury-katalogi-dl-51-100":  0.00,
+                          "broszury-katalogi-dl-101-200":  0.00,
+                          "broszury-katalogi-dl-201-500":  0.00
                       }
 }

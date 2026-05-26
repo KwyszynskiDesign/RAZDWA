@@ -139,6 +139,8 @@ function getCategorySectionTitle(category: PriceCategory, key: string): string {
       return getArtykulySectionTitle(key);
     case "uslugi":
       return getUslugiSectionTitle(key);
+    case "broszury-katalogi":
+      return getBroszuryKatalogiSectionTitle(key);
     default:
       return category.label.toUpperCase();
   }
@@ -911,6 +913,14 @@ function getPriceLabel(key: string): string {
     return `${zaproszeniaMatch[5]} szt.`;
   }
 
+  const broszuryKatalogiMatch = key.match(/^broszury-katalogi-(a4|a5|dl)-(\d+)-(\d+)$/);
+  if (broszuryKatalogiMatch) {
+    const format = broszuryKatalogiMatch[1].toUpperCase();
+    const from = broszuryKatalogiMatch[2];
+    const to = broszuryKatalogiMatch[3];
+    return `Broszury i katalogi ${format} – ${from}–${to} szt.`;
+  }
+
   if (key.startsWith("artykuly-")) {
     return `Artykuły biurowe – ${humanizeSegment(key.replace("artykuly-", ""))}`;
   }
@@ -1050,6 +1060,13 @@ function getFoliaSectionTitle(key: string): string {
   if (key.startsWith("folia-szroniona-wydruk-")) return "FOLIA SZRONIONA – WYDRUK";
   if (key.startsWith("folia-szroniona-oklejanie-")) return "FOLIA SZRONIONA – OKLEJANIE";
   return "FOLIA SZRONIONA / OWV";
+}
+
+function getBroszuryKatalogiSectionTitle(key: string): string {
+  if (key.startsWith("broszury-katalogi-a4-")) return "FORMAT A4";
+  if (key.startsWith("broszury-katalogi-a5-")) return "FORMAT A5";
+  if (key.startsWith("broszury-katalogi-dl-")) return "FORMAT DL";
+  return "BROSZURY I KATALOGI";
 }
 
 function getZaproszeniaSectionTitle(key: string): string {
@@ -1303,6 +1320,14 @@ const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     prefixes: ["laminowanie-special-"],
     description: "Ceny usług dla pojedynczych nakładów i wydruki specjalne.",
     newKeyPrefix: "laminowanie-special-"
+  },
+  {
+    id: "broszury-katalogi",
+    label: "Broszury i katalogi",
+    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-text.svg",
+    prefixes: ["broszury-katalogi-"],
+    description: "Ceny broszur i katalogów wg formatu i nakładu.",
+    newKeyPrefix: "broszury-katalogi-a4-"
   },
   {
     id: "modifiers",
@@ -1954,6 +1979,27 @@ export function sortUslugiCategoryKeys(keys: string[]): string[] {
   });
 }
 
+function sortBroszuryKatalogiCategoryKeys(keys: string[]): string[] {
+  const formatRank = (key: string): number => {
+    if (key.startsWith("broszury-katalogi-a4-")) return 0;
+    if (key.startsWith("broszury-katalogi-a5-")) return 1;
+    if (key.startsWith("broszury-katalogi-dl-")) return 2;
+    return 99;
+  };
+
+  const qtyStart = (key: string): number => {
+    const m = key.match(/broszury-katalogi-(?:a4|a5|dl)-(\d+)-\d+$/);
+    return m ? Number.parseInt(m[1], 10) : Number.POSITIVE_INFINITY;
+  };
+
+  return [...keys].sort((a, b) => {
+    const fa = formatRank(a);
+    const fb = formatRank(b);
+    if (fa !== fb) return fa - fb;
+    return qtyStart(a) - qtyStart(b);
+  });
+}
+
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
     return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
@@ -2030,6 +2076,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
 
   if (category.id === "uslugi") {
     return sortUslugiCategoryKeys(keys);
+  }
+
+  if (category.id === "broszury-katalogi") {
+    return sortBroszuryKatalogiCategoryKeys(keys);
   }
 
   return keys.sort();
