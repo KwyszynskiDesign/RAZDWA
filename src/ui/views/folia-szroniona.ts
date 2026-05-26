@@ -13,7 +13,8 @@ type BreakdownRow = {
 };
 
 function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
-  target.replaceChildren();
+  while (target.children.length > 1) target.removeChild(target.lastChild!);
+  Object.assign(target.style, { gap: '8px', fontSize: '14px', lineHeight: '1.45', color: '#334155' });
 
   for (const row of rows) {
     const line = document.createElement("div");
@@ -62,7 +63,6 @@ export const FoliaSzronionaView: View = {
     const addToCartBtn = container.querySelector("#fs-add-to-cart") as HTMLButtonElement;
     const resultDisplay = container.querySelector("#fs-result-display") as HTMLElement;
     const breakdownDisplay = container.querySelector("#fs-breakdown-display") as HTMLElement;
-    const breakdownLines = container.querySelector("#fs-breakdown-lines") as HTMLElement;
     const normalResult = container.querySelector("#fs-normal-result") as HTMLElement;
     const customQuote = container.querySelector("#fs-custom-quote") as HTMLElement;
     const areaValSpan = container.querySelector("#fs-area-val") as HTMLElement;
@@ -123,7 +123,6 @@ export const FoliaSzronionaView: View = {
       if (!serviceSelect.value || !hasDimensions) {
         resultDisplay.style.display = "none";
         if (breakdownDisplay) breakdownDisplay.style.display = "none";
-        if (breakdownLines) breakdownLines.innerHTML = "";
         addToCartBtn.disabled = true;
         currentResult = null;
         return;
@@ -142,7 +141,6 @@ export const FoliaSzronionaView: View = {
       if (result.isCustom) {
           normalResult.style.display = "none";
           customQuote.style.display = "block";
-          if (breakdownLines) breakdownLines.innerHTML = "";
           addToCartBtn.disabled = true;
         ctx.updateLastCalculated(0, "Folia szroniona / OWV (wycena ind.)");
       } else {
@@ -153,28 +151,26 @@ export const FoliaSzronionaView: View = {
           if (areaValSpan) areaValSpan.innerText = areaLabel;
           if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(result.tierPrice);
           if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
-          if (breakdownLines) {
-            const lines: BreakdownRow[] = [
-              { label: "Usługa", value: serviceSelect.options[serviceSelect.selectedIndex].text },
-              { label: "Wymiary", value: `${currentOptions.widthMm} × ${currentOptions.heightMm} mm` },
-              { label: "Powierzchnia", value: areaLabel },
-              { label: "Cena za m2", value: formatPLN(result.tierPrice) },
-            ];
+          const lines: BreakdownRow[] = [
+            { label: "Usługa", value: serviceSelect.options[serviceSelect.selectedIndex].text },
+            { label: "Wymiary", value: `${currentOptions.widthMm} × ${currentOptions.heightMm} mm` },
+            { label: "Powierzchnia", value: areaLabel },
+            { label: "Cena za m2", value: formatPLN(result.tierPrice) },
+          ];
 
-            if (ctx.expressMode) {
-              lines.push({ label: "Tryb", value: "EXPRESS (+20%)" });
-            }
-
-            lines.push({ label: "Łącznie", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
-            renderBreakdownRows(breakdownLines, lines);
+          if (ctx.expressMode) {
+            lines.push({ label: "Tryb", value: "EXPRESS (+20%)" });
           }
+
+          lines.push({ label: "Łącznie", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+          if (breakdownDisplay) renderBreakdownRows(breakdownDisplay, lines);
           addToCartBtn.disabled = false;
           ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
       }
 
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
-      if (breakdownDisplay) breakdownDisplay.style.display = result.isCustom ? "none" : "block";
+      if (breakdownDisplay) breakdownDisplay.style.display = result.isCustom ? "none" : "grid";
     };
 
     autoCalc({ root: container, calc: performCalculation });

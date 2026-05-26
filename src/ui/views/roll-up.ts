@@ -13,7 +13,8 @@ type BreakdownRow = {
 };
 
 function renderBreakdownRows(target: HTMLElement, rows: BreakdownRow[]): void {
-  target.replaceChildren();
+  while (target.children.length > 1) target.removeChild(target.lastChild!);
+  Object.assign(target.style, { gap: '8px', fontSize: '14px', lineHeight: '1.45', color: '#334155' });
 
   for (const row of rows) {
     const line = document.createElement("div");
@@ -54,7 +55,6 @@ export const RollUpView: View = {
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#rollUpResult") as HTMLElement;
     const breakdownBox = container.querySelector("#rollUpBreakdown") as HTMLElement;
-    const breakdownLines = container.querySelector("#rollUpBreakdownLines") as HTMLElement;
     const legendNote = container.querySelector("#rollup-legend-note") as HTMLElement | null;
 
     const legendTierEls: Record<string, HTMLElement | null> = {
@@ -142,8 +142,8 @@ export const RollUpView: View = {
       }
 
       breakdown.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
-      renderBreakdownRows(breakdownLines, breakdown);
-      breakdownBox.style.display = "block";
+      renderBreakdownRows(breakdownBox, breakdown);
+      breakdownBox.style.display = 'grid';
 
       resultArea.style.display = "block";
       (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(result.totalPrice / options.qty);

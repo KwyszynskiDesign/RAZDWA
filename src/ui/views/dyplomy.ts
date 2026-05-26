@@ -19,7 +19,6 @@ export const DyplomyView: View = {
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#dypResult") as HTMLElement;
     const breakdownBox = container.querySelector("#dypBreakdown") as HTMLElement;
-    const breakdownLines = container.querySelector("#dypBreakdownLines") as HTMLElement;
     const legendRows = container.querySelector("#dyp-legend-rows") as HTMLElement | null;
 
     const updateLegend = () => {
@@ -98,8 +97,10 @@ export const DyplomyView: View = {
       }
 
       breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
-      breakdownLines.innerHTML = breakdown.join("");
-      breakdownBox.style.display = "block";
+      while (breakdownBox.children.length > 1) breakdownBox.removeChild(breakdownBox.lastChild!);
+      Object.assign(breakdownBox.style, { gap: '8px', fontSize: '14px', lineHeight: '1.45', color: '#334155' });
+      breakdownBox.insertAdjacentHTML('beforeend', breakdown.join(''));
+      breakdownBox.style.display = 'grid';
 
       resultArea.style.display = "block";
       addToCartBtn.disabled = false;

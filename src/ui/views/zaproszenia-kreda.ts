@@ -24,7 +24,6 @@ export const ZaproszeniaKredaView: View = {
     const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
     const resultArea = container.querySelector("#zapResult") as HTMLElement;
     const breakdownBox = container.querySelector("#zapBreakdown") as HTMLElement;
-    const breakdownLines = container.querySelector("#zapBreakdownLines") as HTMLElement;
     const legendTitle = container.querySelector("#zap-legend-title") as HTMLElement | null;
     const legendSubtitle = container.querySelector("#zap-legend-subtitle") as HTMLElement | null;
     const legendModeBadge = container.querySelector("#zap-legend-mode-badge") as HTMLElement | null;
@@ -80,7 +79,8 @@ export const ZaproszeniaKredaView: View = {
     };
 
     const renderBreakdownRows = (rows: Array<{ label: string; value: string; isTotal?: boolean }>) => {
-      breakdownLines.replaceChildren();
+      while (breakdownBox.children.length > 1) breakdownBox.removeChild(breakdownBox.lastChild!);
+      Object.assign(breakdownBox.style, { gap: '8px', fontSize: '14px', lineHeight: '1.45', color: '#334155' });
       rows.forEach((row) => {
         const line = document.createElement("div");
         if (row.isTotal) {
@@ -92,7 +92,7 @@ export const ZaproszeniaKredaView: View = {
         strong.textContent = `${row.label}: `;
         line.appendChild(strong);
         line.appendChild(document.createTextNode(row.value));
-        breakdownLines.appendChild(line);
+        breakdownBox.appendChild(line);
       });
     };
 
@@ -202,7 +202,7 @@ export const ZaproszeniaKredaView: View = {
       });
 
       renderBreakdownRows(breakdownRows);
-      breakdownBox.style.display = "block";
+      breakdownBox.style.display = "grid";
 
       resultArea.style.display = "block";
       addToCartBtn.disabled = false;
