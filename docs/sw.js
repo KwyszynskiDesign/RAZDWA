@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'razdwa-v202605271910';
+var CACHE_VERSION = 'razdwa-v202605271928';
 
 self.addEventListener('install', function (event) {
   event.waitUntil(

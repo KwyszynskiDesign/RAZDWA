@@ -2856,13 +2856,15 @@ export const UstawieniaView: View = {
       }
     });
 
-    container.querySelector("#btn-save")?.addEventListener("click", () => {
+    container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
+
+      // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
+      // flushInputs() już zsynchronizował edytowalne pola aktywnej kategorii → prices.
       const persisted: Record<string, number | null> = {};
       const persistedLabels: PriceLabelMap = { ...customPriceLabels };
-      container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
-        const key = row.dataset.key ?? "";
-        const value = prices[key];
+
+      Object.entries(prices).forEach(([key, value]) => {
         persisted[key] = typeof value === "number" && Number.isFinite(value) ? value : null;
         persistedLabels[key] = customPriceLabels[key] || getPriceLabel(key);
       });
@@ -2875,8 +2877,14 @@ export const UstawieniaView: View = {
       renderTable();
       syncAddCategorySelection();
       showStatus("✓ Zapisano ceny.");
-      // Emit event to notify all views about price changes
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
+
+      try {
+        await syncPricesToCloud(persisted);
+        console.log("✓ Synchronizacja z chmurą zakończona.");
+      } catch (err) {
+        console.error("✗ Błąd synchronizacji z Google Apps Script:", err);
+      }
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {

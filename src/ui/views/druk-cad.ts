@@ -505,6 +505,8 @@ export const DrukCADView: View = {
       console.warn('[DrukCAD] listeners already bound, skipping');
     }
 
+    const initBase = data.base[formatSelect.value]?.l;
+    if (initBase != null) lengthInput.value = String(initBase);
     updateUI();
     ensureLegend();
 
