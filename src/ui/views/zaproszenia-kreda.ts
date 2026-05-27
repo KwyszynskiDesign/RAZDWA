@@ -217,7 +217,8 @@ export const ZaproszeniaKredaView: View = {
       }
       const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
       if (tierHintEl) {
-        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
+        const priceSrc = result.interpolated ? "interpolacja liniowa" : "cena z progu";
+        tierHintEl.textContent = `Dla ${options.qty} szt: ${result.basePrice.toFixed(2)} zł (${priceSrc}, papier: ${paperVal.replace("_", " ")})`;
       }
       (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
       (container.querySelector("#resSatinHint") as HTMLElement).style.display = options.isSatin ? "block" : "none";
