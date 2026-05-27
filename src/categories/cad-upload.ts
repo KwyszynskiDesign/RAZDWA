@@ -20,6 +20,7 @@ export interface CadUploadFileEntry {
   mode: 'color' | 'bw';
   folding: boolean;
   scanning: boolean;
+  printQty: number;
   printPrice: number;
   foldingPrice: number;
   scanPrice: number;
@@ -321,6 +322,7 @@ export function updateCadFileEntry(
           mode,
           folding: false,
           scanning: false,
+          printQty: 1,
           printPrice,
           foldingPrice: 0,
           scanPrice: 0,
@@ -343,6 +345,7 @@ export function updateCadFileEntry(
           mode,
           folding: false,
           scanning: false,
+          printQty: 1,
           printPrice: 0,
           foldingPrice: 0,
           scanPrice: 0,
@@ -382,6 +385,7 @@ export function updateCadFileEntry(
     mode: entry.mode || mode,
     folding: entry.folding || false,
     scanning: entry.scanning || false,
+    printQty: entry.printQty || 1,
     printPrice,
     foldingPrice,
     scanPrice,

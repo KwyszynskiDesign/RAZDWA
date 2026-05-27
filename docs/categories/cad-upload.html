@@ -333,7 +333,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .results-table th.col-size, .results-table th.col-name, .results-table th.col-fold, .results-table th.col-scan, .results-table th.col-price, .results-table th.col-remove {
+  .results-table th.col-size, .results-table th.col-name, .results-table th.col-fold, .results-table th.col-scan, .results-table th.col-qty, .results-table th.col-price, .results-table th.col-remove {
     white-space: nowrap;
   }
   /* Wymuszenie niełamania wyrazu 'Format' w nagłówku tabeli nawet przy dynamicznej zmianie tekstu */
@@ -364,9 +364,19 @@
   .results-table .col-lp,
   .results-table .col-fold,
   .results-table .col-scan,
+  .results-table .col-qty,
   .results-table .col-remove {
     text-align: center;
     white-space: nowrap;
+  }
+
+  .results-table td.col-qty input[type="number"] {
+    width: 44px;
+    padding: 2px 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.78rem;
+    text-align: center;
   }
 
   .results-table th.col-fold,
@@ -400,12 +410,13 @@
     cursor: pointer;
   }
 
-  .results-table .col-lp     { width: 8%; }
-  .results-table .col-name   { width: 21%; }
-  .results-table .col-size   { width: calc(18% + 15px); white-space: nowrap; }
-  .results-table .col-fold   { width: 15%; }
-  .results-table .col-scan   { width: 10%; }
-  .results-table .col-price  { width: 28%; }
+  .results-table .col-lp     { width: 7%; }
+  .results-table .col-name   { width: 18%; }
+  .results-table .col-size   { width: 16%; white-space: nowrap; }
+  .results-table .col-fold   { width: 13%; }
+  .results-table .col-scan   { width: 8%; }
+  .results-table .col-qty    { width: 9%; text-align: center; }
+  .results-table .col-price  { width: 23%; }
   .results-table .col-remove { width: 6%; min-width: 34px; }
 
   .results-table .col-name,
@@ -820,13 +831,14 @@
               <input type="checkbox" id="foldAllCheck" aria-label="Zaznacz składanie dla wszystkich plików" title="Zaznacz wszystkie: składanie">
             </div>
           </th>
-          <th class="col-scan" style="width:10%;min-width:60px;">
+          <th class="col-scan" style="width:8%;min-width:50px;">
             <div class="header-toggle">
               <span>Skan</span>
               <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
             </div>
           </th>
-          <th class="col-price" style="width:28%;min-width:120px;">
+          <th class="col-qty" style="width:9%;min-width:50px;">Ilość</th>
+          <th class="col-price" style="width:23%;min-width:110px;">
             <div class="cad-price-header">
               <span>Rodzaj</span>
               <span>Cena</span>

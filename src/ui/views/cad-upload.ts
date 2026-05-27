@@ -395,7 +395,8 @@ export const CadUploadView: View = {
     function calculateRowTotal(file: CadUploadFileEntry, mode: "color" | "bw", surcharge: number): number {
       const recalculated = updateCadFileEntry({ ...file, mode }, mode);
       const print = recalculated.printPrice * surcharge;
-      return print + recalculated.foldingPrice;
+      const printQty = file.printQty || 1;
+      return (print + recalculated.foldingPrice + recalculated.scanPrice) * printQty;
     }
 
     function renderCalculations(): void {
@@ -489,6 +490,7 @@ export const CadUploadView: View = {
           mode: getMode(),
           folding: file.folding,
           scanning: file.scanning,
+          printQty: file.printQty || 1,
         },
         getMode()
       );
@@ -549,6 +551,9 @@ export const CadUploadView: View = {
           <td class="col-scan">
             <input type="checkbox" class="scan-check" data-action="scan" ${file.scanning ? "checked" : ""} />
           </td>
+          <td class="col-qty">
+            <input type="number" data-action="qty" value="${file.printQty || 1}" min="1" step="1" />
+          </td>
           <td class="col-price">
             <div class="cad-price-cell">
               <div class="cad-price-line"><span>🎨 Kolor</span><strong>${formatPLN(rowColor)}</strong></div>
@@ -573,25 +578,27 @@ export const CadUploadView: View = {
       
       let totalPrintColorVariant = 0;
       let totalFoldingColorVariant = 0;
-      
+
       for (const file of files) {
-        totalPrintColorVariant += calculateVariantPrint(file, "color");
-        totalFoldingColorVariant += file.foldingPrice;
+        const printQty = file.printQty || 1;
+        totalPrintColorVariant += calculateVariantPrint(file, "color") * printQty;
+        totalFoldingColorVariant += file.foldingPrice * printQty;
       }
       totalPrintColorVariant *= surcharge;
-      
+
       let totalPrintBwVariant = 0;
       let totalFoldingBwVariant = 0;
-      
+
       for (const file of files) {
-        totalPrintBwVariant += calculateVariantPrint(file, "bw");
-        totalFoldingBwVariant += file.foldingPrice;
+        const printQty = file.printQty || 1;
+        totalPrintBwVariant += calculateVariantPrint(file, "bw") * printQty;
+        totalFoldingBwVariant += file.foldingPrice * printQty;
       }
       totalPrintBwVariant *= surcharge;
-      
+
       const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
       const extraServicesTotal = getExtraServicesTotal();
-      const totalScanColorVariant = files.reduce((sum, f) => sum + (f.scanning ? f.scanPrice : 0), 0);
+      const totalScanColorVariant = files.reduce((sum, f) => sum + (f.scanning ? f.scanPrice * (f.printQty || 1) : 0), 0);
 
       grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + emailFee + extraServicesTotal + totalScanColorVariant;
       grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + emailFee + extraServicesTotal + totalScanColorVariant;
@@ -795,6 +802,25 @@ export const CadUploadView: View = {
         files[index] = recalculateFile(files[index]);
         renderFiles();
       }
+
+      if (target.dataset.action === "qty") {
+        const newQty = parseInt(target.value, 10);
+        files[index].printQty = (!isNaN(newQty) && newQty >= 1) ? newQty : 1;
+        renderSummary();
+      }
+    });
+
+    tableBody.addEventListener("input", (event) => {
+      const target = event.target as HTMLInputElement;
+      if (target.dataset.action !== "qty") return;
+      const row = target.closest("tr[data-file-id]") as HTMLElement | null;
+      if (!row) return;
+      const id = Number(row.dataset.fileId || "0");
+      const index = files.findIndex((f) => f.id === id);
+      if (index < 0) return;
+      const newQty = parseInt(target.value, 10);
+      files[index].printQty = (!isNaN(newQty) && newQty >= 1) ? newQty : 1;
+      renderSummary();
     });
 
     tableBody.addEventListener("click", (event) => {
