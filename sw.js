@@ -7,7 +7,11 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202605281251'; // Injected by prebuild script
+<<<<<<< HEAD
+var CACHE_VERSION = 'razdwa-v202605281748'; // Injected by prebuild script
+=======
+var CACHE_VERSION = 'razdwa-v202605281748'; // Injected by prebuild script
+>>>>>>> f5106a6 (Update CAD upload flow)
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead

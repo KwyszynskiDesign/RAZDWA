@@ -694,10 +694,6 @@ export const CadUploadView: View = {
             }
             return lines;
           })()}
-          <div class="summary-item" style="border-top: 2px solid #e0e0e0; margin-top: 8px; padding-top: 8px;">
-            <span><strong>🎨 RAZEM KOLOR:</strong></span>
-            <span><strong>${formatPLN(grandTotalColorVariant)}</strong></span>
-          </div>
         `;
       }
 

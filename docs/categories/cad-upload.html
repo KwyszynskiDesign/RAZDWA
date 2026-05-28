@@ -370,13 +370,21 @@
     white-space: nowrap;
   }
 
+  .results-table td.col-qty {
+    overflow: visible;
+  }
   .results-table td.col-qty input[type="number"] {
-    width: 44px;
-    padding: 2px 4px;
+    width: 42px;
+    padding: 2px 0 2px 4px;
     border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 0.78rem;
-    text-align: center;
+    text-align: left;
+  }
+  .results-table td.col-qty input[type="number"]::-webkit-outer-spin-button,
+  .results-table td.col-qty input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto;
+    opacity: 1;
   }
 
   .results-table th.col-fold,
@@ -411,8 +419,8 @@
   }
 
   .results-table .col-lp     { width: 7%; }
-  .results-table .col-name   { width: 18%; }
-  .results-table .col-size   { width: 16%; white-space: nowrap; }
+  .results-table .col-name   { width: 23%; }
+  .results-table .col-size   { width: 11%; white-space: nowrap; }
   .results-table .col-fold   { width: 13%; }
   .results-table .col-scan   { width: 8%; }
   .results-table .col-qty    { width: 9%; text-align: center; }
@@ -524,9 +532,9 @@
   }
 
   #viewContainer .results-table-container {
-    padding: 6px !important;
+    padding: 0 !important;
   }
-  
+
   .results-table tbody tr:hover {
     background: var(--surface-alt);
   }
@@ -608,7 +616,7 @@
     padding-bottom: 0;
   }
   .cad-summary-section {
-    margin-inline: -6px;
+    margin-inline: 0;
   }
 
   .cad-extras-monitor {
@@ -831,8 +839,8 @@
       <thead>
         <tr>
           <th class="col-lp" style="width:8%;min-width:40px;">NR.</th>
-          <th class="col-name" style="width:21%;min-width:120px;">Nazwa</th>
-          <th class="col-size" style="width:18%;min-width:90px;">Rozmiar</th>
+          <th class="col-name" style="width:26%;min-width:120px;">Nazwa</th>
+          <th class="col-size" style="width:13%;min-width:75px;">Rozmiar</th>
           <th class="col-fold" style="width:15%;min-width:80px;">
             <div class="header-toggle">
               <span>Składanie</span>
