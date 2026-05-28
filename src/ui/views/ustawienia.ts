@@ -2248,6 +2248,7 @@ export const UstawieniaView: View = {
     let renderedCategories = getRenderedCategories(prices);
     let activeCategory = renderedCategories[0]?.id ?? "druk-a4-a3";
     let lastBasePrefix = "";
+    let lastAddedKey: string | null = null;
 
     function getActiveCategory(): PriceCategory {
       return renderedCategories.find((category) => category.id === activeCategory) ?? renderedCategories[0];
@@ -2840,6 +2841,9 @@ export const UstawieniaView: View = {
       const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
       console.log("Zapis do:", { categoryKey: chosenCategoryId, subcategoryKey: chosenPrefix, newVariant: { key: newKey, price: newVariantPrice, legend: legendText || productLabel } });
       prices[newKey] = newVariantPrice;
+      lastAddedKey = newKey;
+      console.log("NOWY WARIANT DODANY:", { key: newKey, price: newVariantPrice });
+      console.log("PRICE MAP AFTER ADD:", { [newKey]: prices[newKey] }, "(total keys:", Object.keys(prices).length, ")");
 
       customPriceLabels[newKey] = legendText || productLabel;
 
@@ -2870,6 +2874,10 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
 
+      if (lastAddedKey) {
+        console.log("PERSISTED HAS NEW KEY:", lastAddedKey, "→ prices value:", prices[lastAddedKey], "(in prices:", lastAddedKey in prices, ")");
+      }
+
       // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
       // flushInputs() już zsynchronizował edytowalne pola aktywnej kategorii → prices.
       const persisted: Record<string, number | null> = {};
@@ -2893,7 +2901,13 @@ export const UstawieniaView: View = {
       try {
         console.log("PERSISTED TYPE:", typeof persisted, persisted);
         console.log("IS PERSISTED STRING:", typeof persisted === "string");
+        if (lastAddedKey) {
+          console.log("PERSISTED[lastAddedKey]:", lastAddedKey, "→", persisted[lastAddedKey], "(in persisted:", lastAddedKey in persisted, ")");
+        }
         const flatPrices = buildFlatPrices(persisted);
+        if (lastAddedKey) {
+          console.log("FLAT PRICES HAS lastAddedKey:", lastAddedKey, "→", flatPrices[lastAddedKey], "(in flatPrices:", lastAddedKey in flatPrices, ")");
+        }
         console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...");
         console.log("FLAT PRICES SAMPLE:", Object.entries(flatPrices).slice(0, 20));
         console.log("FLAT PRICES COUNT:", Object.keys(flatPrices).length);
