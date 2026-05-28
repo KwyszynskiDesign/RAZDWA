@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 var CACHE_VERSION = 'razdwa-v202605281251';
+=======
+var CACHE_VERSION = 'razdwa-v202605281717';
+>>>>>>> f5106a6 (Update CAD upload flow)
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
