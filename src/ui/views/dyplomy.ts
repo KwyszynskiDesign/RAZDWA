@@ -73,7 +73,7 @@ export const DyplomyView: View = {
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
       const breakdown = [
-        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format} (bez wpływu na cenę)</div>`,
+        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format}</div>`,
         `<div><strong>Cena z tabeli (${options.sides === 1 ? "jednostronne" : "dwustronne"}):</strong> ${formatPLN(tierPrice)}</div>`,
       ];
 
