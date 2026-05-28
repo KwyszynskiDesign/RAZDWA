@@ -523,6 +523,14 @@ export const DrukCADView: View = {
             console.debug('[DrukCAD] pdfjsLib present', typeof (window as any).pdfjsLib);
           }
       console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput?.value, lengthValue: lengthInput?.value });
+      if (qtySheetsInput && qtySheetsInput.value.trim() === "") {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        updateOptionsSummary();
+        updateGrandTotal();
+        return;
+      }
       const parsedQty = qtySheetsInput ? (parseInt(qtySheetsInput.value, 10) || 1) : 1;
       const parsedLength = parseInt(lengthInput.value, 10);
       if (isNaN(parsedLength) || parsedLength <= 0) {
