@@ -13,8 +13,10 @@ const LEGACY_APPS_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
   "https://script.google.com/macros/s/AKfycbwTpUgmnb3rU37002mEH6hsNVNIIW0eRNO1pG_0WQWBz5CN0BwSpTmaOABIJSAFJDwp/exec",
   "https://script.google.com/macros/s/AKfycbz1_WAWeJxAXSkvoxOAqEI-kSPRMZjf9vtMtXNw1ykbMCHPVa3A0HH0c5PfhHoO_4_c/exec",
+  "https://script.google.com/macros/s/AKfycbzLtgoTHBq3byqG_kjQ00RZ6Vc9r-ivJOMZVZ87Nczk8jXzxBPnV9Bfze8LeZ8Kd39K/exec",
+  "https://script.google.com/macros/s/AKfycbzvDXZrbMI4d-CThO8y85c0SYGJ1_OiX7Ta989IpKs_652fwWcuDHTKBU6LJ1Qnubxj/exec",
 ] as const;
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLtgoTHBq3byqG_kjQ00RZ6Vc9r-ivJOMZVZ87Nczk8jXzxBPnV9Bfze8LeZ8Kd39K/exec";
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG4TQpwKcGlnjo8kb7s1CKUuvWUam2QFmmmcNHo1uEZ7jmcRn2VJlb00jMRKRvtk2W/exec";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
@@ -433,9 +435,7 @@ export async function savePricesToAppsScript(
   }
 
   const body = JSON.stringify({
-    source: "razdwa-web",
-    type: "cennik",
-    createdAt: new Date().toISOString(),
+    type: "prices_update",
     prices,
   });
 
