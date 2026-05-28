@@ -803,11 +803,6 @@ export const CadUploadView: View = {
         renderFiles();
       }
 
-      if (target.dataset.action === "qty") {
-        const newQty = parseInt(target.value, 10);
-        files[index].printQty = (!isNaN(newQty) && newQty >= 1) ? newQty : 1;
-        renderSummary();
-      }
     });
 
     tableBody.addEventListener("input", (event) => {
@@ -820,6 +815,17 @@ export const CadUploadView: View = {
       if (index < 0) return;
       const newQty = parseInt(target.value, 10);
       files[index].printQty = (!isNaN(newQty) && newQty >= 1) ? newQty : 1;
+
+      const surcharge = calcSurchargeMultiplier();
+      const rowColor = calculateRowTotal(files[index], "color", surcharge);
+      const rowBw = calculateRowTotal(files[index], "bw", surcharge);
+      const priceCell = row.querySelector<HTMLElement>(".cad-price-cell");
+      if (priceCell) {
+        priceCell.innerHTML =
+          `<div class="cad-price-line"><span>🎨 Kolor</span><strong>${formatPLN(rowColor)}</strong></div>` +
+          `<div class="cad-price-line"><span>⚫ Cz-B</span><strong>${formatPLN(rowBw)}</strong></div>`;
+      }
+
       renderSummary();
     });
 

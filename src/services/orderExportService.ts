@@ -12,8 +12,9 @@ const LEGACY_APPS_SCRIPT_URLS = [
   "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
   "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
   "https://script.google.com/macros/s/AKfycbwTpUgmnb3rU37002mEH6hsNVNIIW0eRNO1pG_0WQWBz5CN0BwSpTmaOABIJSAFJDwp/exec",
+  "https://script.google.com/macros/s/AKfycbz1_WAWeJxAXSkvoxOAqEI-kSPRMZjf9vtMtXNw1ykbMCHPVa3A0HH0c5PfhHoO_4_c/exec",
 ] as const;
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz1_WAWeJxAXSkvoxOAqEI-kSPRMZjf9vtMtXNw1ykbMCHPVa3A0HH0c5PfhHoO_4_c/exec";
+const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzLtgoTHBq3byqG_kjQ00RZ6Vc9r-ivJOMZVZ87Nczk8jXzxBPnV9Bfze8LeZ8Kd39K/exec";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
@@ -412,6 +413,76 @@ export async function sendOrderToAppsScript(
     const msg = err instanceof Error && err.name === "AbortError"
       ? "Przekroczono limit czasu wysyłki do Apps Script."
       : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}. Sprawdź URL Web App i uprawnienia wdrożenia.`;
+
+    return { ok: false, message: msg, verified: false };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function savePricesToAppsScript(
+  prices: Record<string, number | null>,
+  config: OrderExportConfig = getOrderExportConfig()
+): Promise<OrderExportResult> {
+  if (!config.enabled) {
+    return { ok: false, message: "Wysyłka do Apps Script jest wyłączona." };
+  }
+
+  if (!config.appsScriptUrl) {
+    return { ok: false, message: "Brak URL Apps Script Web App." };
+  }
+
+  const body = JSON.stringify({
+    source: "razdwa-web",
+    type: "cennik",
+    createdAt: new Date().toISOString(),
+    prices,
+  });
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+
+  try {
+    const response = await fetch(config.appsScriptUrl, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "text/plain" },
+      body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return { ok: false, status: response.status, message: `Błąd HTTP ${response.status} podczas wysyłki cennika.` };
+    }
+
+    return { ok: true, status: response.status, message: "Cennik wysłany do Apps Script." };
+  } catch (err) {
+    const errorName = err instanceof Error ? err.name : "";
+    const errorMessage = err instanceof Error ? err.message : "";
+    const isCorsOrNetworkFailure =
+      errorName !== "AbortError" &&
+      (`${errorName} ${errorMessage}`.toLowerCase().includes("failed to fetch") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("networkerror") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("load failed"));
+
+    if (isCorsOrNetworkFailure) {
+      try {
+        await fetch(config.appsScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body,
+          signal: controller.signal,
+        });
+        return { ok: true, status: 0, verified: false, message: "Cennik wysłany bez potwierdzenia (CORS). Sprawdź arkusz." };
+      } catch {
+        // continue to final error
+      }
+    }
+
+    const msg = errorName === "AbortError"
+      ? "Przekroczono limit czasu wysyłki cennika."
+      : `Nie udało się wysłać cennika: ${(err as Error)?.message ?? "nieznany błąd"}.`;
 
     return { ok: false, message: msg, verified: false };
   } finally {

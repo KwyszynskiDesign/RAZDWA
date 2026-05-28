@@ -607,6 +607,9 @@
   #summaryGrid .summary-item:last-of-type {
     padding-bottom: 0;
   }
+  .cad-summary-section {
+    margin-inline: -6px;
+  }
 
   .cad-extras-monitor {
     display: none;
@@ -733,6 +736,11 @@
     .obliczenie-item {
       font-size: 0.75rem;
     }
+  }
+
+  .card:has(.cad-upload) {
+    --card-padding: 12px;
+    padding: var(--card-padding);
   }
 </style>
 

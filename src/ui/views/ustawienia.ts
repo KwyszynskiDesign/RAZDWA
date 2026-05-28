@@ -11,6 +11,7 @@ import {
   PRICE_LABELS_STORAGE_KEY,
   PRICE_SUBGROUPS_STORAGE_KEY,
 } from "../../services/priceService";
+import { savePricesToAppsScript } from "../../services/orderExportService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -2880,10 +2881,11 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       try {
-        await syncPricesToCloud(persisted);
-        console.log("✓ Synchronizacja z chmurą zakończona.");
+        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...");
+        const result = await savePricesToAppsScript(persisted);
+        console.log("Wynik wysyłki cennika:", result);
       } catch (err) {
-        console.error("✗ Błąd synchronizacji z Google Apps Script:", err);
+        console.error("Błąd wysyłki cennika do Apps Script:", err);
       }
     });
 
