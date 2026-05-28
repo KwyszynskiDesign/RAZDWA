@@ -10,8 +10,20 @@ import {
   PRICES_STORAGE_KEY,
   PRICE_LABELS_STORAGE_KEY,
   PRICE_SUBGROUPS_STORAGE_KEY,
+  VARIANTS_STORAGE_KEY,
+  type VariantDefinition,
+  getVariantDefinitions,
+  setVariantDefinitions,
+  upsertVariantDefinition,
+  deleteVariantDefinition,
+  variantsToPriceSubgroups,
+  variantsToPriceLabels,
 } from "../../services/priceService";
-import { savePricesToAppsScript } from "../../services/orderExportService";
+import {
+  savePricesToAppsScript,
+  saveVariantsToAppsScript,
+  fetchStateFromAppsScript,
+} from "../../services/orderExportService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -43,6 +55,7 @@ const ENVELOPE_PLACEHOLDER_KEYS = [
 ] as const;
 
 let _cleanup: (() => void) | null = null;
+let _lastAddedKey: string | null = null;
 
 let customPriceLabels: PriceLabelMap = Object.create(null);
 let customPriceSubgroups: PriceSubgroupMap = Object.create(null);
@@ -2143,6 +2156,10 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   }
 
   const keys = Object.keys(prices).filter((key) => keyMatchesCategory(key, category));
+  if (_lastAddedKey && (_lastAddedKey in prices)) {
+    const matched = keyMatchesCategory(_lastAddedKey, category);
+    if (matched) console.log("CATEGORY MATCH FOR KEY:", _lastAddedKey, "→ category:", category.id);
+  }
   if (category.id === "druk-a4-a3") {
     return sortDrukA4A3CategoryKeys(keys);
   }
@@ -2243,12 +2260,27 @@ export const UstawieniaView: View = {
     }
 
     let prices = loadPrices();
-    customPriceLabels = loadPriceLabels();
-    customPriceSubgroups = getPriceSubgroups();
+
+    // Merge legacy localStorage with variants registry (registry takes precedence)
+    const _storedVariants = getVariantDefinitions();
+    const _legacyLabels = loadPriceLabels();
+    const _legacySubgroups = getPriceSubgroups();
+    const _variantLabels = variantsToPriceLabels(_storedVariants);
+    const _variantSubgroups = variantsToPriceSubgroups(_storedVariants);
+    customPriceLabels = { ..._legacyLabels, ..._variantLabels };
+    customPriceSubgroups = Object.create(null) as typeof customPriceSubgroups;
+    for (const [catId, prefixes] of Object.entries(_legacySubgroups)) {
+      customPriceSubgroups[catId] = { ...prefixes };
+    }
+    for (const [catId, prefixes] of Object.entries(_variantSubgroups)) {
+      if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+      Object.assign(customPriceSubgroups[catId], prefixes);
+    }
+
+    if (_lastAddedKey) console.log("GET PRICES HAS KEY:", _lastAddedKey, "→", prices[_lastAddedKey], "(in prices:", _lastAddedKey in prices, ")");
     let renderedCategories = getRenderedCategories(prices);
     let activeCategory = renderedCategories[0]?.id ?? "druk-a4-a3";
     let lastBasePrefix = "";
-    let lastAddedKey: string | null = null;
 
     function getActiveCategory(): PriceCategory {
       return renderedCategories.find((category) => category.id === activeCategory) ?? renderedCategories[0];
@@ -2349,6 +2381,7 @@ export const UstawieniaView: View = {
     function renderTable(): void {
       const active = getActiveCategory();
       const keys = getCategoryKeys(prices, active);
+      if (_lastAddedKey) console.log("VISIBLE IN SETTINGS:", _lastAddedKey, "| activeCategory:", active.id, "| in this tab's keys:", keys.includes(_lastAddedKey), "| in prices:", _lastAddedKey in prices);
       const tbody = container.querySelector<HTMLElement>("#prices-tbody");
       const countEl = container.querySelector<HTMLElement>("#prices-count");
       const activeLabelEl = container.querySelector<HTMLElement>("#active-category-label");
@@ -2618,6 +2651,7 @@ export const UstawieniaView: View = {
           if (!key) return;
           delete prices[key];
           delete customPriceLabels[key];
+          deleteVariantDefinition(key);
           renderTabs();
           renderTable();
           syncAddCategorySelection();
@@ -2737,6 +2771,36 @@ export const UstawieniaView: View = {
     renderTable();
     syncAddCategorySelection();
 
+    // Asynchronicznie pobierz świeży stan z GAS (nie blokuje UI)
+    fetchStateFromAppsScript().then((remote) => {
+      if (!remote) return;
+
+      let changed = false;
+
+      if (Object.keys(remote.prices).length > 0) {
+        setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+        prices = loadPrices();
+        changed = true;
+      }
+
+      if (remote.variants.length > 0) {
+        setVariantDefinitions(remote.variants);
+        const fromVariants = variantsToPriceSubgroups(remote.variants);
+        for (const [catId, prefixes] of Object.entries(fromVariants)) {
+          if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+          Object.assign(customPriceSubgroups[catId], prefixes);
+        }
+        Object.assign(customPriceLabels, variantsToPriceLabels(remote.variants));
+        changed = true;
+      }
+
+      if (changed) {
+        renderTabs();
+        renderTable();
+        syncAddCategorySelection();
+      }
+    }).catch(() => { /* offline – OK */ });
+
     const addCategorySelect = container.querySelector<HTMLSelectElement>("#new-price-category");
     const addPrefixSelect = container.querySelector<HTMLSelectElement>("#new-price-prefix");
     const addSubgroupInput = container.querySelector<HTMLInputElement>("#new-price-subgroup");
@@ -2841,7 +2905,7 @@ export const UstawieniaView: View = {
       const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
       console.log("Zapis do:", { categoryKey: chosenCategoryId, subcategoryKey: chosenPrefix, newVariant: { key: newKey, price: newVariantPrice, legend: legendText || productLabel } });
       prices[newKey] = newVariantPrice;
-      lastAddedKey = newKey;
+      _lastAddedKey = newKey;
       console.log("NOWY WARIANT DODANY:", { key: newKey, price: newVariantPrice });
       console.log("PRICE MAP AFTER ADD:", { [newKey]: prices[newKey] }, "(total keys:", Object.keys(prices).length, ")");
 
@@ -2850,6 +2914,24 @@ export const UstawieniaView: View = {
       const currentDefaultPrices = (getPrice("defaultPrices") as Record<string, number | null>) ?? {};
       setPrice("defaultPrices", { ...currentDefaultPrices, [newKey]: newVariantPrice });
       setPriceLabels({ ...customPriceLabels });
+
+      // Persist variant definition to registry
+      const _now = new Date().toISOString();
+      const _variantDef: VariantDefinition = {
+        key: newKey,
+        categoryId: chosenCategoryId,
+        subcategoryPrefix: chosenPrefix,
+        subgroupLabel: selectedPrefix === CUSTOM_PREFIX_VALUE ? subgroupName : "",
+        label: legendText || productLabel,
+        legend: legendText,
+        visibleInSettings: true,
+        visibleInCalculator: true,
+        sortOrder: getVariantDefinitions().length,
+        createdAt: _now,
+        updatedAt: _now,
+      };
+      upsertVariantDefinition(_variantDef);
+
       showStatus(`✓ Dodano: ${newKey}`);
 
       renderTabs();
@@ -2871,11 +2953,58 @@ export const UstawieniaView: View = {
       }
     });
 
+    // Zbiera pełny rejestr wariantów: istniejące + migracja legacy labels/subgroups
+    function collectAllVariants(): VariantDefinition[] {
+      const existing = getVariantDefinitions();
+      const existingKeys = new Set(existing.map((v) => v.key));
+      const result = [...existing];
+      const now = new Date().toISOString();
+
+      Object.entries(customPriceLabels).forEach(([key, label], idx) => {
+        if (existingKeys.has(key)) return;
+
+        const cat = renderedCategories.find((c) => keyMatchesCategory(key, c));
+        const categoryId = cat?.id ?? "inne";
+
+        let subcategoryPrefix = "";
+        let subgroupLabel = "";
+        const legacySubgroups = customPriceSubgroups[categoryId] ?? {};
+        for (const [prefix, sgLabel] of Object.entries(legacySubgroups)) {
+          if (key.startsWith(prefix)) {
+            subcategoryPrefix = prefix;
+            subgroupLabel = String(sgLabel);
+            break;
+          }
+        }
+        if (!subcategoryPrefix) {
+          subcategoryPrefix = cat?.prefixes.find((p) => key.startsWith(p)) ?? "";
+        }
+
+        result.push({
+          key,
+          categoryId,
+          subcategoryPrefix,
+          subgroupLabel,
+          label: String(label),
+          legend: "",
+          visibleInSettings: true,
+          visibleInCalculator: true,
+          sortOrder: existing.length + idx,
+          createdAt: now,
+          updatedAt: now,
+        });
+        existingKeys.add(key);
+      });
+
+      setVariantDefinitions(result);
+      return result;
+    }
+
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
 
-      if (lastAddedKey) {
-        console.log("PERSISTED HAS NEW KEY:", lastAddedKey, "→ prices value:", prices[lastAddedKey], "(in prices:", lastAddedKey in prices, ")");
+      if (_lastAddedKey) {
+        console.log("PERSISTED HAS NEW KEY:", _lastAddedKey, "→ prices value:", prices[_lastAddedKey], "(in prices:", _lastAddedKey in prices, ")");
       }
 
       // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
@@ -2899,23 +3028,19 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       try {
-        console.log("PERSISTED TYPE:", typeof persisted, persisted);
-        console.log("IS PERSISTED STRING:", typeof persisted === "string");
-        if (lastAddedKey) {
-          console.log("PERSISTED[lastAddedKey]:", lastAddedKey, "→", persisted[lastAddedKey], "(in persisted:", lastAddedKey in persisted, ")");
-        }
         const flatPrices = buildFlatPrices(persisted);
-        if (lastAddedKey) {
-          console.log("FLAT PRICES HAS lastAddedKey:", lastAddedKey, "→", flatPrices[lastAddedKey], "(in flatPrices:", lastAddedKey in flatPrices, ")");
-        }
-        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...");
-        console.log("FLAT PRICES SAMPLE:", Object.entries(flatPrices).slice(0, 20));
-        console.log("FLAT PRICES COUNT:", Object.keys(flatPrices).length);
-        console.log("PAYLOAD prices_update:", JSON.stringify({ type: "prices_update", prices: flatPrices }, null, 2));
         const result = await savePricesToAppsScript(flatPrices);
         console.log("Wynik wysyłki cennika:", result);
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
+      }
+
+      try {
+        const allVariants = collectAllVariants();
+        const variantsResult = await saveVariantsToAppsScript(allVariants);
+        console.log("Wynik wysyłki wariantów:", variantsResult);
+      } catch (err) {
+        console.error("Błąd wysyłki wariantów do Apps Script:", err);
       }
     });
 
@@ -2928,6 +3053,7 @@ export const UstawieniaView: View = {
       prices = loadPrices();
       customPriceLabels = loadPriceLabels();
       customPriceSubgroups = Object.create(null);
+      setVariantDefinitions([]);
       renderTabs();
       renderTable();
       syncAddCategorySelection();
@@ -2937,17 +3063,31 @@ export const UstawieniaView: View = {
     });
 
     const onStorage = (event: StorageEvent) => {
-      if (event.key !== STORAGE_KEY && event.key !== PRICE_LABELS_STORAGE_KEY && event.key !== PRICE_SUBGROUPS_STORAGE_KEY) {
+      if (
+        event.key !== STORAGE_KEY &&
+        event.key !== PRICE_LABELS_STORAGE_KEY &&
+        event.key !== PRICE_SUBGROUPS_STORAGE_KEY &&
+        event.key !== VARIANTS_STORAGE_KEY
+      ) {
         return;
       }
 
       prices = loadPrices();
-      customPriceLabels = loadPriceLabels();
-      customPriceSubgroups = getPriceSubgroups();
+      const _freshVariants = getVariantDefinitions();
+      const _freshLegacyLabels = loadPriceLabels();
+      const _freshLegacySubgroups = getPriceSubgroups();
+      customPriceLabels = { ..._freshLegacyLabels, ...variantsToPriceLabels(_freshVariants) };
+      customPriceSubgroups = Object.create(null) as typeof customPriceSubgroups;
+      for (const [catId, prefixes] of Object.entries(_freshLegacySubgroups)) {
+        customPriceSubgroups[catId] = { ...prefixes };
+      }
+      for (const [catId, prefixes] of Object.entries(variantsToPriceSubgroups(_freshVariants))) {
+        if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+        Object.assign(customPriceSubgroups[catId], prefixes);
+      }
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      // Emit event to notify all views about price changes
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     };
 

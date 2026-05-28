@@ -423,25 +423,40 @@
   .results-table .col-size   { width: 12%; white-space: nowrap; }
   .results-table .col-fold   { width: 12%; }
   .results-table .col-scan   { width: 7%; }
-  .results-table .col-qty    { width: 7%; text-align: center; }
-  .results-table .col-price  { width: 29%; }
+  .results-table .col-qty    { width: 13%; text-align: center; }
+  .results-table .col-price  { width: 23%; }
   .results-table .col-remove { width: 6%; min-width: 34px; }
 
+  /* NR — lekki odstęp od lewej krawędzi */
   #viewContainer .results-table th.col-lp,
   #viewContainer .results-table td.col-lp {
     padding-left: 15px !important;
   }
 
-  .results-table .col-name,
-  .results-table .col-size,
-  .results-table .col-price {
-    padding-left: 2px;
-    padding-right: 2px;
+  /* Nazwa + Rozmiar — +10px w prawo */
+  #viewContainer .results-table th.col-name,
+  #viewContainer .results-table td.col-name {
+    padding-left: 10px !important;
+  }
+  #viewContainer .results-table th.col-size,
+  #viewContainer .results-table td.col-size {
+    padding-left: 10px !important;
   }
 
-  .results-table th.col-name,
-  .results-table td.col-name {
-    padding-left: 8px !important;
+  /* Składanie + Skan — +20px w prawo */
+  #viewContainer .results-table th.col-fold,
+  #viewContainer .results-table td.col-fold {
+    padding-left: 20px !important;
+  }
+  #viewContainer .results-table th.col-scan,
+  #viewContainer .results-table td.col-scan {
+    padding-left: 20px !important;
+  }
+
+  /* Ilość — input przesunięty ~40px w prawo (kosztem col-price) */
+  #viewContainer .results-table th.col-qty,
+  #viewContainer .results-table td.col-qty {
+    padding-left: 36px !important;
   }
 
   .results-table th {
@@ -859,8 +874,8 @@
               <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
             </div>
           </th>
-          <th class="col-qty" style="width:7%;min-width:40px;">Ilość</th>
-          <th class="col-price" style="width:29%;min-width:120px;">
+          <th class="col-qty" style="width:13%;min-width:60px;">Ilość</th>
+          <th class="col-price" style="width:23%;min-width:100px;">
             <div class="cad-price-header">
               <span>Rodzaj</span>
               <span>Cena</span>

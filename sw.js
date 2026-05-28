@@ -8,9 +8,15 @@
  */
 
 <<<<<<< HEAD
-var CACHE_VERSION = 'razdwa-v202605281858'; // Injected by prebuild script
+<<<<<<< HEAD
+var CACHE_VERSION = 'razdwa-v202605290724'; // Injected by prebuild script
 =======
-var CACHE_VERSION = 'razdwa-v202605281858'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202605290724'; // Injected by prebuild script
+=======
+var CACHE_VERSION = 'razdwa-v202605290724'; // Injected by prebuild script
+=======
+var CACHE_VERSION = 'razdwa-v202605290724'; // Injected by prebuild script
+>>>>>>> f306113 (fix(cad-upload): adjust inline column widths)
 >>>>>>> f5106a6 (Update CAD upload flow)
 
 /**
