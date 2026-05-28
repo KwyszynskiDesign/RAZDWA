@@ -2222,6 +2222,16 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   return keys.sort();
 }
 
+function buildFlatPrices(priceMap: PriceMap): Record<string, number> {
+  const flat: Record<string, number> = {};
+  for (const [key, value] of Object.entries(priceMap)) {
+    if (typeof value === "number" && Number.isFinite(value)) {
+      flat[key] = value;
+    }
+  }
+  return flat;
+}
+
 export const UstawieniaView: View = {
   id: "ustawienia",
   name: "Ustawienia cen",
@@ -2881,8 +2891,14 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       try {
-        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...", persisted);
-        const result = await savePricesToAppsScript(persisted);
+        console.log("PERSISTED TYPE:", typeof persisted, persisted);
+        console.log("IS PERSISTED STRING:", typeof persisted === "string");
+        const flatPrices = buildFlatPrices(persisted);
+        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...");
+        console.log("FLAT PRICES SAMPLE:", Object.entries(flatPrices).slice(0, 20));
+        console.log("FLAT PRICES COUNT:", Object.keys(flatPrices).length);
+        console.log("PAYLOAD prices_update:", JSON.stringify({ type: "prices_update", prices: flatPrices }, null, 2));
+        const result = await savePricesToAppsScript(flatPrices);
         console.log("Wynik wysyłki cennika:", result);
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
