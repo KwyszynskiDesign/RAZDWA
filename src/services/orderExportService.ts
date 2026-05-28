@@ -419,3 +419,73 @@ export async function sendOrderToAppsScript(
     clearTimeout(timeout);
   }
 }
+
+export async function savePricesToAppsScript(
+  prices: Record<string, number | null>,
+  config: OrderExportConfig = getOrderExportConfig()
+): Promise<OrderExportResult> {
+  if (!config.enabled) {
+    return { ok: false, message: "Wysyłka do Apps Script jest wyłączona." };
+  }
+
+  if (!config.appsScriptUrl) {
+    return { ok: false, message: "Brak URL Apps Script Web App." };
+  }
+
+  const body = JSON.stringify({
+    source: "razdwa-web",
+    type: "cennik",
+    createdAt: new Date().toISOString(),
+    prices,
+  });
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+
+  try {
+    const response = await fetch(config.appsScriptUrl, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "text/plain" },
+      body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return { ok: false, status: response.status, message: `Błąd HTTP ${response.status} podczas wysyłki cennika.` };
+    }
+
+    return { ok: true, status: response.status, message: "Cennik wysłany do Apps Script." };
+  } catch (err) {
+    const errorName = err instanceof Error ? err.name : "";
+    const errorMessage = err instanceof Error ? err.message : "";
+    const isCorsOrNetworkFailure =
+      errorName !== "AbortError" &&
+      (`${errorName} ${errorMessage}`.toLowerCase().includes("failed to fetch") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("networkerror") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("load failed"));
+
+    if (isCorsOrNetworkFailure) {
+      try {
+        await fetch(config.appsScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body,
+          signal: controller.signal,
+        });
+        return { ok: true, status: 0, verified: false, message: "Cennik wysłany bez potwierdzenia (CORS). Sprawdź arkusz." };
+      } catch {
+        // continue to final error
+      }
+    }
+
+    const msg = errorName === "AbortError"
+      ? "Przekroczono limit czasu wysyłki cennika."
+      : `Nie udało się wysłać cennika: ${(err as Error)?.message ?? "nieznany błąd"}.`;
+
+    return { ok: false, message: msg, verified: false };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
