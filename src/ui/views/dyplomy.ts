@@ -73,7 +73,7 @@ export const DyplomyView: View = {
       const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
 
       const breakdown = [
-        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format} (bez wpływu na cenę)</div>`,
+        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format}</div>`,
         `<div><strong>Cena z tabeli (${options.sides === 1 ? "jednostronne" : "dwustronne"}):</strong> ${formatPLN(tierPrice)}</div>`,
       ];
 
@@ -112,7 +112,7 @@ export const DyplomyView: View = {
         const discountHint = options.sides === 1 && singleSidedDiscountRate > 0
           ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${singleSidedDiscountAmount.toFixed(2)} zł`
           : "";
-        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${tierPrice.toFixed(2)} zł (${sideLabel}${discountHint}; format ${options.format} nie wpływa na cenę; papier: ${paperVal.replace("_", " ")})`;
+        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${tierPrice.toFixed(2)} zł (${sideLabel}${discountHint}; format ${options.format}; papier: ${paperVal.replace("_", " ")})`;
       }
       const discountHintEl = container.querySelector("#resDiscountHint") as HTMLElement;
       if (discountHintEl) {
