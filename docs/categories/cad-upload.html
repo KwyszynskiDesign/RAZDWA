@@ -487,24 +487,20 @@
   }
 
   .cad-price-header {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    align-items: center;
+    display: flex;
+    justify-content: flex-end;
     gap: 8px;
+    align-items: center;
     width: 100%;
     font-size: 0.64rem;
     line-height: 1.05;
   }
 
-  .cad-price-header span:last-child {
-    text-align: right;
-  }
-
   .cad-price-line {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    display: flex;
+    justify-content: flex-end;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     white-space: nowrap;
     overflow: hidden;
     line-height: 1.05;
@@ -514,14 +510,7 @@
   .cad-price-line span,
   .cad-price-line strong {
     min-width: 0;
-  }
-
-  #viewContainer .results-table td.col-price {
-    padding-left: 20px !important;
-  }
-
-  .cad-price-line strong {
-    text-align: right;
+    flex-shrink: 0;
   }
 
   .results-table td strong {
