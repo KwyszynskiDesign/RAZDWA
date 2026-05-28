@@ -357,22 +357,8 @@ export const PlakatyA4A3View: View = {
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${fmt}, ${paper}g kreda, ${finish}`;
 
       if (calcHintEl) {
-        if (trimSurcharge > 0) {
-          const trimParts: string[] = [];
-          if (duzyCanonTrim2Checkbox?.checked) {
-            const trimQty = parsePositiveInt(duzyCanonTrim2QtyInput?.value || "") || 1;
-            trimParts.push(`${trimQty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(trimQty * 1)}`);
-          }
-          if (duzyCanonTrim4Checkbox?.checked) {
-            const trimQty = parsePositiveInt(duzyCanonTrim4QtyInput?.value || "") || 1;
-            trimParts.push(`${trimQty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(trimQty * 2)}`);
-          }
-          calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
-          calcHintEl.style.display = "block";
-        } else {
-          calcHintEl.style.display = "none";
-          calcHintEl.innerText = "";
-        }
+        calcHintEl.style.display = "none";
+        calcHintEl.innerText = "";
       }
 
       // Build detailed breakdown similar to Dyplomy
@@ -424,22 +410,8 @@ export const PlakatyA4A3View: View = {
       if (qtyValEl) qtyValEl.innerText = `${res.qty} szt, ${paper}g kreda, ${finish}`;
 
       if (calcHintEl) {
-        if (trimSurcharge > 0) {
-          const trimParts: string[] = [];
-          if (duzyCanonTrim2Checkbox?.checked) {
-            const qty = parsePositiveInt(duzyCanonTrim2QtyInput?.value || "") || 1;
-            trimParts.push(`${qty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(qty * 1)}`);
-          }
-          if (duzyCanonTrim4Checkbox?.checked) {
-            const qty = parsePositiveInt(duzyCanonTrim4QtyInput?.value || "") || 1;
-            trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
-          }
-          calcHintEl.innerText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
-          calcHintEl.style.display = "block";
-        } else {
-          calcHintEl.style.display = "none";
-          calcHintEl.innerText = "";
-        }
+        calcHintEl.style.display = "none";
+        calcHintEl.innerText = "";
       }
 
       // Build detailed breakdown similar to Dyplomy

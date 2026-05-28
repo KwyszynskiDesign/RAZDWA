@@ -2881,7 +2881,7 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       try {
-        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...");
+        console.log("WYSYŁAM CENNIK DO GOOGLE APPS SCRIPT...", persisted);
         const result = await savePricesToAppsScript(persisted);
         console.log("Wynik wysyłki cennika:", result);
       } catch (err) {

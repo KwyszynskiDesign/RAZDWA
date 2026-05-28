@@ -29,12 +29,12 @@
             <span class="legend-badge"><strong>EXPRESS:</strong> +20%</span>
           </div>
         </div>
-        ${y.map(x=>{let E=x.id===h,F=x.tiers.map(b=>{let w=b.max==null?`${b.min}+ m\xB2`:`${b.min}-${b.max} m\xB2`,M=L(`solwent-${x.id}`,b.price);return`<tr><td>${w}</td><td>${v(M)}</td></tr>`}).join("");return`
+        ${y.map(x=>{let E=x.id===h,A=x.tiers.map(b=>{let w=b.max==null?`${b.min}+ m\xB2`:`${b.min}-${b.max} m\xB2`,M=L(`solwent-${x.id}`,b.price);return`<tr><td>${w}</td><td>${v(M)}</td></tr>`}).join("");return`
             <div class="legend-block" style="margin-top:12px;${E?"border:1px solid rgba(59,130,246,0.35);":""}">
               <h5 style="margin:0 0 8px;">${x.name}</h5>
               <table class="results-table">
                 <thead><tr><th>Zakres</th><th>Cena / m\xB2</th></tr></thead>
-                <tbody>${F}</tbody>
+                <tbody>${A}</tbody>
               </table>
             </div>
           `}).join("")}
@@ -57,7 +57,7 @@
               <thead>
                 <tr>
                   <th rowspan="2" style="${a.quantityHeader}">Ilo\u015B\u0107</th>
-                  <th colspan="2" style="${a.groupHeader}">${He}</th>
+                  <th colspan="2" style="${a.groupHeader}">${je}</th>
                   <th colspan="2" style="${a.groupHeaderStrong}">${Je}</th>
                 </tr>
                 <tr>
@@ -85,7 +85,7 @@
         `).join("");ee.innerHTML=`
         <h4 style="margin:10px 0 6px;">Ma\u0142y Canon</h4>
         <div class="plakaty-a4a3-maly-canon-grid">
-          ${Se}
+          ${Pe}
         </div>
         <h4 style="margin:16px 0 6px;">Du\u017Cy Canon 170g</h4>
         <table>
@@ -170,7 +170,7 @@
             <th class="col-nonformat-price"><span class="cad-legend-break">Cena<br>nieformatowa</span></th>
           </tr>
           <tr><td colspan="4" class="cad-legend-section" style="border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIA\u0141E</td></tr>
-          ${Ie}
+          ${qe}
           <tr><td colspan="4" class="cad-legend-section" style="border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${Ke}
           <tr><td colspan="4" class="cad-legend-section" style="border-top:2px solid #0f172a;background:#fff7ed;">US\u0141UGI DODATKOWE</td></tr>
@@ -377,7 +377,7 @@ end`},Gf=function(){for(var e=[],t=0;t<arguments.length;t++)e[t]=arguments[t];re
         </div>        <table class="results-table cad-legend" style="margin-top:6px;">
           <tr><th>Tryb</th><th>Format</th><th>Cena formatowa</th><th>Cena nieformatowa</th></tr>
           <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#f8fafc;">CZARNO-BIA\u0141E</td></tr>
-          ${ve}
+          ${ge}
           <tr><td colspan="4" style="font-weight:800;border-top:3px solid #0f172a;background:#eff6ff;">KOLOROWE</td></tr>
           ${Re}
           <tr><td colspan="4" style="font-weight:800;border-top:2px solid #0f172a;background:#fff7ed;">US\u0141UGI DODATKOWE</td></tr>
@@ -401,7 +401,7 @@ end`},Gf=function(){for(var e=[],t=0;t<arguments.length;t++)e[t]=arguments[t];re
                 \u{1F3A8} Kolor: ${Re?`${ve.toFixed(3)} \xD7 ${dt.toFixed(2)} \xD7 ${ie.pageCount}`:`${dt.toFixed(2)} \xD7 ${ie.pageCount}`} = ${v(Qe)} \u2192 po opcjach ${v(vt)}
               </div>
               <div class="obliczenie-text">
-                \u26AB Czarny: ${Re?`${ve.toFixed(3)} \xD7 ${bt.toFixed(2)} \xD7 ${ie.pageCount}`:`${bt.toFixed(2)} \xD7 ${ie.pageCount}`} = ${v(mt)} \u2192 po opcjach ${v(fr)}
+                \u26AB Czarny: ${Re?`${ge.toFixed(3)} \xD7 ${bt.toFixed(2)} \xD7 ${ie.pageCount}`:`${bt.toFixed(2)} \xD7 ${ie.pageCount}`} = ${v(mt)} \u2192 po opcjach ${v(fr)}
               </div>
               <div class="obliczenie-text">
                 Dodatki: sk\u0142adanie ${ie.folding?`${ie.pageCount} \xD7 stawka formatu = ${v(ie.foldingPrice)}`:v(ie.foldingPrice)}, skan ${v(ie.scanPrice)}
@@ -433,7 +433,7 @@ end`},Gf=function(){for(var e=[],t=0;t<arguments.length;t++)e[t]=arguments[t];re
           <td class="col-price">
             <div class="cad-price-cell">
               <div class="cad-price-line"><span>\u{1F3A8} Kolor</span><strong>${v(ie)}</strong></div>
-              <div class="cad-price-line"><span>\u26AB Cz-B</span><strong>${v(ve)}</strong></div>
+              <div class="cad-price-line"><span>\u26AB Cz-B</span><strong>${v(ge)}</strong></div>
             </div>
           </td>
           <td class="col-remove">
