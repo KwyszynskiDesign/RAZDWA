@@ -2777,10 +2777,20 @@ export const UstawieniaView: View = {
 
       let changed = false;
 
+      // Ceny z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
+      // Jeśli localStorage zawiera już overrides, lokalny stan jest nowszy lub niezapisany –
+      // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
       if (Object.keys(remote.prices).length > 0) {
-        setPrice("defaultPrices", remote.prices as Record<string, number | null>);
-        prices = loadPrices();
-        changed = true;
+        try {
+          const hasLocalPrices = Boolean(
+            typeof localStorage !== "undefined" && localStorage.getItem(PRICES_STORAGE_KEY)
+          );
+          if (!hasLocalPrices) {
+            setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+            prices = loadPrices();
+            changed = true;
+          }
+        } catch { /* ignore */ }
       }
 
       if (remote.variants.length > 0) {
@@ -2953,51 +2963,11 @@ export const UstawieniaView: View = {
       }
     });
 
-    // Zbiera pełny rejestr wariantów: istniejące + migracja legacy labels/subgroups
+    // Zwraca wyłącznie warianty z rejestru (upsertVariantDefinition).
+    // Nie migruje automatycznie statycznych kluczy z customPriceLabels –
+    // te trafiłyby tam masowo po btn-save i zapychały API_VARIANTS.
     function collectAllVariants(): VariantDefinition[] {
-      const existing = getVariantDefinitions();
-      const existingKeys = new Set(existing.map((v) => v.key));
-      const result = [...existing];
-      const now = new Date().toISOString();
-
-      Object.entries(customPriceLabels).forEach(([key, label], idx) => {
-        if (existingKeys.has(key)) return;
-
-        const cat = renderedCategories.find((c) => keyMatchesCategory(key, c));
-        const categoryId = cat?.id ?? "inne";
-
-        let subcategoryPrefix = "";
-        let subgroupLabel = "";
-        const legacySubgroups = customPriceSubgroups[categoryId] ?? {};
-        for (const [prefix, sgLabel] of Object.entries(legacySubgroups)) {
-          if (key.startsWith(prefix)) {
-            subcategoryPrefix = prefix;
-            subgroupLabel = String(sgLabel);
-            break;
-          }
-        }
-        if (!subcategoryPrefix) {
-          subcategoryPrefix = cat?.prefixes.find((p) => key.startsWith(p)) ?? "";
-        }
-
-        result.push({
-          key,
-          categoryId,
-          subcategoryPrefix,
-          subgroupLabel,
-          label: String(label),
-          legend: "",
-          visibleInSettings: true,
-          visibleInCalculator: true,
-          sortOrder: existing.length + idx,
-          createdAt: now,
-          updatedAt: now,
-        });
-        existingKeys.add(key);
-      });
-
-      setVariantDefinitions(result);
-      return result;
+      return getVariantDefinitions();
     }
 
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
