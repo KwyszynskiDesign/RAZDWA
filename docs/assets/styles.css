@@ -32,6 +32,12 @@
   --vc-text: #0f172a;
   --vc-border: #dbe7f3;
   --vc-bg-light: #eff6ff;
+
+  --radius-pill: 999px;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 14px;
 }
 
 * { box-sizing: border-box; }
@@ -131,7 +137,7 @@ header {
   width: 180px;
   height: 44px;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   border: 1px solid rgba(255,255,255,0.3);
   background: rgba(255,255,255,0.14);
   color: white;
@@ -152,7 +158,7 @@ header {
   height: 44px;
   min-width: 44px;
   padding: 0 14px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -173,7 +179,7 @@ header {
   color: white;
   padding: 8px 16px;
   height: auto;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-weight: 600;
   font-size: 15px;
@@ -300,7 +306,7 @@ h1 {
   min-width: 48px;
   min-height: 48px;
   padding: 12px 18px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -325,9 +331,10 @@ h1 {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 24px;
   box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
 }
 
 .card h2 {
@@ -343,7 +350,7 @@ h1 {
 button {
   height: 44px;
   padding: 0 18px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   transition: all .2s ease;
@@ -380,7 +387,7 @@ button.danger:hover {
 input, select {
   height: 44px;
   padding: 0 12px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-primary);
   border: 1px solid var(--border);
@@ -403,7 +410,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   background: #FFFFFF;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: 0 6px 18px rgba(0,0,0,0.04);
 }
@@ -439,7 +446,7 @@ tbody tr:hover {
 .summary {
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 16px;
 }
 
@@ -466,7 +473,7 @@ tbody tr:hover {
 .summary-adjustment-select {
   min-height: 36px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: var(--bg);
   color: var(--text-primary);
   padding: 6px 8px;
@@ -485,7 +492,7 @@ tbody tr:hover {
   gap: 10px;
   background: var(--bg);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 7px 10px;
 }
 
@@ -537,7 +544,7 @@ tbody tr:hover {
   background: var(--success);
   color: white;
   padding: 12px 16px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 6px 16px rgba(0,0,0,0.1);
 }
 
@@ -615,7 +622,7 @@ button.ghost {
   color: var(--text-secondary);
   border: 1px solid var(--border);
   height: 44px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 0 14px;
 }
 
@@ -694,7 +701,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   padding: 16px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   box-shadow: 0 -4px 12px rgba(0,0,0,0.08);
 }
 
@@ -735,7 +742,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   bottom: auto;
   z-index: 1;
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.08);
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
 }
 
 .pricing-legend .legend-head {
@@ -764,7 +771,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid var(--border);
   background: rgba(255, 255, 255, 0.65);
   font-size: 11px;
@@ -786,7 +793,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 
 .pricing-legend .legend-panel {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 10px;
   background: rgba(255, 255, 255, 0.5);
 }
@@ -836,7 +843,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   border: 1px solid var(--vc-border);
   background: none;
   box-shadow: none;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   overflow: visible;
   box-sizing: border-box;
 }
@@ -872,7 +879,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   padding: 14px 20px;
   background: rgba(34, 197, 94, 0.08);
   border: 1px solid rgba(34, 197, 94, 0.25);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 22px;
   font-weight: 700;
   color: var(--primary);
@@ -959,7 +966,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   padding: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
 }
 
 .calc-monitor-title {
@@ -1023,7 +1030,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   align-items: center;
   padding: 12px 16px;
   border: 2px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all 0.2s;
   font-weight: 500;
@@ -1118,7 +1125,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 .btn-danger,
 .btn-secondary {
   padding: 8px 24px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   height: 44px;
   cursor: pointer;
@@ -1143,7 +1150,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 
 .btn-success {
   background: var(--success);
-  color: white;
+  color: var(--primary-text);
   border-color: var(--success);
   transition: background 0.2s;
 }
@@ -1151,11 +1158,11 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 
 .btn-danger {
   background: var(--danger);
-  color: white;
+  color: var(--primary-text);
   border-color: var(--danger);
   transition: background 0.2s;
 }
-.btn-danger:hover:not(:disabled) { background: #a52020; box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2); }
+.btn-danger:hover:not(:disabled) { background: var(--danger-hover); box-shadow: 0 4px 12px rgba(201, 42, 42, 0.2); }
 
 .btn-secondary {
   background: transparent;
@@ -1218,7 +1225,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 .settings-summary-card {
   min-width: 150px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: var(--surface-alt);
   box-shadow: var(--shadow-sm);
@@ -1232,7 +1239,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   width: 46px;
   height: 46px;
   padding: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid rgba(30, 58, 138, 0.18);
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.16);
@@ -1275,7 +1282,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   min-height: 44px;
   padding: 0 14px;
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--surface);
   color: var(--text-secondary);
 }
@@ -1305,7 +1312,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   min-width: 24px;
   height: 24px;
   padding: 0 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: rgba(255,255,255,0.18);
   display: inline-flex;
   align-items: center;
@@ -1325,7 +1332,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   align-items: center;
   gap: 16px;
   padding: 14px 16px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: var(--surface);
 }
@@ -1349,14 +1356,14 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   color: var(--primary);
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   padding: 8px 12px;
 }
 
 .settings-table-wrap {
   overflow: auto;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: white;
 }
 
@@ -1501,7 +1508,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 
 .settings-apps-panel {
   padding: 18px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
   background: var(--surface);
 }
@@ -1553,7 +1560,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 
 .settings-save-msg {
   padding: 12px 14px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(44, 140, 64, 0.25);
   background: rgba(44, 140, 64, 0.1);
   color: var(--success);
@@ -1634,7 +1641,7 @@ a[href] {
 
 .plakaty-a4a3-maly-canon-panel {
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   padding: 8px;
   background: rgba(255, 255, 255, 0.55);
   min-width: 0;
@@ -1782,7 +1789,7 @@ a[href] {
   justify-content: center;
   min-height: 42px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(148, 163, 184, 0.35);
   background: rgba(15, 32, 53, 0.85);
   color: #e2e8f0;
@@ -1799,9 +1806,6 @@ a[href] {
   outline: none;
 }
 
-.card {
-  box-sizing: border-box;
-}
 
 .sidebar-toggle {
   display: none;
@@ -1810,7 +1814,7 @@ a[href] {
   width: 42px;
   height: 42px;
   border: 1px solid rgba(148, 163, 184, 0.3);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: rgba(15, 32, 53, 0.85);
   color: #e2e8f0;
   font-size: 20px;
@@ -2080,7 +2084,7 @@ body.settings-pricing-layout .left-col {
   grid-template-rows: 1fr auto;
   place-items: center;
   aspect-ratio: 1 / 1;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 12px 10px;
   text-decoration: none;
   color: var(--vc-text);
@@ -2198,7 +2202,7 @@ body.settings-pricing-layout .left-col {
   padding: 11px 14px;
   margin: 0;
   box-sizing: border-box;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   font-size: 16px;
   line-height: 1.35;
   transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
@@ -2241,7 +2245,7 @@ body.settings-pricing-layout .left-col {
 .ghost,
 #orderSummary button {
   min-height: 46px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
@@ -2433,7 +2437,7 @@ body.settings-pricing-layout .left-col {
   min-height: 46px;
   padding: 10px 12px;
   border: 1px solid var(--vc-border);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: #f8fafc;
   box-sizing: border-box;
 }
@@ -2467,7 +2471,7 @@ body.settings-pricing-layout .left-col {
   border-collapse: separate !important;
   border-spacing: 0;
   overflow: hidden;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--vc-border);
   background: #ffffff;
 }
@@ -2587,7 +2591,7 @@ body.settings-pricing-layout .left-col {
 #viewContainer .service-hours,
 #viewContainer .qty-input {
   min-height: 42px !important;
-  border-radius: 10px !important;
+  border-radius: var(--radius-md) !important;
   box-sizing: border-box;
 }
 
@@ -2596,7 +2600,7 @@ body.settings-pricing-layout .left-col {
   height: 28px;
   min-height: 28px;
   padding: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font-size: 18px;
   line-height: 1;
   display: inline-flex;
@@ -2623,7 +2627,7 @@ body.settings-pricing-layout .left-col {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   border: 1px solid var(--vc-border);
   overflow: hidden;
 }
@@ -2756,7 +2760,7 @@ body.settings-pricing-layout .left-col {
 #viewContainer .cad-actions-bar button {
   min-width: 160px;
   padding: 10px 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid var(--vc-border);
   background: #ffffff;
   color: var(--vc-text);
@@ -2879,7 +2883,7 @@ body.settings-pricing-layout .left-col {
 #orderSummary input,
 #orderSummary select,
 #orderSummary textarea {
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(15, 32, 53, 0.2);
   background: rgba(255, 255, 255, 0.95);
   color: var(--vc-text);
@@ -2892,7 +2896,7 @@ body.settings-pricing-layout .left-col {
   gap: 10px;
   min-height: 46px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.75);
   border: 1px solid rgba(15, 32, 53, 0.14);
 }
@@ -2952,7 +2956,7 @@ body.settings-pricing-layout .left-col {
   width: auto;
   min-height: 34px;
   padding: 8px 12px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   border: 1px solid rgba(30, 64, 175, 0.25);
   background: rgba(255, 255, 255, 0.95);
   color: #1e40af;
@@ -2989,7 +2993,7 @@ body.settings-pricing-layout .left-col {
   justify-content: space-between;
   gap: 12px;
   padding: 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: rgba(255, 255, 255, 0.8);
   border: 1px solid rgba(15, 32, 53, 0.12);
 }
@@ -3027,7 +3031,7 @@ body.settings-pricing-layout .left-col {
   gap: 10px;
   padding: 12px 14px;
   min-height: 56px;
-  border-radius: 14px;
+  border-radius: var(--radius-xl);
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(255, 255, 255, 0.88);
   box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
@@ -3052,7 +3056,7 @@ body.settings-pricing-layout .left-col {
   flex: 0 0 auto;
   width: 28px;
   height: 28px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3155,7 +3159,7 @@ body.settings-pricing-layout .left-col {
   justify-content: center;
   min-width: 20px;
   padding: 2px 7px;
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: #2563eb;
   color: #ffffff;
   font-size: 11px;
@@ -3168,7 +3172,7 @@ body.settings-pricing-layout .left-col {
   align-items: flex-start;
   gap: 6px;
   padding: 7px 10px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: rgba(37, 99, 235, 0.06);
   border: 1px solid rgba(37, 99, 235, 0.18);
   font-size: 12px;
