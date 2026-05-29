@@ -833,7 +833,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   width: 100%;
   max-width: 100%;
   padding: 16px 20px;
-  border: 1px solid #dbe7f3;
+  border: 1px solid var(--vc-border);
   background: none;
   box-shadow: none;
   border-radius: 14px;
@@ -1399,8 +1399,8 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 .settings-section-row td {
   padding: 10px 12px !important;
   background: #eef4fb;
-  border-top: 1px solid #dbe7f3;
-  border-bottom: 1px solid #dbe7f3;
+  border-top: 1px solid var(--vc-border);
+  border-bottom: 1px solid var(--vc-border);
   color: #1e3a5f;
   font-size: 12px;
   letter-spacing: 0.04em;
@@ -1911,7 +1911,7 @@ body.settings-pricing-layout .left-col {
   width: 100%;
   box-sizing: border-box;
   background: rgba(15, 32, 53, 0.12);
-  color: #0f172a;
+  color: var(--vc-text);
   border: 1px solid rgba(15, 32, 53, 0.2);
   border-radius: 6px;
   padding: 8px 12px;
@@ -2004,7 +2004,7 @@ body.settings-pricing-layout .left-col {
   overflow-x: hidden;
   min-width: 0;
   background: rgba(15, 32, 53, 0.08) !important;
-  color: #0f172a;
+  color: var(--vc-text);
   border: 1px solid rgba(15, 32, 53, 0.16);
   border-radius: 20px;
   box-shadow: 0 20px 50px rgba(148, 163, 184, 0.16);
@@ -2021,7 +2021,7 @@ body.settings-pricing-layout .left-col {
 
 .home-categories-title {
   margin: 0;
-  color: #0f172a;
+  color: var(--vc-text);
   font-weight: 800;
   letter-spacing: 0.01em;
   text-align: center;
@@ -2083,7 +2083,7 @@ body.settings-pricing-layout .left-col {
   border-radius: 12px;
   padding: 12px 10px;
   text-decoration: none;
-  color: #0f172a;
+  color: var(--vc-text);
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid rgba(15, 32, 53, 0.15);
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
@@ -2151,7 +2151,7 @@ body.settings-pricing-layout .left-col {
 }
 
 .main-content-card pre {
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 /* Forms and inputs */
@@ -2267,7 +2267,7 @@ body.settings-pricing-layout .left-col {
 
 /* View container */
 #viewContainer {
-  color: #0f172a;
+  color: var(--vc-text);
   min-width: 0;
   width: 100%;
   max-width: 100%;
@@ -2304,7 +2304,7 @@ body.settings-pricing-layout .left-col {
   margin: 0;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 #viewContainer p,
@@ -2432,7 +2432,7 @@ body.settings-pricing-layout .left-col {
   gap: 10px;
   min-height: 46px;
   padding: 10px 12px;
-  border: 1px solid #dbe7f3;
+  border: 1px solid var(--vc-border);
   border-radius: 12px;
   background: #f8fafc;
   box-sizing: border-box;
@@ -2457,7 +2457,7 @@ body.settings-pricing-layout .left-col {
 #viewContainer .tab-btn.active,
 #viewContainer .settings-tab--active,
 #viewContainer .settings-tab[aria-selected="true"] {
-  background: #eff6ff !important;
+  background: var(--vc-bg-light) !important;
   color: #1d4ed8 !important;
   border-color: #93c5fd !important;
 }
@@ -2468,7 +2468,7 @@ body.settings-pricing-layout .left-col {
   border-spacing: 0;
   overflow: hidden;
   border-radius: 14px;
-  border: 1px solid #dbe7f3;
+  border: 1px solid var(--vc-border);
   background: #ffffff;
 }
 
@@ -2482,7 +2482,7 @@ body.settings-pricing-layout .left-col {
 }
 
 #viewContainer th {
-  background: #eff6ff;
+  background: var(--vc-bg-light);
   color: #1e3a8a;
   font-weight: 700;
 }
@@ -2558,7 +2558,7 @@ body.settings-pricing-layout .left-col {
   padding: 24px !important;
   border-radius: 16px !important;
   border: 2px dashed #93c5fd !important;
-  background: linear-gradient(180deg, #f8fbff, #eff6ff) !important;
+  background: linear-gradient(180deg, #f8fbff, var(--vc-bg-light)) !important;
 }
 
 #viewContainer .settings-tabs,
@@ -2571,7 +2571,7 @@ body.settings-pricing-layout .left-col {
 #viewContainer .settings-active-label,
 #viewContainer #active-category-label {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 #viewContainer .settings-active-desc,
@@ -2624,12 +2624,12 @@ body.settings-pricing-layout .left-col {
   border-collapse: separate;
   border-spacing: 0;
   border-radius: 14px;
-  border: 1px solid #dbe7f3;
+  border: 1px solid var(--vc-border);
   overflow: hidden;
 }
 
 #viewContainer .cad-files-table thead {
-  background: #eff6ff;
+  background: var(--vc-bg-light);
   color: #1e3a8a;
   font-weight: 700;
 }
@@ -2638,7 +2638,7 @@ body.settings-pricing-layout .left-col {
   padding: 12px 12px;
   text-align: left;
   font-size: 14px;
-  border-bottom: 1px solid #dbe7f3;
+  border-bottom: 1px solid var(--vc-border);
 }
 
 #viewContainer .cad-files-table td {
@@ -2658,7 +2658,7 @@ body.settings-pricing-layout .left-col {
 
 #viewContainer .cad-file-name {
   font-weight: 500;
-  color: #0f172a;
+  color: var(--vc-text);
   max-width: 270px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2757,9 +2757,9 @@ body.settings-pricing-layout .left-col {
   min-width: 160px;
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid #dbe7f3;
+  border: 1px solid var(--vc-border);
   background: #ffffff;
-  color: #0f172a;
+  color: var(--vc-text);
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -2795,12 +2795,12 @@ body.settings-pricing-layout .left-col {
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
   background: rgba(15, 32, 53, 0.1);
   padding: 24px;
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 #orderSummary h2,
 #orderSummary h3 {
-  color: #0f172a;
+  color: var(--vc-text);
   text-align: center;
 }
 
@@ -2882,7 +2882,7 @@ body.settings-pricing-layout .left-col {
   border-radius: 10px;
   border: 1px solid rgba(15, 32, 53, 0.2);
   background: rgba(255, 255, 255, 0.95);
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 #orderSummary .order-row--express {
@@ -2980,7 +2980,7 @@ body.settings-pricing-layout .left-col {
 }
 
 #orderSummary .v {
-  color: #0f172a;
+  color: var(--vc-text);
 }
 
 #orderSummary .basketItem {
@@ -3031,7 +3031,7 @@ body.settings-pricing-layout .left-col {
   border: 1px solid rgba(148, 163, 184, 0.2);
   background: rgba(255, 255, 255, 0.88);
   box-shadow: 0 18px 38px rgba(15, 23, 42, 0.16);
-  color: #0f172a;
+  color: var(--vc-text);
   backdrop-filter: blur(10px);
   opacity: 0;
   transform: translateX(36px) scale(0.98);
