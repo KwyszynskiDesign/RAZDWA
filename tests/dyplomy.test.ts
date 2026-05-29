@@ -122,25 +122,37 @@ describe("Dyplomy logic", () => {
   });
 
   describe("Interpolacja liniowa", () => {
-    it("qty=70: między 50→75 a 100→120, t=0.4 → 93 zł", () => {
+    it("exact tier – qty=50: próg dokładny → 75 zł", () => {
+      const result = calculateDyplomy({ qty: 50, sides: 2, isSatin: false, express: false });
+      expect(result.tierPrice).toBe(75);
+      expect(result.totalPrice).toBe(75);
+    });
+
+    it("between tiers – qty=70: między 50→75 a 100→120, t=0.4 → 93 zł", () => {
       const result = calculateDyplomy({ qty: 70, sides: 2, isSatin: false, express: false });
       expect(result.tierPrice).toBe(93);
       expect(result.totalPrice).toBe(93);
     });
 
-    it("qty=80: między 50→75 a 100→120, t=0.6 → 102 zł", () => {
+    it("between tiers – qty=80: między 50→75 a 100→120, t=0.6 → 102 zł", () => {
       const result = calculateDyplomy({ qty: 80, sides: 2, isSatin: false, express: false });
       expect(result.tierPrice).toBe(102);
       expect(result.totalPrice).toBe(102);
     });
 
-    it("qty=25: między 20→49 a 30→58, t=0.5 → 53.5 zł", () => {
+    it("between tiers – qty=25: między 20→49 a 30→58, t=0.5 → 53.5 zł", () => {
       const result = calculateDyplomy({ qty: 25, sides: 2, isSatin: false, express: false });
       expect(result.tierPrice).toBe(53.5);
       expect(result.totalPrice).toBe(53.5);
     });
 
-    it("qty=200: powyżej max (100→120) → clamp do 120 zł", () => {
+    it("below min – qty=0: poniżej progu 1→20 → clamp do 20 zł", () => {
+      const result = calculateDyplomy({ qty: 0, sides: 2, isSatin: false, express: false });
+      expect(result.tierPrice).toBe(20);
+      expect(result.totalPrice).toBe(20);
+    });
+
+    it("above max – qty=200: powyżej progu 100→120 → flat 120 zł", () => {
       const result = calculateDyplomy({ qty: 200, sides: 2, isSatin: false, express: false });
       expect(result.tierPrice).toBe(120);
       expect(result.totalPrice).toBe(120);

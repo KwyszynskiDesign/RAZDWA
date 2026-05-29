@@ -20,16 +20,27 @@ export function pickNearestCeilKey(table: any, qty: number) {
 }
 
 /**
- * Linear interpolation between qty breakpoints (flat total prices, not per-unit).
- * Sorts by qty, clamps below min and above max.
- * For qty between lower and upper: lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price)
+ * Linear interpolation between qty breakpoints.
+ * - below min → clamps to first tier price
+ * - between tiers → lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price)
+ * - above max →
+ *     'flat'     : returns last tier price as-is (use when price is a total for that run)
+ *     'per-unit' : returns qty * (last.price / last.qty) (use when price scales linearly per piece)
  */
-export function getInterpolatedPrice(tiers: { qty: number; price: number }[], qty: number): number {
+export function getInterpolatedPrice(
+  tiers: { qty: number; price: number }[],
+  qty: number,
+  aboveMax: 'flat' | 'per-unit' = 'flat',
+): number {
   if (!tiers.length) return 0;
   const sorted = [...tiers].sort((a, b) => a.qty - b.qty);
   if (qty <= sorted[0].qty) return sorted[0].price;
   const last = sorted[sorted.length - 1];
-  if (qty >= last.qty) return last.price;
+  if (qty >= last.qty) {
+    return aboveMax === 'per-unit'
+      ? Math.round(qty * (last.price / last.qty) * 100) / 100
+      : last.price;
+  }
   for (let i = 0; i < sorted.length - 1; i++) {
     const lower = sorted[i], upper = sorted[i + 1];
     if (qty <= upper.qty) {
