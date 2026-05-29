@@ -19,6 +19,27 @@ export function pickNearestCeilKey(table: any, qty: number) {
   return k == null ? null : k;
 }
 
+/**
+ * Linear interpolation between qty breakpoints (flat total prices, not per-unit).
+ * Sorts by qty, clamps below min and above max.
+ * For qty between lower and upper: lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price)
+ */
+export function getInterpolatedPrice(tiers: { qty: number; price: number }[], qty: number): number {
+  if (!tiers.length) return 0;
+  const sorted = [...tiers].sort((a, b) => a.qty - b.qty);
+  if (qty <= sorted[0].qty) return sorted[0].price;
+  const last = sorted[sorted.length - 1];
+  if (qty >= last.qty) return last.price;
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const lower = sorted[i], upper = sorted[i + 1];
+    if (qty <= upper.qty) {
+      const price = lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price);
+      return Math.round(price * 100) / 100;
+    }
+  }
+  return last.price;
+}
+
 export const PRICE: any = getPrice("drukA4A3") as any;
 
 export const CAD_PRICE: any = getPrice("drukCAD.price") as any;

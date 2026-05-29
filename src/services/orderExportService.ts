@@ -1,4 +1,5 @@
 import { CartItem, CustomerData } from "../core/types";
+import type { VariantDefinition } from "./priceService";
 
 export const ORDER_EXPORT_CONFIG_KEY = "razdwa_order_export_config";
 
@@ -485,6 +486,107 @@ export async function savePricesToAppsScript(
       : `Nie udało się wysłać cennika: ${(err as Error)?.message ?? "nieznany błąd"}.`;
 
     return { ok: false, message: msg, verified: false };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function saveVariantsToAppsScript(
+  variants: VariantDefinition[],
+  config: OrderExportConfig = getOrderExportConfig()
+): Promise<OrderExportResult> {
+  if (!config.enabled) {
+    return { ok: false, message: "Wysyłka do Apps Script jest wyłączona." };
+  }
+  if (!config.appsScriptUrl) {
+    return { ok: false, message: "Brak URL Apps Script Web App." };
+  }
+
+  const body = JSON.stringify({ type: "variants_update", variants });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+
+  try {
+    const response = await fetch(config.appsScriptUrl, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "text/plain" },
+      body,
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      return { ok: false, status: response.status, message: `Błąd HTTP ${response.status} podczas wysyłki wariantów.` };
+    }
+    return { ok: true, status: response.status, message: "Warianty wysłane do Apps Script." };
+  } catch (err) {
+    const errorName = err instanceof Error ? err.name : "";
+    const errorMessage = err instanceof Error ? err.message : "";
+    const isCorsOrNetworkFailure =
+      errorName !== "AbortError" &&
+      (`${errorName} ${errorMessage}`.toLowerCase().includes("failed to fetch") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("networkerror") ||
+        `${errorName} ${errorMessage}`.toLowerCase().includes("load failed"));
+
+    if (isCorsOrNetworkFailure) {
+      try {
+        await fetch(config.appsScriptUrl, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "text/plain" },
+          body,
+          signal: controller.signal,
+        });
+        return { ok: true, status: 0, verified: false, message: "Warianty wysłane bez potwierdzenia (CORS)." };
+      } catch {
+        // continue
+      }
+    }
+
+    const msg = errorName === "AbortError"
+      ? "Przekroczono limit czasu wysyłki wariantów."
+      : `Nie udało się wysłać wariantów: ${(err as Error)?.message ?? "nieznany błąd"}.`;
+
+    return { ok: false, message: msg, verified: false };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function fetchStateFromAppsScript(
+  config: OrderExportConfig = getOrderExportConfig()
+): Promise<{ prices: Record<string, number | null>; variants: VariantDefinition[] } | null> {
+  if (!config.enabled || !config.appsScriptUrl) return null;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
+
+  try {
+    const url = `${config.appsScriptUrl}?action=getState`;
+    const response = await fetch(url, {
+      method: "GET",
+      mode: "cors",
+      signal: controller.signal,
+    });
+
+    if (!response.ok) return null;
+
+    const data = await response.json() as { prices?: unknown; variants?: unknown };
+
+    const prices: Record<string, number | null> =
+      data.prices && typeof data.prices === "object" && !Array.isArray(data.prices)
+        ? (data.prices as Record<string, number | null>)
+        : {};
+
+    const variants: VariantDefinition[] = Array.isArray(data.variants)
+      ? (data.variants as unknown[]).filter((v): v is VariantDefinition =>
+          !!v && typeof v === "object" && typeof (v as VariantDefinition).key === "string"
+        )
+      : [];
+
+    return { prices, variants };
+  } catch {
+    return null;
   } finally {
     clearTimeout(timeout);
   }
