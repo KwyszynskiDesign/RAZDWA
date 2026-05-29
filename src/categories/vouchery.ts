@@ -5,6 +5,7 @@ import {
   extractVoucherSide,
   getDefaultPricesMap,
   getStoredPriceLabel,
+  getInterpolatedPrice,
   resolveStoredPrice,
 } from "../core/compat";
 
@@ -88,8 +89,8 @@ function getSelectedTier(qty: number, tiers: VoucherTier[]): VoucherTier {
 
 function getPriceForQuantity(qty: number, isSingle: boolean): number {
   const tiers = getResolvedBaseTiers();
-  const selectedTier = getSelectedTier(qty, tiers);
-  return isSingle ? selectedTier.single : selectedTier.double;
+  const priceKey = isSingle ? 'single' : 'double';
+  return getInterpolatedPrice(tiers.map(t => ({ qty: t.qty, price: t[priceKey] })), qty);
 }
 
 export interface VoucheryOptions {

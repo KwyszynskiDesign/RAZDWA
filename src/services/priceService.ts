@@ -295,3 +295,78 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
       }
       writeStoredJsonNestedMap(PRICE_SUBGROUPS_STORAGE_KEY, groups);
     }
+
+export const VARIANTS_STORAGE_KEY = "razdwa_variants";
+
+export interface VariantDefinition {
+  key: string;
+  categoryId: string;
+  subcategoryPrefix: string;
+  subgroupLabel: string;
+  label: string;
+  legend: string;
+  visibleInSettings: boolean;
+  visibleInCalculator: boolean;
+  sortOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export function getVariantDefinitions(): VariantDefinition[] {
+  try {
+    if (typeof localStorage === "undefined") return [];
+    const raw = localStorage.getItem(VARIANTS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter((v): v is VariantDefinition =>
+      !!v && typeof v === "object" && typeof (v as VariantDefinition).key === "string"
+    );
+  } catch {
+    return [];
+  }
+}
+
+export function setVariantDefinitions(variants: VariantDefinition[]): void {
+  try {
+    if (typeof localStorage === "undefined") return;
+    localStorage.setItem(VARIANTS_STORAGE_KEY, JSON.stringify(variants));
+  } catch {
+    // ignore
+  }
+}
+
+export function upsertVariantDefinition(variant: VariantDefinition): void {
+  const existing = getVariantDefinitions();
+  const idx = existing.findIndex((v) => v.key === variant.key);
+  if (idx >= 0) {
+    existing[idx] = variant;
+  } else {
+    existing.push(variant);
+  }
+  setVariantDefinitions(existing);
+}
+
+export function deleteVariantDefinition(key: string): void {
+  setVariantDefinitions(getVariantDefinitions().filter((v) => v.key !== key));
+}
+
+export function variantsToPriceSubgroups(
+  variants: VariantDefinition[]
+): Record<string, Record<string, string>> {
+  const result: Record<string, Record<string, string>> = Object.create(null);
+  for (const v of variants) {
+    if (!v.subgroupLabel || !v.subcategoryPrefix) continue;
+    if (!result[v.categoryId]) result[v.categoryId] = Object.create(null);
+    result[v.categoryId][v.subcategoryPrefix] = v.subgroupLabel;
+  }
+  return result;
+}
+
+export function variantsToPriceLabels(variants: VariantDefinition[]): Record<string, string> {
+  const result: Record<string, string> = Object.create(null);
+  for (const v of variants) {
+    if (v.key && v.label) result[v.key] = v.label;
+  }
+  return result;
+}
