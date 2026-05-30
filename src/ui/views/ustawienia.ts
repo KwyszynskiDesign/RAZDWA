@@ -97,6 +97,45 @@ function buildUniquePriceKey(prefix: string, label: string, prices: PriceMap): s
   return candidate;
 }
 
+// Kategorie, dla których ilość jest osobnym segmentem klucza, a nie opisem słownym.
+const QUANTITY_BASED_CATEGORIES = new Set([
+  "dyplomy", "vouchery", "ulotki", "zaproszenia", "wizytowki", "broszury-katalogi",
+]);
+
+function isQuantityBasedCategory(categoryId: string): boolean {
+  return QUANTITY_BASED_CATEGORIES.has(categoryId);
+}
+
+// Buduje klucz według schematu konkretnej kategorii.
+// qty – wartość pola ilości (cyfra lub zakres "51-1000" dla broszur).
+function buildQuantityKey(categoryId: string, prefix: string, qty: string): string {
+  const q = qty.trim();
+  switch (categoryId) {
+    case "vouchery": {
+      // Prefix: "vouchery-jed-" lub "vouchery-dwu-"
+      // Schemat klucza: vouchery-{qty}-{side}  (kolejność odwrócona względem prefiksu)
+      const m = prefix.match(/^vouchery-(jed|dwu)-?$/);
+      if (m) return `vouchery-${q}-${m[1]}`;
+      return `${prefix}${q}`;
+    }
+    case "wizytowki":
+      // Schemat klucza: {prefix}{qty}szt  (bez myślnika przed szt)
+      return `${prefix}${q}szt`;
+    default:
+      // dyplomy, ulotki, zaproszenia, broszury-katalogi: prefix + qty (lub zakres)
+      return `${prefix}${q}`;
+  }
+}
+
+function buildUniqueQuantityKey(categoryId: string, prefix: string, qty: string, prices: PriceMap): string {
+  const baseKey = buildQuantityKey(categoryId, prefix, qty);
+  if (!(baseKey in prices)) return baseKey;
+  let counter = 2;
+  let candidate = `${baseKey}-${counter}`;
+  while (candidate in prices) { counter += 1; candidate = `${baseKey}-${counter}`; }
+  return candidate;
+}
+
 function getCustomSubgroupDefinitions(categoryId: string): PrefixOption[] {
   const groups = customPriceSubgroups[categoryId] ?? Object.create(null);
   return Object.entries(groups).map(([value, label]) => ({ value, label }));
@@ -349,8 +388,8 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
       break;
     case "vouchery":
       options.push(
-        { value: "vouchery-jed-", label: "Voucher jednostronny – nowy próg (etykieta: ilość, np. '40 szt')" },
-        { value: "vouchery-dwu-", label: "Voucher dwustronny – nowy próg (etykieta: ilość, np. '40 szt')" },
+        { value: "vouchery-jed-", label: "Voucher jednostronny – nowy próg ilościowy" },
+        { value: "vouchery-dwu-", label: "Voucher dwustronny – nowy próg ilościowy" },
       );
       break;
     case "wycinanie-folii":
@@ -359,7 +398,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
       break;
     case "dyplomy":
       options.push(
-        { value: "dyplomy-qty-", label: "Dyplomy – nowy próg ilościowy (etykieta = ilość szt.)" },
+        { value: "dyplomy-qty-", label: "Dyplomy – nowy próg ilościowy" },
       );
       break;
     case "koperty":
@@ -2376,6 +2415,31 @@ export const UstawieniaView: View = {
           addSubgroupInput.value = "";
         }
       }
+
+      const qtyWrapper = container.querySelector<HTMLElement>("#new-price-qty-wrapper");
+      const qtyInput = container.querySelector<HTMLInputElement>("#new-price-qty");
+      const labelDescEl = container.querySelector<HTMLElement>("#new-price-label-desc");
+      if (qtyWrapper) {
+        const chosenCatId = addCategorySelect.value;
+        const isQtyBased = isQuantityBasedCategory(chosenCatId);
+        qtyWrapper.style.display = isQtyBased ? "" : "none";
+        if (!isQtyBased && qtyInput) qtyInput.value = "";
+
+        const qtyLabelEl = qtyWrapper.querySelector<HTMLElement>("#new-price-qty-label");
+        if (qtyLabelEl && qtyInput) {
+          if (chosenCatId === "broszury-katalogi") {
+            qtyLabelEl.textContent = "3. Zakres ilości (np. 51-1000)";
+            qtyInput.placeholder = "np. 51-1000";
+          } else {
+            qtyLabelEl.textContent = "3. Ilość (szt.)";
+            qtyInput.placeholder = "np. 500";
+          }
+        }
+
+        if (labelDescEl) {
+          labelDescEl.textContent = isQtyBased ? "Opis (opcjonalnie)" : "3. Nazwa wariantu / produktu";
+        }
+      }
     }
 
     function renderTable(): void {
@@ -2719,8 +2783,13 @@ export const UstawieniaView: View = {
                   <input id="new-price-subgroup" type="text" class="settings-input" placeholder="np. Ulotki kwadratowe">
                 </div>
 
+                <div id="new-price-qty-wrapper" class="settings-field" style="display:none">
+                  <span id="new-price-qty-label" class="settings-action-label">3. Ilość (szt.)</span>
+                  <input id="new-price-qty" type="text" inputmode="numeric" class="settings-input" placeholder="np. 500">
+                </div>
+
                 <label class="settings-field">
-                  <span class="settings-action-label">3. Nazwa wariantu / produktu</span>
+                  <span id="new-price-label-desc" class="settings-action-label">3. Nazwa wariantu / produktu</span>
                   <input id="new-price-label" type="text" class="settings-input" placeholder="np. 2000 szt.">
                 </label>
 
@@ -2817,6 +2886,7 @@ export const UstawieniaView: View = {
     const addLabelInput = container.querySelector<HTMLInputElement>("#new-price-label");
     const addPriceInput = container.querySelector<HTMLInputElement>("#new-price-value");
     const addLegendInput = container.querySelector<HTMLInputElement>("#new-price-legend");
+    const addQtyInput = container.querySelector<HTMLInputElement>("#new-price-qty");
 
     function updateKeyPreview(): void {
       const previewWrap = container.querySelector<HTMLElement>("#key-preview-wrap");
@@ -2826,11 +2896,7 @@ export const UstawieniaView: View = {
       const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
-
-      if (!productLabel) {
-        if (previewWrap) previewWrap.style.display = "none";
-        return;
-      }
+      const qty = container.querySelector<HTMLInputElement>("#new-price-qty")?.value.trim() || "";
 
       let chosenPrefix = selectedPrefix;
       if (selectedPrefix === CUSTOM_PREFIX_VALUE) {
@@ -2842,7 +2908,21 @@ export const UstawieniaView: View = {
         chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, chosenCategory.id, prices);
       }
 
-      const preview = buildUniquePriceKey(chosenPrefix, productLabel, prices);
+      let preview: string;
+      if (isQuantityBasedCategory(chosenCategoryId)) {
+        if (!qty) {
+          if (previewWrap) previewWrap.style.display = "none";
+          return;
+        }
+        preview = buildUniqueQuantityKey(chosenCategoryId, chosenPrefix, qty, prices);
+      } else {
+        if (!productLabel) {
+          if (previewWrap) previewWrap.style.display = "none";
+          return;
+        }
+        preview = buildUniquePriceKey(chosenPrefix, productLabel, prices);
+      }
+
       if (previewWrap) previewWrap.style.display = "";
       if (previewValue) previewValue.textContent = preview;
     }
@@ -2871,6 +2951,7 @@ export const UstawieniaView: View = {
     });
 
     addSubgroupInput?.addEventListener("input", updateKeyPreview);
+    addQtyInput?.addEventListener("input", updateKeyPreview);
     addLabelInput?.addEventListener("input", updateKeyPreview);
 
     container.querySelector("#btn-add-row")?.addEventListener("click", () => {
@@ -2883,7 +2964,26 @@ export const UstawieniaView: View = {
       const priceValueRaw = addPriceInput?.value.trim() || "";
       const legendText = addLegendInput?.value.trim() || "";
 
-      if (!productLabel) {
+      const qtyValue = addQtyInput?.value.trim() || "";
+
+      if (isQuantityBasedCategory(chosenCategoryId)) {
+        if (!qtyValue) {
+          showStatus("⚠️ Wpisz ilość.", "error");
+          addQtyInput?.focus();
+          return;
+        }
+        if (chosenCategoryId === "broszury-katalogi") {
+          if (!/^\d+-\d+$/.test(qtyValue)) {
+            showStatus("⚠️ Wpisz zakres ilości w formacie: 51-1000.", "error");
+            addQtyInput?.focus();
+            return;
+          }
+        } else if (!/^\d+$/.test(qtyValue)) {
+          showStatus("⚠️ Wpisz poprawną ilość (np. 100).", "error");
+          addQtyInput?.focus();
+          return;
+        }
+      } else if (!productLabel) {
         showStatus("⚠️ Wpisz nazwę wariantu / produktu.", "error");
         addLabelInput?.focus();
         return;
@@ -2909,7 +3009,9 @@ export const UstawieniaView: View = {
         setPriceSubgroups(customPriceSubgroups);
       }
 
-      const newKey = buildUniquePriceKey(chosenPrefix, productLabel, prices);
+      const newKey = isQuantityBasedCategory(chosenCategoryId)
+        ? buildUniqueQuantityKey(chosenCategoryId, chosenPrefix, qtyValue, prices)
+        : buildUniquePriceKey(chosenPrefix, productLabel, prices);
 
       const parsedPrice = priceValueRaw !== "" ? Number.parseFloat(priceValueRaw) : NaN;
       const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
@@ -2919,7 +3021,9 @@ export const UstawieniaView: View = {
       console.log("NOWY WARIANT DODANY:", { key: newKey, price: newVariantPrice });
       console.log("PRICE MAP AFTER ADD:", { [newKey]: prices[newKey] }, "(total keys:", Object.keys(prices).length, ")");
 
-      customPriceLabels[newKey] = legendText || productLabel;
+      if (legendText || productLabel) {
+        customPriceLabels[newKey] = legendText || productLabel;
+      }
 
       const currentDefaultPrices = (getPrice("defaultPrices") as Record<string, number | null>) ?? {};
       setPrice("defaultPrices", { ...currentDefaultPrices, [newKey]: newVariantPrice });
@@ -2932,7 +3036,7 @@ export const UstawieniaView: View = {
         categoryId: chosenCategoryId,
         subcategoryPrefix: chosenPrefix,
         subgroupLabel: selectedPrefix === CUSTOM_PREFIX_VALUE ? subgroupName : "",
-        label: legendText || productLabel,
+        label: legendText || productLabel || getPriceLabel(newKey),
         legend: legendText,
         visibleInSettings: true,
         visibleInCalculator: true,
@@ -2951,6 +3055,7 @@ export const UstawieniaView: View = {
       if (addLabelInput) addLabelInput.value = "";
       if (addPriceInput) addPriceInput.value = "";
       if (addLegendInput) addLegendInput.value = "";
+      if (addQtyInput) addQtyInput.value = "";
       updateKeyPreview();
 
       const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");

@@ -24,11 +24,10 @@ describe("Vouchery Category", () => {
     expect(result.totalPrice).toBe(56.76);
   });
 
-  it("should handle quantity ranges (e.g. 11 szt should be priced as 10 szt per latest requirements)", () => {
-    // 10 szt single = 52
-    // Our latest logic (qty >= tier.qty) picks tier 10 for qty 11.
+  it("should interpolate for qty between tiers (11 szt between 10→52 and 15→60)", () => {
+    // t = (11-10)/(15-10) = 0.2 → 52 + 0.2*8 = 53.60
     const result = quoteVouchery({ qty: 11, sides: 'single', satin: false, modigliani: false, express: false });
-    expect(result.totalPrice).toBe(52);
+    expect(result.totalPrice).toBe(53.6);
   });
 
   it("should calculate with Modigliani as Satin +20%", () => {
@@ -42,6 +41,28 @@ describe("Vouchery Category", () => {
     // baza 43; Modigliani = 14.79; express = 8.60; razem 66.39
     expect(result.modifiersTotal).toBe(23.39);
     expect(result.totalPrice).toBe(66.39);
+  });
+
+  describe("Interpolacja liniowa", () => {
+    it("qty=12 single: między 10→52 a 15→60, t=0.4 → 55.2 zł", () => {
+      const result = quoteVouchery({ qty: 12, sides: 'single', satin: false, modigliani: false, express: false });
+      expect(result.totalPrice).toBe(55.2);
+    });
+
+    it("qty=17 single: między 15→60 a 20→67, t=0.4 → 62.8 zł", () => {
+      const result = quoteVouchery({ qty: 17, sides: 'single', satin: false, modigliani: false, express: false });
+      expect(result.totalPrice).toBe(62.8);
+    });
+
+    it("qty=35 single: powyżej max (30→84) → clamp do 84 zł", () => {
+      const result = quoteVouchery({ qty: 35, sides: 'single', satin: false, modigliani: false, express: false });
+      expect(result.totalPrice).toBe(84);
+    });
+
+    it("qty=0 single: poniżej min (1→20) → clamp do 20 zł", () => {
+      const result = quoteVouchery({ qty: 0, sides: 'single', satin: false, modigliani: false, express: false });
+      expect(result.totalPrice).toBe(20);
+    });
   });
 
   it("should use a newly added 50 szt voucher tier from stored prices", () => {

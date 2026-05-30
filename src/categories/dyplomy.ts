@@ -4,6 +4,7 @@ import {
   extractQuantityFromText,
   getDefaultPricesMap,
   getStoredPriceLabel,
+  getInterpolatedPrice,
   resolveStoredPrice,
 } from "../core/compat";
 
@@ -50,8 +51,7 @@ function getSelectedDyplomyTier(qty: number, tiers: DyplomyTier[]): DyplomyTier 
 
 function getPriceForQuantity(qty: number): number {
   const tiers = getResolvedDyplomyTiers();
-  const selectedTier = getSelectedDyplomyTier(qty, tiers);
-  return selectedTier.price;
+  return getInterpolatedPrice(tiers, qty);
 }
 
 export interface DyplomyOptions {
