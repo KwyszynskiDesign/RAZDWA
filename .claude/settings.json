@@ -10,7 +10,9 @@
       "Read(//h/RAZ DWA/RAZDWA/**)",
       "Bash(Get-ChildItem -Path \"h:\\\\RAZ DWA\\\\RAZDWA\" -Recurse -Directory)",
       "Bash(Select-Object -ExpandProperty FullName)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(Get-ChildItem -Path \"h:\\\\RAZ DWA\\\\RAZDWA\" -Recurse -File)",
+      "PowerShell($env:TEMP = 'C:\\\\Temp'; npm --prefix \"h:\\\\RAZ DWA\\\\RAZDWA\" run build 2>&1 | Select-Object -Last 20)"
     ],
     "additionalDirectories": [
       "D:\\KWdesign"
