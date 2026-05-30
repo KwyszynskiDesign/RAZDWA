@@ -1,15 +1,26 @@
 import { CategoryModule } from "../ui/router";
 import { getPrice } from "../services/priceService";
-import { pickNearestCeilKey, resolveStoredPrice } from "../core/compat";
+import { resolveStoredPrice } from "../core/compat";
 
 const _biz: any = getPrice("wizytowki");
 
 function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boolean): number {
   const table = _biz.cyfrowe.standardPrices[format][foiled ? 'lam' : 'noLam'];
-  const key = pickNearestCeilKey(table, qty);
-  if (key == null) throw new Error(`Brak progu cenowego dla ${qty} szt (${format})`);
   const foliaKey = foiled ? 'matt_gloss' : 'none';
-  return resolveStoredPrice(`wizytowki-${format}-${foliaKey}-${key}szt`, table[key]);
+  const keys = Object.keys(table || {}).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+  if (!keys.length) throw new Error(`Brak progu cenowego dla ${qty} szt (${format})`);
+  const resolve = (k: number) => resolveStoredPrice(`wizytowki-${format}-${foliaKey}-${k}szt`, table[k]);
+  if (qty <= keys[0]) return resolve(keys[0]);
+  const last = keys[keys.length - 1];
+  if (qty >= last) return resolve(last);
+  for (let i = 0; i < keys.length - 1; i++) {
+    const lo = keys[i], hi = keys[i + 1];
+    if (qty <= hi) {
+      const t = (qty - lo) / (hi - lo);
+      return Math.round((resolve(lo) + t * (resolve(hi) - resolve(lo))) * 100) / 100;
+    }
+  }
+  return resolve(last);
 }
 
 /**
