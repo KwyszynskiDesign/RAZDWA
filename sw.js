@@ -1,4 +1,4 @@
-﻿/**
+/**
  * RAZDWA Service Worker v2
  * Features:
  * - Automatic CACHE_VERSION injection via prebuild script
@@ -7,53 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> f306113 (fix(cad-upload): adjust inline column widths)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> 5f1f019 (refactor(styles): replace hardcoded colors with CSS variables)
->>>>>>> f5106a6 (Update CAD upload flow)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> fa6ab4e (Fix dynamic variant persistence and rebuild docs bundle)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> f306113 (fix(cad-upload): adjust inline column widths)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> 5f1f019 (refactor(styles): replace hardcoded colors with CSS variables)
->>>>>>> f5106a6 (Update CAD upload flow)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> fa6ab4e (Fix dynamic variant persistence and rebuild docs bundle)
-=======
-var CACHE_VERSION = 'razdwa-v202605301130'; // Injected by prebuild script
->>>>>>> c0a66c06ec00e8d265723801afb0f07d5d1491ce
->>>>>>> 3ca6ae2 (refactor(styles): normalize variables and remove safe duplication)
+var CACHE_VERSION = 'razdwa-v202605301020'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
@@ -116,8 +70,12 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // HTML files AND app.js: NetworkFirst strategy (always pull latest bundle/templates)
-  if (url.pathname.endsWith('.html') || url.pathname === '/' || url.pathname.endsWith('/RAZDWA/') || url.pathname.endsWith('/app.js')) {
+  if (
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/' ||
+    url.pathname.endsWith('/RAZDWA/') ||
+    url.pathname.endsWith('/app.js')
+  ) {
     event.respondWith(
       fetch(request)
         .then(function (response) {
@@ -141,7 +99,6 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Static assets: CacheFirst strategy
   if (
     url.pathname.endsWith('.js') ||
     url.pathname.endsWith('.css') ||
@@ -181,7 +138,6 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  // Default: try network first, then cache
   event.respondWith(
     fetch(request)
       .then(function (response) {
