@@ -51,7 +51,6 @@ body {
   background-color: var(--bg);
   color: var(--text-primary);
   line-height: 1.5;
-  overflow-x: clip;
   overflow: hidden;
 }
 
@@ -538,16 +537,6 @@ tbody tr:hover {
   color: var(--primary);
 }
 
-/* ===== TOAST ===== */
-
-.toast {
-  background: var(--success);
-  color: white;
-  padding: 12px 16px;
-  border-radius: var(--radius-sm);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-}
-
 html {
   scroll-padding-top: calc(var(--category-sticky-height) + 8px) !important;
   scroll-behavior: smooth;
@@ -720,13 +709,13 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   border-radius: 6px;
 }
 
-.cennik-table th {
-  padding: 8px 12px;
-  font-size: 12px;
-}
-
+.cennik-table th,
 .cennik-table td {
   padding: 8px 12px;
+}
+
+.cennik-table th {
+  font-size: 12px;
 }
 
 .cennik-note {
@@ -809,30 +798,6 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
 .pricing-legend .legend-panel table {
   margin: 0;
 }
-
-/* ===== RESULT AREA (category views) ===== */
-.result-area .price-line {
-  display: flex;
-  justify-content: space-between;
-  padding: 4px 0;
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.result-area .price-line.highlight {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--primary);
-  border-top: 1px solid var(--border);
-  margin-top: 4px;
-  padding-top: 8px;
-}
-
-.modifier-hint {
-  font-size: 12px;
-  padding: 2px 0;
-}
-
 
 /* ===== BREAKDOWN PANEL ("Jak liczona jest cena") ===== */
 .category-view [id*="Breakdown"],
@@ -960,67 +925,9 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   min-width: 140px;
 }
 
-/* ===== CALC MONITOR ===== */
-.calc-monitor {
-  margin-top: 24px;
-  padding: 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-
-.calc-monitor-title {
-  font-weight: 700;
-  margin-bottom: 8px;
-  font-size: 16px;
-  color: var(--text-primary);
-}
-
-.calc-monitor-body {
-  font-size: 14px;
-  color: var(--text-secondary);
-}
-
-.calc-monitor-section {
-  margin-bottom: 12px;
-}
-
-.calc-monitor-section:last-child {
-  margin-bottom: 0;
-}
-
-.calc-monitor-section-title {
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: var(--text-primary);
-}
-
-.calc-monitor-param {
-  padding: 4px 0;
-  font-size: 13px;
-}
-
-.calc-monitor-block + .calc-monitor-block {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border);
-}
-
 .form-row .form-group {
   flex: 1;
   min-width: 120px;
-}
-
-.form-actions-row {
-  margin-top: 12px;
-  gap: 16px;
-}
-
-.label-sub {
-  display: block;
-  font-size: 12px;
-  color: #6c757d;
-  margin-top: 2px;
 }
 
 /* ===== OPTION CARD ===== */
@@ -2166,11 +2073,6 @@ body.settings-pricing-layout .left-col {
   gap: 10px;
 }
 
-#orderSummary .order-row {
-  margin: 2px 0;
-  gap: 1px;
-}
-
 #orderSummary .order-row label {
   margin-bottom: 1px;
 }
@@ -2315,9 +2217,7 @@ body.settings-pricing-layout .left-col {
 #viewContainer .hint,
 #viewContainer .form-text,
 #viewContainer .cennik-note,
-#viewContainer .modifier-hint,
-#viewContainer .express-hint,
-#viewContainer .label-sub {
+#viewContainer .express-hint {
   color: #475569 !important;
   font-size: 13px;
   line-height: 1.5;
@@ -2638,15 +2538,18 @@ body.settings-pricing-layout .left-col {
   font-weight: 700;
 }
 
+#viewContainer .cad-files-table th,
+#viewContainer .cad-files-table td {
+  padding: 12px;
+}
+
 #viewContainer .cad-files-table th {
-  padding: 12px 12px;
   text-align: left;
   font-size: 14px;
   border-bottom: 1px solid var(--vc-border);
 }
 
 #viewContainer .cad-files-table td {
-  padding: 12px 12px;
   border-bottom: 1px solid #e2e8f0;
   font-size: 13px;
   vertical-align: middle;
