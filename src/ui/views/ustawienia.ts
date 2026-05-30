@@ -2863,14 +2863,22 @@ export const UstawieniaView: View = {
       }
 
       if (remote.variants.length > 0) {
-        setVariantDefinitions(remote.variants);
-        const fromVariants = variantsToPriceSubgroups(remote.variants);
-        for (const [catId, prefixes] of Object.entries(fromVariants)) {
-          if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
-          Object.assign(customPriceSubgroups[catId], prefixes);
+        // Warianty z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
+        // Jeśli localStorage zawiera już warianty, lokalny stan jest nowszy lub niezapisany –
+        // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
+        const hasLocalVariants = Boolean(
+          typeof localStorage !== "undefined" && localStorage.getItem(VARIANTS_STORAGE_KEY)
+        );
+        if (!hasLocalVariants) {
+          setVariantDefinitions(remote.variants);
+          const fromVariants = variantsToPriceSubgroups(remote.variants);
+          for (const [catId, prefixes] of Object.entries(fromVariants)) {
+            if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+            Object.assign(customPriceSubgroups[catId], prefixes);
+          }
+          Object.assign(customPriceLabels, variantsToPriceLabels(remote.variants));
+          changed = true;
         }
-        Object.assign(customPriceLabels, variantsToPriceLabels(remote.variants));
-        changed = true;
       }
 
       if (changed) {

@@ -136,6 +136,7 @@ Dopisz poniższe **bez ingerencji w istniejące funkcje** (`doPost` z `saveOrder
 
 ```javascript
 const CENNIK_SHEET_NAME = 'cennik';
+const VARIANTS_SHEET_NAME = 'variants';
 const CHUNK_SIZE = 400;
 ```
 
@@ -178,12 +179,50 @@ function writeCennik(prices) {
 }
 ```
 
-### doGet — obsługa action=getPrices (nowa funkcja lub podmiana istniejącej)
+### Helpery odczytu i zapisu wariantów (nowe funkcje, dopisz razem z helperami cennika)
+
+```javascript
+function ensureVariantsSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  return ss.getSheetByName(VARIANTS_SHEET_NAME) || ss.insertSheet(VARIANTS_SHEET_NAME);
+}
+
+function readVariants() {
+  const sheet = ensureVariantsSheet();
+  if (sheet.getLastRow() < 1) return [];
+  const raw = String(sheet.getRange(1, 1).getValue() || '').trim();
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeVariants(variants) {
+  const sheet = ensureVariantsSheet();
+  sheet.clearContents();
+  if (!Array.isArray(variants) || variants.length === 0) return;
+  sheet.getRange(1, 1).setValue(JSON.stringify(variants));
+}
+```
+
+### doGet — obsługa action=getState i action=getPrices (podmiana istniejącej)
+
+`getState` zwraca pełny stan (ceny + warianty) — tego używa aplikacja przy reopen.
+`getPrices` jest zachowane dla kompatybilności wstecznej.
 
 ```javascript
 function doGet(e) {
   try {
     var action = e && e.parameter && e.parameter.action;
+    if (action === 'getState') {
+      Logger.log('GET getState');
+      return ContentService
+        .createTextOutput(JSON.stringify({ prices: readCennik(), variants: readVariants() }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
     if (action === 'getPrices') {
       Logger.log('GET getPrices');
       return ContentService
@@ -201,12 +240,18 @@ function doGet(e) {
 }
 ```
 
-Odpowiedź dla `getPrices` zwraca czysty obiekt cen:
+Odpowiedź dla `getState`:
 ```json
-{ "druk-bw-a4-1-5": 0.5, "solwent-150g-1-3": 45, ... }
+{
+  "prices": { "druk-bw-a4-1-5": 0.5, "solwent-150g-1-3": 45, ... },
+  "variants": [
+    { "key": "zaproszenia-a6-single-normal-200", "categoryId": "zaproszenia", ... },
+    ...
+  ]
+}
 ```
 
-### Fragment doPost dla prices_update (dopisz NA POCZĄTKU istniejącej funkcji doPost, przed istniejącą logiką)
+### Fragment doPost dla prices_update i variants_update (dopisz NA POCZĄTKU istniejącej funkcji doPost)
 
 ```javascript
 // Dopisz jako pierwszy blok wewnątrz try{} w doPost(e):
@@ -222,6 +267,19 @@ if (body.type === 'prices_update') {
   writeCennik(body.prices);
   return ContentService
     .createTextOutput(JSON.stringify({ ok: true, message: 'Cennik zapisany.' }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+if (body.type === 'variants_update') {
+  Logger.log('POST variants_update');
+  if (!Array.isArray(body.variants)) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola variants.' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  writeVariants(body.variants);
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, message: 'Warianty zapisane.' }))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
