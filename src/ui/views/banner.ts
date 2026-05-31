@@ -217,6 +217,7 @@ export const BannerView: View = {
     autoCalc({ root: container, calc: performCalculation });
 
     ctx?.on?.("prices-updated", () => {
+      ensureLegend();
       performCalculation();
     });
 
