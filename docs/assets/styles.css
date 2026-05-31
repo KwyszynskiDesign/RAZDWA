@@ -2857,6 +2857,7 @@ body.settings-pricing-layout .left-col {
 
 #goToBaseBtn {
   width: auto;
+  max-width: 100%;
   min-height: 34px;
   padding: 8px 12px;
   border-radius: var(--radius-md);
@@ -2866,6 +2867,19 @@ body.settings-pricing-layout .left-col {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
+  flex-shrink: 1;
+  white-space: normal;
+  word-break: break-word;
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  #orderSummary .order-summary-head {
+    flex-wrap: wrap;
+  }
+  #goToBaseBtn {
+    width: 100%;
+  }
 }
 
 #orderSummary .order-actions button,

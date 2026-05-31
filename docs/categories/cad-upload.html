@@ -427,47 +427,40 @@
   .results-table .col-price  { width: 23%; }
   .results-table .col-remove { width: 6%; min-width: 34px; }
 
-  /* NR — lekki odstęp od lewej krawędzi */
+  /* NR — wycentrowany, bez nadmiarowego paddingu */
   #viewContainer .results-table th.col-lp,
   #viewContainer .results-table td.col-lp {
-    padding-left: 15px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
+    text-align: center !important;
   }
 
-  /* Nazwa — +25px w prawo */
+  /* Nazwa — lekki odstęp od lewej */
   #viewContainer .results-table th.col-name,
   #viewContainer .results-table td.col-name {
-    padding-left: 25px !important;
+    padding-left: 8px !important;
   }
 
-  /* Rozmiar — +20px w prawo */
+  /* Rozmiar */
   #viewContainer .results-table th.col-size,
   #viewContainer .results-table td.col-size {
-    padding-left: 20px !important;
+    padding-left: 6px !important;
   }
 
-  /* Składanie — +25px w prawo */
+  /* Składanie i Skan — identyczny padding dla nagłówka i wierszy, checkbox centruje się naturalnie */
   #viewContainer .results-table th.col-fold,
-  #viewContainer .results-table td.col-fold {
-    padding-left: 25px !important;
-  }
-
-  /* Skan — +25px w prawo */
+  #viewContainer .results-table td.col-fold,
   #viewContainer .results-table th.col-scan,
   #viewContainer .results-table td.col-scan {
-    padding-left: 25px !important;
+    padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 
-  /* Ilość — +46px w prawo */
+  /* Ilość */
   #viewContainer .results-table th.col-qty,
   #viewContainer .results-table td.col-qty {
-    padding-left: 46px !important;
-  }
-
-  /* Nagłówki wąskich kolumn: cofnij nadmiarowy padding-left, żeby tekst był widoczny */
-  #viewContainer .results-table th.col-fold,
-  #viewContainer .results-table th.col-scan,
-  #viewContainer .results-table th.col-qty {
     padding-left: 4px !important;
+    padding-right: 4px !important;
   }
 
   .results-table th {
