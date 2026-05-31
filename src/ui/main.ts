@@ -28,12 +28,55 @@ import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript } from "../services/orderExportService";
-import { PRICES_UPDATED_EVENT } from "../services/priceService";
+import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript } from "../services/orderExportService";
+import {
+  PRICES_UPDATED_EVENT,
+  PRICES_STORAGE_KEY,
+  VARIANTS_STORAGE_KEY,
+  getVariantDefinitions,
+  setVariantDefinitions,
+  variantsToPriceSubgroups,
+  variantsToPriceLabels,
+  getPriceSubgroups,
+  setPriceSubgroups,
+  getPriceLabels,
+  setPriceLabels,
+  setPrice,
+} from "../services/priceService";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
+
+function syncVariantsToSubgroupsAtStartup(): void {
+  try {
+    const variants = getVariantDefinitions();
+    if (!variants.length) return;
+
+    const fromVariants = variantsToPriceSubgroups(variants);
+    const existing = getPriceSubgroups();
+    const needsSubgroupSync = Object.entries(fromVariants).some(
+      ([catId, prefixes]) => Object.keys(prefixes).some(prefix => !existing[catId]?.[prefix])
+    );
+    if (needsSubgroupSync) {
+      const merged: Record<string, Record<string, string>> = {};
+      for (const [c, p] of Object.entries(existing)) merged[c] = { ...p };
+      for (const [c, p] of Object.entries(fromVariants)) {
+        if (!merged[c]) merged[c] = {};
+        Object.assign(merged[c], p);
+      }
+      setPriceSubgroups(merged);
+    }
+
+    const fromLabels = variantsToPriceLabels(variants);
+    const existingLabels = getPriceLabels();
+    if (Object.entries(fromLabels).some(([k, v]) => existingLabels[k] !== v)) {
+      setPriceLabels({ ...existingLabels, ...fromLabels });
+    }
+  } catch {
+    // ignore
+  }
+}
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
 ;(window as any).__APP_BUILD__ = '2026-05-22-router-fix-2';
@@ -732,7 +775,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCartUI();
   filterCategoryTiles();
+
+  syncVariantsToSubgroupsAtStartup();
   router.start();
+
+  (async () => {
+    try {
+      const hasLocalPrices = Boolean(localStorage.getItem(PRICES_STORAGE_KEY));
+      const hasLocalVariants = Boolean(localStorage.getItem(VARIANTS_STORAGE_KEY));
+      if (hasLocalPrices && hasLocalVariants) return;
+
+      const remote = await fetchStateFromAppsScript();
+      if (!remote) return;
+
+      if (!hasLocalPrices && Object.keys(remote.prices).length > 0) {
+        setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+      }
+      if (!hasLocalVariants && remote.variants.length > 0) {
+        setVariantDefinitions(remote.variants);
+        syncVariantsToSubgroupsAtStartup();
+      }
+    } catch {
+      // offline – OK, nie blokuje startu
+    }
+  })();
 });
 
 (window as any).scrollToTopTiles = () => {

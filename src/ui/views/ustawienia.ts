@@ -2836,6 +2836,7 @@ export const UstawieniaView: View = {
 
       setPrice("defaultPrices", persisted);
       setPriceLabels(persistedLabels);
+      setPriceSubgroups(customPriceSubgroups);
       customPriceLabels = persistedLabels;
       prices = loadPrices();
       renderTabs();

@@ -241,9 +241,12 @@ export function calculateBusinessCards(options: {
   }
 
   for (let i = 0; i < keys.length - 1; i++) {
-    const hi = keys[i + 1];
+    const lo = keys[i], hi = keys[i + 1];
     if (qty <= hi) {
-      return { qtyBilled: hi, total: Number(table[hi]) };
+      const loPrice = Number(table[lo]);
+      const hiPrice = Number(table[hi]);
+      const t = (qty - lo) / (hi - lo);
+      return { qtyBilled: qty, total: Math.round((loPrice + t * (hiPrice - loPrice)) * 100) / 100 };
     }
   }
 

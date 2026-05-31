@@ -74,8 +74,8 @@ describe("Compatibility Tests (kalkulatorv2.html logic)", () => {
     // Rozmiar: 85x55
     // Wykończenie: mat (standardPrices)
     // Foliowanie: bez (noLam)
-    // Qty: 80 → zaokrąglenie do 100
-    // Oczekiwany wynik: 75 zł
+    // Qty: 80 → interpolacja liniowa między 50szt(65zł) a 100szt(75zł)
+    // t = (80-50)/(100-50) = 0.6 → total = 65 + 0.6*10 = 71 zł
     const res = calculateBusinessCards({
       family: "standard",
       finish: "mat",
@@ -83,8 +83,8 @@ describe("Compatibility Tests (kalkulatorv2.html logic)", () => {
       lam: "noLam",
       qty: 80,
     });
-    expect(res.qtyBilled).toBe(100);
-    expect(res.total).toBe(75);
+    expect(res.qtyBilled).toBe(80);
+    expect(res.total).toBe(71);
   });
 
   it("Test 7: Skanowanie auto, 35 stron", () => {

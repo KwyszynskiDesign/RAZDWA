@@ -141,6 +141,7 @@ export const RollUpView: View = {
         breakdown.push({ label: "Cena za szt", value: formatPLN(unitBase) });
       }
 
+      breakdown.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
       renderBreakdownRows(breakdownBox, breakdown);
       breakdownBox.style.display = 'grid';
 

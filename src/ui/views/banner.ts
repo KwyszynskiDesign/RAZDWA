@@ -181,6 +181,7 @@ export const BannerView: View = {
         lines.push({ label: "Składniki", value: parts.join(" + ") });
       }
 
+      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
       renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };

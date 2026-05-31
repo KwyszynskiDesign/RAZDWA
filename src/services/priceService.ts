@@ -334,6 +334,7 @@ export function setVariantDefinitions(variants: VariantDefinition[]): void {
   } catch {
     // ignore
   }
+  notifyPricesUpdated("variants");
 }
 
 export function upsertVariantDefinition(variant: VariantDefinition): void {
