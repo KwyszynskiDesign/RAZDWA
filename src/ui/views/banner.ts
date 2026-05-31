@@ -174,11 +174,12 @@ export const BannerView: View = {
         lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressCost)}` });
       }
 
-      const parts: string[] = [formatPLN(result.basePrice)];
-      if (oczkowanieCost > 0) parts.push(formatPLN(oczkowanieCost));
-      if (expressCost > 0) parts.push(formatPLN(expressCost));
-      const equation = parts.join(" + ");
-      lines.push({ label: "Razem", value: `${equation} = ${formatPLN(result.totalPrice)}`, separatorTop: true, strongValue: true });
+      if (oczkowanieCost > 0 || expressCost > 0) {
+        const parts: string[] = [formatPLN(result.basePrice)];
+        if (oczkowanieCost > 0) parts.push(formatPLN(oczkowanieCost));
+        if (expressCost > 0) parts.push(formatPLN(expressCost));
+        lines.push({ label: "Składniki", value: parts.join(" + ") });
+      }
 
       renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";

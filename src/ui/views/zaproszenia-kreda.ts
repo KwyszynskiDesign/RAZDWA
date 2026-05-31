@@ -2,7 +2,7 @@ import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
 import { calculateZaproszeniaKreda, ZaproszeniaKredaOptions } from "../../categories/zaproszenia-kreda";
 import { formatPLN } from "../../core/money";
-import { resolveStoredPrice } from "../../core/compat";
+import { resolveStoredPrice, getDefaultPricesMap } from "../../core/compat";
 import { getPrice } from "../../services/priceService";
 
 export const ZaproszeniaKredaView: View = {
@@ -47,10 +47,17 @@ export const ZaproszeniaKredaView: View = {
         ? (data?.satynaFormats?.[format]?.[sidesKey]?.[foldKey] ?? data?.satynaFormats?.[format]?.[sidesKey]?.["skladane"])
         : (data?.formats?.[format]?.[sidesKey]?.[foldKey] ?? data?.formats?.[format]?.[sidesKey]?.["skladane"])) ?? {};
 
-      const qtyList = Object.keys(tiers)
-        .map((k) => Number(k))
-        .filter((n) => Number.isFinite(n))
-        .sort((a, b) => a - b);
+      const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
+      const customPrefix = `${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-`;
+      const qtySet = new Set(
+        Object.keys(tiers).map(Number).filter((n) => Number.isFinite(n))
+      );
+      for (const key of Object.keys(getDefaultPricesMap())) {
+        if (!key.startsWith(customPrefix)) continue;
+        const n = Number(key.slice(customPrefix.length));
+        if (Number.isFinite(n)) qtySet.add(n);
+      }
+      const qtyList = [...qtySet].sort((a, b) => a - b);
 
       if (legendTitle) {
         legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldedCheck.checked ? " SKŁADANE" : ""}`;
@@ -65,8 +72,7 @@ export const ZaproszeniaKredaView: View = {
       legendRows.replaceChildren();
       qtyList.forEach((qty) => {
         const base = Number(tiers[String(qty)] ?? 0);
-        const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
-        const price = resolveStoredPrice(`${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-${qty}`, base);
+        const price = resolveStoredPrice(`${customPrefix}${qty}`, base);
 
         const tr = document.createElement("tr");
         const qtyTd = document.createElement("td");
@@ -95,9 +101,6 @@ export const ZaproszeniaKredaView: View = {
         breakdownBox.appendChild(line);
       });
     };
-
-    const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-    const expressRate = resolveStoredPrice("modifier-express", 0.20);
 
     const getEnvelopeLabel = (key: string): string => `Koperta ${key.toUpperCase()}`;
     const updateEnvelopeVisibility = () => {
@@ -145,6 +148,8 @@ export const ZaproszeniaKredaView: View = {
         express: ctx.expressMode
       };
 
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+      const expressRate = resolveStoredPrice("modifier-express", 0.20);
       const result = calculateZaproszeniaKreda(options);
       const envelopeType = (envelopeTypeSel?.value || "a").toLowerCase();
       const envelopeQty = Math.max(1, parseInt(envelopeQtyInput?.value || "1", 10) || 1);

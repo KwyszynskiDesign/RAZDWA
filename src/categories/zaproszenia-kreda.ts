@@ -1,5 +1,5 @@
 import { getPrice } from "../services/priceService";
-import { resolveStoredPrice } from "../core/compat";
+import { resolveStoredPrice, getDefaultPricesMap } from "../core/compat";
 
 const pricingData: any = getPrice("zaproszeniaKreda");
 
@@ -43,17 +43,29 @@ function getBasePrice(
   }
 
   const keyPrefix = paperBase === "satyna" ? "zaproszenia-satyna" : "zaproszenia";
+  const customPrefix = `${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-`;
 
-  const resolvedTiers = Object.keys(rawTiers)
+  const resolvedTiersByQty = new Map<number, { qty: number; price: number }>();
+
+  Object.keys(rawTiers)
     .map(Number)
+    .filter(Number.isFinite)
     .sort((a, b) => a - b)
-    .map((tierQty) => ({
-      qty: tierQty,
-      price: resolveStoredPrice(
-        `${keyPrefix}-${format.toLowerCase()}-${sidesKey}-${foldStorageKey}-${tierQty}`,
-        rawTiers[String(tierQty)]
-      ),
-    }));
+    .forEach((tierQty) => {
+      resolvedTiersByQty.set(tierQty, {
+        qty: tierQty,
+        price: resolveStoredPrice(`${customPrefix}${tierQty}`, rawTiers[String(tierQty)]),
+      });
+    });
+
+  for (const [key, value] of Object.entries(getDefaultPricesMap())) {
+    if (typeof value !== "number" || !key.startsWith(customPrefix)) continue;
+    const customQty = Number(key.slice(customPrefix.length));
+    if (!Number.isFinite(customQty) || resolvedTiersByQty.has(customQty)) continue;
+    resolvedTiersByQty.set(customQty, { qty: customQty, price: value });
+  }
+
+  const resolvedTiers = [...resolvedTiersByQty.values()].sort((a, b) => a.qty - b.qty);
 
   if (qty <= resolvedTiers[0].qty) return { price: resolvedTiers[0].price, interpolated: false };
   if (qty >= resolvedTiers[resolvedTiers.length - 1].qty) return { price: resolvedTiers[resolvedTiers.length - 1].price, interpolated: false };

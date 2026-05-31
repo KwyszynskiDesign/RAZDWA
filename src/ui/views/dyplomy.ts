@@ -28,11 +28,10 @@ export const DyplomyView: View = {
         .join("");
     };
 
-    const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-    const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-    const expressRate = resolveStoredPrice("modifier-express", 0.20);
-
     const calculate = () => {
+      const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+      const expressRate = resolveStoredPrice("modifier-express", 0.20);
       if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
         resultArea.style.display = 'none';
         breakdownBox.style.display = 'none';

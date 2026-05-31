@@ -215,9 +215,8 @@ export const WizytowkiView: View = {
       const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
 
       const lines: BreakdownRow[] = [
-        { label: "Nakład podany", value: `${options.qty} szt` },
-        { label: "Próg rozliczeniowy", value: `${result.qtyBilled} szt` },
-        { label: "Cena z cennika (próg)", value: formatPLN(basePrice) },
+        { label: "Nakład", value: `${options.qty} szt` },
+        { label: "Cena (interpolowana)", value: formatPLN(basePrice) },
       ];
 
       if (isSatin) {

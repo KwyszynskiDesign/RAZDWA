@@ -81,15 +81,13 @@ export const VoucheryView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
-    const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-    const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-    const expressRate = resolveStoredPrice("modifier-express", 0.20);
-
     const getEnvelopeLabel = (key: string): string => `Koperta ${key.toUpperCase()}`;
 
     const updateLegend = () => {
       if (!legendRows) return;
 
+      const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
       const tiers = getVoucheryTiers();
       const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement | null;
       const side = sidesInput?.value === "double" ? "dwu" : "jed";
@@ -137,6 +135,9 @@ export const VoucheryView: View = {
     paperSelect?.addEventListener("change", updateLegend);
 
     const renderBreakdown = (result: any, options: any) => {
+      const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+      const expressRate = resolveStoredPrice("modifier-express", 0.20);
       const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
       const basePrice = result.basePrice;
 
@@ -159,8 +160,7 @@ export const VoucheryView: View = {
 
       const lines: BreakdownRow[] = [
         { label: "Nakład i typ", value: `${options.qty} szt, ${materialLabel}` },
-        { label: "Próg cenowy", value: `${result.tierQty} szt (${materialLabel})` },
-        { label: "Cena z tabeli", value: formatPLN(basePrice) },
+        { label: "Cena (interpolowana)", value: formatPLN(basePrice) },
       ];
 
       if (options.modigliani) {

@@ -259,26 +259,8 @@ export const PlakatyWFView: View = {
 
       if (calcHintEl) {
         const nieformatHintLines = buildNieformatCalcHint(res);
-        const trimSurcharge = getTrimSurcharge();
-        
-        if (trimSurcharge > 0) {
-          const trimParts: string[] = [];
-          if (trim2Checkbox?.checked) {
-            const qty = parsePositiveInt(trim2QtyInput?.value || "") || 1;
-            trimParts.push(`${qty} szt × 2 cięcia trymer (+1,00 zł) = ${formatPLN(qty * 1)}`);
-          }
-          if (trim4Checkbox?.checked) {
-            const qty = parsePositiveInt(trim4QtyInput?.value || "") || 1;
-            trimParts.push(`${qty} szt × 4 cięcia trymer (+2,00 zł) = ${formatPLN(qty * 2)}`);
-          }
-          const trimText = `Doliczono: ${trimParts.join(" + ")} = ${formatPLN(trimSurcharge)}`;
-          const fullHintLines = nieformatHintLines.length ? [trimText, ...nieformatHintLines] : [trimText];
-          renderHintContent(calcHintEl, fullHintLines);
-          calcHintEl.style.display = "block";
-        } else {
-          renderHintContent(calcHintEl, nieformatHintLines);
-          calcHintEl.style.display = nieformatHintLines.length ? "block" : "none";
-        }
+        renderHintContent(calcHintEl, nieformatHintLines);
+        calcHintEl.style.display = nieformatHintLines.length ? "block" : "none";
       }
 
       if (breakdownBox && breakdownLines) {
@@ -307,7 +289,7 @@ export const PlakatyWFView: View = {
     };
 
     autoCalc({ root: container, calc: calcWielkoformatowe });
-    ctx?.on?.("prices-updated", () => { calcWielkoformatowe(); });
+    ctx?.on?.("prices-updated", () => { ensureLegend(); calcWielkoformatowe(); });
 
     // Handle trim checkboxes
     const recalcForTrimChange = () => {
