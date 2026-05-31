@@ -1,6 +1,18 @@
-import { afterEach, describe, it, expect } from "vitest";
-import { calculateDyplomy } from "../src/categories/dyplomy";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { calculateDyplomy, getResolvedDyplomyTiers } from "../src/categories/dyplomy";
 import { getPrice, resetPrices, setPrice } from "../src/services/priceService";
+
+let storageData: Record<string, string> = {};
+
+beforeEach(() => {
+  storageData = {};
+  vi.stubGlobal("localStorage", {
+    getItem: (key: string) => storageData[key] ?? null,
+    setItem: (key: string, value: string) => { storageData[key] = value; },
+    removeItem: (key: string) => { delete storageData[key]; },
+    clear: () => { storageData = {}; },
+  });
+});
 
 afterEach(() => {
   resetPrices();
@@ -208,6 +220,47 @@ describe("Dyplomy logic", () => {
     const a5 = calculateDyplomy({ qty: 10, sides: 2, format: "A5", isSatin: false, express: false });
     expect(a4.totalPrice).toBe(a5.totalPrice);
     expect(a4.totalPrice).toBe(40.00);
+  });
+});
+
+describe("getResolvedDyplomyTiers – legenda progów ilościowych", () => {
+  it("returns tiers from prices.json with correct qty values", () => {
+    const tiers = getResolvedDyplomyTiers();
+    expect(tiers.length).toBeGreaterThan(0);
+    const t1 = tiers.find((t) => t.qty === 1);
+    const t10 = tiers.find((t) => t.qty === 10);
+    expect(t1?.price).toBe(20);
+    expect(t10?.price).toBe(40);
+  });
+
+  it("tiers are sorted by qty ascending", () => {
+    const tiers = getResolvedDyplomyTiers();
+    for (let i = 1; i < tiers.length; i++) {
+      expect(tiers[i].qty).toBeGreaterThan(tiers[i - 1].qty);
+    }
+  });
+
+  it("reflects a stored price override for an existing qty tier", () => {
+    setPrice("defaultPrices.dyplomy-qty-10", 45);
+    const tiers = getResolvedDyplomyTiers();
+    const t = tiers.find((t) => t.qty === 10);
+    expect(t?.price).toBe(45);
+  });
+
+  it("adding a new qty tier appears in legend output", () => {
+    const prices = getPrice("defaultPrices") as Record<string, number | null>;
+    setPrice("defaultPrices", { ...prices, "dyplomy-qty-150szt": 110 });
+    const tiers = getResolvedDyplomyTiers();
+    const newTier = tiers.find((t) => t.qty === 150);
+    expect(newTier).toBeDefined();
+    expect(newTier!.price).toBe(110);
+  });
+
+  it("overriding a tier price is reflected in calculateDyplomy", () => {
+    setPrice("defaultPrices.dyplomy-qty-10", 50);
+    const result = calculateDyplomy({ qty: 10, sides: 2, isSatin: false, express: false });
+    expect(result.tierPrice).toBe(50);
+    expect(result.totalPrice).toBe(50);
   });
 });
 

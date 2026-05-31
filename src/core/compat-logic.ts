@@ -7,7 +7,6 @@ import {
   WF_SCAN_PRICE_PER_CM,
   BIZ,
   pickTier,
-  pickNearestCeilKey,
   resolveStoredPrice,
   money,
   readStoredPrices,
@@ -225,20 +224,28 @@ export function calculateBusinessCards(options: {
     );
   }
 
-  const qtyBilled = pickNearestCeilKey(table, options.qty);
-  if (qtyBilled == null) throw new Error("Brak progu cenowego dla takiej ilości.");
+  const keys = Object.keys(table).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+  if (!keys.length) throw new Error("Brak progu cenowego dla takiej ilości.");
 
-  // Check if admin panel has a stored override for this standard/softtouch run price.
-  // Key format: wizytowki-{size}-{none|matt_gloss}-{qty}szt
-  let total = table[qtyBilled];
-  if (options.family !== "deluxe" && options.size) {
-    const foliaKey = options.lam === "noLam" ? "none" : "matt_gloss";
-    const storageKey = `wizytowki-${options.size}-${foliaKey}-${qtyBilled}szt`;
-    total = storedPrice(storageKey, total);
+  const qty = options.qty;
+
+  if (qty <= keys[0]) {
+    return { qtyBilled: keys[0], total: Number(table[keys[0]]) };
   }
 
-  return {
-    qtyBilled,
-    total,
-  };
+  const lastKey = keys[keys.length - 1];
+
+  if (qty >= lastKey) {
+    const lastPrice = Number(table[lastKey]);
+    return { qtyBilled: qty, total: Math.round(qty * (lastPrice / lastKey) * 100) / 100 };
+  }
+
+  for (let i = 0; i < keys.length - 1; i++) {
+    const hi = keys[i + 1];
+    if (qty <= hi) {
+      return { qtyBilled: hi, total: Number(table[hi]) };
+    }
+  }
+
+  return { qtyBilled: lastKey, total: Number(table[lastKey]) };
 }
