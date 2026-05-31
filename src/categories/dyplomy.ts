@@ -10,7 +10,7 @@ import {
 
 type DyplomyTier = { qty: number; price: number };
 
-function getResolvedDyplomyTiers(): DyplomyTier[] {
+export function getResolvedDyplomyTiers(): DyplomyTier[] {
   const baseTiers = (getPrice("dyplomy") as DyplomyTier[] | undefined) ?? [];
   const tiersByQty = new Map<number, DyplomyTier>();
 

@@ -1,5 +1,18 @@
 ﻿import { View, ViewContext } from "../types";
 import {
+  type PriceCategory,
+  BASE_PRICE_CATEGORIES,
+  findOrCreateCategory,
+} from "../../core/productCat";
+import { logVariantOperation } from "../../core/variantLogger";
+import {
+  buildUniquePriceKey,
+  buildUniqueQuantityKey,
+  buildUniqueSubgroupPrefix,
+  findVariantBySignature,
+  isQuantityBasedCategory,
+} from "../../core/variantKeys";
+import {
   getPrice,
   getPriceLabels,
   getPriceSubgroups,
@@ -27,15 +40,6 @@ import {
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
-type PriceCategory = {
-  id: string;
-  label: string;
-  icon: string;
-  prefixes: string[];
-  description: string;
-  newKeyPrefix?: string;
-};
-
 type PriceValue = number | null;
 type PriceMap = Record<string, PriceValue>;
 type PriceLabelMap = Record<string, string>;
@@ -60,82 +64,6 @@ let _lastAddedKey: string | null = null;
 let customPriceLabels: PriceLabelMap = Object.create(null);
 let customPriceSubgroups: PriceSubgroupMap = Object.create(null);
 
-function slugifyKeySegment(value: string): string {
-  return String(value ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[łŁ]/g, "l")
-    .replace(/[śŚ]/g, "s")
-    .replace(/[żŻźŹ]/g, "z")
-    .replace(/[ćĆ]/g, "c")
-    .replace(/[ńŃ]/g, "n")
-    .replace(/[ąĄ]/g, "a")
-    .replace(/[ęĘ]/g, "e")
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .replace(/-{2,}/g, "-");
-}
-
-function normalizePricePrefix(prefix: string): string {
-  const trimmed = String(prefix ?? "").trim();
-  if (!trimmed) return "nowa-";
-  return trimmed.endsWith("-") ? trimmed : `${trimmed}-`;
-}
-
-function buildUniquePriceKey(prefix: string, label: string, prices: PriceMap): string {
-  const baseKey = `${normalizePricePrefix(prefix)}${slugifyKeySegment(label) || "nowy-produkt"}`;
-  if (!(baseKey in prices)) return baseKey;
-
-  let counter = 2;
-  let candidate = `${baseKey}-${counter}`;
-  while (candidate in prices) {
-    counter += 1;
-    candidate = `${baseKey}-${counter}`;
-  }
-  return candidate;
-}
-
-// Kategorie, dla których ilość jest osobnym segmentem klucza, a nie opisem słownym.
-const QUANTITY_BASED_CATEGORIES = new Set([
-  "dyplomy", "vouchery", "ulotki", "zaproszenia", "wizytowki", "broszury-katalogi",
-]);
-
-function isQuantityBasedCategory(categoryId: string): boolean {
-  return QUANTITY_BASED_CATEGORIES.has(categoryId);
-}
-
-// Buduje klucz według schematu konkretnej kategorii.
-// qty – wartość pola ilości (cyfra lub zakres "51-1000" dla broszur).
-function buildQuantityKey(categoryId: string, prefix: string, qty: string): string {
-  const q = qty.trim();
-  switch (categoryId) {
-    case "vouchery": {
-      // Prefix: "vouchery-jed-" lub "vouchery-dwu-"
-      // Schemat klucza: vouchery-{qty}-{side}  (kolejność odwrócona względem prefiksu)
-      const m = prefix.match(/^vouchery-(jed|dwu)-?$/);
-      if (m) return `vouchery-${q}-${m[1]}`;
-      return `${prefix}${q}`;
-    }
-    case "wizytowki":
-      // Schemat klucza: {prefix}{qty}szt  (bez myślnika przed szt)
-      return `${prefix}${q}szt`;
-    default:
-      // dyplomy, ulotki, zaproszenia, broszury-katalogi: prefix + qty (lub zakres)
-      return `${prefix}${q}`;
-  }
-}
-
-function buildUniqueQuantityKey(categoryId: string, prefix: string, qty: string, prices: PriceMap): string {
-  const baseKey = buildQuantityKey(categoryId, prefix, qty);
-  if (!(baseKey in prices)) return baseKey;
-  let counter = 2;
-  let candidate = `${baseKey}-${counter}`;
-  while (candidate in prices) { counter += 1; candidate = `${baseKey}-${counter}`; }
-  return candidate;
-}
-
 function getCustomSubgroupDefinitions(categoryId: string): PrefixOption[] {
   const groups = customPriceSubgroups[categoryId] ?? Object.create(null);
   return Object.entries(groups).map(([value, label]) => ({ value, label }));
@@ -147,21 +75,6 @@ function getCustomSubgroupLabel(categoryId: string, key: string): string | null 
     .filter(([prefix]) => key.startsWith(prefix))
     .sort((a, b) => b[0].length - a[0].length);
   return matches[0]?.[1] ?? null;
-}
-
-function buildUniqueSubgroupPrefix(basePrefix: string, subgroupLabel: string, categoryId: string, prices: PriceMap): string {
-  const base = normalizePricePrefix(basePrefix);
-  const subgroupSegment = slugifyKeySegment(subgroupLabel) || "podkategoria";
-  const existing = new Set(Object.keys(prices));
-  Object.keys(customPriceSubgroups[categoryId] ?? {}).forEach((prefix) => existing.add(prefix));
-
-  let candidate = `${base}${subgroupSegment}-`;
-  let counter = 2;
-  while (existing.has(candidate)) {
-    candidate = `${base}${subgroupSegment}-${counter}`;
-    counter += 1;
-  }
-  return candidate;
 }
 
 function getCategorySectionTitle(category: PriceCategory, key: string): string {
@@ -1337,196 +1250,6 @@ export function getUslugiSectionTitle(key: string): string {
 
   return "USŁUGI";
 }
-
-const BASE_PRICE_CATEGORIES: PriceCategory[] = [
-  {
-    id: "druk-a4-a3",
-    label: "Druk A4/A3 + skan",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/printer.svg",
-    prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "druk-koszulka", "modifier-druk-"],
-    description: "Ceny druku czarno-białego, kolorowego, skanowania i dopłaty za duży zadruk.",
-    newKeyPrefix: "druk-bw-a4-"
-  },
-  {
-    id: "druk-cad",
-    label: "CAD wielkoformatowy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
-    prefixes: ["druk-cad-", "cad-fold-", "cad-"],
-    description: "Stawki CAD formatowe, za metr bieżący, składanie i usługi dodatkowe.",
-    newKeyPrefix: "druk-cad-bw-fmt-"
-  },
-  {
-    id: "laminowanie",
-    label: "Introligatornia",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
-    prefixes: ["laminowanie-a3-", "laminowanie-a4-", "laminowanie-a5-", "laminowanie-a6-", "laminowanie-intro-", "laminowanie-oprawa-", "laminowanie-bindowanie-"],
-    description: "Laminowanie na gorąco, oprawy, bindowanie oraz usługi introligatorskie.",
-    newKeyPrefix: "laminowanie-a4-"
-  },
-  {
-    id: "solwent",
-    label: "Solwent / plakaty",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
-    prefixes: ["solwent-", "plakaty-format-", "plakaty-blockout200g-"],
-    description: "Cenniki solwentu oraz plakatów A3-A0+.",
-    newKeyPrefix: "solwent-150g-"
-  },
-  {
-    id: "plakaty-a4-a3",
-    label: "Plakaty A4-A3",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
-    prefixes: ["plakaty-maly-canon-", "plakaty-duzy-canon-"],
-    description: "Cenniki plakatów A4-A3 (mały/duży Canon).",
-    newKeyPrefix: "plakaty-maly-canon-"
-  },
-  {
-    id: "vouchery",
-    label: "Vouchery",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket-percent.svg",
-    prefixes: ["vouchery-"],
-    description: "Ceny voucherów jednostronnych i dwustronnych.",
-    newKeyPrefix: "vouchery-1-jed"
-  },
-  {
-    id: "banner",
-    label: "Banner",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layout-panel-top.svg",
-    prefixes: ["banner-"],
-    description: "Materiały bannerowe i dopłata za oczkowanie.",
-    newKeyPrefix: "banner-powlekany-"
-  },
-  {
-    id: "rollup",
-    label: "Roll-up",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/panel-top.svg",
-    prefixes: ["rollup-"],
-    description: "Komplety roll-up oraz wymiana wkładu.",
-    newKeyPrefix: "rollup-85x200-"
-  },
-  {
-    id: "folia",
-    label: "Folia szroniona / OWV",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layers.svg",
-    prefixes: ["folia-szroniona-"],
-    description: "Wydruk i oklejanie folii szronionej oraz OWV.",
-    newKeyPrefix: "folia-szroniona-wydruk-"
-  },
-  {
-    id: "wycinanie-folii",
-    label: "Wycinanie z folii",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scissors.svg",
-    prefixes: ["wycinanie-folii-"],
-    description: "Stawki wycinania folii kolorowej i złoto/srebro.",
-    newKeyPrefix: "wycinanie-folii-kolorowa"
-  },
-  {
-    id: "canvas",
-    label: "Canvas / Płótno",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/gallery-horizontal.svg",
-    prefixes: ["canvas-"],
-    description: "Canvas z oprawą, bez oprawy i stawka za m².",
-    newKeyPrefix: "canvas-framed-"
-  },
-  {
-    id: "wlepki",
-    label: "Wlepki / naklejki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sticker.svg",
-    prefixes: ["wlepki-"],
-    description: "Naklejki standardowe, po obrysie, PP i dopłaty dodatkowe.",
-    newKeyPrefix: "wlepki-standard-folia-"
-  },
-  {
-    id: "wizytowki",
-    label: "Wizytówki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
-    prefixes: ["wizytowki-"],
-    description: "Ceny wizytówek standard i z folią dla obu formatów.",
-    newKeyPrefix: "wizytowki-85x55-none-"
-  },
-  {
-    id: "zaproszenia",
-    label: "ZAPROSZENIA",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
-    prefixes: ["zaproszenia-"],
-    description: "Ceny zaproszeń (format, strony, łamanie, ilość).",
-    newKeyPrefix: "zaproszenia-a6-single-normal-"
-  },
-  {
-    id: "ulotki",
-    label: "Ulotki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
-    prefixes: ["ulotki-jed-", "ulotki-dwu-"],
-    description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",
-    newKeyPrefix: "ulotki-jed-a6-"
-  },
-  {
-    id: "dyplomy",
-    label: "Dyplomy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/award.svg",
-    prefixes: ["dyplomy-qty-"],
-    description: "Ceny dyplomów wg progów ilościowych.",
-    newKeyPrefix: "dyplomy-qty-"
-  },
-  {
-    id: "artykuly",
-    label: "Artykuły biurowe",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
-    prefixes: [
-      "artykuly-teczka-",
-      "artykuly-skoroszyt-",
-      "artykuly-segregator-",
-      "artykuly-koszulka-",
-      "artykuly-papier-",
-      "artykuly-dugopis",
-      "artykuly-olowek",
-      "artykuly-pendrive-",
-      "artykuly-pudelko-",
-      "artykuly-plyty-"
-    ],
-    description: "Ceny materiałów biurowych i akcesoriów.",
-    newKeyPrefix: "artykuly-"
-  },
-  {
-    id: "uslugi",
-    label: "Usługi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg",
-    prefixes: ["uslugi-"],
-    description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
-    newKeyPrefix: "uslugi-"
-  },
-  {
-    id: "koperty",
-    label: "Koperty",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
-    prefixes: ["koperty-", "artykuly-koperta-"],
-    description: "Ceny kopert (A–G oraz pozycje kopert z artykułów biurowych).",
-    newKeyPrefix: "artykuly-koperta-"
-  },
-  {
-    id: "pojedyncze-naklady",
-    label: "Pojedyncze nakłady",
-    icon: "🧾",
-    prefixes: ["laminowanie-special-"],
-    description: "Ceny usług dla pojedynczych nakładów i wydruki specjalne.",
-    newKeyPrefix: "laminowanie-special-"
-  },
-  {
-    id: "broszury-katalogi",
-    label: "Broszury i katalogi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-text.svg",
-    prefixes: ["broszury-katalogi-"],
-    description: "Ceny broszur i katalogów wg formatu i nakładu.",
-    newKeyPrefix: "broszury-katalogi-a4-"
-  },
-  {
-    id: "modifiers",
-    label: "Dopłaty globalne",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings.svg",
-    prefixes: ["modifier-express", "modifier-satyna", "modifier-modigliani"],
-    description: "Dopłaty procentowe współdzielone przez wiele kalkulatorów.",
-    newKeyPrefix: "modifier-"
-  }
-];
 
 function keyMatchesCategory(key: string, category: PriceCategory): boolean {
   if (category.prefixes.some((prefix) => key.startsWith(prefix))) return true;
@@ -2900,7 +2623,7 @@ export const UstawieniaView: View = {
       const previewWrap = container.querySelector<HTMLElement>("#key-preview-wrap");
       const previewValue = container.querySelector<HTMLElement>("#key-preview-value");
       const chosenCategoryId = addCategorySelect?.value || activeCategory;
-      const chosenCategory = renderedCategories.find((c) => c.id === chosenCategoryId) ?? getActiveCategory();
+      const chosenCategory = findOrCreateCategory(renderedCategories, chosenCategoryId, getActiveCategory());
       const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
@@ -2913,7 +2636,7 @@ export const UstawieniaView: View = {
           return;
         }
         const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
-        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, chosenCategory.id, prices);
+        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, prices, customPriceSubgroups[chosenCategory.id] ?? {});
       }
 
       let preview: string;
@@ -2965,7 +2688,7 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-add-row")?.addEventListener("click", () => {
       flushInputs();
       const chosenCategoryId = addCategorySelect?.value || activeCategory;
-      const chosenCategory = renderedCategories.find((category) => category.id === chosenCategoryId) ?? getActiveCategory();
+      const chosenCategory = findOrCreateCategory(renderedCategories, chosenCategoryId, getActiveCategory());
       const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
@@ -2976,22 +2699,26 @@ export const UstawieniaView: View = {
 
       if (isQuantityBasedCategory(chosenCategoryId)) {
         if (!qtyValue) {
+          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
           showStatus("⚠️ Wpisz ilość.", "error");
           addQtyInput?.focus();
           return;
         }
         if (chosenCategoryId === "broszury-katalogi") {
           if (!/^\d+-\d+$/.test(qtyValue)) {
+            logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
             showStatus("⚠️ Wpisz zakres ilości w formacie: 51-1000.", "error");
             addQtyInput?.focus();
             return;
           }
         } else if (!/^\d+$/.test(qtyValue)) {
+          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
           showStatus("⚠️ Wpisz poprawną ilość (np. 100).", "error");
           addQtyInput?.focus();
           return;
         }
       } else if (!productLabel) {
+        logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
         showStatus("⚠️ Wpisz nazwę wariantu / produktu.", "error");
         addLabelInput?.focus();
         return;
@@ -3000,12 +2727,13 @@ export const UstawieniaView: View = {
       let chosenPrefix = selectedPrefix;
       if (selectedPrefix === CUSTOM_PREFIX_VALUE) {
         if (!subgroupName) {
+          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
           showStatus("⚠️ Wpisz nazwę nowej podgrupy.", "error");
           addSubgroupInput?.focus();
           return;
         }
         const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
-        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, chosenCategory.id, prices);
+        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, prices, customPriceSubgroups[chosenCategory.id] ?? {});
         const currentGroups = customPriceSubgroups[chosenCategory.id] ?? Object.create(null);
         customPriceSubgroups = {
           ...customPriceSubgroups,
@@ -3017,17 +2745,20 @@ export const UstawieniaView: View = {
         setPriceSubgroups(customPriceSubgroups);
       }
 
-      const newKey = isQuantityBasedCategory(chosenCategoryId)
-        ? buildUniqueQuantityKey(chosenCategoryId, chosenPrefix, qtyValue, prices)
-        : buildUniquePriceKey(chosenPrefix, productLabel, prices);
-
       const parsedPrice = priceValueRaw !== "" ? Number.parseFloat(priceValueRaw) : NaN;
       const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
-      console.log("Zapis do:", { categoryKey: chosenCategoryId, subcategoryKey: chosenPrefix, newVariant: { key: newKey, price: newVariantPrice, legend: legendText || productLabel } });
+
+      // Idempotent upsert: jeśli wariant o tej samej sygnaturze już istnieje, rób update zamiast tworzyć nowy klucz.
+      const existingKey = findVariantBySignature(chosenCategoryId, chosenPrefix, productLabel, qtyValue, prices);
+      const isUpdate = existingKey !== null;
+      const newKey = isUpdate
+        ? existingKey
+        : isQuantityBasedCategory(chosenCategoryId)
+          ? buildUniqueQuantityKey(chosenCategoryId, chosenPrefix, qtyValue, prices)
+          : buildUniquePriceKey(chosenPrefix, productLabel, prices);
+
       prices[newKey] = newVariantPrice;
       _lastAddedKey = newKey;
-      console.log("NOWY WARIANT DODANY:", { key: newKey, price: newVariantPrice });
-      console.log("PRICE MAP AFTER ADD:", { [newKey]: prices[newKey] }, "(total keys:", Object.keys(prices).length, ")");
 
       if (legendText || productLabel) {
         customPriceLabels[newKey] = legendText || productLabel;
@@ -3037,28 +2768,31 @@ export const UstawieniaView: View = {
       setPrice("defaultPrices", { ...currentDefaultPrices, [newKey]: newVariantPrice });
       setPriceLabels({ ...customPriceLabels });
 
-      // Persist variant definition to registry
+      // Persist variant definition to registry — na update zachowaj createdAt i sortOrder
+      const existingDef = isUpdate ? getVariantDefinitions().find((v) => v.key === newKey) : undefined;
       const _now = new Date().toISOString();
       const _variantDef: VariantDefinition = {
         key: newKey,
         categoryId: chosenCategoryId,
         subcategoryPrefix: chosenPrefix,
-        subgroupLabel: selectedPrefix === CUSTOM_PREFIX_VALUE ? subgroupName : "",
+        subgroupLabel: selectedPrefix === CUSTOM_PREFIX_VALUE ? subgroupName : (existingDef?.subgroupLabel ?? ""),
         label: legendText || productLabel || getPriceLabel(newKey),
         legend: legendText,
         visibleInSettings: true,
         visibleInCalculator: true,
-        sortOrder: getVariantDefinitions().length,
-        createdAt: _now,
+        sortOrder: existingDef?.sortOrder ?? getVariantDefinitions().length,
+        createdAt: existingDef?.createdAt ?? _now,
         updatedAt: _now,
       };
       upsertVariantDefinition(_variantDef);
+      logVariantOperation({ action: isUpdate ? "update" : "add", key: newKey, categoryId: chosenCategoryId, prefix: chosenPrefix, label: productLabel || legendText, qty: qtyValue, price: newVariantPrice, timestamp: _now });
 
-      showStatus(`✓ Dodano: ${newKey}`);
+      showStatus(isUpdate ? `✓ Zaktualizowano: ${newKey}` : `✓ Dodano: ${newKey}`);
 
       renderTabs();
       renderTable();
       syncAddCategorySelection();
+      ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       if (addLabelInput) addLabelInput.value = "";
       if (addPriceInput) addPriceInput.value = "";

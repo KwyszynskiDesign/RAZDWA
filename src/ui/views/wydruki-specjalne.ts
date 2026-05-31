@@ -2,7 +2,7 @@ import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
 import { quoteWydrukiSpecjalne } from "../../categories/laminowanie";
 import { formatPLN } from "../../core/money";
-import { calculateDyplomy } from "../../categories/dyplomy";
+import { calculateDyplomy, getResolvedDyplomyTiers } from "../../categories/dyplomy";
 import { calculateZaproszeniaKreda } from "../../categories/zaproszenia-kreda";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
@@ -69,7 +69,6 @@ export const WydrukiSpecjalneView: View = {
     const specialLegendDyplom = container.querySelector("#special-legend-dyplom") as HTMLElement | null;
     const specialLegendZap = container.querySelector("#special-legend-zap") as HTMLElement | null;
 
-    const dyplomyTiers = (getPrice("dyplomy") as Array<{ qty: number; price: number }>) ?? [];
     const zaproszeniaData = getPrice("zaproszeniaKreda") as any;
 
     const showLegendForVariant = (variantId: string) => {
@@ -240,19 +239,22 @@ export const WydrukiSpecjalneView: View = {
     };
 
     const updateLegends = () => {
-      if (specialLegendDyplom && dyplomyTiers.length > 0) {
-        specialLegendDyplom.innerHTML = `
-          <div class="legend-head"><div><h4>CENNIK DYPLOMY</h4><p class="legend-subtitle">Progi ilościowe (cena bazowa).</p></div></div>
-          <div class="legend-badges">
-            <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
-            <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.20) * 100)}%</span>
-            <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
-          </div>
-          <table>
-            <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
-            <tbody>${dyplomyTiers.map((tier) => `<tr><td>${tier.qty}+</td><td>${formatPLN(resolveStoredPrice(`dyplomy-qty-${tier.qty}`, tier.price))}</td></tr>`).join("")}</tbody>
-          </table>
-        `;
+      if (specialLegendDyplom) {
+        const freshDyplomyTiers = getResolvedDyplomyTiers();
+        if (freshDyplomyTiers.length > 0) {
+          specialLegendDyplom.innerHTML = `
+            <div class="legend-head"><div><h4>CENNIK DYPLOMY</h4><p class="legend-subtitle">Progi ilościowe (cena bazowa).</p></div></div>
+            <div class="legend-badges">
+              <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
+              <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.20) * 100)}%</span>
+              <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
+            </div>
+            <table>
+              <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
+              <tbody>${freshDyplomyTiers.map((tier) => `<tr><td>${tier.qty}+</td><td>${formatPLN(tier.price)}</td></tr>`).join("")}</tbody>
+            </table>
+          `;
+        }
       }
 
       if (specialLegendZap && zaproszeniaData?.formats?.A6?.single?.normal) {

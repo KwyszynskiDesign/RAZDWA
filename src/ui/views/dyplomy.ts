@@ -1,9 +1,8 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { calculateDyplomy, DyplomyOptions } from "../../categories/dyplomy";
+import { calculateDyplomy, DyplomyOptions, getResolvedDyplomyTiers } from "../../categories/dyplomy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
-import { getPrice } from "../../services/priceService";
 
 export const DyplomyView: View = {
   id: "dyplomy",
@@ -23,12 +22,9 @@ export const DyplomyView: View = {
 
     const updateLegend = () => {
       if (!legendRows) return;
-      const tiers = (getPrice("dyplomy") as Array<{ qty: number; price: number }> | undefined) ?? [];
+      const tiers = getResolvedDyplomyTiers();
       legendRows.innerHTML = tiers
-        .map((tier) => {
-          const price = resolveStoredPrice(`dyplomy-qty-${tier.qty}`, tier.price);
-          return `<tr><td>${tier.qty} szt</td><td>${formatPLN(price)}</td></tr>`;
-        })
+        .map((tier) => `<tr><td>${tier.qty} szt</td><td>${formatPLN(tier.price)}</td></tr>`)
         .join("");
     };
 

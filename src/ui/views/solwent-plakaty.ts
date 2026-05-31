@@ -49,7 +49,7 @@ export const SolwentPlakatyView: View = {
         resultDisplay.insertAdjacentElement("afterend", legend);
       }
 
-      const materials = (tableData.materials ?? []) as Array<{ id: string; name: string; tiers: Array<{ min: number; max: number | null; price: number }> }>;
+      const materials = (data.materials ?? []) as Array<{ id: string; name: string; tiers: Array<{ min: number; max: number | null; price: number }> }>;
       const selectedMaterial = materialSelect.value;
 
       legend.innerHTML = `

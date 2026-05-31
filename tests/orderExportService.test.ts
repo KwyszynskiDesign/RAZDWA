@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { buildOrderExportPayload, getOrderExportConfig, ORDER_EXPORT_CONFIG_KEY, sendOrderToAppsScript, setOrderExportConfig } from "../src/services/orderExportService";
+import { buildOrderExportPayload, getOrderExportConfig, ORDER_EXPORT_CONFIG_KEY, savePricesToAppsScript, sendOrderToAppsScript, setOrderExportConfig } from "../src/services/orderExportService";
 import { CartItem, CustomerData } from "../src/core/types";
 
 const sampleItems: CartItem[] = [
@@ -302,5 +302,105 @@ describe("orderExportService", () => {
     expect(parsedBody["Ilosc sztuk"]).toBe("150");
     expect(parsedBody["Cena za sztukę"]).toBe("1.20");
     expect(parsedBody["Materiał"]).toContain("Kreda 130g");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Testy body validation i dry-run (Etap 6)
+// ---------------------------------------------------------------------------
+
+const GAS_CONFIG = {
+  appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+  timeoutMs: 5000,
+  enabled: true,
+  dryRun: false,
+};
+
+function makeMockFetch(status: number, body: unknown) {
+  const httpOk = status >= 200 && status < 300;
+  return vi.fn(async () => ({
+    ok: httpOk,
+    status,
+    headers: { get: (_: string) => "application/json" },
+    json: async () => body,
+    text: async () => JSON.stringify(body),
+  }));
+}
+
+describe("savePricesToAppsScript — body validation", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    delete (globalThis as any).fetch;
+  });
+
+  it("body {ok:true} → result.ok=true, result.verified=true", async () => {
+    (globalThis as any).fetch = makeMockFetch(200, { ok: true, message: "Zapisano cennik" });
+
+    const result = await savePricesToAppsScript({}, GAS_CONFIG);
+
+    expect(result.ok).toBe(true);
+    expect(result.verified).toBe(true);
+  });
+
+  it("body {ok:false, message} → result.ok=false, result.verified=true, message zachowany", async () => {
+    (globalThis as any).fetch = makeMockFetch(200, { ok: false, message: "Arkusz chroniony" });
+
+    const result = await savePricesToAppsScript({}, GAS_CONFIG);
+
+    expect(result.ok).toBe(false);
+    expect(result.verified).toBe(true);
+    expect(result.message).toBe("Arkusz chroniony");
+  });
+
+  it("HTTP 200 bez pola ok → result.ok=true, result.verified=false (uncertain success)", async () => {
+    (globalThis as any).fetch = makeMockFetch(200, { message: "Bez pola ok" });
+
+    const result = await savePricesToAppsScript({}, GAS_CONFIG);
+
+    expect(result.ok).toBe(true);
+    expect(result.verified).toBe(false);
+  });
+
+  it("HTTP 500 → result.ok=false niezależnie od body", async () => {
+    (globalThis as any).fetch = makeMockFetch(500, { ok: true, message: "Internal Error" });
+
+    const result = await savePricesToAppsScript({}, GAS_CONFIG);
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe(500);
+  });
+});
+
+describe("savePricesToAppsScript — dry-run", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    delete (globalThis as any).fetch;
+  });
+
+  it("dryRun:true → fetch nie jest wywoływany", async () => {
+    const fetchSpy = vi.fn();
+    (globalThis as any).fetch = fetchSpy;
+
+    await savePricesToAppsScript({}, { ...GAS_CONFIG, dryRun: true });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("dryRun:true → result.ok=true i message zawiera dry-run", async () => {
+    (globalThis as any).fetch = vi.fn();
+
+    const result = await savePricesToAppsScript({}, { ...GAS_CONFIG, dryRun: true });
+
+    expect(result.ok).toBe(true);
+    expect(result.message).toMatch(/dry-run/i);
+  });
+
+  it("dryRun:false → fetch wywołany normalnie", async () => {
+    const fetchSpy = makeMockFetch(200, { ok: true });
+    (globalThis as any).fetch = fetchSpy;
+
+    await savePricesToAppsScript({}, { ...GAS_CONFIG, dryRun: false });
+
+    expect(fetchSpy).toHaveBeenCalledOnce();
   });
 });

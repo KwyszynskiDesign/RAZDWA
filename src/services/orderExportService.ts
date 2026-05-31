@@ -7,6 +7,7 @@ export interface OrderExportConfig {
   appsScriptUrl: string;
   timeoutMs: number;
   enabled: boolean;
+  dryRun?: boolean;
 }
 
 const LEGACY_APPS_SCRIPT_URLS = [
@@ -80,6 +81,7 @@ const DEFAULT_CONFIG: OrderExportConfig = {
   appsScriptUrl: CURRENT_APPS_SCRIPT_URL,
   timeoutMs: 15000,
   enabled: true,
+  dryRun: false,
 };
 
 function splitCustomerName(fullName: string): { firstName: string; lastName: string } {
@@ -240,6 +242,7 @@ export function getOrderExportConfig(): OrderExportConfig {
       appsScriptUrl: migratedUrl,
       timeoutMs: Number(parsed.timeoutMs) > 0 ? Number(parsed.timeoutMs) : DEFAULT_CONFIG.timeoutMs,
       enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_CONFIG.enabled,
+      dryRun: typeof parsed.dryRun === "boolean" ? parsed.dryRun : false,
     };
   } catch {
     return DEFAULT_CONFIG;
@@ -295,6 +298,51 @@ export function buildOrderExportPayload(
   };
 }
 
+async function readAppsScriptBody(response: Response): Promise<AppsScriptResponseBody | null> {
+  try {
+    const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
+    if (contentType.includes("application/json")) {
+      return await response.json() as AppsScriptResponseBody;
+    }
+    const text = await response.text();
+    if (!text) return null;
+    try {
+      return JSON.parse(text) as AppsScriptResponseBody;
+    } catch {
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
+function evaluateGasResult(
+  body: AppsScriptResponseBody | null,
+  httpStatus: number,
+  httpOk: boolean,
+  fallbackMessage: string
+): OrderExportResult {
+  const bodyMessage = body && typeof body === "object" && "message" in body
+    ? String(body.message ?? "")
+    : "";
+
+  if (!httpOk) {
+    return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: false };
+  }
+
+  if (body && typeof body === "object" && "ok" in body) {
+    if (body.ok === false) {
+      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true };
+    }
+    if (body.ok === true) {
+      return { ok: true, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true };
+    }
+  }
+
+  // HTTP 200 bez pola ok — uncertain success (np. GAS zwróciło HTML albo pusty JSON)
+  return { ok: true, status: httpStatus, message: fallbackMessage, data: body, verified: false };
+}
+
 export async function sendOrderToAppsScript(
   payload: OrderExportPayload,
   config: OrderExportConfig = getOrderExportConfig()
@@ -305,6 +353,10 @@ export async function sendOrderToAppsScript(
 
   if (!config.appsScriptUrl) {
     return { ok: false, message: "Brak URL Apps Script Web App." };
+  }
+
+  if (config.dryRun) {
+    return { ok: true, verified: true, message: "dry-run: zamówienie nie zostało wysłane." };
   }
 
   const controller = new AbortController();
@@ -322,64 +374,8 @@ export async function sendOrderToAppsScript(
       signal: controller.signal,
     });
 
-    let responseBody: AppsScriptResponseBody | string | null = null;
-    const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
-
-    if (contentType.includes("application/json")) {
-      try {
-        responseBody = await response.json();
-      } catch {
-        responseBody = null;
-      }
-    } else {
-      try {
-        const text = await response.text();
-        if (text) {
-          try {
-            responseBody = JSON.parse(text) as AppsScriptResponseBody;
-          } catch {
-            responseBody = text;
-          }
-        }
-      } catch {
-        responseBody = null;
-      }
-    }
-
-    const bodyMessage =
-      responseBody && typeof responseBody === "object" && "message" in responseBody
-        ? String((responseBody as AppsScriptResponseBody).message ?? "")
-        : "";
-
-    if (!response.ok) {
-      return {
-        ok: false,
-        status: response.status,
-        message: bodyMessage || `Błąd HTTP ${response.status} podczas wysyłki do Apps Script.`,
-        data: responseBody,
-      };
-    }
-
-    if (
-      responseBody &&
-      typeof responseBody === "object" &&
-      "ok" in responseBody &&
-      (responseBody as AppsScriptResponseBody).ok === false
-    ) {
-      return {
-        ok: false,
-        status: response.status,
-        message: bodyMessage || "Apps Script zwrócił błąd zapisu.",
-        data: responseBody,
-      };
-    }
-
-    return {
-      ok: true,
-      status: response.status,
-      message: bodyMessage || "Zamówienie zapisane w arkuszu.",
-      data: responseBody,
-    };
+    const responseBody = await readAppsScriptBody(response);
+    return evaluateGasResult(responseBody, response.status, response.ok, "Zamówienie zapisane w arkuszu.");
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
@@ -435,6 +431,10 @@ export async function savePricesToAppsScript(
     return { ok: false, message: "Brak URL Apps Script Web App." };
   }
 
+  if (config.dryRun) {
+    return { ok: true, verified: true, message: "dry-run: cennik nie został wysłany." };
+  }
+
   const body = JSON.stringify({
     type: "prices_update",
     prices,
@@ -452,11 +452,8 @@ export async function savePricesToAppsScript(
       signal: controller.signal,
     });
 
-    if (!response.ok) {
-      return { ok: false, status: response.status, message: `Błąd HTTP ${response.status} podczas wysyłki cennika.` };
-    }
-
-    return { ok: true, status: response.status, message: "Cennik wysłany do Apps Script." };
+    const responseBody = await readAppsScriptBody(response);
+    return evaluateGasResult(responseBody, response.status, response.ok, "Cennik wysłany do Apps Script.");
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
@@ -502,6 +499,10 @@ export async function saveVariantsToAppsScript(
     return { ok: false, message: "Brak URL Apps Script Web App." };
   }
 
+  if (config.dryRun) {
+    return { ok: true, verified: true, message: "dry-run: warianty nie zostały wysłane." };
+  }
+
   const body = JSON.stringify({ type: "variants_update", variants });
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
@@ -515,10 +516,8 @@ export async function saveVariantsToAppsScript(
       signal: controller.signal,
     });
 
-    if (!response.ok) {
-      return { ok: false, status: response.status, message: `Błąd HTTP ${response.status} podczas wysyłki wariantów.` };
-    }
-    return { ok: true, status: response.status, message: "Warianty wysłane do Apps Script." };
+    const responseBody = await readAppsScriptBody(response);
+    return evaluateGasResult(responseBody, response.status, response.ok, "Warianty wysłane do Apps Script.");
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
