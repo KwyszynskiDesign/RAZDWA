@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'razdwa-v202606010703';
+var CACHE_VERSION = 'razdwa-v202606011641';
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -25,6 +25,14 @@ self.addEventListener('activate', function (event) {
       })
       .then(function () {
         return self.clients.claim();
+      })
+      .then(function () {
+        return self.clients.matchAll({ type: 'window' });
+      })
+      .then(function (clients) {
+        clients.forEach(function (client) {
+          client.postMessage({ type: 'SW_UPDATED' });
+        });
       })
   );
 });
