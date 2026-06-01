@@ -99,7 +99,8 @@ export const FoliaSzronionaView: View = {
           const rows = material.tiers.map((tier) => {
             const rangeLabel = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
             const price = resolveStoredPrice(`folia-szroniona-${storageKey}`, tier.price);
-            return `<tr><td>${rangeLabel}</td><td>${formatPLN(price)}</td></tr>`;
+            const priceDisplay = price > 0 ? formatPLN(price) : "Wycena ind.";
+            return `<tr><td>${rangeLabel}</td><td>${priceDisplay}</td></tr>`;
           }).join("");
 
           return `

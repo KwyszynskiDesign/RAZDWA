@@ -166,12 +166,22 @@ export class Router {
             } catch {}
           }
         } else {
-          this.renderHome();
+          this.renderNotFound(path);
         }
       } catch {
-        this.renderHome();
+        this.renderNotFound(path);
       }
     }
+  }
+
+  renderNotFound(path: string) {
+    const safePath = this.escapeHtml(path);
+    this.container.innerHTML = `
+      <div class="error-view" style="padding:40px 24px;text-align:center;">
+        <p style="font-size:14px;color:#64748b;">Nie znaleziono kategorii „<strong>${safePath}</strong>".</p>
+        <a href="#/" style="display:inline-block;margin-top:16px;color:#3b82f6;">← Wróć do strony głównej</a>
+      </div>
+    `;
   }
 
   private renderHome() {

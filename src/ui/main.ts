@@ -44,6 +44,7 @@ import {
   setPrice,
 } from "../services/priceService";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 
 const cart = new Cart();
@@ -681,6 +682,16 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const validationError = validateCustomerForm({
+      name: (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "",
+      email: (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "",
+      phone: (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "",
+    });
+    if (validationError) {
+      showToast(validationError, "error");
+      return;
+    }
+
     const customer: CustomerData = {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
@@ -710,6 +721,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Send order: Apps Script (if configured) or local Excel fallback
   const handleSendOrder = async () => {
+    const validationError = validateCustomerForm({
+      name: (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "",
+      email: (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "",
+      phone: (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "",
+    });
+    if (validationError) {
+      showToast(validationError, "error");
+      return;
+    }
+
     const customer: CustomerData = {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",

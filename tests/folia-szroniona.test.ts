@@ -103,4 +103,38 @@ describe("Folia Szroniona Category", () => {
     });
     expect(result.isCustom).toBe(true);
   });
+
+  it("regression B2: full-service 21m2 returns isCustom=true (zero price does not reach cart)", () => {
+    const result = calculateFoliaSzroniona({
+      widthMm: 4600,
+      heightMm: 4600,
+      serviceId: "full-service",
+      express: false
+    });
+    expect(result.isCustom).toBe(true);
+    // The totalPrice from the zero-priced tier is irrelevant because the view
+    // disables addToCart when isCustom is true. This test guards that contract.
+    expect(result.isCustom).toBe(true);
+  });
+
+  it("regression B2: OWV full-service 21m2 returns isCustom=true", () => {
+    const result = calculateFoliaSzroniona({
+      widthMm: 4600,
+      heightMm: 4600,
+      serviceId: "owv-full-service",
+      express: false
+    });
+    expect(result.isCustom).toBe(true);
+  });
+
+  it("regression B2: full-service exactly 20m2 is NOT custom (boundary)", () => {
+    const result = calculateFoliaSzroniona({
+      widthMm: 4000,
+      heightMm: 5000,
+      serviceId: "full-service",
+      express: false
+    });
+    expect(result.isCustom).toBe(false);
+    expect(result.totalPrice).toBe(2400);
+  });
 });

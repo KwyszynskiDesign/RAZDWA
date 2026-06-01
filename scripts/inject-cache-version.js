@@ -43,12 +43,69 @@ function injectVersion(filePath) {
   }
 }
 
+function formatHtmlVersion() {
+  return formatTimestamp().replace('razdwa-v', '');
+}
+
+function injectHtmlVersion(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      console.warn(`⚠ File not found: ${filePath}`);
+      return;
+    }
+
+    let content = fs.readFileSync(filePath, 'utf8');
+    const version = formatHtmlVersion();
+
+    const commentRegex = /<!-- APP_VERSION: [\w-]+ -->/;
+    if (commentRegex.test(content)) {
+      content = content.replace(commentRegex, `<!-- APP_VERSION: ${version} -->`);
+    }
+
+    content = content.replace(/\?v=[\w-]+/g, `?v=${version}`);
+
+    fs.writeFileSync(filePath, content, 'utf8');
+    console.log(`✓ Updated HTML version in ${filePath} → ${version}`);
+  } catch (error) {
+    console.error(`✗ Error processing ${filePath}:`, error.message);
+    process.exit(1);
+  }
+}
+
+function injectCacheBusterVersion(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      console.warn(`⚠ File not found: ${filePath}`);
+      return;
+    }
+
+    const version = formatHtmlVersion();
+    let content = fs.readFileSync(filePath, 'utf8');
+    const newContent = content.replace(
+      /var APP_VERSION = '[\w-]*'/,
+      `var APP_VERSION = '${version}'`
+    );
+
+    if (newContent !== content) {
+      fs.writeFileSync(filePath, newContent, 'utf8');
+      console.log(`✓ Updated cache-buster version → ${version}`);
+    }
+  } catch (error) {
+    console.error(`✗ Error processing ${filePath}:`, error.message);
+    process.exit(1);
+  }
+}
+
 const rootDir = path.join(__dirname, '..');
 const swFiles = [
   path.join(rootDir, 'sw.js'),
   path.join(rootDir, 'docs', 'sw.js')
 ];
+const htmlFile = path.join(rootDir, 'docs', 'index.html');
+const cacheBusterFile = path.join(rootDir, 'docs', 'cache-buster.js');
 
 console.log('Injecting cache version...');
 swFiles.forEach(injectVersion);
+injectHtmlVersion(htmlFile);
+injectCacheBusterVersion(cacheBusterFile);
 console.log('Done!\n');

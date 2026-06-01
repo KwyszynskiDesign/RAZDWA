@@ -13,6 +13,7 @@
     "build:commit": "npm run build && git add docs/assets/app.js sw.js docs/sw.js && git commit -m \"build: update app.js and service worker cache version\"",
     "push:main": "git pull --rebase origin main && git push origin main --force-with-lease",
     "sync": "npm run build:commit && npm run push:main",
+    "deploy": "npm run sync",
     "dev": "npx http-server docs -p 8080 -o",
     "test": "node scripts/run-vitest.mjs"
   },
