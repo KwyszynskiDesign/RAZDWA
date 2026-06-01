@@ -1,7 +1,11 @@
+<!-- APP_VERSION: 202606011641 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kalkulator &#x2013; Studio Raz Druku Dwa</title>
   <meta name="description" content="Kalkulator cen brutto dla Studio Raz Druku Dwa &#x2013; druk cyfrowy, wielkoformatowy, wizyt&#xF3;wki, naklejki i wi&#x119;cej.">
@@ -11,7 +15,7 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/styles.css?v=20260521-1">
+  <link rel="stylesheet" href="assets/styles.css?v=202606011641">
   
   <!-- PDF.js for CAD Upload (global, loaded once) -->
   <script
@@ -27,10 +31,37 @@
       console.log('&#x2705; PDF.js + LOCAL WORKER LOADED (global)');
     }
   </script>
-  
+
+  <script src="cache-buster.js?v=202606011641"></script>
+
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+      navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) {
+          var scriptURL = reg.active && reg.active.scriptURL || reg.installing && reg.installing.scriptURL || '';
+          if (!scriptURL.includes('sw.js')) reg.unregister();
+        });
+      });
+
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('./sw.js').then(function(reg) {
+          reg.addEventListener('updatefound', function() {
+            var newWorker = reg.installing;
+            newWorker.addEventListener('statechange', function() {
+              if (newWorker.state === 'activated' && navigator.serviceWorker.controller) {
+                window.location.reload();
+              }
+            });
+          });
+        });
+
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+          if (!sessionStorage.getItem('sw_reloaded')) {
+            sessionStorage.setItem('sw_reloaded', '1');
+            window.location.reload();
+          }
+        });
+      });
     }
   </script>
 </head>
@@ -653,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=20260522-1" type="module"></script>
+ <script src="assets/app.js?v=202606011641" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
