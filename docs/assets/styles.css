@@ -2860,6 +2860,15 @@ body.settings-pricing-layout .left-col {
   text-align: center;
 }
 
+@media (max-width: 480px) {
+  #orderSummary .order-summary-head {
+    flex-wrap: wrap;
+  }
+  #goToBaseBtn {
+    width: 100%;
+  }
+}
+
 #orderSummary .order-actions button,
 #clearBtn,
 #sendBtn,

@@ -7,7 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202606010705'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202606010708'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
