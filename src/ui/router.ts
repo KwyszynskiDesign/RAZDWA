@@ -57,7 +57,7 @@ export class Router {
     if (this.isIconUrl(icon)) {
       const safeUrl = this.escapeHtml(icon);
       const safeAlt = this.escapeHtml(name);
-      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" style="width:27.6px;height:27.6px;display:block;" />`;
+      return `<img src="${safeUrl}" alt="Ikona ${safeAlt}" loading="lazy" decoding="async" />`;
     }
     return this.escapeHtml(icon);
   }
@@ -74,7 +74,7 @@ export class Router {
     }
 
     if (id === "druk-cad") {
-      return "Druk CAD<br><span style=\"font-size:11px;line-height:1.1;display:inline-block;\">wielkoformatowy</span>";
+      return "Druk CAD<br><span class=\"home-tile-sublabel\">wielkoformatowy</span>";
     }
 
     if (id === "zamowienia-zewnetrzne") {
@@ -177,9 +177,9 @@ export class Router {
   renderNotFound(path: string) {
     const safePath = this.escapeHtml(path);
     this.container.innerHTML = `
-      <div class="error-view" style="padding:40px 24px;text-align:center;">
-        <p style="font-size:14px;color:#64748b;">Nie znaleziono kategorii „<strong>${safePath}</strong>".</p>
-        <a href="#/" style="display:inline-block;margin-top:16px;color:#3b82f6;">← Wróć do strony głównej</a>
+      <div class="error-view">
+        <p>Nie znaleziono kategorii „<strong>${safePath}</strong>".</p>
+        <a href="#/">← Wróć do strony głównej</a>
       </div>
     `;
   }

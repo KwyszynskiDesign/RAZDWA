@@ -298,6 +298,24 @@ export function buildOrderExportPayload(
   };
 }
 
+async function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function fetchWithRetry(
+  input: string,
+  init: RequestInit,
+  retries = 1,
+  baseDelayMs = 800
+): Promise<Response> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const response = await fetch(input, init);
+    if (response.status < 500 || attempt === retries) return response;
+    await sleep(baseDelayMs * (attempt + 1));
+  }
+  throw new Error("fetchWithRetry: unreachable");
+}
+
 async function readAppsScriptBody(response: Response): Promise<AppsScriptResponseBody | null> {
   try {
     const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
@@ -364,7 +382,7 @@ export async function sendOrderToAppsScript(
   const compactPayload = buildAppsScriptCompactRow(payload);
 
   try {
-    const response = await fetch(config.appsScriptUrl, {
+    const response = await fetchWithRetry(config.appsScriptUrl, {
       method: "POST",
       mode: "cors",
       headers: {
@@ -444,7 +462,7 @@ export async function savePricesToAppsScript(
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    const response = await fetch(config.appsScriptUrl, {
+    const response = await fetchWithRetry(config.appsScriptUrl, {
       method: "POST",
       mode: "cors",
       headers: { "Content-Type": "text/plain" },
@@ -508,7 +526,7 @@ export async function saveVariantsToAppsScript(
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    const response = await fetch(config.appsScriptUrl, {
+    const response = await fetchWithRetry(config.appsScriptUrl, {
       method: "POST",
       mode: "cors",
       headers: { "Content-Type": "text/plain" },
@@ -562,7 +580,7 @@ export async function fetchStateFromAppsScript(
 
   try {
     const url = `${config.appsScriptUrl}?action=getState&t=${Date.now()}`;
-    const response = await fetch(url, {
+    const response = await fetchWithRetry(url, {
       method: "GET",
       mode: "cors",
       signal: controller.signal,

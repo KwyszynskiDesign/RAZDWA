@@ -164,22 +164,23 @@ function splitTextByWidth(text: string, maxWidth: number, font: any, fontSize: n
 }
 
 function toPdfSafeText(value: string): string {
-  // Standard fonts in pdf-lib use WinAnsi and may fail on PL diacritics/emojis.
-  // Replace problematic chars with safe ASCII equivalents.
-  return String(value ?? "")
-    .replace(/[Ąą]/g, "a")
-    .replace(/[Ćć]/g, "c")
-    .replace(/[Ęę]/g, "e")
-    .replace(/[Łł]/g, "l")
-    .replace(/[Ńń]/g, "n")
-    .replace(/[Óó]/g, "o")
-    .replace(/[Śś]/g, "s")
-    .replace(/[ŹźŻż]/g, "z")
-    .replace(/[–—]/g, "-")
-    .replace(/[“”„]/g, '"')
-    .replace(/[’]/g, "'")
-    .replace(/[^\x20-\x7E]/g, " ")
-    .replace(/\s+/g, " ")
+  // Standard fonts in pdf-lib use WinAnsi and cannot render PL diacritics.
+  // Transliterate preserving case, then strip remaining non-ASCII.
+  return String(value ?? “”)
+    .replace(/Ą/g, “A”).replace(/ą/g, “a”)
+    .replace(/Ć/g, “C”).replace(/ć/g, “c”)
+    .replace(/Ę/g, “E”).replace(/ę/g, “e”)
+    .replace(/Ł/g, “L”).replace(/ł/g, “l”)
+    .replace(/Ń/g, “N”).replace(/ń/g, “n”)
+    .replace(/Ó/g, “O”).replace(/ó/g, “o”)
+    .replace(/Ś/g, “S”).replace(/ś/g, “s”)
+    .replace(/Ź/g, “Z”).replace(/ź/g, “z”)
+    .replace(/Ż/g, “Z”).replace(/ż/g, “z”)
+    .replace(/[–—]/g, “-”)
+    .replace(/[“”„]/g, ‘”’)
+    .replace(/’/g, “’”)
+    .replace(/[^\x20-\x7E]/g, “ “)
+    .replace(/\s+/g, “ “)
     .trim();
 }
 
@@ -356,7 +357,6 @@ function showToast(message: string, variant: "cart" | "success" | "warning" | "e
 function updateCartUI() {
   const listEl = document.getElementById("basketList");
   const totalEl = document.getElementById("basketTotal");
-  const debugEl = document.getElementById("basketDebug");
 
   if (!listEl || !totalEl) return;
 
@@ -381,7 +381,7 @@ function updateCartUI() {
         </div>
         <div class="basketItemRight">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
-          <button class="iconBtn" data-remove-idx="${idx}" title="Usuń">×</button>
+          <button class="iconBtn" data-remove-idx="${idx}" title="Usuń" aria-label="Usuń pozycję ${idx + 1}">×</button>
         </div>
       </div>
     `).join("");
@@ -403,9 +403,6 @@ function updateCartUI() {
     globalExpressSummary.classList.toggle("is-active", expressEnabled && expressSurcharge > 0);
   }
 
-  if (debugEl) {
-    debugEl.innerText = JSON.stringify(items.map(i => i.payload), null, 2);
-  }
 }
 
 

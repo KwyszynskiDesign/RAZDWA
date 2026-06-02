@@ -162,7 +162,7 @@ export function calculateCadFold(options: { format: string; qty: number }) {
   const unit = storageKey ? resolveStoredPrice(storageKey, defaultUnit) : defaultUnit;
   return {
     unit,
-    total: options.qty * unit,
+    total: Math.round(options.qty * unit * 100) / 100,
   };
 }
 
@@ -173,7 +173,7 @@ export function calculateWfScan(options: { lengthMm: number; qty: number }) {
   return {
     cmRounded,
     unitPrice,
-    total: options.qty * unitPrice,
+    total: Math.round(options.qty * unitPrice * 100) / 100,
   };
 }
 

@@ -2006,6 +2006,12 @@ body.settings-pricing-layout .left-col {
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 
+.home-mini-icon img {
+  width: 27.6px;
+  height: 27.6px;
+  display: block;
+}
+
 .home-mini-tile:hover .home-mini-icon img,
 .home-mini-tile:focus-visible .home-mini-icon img,
 .home-mini-tile:hover .home-mini-icon svg,
@@ -3108,6 +3114,30 @@ body.settings-pricing-layout .left-col {
   display: grid;
   gap: 8px;
   grid-template-columns: minmax(0, 1fr);
+}
+
+/* ===== HOME TILE SUBLABEL ===== */
+.home-tile-sublabel {
+  font-size: 11px;
+  line-height: 1.1;
+  display: inline-block;
+}
+
+/* ===== ERROR VIEW (404 / not found) ===== */
+.error-view {
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.error-view p {
+  font-size: 14px;
+  color: #64748b;
+}
+
+.error-view a {
+  display: inline-block;
+  margin-top: 16px;
+  color: #3b82f6;
 }
 
 /* ===== MEDIA QUERIES (consolidated) ===== */

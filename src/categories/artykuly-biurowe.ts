@@ -145,6 +145,15 @@ export function getRenderedArtykulyBiuroweCategories(): RenderedArticleCategory[
   ];
 }
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function renderArticleItem(item: RenderedArticleItem): string {
   const itemPrice = typeof item.price === "number" ? item.price : 0;
   const priceDisplay = typeof item.price === "number" ? `${itemPrice.toFixed(2)} zł` : "—";
@@ -154,11 +163,11 @@ function renderArticleItem(item: RenderedArticleItem): string {
   return `
     <div style="display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; column-gap: 8px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">
       <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; margin: 0; min-width: 0;">
-        <span style="font-size: 0.93em; line-height: 1.2;">${item.name}</span>
+        <span style="font-size: 0.93em; line-height: 1.2;">${escapeHtml(item.name)}</span>
       </label>
       <input type="number" data-qty-for="${item.id}" value="1" min="1" max="999" style="width: 54px; padding: 4px; font-size: 0.9em;" class="item-quantity">
       <span class="item-price" data-item-id="${item.id}" data-base-price="${itemPrice}" data-has-price="${typeof item.price === "number" ? "1" : "0"}" style="font-weight: bold; color: ${priceColor}; min-width: 68px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
-      <button type="button" data-add-item-id="${item.id}" data-item-name="${item.name}" data-price="${itemPrice}" class="btn btn-success item-add-btn add-pill-btn" aria-label="Dodaj artykuł ${item.name} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
+      <button type="button" data-add-item-id="${item.id}" data-item-name="${escapeHtml(item.name)}" data-price="${itemPrice}" class="btn btn-success item-add-btn add-pill-btn" aria-label="Dodaj artykuł ${escapeHtml(item.name)} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
     </div>
   `;
 }
@@ -224,7 +233,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
         categoryDiv.style.backgroundColor = '#f7f9fb';
         categoryDiv.style.border = '1px solid #e3e8ef';
         categoryDiv.style.borderRadius = '8px';
-        categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${category.name}</h3>`;
+        categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${escapeHtml(category.name)}</h3>`;
 
         const itemsDiv = document.createElement('div');
         itemsDiv.style.display = 'grid';

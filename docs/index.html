@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606021639 -->
+<!-- APP_VERSION: 202606021737 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/styles.css?v=202606021639">
+  <link rel="stylesheet" href="assets/styles.css?v=202606021737">
   
   <!-- PDF.js for CAD Upload (global, loaded once) -->
   <script
@@ -33,7 +33,7 @@
   </script>
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606021639"></script>
+  <script src="cache-buster.js?v=202606021737"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -268,7 +268,7 @@
 
           <div class="summary-adjustments" aria-label="Rabat i doliczenie">
             <div class="summary-adjustment-col">
-              <div class="summary-adjustment-title">Rabat</div>
+              <label class="summary-adjustment-title" for="summaryDiscountPercent">Rabat</label>
               <select id="summaryDiscountPercent" class="summary-adjustment-select">
                 <option value="0" selected>0%</option>
                 <option value="2">-2%</option>
@@ -279,7 +279,7 @@
               </select>
             </div>
             <div class="summary-adjustment-col">
-              <div class="summary-adjustment-title">Doliczenie</div>
+              <label class="summary-adjustment-title" for="summarySurchargePercent">Doliczenie</label>
               <select id="summarySurchargePercent" class="summary-adjustment-select">
                 <option value="0" selected>0%</option>
                 <option value="2">+2%</option>
@@ -685,7 +685,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606021639" type="module"></script>
+ <script src="assets/app.js?v=202606021737" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';

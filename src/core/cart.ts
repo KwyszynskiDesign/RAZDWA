@@ -3,6 +3,7 @@ import { CartItem } from "./types";
 export class Cart {
   private items: CartItem[] = [];
   private storageKey = "razdwa-cart-v1";
+  private savedAt: number = 0;
 
   constructor() {
     this.load();
@@ -10,9 +11,21 @@ export class Cart {
 
   private load() {
     try {
-      const saved = localStorage.getItem(this.storageKey);
-      if (saved) {
-        this.items = JSON.parse(saved);
+      const raw = localStorage.getItem(this.storageKey);
+      if (!raw) return;
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        // backward compat: old format without timestamp
+        if (this.savedAt === 0) {
+          this.items = parsed as CartItem[];
+        }
+      } else if (parsed && typeof parsed === "object") {
+        const data = parsed as { items?: unknown; savedAt?: unknown };
+        const storedAt = typeof data.savedAt === "number" ? data.savedAt : 0;
+        if (storedAt >= this.savedAt && Array.isArray(data.items)) {
+          this.items = data.items as CartItem[];
+          this.savedAt = storedAt;
+        }
       }
     } catch {
       this.items = [];
@@ -21,7 +34,8 @@ export class Cart {
 
   private save() {
     try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.items));
+      this.savedAt = Date.now();
+      localStorage.setItem(this.storageKey, JSON.stringify({ items: this.items, savedAt: this.savedAt }));
     } catch {
       // storage write failed — cart state is still in memory
     }
@@ -49,7 +63,8 @@ export class Cart {
   }
 
   getGrandTotal(): number {
-    return this.items.reduce((sum, item) => sum + item.totalPrice, 0);
+    const cents = this.items.reduce((sum, item) => sum + Math.round(item.totalPrice * 100), 0);
+    return cents / 100;
   }
 
   setExpressForAll(enabled: boolean, expressRate = 0.2) {
