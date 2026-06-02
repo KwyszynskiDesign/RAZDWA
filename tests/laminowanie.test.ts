@@ -148,4 +148,14 @@ describe("Laminowanie", () => {
 
     expect(result.totalPrice).toBe(3);
   });
+
+  it("regression: katalog returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
+    const result = quoteWydrukiSpecjalne({ variantId: "katalog", qty: 5, doubleSided: false, express: false });
+    expect(result.totalPrice).toBe(0);
+  });
+
+  it("regression: broszura returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
+    const result = quoteWydrukiSpecjalne({ variantId: "broszura", qty: 5, doubleSided: false, express: false });
+    expect(result.totalPrice).toBe(0);
+  });
 });

@@ -721,6 +721,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Send order: Apps Script (if configured) or local Excel fallback
   const handleSendOrder = async () => {
+    if (cart.isEmpty()) {
+      showToast("Koszyk jest pusty", "error");
+      alert("Koszyk jest pusty!");
+      return;
+    }
+
     const validationError = validateCustomerForm({
       name: (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "",
       email: (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "",
@@ -741,12 +747,6 @@ document.addEventListener("DOMContentLoaded", () => {
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
       notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
     };
-
-    if (cart.isEmpty()) {
-      showToast("Koszyk jest pusty", "error");
-      alert("Koszyk jest pusty!");
-      return;
-    }
 
     const items = cart.getItems();
     const exportConfig = getOrderExportConfig();
