@@ -43,7 +43,8 @@ import {
   setPriceLabels,
   setPrice,
 } from "../services/priceService";
-import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import { PDFDocument, StandardFonts, rgb, PDFFont } from "pdf-lib";
+import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 
@@ -165,29 +166,47 @@ function splitTextByWidth(text: string, maxWidth: number, font: any, fontSize: n
 
 function toPdfSafeText(value: string): string {
   // Standard fonts in pdf-lib use WinAnsi and cannot render PL diacritics.
-  // Transliterate preserving case, then strip remaining non-ASCII.
-  return String(value ?? “”)
-    .replace(/Ą/g, “A”).replace(/ą/g, “a”)
-    .replace(/Ć/g, “C”).replace(/ć/g, “c”)
-    .replace(/Ę/g, “E”).replace(/ę/g, “e”)
-    .replace(/Ł/g, “L”).replace(/ł/g, “l”)
-    .replace(/Ń/g, “N”).replace(/ń/g, “n”)
-    .replace(/Ó/g, “O”).replace(/ó/g, “o”)
-    .replace(/Ś/g, “S”).replace(/ś/g, “s”)
-    .replace(/Ź/g, “Z”).replace(/ź/g, “z”)
-    .replace(/Ż/g, “Z”).replace(/ż/g, “z”)
-    .replace(/[–—]/g, “-”)
-    .replace(/[“”„]/g, ‘”’)
-    .replace(/’/g, “’”)
-    .replace(/[^\x20-\x7E]/g, “ “)
-    .replace(/\s+/g, “ “)
+  // All non-ASCII uses \uXXXX escapes to stay safe for esbuild --charset=ascii.
+  return String(value ?? "")
+    .replace(/Ą/g, "A").replace(/ą/g, "a")
+    .replace(/Ć/g, "C").replace(/ć/g, "c")
+    .replace(/Ę/g, "E").replace(/ę/g, "e")
+    .replace(/Ł/g, "L").replace(/ł/g, "l")
+    .replace(/Ń/g, "N").replace(/ń/g, "n")
+    .replace(/Ó/g, "O").replace(/ó/g, "o")
+    .replace(/Ś/g, "S").replace(/ś/g, "s")
+    .replace(/Ź/g, "Z").replace(/ź/g, "z")
+    .replace(/Ż/g, "Z").replace(/ż/g, "z")
+    .replace(/[–—]/g, "-")
+    .replace(/[“”„]/g, "\"")
+    .replace(/[‘’]/g, "'")
+    .replace(/[^\x20-\x7E]/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
 }
 
+const DEJAVU_CDN = "https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/";
+
 async function generateOrderReportPdf(items: CartItem[], customer: CustomerData) {
   const pdf = await PDFDocument.create();
-  const fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
-  const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  let fontRegular: PDFFont;
+  let fontBold: PDFFont;
+  let polishFontsLoaded = false;
+
+  try {
+    pdf.registerFontkit(fontkit);
+    const [regularBuf, boldBuf] = await Promise.all([
+      fetch(DEJAVU_CDN + "DejaVuSans.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+      fetch(DEJAVU_CDN + "DejaVuSans-Bold.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+    ]);
+    fontRegular = await pdf.embedFont(regularBuf);
+    fontBold = await pdf.embedFont(boldBuf);
+    polishFontsLoaded = true;
+  } catch {
+    fontRegular = await pdf.embedFont(StandardFonts.Helvetica);
+    fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+  }
 
   const pageWidth = 595.28;
   const pageHeight = 841.89;
@@ -213,7 +232,7 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
     const [r, g, b] = options?.color ?? [0.06, 0.1, 0.16];
     const font = bold ? fontBold : fontRegular;
     const lineHeight = size + lineGap;
-    const safeText = toPdfSafeText(text);
+    const safeText = polishFontsLoaded ? text : toPdfSafeText(text);
     const lines = splitTextByWidth(safeText, contentWidth, font, size);
 
     for (const line of lines) {
@@ -367,7 +386,7 @@ function updateCartUI() {
       <div class="basketItem">
         <div>
           <div class="basketTitle">Brak pozycji</div>
-          <div class="basketMeta">Kliknij „DODAJ DO KOSZYKA”, aby zbudować koszyk.</div>
+          <div class=”basketMeta”>Kliknij „DODAJ DO KOSZYKA”, aby zbudować koszyk.</div>
         </div>
         <div class="basketPrice">—</div>
       </div>
@@ -447,7 +466,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const detail = customEvent.detail || {};
     const category = detail.category || "Inne";
     const totalPrice = detail.totalPrice || 0;
-    
+
     const cartItem: CartItem = {
       id: `${category.toLowerCase().replace(/[^\w]+/g, "-")}-${Date.now()}`,
       category: category,
@@ -460,7 +479,7 @@ document.addEventListener("DOMContentLoaded", () => {
       optionsHint: detail.description || "",
       payload: detail
     };
-    
+
     cart.addItem(cartItem);
     updateCartUI();
     showToast("Dodano do koszyka", "cart");
@@ -816,7 +835,7 @@ document.addEventListener("DOMContentLoaded", () => {
         syncVariantsToSubgroupsAtStartup();
       }
     } catch {
-      // offline – OK, nie blokuje startu
+      // offline - OK, nie blokuje startu
     }
   })();
 });
@@ -836,7 +855,15 @@ if ('serviceWorker' in navigator) {
         const newWorker = reg.installing!;
         newWorker.addEventListener('statechange', () => {
           if (newWorker.state === 'activated') {
-            window.location.reload();
+            if (document.visibilityState === 'hidden') {
+              window.location.reload();
+            } else {
+              document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                  window.location.reload();
+                }
+              }, { once: true });
+            }
           }
         });
       });

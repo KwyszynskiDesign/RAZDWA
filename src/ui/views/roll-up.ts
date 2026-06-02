@@ -46,7 +46,9 @@ export const RollUpView: View = {
   id: "roll-up",
   name: "Roll-up",
   async mount(container, ctx) {
+    try {
     const response = await fetch("categories/roll-up.html");
+    if (!response.ok) throw new Error("Failed to load template");
     container.innerHTML = await response.text();
 
     const typeSel = container.querySelector("#rollUpType") as HTMLSelectElement;
@@ -176,5 +178,8 @@ export const RollUpView: View = {
         payload: currentOptions
       });
     });
+    } catch (err) {
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+    }
   }
 };

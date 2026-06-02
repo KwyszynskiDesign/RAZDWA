@@ -9,7 +9,9 @@ export const ZaproszeniaKredaView: View = {
   id: "zaproszenia-kreda",
   name: "Zaproszenia KREDA",
   async mount(container, ctx) {
+    try {
     const response = await fetch("categories/zaproszenia-kreda.html");
+    if (!response.ok) throw new Error("Failed to load template");
     container.innerHTML = await response.text();
 
     const formatSel = container.querySelector("#zapFormat") as HTMLSelectElement;
@@ -279,5 +281,8 @@ export const ZaproszeniaKredaView: View = {
         payload: { ...options, envelope: result.withEnvelopes ? { type: result.envelopeType, qty: result.envelopeQty } : null }
       });
     });
+    } catch (err) {
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+    }
   }
 };

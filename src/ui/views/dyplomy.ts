@@ -8,7 +8,9 @@ export const DyplomyView: View = {
   id: "dyplomy",
   name: "Dyplomy",
   async mount(container, ctx) {
+    try {
     const response = await fetch("categories/dyplomy.html");
+    if (!response.ok) throw new Error("Failed to load template");
     container.innerHTML = await response.text();
 
     const sidesSel = container.querySelector("#dypSides") as HTMLSelectElement;
@@ -157,5 +159,8 @@ export const DyplomyView: View = {
         payload: options
       });
     });
+    } catch (err) {
+      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+    }
   }
 };
