@@ -3,7 +3,7 @@
     "@types/node": "^25.5.0",
     "esbuild": "^0.27.3",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vitest": "^4.1.0"
   },
   "name": "razdwa",
   "version": "1.0.0",
