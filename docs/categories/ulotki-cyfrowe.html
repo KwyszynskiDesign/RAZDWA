@@ -1,0 +1,119 @@
+<div class="category-view">
+    <div class="view-header">
+        <h2>Ulotki</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div class="form-group">
+            <label>Rodzaj</label>
+            <div class="toggle-group">
+                <label class="toggle-btn">
+                    <input type="radio" name="sides" value="jednostronne" checked>
+                    <span>Jednostronne</span>
+                </label>
+                <label class="toggle-btn">
+                    <input type="radio" name="sides" value="dwustronne">
+                    <span>Dwustronne</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="u-format">Format:</label>
+            <select id="u-format" class="form-control">
+                <option value="" disabled selected>— wybierz format —</option>
+                <option value="A6">A6</option>
+                <option value="A5">A5</option>
+                <option value="DL">DL</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="u-qty">Ilość (szt):</label>
+            <select id="u-qty" class="form-control">
+                <option value="" disabled selected>— ilość —</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+                <option value="40">40</option>
+                <option value="50">50</option>
+                <option value="60">60</option>
+                <option value="70">70</option>
+                <option value="80">80</option>
+                <option value="90">90</option>
+                <option value="100">100</option>
+                <option value="150">150</option>
+                <option value="200">200</option>
+                <option value="250">250</option>
+                <option value="300">300</option>
+                <option value="400">400</option>
+                <option value="500">500</option>
+                <option value="600">600</option>
+                <option value="700">700</option>
+                <option value="800">800</option>
+                <option value="900">900</option>
+                <option value="1000">1000</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="u-paper">Papier:</label>
+            <select id="u-paper" class="form-control">
+                <optgroup label="Kreda (standard)">
+                    <option value="kreda_130">130g Kreda</option>
+                    <option value="kreda_170" selected>170g Kreda</option>
+                    <option value="kreda_200">200g Kreda</option>
+                    <option value="kreda_250">250g Kreda</option>
+                </optgroup>
+                <optgroup label="Satyna (+12%)">
+                    <option value="satyna_130">130g Satyna</option>
+                    <option value="satyna_170">170g Satyna</option>
+                    <option value="satyna_200">200g Satyna</option>
+                    <option value="satyna_250">250g Satyna</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div class="form-actions">
+            <button id="u-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+        </div>
+    </div>
+
+   <div id="u-result-display" class="result-display card" style="display:none">
+        <div class="result-row total">
+            <span>SUMA ZA WSZYSTKO:</span>
+            <span id="u-total-price" class="price-value">-</span>
+        </div>
+        <hr>
+        <div class="result-row">
+            <span>Cena za szt:</span>
+            <span id="u-unit-price" class="price-unit">-</span>
+        </div>
+        <div id="u-tier-hint" class="hint" style="color: #555;"></div>
+        <div id="u-express-hint" class="express-hint" style="display: none;">
+            W tym dopłata EXPRESS +20%
+        </div>
+        <div id="u-satin-hint" class="modifier-hint" style="display: none;">
+            W tym dopłata SATYNA +12%
+        </div>
+    </div>
+
+<div id="u-breakdown-display" class="card" style="display: none; margin-top: 16px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+        <div id="u-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45; color:#334155;"></div>
+    </div>
+
+    <div class="cennik-table pricing-legend">
+        <div class="legend-head">
+            <div>
+                <h4 id="u-legend-title">CENNIK ULOTEK</h4>
+            </div>
+        </div>
+        <table id="u-table-legend">
+            <thead><tr><th>Ilość sztuk</th><th>A5</th><th>A6</th><th>DL</th></tr></thead>
+            <tbody></tbody>
+        </table>
+        <p id="u-dynamic-legend-note" class="cennik-note"></p>
+    </div>
+</div>
+

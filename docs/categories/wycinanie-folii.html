@@ -1,0 +1,81 @@
+<h2>Wycinanie z folii</h2>
+<div class="form">
+  <div class="row">
+    <label>Wymiary (mm):</label>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <input type="number" id="wf-width" placeholder="Szerokość (np. 1000)" min="1" step="1" inputmode="numeric" autocomplete="off">
+      <span style="color: var(--muted);">×</span>
+      <input type="number" id="wf-height" placeholder="Wysokość (np. 1000)" min="1" step="1" inputmode="numeric" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label for="wf-area">Powierzchnia (m²):</label>
+    <input type="number" id="wf-area" class="form-control" placeholder="Wyliczy się automatycznie z wymiarów" min="0.0001" step="0.0001" inputmode="decimal" autocomplete="off" readonly>
+    <div id="wf-computed-area-info" class="hint" style="margin-top:6px;">Wyliczona powierzchnia: -</div>
+  </div>
+
+  <div class="row">
+    <label>Rodzaj folii:</label>
+    <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 10px;">
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-gold" class="wf-foil-type" value="zlota" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Złota</span>
+      </label>
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-silver" class="wf-foil-type" value="srebrna" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Srebrna</span>
+      </label>
+      <label class="checkbox-label" style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <input type="checkbox" id="wf-custom" class="wf-foil-type" value="custom" style="width: 18px; height: 18px; cursor: pointer;">
+        <span>Inny kolor (wpisz poniżej):</span>
+      </label>
+      <input type="text" id="wf-color" placeholder="Wpisz kolor" autocomplete="off" style="margin-left: 26px;">
+    </div>
+  </div>
+
+  <div id="wfResult" class="result-area" style="display:none; margin-top: 20px;">
+    <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="wf-total">0.00</span></div>
+    <div class="price-line">Cena za m²: <span id="wf-unit">0.00</span></div>
+    <div id="wfBreakdownHint" style="color: #555; font-size: 12px; margin-top: 4px; padding: 0; background: transparent; border: 0; box-shadow: none; border-radius: 0;"></div>
+  </div>
+
+  <div id="wfBreakdown" class="card" style="display: none; margin-top: 16px;">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+    <div id="wfBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
+  </div>
+
+  <div class="form-actions">
+    <button id="wf-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+  </div>
+
+  <div class="cennik-table pricing-legend" style="margin-top: 16px;">
+    <div class="legend-head">
+      <div>
+        <h4>CENNIK WYCINANIE Z FOLII</h4>
+        <p class="legend-subtitle">Legenda cenowa za m² wg rodzaju folii.</p>
+      </div>
+    </div>
+
+    <div class="legend-badges">
+      <span class="legend-badge"><strong>Minimum:</strong> <span id="wf-legend-min">30,00 zł / zlecenie</span></span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Rodzaj folii</th>
+          <th>Pon. &lt; 1 m²</th>
+          <th>Pow. ≥ 1 m²</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Kolorowa (inne kolory)</td><td id="wf-legend-kolorowa-below">200,00 zł/m²</td><td id="wf-legend-kolorowa-above">125,00 zł/m²</td></tr>
+        <tr><td>Złota / Srebrna</td><td id="wf-legend-zloto-below">220,00 zł/m²</td><td id="wf-legend-zloto-above">150,00 zł/m²</td></tr>
+      </tbody>
+    </table>
+
+    <p class="cennik-note" id="wf-legend-note">* Cena zawiera: folia + wycinanie + wybieranie.</p>
+  </div>
+
+</div>

@@ -1,0 +1,117 @@
+<div class="category-view">
+    <div class="view-header">
+        <h2>Plakaty A4-A3</h2>
+    </div>
+
+    <div class="calculator-form card">
+        <div class="plakaty-a4a3-inner-grid">
+            <div id="pa-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:18px;">Mały Canon</h3>
+
+                <div class="form-group">
+                    <label for="pa-canon-variant">Wariant:</label>
+                    <select id="pa-canon-variant" class="form-control"></select>
+                </div>
+
+                <div class="form-group">
+                    <select id="pa-canon-paper" class="form-control" aria-label="Papier mały Canon">
+                        <option value="130">130g kreda</option>
+                        <option value="170" selected>170g kreda</option>
+                        <option value="200">200g kreda</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-finish">Wykończenie:</label>
+                    <select id="pa-canon-finish" class="form-control">
+                        <option value="mat" selected>Mat</option>
+                        <option value="blysk">Błysk</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-format">Format:</label>
+                    <select id="pa-canon-format" class="form-control">
+                        <option value="A4">A4</option>
+                        <option value="A3">A3</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-canon-qty">Ilość (szt):</label>
+                    <input type="number" id="pa-canon-qty" class="form-control" placeholder="np. 3" min="1" max="9" step="1" inputmode="numeric" autocomplete="off">
+                    <span style="color: #b91c1c; font-size: 12px; margin-top: 4px; display: block;">Plakaty do MAX 9 sztuk</span>
+                </div>
+            </div>
+
+            <div id="pa-duzy-canon-group" class="card" style="padding:12px; border:1px solid rgba(255,255,255,0.08);">
+                <h3 style="margin:0 0 10px 0; font-size:18px;">Duży Canon</h3>
+
+                <div class="form-group">
+                    <select id="pa-duzy-canon-paper" class="form-control" aria-label="Papier duży Canon"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-finish">Wykończenie:</label>
+                    <select id="pa-duzy-canon-finish" class="form-control">
+                        <option value="mat" selected>Mat</option>
+                        <option value="blysk">Błysk</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-format">Rozmiar:</label>
+                    <select id="pa-duzy-canon-format" class="form-control"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pa-duzy-canon-qty">Ilość (szt):</label>
+                    <input type="number" id="pa-duzy-canon-qty" class="form-control" placeholder="np. 50" min="10" max="200" step="1" inputmode="numeric" autocomplete="off">
+                </div>
+
+                </div>
+
+                <!-- Checkboxy cięcia trymer przeniesione pod wybór plakatów -->
+                <div class="form-group" style="margin-top: 10px;">
+                    <label for="pa-duzy-canon-trim-2" style="display:flex; align-items:center; gap:8px; font-size:14px;">
+                        <input type="checkbox" id="pa-duzy-canon-trim-2">
+                        <span>2 cięcia trymer (+1,00 zł)</span>
+                    </label>
+                    <div id="pa-duzy-canon-trim-2-qty-group" style="margin-top: 4px; display: none;">
+                        <label for="pa-duzy-canon-trim-2-qty" style="font-size: 12px; color: #888;">Ilość sztuk:</label>
+                        <input type="number" id="pa-duzy-canon-trim-2-qty" class="form-control" placeholder="np. 5" min="1" step="1" inputmode="numeric" autocomplete="off" style="width: 80px; margin-left: 8px;">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top: 4px;">
+                    <label for="pa-duzy-canon-trim-4" style="display:flex; align-items:center; gap:8px; font-size:14px;">
+                        <input type="checkbox" id="pa-duzy-canon-trim-4">
+                        <span>4 cięcia trymer (+2,00 zł)</span>
+                    </label>
+                    <div id="pa-duzy-canon-trim-4-qty-group" style="margin-top: 4px; display: none;">
+                        <label for="pa-duzy-canon-trim-4-qty" style="font-size: 12px; color: #888;">Ilość sztuk:</label>
+                        <input type="number" id="pa-duzy-canon-trim-4-qty" class="form-control" placeholder="np. 5" min="1" step="1" inputmode="numeric" autocomplete="off" style="width: 80px; margin-left: 8px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="pa-conflict-warning" style="display:none; margin-top:10px; color:#b91c1c; font-weight:700;"></div>
+
+        <div class="form-actions" style="margin-top: 12px;">
+            <button id="pa-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+        </div>
+    </div>
+
+    <div id="pa-result-area" class="result-display card" style="display:none; margin-top: 20px;">
+        <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="pa-total-price">-</span></div>
+        <div class="price-line">Cena za szt: <span id="pa-unit-price">-</span></div>
+        <div id="pa-calc-hint" class="modifier-hint" style="display:none; font-size:12px;"></div>
+        <div id="pa-discount-row" class="modifier-hint" style="display:none; color:#e67e22;"><span id="pa-discount-label">Rabat ilościowy:</span> <span id="pa-discount-val">-</span></div>
+        <div id="pa-express-hint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+    </div>
+
+        <div id="pa-breakdown-display" class="card" style="display: none; margin-top: 16px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+            <div id="pa-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45; color:#334155;"></div>
+        </div>
+</div>

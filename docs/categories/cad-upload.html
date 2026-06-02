@@ -1,0 +1,907 @@
+﻿<!-- PDF.js loaded globally in index.html -->
+
+<style>
+  .cad-upload {
+    font-family: inherit;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  .cad-drop-zone {
+    border: 3px dashed var(--border);
+    padding: 40px;
+    text-align: center;
+    border-radius: 12px;
+    background: var(--surface);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    margin-bottom: 16px;
+  }
+  .cad-drop-zone:hover,
+  .cad-drop-zone.drag-over {
+    background: var(--surface-alt);
+    border-color: var(--primary);
+  }
+  .cad-drop-zone h3 { margin-bottom: 8px; }
+  .cad-drop-zone p  { color: var(--text-secondary); font-size: 0.9rem; }
+  .cad-file-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin: 6px 0;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .cad-file-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.88rem;
+  }
+  .cad-file-table th,
+  .cad-file-table td {
+    border-bottom: 1px solid var(--border);
+    padding: 6px 8px; /* Slightly reduced padding */
+    text-align: left;
+    vertical-align: middle;
+  }
+  .cad-file-table thead th {
+    background: var(--surface-alt);
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .cad-file-table tbody tr:hover {
+    background: var(--surface-alt);
+  }
+  .cad-file-table tfoot td {
+    background: var(--surface-alt);
+    font-weight: 700;
+  }
+  .cad-delete-x {
+    background: var(--danger);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px; /* Smaller button */
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    aspect-ratio: 1 / 1;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    margin: 0 auto; /* Center button */
+  }
+  .cad-delete-x:hover { background: var(--danger-hover, #a52020); }
+  .cad-file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cad-file-size { color: var(--text-secondary); font-size: 0.85rem; white-space: nowrap; }
+  .cad-qty-label { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+  /* Łamanie długich nazw plików w tabeli */
+  .cad-file-table tbody td:nth-child(2) { word-break: break-all; max-width: 250px; }
+  .cad-qty-input {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 64px;
+    font-size: 0.9rem;
+  }
+  .cad-file-price { font-weight: 600; white-space: nowrap; margin-left: auto; }
+  .cad-table-input {
+    padding: 4px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 70px;
+    font-size: 0.85rem;
+  }
+  .cad-table-checkbox {
+    width: 16px;
+    height: 16px;
+  }
+  .cad-scan-check {
+    width: 16px;
+    height: 16px;
+  }
+  .cad-warning {
+    background: var(--danger);
+    border: 2px solid var(--danger);
+    color: var(--primary-text);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+  .cad-summary {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .cad-summary p { margin-bottom: 8px; }
+  .cad-total-val { font-size: 1.4rem; font-weight: 700; color: var(--primary); }
+  .cad-actions { display: flex; gap: 12px; margin-top: 16px; flex-wrap: wrap; }
+  /* ── Opcje globalne ────────────────────────────────────────── */
+  .cad-options-bar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 8px 16px;
+    align-items: center;
+    padding: 10px 14px;
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .cad-options-bar label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+    min-width: 0;
+  }
+  .cad-options-bar select {
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: var(--surface);
+  }
+  .cad-extra-services {
+    margin-top: 8px;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px 16px !important;
+    align-items: start !important;
+    flex-wrap: unset !important;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+  .cad-extra-service-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    white-space: normal;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    cursor: pointer;
+    margin: 0;
+  }
+  .cad-extra-service-item > span {
+    white-space: normal;
+    font-size: 0.85rem;
+    line-height: 1.35;
+  }
+  .cad-extra-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 22px;
+    margin-top: 2px;
+  }
+  .cad-extra-add-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border: 0;
+    border-radius: 999px;
+    background: #16a34a;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .cad-extra-add-btn:hover {
+    background: #15803d;
+  }
+  .cad-extra-price-line {
+    display: none;
+    margin-left: 22px;
+    margin-top: 4px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #16a34a;
+  }
+  .cad-extra-service-col {
+    min-width: 0;
+    width: 100%;
+  }
+  @media (max-width: 980px) {
+    .cad-extra-services {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+  }
+  @media (max-width: 640px) {
+    .cad-extra-services {
+      grid-template-columns: 1fr !important;
+    }
+  }
+  .cad-extra-qty-input {
+    width: 78px;
+    padding: 3px 6px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background: var(--surface);
+  }
+  /* ── Skanowanie ────────────────────────────────────────────── */
+  .cad-scan-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0 4px;
+    font-size: 0.9rem;
+  }
+  .cad-scan-row input {
+    padding: 4px 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    width: 100px;
+    font-size: 0.9rem;
+  }
+  /* ── Wykrywanie formatu ────────────────────────────────────── */
+  .cad-detect-btn {
+    padding: 3px 8px;
+    font-size: 0.8rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    border-radius: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .cad-detect-btn:hover { background: var(--surface-alt); }
+  .cad-format-badge {
+    padding: 2px 8px;
+    background: var(--primary, #22c55e);
+    color: #fff;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  /* ── Tabela podsumowania ───────────────────────────────────── */
+  .cad-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 0.88rem;
+  }
+  .cad-table th,
+  .cad-table td {
+    border: 1px solid var(--border);
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  .cad-table th { background: var(--surface-alt); font-weight: 600; }
+  .cad-table tfoot td {
+    font-weight: 700;
+    background: var(--surface-alt);
+  }
+  #grandTotal { font-size: 1.1rem; color: var(--primary); }
+
+  /* ── TABELA WYNIKÓW (PDF + IMAGE) ──────────────────────────── */
+  .results-table-container {
+    margin-top: 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    box-sizing: border-box;
+    padding: 0 6px 8px 6px;
+  }
+  .results-table {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    border-collapse: collapse;
+    font-size: 0.68rem;
+    table-layout: fixed;
+  }
+  .results-table th {
+    background: var(--surface-alt);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 2px 2px;
+    text-align: left;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .results-table th.col-size, .results-table th.col-name, .results-table th.col-fold, .results-table th.col-scan, .results-table th.col-qty, .results-table th.col-price, .results-table th.col-remove {
+    white-space: nowrap;
+  }
+  /* Wymuszenie niełamania wyrazu 'Format' w nagłówku tabeli nawet przy dynamicznej zmianie tekstu */
+  .results-table th.col-size {
+    white-space: nowrap !important;
+    hyphens: none;
+    word-break: normal;
+  }
+  .results-table td {
+    padding: 2px 2px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    overflow: hidden;
+    max-width: 0;
+  }
+
+  .results-table.cad-legend {
+    table-layout: auto;
+  }
+
+  .results-table.cad-legend th,
+  .results-table.cad-legend td {
+    max-width: none;
+    overflow: visible;
+    white-space: normal;
+  }
+
+  .results-table .col-lp,
+  .results-table .col-fold,
+  .results-table .col-scan,
+  .results-table .col-qty,
+  .results-table .col-remove {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .results-table td.col-qty {
+    overflow: visible;
+  }
+  .results-table td.col-qty input[type="number"] {
+    width: 42px;
+    padding: 2px 0 2px 4px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.78rem;
+    text-align: left;
+  }
+  .results-table td.col-qty input[type="number"]::-webkit-outer-spin-button,
+  .results-table td.col-qty input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: auto;
+    opacity: 1;
+  }
+
+  .results-table th.col-fold,
+  .results-table th.col-scan,
+  .results-table td.col-fold,
+  .results-table td.col-scan {
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .results-table td.col-fold input[type="checkbox"],
+  .results-table td.col-scan input[type="checkbox"] {
+    display: block;
+    margin: 0 auto;
+  }
+
+  .results-table .header-toggle {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 100%;
+    line-height: 1.05;
+  }
+
+  .results-table .header-toggle input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    cursor: pointer;
+  }
+
+  .results-table .col-lp     { width: 6%; }
+  .results-table .col-name   { width: 21%; }
+  .results-table .col-size   { width: 12%; white-space: nowrap; }
+  .results-table .col-fold   { width: 12%; }
+  .results-table .col-scan   { width: 7%; }
+  .results-table .col-qty    { width: 13%; text-align: center; }
+  .results-table .col-price  { width: 23%; }
+  .results-table .col-remove { width: 6%; min-width: 34px; }
+
+  /* NR — lekki odstęp od lewej krawędzi */
+  #viewContainer .results-table th.col-lp,
+  #viewContainer .results-table td.col-lp {
+    padding-left: 15px !important;
+  }
+
+  /* Nazwa + Rozmiar — +10px w prawo */
+  #viewContainer .results-table th.col-name,
+  #viewContainer .results-table td.col-name {
+    padding-left: 10px !important;
+  }
+  #viewContainer .results-table th.col-size,
+  #viewContainer .results-table td.col-size {
+    padding-left: 10px !important;
+  }
+
+  /* Składanie + Skan — +20px w prawo */
+  #viewContainer .results-table th.col-fold,
+  #viewContainer .results-table td.col-fold {
+    padding-left: 20px !important;
+  }
+  #viewContainer .results-table th.col-scan,
+  #viewContainer .results-table td.col-scan {
+    padding-left: 20px !important;
+  }
+
+  /* Ilość — input przesunięty ~40px w prawo (kosztem col-price) */
+  #viewContainer .results-table th.col-qty,
+  #viewContainer .results-table td.col-qty {
+    padding-left: 36px !important;
+  }
+
+  .results-table th {
+    white-space: nowrap;
+  }
+
+  .results-table td.col-name {
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .results-table th.col-remove,
+  .results-table td.col-remove {
+    padding-left: 2px;
+    padding-right: 2px;
+  }
+
+  .cad-size-main {
+    font-weight: 700;
+    white-space: nowrap;
+    line-height: 1.05;
+    font-size: 0.68rem;
+  }
+
+  .cad-size-dims {
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.05;
+    font-size: 0.66rem;
+  }
+
+  .cad-size-pages {
+    white-space: nowrap;
+    color: var(--text-secondary);
+    line-height: 1.05;
+    font-size: 0.63rem;
+  }
+
+  .cad-price-cell {
+    display: grid;
+    gap: 2px;
+  }
+
+  .cad-price-header {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    font-size: 0.64rem;
+    line-height: 1.05;
+  }
+
+  .cad-price-line {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.05;
+    font-size: 0.67rem;
+  }
+
+  .cad-price-line span,
+  .cad-price-line strong {
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  .results-table td strong {
+    line-height: 1.05;
+  }
+
+  #viewContainer .results-table th,
+  #viewContainer .results-table td {
+    padding: 2px 2px !important;
+    font-size: 10px !important;
+  }
+
+  #viewContainer .results-table {
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    border-radius: 8px !important;
+  }
+
+  #viewContainer .results-table-container {
+    padding: 0 !important;
+  }
+
+  .results-table tbody tr:hover {
+    background: var(--surface-alt);
+  }
+  .results-table tfoot {
+    background: var(--surface-alt);
+  }
+  .results-table tfoot td {
+    font-weight: 700;
+    padding: clamp(8px, 1vw, 12px) clamp(8px, 1.2vw, 14px);
+    border-top: 2px solid var(--border);
+  }
+  .results-table tfoot td[colspan] {
+    text-align: right;
+    padding-right: clamp(10px, 2vw, 24px);
+  }
+  .results-table tfoot td[id^="results-total"] {
+    text-align: left;
+    min-width: clamp(130px, 16vw, 190px);
+    padding-left: clamp(8px, 1.5vw, 18px);
+  }
+  .results-table tfoot td strong {
+    font-size: 1.04rem;
+  }
+  .results-table tfoot #results-total-color {
+    font-size: 1.04rem;
+    color: #ff6b35;
+    font-weight: 800;
+  }
+  .results-table tfoot #results-total-bw {
+    font-size: 1.04rem;
+    color: #424242;
+    font-weight: 800;
+  }
+
+  .results-table .cad-delete-x {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 999px;
+    line-height: 1;
+    font-size: 15px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+
+
+  .results-total-live {
+    padding: 16px;
+    background: var(--surface-alt);
+    border-radius: 0 0 8px 8px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .results-total-live > div {
+    margin: 6px 0;
+    font-size: 1.05rem;
+  }
+
+  .summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 0.95rem;
+    align-items: center;
+  }
+  .summary-item strong {
+    font-weight: 700;
+  }
+  #summaryGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  #summaryGrid .summary-item:last-of-type {
+    padding-bottom: 0;
+  }
+  .cad-summary-section {
+    margin-inline: 0;
+  }
+  #viewContainer .cad-summary-section {
+    background: transparent !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    min-width: unset !important;
+    overflow-x: unset !important;
+  }
+
+  .cad-extras-monitor {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    min-width: 180px;
+  }
+  .cad-extras-monitor .monitor-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .cad-extras-monitor .monitor-label {
+    color: #475569;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 0.03em;
+  }
+  .cad-extras-monitor .monitor-value {
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  @media (max-width: 600px) {
+    .results-table { font-size: 0.66rem; }
+    .results-table th, .results-table td { padding: 1px 1px; }
+    .results-table-container {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #viewContainer .results-table th,
+    #viewContainer .results-table td {
+      font-size: 10px !important;
+      padding: 1px 1px !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .cad-file-item { flex-direction: column; }
+    .cad-file-price { margin-left: 0; margin-top: 8px; }
+  }
+  @media (max-width: 600px) {
+    .cad-table { font-size: 0.78rem; }
+    .cad-table th, .cad-table td { padding: 5px 6px; }
+  }
+  
+  /* ── CSS GRID LAYOUT: Table + Explanation Side by Side ─────── */
+  .main-calc-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .calc-table-area {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .calc-explanation-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  .calc-explanation-area h4 {
+    margin: 0 0 12px 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+  }
+
+  .obliczenie-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 8px;
+    background: var(--surface-alt);
+    border-radius: 6px;
+    border-left: 3px solid var(--primary);
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+  }
+
+  .obliczenie-item strong {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  .obliczenie-text {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .obliczenie-cena {
+    text-align: right;
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 1200px) {
+    .main-calc-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .calc-explanation-area {
+      max-height: 400px;
+    }
+    .obliczenie-item {
+      font-size: 0.75rem;
+    }
+  }
+
+  .card:has(.cad-upload) {
+    --card-padding: 12px;
+    padding: var(--card-padding);
+  }
+</style>
+
+<div class="cad-upload">
+  <h2>CAD Upload – Wycena plików</h2>
+
+  <!-- Opcje globalne -->
+  <div class="cad-options-bar cad-options">
+    <label>
+      <input type="checkbox" id="optZapelnienie">
+      Zapełnienie &gt;25% (+50%)
+    </label>
+    <label>
+      <input type="checkbox" id="optPowieksz">
+      Powiększanie (+50%)
+    </label>
+    <label>
+      <input type="checkbox" id="optEmail">
+      Email (+1 zł)
+    </label>
+  </div>
+
+
+  <div class="cad-drop-zone" id="cadDropZone" role="button" tabindex="0"
+       aria-label="Strefa przesyłania plików – kliknij lub przeciągnij pliki">
+    <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+         style="margin-bottom:12px;opacity:0.6" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+    </svg>
+    <h3>Przeciągnij pliki tutaj</h3>
+    <p>lub kliknij, aby wybrać (wiele plików naraz, max 50)</p>
+    <input type="file" id="cadFileInput" multiple style="display:none"
+           aria-label="Wybierz pliki CAD" />
+  </div>
+
+  <!-- Usługi dodatkowe (nie per-plik) -->
+  <div class="cad-options-bar cad-extra-services cad-options">
+    <div class="cad-extra-service-col">
+      <label class="cad-extra-service-item">
+        <input type="checkbox" id="optKlientSkladanie">
+        <span>Składanie od klienta (4,00 zł/szt)</span>
+      </label>
+      <span id="cad-upload-klient-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadKlientSkladanieQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+        <button type="button" id="cadUploadKlientSkladanieAdd" class="cad-extra-add-btn" aria-label="Dodaj składanie od klienta">+</button>
+      </span>
+      <div id="cad-upload-klient-skladanie-price" class="cad-extra-price-line"></div>
+    </div>
+
+    <div class="cad-extra-service-col">
+      <label class="cad-extra-service-item">
+        <input type="checkbox" id="optNieformatoweSkladanie">
+        <span>Składanie nieformatowych (2,50 zł/m²)</span>
+      </label>
+      <span id="cad-upload-nieformatowe-skladanie-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadNieformatoweSkladanieQty" class="cad-extra-qty-input" min="0.01" step="0.01" placeholder="m²">
+        <button type="button" id="cadUploadNieformatoweSkladanieAdd" class="cad-extra-add-btn" aria-label="Dodaj składanie nieformatowych">+</button>
+      </span>
+      <div id="cad-upload-nieformatowe-skladanie-price" class="cad-extra-price-line"></div>
+    </div>
+
+    <div class="cad-extra-service-col">
+      <label class="cad-extra-service-item">
+        <input type="checkbox" id="optPaskiWzmacniajace">
+        <span>Doklejanie pasków wzmacniających (0,80 zł/szt)</span>
+      </label>
+      <span id="cad-upload-paski-wzmacniajace-qty-row" class="cad-extra-qty-row" style="display:none">
+        Ilość:
+        <input type="number" id="cadUploadPaskiWzmacniajaceQty" class="cad-extra-qty-input" min="1" placeholder="szt">
+        <button type="button" id="cadUploadPaskiWzmacniajaceAdd" class="cad-extra-add-btn" aria-label="Dodaj paski wzmacniające">+</button>
+      </span>
+      <div id="cad-upload-paski-wzmacniajace-price" class="cad-extra-price-line"></div>
+    </div>
+  </div>
+
+  <div id="cadWarning" class="cad-warning" role="alert" style="display:none">
+    ⚠️ Dodano ponad 50 plików – sprawdź listę przed wyceną.
+  </div>
+
+  <div id="cadUploadStatus" class="cad-warning" role="status" style="display:none"></div>
+  
+  <!-- ✅ GŁÓWNY EKRAN: Tabela wyników (u góry) -->
+  <div id="results-container" class="results-table-container" style="display:none;">
+    <table id="resultsTable" class="results-table cad-legend-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
+      <thead>
+        <tr>
+          <th class="col-lp" style="width:6%;min-width:32px;">NR.</th>
+          <th class="col-name" style="width:21%;min-width:100px;">Nazwa</th>
+          <th class="col-size" style="width:12%;min-width:65px;">Rozmiar</th>
+          <th class="col-fold" style="width:12%;min-width:65px;">
+            <div class="header-toggle">
+              <span>Składanie</span>
+              <input type="checkbox" id="foldAllCheck" aria-label="Zaznacz składanie dla wszystkich plików" title="Zaznacz wszystkie: składanie">
+            </div>
+          </th>
+          <th class="col-scan" style="width:7%;min-width:40px;">
+            <div class="header-toggle">
+              <span>Skan</span>
+              <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
+            </div>
+          </th>
+          <th class="col-qty" style="width:13%;min-width:60px;">Ilość</th>
+          <th class="col-price" style="width:23%;min-width:100px;">
+            <div class="cad-price-header">
+              <span>Rodzaj</span>
+              <span>Cena</span>
+            </div>
+          </th>
+          <th class="col-remove" style="width:6%;min-width:34px;"></th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+
+    <div class="cad-summary-section">
+      <div id="summaryGrid" style="padding: 16px; background: var(--surface-alt); border-top: 1px solid var(--border);"></div>
+      <div class="cad-price-options" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center; padding: 12px 16px; background: var(--surface-alt); border-top: 1px solid var(--border);">
+        <button type="button" id="selectColor" class="btn-primary" style="display:none;">
+          🎨 DODAJ DO KOSZYKA - Kolor: <strong id="selectColorPrice">0,00 zł</strong>
+        </button>
+        <button type="button" id="selectBw" class="btn-primary" style="display:none;">
+          ⚫ DODAJ DO KOSZYKA - CZ-B: <strong id="selectBwPrice">0,00 zł</strong>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ekran obliczeń -->
+  <div id="ekranObliczen" class="calc-explanation-area">
+    <div id="obliczeniaLista"></div>
+  </div>
+</div>

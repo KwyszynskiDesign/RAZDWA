@@ -1,0 +1,181 @@
+<script>
+  if (window.location.pathname.includes('/categories/')) {
+    window.location.href = "/#/wydruki-specjalne";
+  }
+</script>
+
+<style>
+  .special-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .special-label {
+    min-width: 140px;
+    margin: 0;
+  }
+
+  .special-control-wide {
+    margin-left: auto;
+    max-width: 240px;
+  }
+
+  .special-control-narrow {
+    margin-left: auto;
+    max-width: 120px;
+  }
+
+  .special-check-wrap {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .special-check {
+    width: 18px;
+    height: 18px;
+  }
+
+  .special-help {
+    color: #666;
+    font-size: 12px;
+  }
+
+  .special-advanced {
+    display: none;
+    margin-top: 8px;
+    padding: 10px;
+    border: 1px dashed rgba(148, 163, 184, 0.5);
+    border-radius: 10px;
+    background: rgba(15, 23, 42, 0.04);
+  }
+
+  .special-legend {
+    display: none;
+    margin-top: 16px;
+  }
+
+  .special-result {
+    display: none;
+    margin-top: 20px;
+    padding: 14px;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 12px;
+  }
+
+  .special-line {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .special-unit {
+    font-weight: 600;
+  }
+
+  .special-total {
+    font-size: 18px;
+    font-weight: 950;
+    color: #22c55e;
+  }
+
+  .special-express {
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+    margin-top: 5px;
+  }
+</style>
+
+<h2>Pojedyncze nakłady</h2>
+<div class="form">
+  <div class="row special-row">
+    <label for="special-variant" class="special-label">Rodzaj:</label>
+    <select id="special-variant" class="special-control-wide">
+      <option value="" disabled selected>— wybierz rodzaj —</option>
+      <option value="dyplom">Dyplom</option>
+      <option value="zaproszenia-dodruk">Zaproszenia (dodruk)</option>
+      <option value="koperty-nadruk">Koperty – nadruk</option>
+      <option value="trymer-2x">Cięcie trymer 2x (1 zł/szt)</option>
+      <option value="trymer-4x">Cięcie trymer 4x (2 zł/szt)</option>
+    </select>
+  </div>
+
+  <div class="row special-row">
+    <label for="special-qty" class="special-label">Ilość (szt):</label>
+    <input type="number" id="special-qty" min="1" placeholder="ilość" inputmode="numeric" class="special-control-narrow">
+  </div>
+
+  <div class="row special-row" id="special-double-row">
+    <label for="special-double" class="special-label">Druk dwustronny:</label>
+    <div class="special-check-wrap">
+      <input type="checkbox" id="special-double" class="special-check">
+      <small class="special-help">+50%</small>
+    </div>
+  </div>
+
+  <div id="special-dyplom-options" class="special-advanced">
+    <div class="row special-row">
+      <label for="special-dyplom-paper" class="special-label">Papier:</label>
+      <select id="special-dyplom-paper" class="special-control-wide">
+        <option value="kreda_200" selected>Kreda (standard)</option>
+        <option value="satyna_200">Satyna (+12%)</option>
+        <option value="modigliani">Modigliani (Satyna +20%)</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="special-zap-options" class="special-advanced">
+    <div class="row special-row">
+      <label for="special-zap-format" class="special-label">Format:</label>
+      <select id="special-zap-format" class="special-control-wide">
+        <option value="A6" selected>A6</option>
+        <option value="A5">A5</option>
+        <option value="DL">DL</option>
+      </select>
+    </div>
+    <div class="row special-row">
+      <label for="special-zap-sides" class="special-label">Zadruk:</label>
+      <select id="special-zap-sides" class="special-control-wide">
+        <option value="1" selected>Jednostronne</option>
+        <option value="2">Dwustronne</option>
+      </select>
+    </div>
+    <div class="row special-row">
+      <label for="special-zap-folded" class="special-label">Składane:</label>
+      <div class="special-check-wrap">
+        <input type="checkbox" id="special-zap-folded" class="special-check">
+      </div>
+    </div>
+    <div class="row special-row">
+      <label for="special-zap-paper" class="special-label">Papier:</label>
+      <select id="special-zap-paper" class="special-control-wide">
+        <option value="kreda_200" selected>Kreda (standard)</option>
+        <option value="satyna_200">Satyna (+12%)</option>
+        <option value="modigliani">Modigliani (Satyna +20%)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <button id="special-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+  </div>
+
+  <div id="specialResult" class="result-area" style="display:none; margin-top: 20px;">
+    <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="special-total">0.00</span></div>
+    <div class="price-line">Cena za szt: <span id="special-unit">0.00</span></div>
+    <div id="specialTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+    <div id="specialExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+  </div>
+
+  <div id="specialBreakdown" class="card" style="display: none; margin-top: 16px;">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+    <div id="specialBreakdownLines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45;"></div>
+  </div>
+
+  <div id="special-legend-dyplom" class="cennik-table pricing-legend special-legend"></div>
+  <div id="special-legend-zap" class="cennik-table pricing-legend special-legend"></div>
+</div>

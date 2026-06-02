@@ -1,0 +1,116 @@
+<div class="category-view">
+  <h3>Zaproszenia</h3>
+
+  <div class="form-group">
+    <label for="zapFormat">Format:</label>
+    <select id="zapFormat">
+      <option value="" disabled selected>— wybierz format —</option>
+      <option value="A6">A6 (105x148mm)</option>
+      <option value="A5">A5 (148x210mm)</option>
+      <option value="DL">DL (99x210mm)</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="zapSides">Zadruk:</label>
+    <select id="zapSides">
+      <option value="1">Jednostronne</option>
+      <option value="2">Dwustronne</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <input type="checkbox" id="zapFolded"> Składane (2x format)
+    </label>
+  </div>
+
+  <div class="form-group">
+    <label for="zapQty">Ilość (szt):</label>
+    <input type="number" id="zapQty" min="10" step="1" placeholder="ilość" inputmode="numeric">
+    <div class="hint">Tabela obejmuje nakłady od 10 do 150 szt.</div>
+  </div>
+
+  <div class="form-group">
+    <label for="zapPaper">Papier:</label>
+    <select id="zapPaper">
+      <optgroup label="Kreda (standard)">
+        <option value="kreda_130">130g Kreda</option>
+        <option value="kreda_170">170g Kreda</option>
+        <option value="kreda_200" selected>200g Kreda</option>
+        <option value="kreda_250">250g Kreda</option>
+        <option value="kreda_300">300g Kreda</option>
+        <option value="kreda_350">350g Kreda</option>
+      </optgroup>
+      <optgroup label="Satyna">
+        <option value="satyna_130">130g Satyna</option>
+        <option value="satyna_170">170g Satyna</option>
+        <option value="satyna_200">200g Satyna</option>
+        <option value="satyna_250">250g Satyna</option>
+        <option value="satyna_300">300g Satyna</option>
+        <option value="satyna_350">350g Satyna</option>
+      </optgroup>
+      <optgroup label="Premium">
+        <option value="modigliani">Modigliani</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+      <input type="checkbox" id="zapEnvelopeEnabled"> Dodaj koperty
+    </label>
+  </div>
+
+  <div id="zapEnvelopeFields" class="form-group" style="display: none; margin-top: -4px; padding: 10px; border: 1px dashed #cbd5e1; border-radius: 8px; background: rgba(15, 23, 42, 0.02);">
+    <label for="zapEnvelopeType">Rodzaj koperty:</label>
+    <select id="zapEnvelopeType" style="margin-bottom: 8px;">
+      <option value="a">Koperta A</option>
+      <option value="b">Koperta B</option>
+      <option value="c">Koperta C</option>
+      <option value="d">Koperta D</option>
+      <option value="e">Koperta E</option>
+      <option value="f">Koperta F</option>
+      <option value="g">Koperta G</option>
+    </select>
+
+    <label for="zapEnvelopeQty">Ilość kopert (szt):</label>
+    <input type="number" id="zapEnvelopeQty" min="1" step="1" placeholder="ilość" inputmode="numeric">
+  </div>
+
+  <div class="form-actions">
+    <button id="addToCartBtn" class="btn-success">DODAJ DO KOSZYKA</button>
+  </div>
+
+  <div id="zapResult" class="result-display card" style="display:none; margin-top: 20px;">
+    <div class="price-line highlight">SUMA ZA WSZYSTKO: <span id="resTotalPrice">0.00</span></div>
+    <div class="price-line">Cena za szt: <span id="resUnitPrice">0.00</span></div>
+    <div id="resEnvelopeSummary" class="price-line" style="display: none;">Koperty: <span id="resEnvelopeSummaryValue">0</span></div>
+    <div id="resTierHint" class="modifier-hint" style="color: #555; font-size: 12px;"></div>
+    <div id="resExpressHint" class="express-hint" style="display: none;">W tym dopłata EXPRESS +20%</div>
+    <div id="resSatinHint" class="modifier-hint" style="display: none;">W tym cena z tabeli SATYNA</div>
+    <div id="resModiglianiHint" class="modifier-hint" style="display: none;">W tym dopłata MODIGLIANI +20%</div>
+  </div>
+
+  <div id="zapBreakdown" class="card" style="display: none; margin-top: 16px; overflow: visible;">
+    <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+  </div>
+
+  <div class="cennik-table pricing-legend">
+    <div class="legend-head">
+      <div>
+        <h4 id="zap-legend-title">CENNIK ZAPROSZENIA</h4>
+        <p class="legend-subtitle" id="zap-legend-subtitle">Legenda cenowa dla wybranego wariantu.</p>
+      </div>
+    </div>
+    <div class="legend-badges">
+      <span class="legend-badge" id="zap-legend-mode-badge"><strong>Wariant:</strong> A6, jednostronne, normal</span>
+    </div>
+    <table>
+      <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
+      <tbody id="zap-legend-rows"></tbody>
+    </table>
+    <p class="cennik-note">* Legenda jest przełączana wg wybranego formatu, zadruku i opcji składania.</p>
+  </div>
+</div>
+

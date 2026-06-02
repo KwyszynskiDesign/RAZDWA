@@ -1,0 +1,527 @@
+<script>
+  // Redirect to SPA if visited directly
+  if (window.location.pathname.includes('/categories/')) {
+    window.location.href = "/#/druk-cad";
+  }
+</script> 
+<style>
+  /* ...existing code... */
+
+  .cad-inline-row {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .cad-length-row .cad-inline-row {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .cad-format-pair {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cad-format-select {
+    width: 180px;
+    min-width: 120px;
+    max-width: 100%;
+  }
+
+  .cad-length-input {
+    width: 140px;
+    max-width: 100%;
+  }
+
+  .cad-format-pair label {
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .cad-use-base-btn {
+    white-space: nowrap;
+    min-width: 100px;
+  }
+
+  .cad-base-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .cad-base-actions .cad-use-base-btn {
+    width: fit-content;
+  }
+
+  @media (max-width: 900px) {
+    .cad-length-row .cad-inline-row {
+          margin-left: 0;
+        margin-right: clamp(16px, 3vw, 50px);
+    }
+    }
+  
+
+  .cad-qty-row {
+    max-width: 320px;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .cad-qty-input {
+    max-width: 120px;
+  }
+
+  .cad-options-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .cad-options-title { margin: 0; }
+
+  .cad-options-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 16px;
+    align-items: start;
+  }
+
+  .cad-option-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+  }
+
+  .cad-ops-section {
+    flex-direction: column;
+    gap: 24px;
+    margin-top: 8px;
+  }
+
+  .cad-ops-header {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+  }
+
+  .cad-ops-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .cad-ops-col {
+    min-width: 0;
+  }
+
+  .cad-added-status {
+    display: none;
+    margin: 0 0 8px;
+    color: #16a34a;
+    font-size: 0.82rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .cad-extra-services-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px 24px;
+    align-items: flex-start;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    max-width: 100%;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .form {
+    box-sizing: border-box;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 32px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    padding: 32px 28px 24px 28px;
+    min-width: 0;
+    z-index: 10;
+  }
+
+  .cad-extra-services-row > strong {
+    grid-column: 1 / -1;
+    margin-bottom: 4px;
+  }
+
+  .cad-extra-option {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  @media (max-width: 600px) {
+    .cad-options-list,
+    .cad-extra-services-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 700px) {
+    .cad-ops-columns {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .cad-row-tight { margin-top: 8px; }
+
+  .cad-fold-add,
+  .cad-scan-add {
+    margin-top: 8px;
+    margin-bottom: 12px;
+  }
+
+  .cad-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .cad-grand-total-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    background: #f6fef8;
+    border: 1px solid #b6e7c7;
+    border-radius: 6px;
+    min-width: 220px;
+    box-shadow: none;
+  }
+
+  .cad-grand-total-value {
+    font-size: 22px;
+    font-weight: 950;
+    color: #22c55e;
+    line-height: 1.05;
+  }
+
+  .cad-result-box {
+    display: none;
+    margin-top: 20px;
+    padding: 14px;
+    background: #f6fef8;
+    border: 1px solid #b6e7c7;
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
+  .cad-qty-hint {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 6px;
+  }
+
+  .cad-print-line {
+    align-items: flex-start;
+  }
+
+  .cad-print-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #666;
+    line-height: 1.35;
+  }
+
+  .cad-print-meta {
+    font-size: 13px;
+    font-weight: 500;
+    color: #475569;
+  }
+
+  .cad-result-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .cad-result-line-top { margin-bottom: 4px; }
+
+  .cad-result-line-total {
+    border-top: 1px solid rgba(34, 197, 94, 0.3);
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+
+  .cad-unit-price { font-weight: 700; }
+
+  .cad-result-line-total:first-of-type {
+    font-size: 20px;
+    font-weight: 900;
+  }
+
+  .cad-result-line-total:first-of-type .cad-option-total {
+    font-size: 24px;
+    font-weight: 950;
+    line-height: 1.05;
+  }
+
+  .cad-result-line-total:last-of-type {
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .cad-total-price {
+    font-size: 19px;
+    font-weight: 900;
+    color: #22c55e;
+  }
+
+  .cad-options-summary {
+    display: none;
+    margin-top: 8px;
+  }
+
+  .cad-summary-lines {
+    display: grid;
+    gap: 4px;
+  }
+
+  .cad-option-line {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .cad-option-line-total {
+    border-top: 1px dashed rgba(34, 197, 94, 0.3);
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .cad-option-total {
+    font-weight: 800;
+    color: #16a34a;
+  }
+
+  .cad-express-hint {
+    font-size: 12px;
+    color: #f59e0b;
+    display: none;
+  }
+
+  .cad-ops-items > div {
+    font-size: 13px;
+    color: #555;
+  }
+
+  /* ...existing code... */
+  #cad-dynamic-legend {
+    overflow-x: hidden;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th,
+  #cad-dynamic-legend table.cad-legend-table td {
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    word-break: break-word;
+    padding: 8px 10px;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-mode,
+  #cad-dynamic-legend table.cad-legend-table td.col-mode {
+    width: 22%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-format,
+  #cad-dynamic-legend table.cad-legend-table td.col-format {
+    width: 18%;
+  }
+
+  #cad-dynamic-legend table.cad-legend-table th.col-format-price,
+  #cad-dynamic-legend table.cad-legend-table td.col-format-price,
+  #cad-dynamic-legend table.cad-legend-table th.col-nonformat-price,
+  #cad-dynamic-legend table.cad-legend-table td.col-nonformat-price {
+    width: 29%;
+  }
+
+  #cad-dynamic-legend .cad-legend-break {
+    display: inline-block;
+    line-height: 1.2;
+  }
+
+  #cad-dynamic-legend .cad-legend-section {
+    text-align: center;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+</style>
+<h2>Druk CAD wielkoformatowy</h2>
+<div class="form">
+  <div class="cad-mode-format-row">
+    <div>
+      <label for="cad-mode">Tryb:</label>
+      <select id="cad-mode">
+        <option value="bw">Czarno-biały</option>
+        <option value="color">Kolorowy</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="row cad-length-row">
+    <div class="cad-inline-row">
+      <div class="cad-format-pair">
+        <label for="cad-format">Format:</label>
+        <select id="cad-format" class="cad-format-select">
+          <option value="A0p">A0+ (914 mm)</option>
+          <option value="A0">A0 (841 mm)</option>
+          <option value="A1p">A1+ (610 mm)</option>
+          <option value="A1">A1 (594 mm)</option>
+          <option value="A2">A2 (420 mm)</option>
+          <option value="A3">A3 (297 mm)</option>
+          <option value="R1067">Rolka 1067 (1067 mm)</option>
+        </select>
+      </div>
+      <input type="number" id="cad-length" placeholder="np. 1200" min="1" class="cad-length-input" aria-label="Długość (mm)">
+    </div>
+    <div id="cad-base-info" class="hint">Wymiar bazowy: 1292 mm</div>
+    <div class="cad-base-actions">
+      <button id="cad-use-base" class="secondary btn-use-base cad-use-base-btn">Użyj bazowej</button>
+    </div>
+  </div>
+
+  <div class="row cad-qty-row" id="qty-sheets-group">
+    <label for="qty-sheets">Ilość arkuszy:</label>
+    <input type="number" id="qty-sheets" min="1" inputmode="numeric" placeholder="np. 1" class="cad-qty-input">
+  </div>
+
+  <div class="row cad-options-group" id="cad-options-group">
+    <label class="cad-options-title">Opcje dodatkowe:</label>
+    <div class="cad-options-list">
+      <label class="cad-option-item">
+        <input type="checkbox" id="cad-opt-zadruk25">
+        <span>Zadruk &gt;25% (+50%)</span>
+      </label>
+      <label class="cad-option-item">
+        <input type="checkbox" id="cad-opt-scale">
+        <span>Skalowanie (+50%)</span>
+      </label>
+      <label class="cad-option-item">
+        <input type="checkbox" id="cad-opt-email">
+        <span>Wysyłka e-mail (+1 zł)</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- CAD Ops: składanie + skan wielkoformat -->
+  <div class="row cad-ops-section" id="cad-ops-section">
+    
+    <div class="cad-ops-columns">
+      <div class="cad-ops-col">
+        <strong>Składanie</strong>
+        <div id="cad-fold-status" class="cad-added-status">DODANO do podsumowania</div>
+        <div class="row cad-row-tight">
+          <label for="cad-fold-format">Format:</label>
+          <select id="cad-fold-format">
+            <option value="A0+">A0+</option>
+            <option value="A0">A0</option>
+            <option value="A1">A1</option>
+            <option value="A2">A2</option>
+            <option value="A3">A3</option>
+            <option value="A3-poprzeczne">A3-poprzeczne</option>
+          </select>
+        </div>
+        <div class="row cad-row-tight cad-qty-row">
+          <label for="cad-fold-qty">Ilość (szt):</label>
+          <input type="number" id="cad-fold-qty" min="1" inputmode="numeric" placeholder="np. 1" class="cad-qty-input" />
+        </div>
+        <button id="cad-fold-add" class="secondary cad-fold-add">Dodaj składanie</button>
+      </div>
+      <div class="cad-ops-col">
+        <strong>Skanowanie wielkoformatowe</strong>
+        <div id="cad-scan-status" class="cad-added-status">DODANO do podsumowania</div>
+        <div class="row cad-row-tight">
+          <label for="cad-wf-scan-cm">Długość (cm):</label>
+          <input type="number" id="cad-wf-scan-cm" placeholder="np. 110" min="1" step="0.1" />
+        </div>
+        <div class="row cad-row-tight">
+          <label for="cad-wf-scan-qty">Ilość (szt):</label>
+          <input type="number" id="cad-wf-scan-qty" min="1" inputmode="numeric" placeholder="np. 1" />
+        </div>
+        <button id="cad-wf-scan-add" class="secondary cad-scan-add">Dodaj skan</button>
+      </div>
+    </div>
+
+    <!-- Usługi dodatkowe – jeden wiersz pod składaniem i skanem -->
+    <div class="cad-extra-services-row">
+      <strong style="width:100%;margin-bottom:4px;">Usługi dodatkowe</strong>
+      <div class="cad-extra-option">
+        <label class="cad-option-item">
+          <input type="checkbox" id="cad-opt-klient-skladanie">
+          <span>Składanie od klienta (4,00 zł/szt)</span>
+        </label>
+        <div id="cad-klient-skladanie-qty-row" style="display:none" class="row cad-row-tight cad-qty-row">
+          <label for="cad-klient-skladanie-qty">Ilość (szt):</label>
+          <input type="number" id="cad-klient-skladanie-qty" min="1" inputmode="numeric" placeholder="np. 1" class="cad-qty-input" />
+        </div>
+      </div>
+      <div class="cad-extra-option">
+        <label class="cad-option-item">
+          <input type="checkbox" id="cad-opt-nieformatowe-skladanie">
+          <span>Składanie nieformatowych (2,50 zł/m²)</span>
+        </label>
+        <div id="cad-nieformatowe-skladanie-qty-row" style="display:none" class="row cad-row-tight cad-qty-row">
+          <label for="cad-nieformatowe-skladanie-qty">Ilość (m²):</label>
+          <input type="number" id="cad-nieformatowe-skladanie-qty" min="0.01" step="0.01" inputmode="decimal" placeholder="np. 1.5" class="cad-qty-input" />
+        </div>
+      </div>
+      <div class="cad-extra-option">
+        <label class="cad-option-item">
+          <input type="checkbox" id="cad-opt-paski-wzmacniajace">
+          <span>Doklejanie pasków wzmacn. (0,80 zł/szt)</span>
+        </label>
+        <div id="cad-paski-wzmacniajace-qty-row" style="display:none" class="row cad-row-tight cad-qty-row">
+          <label for="cad-paski-wzmacniajace-qty">Ilość (szt):</label>
+          <input type="number" id="cad-paski-wzmacniajace-qty" min="1" inputmode="numeric" placeholder="np. 1" class="cad-qty-input" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions cad-actions">
+    <button id="cad-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+  </div>
+
+  <div id="cad-result-display" class="cad-result-box" style="display:none">
+    <div class="cad-result-line cad-result-line-total">
+      <span>SUMA ZA WSZYSTKO:</span>
+      <span id="cad-total-with-options" class="cad-option-total">-</span>
+    </div>
+    <div id="cad-options-summary" class="cad-options-summary" style="margin-top:8px;">
+      <div id="cad-summary-lines" class="cad-summary-lines"></div>
+    </div>
+    <div id="cad-express-hint" class="cad-express-hint">Zawiera dopłatę EXPRESS +20%</div>
+  </div>
+</div>
+
+<div id="cad-dynamic-legend" class="card" style="margin-top:24px;"></div>
+

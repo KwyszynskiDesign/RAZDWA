@@ -1,0 +1,136 @@
+﻿<div class="category-view">
+    <div class="view-header">
+        <h2>Wizytówki</h2>
+    </div>
+
+    <div id="w-external-top-info" class="hint" style="display:none; margin-bottom:14px; padding:10px; background:var(--surface-alt); border-radius:6px; font-size:1.35rem;">
+        <strong>Foliowane</strong>, <strong>SoftTouch</strong> i <strong>DELUXE</strong> są realizowane zewnętrznie.<br>
+        Uzupełnij dane, aby zapisać zlecenie.
+    </div>
+
+    <div class="calculator-form card">
+        <div class="form-group">
+            <label for="w-family">Rodzaj:</label>
+            <select id="w-family" class="form-control">
+                <option value="" disabled selected>— wybierz rodzaj —</option>
+                <option value="standard">Standard</option>
+                <option value="foliowane">Foliowane</option>
+                <option value="softtouch">SoftTouch</option>
+                <option value="deluxe">DELUXE</option>
+            </select>
+        </div>
+
+        <div id="w-calculation-section">
+        <div id="standard-options">
+
+            <div class="form-group">
+                <label for="w-size">Rozmiar:</label>
+                <select id="w-size" class="form-control">
+                    <option value="85x55">85x55 mm</option>
+                    <option value="90x50">90x50 mm</option>
+                </select>
+            </div>
+
+        </div>
+
+        <div id="w-paper-group" class="form-group">
+            <label for="w-paper">Papier:</label>
+            <select id="w-paper" class="form-control">
+                <optgroup label="Kreda (standard)">
+                    <option value="kreda_300">300g Kreda</option>
+                    <option value="kreda_350" selected>350g Kreda</option>
+                </optgroup>
+                <optgroup label="Satyna">
+                    <option value="satyna_300">300g Satyna</option>
+                    <option value="satyna_350">350g Satyna</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <div id="w-qty-group" class="form-group">
+            <label for="w-qty">Ilość (szt):</label>
+            <input type="number" id="w-qty" class="form-control" min="1" placeholder="ilość" inputmode="numeric">
+            <div class="hint">Zaokrąglamy w górę do najbliższego progu.</div>
+        </div>
+
+        <div class="form-actions">
+            <button id="w-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+        </div>
+        </div>
+
+        <div id="w-external-form" style="display:none; margin-top:2px;">
+            <div id="w-ext-type-group" class="form-group">
+                <label for="w-ext-type">Wariant:</label>
+                <select id="w-ext-type" class="form-control">
+                    <option value="softtouch_350">SoftTouch 350g</option>
+                    <option value="deluxe_uv3d_softtouch">DELUXE – UV 3D + SoftTouch</option>
+                    <option value="deluxe_uv3d_gold_softtouch">DELUXE – UV 3D + Gold + SoftTouch</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-size">Rozmiar:</label>
+                <select id="w-ext-size" class="form-control">
+                    <option value="85x55">85×55 mm</option>
+                    <option value="90x50">90×50 mm</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-finish">Wykończenie:</label>
+                <select id="w-ext-finish" class="form-control">
+                    <option value="mat">Mat</option>
+                    <option value="blyszczacy">Błyszczący</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="w-ext-qty">Ilość (szt):</label>
+                <input type="number" id="w-ext-qty" class="form-control" min="1" placeholder="ilość" inputmode="numeric">
+            </div>
+            <div class="form-actions">
+                <button id="w-ext-add-to-cart" class="btn-success" disabled>DODAJ DO KOSZYKA</button>
+                <button id="w-go-viperprint" class="btn-primary" type="button">Przejdź do ViperPrint ↗</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="w-result-display" class="result-display card" style="display:none">
+        <div class="result-row total">
+            <span>SUMA ZA WSZYSTKO:</span>
+            <span id="w-total-price" class="price-value">-</span>
+        </div>
+        <hr>
+        <div class="result-row">
+            <span>Cena za szt:</span>
+            <span id="w-unit-price" class="price-unit">-</span>
+        </div>
+        <div id="w-billed-qty-hint" class="hint"></div>
+        <div id="w-tier-hint" class="hint" style="margin-top: 6px;"></div>
+        <div id="w-express-hint" class="express-hint" style="display:none;">W tym dopłata EXPRESS +20%</div>
+        <div id="w-satin-hint" class="modifier-hint" style="display:none;">W tym dopłata SATYNA +12%</div>
+    </div>
+
+    <div id="w-breakdown-display" class="card" style="display: none; margin-top: 16px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">Jak liczona jest cena</h3>
+        <div id="w-breakdown-lines" style="display: grid; gap: 8px; font-size: 14px; line-height: 1.45; color:#334155;"></div>
+    </div>
+
+    <div id="w-legend-standard" class="cennik-table pricing-legend">
+        <div class="legend-head">
+            <div>
+                <h4>WIZYTÓWKI STANDARD</h4>
+                <p class="legend-subtitle">Ceny brutto dla wariantu Standard bez foliowania.</p>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Ilość</th>
+                    <th>85x55 bez folii</th>
+                    <th>90x50 bez folii</th>
+                </tr>
+            </thead>
+            <tbody id="w-legend-rows"></tbody>
+        </table>
+    </div>
+</div>
+
+
