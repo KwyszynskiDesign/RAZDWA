@@ -561,7 +561,7 @@ export async function fetchStateFromAppsScript(
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
   try {
-    const url = `${config.appsScriptUrl}?action=getState`;
+    const url = `${config.appsScriptUrl}?action=getState&t=${Date.now()}`;
     const response = await fetch(url, {
       method: "GET",
       mode: "cors",

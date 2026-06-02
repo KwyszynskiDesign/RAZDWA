@@ -804,15 +804,17 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const hasLocalPrices = Boolean(localStorage.getItem(PRICES_STORAGE_KEY));
       const hasLocalVariants = Boolean(localStorage.getItem(VARIANTS_STORAGE_KEY));
-      if (hasLocalPrices && hasLocalVariants) return;
+      const age = Date.now() - Number(localStorage.getItem('razdwa_prices_ts') || 0);
+      if (hasLocalPrices && hasLocalVariants && age <= 5 * 60 * 1000) return;
 
       const remote = await fetchStateFromAppsScript();
       if (!remote) return;
 
-      if (!hasLocalPrices && Object.keys(remote.prices).length > 0) {
+      if (Object.keys(remote.prices).length > 0) {
         setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+        localStorage.setItem('razdwa_prices_ts', String(Date.now()));
       }
-      if (!hasLocalVariants && remote.variants.length > 0) {
+      if (remote.variants.length > 0) {
         setVariantDefinitions(remote.variants);
         syncVariantsToSubgroupsAtStartup();
       }

@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'razdwa-v202606020713';
+var CACHE_VERSION = 'razdwa-v202606021639';
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -48,6 +48,11 @@ self.addEventListener('fetch', function (event) {
   try {
     url = new URL(request.url);
   } catch (error) {
+    return;
+  }
+
+  if (request.url.indexOf('script.google.com') !== -1 || request.url.indexOf('getPrices') !== -1) {
+    event.respondWith(fetch(event.request));
     return;
   }
 

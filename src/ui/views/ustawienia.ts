@@ -2849,6 +2849,7 @@ export const UstawieniaView: View = {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
         console.log("Wynik wysyłki cennika:", result);
+        localStorage.setItem('razdwa_prices_ts', '0');
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
       }
