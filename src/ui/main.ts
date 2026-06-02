@@ -830,20 +830,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 };
 
-// Service Worker Registration
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
-      .then((registration) => {
-        registration.update();
-
-        let refreshed = false;
-        navigator.serviceWorker.addEventListener("controllerchange", () => {
-          if (refreshed) return;
-          refreshed = true;
-          window.location.reload();
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing!;
+        newWorker.addEventListener('statechange', () => {
+          if (newWorker.state === 'activated') {
+            window.location.reload();
+          }
         });
-      })
-      .catch(() => {});
+      });
+    }).catch(() => {});
   });
 }

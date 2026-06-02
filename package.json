@@ -10,7 +10,7 @@
   "scripts": {
     "prebuild": "node scripts/inject-cache-version.js",
     "build": "npm run prebuild && esbuild src/ui/main.ts --bundle --outfile=docs/assets/app.js --platform=browser --target=es2019 --minify --charset=ascii",
-    "build:commit": "npm run build && git add docs/assets/app.js sw.js docs/sw.js && git commit -m \"build: update app.js and service worker cache version\"",
+    "build:commit": "npm run build && git add docs/assets/app.js docs/sw.js docs/cache-buster.js && git commit -m \"build: update app.js and service worker cache version\"",
     "push:main": "git pull --rebase origin main && git push origin main --force-with-lease",
     "sync": "npm run build:commit && npm run push:main",
     "deploy": "npm run sync",
