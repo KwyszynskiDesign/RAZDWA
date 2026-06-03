@@ -210,7 +210,7 @@ describe("getPlakatyMalyCanonLegendPanels", () => {
       a3: "8,00 zł",
     });
     expect(panels[1].title).toBe("Z marginesem 200g");
-    expect(panels[3].rows.at(-1)?.label).toBe("4-9");
+    expect(panels[3].rows[panels[3].rows.length - 1]?.label).toBe("4-9");
   });
 
   it("reflects stored price overrides for the same keys used by settings", () => {

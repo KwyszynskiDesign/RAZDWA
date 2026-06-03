@@ -72,7 +72,7 @@ export function calculateWlepkiSzt(input: WlepkiSztCalculation): WlepkiSztResult
 
   const mergedTiers = mergeStoredNumericTiers(
     `wlepki-szt-${input.tableId}-`,
-    table.tiers ?? [],
+    (table.tiers ?? []) as Array<{ qty: number; price: number }>,
     (key) => {
       const match = key.match(/^(?:.*-)?(\d+)$/i);
       return match ? Number.parseInt(match[1], 10) : null;

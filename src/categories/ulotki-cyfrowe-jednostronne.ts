@@ -22,7 +22,7 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
   const fk = formatKey.toLowerCase();
   const tiersWithOverrides = mergeStoredNumericTiers(
     `ulotki-jed-${fk}-`,
-    formatData.tiers.map((tier: any) => ({
+    (formatData.tiers as Array<{ min: number; max: number | null; price: number }>).map((tier) => ({
       ...tier,
       price: resolveStoredPrice(`ulotki-jed-${fk}-${tier.min}`, tier.price)
     })),
@@ -48,7 +48,7 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
 
 export function quoteJednostronne(options: UlotkiJednostronneOptions): CalculationResult {
   const table = getUlotkiJednostronneTable(options.format);
-  const activeModifiers = [];
+  const activeModifiers: string[] = [];
   if (options.express) activeModifiers.push("express");
 
   return calculatePrice(table, options.qty, activeModifiers);

@@ -115,7 +115,7 @@ describe("orderExportService", () => {
       timeoutMs: 5000,
     });
 
-    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const requestBody = String((fetchMock.mock.calls[0] as any)?.[1]?.body ?? "{}");
     const parsedBody = JSON.parse(requestBody);
 
     expect(Object.keys(parsedBody)).toEqual([
@@ -182,7 +182,7 @@ describe("orderExportService", () => {
       timeoutMs: 5000,
     });
 
-    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const requestBody = String((fetchMock.mock.calls[0] as any)?.[1]?.body ?? "{}");
     const parsedBody = JSON.parse(requestBody);
 
     expect(parsedBody["Kto dodał"]).toBe("Adam / Biuro");
@@ -294,7 +294,7 @@ describe("orderExportService", () => {
       timeoutMs: 5000,
     });
 
-    const requestBody = String(fetchMock.mock.calls[0]?.[1]?.body ?? "{}");
+    const requestBody = String((fetchMock.mock.calls[0] as any)?.[1]?.body ?? "{}");
     const parsedBody = JSON.parse(requestBody);
 
     expect(parsedBody["Produkt"]).toContain("Ulotka A5");

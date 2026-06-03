@@ -22,7 +22,7 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
   const fk = formatKey.toLowerCase();
   const tiersWithOverrides = mergeStoredNumericTiers(
     `ulotki-dwu-${fk}-`,
-    formatData.tiers.map((tier: any) => ({
+    (formatData.tiers as Array<{ min: number; max: number | null; price: number }>).map((tier) => ({
       ...tier,
       price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price)
     })),
@@ -48,7 +48,7 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
 
 export function quoteUlotkiDwustronne(options: UlotkiDwustronneOptions): CalculationResult {
   const table = getUlotkiDwustronneTable(options.format);
-  const activeModifiers = [];
+  const activeModifiers: string[] = [];
   if (options.express) activeModifiers.push("express");
 
   return calculatePrice(table, options.qty, activeModifiers);

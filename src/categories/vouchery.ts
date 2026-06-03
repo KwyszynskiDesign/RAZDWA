@@ -220,8 +220,9 @@ export const voucheryCategory: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        let tierInfo = voucheryData[0];
-        for (const tier of voucheryData) {
+        const tiers = getResolvedBaseTiers();
+        let tierInfo = tiers[0];
+        for (const tier of tiers) {
           if (quantity >= tier.qty) {
             tierInfo = tier;
           } else {

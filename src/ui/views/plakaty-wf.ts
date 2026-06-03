@@ -327,7 +327,7 @@ export const PlakatyWFView: View = {
       const calcHint = buildNieformatCalcHint(currentResult);
       const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
       const hintBase = `${sizeLabelCart} × ${currentOptions.qty} szt${lengthHint}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
-      const hint = calcHint ? `${hintBase} | ${calcHint.replace(/<br>/g, " ")}` : hintBase;
+      const hint = calcHint.length ? `${hintBase} | ${calcHint.join(" ")}` : hintBase;
 
       const totalPrice = parseFloat((currentResult.totalPrice + currentOptions.trimSurcharge).toFixed(2));
 

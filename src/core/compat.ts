@@ -170,7 +170,7 @@ export function mergeStoredNumericTiers<T extends { price: number }>(
     if (typeof value !== "number") continue;
 
     const quantity = parseQuantityFromKey(key);
-    if (!Number.isFinite(quantity)) continue;
+    if (quantity === null || !Number.isFinite(quantity)) continue;
 
     const existingIndex = merged.findIndex((tier) => getQuantity(tier) === quantity);
     if (existingIndex >= 0) {
@@ -196,7 +196,7 @@ export function mergeStoredQuantityTable(
     if (typeof value !== "number") continue;
 
     const quantity = parseQuantityFromKey(key);
-    if (!Number.isFinite(quantity)) continue;
+    if (quantity === null || !Number.isFinite(quantity)) continue;
     merged[quantity] = value;
   }
 

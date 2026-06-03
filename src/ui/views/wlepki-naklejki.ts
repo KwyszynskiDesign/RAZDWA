@@ -200,7 +200,7 @@ export const WlepkiView: View = {
         const visible = piece.id === selectedTableId;
         const mergedTiers = mergeStoredNumericTiers(
           `wlepki-szt-${piece.id}-`,
-          piece.tiers ?? [],
+          (piece.tiers ?? []) as Array<{ qty: number; price: number }>,
           (key) => {
             const match = key.match(/^(?:.*-)?(\d+)$/i);
             return match ? Number.parseInt(match[1], 10) : null;
@@ -356,7 +356,7 @@ export const WlepkiView: View = {
                 amount: roundedAmount,
               };
             })
-            .filter((row): row is { label: string; value: string; amount: number } => Boolean(row) && row.amount > 0);
+            .filter((row): row is { label: string; value: string; amount: number } => row !== null && row.amount > 0);
 
           const modifierRows: BreakdownRow[] = modifierDetails.map((row) => ({
             label: row.label,

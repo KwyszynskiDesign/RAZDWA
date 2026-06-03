@@ -581,8 +581,6 @@ export const LaminowanieView: View = {
         currentOptions = null;
         if (resultDisplay) resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
-        if (lamCountedLine) lamCountedLine.innerText = "";
-        if (expressHint) expressHint.style.display = "none";
         clearCalcBreakdown();
       }
     };
@@ -715,8 +713,6 @@ export const LaminowanieView: View = {
       if (bindColorChecks[0]) bindColorChecks[0].checked = true;
       if (bindQty) bindQty.value = "";
       if (bindPages) bindPages.value = "20";
-      if (bindResultDisplay) bindResultDisplay.style.display = "none";
-      if (bindCountedLine) bindCountedLine.innerText = "";
       if (bindAddBtn) bindAddBtn.disabled = true;
       clearCalcBreakdown();
     });
@@ -1268,8 +1264,6 @@ export const LaminowanieView: View = {
       introState = null;
       if (introService) introService.selectedIndex = 0;
       if (introQty) introQty.value = "";
-      if (introResultDisplay) introResultDisplay.style.display = "none";
-      if (introCountedLine) introCountedLine.innerText = "";
       if (introAddBtn) introAddBtn.disabled = true;
       if (introExpressHint) introExpressHint.style.display = "none";
       clearCalcBreakdown();
