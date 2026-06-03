@@ -374,8 +374,9 @@
     overflow: visible;
   }
   .results-table td.col-qty input[type="number"] {
-    width: 42px;
-    padding: 2px 0 2px 4px;
+    width: 60px;
+    height: 28px;
+    padding: 2px 2px 2px 4px;
     border: 1px solid var(--border);
     border-radius: 4px;
     font-size: 0.78rem;
@@ -385,6 +386,7 @@
   .results-table td.col-qty input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: auto;
     opacity: 1;
+    height: 26px;
   }
 
   .results-table th.col-fold,
@@ -418,19 +420,19 @@
     cursor: pointer;
   }
 
-  .results-table .col-lp     { width: 6%; }
-  .results-table .col-name   { width: 21%; }
+  .results-table .col-lp     { width: 35px; min-width: 35px; }
+  .results-table .col-name   { width: 20%; }
   .results-table .col-size   { width: 12%; white-space: nowrap; }
   .results-table .col-fold   { width: 12%; }
-  .results-table .col-scan   { width: 7%; }
-  .results-table .col-qty    { width: 13%; text-align: center; }
+  .results-table .col-scan   { width: 8%; }
+  .results-table .col-qty    { width: 12%; text-align: center; }
   .results-table .col-price  { width: 23%; }
   .results-table .col-remove { width: 6%; min-width: 34px; }
 
   /* NR — lekki odstęp od lewej krawędzi */
   #viewContainer .results-table th.col-lp,
   #viewContainer .results-table td.col-lp {
-    padding-left: 15px !important;
+    padding-left: 4px !important;
   }
 
   /* Nazwa + Rozmiar — +10px w prawo */
@@ -453,10 +455,9 @@
     padding-left: 20px !important;
   }
 
-  /* Ilość — input przesunięty ~40px w prawo (kosztem col-price) */
   #viewContainer .results-table th.col-qty,
   #viewContainer .results-table td.col-qty {
-    padding-left: 36px !important;
+    padding-left: 4px !important;
   }
 
   .results-table th {
@@ -859,8 +860,8 @@
     <table id="resultsTable" class="results-table cad-legend-table" aria-live="polite" aria-label="Wyniki analizy plików (PDF + obrazy)">
       <thead>
         <tr>
-          <th class="col-lp" style="width:6%;min-width:32px;">NR.</th>
-          <th class="col-name" style="width:21%;min-width:100px;">Nazwa</th>
+          <th class="col-lp" style="width:35px;min-width:35px;">NR.</th>
+          <th class="col-name" style="width:20%;min-width:93px;">Nazwa</th>
           <th class="col-size" style="width:12%;min-width:65px;">Rozmiar</th>
           <th class="col-fold" style="width:12%;min-width:65px;">
             <div class="header-toggle">
@@ -868,13 +869,13 @@
               <input type="checkbox" id="foldAllCheck" aria-label="Zaznacz składanie dla wszystkich plików" title="Zaznacz wszystkie: składanie">
             </div>
           </th>
-          <th class="col-scan" style="width:7%;min-width:40px;">
+          <th class="col-scan" style="width:8%;min-width:50px;">
             <div class="header-toggle">
               <span>Skan</span>
               <input type="checkbox" id="scanAllCheck" aria-label="Zaznacz skanowanie dla wszystkich plików" title="Zaznacz wszystkie: skanowanie">
             </div>
           </th>
-          <th class="col-qty" style="width:13%;min-width:60px;">Ilość</th>
+          <th class="col-qty" style="width:12%;min-width:50px;">Ilość</th>
           <th class="col-price" style="width:23%;min-width:100px;">
             <div class="cad-price-header">
               <span>Rodzaj</span>
