@@ -123,6 +123,11 @@ export class Router {
       return;
     }
 
+    if (!/^[a-z0-9][a-z0-9_-]*$/.test(path)) {
+      this.renderNotFound(path);
+      return;
+    }
+
     if (path === "zamowienia-zewnetrzne") {
       window.open(VIPERPRINT_URL, "_blank", "noopener,noreferrer");
       window.location.hash = "#/";
@@ -141,7 +146,7 @@ export class Router {
         await view.mount(this.container, this.getCtx());
       } catch (err) {
         console.error("❌ View mount error:", err);
-        this.container.innerHTML = `<div class="error">Błąd ładowania widoku: ${err}</div>`;
+        this.container.innerHTML = `<div class="error">Błąd ładowania widoku: ${this.escapeHtml(String(err))}</div>`;
       }
     } else {
       try {

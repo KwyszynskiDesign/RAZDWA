@@ -11,16 +11,13 @@ export const DrukCADView: View = {
   name: "Druk CAD wielkoformatowy",
   async mount(container, ctx) {
     try {
-      console.debug('[DrukCAD] mount start');
       const templateUrl = new URL("categories/druk-cad.html", document.baseURI).href;
-      console.debug('[DrukCAD] fetching template', templateUrl);
       const controller = new AbortController();
       const timeout = window.setTimeout(() => controller.abort(), 10000);
       const response = await fetch(templateUrl, { signal: controller.signal });
       window.clearTimeout(timeout);
       if (!response.ok) throw new Error(`Failed to load template: ${response.status}`);
       container.innerHTML = await response.text();
-      console.debug('[DrukCAD] template loaded, initializing logic');
       this.initLogic?.(container, ctx);
     } catch (err) {
       console.error('[DrukCAD] mount error', err);
@@ -29,13 +26,10 @@ export const DrukCADView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    // --- DIAGNOSTIC COUNTERS ---
     let calcCount = 0;
     let updateUICount = 0;
     let listenersBound = false;
-    console.debug('[DrukCAD] initLogic start');
     const data = getPrice("drukCAD");
-    console.debug('[DrukCAD] price data present?', !!data);
     if (!data?.price || !data?.base) {
       container.innerHTML = `<div class="error">Błąd: brak danych cennika CAD</div>`;
       return;
@@ -469,9 +463,6 @@ export const DrukCADView: View = {
 
     const updateUI = () => {
       updateUICount++;
-      if (updateUICount < 10 || updateUICount % 10 === 0) {
-        console.debug('[DrukCAD] updateUI', updateUICount);
-      }
       const format = formatSelect.value;
       const mode = modeSelect.value;
       const baseLen = data.base[format]?.l;
@@ -500,9 +491,6 @@ export const DrukCADView: View = {
         updateUI();
       };
       listenersBound = true;
-      console.debug('[DrukCAD] listeners bound');
-    } else {
-      console.warn('[DrukCAD] listeners already bound, skipping');
     }
 
     const initBase = data.base[formatSelect.value]?.l;
@@ -515,14 +503,6 @@ export const DrukCADView: View = {
 
     const performCalculation = () => {
       calcCount++;
-      if (calcCount < 10 || calcCount % 10 === 0) {
-        console.debug('[DrukCAD] performCalculation', calcCount);
-      }
-          // --- PDF.js DIAGNOSTIC ---
-          if ((window as any).pdfjsLib) {
-            console.debug('[DrukCAD] pdfjsLib present', typeof (window as any).pdfjsLib);
-          }
-      console.debug('[DrukCAD] performCalculation start', { qtyValue: qtySheetsInput?.value, lengthValue: lengthInput?.value });
       if (qtySheetsInput && qtySheetsInput.value.trim() === "") {
         resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
@@ -534,7 +514,6 @@ export const DrukCADView: View = {
       const parsedQty = qtySheetsInput ? (parseInt(qtySheetsInput.value, 10) || 1) : 1;
       const parsedLength = parseInt(lengthInput.value, 10);
       if (isNaN(parsedLength) || parsedLength <= 0) {
-        console.warn('[DrukCAD] performCalculation aborted: invalid length', lengthInput.value);
         resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         currentResult = null;
@@ -553,7 +532,6 @@ export const DrukCADView: View = {
 
       const result = calculateDrukCAD(currentOptions, data);
       currentResult = result;
-      console.debug('[DrukCAD] calculateDrukCAD result', result);
 
       if (qtyHintSpan) {
         const qty = currentOptions.qty || 1;

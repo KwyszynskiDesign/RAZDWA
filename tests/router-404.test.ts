@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { Router } from "../src/ui/router";
+import type { View } from "../src/ui/types";
 
 beforeEach(() => {
   vi.stubGlobal("window", {
@@ -52,5 +53,62 @@ describe("Router.renderNotFound", () => {
     router.renderNotFound('path"with"quotes');
     expect(container.innerHTML).not.toContain('"with"');
     expect(container.innerHTML).toContain("&quot;with&quot;");
+  });
+});
+
+describe("Router path validation (whitelist)", () => {
+  it("blocks path traversal ../config/prices without calling fetch", async () => {
+    const { router, container } = makeRouter();
+    (window as any).location.hash = "#/../config/prices";
+    await router.handleRoute();
+    expect(container.innerHTML).toContain("error-view");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("blocks encoded traversal %2e%2e without calling fetch", async () => {
+    const { router, container } = makeRouter();
+    (window as any).location.hash = "#/%2e%2e/config";
+    await router.handleRoute();
+    expect(container.innerHTML).toContain("error-view");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("blocks <script> injection in path without calling fetch", async () => {
+    const { router, container } = makeRouter();
+    (window as any).location.hash = "#/<script>alert(1)</script>";
+    await router.handleRoute();
+    expect(container.innerHTML).toContain("error-view");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("allows valid path ulotki-cyfrowe to reach fetch", async () => {
+    const { router } = makeRouter();
+    (window as any).location.hash = "#/ulotki-cyfrowe";
+    await router.handleRoute();
+    expect(fetch).toHaveBeenCalledWith("categories/ulotki-cyfrowe.html");
+  });
+
+  it("allows valid path druk-a4-a3 to reach fetch", async () => {
+    const { router } = makeRouter();
+    (window as any).location.hash = "#/druk-a4-a3";
+    await router.handleRoute();
+    expect(fetch).toHaveBeenCalledWith("categories/druk-a4-a3.html");
+  });
+});
+
+describe("Router error rendering (escapeHtml)", () => {
+  it("escapes XSS payload thrown by a view mount", async () => {
+    const { router, container } = makeRouter();
+    const evilView: View = {
+      id: "evil",
+      name: "Evil",
+      mount: async () => { throw new Error('<img src=x onerror=alert(1)>'); },
+    };
+    router.addRoute(evilView);
+    (window as any).location.hash = "#/evil";
+    await router.handleRoute();
+    const html = (container as unknown as { innerHTML: string }).innerHTML;
+    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(html).toContain("&lt;img");
   });
 });

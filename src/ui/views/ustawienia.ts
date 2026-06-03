@@ -1920,7 +1920,6 @@ function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   const keys = Object.keys(prices).filter((key) => keyMatchesCategory(key, category));
   if (_lastAddedKey && (_lastAddedKey in prices)) {
     const matched = keyMatchesCategory(_lastAddedKey, category);
-    if (matched) console.log("CATEGORY MATCH FOR KEY:", _lastAddedKey, "→ category:", category.id);
   }
   if (category.id === "druk-a4-a3") {
     return sortDrukA4A3CategoryKeys(keys);
@@ -2039,7 +2038,6 @@ export const UstawieniaView: View = {
       Object.assign(customPriceSubgroups[catId], prefixes);
     }
 
-    if (_lastAddedKey) console.log("GET PRICES HAS KEY:", _lastAddedKey, "→", prices[_lastAddedKey], "(in prices:", _lastAddedKey in prices, ")");
     let renderedCategories = getRenderedCategories(prices);
     let activeCategory = renderedCategories[0]?.id ?? "druk-a4-a3";
     let lastBasePrefix = "";
@@ -2168,7 +2166,6 @@ export const UstawieniaView: View = {
     function renderTable(): void {
       const active = getActiveCategory();
       const keys = getCategoryKeys(prices, active);
-      if (_lastAddedKey) console.log("VISIBLE IN SETTINGS:", _lastAddedKey, "| activeCategory:", active.id, "| in this tab's keys:", keys.includes(_lastAddedKey), "| in prices:", _lastAddedKey in prices);
       const tbody = container.querySelector<HTMLElement>("#prices-tbody");
       const countEl = container.querySelector<HTMLElement>("#prices-count");
       const activeLabelEl = container.querySelector<HTMLElement>("#active-category-label");
@@ -2820,9 +2817,6 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
 
-      if (_lastAddedKey) {
-        console.log("PERSISTED HAS NEW KEY:", _lastAddedKey, "→ prices value:", prices[_lastAddedKey], "(in prices:", _lastAddedKey in prices, ")");
-      }
 
       // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
       // flushInputs() już zsynchronizował edytowalne pola aktywnej kategorii → prices.
@@ -2848,7 +2842,6 @@ export const UstawieniaView: View = {
       try {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
-        console.log("Wynik wysyłki cennika:", result);
         localStorage.setItem('razdwa_prices_ts', '0');
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
@@ -2857,7 +2850,6 @@ export const UstawieniaView: View = {
       try {
         const allVariants = collectAllVariants();
         const variantsResult = await saveVariantsToAppsScript(allVariants);
-        console.log("Wynik wysyłki wariantów:", variantsResult);
       } catch (err) {
         console.error("Błąd wysyłki wariantów do Apps Script:", err);
       }

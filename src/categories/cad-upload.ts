@@ -44,9 +44,6 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
   const shorter = Math.min(widthMm, heightMm);
   const longer = Math.max(widthMm, heightMm);
   
-  console.group('📏 FORMAT CLASSIFICATION');
-  console.log(`📐 Dim: ${shorter.toFixed(1)}×${longer.toFixed(1)}mm`);
-  
   function inRange(value: number, target: number): boolean {
     return value <= target + FORMAT_TOLERANCE_CLASSIFY;
   }
@@ -66,8 +63,6 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
       ? Math.abs(longer - baseLength) <= FORMAT_TOLERANCE_CLASSIFY
       : false;
 
-    console.log(`✅ ${matchedFormat}${isFormatowy ? "" : " (MB)"}`);
-    console.groupEnd();
     return { format: matchedFormat, isFormatowy, isStandardWidth: true };
   }
   
@@ -80,9 +75,6 @@ function detectFormatDetailsFromDimensions(widthMm: number, heightMm: number): C
   else if (shorter <= 841 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0';
   else if (shorter <= 914 + FORMAT_TOLERANCE_CLASSIFY) rollKey = 'A0p';
   else rollKey = 'R1067';
-  
-  console.log(`✅ MB ${rollKey}`);
-  console.groupEnd();
   
   return {
     format: rollKey,
@@ -280,24 +272,16 @@ export function updateCadFileEntry(
   arg1: Partial<CadUploadFileEntry> | File,
   arg2?: 'bw' | 'color' | boolean
 ): CadUploadFileEntry | Promise<CadUploadFileEntry> {
-  console.log("🟡 updateCadFileEntry called with:", arg1 instanceof File ? "File" : "Entry", arg2);
-  console.log("🟡 CAD_PRICE value:", CAD_PRICE);
-  
   if (arg1 instanceof File) {
     const file = arg1;
     const isColor = typeof arg2 === "boolean" ? arg2 : false;
     const mode: 'bw' | 'color' = isColor ? 'color' : 'bw';
 
-    console.log("🟡 Processing file mode:", mode);
-
     return loadImageDimensions(file)
       .then(({ widthPx, heightPx, pageCount }) => {
-        console.log("🟡 Image dimensions:", widthPx, heightPx, "pageCount:", pageCount);
         const widthMm = pxToMm(widthPx);
         const heightMm = pxToMm(heightPx);
-        console.log("🟡 Dimensions in mm:", widthMm, heightMm);
         const fmt = detectFormatFromDimensions(widthMm, heightMm, true);
-        console.log("🟡 Detected format:", fmt);
         const printPrice = calculateCadPrintPriceWithDimensions(
           widthMm,
           heightMm,
@@ -306,8 +290,6 @@ export function updateCadFileEntry(
           mode,
           pageCount
         );
-        console.log("🟡 Calculated print price for", pageCount, "pages:", printPrice);
-
         return {
           id: Date.now(),
           name: file.name,
@@ -363,13 +345,9 @@ export function updateCadFileEntry(
   const qty = entry.pageCount || 1;
   const foldingQty = entry.folding ? qty : 0;
 
-  console.log("🟡 Recalculating existing entry:", { format, mode, folding: entry.folding, scanning: entry.scanning, pageCount: qty });
-
   const printPrice = calculateCadPrintPriceWithDimensions(widthMm, heightMm, format, isFormatowy, mode, qty);
   const foldingPrice = calculateCadFoldingPrice(format, isFormatowy, widthMm, heightMm, entry.folding || false, foldingQty);
   const scanPrice = calculateCadScanningPrice(widthMm, heightMm, entry.scanning || false, qty);
-
-  console.log("🟡 Recalculated prices:", { printPrice, foldingPrice, scanPrice });
 
   return {
     id: entry.id || 0,
@@ -402,19 +380,15 @@ function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: n
     if (file.type === "application/pdf") {
       try {
         const bytes = await file.arrayBuffer();
-        console.log("PDF bytes:", bytes.byteLength);
         const pdfDoc = await PDFDocument.load(bytes);
         const pageCount = pdfDoc.getPageCount();
-        console.log("PDF loaded:", pageCount, "stron");
         const page = pdfDoc.getPage(0);
         const { width, height } = page.getSize(); // points (1/72 inch)
-        console.log("Page size:", { width, height });
         
         // Convert points → px (300 DPI)
         const pxPerPoint = 300 / 72;
         const widthPx = Math.round(width * pxPerPoint);
         const heightPx = Math.round(height * pxPerPoint);
-        console.log("Final px:", { widthPx, heightPx });
         
         resolve({ widthPx, heightPx, pageCount });
       } catch (err) {
