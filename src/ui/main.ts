@@ -841,26 +841,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
   pinSaveBtn?.addEventListener('click', () => {
     const val = pinNewInput?.value ?? '';
-    const confirm = pinConfirmInput?.value ?? '';
-    if (!pinMsg) return;
+    const confirmVal = pinConfirmInput?.value ?? '';
     if (val.length < 4) {
-      pinMsg.textContent = 'PIN musi mieć min. 4 znaki.';
-      pinMsg.style.display = 'block';
-      pinMsg.style.color = '#dc2626';
+      if (pinMsg) { pinMsg.textContent = 'PIN musi mieć min. 4 znaki.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
       return;
     }
-    if (val !== confirm) {
-      pinMsg.textContent = 'PINy nie są zgodne.';
-      pinMsg.style.display = 'block';
-      pinMsg.style.color = '#dc2626';
+    if (val !== confirmVal) {
+      if (pinMsg) { pinMsg.textContent = 'PINy nie są zgodne.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
       return;
     }
     localStorage.setItem(SETTINGS_PIN_KEY, val);
     if (pinNewInput) pinNewInput.value = '';
     if (pinConfirmInput) pinConfirmInput.value = '';
-    pinMsg.textContent = 'PIN zapisany.';
-    pinMsg.style.display = 'block';
-    pinMsg.style.color = '#16a34a';
+    if (pinMsg) { pinMsg.textContent = 'PIN zapisany.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
     refreshPinUI();
   });
 
