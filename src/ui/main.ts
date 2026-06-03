@@ -83,9 +83,18 @@ function syncVariantsToSubgroupsAtStartup(): void {
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
 ;(window as any).__APP_BUILD__ = '2026-05-22-router-fix-2';
 
-// Loading popup functions
+function escapeHtml(str: string): string {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
-// Zamienia popup na ghost-toast
+const SETTINGS_PIN_KEY = 'razdwa_pin';
+const SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
+
 function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending") {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
@@ -96,7 +105,7 @@ function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending
   let icon = type === "sending" ? "⏳" : "✔️";
   toast.innerHTML = `
     <span class="ghost-toast__icon">${icon}</span>
-    <span class="ghost-toast__message">${message}</span>
+    <span class="ghost-toast__message">${escapeHtml(message)}</span>
   `;
   host.prepend(toast);
   setTimeout(() => toast.classList.add("is-visible"), 10);
@@ -357,7 +366,7 @@ function showToast(message: string, variant: "cart" | "success" | "warning" | "e
         : "+";
   toast.innerHTML = `
     <span class="ghost-toast__icon">${icon}</span>
-    <span class="ghost-toast__message">${message}</span>
+    <span class="ghost-toast__message">${escapeHtml(message)}</span>
   `;
 
   host.prepend(toast);
@@ -394,8 +403,8 @@ function updateCartUI() {
     listEl.innerHTML = items.map((item, idx) => `
       <div class="basketItem">
         <div class="basketItemContent">
-          <div class="basketName">${item.name}</div>
-          <div class="basketMeta">${item.optionsHint}</div>
+          <div class="basketName">${escapeHtml(item.name)}</div>
+          <div class="basketMeta">${escapeHtml(item.optionsHint)}</div>
         </div>
         <div class="basketItemRight">
           <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
@@ -809,6 +818,75 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("sendBtn")?.addEventListener("click", handleSendOrder);
   document.getElementById("sendBtn2")?.addEventListener("click", handleSendOrder);
 
+  const pinNewInput = document.getElementById('pinNewInput') as HTMLInputElement | null;
+  const pinConfirmInput = document.getElementById('pinConfirmInput') as HTMLInputElement | null;
+  const pinSaveBtn = document.getElementById('pinSaveBtn') as HTMLButtonElement | null;
+  const pinRemoveBtn = document.getElementById('pinRemoveBtn') as HTMLButtonElement | null;
+  const pinMsg = document.getElementById('pinMsg') as HTMLElement | null;
+  const pinSetForm = document.getElementById('pinSetForm') as HTMLElement | null;
+  const pinChangeForm = document.getElementById('pinChangeForm') as HTMLElement | null;
+  const pinStatusEl = document.getElementById('pinStatus') as HTMLElement | null;
+
+  const refreshPinUI = () => {
+    const hasPin = !!localStorage.getItem(SETTINGS_PIN_KEY);
+    if (pinSetForm) pinSetForm.style.display = hasPin ? 'none' : 'block';
+    if (pinChangeForm) pinChangeForm.style.display = hasPin ? 'block' : 'none';
+    if (pinStatusEl) {
+      pinStatusEl.textContent = hasPin
+        ? '🔒 PIN aktywny — panel ustawień zablokowany'
+        : '🔓 Brak PINu — panel ustawień dostępny dla każdego';
+      pinStatusEl.style.color = hasPin ? '#16a34a' : '#b45309';
+    }
+  };
+
+  pinSaveBtn?.addEventListener('click', () => {
+    const val = pinNewInput?.value ?? '';
+    const confirm = pinConfirmInput?.value ?? '';
+    if (!pinMsg) return;
+    if (val.length < 4) {
+      pinMsg.textContent = 'PIN musi mieć min. 4 znaki.';
+      pinMsg.style.display = 'block';
+      pinMsg.style.color = '#dc2626';
+      return;
+    }
+    if (val !== confirm) {
+      pinMsg.textContent = 'PINy nie są zgodne.';
+      pinMsg.style.display = 'block';
+      pinMsg.style.color = '#dc2626';
+      return;
+    }
+    localStorage.setItem(SETTINGS_PIN_KEY, val);
+    if (pinNewInput) pinNewInput.value = '';
+    if (pinConfirmInput) pinConfirmInput.value = '';
+    pinMsg.textContent = 'PIN zapisany.';
+    pinMsg.style.display = 'block';
+    pinMsg.style.color = '#16a34a';
+    refreshPinUI();
+  });
+
+  pinRemoveBtn?.addEventListener('click', () => {
+    const current = prompt('Podaj aktualny PIN, aby go usunąć:');
+    if (current === null) return;
+    if (current === localStorage.getItem(SETTINGS_PIN_KEY)) {
+      localStorage.removeItem(SETTINGS_PIN_KEY);
+      sessionStorage.removeItem(SETTINGS_AUTH_KEY);
+      if (pinMsg) {
+        pinMsg.textContent = 'PIN usunięty.';
+        pinMsg.style.display = 'block';
+        pinMsg.style.color = '#16a34a';
+      }
+      refreshPinUI();
+    } else {
+      if (pinMsg) {
+        pinMsg.textContent = 'Nieprawidłowy PIN.';
+        pinMsg.style.display = 'block';
+        pinMsg.style.color = '#dc2626';
+      }
+    }
+  });
+
+  refreshPinUI();
+
   updateCartUI();
   filterCategoryTiles();
 
@@ -847,25 +925,3 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 };
 
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').then(reg => {
-      reg.addEventListener('updatefound', () => {
-        const newWorker = reg.installing!;
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'activated') {
-            if (document.visibilityState === 'hidden') {
-              window.location.reload();
-            } else {
-              document.addEventListener('visibilitychange', () => {
-                if (document.visibilityState === 'hidden') {
-                  window.location.reload();
-                }
-              }, { once: true });
-            }
-          }
-        });
-      });
-    }).catch(() => {});
-  });
-}

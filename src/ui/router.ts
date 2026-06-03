@@ -22,7 +22,51 @@ export class Router {
   private getCtx: () => ViewContext;
   private categories: any[] = [];
   private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
-  
+  private readonly SETTINGS_PIN_KEY = 'razdwa_pin';
+  private readonly SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
+
+  private isSettingsAuthenticated(): boolean {
+    return sessionStorage.getItem(this.SETTINGS_AUTH_KEY) === '1';
+  }
+
+  private renderSettingsPinGate(onSuccess: () => Promise<void>): void {
+    const storedPin = localStorage.getItem(this.SETTINGS_PIN_KEY);
+    this.container.innerHTML = `
+      <div style="max-width:360px;margin:60px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;">
+        <h2 style="margin:0 0 8px;font-size:1.3rem;">Panel ustawie&#x144; cen</h2>
+        <p style="margin:0 0 20px;color:var(--text-secondary);font-size:14px;">Wprowad&#x17A; PIN, aby uzyska&#x107; dost&#x119;p.</p>
+        <input type="password" id="gatePin" inputmode="numeric" maxlength="8" placeholder="PIN" autocomplete="current-password"
+          style="width:100%;box-sizing:border-box;padding:10px 14px;font-size:16px;border:1px solid var(--border);border-radius:8px;margin-bottom:12px;background:var(--surface-alt,#fff);color:var(--text,#0f172a);">
+        <button type="button" id="gatePinBtn"
+          style="width:100%;padding:10px;font-size:15px;font-weight:600;background:var(--primary,#004080);color:#fff;border:none;border-radius:8px;cursor:pointer;">
+          Zatwierd&#x17A;
+        </button>
+        <p id="gatePinErr" style="display:none;margin:10px 0 0;font-size:13px;color:#dc2626;">Nieprawid&#x142;owy PIN.</p>
+      </div>
+    `;
+
+    const pinInput = this.container.querySelector<HTMLInputElement>('#gatePin');
+    const submitBtn = this.container.querySelector<HTMLButtonElement>('#gatePinBtn');
+    const errorEl = this.container.querySelector<HTMLElement>('#gatePinErr');
+
+    pinInput?.focus();
+
+    const attempt = () => {
+      const val = pinInput?.value ?? '';
+      if (val === storedPin) {
+        sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
+        if (pinInput) pinInput.value = '';
+        onSuccess().catch(() => {});
+      } else {
+        if (errorEl) errorEl.style.display = 'block';
+        if (pinInput) { pinInput.value = ''; pinInput.focus(); }
+      }
+    };
+
+    submitBtn?.addEventListener('click', attempt);
+    pinInput?.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') attempt(); });
+  }
+
   private isIconUrl(icon: string): boolean {
     return /^https?:\/\//i.test(icon);
   }
@@ -132,6 +176,28 @@ export class Router {
       window.open(VIPERPRINT_URL, "_blank", "noopener,noreferrer");
       window.location.hash = "#/";
       return;
+    }
+
+    if (path === 'ustawienia') {
+      const storedPin = localStorage.getItem(this.SETTINGS_PIN_KEY);
+      if (storedPin && !this.isSettingsAuthenticated()) {
+        if (this.currentView?.unmount) {
+          this.currentView.unmount();
+          this.currentView = null;
+        }
+        this.renderSettingsPinGate(async () => {
+          const view = this.routes.get('ustawienia');
+          if (view) {
+            this.currentView = view;
+            try {
+              await view.mount(this.container, this.getCtx());
+            } catch (err) {
+              this.container.innerHTML = `<div class="error">B&#x142;&#x105;d &#x142;adowania widoku: ${this.escapeHtml(String(err))}</div>`;
+            }
+          }
+        });
+        return;
+      }
     }
 
     // Unmount previous view before mounting a new one

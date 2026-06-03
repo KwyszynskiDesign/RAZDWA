@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606031844 -->
+<!-- APP_VERSION: 202606031937 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -15,7 +15,7 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/styles.css?v=202606031844">
+  <link rel="stylesheet" href="assets/styles.css?v=202606031937">
   
   <!-- PDF.js for CAD Upload (global, loaded once) -->
   <script
@@ -33,7 +33,7 @@
   </script>
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606031844"></script>
+  <script src="cache-buster.js?v=202606031937"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -169,74 +169,6 @@
             <div id="loadingSpinner" style="display:none;text-align:center;padding:40px">
               &#x23F3; &#x141;adowanie kategorii... <div style="animation:dots 1s infinite"></div>
             </div>
-
-            <!-- CAD Upload Section -->
-            <div id="cadUploadSection" style="display:none;">
-              <div class="view-header">
-                <h2>&#xD83D;&#xDCC1; CAD Upload plik&#xF3;w</h2>
-                <p class="hint">Prze&#x15B;lij pliki CAD, PDF lub obrazy do automatycznego wyliczenia koszt&#xF3;w druku</p>
-              </div>
-
-              <!-- Upload Zone -->
-              <div class="cad-drop-zone">
-                <div style="text-align:center;padding:30px;">
-                  <p style="font-size:16px;color:#0f172a;margin:0 0 16px;font-weight:500;">&#xD83D;&#xDCC1; Przeci&#x105;gnij pliki tutaj lub kliknij aby wybra&#x107;</p>
-                  <input type="file" id="cadFileInput" class="cad-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.dxf" style="display:none" />
-                  <button type="button" id="cadBrowseBtn" style="background:#2563eb;color:white;border:none;padding:12px 24px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:500;transition:all 0.2s ease;">Wybierz pliki</button>
-                </div>
-              </div>
-
-              <!-- File List Table -->
-              <div class="cad-files-container" style="margin-top:20px;">
-                <div id="cadEmptyState" class="cad-empty-state">
-                  Brak dodanych plik&#xF3;w. Dodaj pliki do listy, aby zobaczy&#x107; wycen&#x119;.
-                </div>
-                
-                <table class="cad-files-table" id="cadFilesTable" style="display:none;width:100%;">
-                  <thead>
-                    <tr>
-                      <th class="cad-col-index" style="width:50px;">Lp.</th>
-                      <th>Nazwa pliku</th>
-                      <th class="cad-col-size">Rozmiar</th>
-                      <th class="cad-file-type">Sk&#x142;adanie</th>
-                      <th class="cad-file-scan">Skan</th>
-                      <th class="cad-col-delete" style="width:50px;">Usu&#x144;</th>
-                    </tr>
-                  </thead>
-                  <tbody id="cadTableBody">
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="cad-actions-bar" style="margin-top:24px;">
-                <button type="button" id="cadAddBtn" class="primary" style="background:#2563eb;color:white;border:none;min-width:160px;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:500;transition:all 0.2s ease;">+ Dodaj do listy</button>
-                <button type="button" id="cadClearBtn" class="cad-clear-btn" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;min-width:160px;padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:500;transition:all 0.2s ease;">&#xD83D;&#xDDD1;&#xFE0F; Wyczy&#x15B;&#x107; list&#x119;</button>
-              </div>
-
-              <!-- Summary -->
-              <div class="cad-summary-section" style="margin-top:24px;">
-                <h3 style="margin-top:0;">&#xD83D;&#xDCCA; Podsumowanie</h3>
-                <div id="cadSummaryGrid" class="summary-grid">
-                  <div class="summary-item">
-                    <span>&#x26AB; Czarno-bia&#x142;e:</span>
-                    <span id="summaryBW" class="price-value">0,00 z&#x142;</span>
-                  </div>
-                  <div class="summary-item">
-                    <span>&#xD83C;&#xDFA8; Kolor:</span>
-                    <span id="summaryColor" class="price-value">0,00 z&#x142;</span>
-                  </div>
-                  <div class="summary-item summary-item--total" style="border-top: 2px solid #dbe7f3; margin-top: 12px; padding-top: 12px; grid-column: 1/-1;">
-                    <span><strong>&#xD83C;&#xDFA8; RAZEM KOLOR:</strong></span>
-                    <span id="totalColor" class="price-value" style="color:#0f766e;font-weight:700;">0,00 z&#x142;</span>
-                  </div>
-                  <div class="summary-item summary-item--total">
-                    <span><strong>&#x26AB; RAZEM CZARNO-BIA&#x141;E:</strong></span>
-                    <span id="totalBW" class="price-value" style="color:#0f766e;font-weight:700;">0,00 z&#x142;</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -361,6 +293,21 @@
 
           <div class="order-actions">
             <button id="copyBtn" class="ghost order-btn--ghost">Raport PDF</button>
+          </div>
+
+          <div style="height:1px;background:rgba(255,255,255,0.08);margin:28px 0 20px;"></div>
+          <div>
+            <h4 style="margin:0 0 8px;font-size:11px;color:var(--text-secondary,#94a3b8);text-transform:uppercase;letter-spacing:.06em;">Zabezpieczenie panelu ustawie&#x144;</h4>
+            <p id="pinStatus" style="font-size:13px;margin:0 0 12px;"></p>
+            <div id="pinSetForm">
+              <input type="password" id="pinNewInput" inputmode="numeric" maxlength="8" placeholder="Nowy PIN (min. 4 znaki)" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid var(--border,#cbd5e1);border-radius:8px;margin-bottom:8px;background:var(--surface-alt,#fff);color:inherit;">
+              <input type="password" id="pinConfirmInput" inputmode="numeric" maxlength="8" placeholder="Powt&#xF3;rz PIN" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid var(--border,#cbd5e1);border-radius:8px;margin-bottom:10px;background:var(--surface-alt,#fff);color:inherit;">
+              <button type="button" id="pinSaveBtn" class="primary" style="width:100%;">Zapisz PIN</button>
+            </div>
+            <div id="pinChangeForm" style="display:none;">
+              <button type="button" id="pinRemoveBtn" class="ghost" style="width:100%;">Usu&#x144; PIN</button>
+            </div>
+            <p id="pinMsg" style="display:none;font-size:12px;margin:8px 0 0;"></p>
           </div>
         </div>
       </div>
@@ -488,204 +435,19 @@ document.addEventListener('DOMContentLoaded', () => {
   filterCategories();
   updateActiveCategory();
 
-  // CAD Upload Logic
-  const cadSection = document.getElementById('cadUploadSection');
-  const cadDropZone = document.querySelector('.cad-drop-zone');
-  const cadFileInput = document.getElementById('cadFileInput');
-  const cadBrowseBtn = document.getElementById('cadBrowseBtn');
-  const cadAddBtn = document.getElementById('cadAddBtn');
-  const cadClearBtn = document.getElementById('cadClearBtn');
-  const cadTableBody = document.getElementById('cadTableBody');
-  const cadFilesTable = document.getElementById('cadFilesTable');
-  const cadEmptyState = document.getElementById('cadEmptyState');
-  const summaryBW = document.getElementById('summaryBW');
-  const summaryColor = document.getElementById('summaryColor');
-  const totalBW = document.getElementById('totalBW');
-  const totalColor = document.getElementById('totalColor');
-
-  let cadFiles = [];
-
-   // Show CAD Upload when hash is #/cad-upload
   window.addEventListener('hashchange', () => {
     const hash = window.location.hash;
-    const isCADUpload = hash === '#/cad-upload';
-    const isHome = hash === '' || hash === '#/'; // Sprawdzamy czy to strona startowa
-    
-    if (cadSection) {
-      cadSection.style.display = isCADUpload ? 'block' : 'none';
-    }
-    
+    const isHome = hash === '' || hash === '#/';
     const emptyState = document.getElementById('emptyState');
     if (emptyState) {
-      // Ekran "Wybierz kategorię" włączy się TYLKO gdy klikniesz w "Start"
       emptyState.style.display = isHome ? 'block' : 'none';
     }
   });
 
-  // Handle browse button
-  if (cadBrowseBtn) {
-    cadBrowseBtn.addEventListener('click', () => {
-      cadFileInput.click();
-    });
-  }
-
-  // Handle file input change
-  if (cadFileInput) {
-    cadFileInput.addEventListener('change', (e) => {
-      const files = Array.from(e.target.files || []);
-      files.forEach(file => {
-        const newFile = {
-          id: Date.now() + Math.random(),
-          name: file.name,
-          size: file.size,
-          width: 297,  // Default A4
-          height: 210,
-          folding: false,
-          scanning: false
-        };
-        cadFiles.push(newFile);
-      });
-      updateCADTable();
-      cadFileInput.value = '';
-    });
-  }
-
-  // Handle drag and drop
-  if (cadDropZone) {
-    cadDropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      cadDropZone.style.background = '#eff6ff';
-      cadDropZone.style.borderColor = '#2563eb';
-    });
-
-    cadDropZone.addEventListener('dragleave', () => {
-      cadDropZone.style.background = 'linear-gradient(180deg, #f8fbff, #eff6ff)';
-      cadDropZone.style.borderColor = '#93c5fd';
-    });
-
-    cadDropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      cadDropZone.style.background = 'linear-gradient(180deg, #f8fbff, #eff6ff)';
-      cadDropZone.style.borderColor = '#93c5fd';
-      
-      const files = Array.from(e.dataTransfer.files || []);
-      files.forEach(file => {
-        const newFile = {
-          id: Date.now() + Math.random(),
-          name: file.name,
-          size: file.size,
-          width: 297,
-          height: 210,
-          folding: false,
-          scanning: false
-        };
-        cadFiles.push(newFile);
-      });
-      updateCADTable();
-    });
-  }
-
-  // Format file size
-  function formatFileSize(bytes) {
-    if (bytes === 0) return '0 B';
-    const k = 1024;
-    const sizes = ['B', 'KB', 'MB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
-  }
-
-  // Update CAD Files Table
-  function updateCADTable() {
-    if (cadFiles.length === 0) {
-      cadEmptyState.style.display = 'block';
-      cadFilesTable.style.display = 'none';
-      updateSummary();
-      return;
-    }
-
-    cadEmptyState.style.display = 'none';
-    cadFilesTable.style.display = 'table';
-
-    cadTableBody.innerHTML = cadFiles.map((file, index) => `
-      <tr data-file-id="${file.id}">
-        <td class="cad-col-index" style="font-weight:bold;color:#475569;">${index + 1}</td>
-        <td class="cad-file-name" title="${file.name}">
-          <strong>${file.name}</strong>
-        </td>
-        <td class="cad-file-size">${file.width.toFixed(0)} &#xD7; ${file.height.toFixed(0)} mm</td>
-        <td class="cad-file-type">
-          <input type="checkbox" class="fold-check" ${file.folding ? 'checked' : ''} />
-        </td>
-        <td class="cad-file-scan">
-          <input type="checkbox" class="scan-check" ${file.scanning ? 'checked' : ''} />
-        </td>
-        <td class="cad-col-delete">
-          <button class="cad-delete-btn" title="Usu&#x144; plik">&#x274C;</button>
-        </td>
-      </tr>
-    `).join('');
-
-    // Add event listeners
-    cadTableBody.querySelectorAll('.fold-check').forEach((cb, idx) => {
-      cb.addEventListener('change', (e) => {
-        cadFiles[idx].folding = e.target.checked;
-        updateSummary();
-      });
-    });
-
-    cadTableBody.querySelectorAll('.scan-check').forEach((cb, idx) => {
-      cb.addEventListener('change', (e) => {
-        cadFiles[idx].scanning = e.target.checked;
-        updateSummary();
-      });
-    });
-
-    cadTableBody.querySelectorAll('.cad-delete-btn').forEach((btn, idx) => {
-      btn.addEventListener('click', () => {
-        cadFiles.splice(idx, 1);
-        updateCADTable();
-      });
-    });
-
-    updateSummary();
-  }
-
-  // Update Summary
-  function updateSummary() {
-    const bwPrice = cadFiles.reduce((sum, f) => sum + (f.width * f.height / 1000000 * 2.5), 0);
-    const colorPrice = cadFiles.reduce((sum, f) => sum + (f.width * f.height / 1000000 * 5), 0);
-    const foldingPrice = cadFiles.filter(f => f.folding).reduce((sum) => sum + 5, 0);
-    const scanPrice = cadFiles.filter(f => f.scanning).reduce((sum) => sum + 3, 0);
-
-    const totalBWPrice = bwPrice + scanPrice;
-    const totalColorPrice = colorPrice + foldingPrice + scanPrice;
-
-    summaryBW.textContent = totalBWPrice.toFixed(2) + ' z&#x142;';
-    summaryColor.textContent = totalColorPrice.toFixed(2) + ' z&#x142;';
-    totalBW.textContent = totalBWPrice.toFixed(2) + ' z&#x142;';
-    totalColor.textContent = totalColorPrice.toFixed(2) + ' z&#x142;';
-  }
-
-  // Add button
-  if (cadAddBtn) {
-    cadAddBtn.addEventListener('click', () => {
-      cadFileInput.click();
-    });
-  }
-
-  // Clear button
-  if (cadClearBtn) {
-    cadClearBtn.addEventListener('click', () => {
-      if (confirm('Czy na pewno chcesz usun&#x105;&#x107; wszystkie pliki?')) {
-        cadFiles = [];
-        updateCADTable();
-      }
-    });
-  }
 });
  </script>
 
- <script src="assets/app.js?v=202606031844" type="module"></script>
+ <script src="assets/app.js?v=202606031937" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
