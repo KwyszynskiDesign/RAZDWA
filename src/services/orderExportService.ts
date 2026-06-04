@@ -608,3 +608,61 @@ export async function fetchStateFromAppsScript(
     clearTimeout(timeout);
   }
 }
+
+// ── PIN ───────────────────────────────────────────────────────────────────────
+
+export interface PinVerifyResult {
+  ok: boolean;
+  firstRun?: boolean;
+  error?: 'wrong_pin' | 'rate_limited' | 'offline' | 'server_error';
+}
+
+export interface PinSetResult {
+  ok: boolean;
+  error?: 'wrong_current' | 'invalid_pin' | 'offline' | 'server_error';
+}
+
+async function pinPost(body: Record<string, unknown>): Promise<Record<string, unknown> | null> {
+  const config = getOrderExportConfig();
+  if (!config.enabled || !config.appsScriptUrl) return null;
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  try {
+    const response = await fetch(config.appsScriptUrl, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(body),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    const data = await readAppsScriptBody(response);
+    return (data && typeof data === 'object') ? data as Record<string, unknown> : null;
+  } catch {
+    clearTimeout(timeoutId);
+    return null;
+  }
+}
+
+export async function verifyPinOnServer(pin?: string): Promise<PinVerifyResult> {
+  const body: Record<string, unknown> = { action: 'verifyPin' };
+  if (pin && pin.length > 0) body.pin = pin;
+  const data = await pinPost(body);
+  if (!data) return { ok: false, error: 'offline' };
+  return data as unknown as PinVerifyResult;
+}
+
+export async function setPinOnServer(newPin: string, currentPin?: string): Promise<PinSetResult> {
+  const body: Record<string, unknown> = { action: 'setPin', newPin };
+  if (currentPin) body.currentPin = currentPin;
+  const data = await pinPost(body);
+  if (!data) return { ok: false, error: 'offline' };
+  return data as unknown as PinSetResult;
+}
+
+export async function removePinOnServer(currentPin: string): Promise<PinSetResult> {
+  const data = await pinPost({ action: 'removePin', currentPin });
+  if (!data) return { ok: false, error: 'offline' };
+  return data as unknown as PinSetResult;
+}

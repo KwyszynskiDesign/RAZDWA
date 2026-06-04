@@ -28,7 +28,7 @@ import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript } from "../services/orderExportService";
+import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer } from "../services/orderExportService";
 import {
   PRICES_UPDATED_EVENT,
   PRICES_STORAGE_KEY,
@@ -92,8 +92,8 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const SETTINGS_PIN_KEY = 'razdwa_pin';
 const SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
+try { localStorage.removeItem('razdwa_pin'); } catch {} // cleanup: PIN moved to server
 
 function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending") {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
@@ -827,19 +827,39 @@ document.addEventListener("DOMContentLoaded", () => {
   const pinChangeForm = document.getElementById('pinChangeForm') as HTMLElement | null;
   const pinStatusEl = document.getElementById('pinStatus') as HTMLElement | null;
 
+  let pinIsSet: boolean | null = null;
+
   const refreshPinUI = () => {
-    const hasPin = !!localStorage.getItem(SETTINGS_PIN_KEY);
-    if (pinSetForm) pinSetForm.style.display = hasPin ? 'none' : 'block';
-    if (pinChangeForm) pinChangeForm.style.display = hasPin ? 'block' : 'none';
+    if (pinSetForm) pinSetForm.style.display = pinIsSet ? 'none' : 'block';
+    if (pinChangeForm) pinChangeForm.style.display = pinIsSet ? 'block' : 'none';
     if (pinStatusEl) {
-      pinStatusEl.textContent = hasPin
-        ? '🔒 PIN aktywny — panel ustawień zablokowany'
-        : '🔓 Brak PINu — panel ustawień dostępny dla każdego';
-      pinStatusEl.style.color = hasPin ? '#16a34a' : '#b45309';
+      if (pinIsSet === null) {
+        pinStatusEl.textContent = '⏳ Sprawdzam status PIN...';
+        pinStatusEl.style.color = '#94a3b8';
+      } else if (pinIsSet) {
+        pinStatusEl.textContent = '🔒 PIN aktywny — panel ustawień zablokowany';
+        pinStatusEl.style.color = '#16a34a';
+      } else {
+        pinStatusEl.textContent = '🔓 Brak PINu — panel ustawień dostępny dla każdego';
+        pinStatusEl.style.color = '#b45309';
+      }
     }
   };
 
-  pinSaveBtn?.addEventListener('click', () => {
+  const loadPinStatus = async () => {
+    const result = await verifyPinOnServer();
+    if (result.error === 'offline' || result.error === 'server_error') {
+      if (pinStatusEl) {
+        pinStatusEl.textContent = '⚠️ Nie można sprawdzić statusu (brak połączenia)';
+        pinStatusEl.style.color = '#b45309';
+      }
+      return;
+    }
+    pinIsSet = result.firstRun !== true;
+    refreshPinUI();
+  };
+
+  pinSaveBtn?.addEventListener('click', async () => {
     const val = pinNewInput?.value ?? '';
     const confirmVal = pinConfirmInput?.value ?? '';
     if (val.length < 4) {
@@ -850,35 +870,44 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pinMsg) { pinMsg.textContent = 'PINy nie są zgodne.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
       return;
     }
-    localStorage.setItem(SETTINGS_PIN_KEY, val);
-    if (pinNewInput) pinNewInput.value = '';
-    if (pinConfirmInput) pinConfirmInput.value = '';
-    if (pinMsg) { pinMsg.textContent = 'PIN zapisany.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
-    refreshPinUI();
-  });
-
-  pinRemoveBtn?.addEventListener('click', () => {
-    const current = prompt('Podaj aktualny PIN, aby go usunąć:');
-    if (current === null) return;
-    if (current === localStorage.getItem(SETTINGS_PIN_KEY)) {
-      localStorage.removeItem(SETTINGS_PIN_KEY);
-      sessionStorage.removeItem(SETTINGS_AUTH_KEY);
-      if (pinMsg) {
-        pinMsg.textContent = 'PIN usunięty.';
-        pinMsg.style.display = 'block';
-        pinMsg.style.color = '#16a34a';
-      }
+    if (pinSaveBtn) { pinSaveBtn.disabled = true; pinSaveBtn.textContent = '⏳ Zapisuję...'; }
+    const result = await setPinOnServer(val);
+    if (pinSaveBtn) { pinSaveBtn.disabled = false; pinSaveBtn.textContent = 'Zapisz PIN'; }
+    if (result.ok) {
+      if (pinNewInput) pinNewInput.value = '';
+      if (pinConfirmInput) pinConfirmInput.value = '';
+      if (pinMsg) { pinMsg.textContent = 'PIN zapisany.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+      pinIsSet = true;
       refreshPinUI();
     } else {
-      if (pinMsg) {
-        pinMsg.textContent = 'Nieprawidłowy PIN.';
-        pinMsg.style.display = 'block';
-        pinMsg.style.color = '#dc2626';
-      }
+      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
+        : result.error === 'wrong_current' ? 'Nieprawidłowy aktualny PIN.'
+        : 'Błąd zapisu PIN.';
+      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+    }
+  });
+
+  pinRemoveBtn?.addEventListener('click', async () => {
+    const current = prompt('Podaj aktualny PIN, aby go usunąć:');
+    if (current === null) return;
+    if (pinRemoveBtn) { pinRemoveBtn.disabled = true; pinRemoveBtn.textContent = '⏳ Usuwam...'; }
+    const result = await removePinOnServer(current);
+    if (pinRemoveBtn) { pinRemoveBtn.disabled = false; pinRemoveBtn.textContent = 'Usuń PIN'; }
+    if (result.ok) {
+      sessionStorage.removeItem(SETTINGS_AUTH_KEY);
+      if (pinMsg) { pinMsg.textContent = 'PIN usunięty.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+      pinIsSet = false;
+      refreshPinUI();
+    } else {
+      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
+        : result.error === 'wrong_current' ? 'Nieprawidłowy PIN.'
+        : 'Błąd usuwania PIN.';
+      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
     }
   });
 
   refreshPinUI();
+  void loadPinStatus();
 
   updateCartUI();
   filterCategoryTiles();

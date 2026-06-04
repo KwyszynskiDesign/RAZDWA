@@ -1,5 +1,6 @@
 import { View, ViewContext } from "./types";
 import { VIPERPRINT_URL } from "../core/external-links";
+import { verifyPinOnServer } from "../services/orderExportService";
 
 export interface CategoryContext extends ViewContext {
   cart: {
@@ -22,15 +23,59 @@ export class Router {
   private getCtx: () => ViewContext;
   private categories: any[] = [];
   private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
-  private readonly SETTINGS_PIN_KEY = 'razdwa_pin';
   private readonly SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
 
   private isSettingsAuthenticated(): boolean {
     return sessionStorage.getItem(this.SETTINGS_AUTH_KEY) === '1';
   }
 
-  private renderSettingsPinGate(onSuccess: () => Promise<void>): void {
-    const storedPin = localStorage.getItem(this.SETTINGS_PIN_KEY);
+  private async mountSettingsView(): Promise<void> {
+    const view = this.routes.get('ustawienia');
+    if (!view) return;
+    this.currentView = view;
+    try {
+      await view.mount(this.container, this.getCtx());
+    } catch (err) {
+      this.container.innerHTML = `<div class="error">B&#x142;&#x105;d &#x142;adowania widoku: ${this.escapeHtml(String(err))}</div>`;
+    }
+  }
+
+  private async checkAndRenderSettingsGate(): Promise<void> {
+    this.container.innerHTML = `
+      <div style="max-width:360px;margin:60px auto;padding:32px;text-align:center;color:var(--text-secondary);">
+        &#x23F3; Sprawdzam dost&#x119;p...
+      </div>
+    `;
+
+    const status = await verifyPinOnServer();
+
+    if (status.ok && status.firstRun) {
+      sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
+      await this.mountSettingsView();
+      return;
+    }
+
+    if (status.error === 'offline' || status.error === 'server_error') {
+      this.container.innerHTML = `
+        <div style="max-width:360px;margin:60px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;">
+          <p style="margin:0 0 16px;font-size:15px;">&#x26A0;&#xFE0F; Brak po&#x142;&#x105;czenia z serwerem.<br>Nie mo&#x17C;na zweryfikowa&#x107; dost&#x119;pu.</p>
+          <button type="button" id="gateRetryBtn"
+            style="width:100%;padding:10px;font-size:14px;font-weight:600;background:var(--primary,#004080);color:#fff;border:none;border-radius:8px;cursor:pointer;margin-bottom:10px;">
+            Spr&#xF3;buj ponownie
+          </button>
+          <a href="#/" style="display:block;font-size:13px;color:var(--text-secondary);">&#x2190; Wr&#xF3;&#x107; do strony g&#x142;&#xF3;wnej</a>
+        </div>
+      `;
+      this.container.querySelector('#gateRetryBtn')?.addEventListener('click', () => {
+        this.checkAndRenderSettingsGate().catch(() => {});
+      });
+      return;
+    }
+
+    this.renderPinEntryForm();
+  }
+
+  private renderPinEntryForm(): void {
     this.container.innerHTML = `
       <div style="max-width:360px;margin:60px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;">
         <h2 style="margin:0 0 8px;font-size:1.3rem;">Panel ustawie&#x144; cen</h2>
@@ -41,7 +86,7 @@ export class Router {
           style="width:100%;padding:10px;font-size:15px;font-weight:600;background:var(--primary,#004080);color:#fff;border:none;border-radius:8px;cursor:pointer;">
           Zatwierd&#x17A;
         </button>
-        <p id="gatePinErr" style="display:none;margin:10px 0 0;font-size:13px;color:#dc2626;">Nieprawid&#x142;owy PIN.</p>
+        <p id="gatePinErr" style="display:none;margin:10px 0 0;font-size:13px;color:#dc2626;"></p>
       </div>
     `;
 
@@ -51,20 +96,40 @@ export class Router {
 
     pinInput?.focus();
 
-    const attempt = () => {
+    const attempt = async () => {
       const val = pinInput?.value ?? '';
-      if (val === storedPin) {
+      if (!val) return;
+
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳'; }
+
+      const result = await verifyPinOnServer(val);
+
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Zatwierdź'; }
+
+      if (result.ok) {
         sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
         if (pinInput) pinInput.value = '';
-        onSuccess().catch(() => {});
+        await this.mountSettingsView();
+        return;
+      }
+
+      if (pinInput) { pinInput.value = ''; pinInput.focus(); }
+
+      if (!errorEl) return;
+      errorEl.style.display = 'block';
+
+      if (result.error === 'rate_limited') {
+        errorEl.textContent = 'Zbyt wiele nieudanych pr\xF3b. Spr\xF3buj za 15 minut.';
+        if (submitBtn) submitBtn.disabled = true;
+      } else if (result.error === 'offline' || result.error === 'server_error') {
+        errorEl.textContent = 'Błąd połączenia z serwerem.';
       } else {
-        if (errorEl) errorEl.style.display = 'block';
-        if (pinInput) { pinInput.value = ''; pinInput.focus(); }
+        errorEl.textContent = 'Nieprawidłowy PIN.';
       }
     };
 
-    submitBtn?.addEventListener('click', attempt);
-    pinInput?.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') attempt(); });
+    submitBtn?.addEventListener('click', () => attempt().catch(() => {}));
+    pinInput?.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') attempt().catch(() => {}); });
   }
 
   private isIconUrl(icon: string): boolean {
@@ -178,26 +243,13 @@ export class Router {
       return;
     }
 
-    if (path === 'ustawienia') {
-      const storedPin = localStorage.getItem(this.SETTINGS_PIN_KEY);
-      if (storedPin && !this.isSettingsAuthenticated()) {
-        if (this.currentView?.unmount) {
-          this.currentView.unmount();
-          this.currentView = null;
-        }
-        this.renderSettingsPinGate(async () => {
-          const view = this.routes.get('ustawienia');
-          if (view) {
-            this.currentView = view;
-            try {
-              await view.mount(this.container, this.getCtx());
-            } catch (err) {
-              this.container.innerHTML = `<div class="error">B&#x142;&#x105;d &#x142;adowania widoku: ${this.escapeHtml(String(err))}</div>`;
-            }
-          }
-        });
-        return;
+    if (path === 'ustawienia' && !this.isSettingsAuthenticated()) {
+      if (this.currentView?.unmount) {
+        this.currentView.unmount();
+        this.currentView = null;
       }
+      await this.checkAndRenderSettingsGate();
+      return;
     }
 
     // Unmount previous view before mounting a new one
