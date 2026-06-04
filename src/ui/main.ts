@@ -433,6 +433,107 @@ function updateCartUI() {
 }
 
 
+function setupFormValidation(): void {
+  function showFieldError(errEl: HTMLElement, message: string | null): void {
+    errEl.textContent = message ?? '';
+    errEl.style.display = message ? 'block' : 'none';
+  }
+
+  function addErrorEl(input: HTMLInputElement | null): HTMLElement | null {
+    if (!input) return null;
+    const errId = `${input.id}Err`;
+    let el = document.getElementById(errId);
+    if (!el) {
+      el = document.createElement('div');
+      el.id = errId;
+      el.className = 'field-error';
+      el.setAttribute('aria-live', 'polite');
+      input.insertAdjacentElement('afterend', el);
+    }
+    return el;
+  }
+
+  const nameEl = document.getElementById('custName') as HTMLInputElement | null;
+  const emailEl = document.getElementById('custEmail') as HTMLInputElement | null;
+  const phoneEl = document.getElementById('custPhone') as HTMLInputElement | null;
+  const nipEl = document.getElementById('custNip') as HTMLInputElement | null;
+
+  const nameErr = addErrorEl(nameEl);
+  const emailErr = addErrorEl(emailEl);
+  const phoneErr = addErrorEl(phoneEl);
+  const nipErr = addErrorEl(nipEl);
+
+  if (nameEl && nameErr) {
+    const validate = (v: string) =>
+      v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null;
+    nameEl.addEventListener('blur', () => showFieldError(nameErr, validate(nameEl.value)));
+    nameEl.addEventListener('input', () => {
+      if (nameErr.textContent) showFieldError(nameErr, validate(nameEl.value));
+    });
+  }
+
+  if (emailEl && emailErr) {
+    const validate = (v: string) => {
+      if (!v.trim()) return 'Podaj adres e-mail';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Nieprawidłowy format e-mail';
+      return null;
+    };
+    emailEl.addEventListener('blur', () => showFieldError(emailErr, validate(emailEl.value)));
+    emailEl.addEventListener('input', () => {
+      if (emailErr.textContent) showFieldError(emailErr, validate(emailEl.value));
+    });
+  }
+
+  if (phoneEl && phoneErr) {
+    const getDigits = (v: string) => v.replace(/\D/g, '');
+    const formatPhone = (digits: string): string => {
+      const d = digits.slice(0, 9);
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
+      return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+    };
+    const validate = (v: string) => {
+      const d = getDigits(v);
+      if (!d) return 'Podaj numer telefonu';
+      if (d.length < 9) return 'Numer telefonu musi mieć min. 9 cyfr';
+      return null;
+    };
+
+    phoneEl.addEventListener('input', () => {
+      const digits = getDigits(phoneEl.value);
+      const formatted = formatPhone(digits);
+      if (phoneEl.value !== formatted) phoneEl.value = formatted;
+      if (phoneErr.textContent) showFieldError(phoneErr, validate(formatted));
+    });
+    phoneEl.addEventListener('blur', () => showFieldError(phoneErr, validate(phoneEl.value)));
+  }
+
+  if (nipEl && nipErr) {
+    const getDigits = (v: string) => v.replace(/\D/g, '');
+    const formatNip = (digits: string): string => {
+      const d = digits.slice(0, 10);
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `${d.slice(0, 3)}-${d.slice(3)}`;
+      if (d.length <= 8) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
+      return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8)}`;
+    };
+    const validate = (v: string) => {
+      const d = getDigits(v);
+      if (!d) return null;
+      if (d.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
+      return null;
+    };
+
+    nipEl.addEventListener('input', () => {
+      const digits = getDigits(nipEl.value);
+      const formatted = formatNip(digits);
+      if (nipEl.value !== formatted) nipEl.value = formatted;
+      if (nipErr.textContent) showFieldError(nipErr, validate(formatted));
+    });
+    nipEl.addEventListener('blur', () => showFieldError(nipErr, validate(nipEl.value)));
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
@@ -895,17 +996,13 @@ document.addEventListener("DOMContentLoaded", () => {
   void loadPinStatus();
 
   updateCartUI();
+  setupFormValidation();
 
   syncVariantsToSubgroupsAtStartup();
   router.start();
 
   (async () => {
     try {
-      const hasLocalPrices = Boolean(localStorage.getItem(PRICES_STORAGE_KEY));
-      const hasLocalVariants = Boolean(localStorage.getItem(VARIANTS_STORAGE_KEY));
-      const age = Date.now() - Number(localStorage.getItem('razdwa_prices_ts') || 0);
-      if (hasLocalPrices && hasLocalVariants && age <= 5 * 60 * 1000) return;
-
       const remote = await fetchStateFromAppsScript();
       if (!remote) return;
 

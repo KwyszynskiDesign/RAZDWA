@@ -216,17 +216,37 @@ export const artykulyBiuroweCategory: CategoryModule = {
           Artykuły biurowe i akcesoria. Cena za sztukę.
         </p>
 
+        <div style="margin-bottom: 10px;">
+          <input
+            id="artykuly-search"
+            type="search"
+            placeholder="Szukaj artykułu..."
+            autocomplete="off"
+            style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:0.9em;border:1px solid #d0d7e2;border-radius:6px;background:#fff;"
+          >
+        </div>
+
         <div id="items-list" style="margin-bottom: 14px;"></div>
       </div>
     `;
 
     const itemsList = container.querySelector('#items-list') as HTMLElement;
+    const searchInput = container.querySelector('#artykuly-search') as HTMLInputElement;
+    let searchQuery = '';
+
     const renderItems = () => {
       itemsList.innerHTML = "";
 
+      const q = searchQuery.trim().toLowerCase();
       const displayCategories = getRenderedArtykulyBiuroweCategories();
 
       for (const category of displayCategories) {
+        const filteredItems = q
+          ? category.items.filter(item => item.name.toLowerCase().includes(q))
+          : category.items;
+
+        if (!filteredItems.length) continue;
+
         const categoryDiv = document.createElement('div');
         categoryDiv.style.marginBottom = '10px';
         categoryDiv.style.padding = '8px 10px';
@@ -239,7 +259,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
         itemsDiv.style.display = 'grid';
         itemsDiv.style.gap = '5px';
 
-        for (const item of category.items) {
+        for (const item of filteredItems) {
           const itemDiv = document.createElement('div');
           itemDiv.innerHTML = renderArticleItem(item);
           itemsDiv.appendChild(itemDiv.firstElementChild as HTMLElement);
@@ -248,27 +268,17 @@ export const artykulyBiuroweCategory: CategoryModule = {
         categoryDiv.appendChild(itemsDiv);
         itemsList.appendChild(categoryDiv);
       }
+
+      if (q && !itemsList.children.length) {
+        itemsList.innerHTML = `<p style="color:#999;font-size:0.9em;padding:8px 0;">Brak wyników dla „${escapeHtml(q)}"</p>`;
+      }
     };
 
     renderItems();
 
-    const updatePriceDisplay = (itemId: string) => {
-      const priceSpan = container.querySelector(`span.item-price[data-item-id="${itemId}"]`) as HTMLElement | null;
-      const addButton = container.querySelector(`button[data-add-item-id="${itemId}"]`) as HTMLButtonElement | null;
-      if (!priceSpan || !addButton) return;
-
-      const basePrice = parseFloat(priceSpan.getAttribute('data-base-price') || '0');
-      const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
-      const currentPrice = resolveStoredPrice(storageKey, basePrice);
-
-      priceSpan.textContent = `${currentPrice.toFixed(2)} zł`;
-      addButton.setAttribute('data-price', currentPrice.toString());
-    };
-
-    const priceSpans = container.querySelectorAll('span.item-price') as NodeListOf<HTMLElement>;
-    priceSpans.forEach((span) => {
-      const itemId = span.getAttribute('data-item-id') || '';
-      updatePriceDisplay(itemId);
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value;
+      renderItems();
     });
 
     ctx?.on?.('prices-updated', () => {
@@ -310,6 +320,8 @@ export const artykulyBiuroweCategory: CategoryModule = {
         price: result.totalPrice,
         description: `${itemName} × ${quantity}`
       });
+
+      if (qtyInput) qtyInput.value = '1';
     });
   }
 };

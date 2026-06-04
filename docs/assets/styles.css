@@ -3434,3 +3434,15 @@ body.settings-pricing-layout .left-col {
     width: 100%;
   }
 }
+
+.field-error {
+  display: none;
+  font-size: 11px;
+  color: #dc2626;
+  padding: 2px 0 0;
+  line-height: 1.3;
+}
+
+.field-error:not(:empty) {
+  display: block;
+}

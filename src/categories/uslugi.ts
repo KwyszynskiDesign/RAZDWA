@@ -229,78 +229,83 @@ export const uslugiCategory: CategoryModule = {
           Formatowanie, grafika, archiwizacja, obróbka plików.
         </p>
 
+        <div style="margin-bottom: 10px;">
+          <input
+            id="uslugi-search"
+            type="search"
+            placeholder="Szukaj usługi..."
+            autocomplete="off"
+            style="width:100%;box-sizing:border-box;padding:7px 10px;font-size:0.9em;border:1px solid #d0d7e2;border-radius:6px;background:#fff;"
+          >
+        </div>
+
         <div id="services-list" style="margin-bottom: 14px;"></div>
       </div>
     `;
 
-    // Build services list
     const servicesList = container.querySelector('#services-list') as HTMLElement;
+    const searchInput = container.querySelector('#uslugi-search') as HTMLInputElement;
+    let searchQuery = '';
 
-      const renderServices = () => {
-        servicesList.innerHTML = "";
+    const renderServices = () => {
+      servicesList.innerHTML = "";
 
-        const renderedCategories = getRenderedUslugiCategories();
+      const q = searchQuery.trim().toLowerCase();
+      const renderedCategories = getRenderedUslugiCategories();
 
-        for (const category of renderedCategories) {
-          const categoryDiv = document.createElement('div');
-          categoryDiv.style.marginBottom = '8px';
-          categoryDiv.style.padding = '8px';
-          categoryDiv.style.backgroundColor = '#f7f9fb';
-          categoryDiv.style.border = '1px solid #e3e8ef';
-          categoryDiv.style.borderRadius = '8px';
-          categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${escapeHtml(category.name)}</h3>`;
+      for (const category of renderedCategories) {
+        const filteredItems = q
+          ? category.items.filter(s => s.name.toLowerCase().includes(q))
+          : category.items;
 
-          const servicesDiv = document.createElement('div');
-          servicesDiv.style.display = 'grid';
-          servicesDiv.style.gap = '6px';
+        if (!filteredItems.length) continue;
 
-          const hasTimeBased = category.items.some((service) => isTimeBasedService(service.id));
-          void hasTimeBased;
+        const categoryDiv = document.createElement('div');
+        categoryDiv.style.marginBottom = '8px';
+        categoryDiv.style.padding = '8px';
+        categoryDiv.style.backgroundColor = '#f7f9fb';
+        categoryDiv.style.border = '1px solid #e3e8ef';
+        categoryDiv.style.borderRadius = '8px';
+        categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${escapeHtml(category.name)}</h3>`;
 
-          for (const service of category.items) {
-            const isTimeBased = isTimeBasedService(service.id);
-            const serviceDiv = document.createElement('div');
-            serviceDiv.innerHTML = renderServiceItem(service, isTimeBased);
-            servicesDiv.appendChild(serviceDiv.firstElementChild as HTMLElement);
+        const servicesDiv = document.createElement('div');
+        servicesDiv.style.display = 'grid';
+        servicesDiv.style.gap = '6px';
 
-            if (isTimeBased) {
-              const noteDiv = document.createElement('div');
-              noteDiv.style.cssText = 'font-size:0.78em; color:#7a8a9a; padding:2px 8px 4px 12px; font-style:italic;';
-              const noteParts = [getTimeBasedHint(service.name)];
-              if (service.note) {
-                noteParts.push(service.note);
-              }
-              noteDiv.innerHTML = `ℹ️ ${escapeHtml(noteParts.join(' '))}`;
-              servicesDiv.appendChild(noteDiv);
-            }
+        for (const service of filteredItems) {
+          const isTimeBased = isTimeBasedService(service.id);
+          const serviceDiv = document.createElement('div');
+          serviceDiv.innerHTML = renderServiceItem(service, isTimeBased);
+          servicesDiv.appendChild(serviceDiv.firstElementChild as HTMLElement);
+
+          if (isTimeBased) {
+            const noteDiv = document.createElement('div');
+            noteDiv.style.cssText = 'font-size:0.78em; color:#7a8a9a; padding:2px 8px 4px 12px; font-style:italic;';
+            const noteParts = [getTimeBasedHint(service.name)];
+            if (service.note) noteParts.push(service.note);
+            noteDiv.innerHTML = `ℹ️ ${escapeHtml(noteParts.join(' '))}`;
+            servicesDiv.appendChild(noteDiv);
           }
-
-          categoryDiv.appendChild(servicesDiv);
-          servicesList.appendChild(categoryDiv);
         }
-      };
 
-      renderServices();
+        categoryDiv.appendChild(servicesDiv);
+        servicesList.appendChild(categoryDiv);
+      }
 
-    const refreshServicePrices = () => {
-      renderServices();
-
-      const priceSpans = container.querySelectorAll('span.service-price') as NodeListOf<HTMLElement>;
-      priceSpans.forEach((span) => {
-        const serviceId = span.getAttribute('data-service-id') || '';
-        const basePrice = parseFloat(span.getAttribute('data-base-price') || '0');
-        const currentPrice = resolveServicePrice(serviceId, basePrice);
-        span.textContent = `${currentPrice.toFixed(2)} zł`;
-
-        const addButton = container.querySelector(`button[data-add-service-id="${serviceId}"]`) as HTMLButtonElement | null;
-        if (addButton) {
-          addButton.setAttribute('data-price', currentPrice.toString());
-        }
-      });
+      if (q && !servicesList.children.length) {
+        servicesList.innerHTML = `<p style="color:#999;font-size:0.9em;padding:8px 0;">Brak wyników dla „${escapeHtml(q)}"</p>`;
+      }
     };
 
+    renderServices();
+
+    searchInput.addEventListener('input', () => {
+      searchQuery = searchInput.value;
+      renderServices();
+    });
+
     ctx?.on?.('prices-updated', () => {
-      refreshServicePrices();
+      renderServices();
     });
 
     container.addEventListener('click', (event) => {
@@ -341,6 +346,9 @@ export const uslugiCategory: CategoryModule = {
           ? `${serviceName} × ${quantity} (${hours}h)`
           : `${serviceName} × ${quantity}`
       });
+
+      if (qtyInput) qtyInput.value = '1';
+      if (hoursInput) hoursInput.value = '1';
     });
   }
 };
