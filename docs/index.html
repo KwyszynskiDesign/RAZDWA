@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606041042 -->
+<!-- APP_VERSION: 202606041104 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -10,17 +10,30 @@
   <title>Kalkulator &#x2013; Studio Raz Druku Dwa</title>
   <meta name="description" content="Kalkulator cen brutto dla Studio Raz Druku Dwa &#x2013; druk cyfrowy, wielkoformatowy, wizyt&#xF3;wki, naklejki i wi&#x119;cej.">
   <meta name="theme-color" content="#004080">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Studio Raz Druku Dwa">
+  <meta property="og:title" content="Kalkulator &#x2013; Studio Raz Druku Dwa">
+  <meta property="og:description" content="Kalkulator cen brutto &#x2013; druk cyfrowy, wielkoformatowy, wizyt&#xF3;wki, naklejki i wi&#x119;cej.">
+  <meta property="og:url" content="https://wyszko.github.io/razdwa/">
+  <meta property="og:image" content="https://wyszko.github.io/razdwa/profilowe/icon-512x512.png">
+  <meta property="og:image:width" content="512">
+  <meta property="og:image:height" content="512">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Kalkulator &#x2013; Studio Raz Druku Dwa">
+  <meta name="twitter:description" content="Kalkulator cen brutto &#x2013; druk cyfrowy, wielkoformatowy, wizyt&#xF3;wki, naklejki i wi&#x119;cej.">
+  <meta name="twitter:image" content="https://wyszko.github.io/razdwa/profilowe/icon-512x512.png">
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="profilowe/icon-32x32.png" sizes="32x32">
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606041042" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606041042">
-  <link rel="stylesheet" href="assets/styles.css?v=202606041042">
+  <link rel="preload" href="assets/styles.css?v=202606041104" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606041104">
+  <link rel="stylesheet" href="assets/styles.css?v=202606041104">
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606041042"></script>
+  <script src="cache-buster.js?v=202606041104"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -425,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606041042" type="module"></script>
+ <script src="assets/app.js?v=202606041104" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
@@ -582,32 +595,6 @@ window.scrollToTopTiles = () => {
   }
 };
  </script>
- <!-- <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const tiles = document.querySelectorAll('.tile-grid a');
-  const container = document.getElementById('viewContainer');
-  tiles.forEach(tile => {
-    tile.addEventListener('click', async (e) => {
-      e.preventDefault();
-      const hash = tile.getAttribute('href').slice(2);
-      container.innerHTML = `<div style="padding:40px;text-align:center"><h2>&#x141;aduj&#x119; ${hash}...</h2></div>`;
-      try {
-        const resp = await fetch(`categories/${hash}.html`);
-        if (resp.ok) {
-          container.innerHTML = await resp.text();
-          // Tu dodaj initLogice(hash) dla kalkulatora
-        } else {
-          container.innerHTML = `<div class="error">Brak template: ${hash}.html</div>`;
-        }
-      } catch(err) {
-        container.innerHTML = `<div class="error">B&#x142;&#x105;d sieci: ${err.message}</div>`;
-      }
-    });
-  });
-  // Inicjalizuj koszyk itp.
-});
-</script>
-
 
 <style>
 .loading-popup {

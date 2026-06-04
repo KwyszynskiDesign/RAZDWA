@@ -435,8 +435,6 @@ function updateCartUI() {
 
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
-  const categorySearch = document.getElementById("categorySearch") as HTMLInputElement;
-  const categorySearchButton = document.getElementById("categorySearchButton") as HTMLButtonElement | null;
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
   const syncHomeLayoutMode = () => {
@@ -493,54 +491,8 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Dodano do koszyka", "cart");
   });
 
-  if (!viewContainer || !globalExpress || !categorySearch) return;
+  if (!viewContainer || !globalExpress) return;
 
-  const categoryTiles = Array.from(document.querySelectorAll<HTMLAnchorElement>(".tile-grid .tile"));
-
-  const getVisibleCategoryTiles = () => categoryTiles.filter((tile) => !tile.hidden && tile.offsetParent !== null);
-
-  const filterCategoryTiles = () => {
-    const filter = categorySearch.value.trim().toLowerCase();
-
-    categoryTiles.forEach((tile) => {
-      const tileTitle = tile.querySelector(".tile-title")?.textContent?.toLowerCase() ?? "";
-      const tileLabel = tile.getAttribute("aria-label")?.toLowerCase() ?? "";
-      const matches = !filter || tileTitle.includes(filter) || tileLabel.includes(filter);
-      tile.hidden = !matches;
-    });
-
-    if (categorySelector) {
-      const options = Array.from(categorySelector.options);
-      options.forEach((opt, idx) => {
-        if (idx === 0) return;
-        const text = opt.text.toLowerCase();
-        (opt as HTMLOptionElement & { hidden?: boolean }).hidden = !!filter && !text.includes(filter);
-      });
-    }
-  };
-
-  const navigateToFirstMatchedCategory = () => {
-    const firstVisibleTile = getVisibleCategoryTiles()[0];
-    if (firstVisibleTile) {
-      const targetHash = firstVisibleTile.getAttribute("href");
-      if (targetHash) {
-        window.location.hash = targetHash;
-      }
-      categorySearch.blur();
-      return;
-    }
-
-    if (categorySelector) {
-      const firstVisible = Array.from(categorySelector.options).find((opt, idx) => {
-        return idx > 0 && !(opt as HTMLOptionElement & { hidden?: boolean }).hidden && !opt.disabled;
-      });
-      if (firstVisible) {
-        categorySelector.value = firstVisible.value;
-        window.location.hash = `#/${firstVisible.value}`;
-        categorySearch.blur();
-      }
-    }
-  };
 
   const getCtx = (): ViewContext => ({
     cart: {
@@ -615,55 +567,6 @@ document.addEventListener("DOMContentLoaded", () => {
     router.handleRoute().catch(() => {});
   });
 
-  // Populate category selector (if exists)
-  const categorySelector = document.getElementById("categorySelector") as HTMLSelectElement | null;
-  if (categorySelector) {
-    categories.forEach(cat => {
-      const opt = document.createElement("option");
-      opt.value = cat.id;
-      const iconText = /^https?:\/\//i.test(String(cat.icon ?? "")) ? "-" : String(cat.icon ?? "");
-      opt.innerText = `${iconText} ${cat.name}`;
-      if (!cat.implemented) {
-        opt.disabled = true;
-        opt.innerText += " (wkrótce)";
-      }
-      categorySelector.appendChild(opt);
-    });
-
-    categorySelector.addEventListener("change", () => {
-      const val = categorySelector.value;
-      if (val) {
-        window.location.hash = `#/${val}`;
-      } else {
-        window.location.hash = "#/";
-      }
-    });
-
-    // Keep selector in sync with hash
-    window.addEventListener("hashchange", () => {
-      const hash = window.location.hash || "#/";
-      const path = hash.slice(2); // remove #/
-      categorySelector.value = path;
-    });
-  }
-
-  categorySearch.addEventListener("input", filterCategoryTiles);
-
-  categorySearch.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      navigateToFirstMatchedCategory();
-    }
-  });
-
-  categorySearchButton?.addEventListener("click", () => {
-    if (categorySearch.value.trim()) {
-      navigateToFirstMatchedCategory();
-      return;
-    }
-
-    categorySearch.focus();
-  });
 
   // Re-render view when express mode changes
   globalExpress.addEventListener("change", () => {
@@ -910,7 +813,6 @@ document.addEventListener("DOMContentLoaded", () => {
   void loadPinStatus();
 
   updateCartUI();
-  filterCategoryTiles();
 
   syncVariantsToSubgroupsAtStartup();
   router.start();
