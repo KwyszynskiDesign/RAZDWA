@@ -24,6 +24,7 @@ export class Router {
   private categories: any[] = [];
   private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
   private readonly SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
+  private previousHash: string = "#/";
 
   private isSettingsAuthenticated(): boolean {
     return sessionStorage.getItem(this.SETTINGS_AUTH_KEY) === '1';
@@ -196,7 +197,12 @@ export class Router {
   constructor(container: HTMLElement, getCtx: () => ViewContext) {
     this.container = container;
     this.getCtx = getCtx;
-    window.addEventListener("hashchange", () => {
+    window.addEventListener("hashchange", (event: HashChangeEvent) => {
+      try {
+        this.previousHash = new URL(event.oldURL).hash || "#/";
+      } catch {
+        this.previousHash = "#/";
+      }
       this.handleRoute().catch(() => {
         this.renderHome();
       });
@@ -239,7 +245,7 @@ export class Router {
 
     if (path === "zamowienia-zewnetrzne") {
       window.open(VIPERPRINT_URL, "_blank", "noopener,noreferrer");
-      window.location.hash = "#/";
+      window.history.replaceState(null, "", this.previousHash || "#/");
       return;
     }
 
