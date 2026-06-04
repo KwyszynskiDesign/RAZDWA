@@ -443,8 +443,10 @@ export async function savePricesToAppsScript(
     return { ok: true, verified: true, message: "dry-run: cennik nie został wysłany." };
   }
 
+  const pin = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminPin') : null;
   const body = JSON.stringify({
     type: "prices_update",
+    pin,
     prices,
   });
 
@@ -511,7 +513,8 @@ export async function saveVariantsToAppsScript(
     return { ok: true, verified: true, message: "dry-run: warianty nie zostały wysłane." };
   }
 
-  const body = JSON.stringify({ type: "variants_update", variants });
+  const pin = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminPin') : null;
+  const body = JSON.stringify({ type: "variants_update", pin, variants });
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 

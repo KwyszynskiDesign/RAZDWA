@@ -251,6 +251,17 @@ Odpowiedź dla `getState`:
 }
 ```
 
+### Pomocnicza funkcja ustawiania PIN-u (wywołaj raz ręcznie z edytora Apps Script)
+
+```javascript
+function setAdminPin(newPin) {
+  PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', String(newPin));
+  Logger.log('PIN ustawiony.');
+}
+```
+
+> Wywołaj `setAdminPin('TwójPin')` raz z panelu Apps Script, żeby ustawić PIN w PropertiesService. Potem usuń wywołanie.
+
 ### Fragment doPost dla prices_update i variants_update (dopisz NA POCZĄTKU istniejącej funkcji doPost)
 
 ```javascript
@@ -259,6 +270,12 @@ const body = JSON.parse((e && e.postData && e.postData.contents) || '{}') || {};
 
 if (body.type === 'prices_update') {
   Logger.log('POST prices_update');
+  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+  if (adminPin && body.pin !== adminPin) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid PIN' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   if (!body.prices || typeof body.prices !== 'object') {
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola prices.' }))
@@ -272,6 +289,12 @@ if (body.type === 'prices_update') {
 
 if (body.type === 'variants_update') {
   Logger.log('POST variants_update');
+  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+  if (adminPin && body.pin !== adminPin) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid PIN' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
   if (!Array.isArray(body.variants)) {
     return ContentService
       .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola variants.' }))

@@ -82,8 +82,8 @@ function injectCacheBusterVersion(filePath) {
     const version = formatHtmlVersion();
     let content = fs.readFileSync(filePath, 'utf8');
     const newContent = content.replace(
-      /var APP_VERSION = '[\w-]*'/,
-      `var APP_VERSION = '${version}'`
+      /const\s+APP_VERSION\s*=\s*['"`]([\w-]*)['"`]/,
+      `const APP_VERSION='${version}'`
     );
 
     if (newContent !== content) {

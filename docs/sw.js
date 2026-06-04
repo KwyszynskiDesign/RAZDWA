@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'razdwa-v202606042006';
+var CACHE_VERSION = 'razdwa-v202606042015';
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -80,11 +80,15 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  var isFont = request.destination === 'font' ||
+    request.url.endsWith('.ttf') ||
+    request.url.includes('cdn.jsdelivr.net');
+
   if (
     request.destination === 'script' ||
     request.destination === 'style' ||
     request.destination === 'image' ||
-    request.destination === 'font'
+    isFont
   ) {
     event.respondWith(
       caches.match(request).then(function (cached) {
