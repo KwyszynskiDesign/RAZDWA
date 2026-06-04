@@ -20,12 +20,31 @@ async function loadCadExtraOptions(): Promise<any[]> {
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
 
+async function ensurePdfJs(): Promise<void> {
+  if ((window as any).pdfjsLib) return;
+  await new Promise<void>((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    script.integrity = 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e';
+    script.crossOrigin = 'anonymous';
+    script.referrerPolicy = 'no-referrer';
+    script.onload = () => {
+      const lib = (window as any).pdfjsLib;
+      if (lib) lib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.min.js';
+      resolve();
+    };
+    script.onerror = () => reject(new Error('PDF.js load failed'));
+    document.head.appendChild(script);
+  });
+}
+
 export const CadUploadView: View = {
   id: "cad-upload",
   name: "CAD Upload plików",
 
   async mount(container: HTMLElement, ctx: ViewContext) {
     try {
+      await ensurePdfJs();
       const response = await fetch("categories/cad-upload.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();

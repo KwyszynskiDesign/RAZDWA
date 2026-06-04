@@ -10,14 +10,6 @@ export interface OrderExportConfig {
   dryRun?: boolean;
 }
 
-const LEGACY_APPS_SCRIPT_URLS = [
-  "https://script.google.com/macros/s/AKfycbwxTnDfsnV6QFwnN1DOX61In3Py_S3kedDOQbZ7F1XYcIlTVdYCzZ71ay1TPjV6l4rW/exec",
-  "https://script.google.com/macros/s/AKfycbwFSyBg_ZtPgJYQKymNRDWNdX0XQit3G3jvxrQ2VOX-pE-R4rZuPwf6QqnkSe-xrbNy/exec",
-  "https://script.google.com/macros/s/AKfycbwTpUgmnb3rU37002mEH6hsNVNIIW0eRNO1pG_0WQWBz5CN0BwSpTmaOABIJSAFJDwp/exec",
-  "https://script.google.com/macros/s/AKfycbz1_WAWeJxAXSkvoxOAqEI-kSPRMZjf9vtMtXNw1ykbMCHPVa3A0HH0c5PfhHoO_4_c/exec",
-  "https://script.google.com/macros/s/AKfycbzLtgoTHBq3byqG_kjQ00RZ6Vc9r-ivJOMZVZ87Nczk8jXzxBPnV9Bfze8LeZ8Kd39K/exec",
-  "https://script.google.com/macros/s/AKfycbzvDXZrbMI4d-CThO8y85c0SYGJ1_OiX7Ta989IpKs_652fwWcuDHTKBU6LJ1Qnubxj/exec",
-] as const;
 const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG4TQpwKcGlnjo8kb7s1CKUuvWUam2QFmmmcNHo1uEZ7jmcRn2VJlb00jMRKRvtk2W/exec";
 
 export interface OrderExportPayload {
@@ -234,9 +226,7 @@ export function getOrderExportConfig(): OrderExportConfig {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
     const parsedUrl = String(parsed.appsScriptUrl ?? "").trim();
-    const migratedUrl = !parsedUrl || LEGACY_APPS_SCRIPT_URLS.includes(parsedUrl as (typeof LEGACY_APPS_SCRIPT_URLS)[number])
-      ? CURRENT_APPS_SCRIPT_URL
-      : parsedUrl;
+    const migratedUrl = parsedUrl || CURRENT_APPS_SCRIPT_URL;
 
     return {
       appsScriptUrl: migratedUrl,

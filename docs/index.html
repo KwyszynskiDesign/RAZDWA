@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606041002 -->
+<!-- APP_VERSION: 202606041013 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -15,25 +15,12 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="assets/styles.css?v=202606041002">
-  
-  <!-- PDF.js for CAD Upload (global, loaded once) -->
-  <script
-    src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-    integrity="sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  ></script>
-  <script>
-    if (typeof pdfjsLib !== 'undefined') {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.min.js';
-      window.pdfjsLib = pdfjsLib;
-      console.log('&#x2705; PDF.js + LOCAL WORKER LOADED (global)');
-    }
-  </script>
+  <link rel="preload" href="assets/styles.css?v=202606041013" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606041013">
+  <link rel="stylesheet" href="assets/styles.css?v=202606041013">
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606041002"></script>
+  <script src="cache-buster.js?v=202606041013"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -247,23 +234,23 @@
           <div class="order-form">
             <div class="order-row">
               <label for="custName">Imi&#x119; i nazwisko</label>
-              <input id="custName" type="text" placeholder="Jan Kowalski">
+              <input id="custName" type="text" placeholder="Jan Kowalski" autocomplete="name">
             </div>
             <div class="order-row">
               <label for="custCompany">Nazwa firmy</label>
-              <input id="custCompany" type="text" placeholder="Firma Sp. z o.o. (opcjonalnie)">
+              <input id="custCompany" type="text" placeholder="Firma Sp. z o.o. (opcjonalnie)" autocomplete="organization">
             </div>
             <div class="order-row">
               <label for="custNip">NIP</label>
-              <input id="custNip" type="text" placeholder="000-000-00-00 (opcjonalnie)" maxlength="13">
+              <input id="custNip" type="text" placeholder="000-000-00-00 (opcjonalnie)" maxlength="13" autocomplete="off" inputmode="numeric">
             </div>
             <div class="order-row">
               <label for="custPhone">Telefon</label>
-              <input id="custPhone" type="tel" placeholder="+48 000 000 000">
+              <input id="custPhone" type="tel" placeholder="+48 000 000 000" autocomplete="tel" inputmode="tel">
             </div>
             <div class="order-row">
               <label for="custEmail">E-mail</label>
-              <input id="custEmail" type="email" placeholder="jan@przyklad.pl">
+              <input id="custEmail" type="email" placeholder="jan@przyklad.pl" autocomplete="email">
             </div>
             <div class="order-row order-row--paired">
               <div class="order-row-half">
@@ -276,7 +263,7 @@
               </div>
               <div class="order-row-half">
                 <label for="custAddedBy">Kto doda&#x142;</label>
-                <input id="custAddedBy" type="text" placeholder="Np. Adam / Biuro">
+                <input id="custAddedBy" type="text" placeholder="Np. Adam / Biuro" autocomplete="off">
               </div>
             </div>
             <div class="order-row order-row--full">
@@ -447,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606041002" type="module"></script>
+ <script src="assets/app.js?v=202606041013" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
