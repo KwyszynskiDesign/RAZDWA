@@ -724,17 +724,38 @@ document.addEventListener("DOMContentLoaded", () => {
   const pinNewInput = document.getElementById('pinNewInput') as HTMLInputElement | null;
   const pinConfirmInput = document.getElementById('pinConfirmInput') as HTMLInputElement | null;
   const pinSaveBtn = document.getElementById('pinSaveBtn') as HTMLButtonElement | null;
-  const pinRemoveBtn = document.getElementById('pinRemoveBtn') as HTMLButtonElement | null;
   const pinMsg = document.getElementById('pinMsg') as HTMLElement | null;
   const pinSetForm = document.getElementById('pinSetForm') as HTMLElement | null;
   const pinChangeForm = document.getElementById('pinChangeForm') as HTMLElement | null;
   const pinStatusEl = document.getElementById('pinStatus') as HTMLElement | null;
 
+  const pinChangeToggleBtn = document.getElementById('pinChangeToggleBtn') as HTMLButtonElement | null;
+  const pinChangeExpandedForm = document.getElementById('pinChangeExpandedForm') as HTMLElement | null;
+  const pinCurrentInput = document.getElementById('pinCurrentInput') as HTMLInputElement | null;
+  const pinNewChangeInput = document.getElementById('pinNewChangeInput') as HTMLInputElement | null;
+  const pinConfirmChangeInput = document.getElementById('pinConfirmChangeInput') as HTMLInputElement | null;
+  const pinDoChangeBtn = document.getElementById('pinDoChangeBtn') as HTMLButtonElement | null;
+  const pinChangeCancelBtn = document.getElementById('pinChangeCancelBtn') as HTMLButtonElement | null;
+  const pinRemoveToggleBtn = document.getElementById('pinRemoveToggleBtn') as HTMLButtonElement | null;
+  const pinRemoveSection = document.getElementById('pinRemoveSection') as HTMLElement | null;
+  const pinRemoveConfirmInput = document.getElementById('pinRemoveConfirmInput') as HTMLInputElement | null;
+  const pinRemoveBtn = document.getElementById('pinRemoveBtn') as HTMLButtonElement | null;
+
   let pinIsSet: boolean | null = null;
+
+  const collapseChangeForms = () => {
+    if (pinChangeExpandedForm) pinChangeExpandedForm.style.display = 'none';
+    if (pinRemoveSection) pinRemoveSection.style.display = 'none';
+    if (pinCurrentInput) pinCurrentInput.value = '';
+    if (pinNewChangeInput) pinNewChangeInput.value = '';
+    if (pinConfirmChangeInput) pinConfirmChangeInput.value = '';
+    if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = '';
+  };
 
   const refreshPinUI = () => {
     if (pinSetForm) pinSetForm.style.display = pinIsSet ? 'none' : 'block';
     if (pinChangeForm) pinChangeForm.style.display = pinIsSet ? 'block' : 'none';
+    collapseChangeForms();
     if (pinStatusEl) {
       if (pinIsSet === null) {
         pinStatusEl.textContent = '⏳ Sprawdzam status PIN...';
@@ -790,14 +811,75 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  pinChangeToggleBtn?.addEventListener('click', () => {
+    if (!pinChangeExpandedForm) return;
+    const isOpen = pinChangeExpandedForm.style.display !== 'none';
+    if (isOpen) {
+      collapseChangeForms();
+      if (pinMsg) pinMsg.style.display = 'none';
+    } else {
+      pinChangeExpandedForm.style.display = 'block';
+    }
+  });
+
+  pinChangeCancelBtn?.addEventListener('click', () => {
+    collapseChangeForms();
+    if (pinMsg) pinMsg.style.display = 'none';
+  });
+
+  pinDoChangeBtn?.addEventListener('click', async () => {
+    const current = pinCurrentInput?.value ?? '';
+    const newVal = pinNewChangeInput?.value ?? '';
+    const confirmVal = pinConfirmChangeInput?.value ?? '';
+    if (!current) {
+      if (pinMsg) { pinMsg.textContent = 'Podaj aktualny PIN.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      return;
+    }
+    if (newVal.length < 4) {
+      if (pinMsg) { pinMsg.textContent = 'Nowy PIN musi mieć min. 4 znaki.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      return;
+    }
+    if (newVal !== confirmVal) {
+      if (pinMsg) { pinMsg.textContent = 'PINy nie są zgodne.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      return;
+    }
+    if (pinDoChangeBtn) { pinDoChangeBtn.disabled = true; pinDoChangeBtn.textContent = '⏳ Zapisuję...'; }
+    const result = await setPinOnServer(newVal, current);
+    if (pinDoChangeBtn) { pinDoChangeBtn.disabled = false; pinDoChangeBtn.textContent = 'Zapisz nowy PIN'; }
+    if (result.ok) {
+      collapseChangeForms();
+      if (pinMsg) { pinMsg.textContent = 'PIN zmieniony.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+    } else {
+      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
+        : result.error === 'wrong_current' ? 'Nieprawidłowy aktualny PIN.'
+        : 'Błąd zmiany PIN.';
+      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+    }
+  });
+
+  pinRemoveToggleBtn?.addEventListener('click', () => {
+    if (!pinRemoveSection) return;
+    const isOpen = pinRemoveSection.style.display !== 'none';
+    if (isOpen) {
+      pinRemoveSection.style.display = 'none';
+      if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = '';
+    } else {
+      pinRemoveSection.style.display = 'block';
+    }
+  });
+
   pinRemoveBtn?.addEventListener('click', async () => {
-    const current = prompt('Podaj aktualny PIN, aby go usunąć:');
-    if (current === null) return;
+    const current = pinRemoveConfirmInput?.value ?? '';
+    if (!current) {
+      if (pinMsg) { pinMsg.textContent = 'Podaj aktualny PIN, aby usunąć.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      return;
+    }
     if (pinRemoveBtn) { pinRemoveBtn.disabled = true; pinRemoveBtn.textContent = '⏳ Usuwam...'; }
     const result = await removePinOnServer(current);
     if (pinRemoveBtn) { pinRemoveBtn.disabled = false; pinRemoveBtn.textContent = 'Usuń PIN'; }
     if (result.ok) {
       sessionStorage.removeItem(SETTINGS_AUTH_KEY);
+      collapseChangeForms();
       if (pinMsg) { pinMsg.textContent = 'PIN usunięty.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
       pinIsSet = false;
       refreshPinUI();

@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606041104 -->
+<!-- APP_VERSION: 202606041122 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,12 +28,12 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606041104" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606041104">
-  <link rel="stylesheet" href="assets/styles.css?v=202606041104">
+  <link rel="preload" href="assets/styles.css?v=202606041122" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606041122">
+  <link rel="stylesheet" href="assets/styles.css?v=202606041122">
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606041104"></script>
+  <script src="cache-buster.js?v=202606041122"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -296,7 +296,24 @@
               <button type="button" id="pinSaveBtn" class="primary" style="width:100%;">Zapisz PIN</button>
             </div>
             <div id="pinChangeForm" style="display:none;">
-              <button type="button" id="pinRemoveBtn" class="ghost" style="width:100%;">Usu&#x144; PIN</button>
+              <button type="button" id="pinChangeToggleBtn" class="primary" style="width:100%;">Zmie&#x144; PIN</button>
+              <div id="pinChangeExpandedForm" style="display:none;margin-top:12px;">
+                <input type="password" id="pinCurrentInput" inputmode="numeric" maxlength="8" placeholder="Aktualny PIN" autocomplete="current-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid var(--border,#cbd5e1);border-radius:8px;margin-bottom:8px;background:var(--surface-alt,#fff);color:inherit;">
+                <input type="password" id="pinNewChangeInput" inputmode="numeric" maxlength="8" placeholder="Nowy PIN (min. 4 znaki)" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid var(--border,#cbd5e1);border-radius:8px;margin-bottom:8px;background:var(--surface-alt,#fff);color:inherit;">
+                <input type="password" id="pinConfirmChangeInput" inputmode="numeric" maxlength="8" placeholder="Powt&#xF3;rz nowy PIN" autocomplete="new-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid var(--border,#cbd5e1);border-radius:8px;margin-bottom:10px;background:var(--surface-alt,#fff);color:inherit;">
+                <div style="display:flex;gap:8px;margin-bottom:16px;">
+                  <button type="button" id="pinDoChangeBtn" class="primary" style="flex:1;">Zapisz nowy PIN</button>
+                  <button type="button" id="pinChangeCancelBtn" class="ghost">Anuluj</button>
+                </div>
+                <div style="border-top:1px solid var(--border,#cbd5e1);padding-top:12px;">
+                  <button type="button" id="pinRemoveToggleBtn" style="background:none;border:none;padding:0;font-size:12px;color:var(--text-secondary,#94a3b8);cursor:pointer;text-decoration:underline;">Usu&#x144; PIN</button>
+                  <div id="pinRemoveSection" style="display:none;margin-top:10px;">
+                    <p style="font-size:12px;color:#b45309;margin:0 0 8px;">Usuni&#x119;cie PIN odblokowuje panel ustawie&#x144; dla wszystkich.</p>
+                    <input type="password" id="pinRemoveConfirmInput" inputmode="numeric" maxlength="8" placeholder="Aktualny PIN &#x2014; potwierdzenie" autocomplete="current-password" style="display:block;width:100%;box-sizing:border-box;padding:8px 12px;font-size:14px;border:1px solid #dc2626;border-radius:8px;margin-bottom:8px;background:var(--surface-alt,#fff);color:inherit;">
+                    <button type="button" id="pinRemoveBtn" style="width:100%;padding:8px 12px;font-size:14px;border:1px solid #dc2626;border-radius:8px;background:transparent;color:#dc2626;cursor:pointer;">Usu&#x144; PIN</button>
+                  </div>
+                </div>
+              </div>
             </div>
             <p id="pinMsg" style="display:none;font-size:12px;margin:8px 0 0;"></p>
           </div>
@@ -438,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606041104" type="module"></script>
+ <script src="assets/app.js?v=202606041122" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
