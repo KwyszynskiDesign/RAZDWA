@@ -327,6 +327,11 @@ export const WydrukiSpecjalneView: View = {
         optionsHint,
         payload: specialState,
       });
+
+      specialState = null;
+      if (specialResultArea) specialResultArea.style.display = 'none';
+      if (specialAddBtn) specialAddBtn.disabled = true;
+      clearBreakdown();
     });
   }
 };

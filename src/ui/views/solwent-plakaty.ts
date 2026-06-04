@@ -138,6 +138,10 @@ export const SolwentPlakatyView: View = {
           optionsHint: `${areaInput.value}m2${ctx.expressMode ? ", EXPRESS" : ""}`,
           payload: currentResult
         });
+
+        currentResult = null;
+        resultDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
       }
     };
   }

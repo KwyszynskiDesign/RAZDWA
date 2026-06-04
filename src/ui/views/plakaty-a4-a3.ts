@@ -562,6 +562,10 @@ export const PlakatyA4A3View: View = {
           payload: currentResult,
         });
       }
+
+      clearResult();
+      currentResult = null;
+      currentOptions = null;
     };
   },
 };

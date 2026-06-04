@@ -158,6 +158,10 @@ export const DyplomyView: View = {
         optionsHint: [`${options.qty} szt`, `${options.format}`, dPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
         payload: options
       });
+
+      resultArea.style.display = 'none';
+      if (breakdownBox) breakdownBox.style.display = 'none';
+      addToCartBtn.disabled = true;
     });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;

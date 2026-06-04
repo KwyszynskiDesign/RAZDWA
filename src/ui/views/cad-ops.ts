@@ -49,6 +49,7 @@ export const CadOpsView: View = {
           payload: res
         });
 
+        foldQty.value = "";
         ctx.updateLastCalculated(res.total, "Składanie CAD");
       } catch (err) {
         console.warn("Składanie CAD:", (err as Error).message);
@@ -80,6 +81,8 @@ export const CadOpsView: View = {
           payload: res
         });
 
+        wfScanMm.value = "";
+        wfScanQty.value = "";
         ctx.updateLastCalculated(res.total, "Skanowanie WF");
       } catch (err) {
         console.warn("Skanowanie WF:", (err as Error).message);

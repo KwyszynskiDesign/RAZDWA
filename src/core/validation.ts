@@ -101,3 +101,14 @@ export function validateCategoryInput(data: unknown): {
     errors: result.error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`),
   }
 }
+
+export function escapeHtml(text: string): string {
+  if (!text) return text;
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/\\/g, '&#92;');
+}

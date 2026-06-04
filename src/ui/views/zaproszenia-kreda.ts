@@ -280,6 +280,10 @@ export const ZaproszeniaKredaView: View = {
         ].join(', '),
         payload: { ...options, envelope: result.withEnvelopes ? { type: result.envelopeType, qty: result.envelopeQty } : null }
       });
+
+      resultArea.style.display = 'none';
+      if (breakdownBox) breakdownBox.style.display = 'none';
+      addToCartBtn.disabled = true;
     });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;

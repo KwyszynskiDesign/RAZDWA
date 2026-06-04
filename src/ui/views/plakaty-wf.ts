@@ -343,6 +343,12 @@ export const PlakatyWFView: View = {
         optionsHint: hint,
         payload: currentResult,
       });
+
+      currentResult = null;
+      currentOptions = null;
+      resultBox.style.display = 'none';
+      if (breakdownBox) breakdownBox.style.display = 'none';
+      addBtn.disabled = true;
     };
   },
 };

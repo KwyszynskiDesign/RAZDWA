@@ -193,6 +193,11 @@ export const WycinanieFoliiView: View = {
           ...currentResult
         }
       });
+
+      currentResult = null;
+      currentOptions = null;
+      if (resultEl) resultEl.style.display = 'none';
+      addBtn.disabled = true;
     };
 
 

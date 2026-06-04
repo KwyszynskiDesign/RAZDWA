@@ -230,6 +230,12 @@ export const CanvasView: View = {
           ...currentResult
         }
       });
+
+      currentResult = null;
+      currentOptions = null;
+      if (resultEl) resultEl.style.display = 'none';
+      if (breakdownEl) breakdownEl.style.display = 'none';
+      addBtn.disabled = true;
     };
 
     syncModeUI();

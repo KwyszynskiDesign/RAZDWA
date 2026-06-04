@@ -200,6 +200,9 @@ export const WizytowkiView: View = {
           optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
           payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
         });
+
+        if (extQtyInput) extQtyInput.value = "";
+        if (extAddToCartBtn) extAddToCartBtn.disabled = true;
       };
     }
 

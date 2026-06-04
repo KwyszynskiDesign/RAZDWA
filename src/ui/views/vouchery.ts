@@ -301,6 +301,12 @@ export const VoucheryView: View = {
           optionsHint: parts.join(', '),
           payload: currentResult
         });
+
+        currentResult = null;
+        currentOptions = null;
+        resultDisplay.style.display = 'none';
+        breakdownDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
       }
     };
   }

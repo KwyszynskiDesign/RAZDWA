@@ -205,6 +205,12 @@ export const FoliaSzronionaView: View = {
           optionsHint: opts,
           payload: currentResult
         });
+
+        currentResult = null;
+        currentOptions = null;
+        resultDisplay.style.display = 'none';
+        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
       }
     };
   }

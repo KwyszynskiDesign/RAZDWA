@@ -617,6 +617,11 @@ export const DrukCADView: View = {
         updateGrandTotal();
 
         ctx.updateLastCalculated(printTotalWithOptions + opsTotalBeforeClear, "Druk CAD + usługi");
+
+        currentResult = null;
+        currentOptions = null;
+        resultDisplay.style.display = 'none';
+        addToCartBtn.disabled = true;
       }
     };
 

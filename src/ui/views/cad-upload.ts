@@ -1033,9 +1033,12 @@ export const CadUploadView: View = {
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
+
+        files.splice(0, files.length);
+        renderFiles();
       });
     };
-    
+
     handleCartButton(selectColorBtn, 'color');
     handleCartButton(selectBwBtn, 'bw');
 

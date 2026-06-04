@@ -512,6 +512,12 @@ export const PlakatyView: View = {
           payload: currentResult,
         });
       }
+
+      currentResult = null;
+      currentOptions = null;
+      resultBox.style.display = 'none';
+      if (breakdownBox) breakdownBox.style.display = 'none';
+      addBtn.disabled = true;
     };
   },
 };

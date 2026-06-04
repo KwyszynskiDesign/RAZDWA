@@ -483,6 +483,12 @@ export const WlepkiView: View = {
           }
         });
       }
+
+      currentResult = null;
+      currentInput = null;
+      if (resultDiv) resultDiv.style.display = 'none';
+      if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = 'none';
+      addBtn.disabled = true;
     });
   }
 };

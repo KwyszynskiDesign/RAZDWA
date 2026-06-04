@@ -1,4 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
+import { escapeHtml } from '../../core/validation';
 import {
   type PriceCategory,
   BASE_PRICE_CATEGORIES,
@@ -2916,11 +2917,3 @@ export const UstawieniaView: View = {
     }
   },
 };
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}

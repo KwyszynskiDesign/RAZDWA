@@ -402,6 +402,12 @@ export const DrukA4A3SkanView: View = {
           }
         }
       });
+
+      currentResult = null;
+      currentOptions = null;
+      resultDisplay.style.display = 'none';
+      if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+      addToCartBtn.disabled = true;
     };
   }
 };

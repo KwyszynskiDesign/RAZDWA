@@ -177,6 +177,12 @@ export const RollUpView: View = {
         optionsHint: `${currentOptions.format}, ${currentOptions.qty} szt`,
         payload: currentOptions
       });
+
+      currentResult = null;
+      currentOptions = null;
+      resultArea.style.display = 'none';
+      breakdownBox.style.display = 'none';
+      addToCartBtn.disabled = true;
     });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
