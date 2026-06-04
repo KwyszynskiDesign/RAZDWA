@@ -338,7 +338,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
 }
 
 function isIconUrl(icon: string): boolean {
-  return /^https?:\/\//i.test(icon);
+  return /^https?:\/\//i.test(icon) || icon.endsWith('.svg');
 }
 
 function renderCategoryIcon(icon: string, label: string): string {

@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606041122 -->
+<!-- APP_VERSION: 202606041928 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,12 +28,12 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606041122" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606041122">
-  <link rel="stylesheet" href="assets/styles.css?v=202606041122">
+  <link rel="preload" href="assets/styles.css?v=202606041928" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606041928">
+  <link rel="stylesheet" href="assets/styles.css?v=202606041928">
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606041122"></script>
+  <script src="cache-buster.js?v=202606041928"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -74,7 +74,7 @@
           <button id="categorySearchButton" type="button">Szukaj</button>
         </div>
         <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejd&#x17A; do Ustawienia cen">
-              <span class="tile-icon">&#x2699;&#xFE0F;</span>
+              <span class="tile-icon" aria-hidden="true">&#x2699;&#xFE0F;</span>
               <span class="tile-title">Ustawienia cen</span> 
             </a>
       </div>
@@ -153,12 +153,9 @@
         <div class="card main-content-card">
           <div id="viewContainer">
             <div id="emptyState" style="display:block;text-align:center;padding:60px;border-radius:12px;margin:20px 0">
-              <h2 style="color:var(--primary)">&#xD83D;&#xDDA8;&#xFE0F; Wybierz kategori&#x119;</h2>
+              <h2 style="color:var(--primary)"><span aria-hidden="true">&#xD83D;&#xDDA8;&#xFE0F;</span> Wybierz kategori&#x119;</h2>
               <p>Wybierz kategori&#x119; z lewego panelu lub wyszukaj us&#x142;ug&#x119;. Wycena + Excel w 1 klik.</p>
-              <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px">&#xD83D;&#xDCC2; Otw&#xF3;rz kategorie</button>
-            </div>
-            <div id="loadingSpinner" style="display:none;text-align:center;padding:40px">
-              &#x23F3; &#x141;adowanie kategorii... <div style="animation:dots 1s infinite"></div>
+              <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px"><span aria-hidden="true">&#xD83D;&#xDCC2;</span> Otw&#xF3;rz kategorie</button>
             </div>
           </div>
 
@@ -168,13 +165,6 @@
       <!-- Right column: order summary -->
       <div class="right-col">
           <div id="toastHost" class="toast-host" aria-live="polite" aria-atomic="true"></div>
-          <!-- Loading popup for order submission (moved inside right-col) -->
-          <div id="orderLoadingPopup" class="loading-popup" style="display: none;">
-            <div class="loading-popup-content">
-              <div class="loading-spinner"></div>
-              <div class="loading-text" id="loadingText">WYSYŁANIE...</div>
-            </div>
-          </div>
         <div class="card" id="orderSummary">
           <div class="order-summary-head">
             <h2>Podsumowanie</h2>
@@ -455,7 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606041122" type="module"></script>
+ <script src="assets/app.js?v=202606041928" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';
@@ -613,53 +603,6 @@ window.scrollToTopTiles = () => {
 };
  </script>
 
-<style>
-.loading-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-popup--sending {
-  background: rgba(255, 193, 7, 0.9); /* Żółty */
-}
-
-.loading-popup--success {
-  background: rgba(34, 197, 94, 0.9); /* Zielony */
-}
-
-.loading-popup-content {
-  text-align: center;
-  color: white;
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid #fff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.loading-text {
-  font-size: 18px;
-  font-weight: bold;
-}
-</style>
 
 </body>
 </html>

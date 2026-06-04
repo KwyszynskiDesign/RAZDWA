@@ -133,7 +133,7 @@ export class Router {
   }
 
   private isIconUrl(icon: string): boolean {
-    return /^https?:\/\//i.test(icon);
+    return /^https?:\/\//i.test(icon) || icon.endsWith('.svg');
   }
   
   private escapeHtml(value: string): string {
@@ -329,17 +329,17 @@ export class Router {
     ];
 
     const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg", implemented: true },
+      uslugi: { id: "uslugi", name: "Usługi", icon: "assets/icons/handshake.svg", implemented: true },
       "zamowienia-zewnetrzne": {
         id: "zamowienia-zewnetrzne",
         name: "Zamówienia zewnętrzne",
-        icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/external-link.svg",
+        icon: "assets/icons/external-link.svg",
         implemented: true
       },
       "wydruki-specjalne": {
         id: "wydruki-specjalne",
         name: "Pojedyncze nakłady",
-        icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
+        icon: "assets/icons/file-text.svg",
         implemented: true
       }
     };

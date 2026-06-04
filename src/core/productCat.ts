@@ -16,7 +16,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-a4-a3",
     label: "Druk A4/A3 + skan",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/printer.svg",
+    icon: "assets/icons/printer.svg",
     prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "druk-koszulka", "modifier-druk-"],
     description: "Ceny druku czarno-białego, kolorowego, skanowania i dopłaty za duży zadruk.",
     newKeyPrefix: "druk-bw-a4-"
@@ -24,7 +24,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "druk-cad",
     label: "CAD wielkoformatowy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/drafting-compass.svg",
+    icon: "assets/icons/drafting-compass.svg",
     prefixes: ["druk-cad-", "cad-fold-", "cad-"],
     description: "Stawki CAD formatowe, za metr bieżący, składanie i usługi dodatkowe.",
     newKeyPrefix: "druk-cad-bw-fmt-"
@@ -32,7 +32,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "laminowanie",
     label: "Introligatornia",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-open.svg",
+    icon: "assets/icons/book-open.svg",
     prefixes: ["laminowanie-a3-", "laminowanie-a4-", "laminowanie-a5-", "laminowanie-a6-", "laminowanie-intro-", "laminowanie-oprawa-", "laminowanie-bindowanie-"],
     description: "Laminowanie na gorąco, oprawy, bindowanie oraz usługi introligatorskie.",
     newKeyPrefix: "laminowanie-a4-"
@@ -40,7 +40,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "solwent",
     label: "Solwent / plakaty",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/palette.svg",
+    icon: "assets/icons/palette.svg",
     prefixes: ["solwent-", "plakaty-format-", "plakaty-blockout200g-"],
     description: "Cenniki solwentu oraz plakatów A3-A0+.",
     newKeyPrefix: "solwent-150g-"
@@ -48,7 +48,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "plakaty-a4-a3",
     label: "Plakaty A4-A3",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/image.svg",
+    icon: "assets/icons/image.svg",
     prefixes: ["plakaty-maly-canon-", "plakaty-duzy-canon-"],
     description: "Cenniki plakatów A4-A3 (mały/duży Canon).",
     newKeyPrefix: "plakaty-maly-canon-"
@@ -56,7 +56,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "vouchery",
     label: "Vouchery",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/ticket-percent.svg",
+    icon: "assets/icons/ticket-percent.svg",
     prefixes: ["vouchery-"],
     description: "Ceny voucherów jednostronnych i dwustronnych.",
     newKeyPrefix: "vouchery-1-jed"
@@ -64,7 +64,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "banner",
     label: "Banner",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layout-panel-top.svg",
+    icon: "assets/icons/layout-panel-top.svg",
     prefixes: ["banner-"],
     description: "Materiały bannerowe i dopłata za oczkowanie.",
     newKeyPrefix: "banner-powlekany-"
@@ -72,7 +72,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "rollup",
     label: "Roll-up",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/panel-top.svg",
+    icon: "assets/icons/panel-top.svg",
     prefixes: ["rollup-"],
     description: "Komplety roll-up oraz wymiana wkładu.",
     newKeyPrefix: "rollup-85x200-"
@@ -80,7 +80,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "folia",
     label: "Folia szroniona / OWV",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/layers.svg",
+    icon: "assets/icons/layers.svg",
     prefixes: ["folia-szroniona-"],
     description: "Wydruk i oklejanie folii szronionej oraz OWV.",
     newKeyPrefix: "folia-szroniona-wydruk-"
@@ -88,7 +88,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wycinanie-folii",
     label: "Wycinanie z folii",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/scissors.svg",
+    icon: "assets/icons/scissors.svg",
     prefixes: ["wycinanie-folii-"],
     description: "Stawki wycinania folii kolorowej i złoto/srebro.",
     newKeyPrefix: "wycinanie-folii-kolorowa"
@@ -96,7 +96,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "canvas",
     label: "Canvas / Płótno",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/gallery-horizontal.svg",
+    icon: "assets/icons/gallery-horizontal.svg",
     prefixes: ["canvas-"],
     description: "Canvas z oprawą, bez oprawy i stawka za m².",
     newKeyPrefix: "canvas-framed-"
@@ -104,7 +104,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wlepki",
     label: "Wlepki / naklejki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/sticker.svg",
+    icon: "assets/icons/sticker.svg",
     prefixes: ["wlepki-"],
     description: "Naklejki standardowe, po obrysie, PP i dopłaty dodatkowe.",
     newKeyPrefix: "wlepki-standard-folia-"
@@ -112,7 +112,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "wizytowki",
     label: "Wizytówki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/id-card.svg",
+    icon: "assets/icons/id-card.svg",
     prefixes: ["wizytowki-"],
     description: "Ceny wizytówek standard i z folią dla obu formatów.",
     newKeyPrefix: "wizytowki-85x55-none-"
@@ -120,7 +120,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "zaproszenia",
     label: "ZAPROSZENIA",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
+    icon: "assets/icons/mail.svg",
     prefixes: ["zaproszenia-"],
     description: "Ceny zaproszeń (format, strony, łamanie, ilość).",
     newKeyPrefix: "zaproszenia-a6-single-normal-"
@@ -128,7 +128,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "ulotki",
     label: "Ulotki",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/file-text.svg",
+    icon: "assets/icons/file-text.svg",
     prefixes: ["ulotki-jed-", "ulotki-dwu-"],
     description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",
     newKeyPrefix: "ulotki-jed-a6-"
@@ -136,7 +136,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "dyplomy",
     label: "Dyplomy",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/award.svg",
+    icon: "assets/icons/award.svg",
     prefixes: ["dyplomy-qty-"],
     description: "Ceny dyplomów wg progów ilościowych.",
     newKeyPrefix: "dyplomy-qty-"
@@ -144,7 +144,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "artykuly",
     label: "Artykuły biurowe",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/package.svg",
+    icon: "assets/icons/package.svg",
     prefixes: [
       "artykuly-teczka-",
       "artykuly-skoroszyt-",
@@ -163,7 +163,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "uslugi",
     label: "Usługi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/handshake.svg",
+    icon: "assets/icons/handshake.svg",
     prefixes: ["uslugi-"],
     description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
     newKeyPrefix: "uslugi-"
@@ -171,7 +171,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "koperty",
     label: "Koperty",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/mail.svg",
+    icon: "assets/icons/mail.svg",
     prefixes: ["koperty-", "artykuly-koperta-"],
     description: "Ceny kopert (A–G oraz pozycje kopert z artykułów biurowych).",
     newKeyPrefix: "artykuly-koperta-"
@@ -187,7 +187,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "broszury-katalogi",
     label: "Broszury i katalogi",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/book-text.svg",
+    icon: "assets/icons/book-text.svg",
     prefixes: ["broszury-katalogi-"],
     description: "Ceny broszur i katalogów wg formatu i nakładu.",
     newKeyPrefix: "broszury-katalogi-a4-"
@@ -195,7 +195,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
   {
     id: "modifiers",
     label: "Dopłaty globalne",
-    icon: "https://cdn.jsdelivr.net/npm/lucide-static@latest/icons/settings.svg",
+    icon: "assets/icons/settings.svg",
     prefixes: ["modifier-express", "modifier-satyna", "modifier-modigliani"],
     description: "Dopłaty procentowe współdzielone przez wiele kalkulatorów.",
     newKeyPrefix: "modifier-"
