@@ -714,6 +714,8 @@ export const LaminowanieView: View = {
       if (bindQty) bindQty.value = "";
       if (bindPages) bindPages.value = "20";
       if (bindAddBtn) bindAddBtn.disabled = true;
+      if (bindResult) bindResult.style.display = 'none';
+      if (bindBreakdown) bindBreakdown.style.display = 'none';
       clearCalcBreakdown();
     });
 
@@ -1266,6 +1268,7 @@ export const LaminowanieView: View = {
       if (introQty) introQty.value = "";
       if (introAddBtn) introAddBtn.disabled = true;
       if (introExpressHint) introExpressHint.style.display = "none";
+      if (introResult) introResult.style.display = 'none';
       clearCalcBreakdown();
     });
 
@@ -1289,7 +1292,7 @@ export const LaminowanieView: View = {
       }
     };
 
-    autoCalc({ root: container, calc: recalcAll });
+    autoCalc({ root: container, calc: recalcAll, cancelOn: [addToCartBtn, bindAddBtn, oprAddBtn, introAddBtn] });
     ctx?.on?.("prices-updated", () => { ensureLegend(getActiveTab()); recalcAll(); });
 
   }

@@ -126,7 +126,7 @@ export const DyplomyView: View = {
       return { options, result };
     };
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
     updateLegend();
 
     ctx?.on?.("prices-updated", () => {

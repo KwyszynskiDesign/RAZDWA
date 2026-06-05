@@ -247,7 +247,7 @@ export const ZaproszeniaKredaView: View = {
       };
     };
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 

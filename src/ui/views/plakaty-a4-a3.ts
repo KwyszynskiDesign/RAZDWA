@@ -482,7 +482,7 @@ export const PlakatyA4A3View: View = {
       activeCanonInput = "duzy";
     });
 
-    autoCalc({ root: container, calc: recalculate });
+    autoCalc({ root: container, calc: recalculate, cancelOn: [addBtn] });
 
     // Handle Duży Canon trim checkboxes
     const recalcForDuzyTrimChange = () => {

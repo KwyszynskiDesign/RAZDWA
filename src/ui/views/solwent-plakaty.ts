@@ -115,7 +115,7 @@ export const SolwentPlakatyView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Solwent - Plakaty");
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
     ensureLegend();
 
     materialSelect.addEventListener("change", ensureLegend);

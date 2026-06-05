@@ -326,7 +326,7 @@ export const DrukA4A3SkanView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Druk A4/A3 + skan");
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
 
     ctx?.on?.("prices-updated", () => {
       renderDynamicLegend();

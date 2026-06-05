@@ -155,7 +155,7 @@ export const RollUpView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Roll-up");
     };
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
 
     ctx?.on?.("prices-updated", () => {
       updateLegend();

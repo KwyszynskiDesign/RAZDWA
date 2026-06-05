@@ -412,7 +412,7 @@ export const WlepkiView: View = {
       }
     };
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
     pieceTableSelect.addEventListener("change", renderDynamicLegend);
     modeSelect.addEventListener("change", renderDynamicLegend);
     renderDynamicLegend();

@@ -174,7 +174,7 @@ export const FoliaSzronionaView: View = {
       if (breakdownDisplay) breakdownDisplay.style.display = result.isCustom ? "none" : "grid";
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
     ensureLegend();
     serviceSelect.addEventListener("change", ensureLegend);
     ctx?.on?.("prices-updated", () => {

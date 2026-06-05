@@ -1,27 +1,21 @@
-/**
- * autoCalc — live update utility.
- *
- * Attaches input / change listeners to every <input>, <select>, <textarea>
- * inside `root` and calls `calc()` whenever the user interacts.
- *
- * Returns a cleanup function (call it in `unmount`).
- */
-
 export interface AutoCalcOptions {
-  /** Root element whose inputs should be observed. */
   root: HTMLElement;
-  /** The calculation callback — called on every input change. */
   calc: () => void;
-  /** Debounce delay in ms (default 120). */
   delay?: number;
+  cancelOn?: (HTMLElement | null | undefined)[];
 }
 
-export function autoCalc({ root, calc, delay = 120 }: AutoCalcOptions): () => void {
+export function autoCalc({ root, calc, delay = 120, cancelOn }: AutoCalcOptions): () => void {
   let timer: ReturnType<typeof setTimeout> | null = null;
   let initialRunScheduled = false;
 
-  const run = () => {
+  const cancel = () => {
     if (timer) clearTimeout(timer);
+    timer = null;
+  };
+
+  const run = () => {
+    cancel();
     timer = setTimeout(() => {
       try {
         calc();
@@ -43,12 +37,16 @@ export function autoCalc({ root, calc, delay = 120 }: AutoCalcOptions): () => vo
     });
   }
 
-  root.addEventListener("input", run, true);   // captures typing in inputs
-  root.addEventListener("change", run, true);   // captures selects, checkboxes, radios
+  root.addEventListener("input", run, true);
+  root.addEventListener("change", run, true);
+
+  const cancelTargets = (cancelOn ?? []).filter((el): el is HTMLElement => el != null);
+  cancelTargets.forEach(el => el.addEventListener("click", cancel));
 
   return () => {
-    if (timer) clearTimeout(timer);
+    cancel();
     root.removeEventListener("input", run, true);
     root.removeEventListener("change", run, true);
+    cancelTargets.forEach(el => el.removeEventListener("click", cancel));
   };
 }

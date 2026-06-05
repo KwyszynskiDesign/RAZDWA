@@ -182,7 +182,7 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
     ctx.updateLastCalculated(totalPrice, "Broszury i katalogi");
   };
 
-  autoCalc({ root: container, calc: performCalculation });
+  autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
 
   ctx?.on?.("prices-updated", () => {
     ensureLegend();

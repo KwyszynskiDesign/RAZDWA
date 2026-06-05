@@ -555,7 +555,7 @@ export const DrukCADView: View = {
       ctx.updateLastCalculated(result.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
 
     ctx?.on?.("prices-updated", () => {
       ensureLegend();

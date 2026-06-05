@@ -279,7 +279,7 @@ export const WydrukiSpecjalneView: View = {
       }
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [specialAddBtn] });
     specialVariant?.addEventListener("change", updateVariantUI);
     updateVariantUI();
     updateLegends();

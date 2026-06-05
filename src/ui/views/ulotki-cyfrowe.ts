@@ -211,7 +211,7 @@ export const UlotkiCyfroweView: View = {
       }
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
     [formatSelect, qtySelect, paperSelect, ...sidesInputs].forEach((el) => {
       el.addEventListener("change", populateTables);
     });

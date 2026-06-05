@@ -269,7 +269,7 @@ export const VoucheryView: View = {
       }
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); performCalculation(); });
 

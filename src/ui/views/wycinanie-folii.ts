@@ -168,7 +168,7 @@ export const WycinanieFoliiView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Wycinanie z folii");
     };
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
     addBtn.onclick = () => {

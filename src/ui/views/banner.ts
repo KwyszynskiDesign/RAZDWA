@@ -216,7 +216,7 @@ export const BannerView: View = {
       ctx.updateLastCalculated(result.totalPrice, "Banner");
     };
 
-    autoCalc({ root: container, calc: performCalculation });
+    autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
 
     ctx?.on?.("prices-updated", () => {
       ensureLegend();

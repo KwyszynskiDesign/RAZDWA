@@ -198,7 +198,7 @@ export const CanvasView: View = {
 
     modeSel.onchange = syncModeUI;
 
-    autoCalc({ root: container, calc: calculate });
+    autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 
