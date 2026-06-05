@@ -32,6 +32,8 @@ jobs:
         run: npm run test
 
       - name: Build
+        env:
+          GOOGLE_APPS_SCRIPT_URL: ${{ secrets.GOOGLE_APPS_SCRIPT_URL }}
         run: npm run build
 
       - uses: actions/upload-pages-artifact@v3
