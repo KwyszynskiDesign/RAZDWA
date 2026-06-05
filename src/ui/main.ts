@@ -748,7 +748,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Send order: Apps Script (if configured) or local Excel fallback
+  let isSubmitting = false;
+
   const handleSendOrder = async () => {
+    if (isSubmitting) return;
+
     if (cart.isEmpty()) {
       showToast("Koszyk jest pusty", "error");
       alert("Koszyk jest pusty!");
@@ -764,6 +768,18 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast(validationError, "error");
       return;
     }
+
+    isSubmitting = true;
+    const sendBtnEl = document.getElementById("sendBtn") as HTMLButtonElement | null;
+    const sendBtn2El = document.getElementById("sendBtn2") as HTMLButtonElement | null;
+    if (sendBtnEl) sendBtnEl.disabled = true;
+    if (sendBtn2El) sendBtn2El.disabled = true;
+
+    const resetSending = () => {
+      isSubmitting = false;
+      if (sendBtnEl) sendBtnEl.disabled = false;
+      if (sendBtn2El) sendBtn2El.disabled = false;
+    };
 
     const customer: CustomerData = {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
@@ -794,7 +810,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             cart.clear();
             updateCartUI();
-            // Clear form fields
             (document.getElementById("custAddedBy") as HTMLInputElement | null)!.value = "";
             (document.getElementById("custName") as HTMLInputElement).value = "";
             (document.getElementById("custCompany") as HTMLInputElement | null)!.value = "";
@@ -803,19 +818,23 @@ document.addEventListener("DOMContentLoaded", () => {
             (document.getElementById("custEmail") as HTMLInputElement).value = "";
             (document.getElementById("custPriority") as HTMLSelectElement).value = "Normalny";
             (document.getElementById("custNotes") as HTMLTextAreaElement | null)!.value = "";
+            resetSending();
           }, 3500);
           return;
         }
 
+        resetSending();
         hideOrderLoadingPopup();
         showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
       } catch (error) {
+        resetSending();
         hideOrderLoadingPopup();
         showToast(`Błąd wysyłki: ${error}`, "error");
       }
       return;
     }
 
+    resetSending();
     showToast("Brak aktywnej integracji Apps Script — skonfiguruj URL w ustawieniach.", "error");
   };
 

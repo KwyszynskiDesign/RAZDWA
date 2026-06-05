@@ -114,5 +114,30 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  var pathname = url.pathname;
+  if (pathname.endsWith('.html') || pathname.endsWith('.json')) {
+    event.respondWith(
+      fetch(request)
+        .then(function (response) {
+          if (response && response.ok) {
+            var clone = response.clone();
+            caches.open(CACHE_VERSION).then(function (cache) {
+              cache.put(request, clone).catch(function () {});
+            });
+          }
+          return response;
+        })
+        .catch(function () {
+          return caches.match(request).then(function (cached) {
+            return cached || new Response('Offline - no cached version available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          });
+        })
+    );
+    return;
+  }
+
   return;
 });
