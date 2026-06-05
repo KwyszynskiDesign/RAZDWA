@@ -319,19 +319,19 @@ export class Router {
     const categoriesById = new Map(this.categories.map((cat: any) => [cat.id, cat]));
     const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
       {
-        title: "Druk cyfrowy",
+        title: "Druk Cyfrowy",
         ids: ["druk-a4-a3", "ulotki-cyfrowe", "wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "plakaty-a4-a3", "broszury-katalogi"]
       },
       {
-        title: "Ploter i wielki format",
+        title: "Ploter i Wielki Format",
         ids: ["druk-cad", "cad-upload", "plakaty", "banner", "canvas", "roll-up"]
       },
       {
-        title: "Cięcie i folie",
+        title: "Cięcie i Folie",
         ids: ["wlepki-naklejki", "folia-szroniona", "wycinanie-folii"]
       },
       {
-        title: "Wykończenie i inne",
+        title: "Wykończenie i Inne",
         ids: ["laminowanie", "wydruki-specjalne", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
       }
     ];
