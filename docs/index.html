@@ -152,7 +152,7 @@
       <div class="left-col">
         <div class="card main-content-card">
           <div id="viewContainer">
-            <div id="emptyState" style="display:block;text-align:center;padding:60px;border-radius:12px;margin:20px 0">
+            <div id="emptyState" style="display:none;text-align:center;padding:60px;border-radius:12px;margin:20px 0">
               <h2 style="color:var(--primary)"><span aria-hidden="true">&#xD83D;&#xDDA8;&#xFE0F;</span> Wybierz kategori&#x119;</h2>
               <p>Wybierz kategori&#x119; z lewego panelu lub wyszukaj us&#x142;ug&#x119;. Wycena + Excel w 1 klik.</p>
               <button class="btn-primary" onclick="scrollToTopTiles()" style="margin-top:12px"><span aria-hidden="true">&#xD83D;&#xDCC2;</span> Otw&#xF3;rz kategorie</button>
@@ -432,15 +432,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   filterCategories();
   updateActiveCategory();
-
-  window.addEventListener('hashchange', () => {
-    const hash = window.location.hash;
-    const isHome = hash === '' || hash === '#/';
-    const emptyState = document.getElementById('emptyState');
-    if (emptyState) {
-      emptyState.style.display = isHome ? 'block' : 'none';
-    }
-  });
 
 });
  </script>
