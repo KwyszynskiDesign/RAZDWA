@@ -86,9 +86,17 @@ export function getDefaultPricesMap(): Record<string, number | null> {
   return prices;
 }
 
+export function sanitizeLabelText(raw: string): string {
+  return raw
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/\\n/g, ' ')
+    .replace(/  +/g, ' ')
+    .trim();
+}
+
 export function getStoredPriceLabel(key: string): string {
   const labels = getPriceLabels();
-  return labels[key] ?? key;
+  return sanitizeLabelText(labels[key] ?? key);
 }
 
 export function extractQuantityFromText(text: string): number | null {

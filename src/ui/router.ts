@@ -138,7 +138,9 @@ export class Router {
   }
   
   private escapeHtml(value: string): string {
-    return value
+    return String(value)
+      .replace(/[\r\n\t]+/g, ' ')
+      .replace(/\\n/g, ' ')
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")

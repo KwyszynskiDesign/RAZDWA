@@ -85,6 +85,8 @@ function syncVariantsToSubgroupsAtStartup(): void {
 
 function escapeHtml(str: string): string {
   return String(str)
+    .replace(/[\r\n\t]+/g, ' ')
+    .replace(/\\n/g, ' ')
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -434,9 +436,10 @@ function updateCartUI() {
 
 
 function setupFormValidation(): void {
-  function showFieldError(errEl: HTMLElement, message: string | null): void {
+  function showFieldError(errEl: HTMLElement, message: string | null, input?: HTMLInputElement | null): void {
     errEl.textContent = message ?? '';
     errEl.style.display = message ? 'block' : 'none';
+    if (input) input.classList.toggle('is-invalid', !!message);
   }
 
   function addErrorEl(input: HTMLInputElement | null): HTMLElement | null {
@@ -466,9 +469,9 @@ function setupFormValidation(): void {
   if (nameEl && nameErr) {
     const validate = (v: string) =>
       v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null;
-    nameEl.addEventListener('blur', () => showFieldError(nameErr, validate(nameEl.value)));
+    nameEl.addEventListener('blur', () => showFieldError(nameErr, validate(nameEl.value), nameEl));
     nameEl.addEventListener('input', () => {
-      if (nameErr.textContent) showFieldError(nameErr, validate(nameEl.value));
+      if (nameErr.textContent) showFieldError(nameErr, validate(nameEl.value), nameEl);
     });
   }
 
@@ -478,9 +481,9 @@ function setupFormValidation(): void {
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Nieprawidłowy format e-mail';
       return null;
     };
-    emailEl.addEventListener('blur', () => showFieldError(emailErr, validate(emailEl.value)));
+    emailEl.addEventListener('blur', () => showFieldError(emailErr, validate(emailEl.value), emailEl));
     emailEl.addEventListener('input', () => {
-      if (emailErr.textContent) showFieldError(emailErr, validate(emailEl.value));
+      if (emailErr.textContent) showFieldError(emailErr, validate(emailEl.value), emailEl);
     });
   }
 
@@ -503,9 +506,9 @@ function setupFormValidation(): void {
       const digits = getDigits(phoneEl.value);
       const formatted = formatPhone(digits);
       if (phoneEl.value !== formatted) phoneEl.value = formatted;
-      if (phoneErr.textContent) showFieldError(phoneErr, validate(formatted));
+      if (phoneErr.textContent) showFieldError(phoneErr, validate(formatted), phoneEl);
     });
-    phoneEl.addEventListener('blur', () => showFieldError(phoneErr, validate(phoneEl.value)));
+    phoneEl.addEventListener('blur', () => showFieldError(phoneErr, validate(phoneEl.value), phoneEl));
   }
 
   if (nipEl && nipErr) {
@@ -528,9 +531,9 @@ function setupFormValidation(): void {
       const digits = getDigits(nipEl.value);
       const formatted = formatNip(digits);
       if (nipEl.value !== formatted) nipEl.value = formatted;
-      if (nipErr.textContent) showFieldError(nipErr, validate(formatted));
+      if (nipErr.textContent) showFieldError(nipErr, validate(formatted), nipEl);
     });
-    nipEl.addEventListener('blur', () => showFieldError(nipErr, validate(nipEl.value)));
+    nipEl.addEventListener('blur', () => showFieldError(nipErr, validate(nipEl.value), nipEl));
   }
 }
 
@@ -1010,6 +1013,21 @@ document.addEventListener("DOMContentLoaded", () => {
       if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
     }
   });
+
+  const employeeModeBtn = document.getElementById('employeeModeBtn') as HTMLButtonElement | null;
+  const pinPanelSection = document.getElementById('pinPanelSection') as HTMLElement | null;
+  if (employeeModeBtn && pinPanelSection) {
+    employeeModeBtn.addEventListener('click', () => {
+      const isHidden = pinPanelSection.hasAttribute('hidden');
+      if (isHidden) {
+        pinPanelSection.removeAttribute('hidden');
+        employeeModeBtn.setAttribute('aria-expanded', 'true');
+      } else {
+        pinPanelSection.setAttribute('hidden', '');
+        employeeModeBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
 
   refreshPinUI();
   void loadPinStatus();
