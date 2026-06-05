@@ -34,8 +34,8 @@ describe("validateCustomerForm", () => {
     expect(err).toContain("imię");
   });
 
-  it("accepts any non-empty value (format is not validated)", () => {
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123" })).toBeNull();
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "x@x", phone: "0" })).toBeNull();
+  it("accepts valid phone numbers (min. 9 digits required)", () => {
+    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789" })).toBeNull();
+    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "48123456789" })).toBeNull();
   });
 });

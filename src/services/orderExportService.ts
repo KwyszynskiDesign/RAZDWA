@@ -10,7 +10,7 @@ export interface OrderExportConfig {
   dryRun?: boolean;
 }
 
-const CURRENT_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG4TQpwKcGlnjo8kb7s1CKUuvWUam2QFmmmcNHo1uEZ7jmcRn2VJlb00jMRKRvtk2W/exec";
+const CURRENT_APPS_SCRIPT_URL = "";
 
 export interface OrderExportPayload {
   source: "razdwa-web";
@@ -72,7 +72,7 @@ type AppsScriptResponseBody = {
 const DEFAULT_CONFIG: OrderExportConfig = {
   appsScriptUrl: CURRENT_APPS_SCRIPT_URL,
   timeoutMs: 15000,
-  enabled: true,
+  enabled: false,
   dryRun: false,
 };
 
@@ -226,10 +226,9 @@ export function getOrderExportConfig(): OrderExportConfig {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
     const parsedUrl = String(parsed.appsScriptUrl ?? "").trim();
-    const migratedUrl = parsedUrl || CURRENT_APPS_SCRIPT_URL;
 
     return {
-      appsScriptUrl: migratedUrl,
+      appsScriptUrl: parsedUrl,
       timeoutMs: Number(parsed.timeoutMs) > 0 ? Number(parsed.timeoutMs) : DEFAULT_CONFIG.timeoutMs,
       enabled: typeof parsed.enabled === "boolean" ? parsed.enabled : DEFAULT_CONFIG.enabled,
       dryRun: typeof parsed.dryRun === "boolean" ? parsed.dryRun : false,
