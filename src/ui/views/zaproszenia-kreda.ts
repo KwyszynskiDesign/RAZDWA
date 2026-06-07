@@ -65,7 +65,7 @@ export const ZaproszeniaKredaView: View = {
         legendTitle.innerText = `CENNIK ZAPROSZENIA ${format} ${sidesNum === 1 ? "JEDNOSTRONNE" : "DWUSTRONNE"}${foldedCheck.checked ? " SKŁADANE" : ""}`;
       }
       if (legendSubtitle) {
-        legendSubtitle.innerText = "Legenda cenowa dla aktualnie wybranego wariantu.";
+        legendSubtitle.innerText = "Cennik dla aktualnie wybranego wariantu.";
       }
       if (legendModeBadge) {
         legendModeBadge.textContent = `Wariant: ${format}, ${sidesNum === 1 ? "jednostronne" : "dwustronne"}, ${foldedCheck.checked ? "składane" : "normal"}, ${paperBase.toUpperCase()}`;

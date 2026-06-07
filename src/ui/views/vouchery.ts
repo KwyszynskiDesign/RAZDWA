@@ -160,7 +160,7 @@ export const VoucheryView: View = {
 
       const lines: BreakdownRow[] = [
         { label: "Nakład i typ", value: `${options.qty} szt, ${materialLabel}` },
-        { label: "Cena (interpolowana)", value: formatPLN(basePrice) },
+        { label: "Cena", value: formatPLN(basePrice) },
       ];
 
       if (options.modigliani) {

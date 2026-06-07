@@ -178,7 +178,7 @@ export const BannerView: View = {
         const parts: string[] = [formatPLN(result.basePrice)];
         if (oczkowanieCost > 0) parts.push(formatPLN(oczkowanieCost));
         if (expressCost > 0) parts.push(formatPLN(expressCost));
-        lines.push({ label: "Składniki", value: parts.join(" + ") });
+
       }
 
       lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });

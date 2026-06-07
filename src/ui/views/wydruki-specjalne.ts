@@ -265,7 +265,7 @@ export const WydrukiSpecjalneView: View = {
         }).join("");
 
         specialLegendZap.innerHTML = `
-          <div class="legend-head"><div><h4>CENNIK ZAPROSZENIA (A6 1-str)</h4><p class="legend-subtitle">Legenda bazowa. Dokładna cena zależy od parametrów.</p></div></div>
+          <div class="legend-head"><div><h4>CENNIK ZAPROSZENIA (A6 1-str)</h4><p class="legend-subtitle">Cennik bazowy. Dokładna cena zależy od parametrów.</p></div></div>
           <div class="legend-badges">
             <span class="legend-badge"><strong>Składane:</strong> osobna stawka</span>
             <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>

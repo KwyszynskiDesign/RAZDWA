@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606051658 -->
+<!-- APP_VERSION: 202606071242 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,12 +28,12 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606051658" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606051658">
-  <link rel="stylesheet" href="assets/styles.css?v=202606051658">
+  <link rel="preload" href="assets/styles.css?v=202606071242" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606071242">
+  <link rel="stylesheet" href="assets/styles.css?v=202606071242">
 
   <script>window.APP_VERSION='202606011642';</script>
-  <script src="cache-buster.js?v=202606051658"></script>
+  <script src="cache-buster.js?v=202606071242"></script>
 
   <script>
     if ('serviceWorker' in navigator) {
@@ -80,7 +80,35 @@
       </div>
     </header>
 
- 
+    <nav class="mobile-tab-bar" id="mobileTabBar" aria-label="Nawigacja mobilna">
+      <button class="mobile-tab active" data-target="left-col" type="button">Kalkulator</button>
+      <button class="mobile-tab" data-target="right-col" type="button">Koszyk</button>
+    </nav>
+    <script>
+      (function() {
+        function initMobileTabs() {
+          var tabs = document.querySelectorAll('.mobile-tab');
+          tabs.forEach(function(tab) {
+            tab.addEventListener('click', function() {
+              tabs.forEach(function(t) { t.classList.remove('active'); });
+              tab.classList.add('active');
+              document.querySelectorAll('.app-grid .left-col, .app-grid .right-col')
+                .forEach(function(col) { col.classList.remove('tab-active'); });
+              var target = document.querySelector('.app-grid .' + tab.dataset.target);
+              if (target) target.classList.add('tab-active');
+            });
+          });
+          var leftCol = document.querySelector('.app-grid .left-col');
+          if (leftCol) leftCol.classList.add('tab-active');
+        }
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initMobileTabs);
+        } else {
+          initMobileTabs();
+        }
+      })();
+    </script>
+
     <div class="app-grid">
       <aside class="category-sidebar" id="categorySidebar" aria-label="Kategorie kalkulatora">
         <div class="category-sidebar-inner">
@@ -441,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
  </script>
 
- <script src="assets/app.js?v=202606051658" type="module"></script>
+ <script src="assets/app.js?v=202606071242" type="module"></script>
  <script>
 (() => {
   const VIEW_ID = 'viewContainer';

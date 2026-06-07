@@ -2761,7 +2761,7 @@ body.settings-pricing-layout .left-col {
 }
 
 #orderSummary .basketList {
-  max-height: 460px;
+  max-height: 280px;
   overflow-y: auto;
   padding-right: 4px;
   display: grid;
@@ -2917,12 +2917,13 @@ body.settings-pricing-layout .left-col {
   text-align: center;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   #orderSummary .order-summary-head {
     flex-wrap: wrap;
   }
   #goToBaseBtn {
     width: 100%;
+    min-height: 44px;
   }
 }
 
@@ -3079,6 +3080,52 @@ body.settings-pricing-layout .left-col {
 .ghost-toast--error .ghost-toast__icon {
   background: rgba(239, 68, 68, 0.16);
   color: #b91c1c;
+}
+
+/* ===== MOBILE TAB BAR (FIX-1) ===== */
+.mobile-tab-bar {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-tab-bar {
+    display: flex;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg, #fff);
+    border-bottom: 2px solid var(--border, #e2e8f0);
+    margin-bottom: 8px;
+  }
+
+  .mobile-tab {
+    flex: 1;
+    padding: 12px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-secondary, #64748b);
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .mobile-tab.active {
+    color: var(--primary, #1e40af);
+    border-bottom-color: var(--primary, #1e40af);
+  }
+
+  .app-grid .left-col,
+  .app-grid .right-col {
+    display: none;
+  }
+
+  .app-grid .left-col.tab-active,
+  .app-grid .right-col.tab-active {
+    display: block;
+  }
 }
 
 .ghost-toast__message {
@@ -3520,15 +3567,6 @@ body.settings-pricing-layout .left-col {
 
 @media (hover: none) and (pointer: coarse) {
   .tile a:active { text-decoration: none; }
-}
-
-@media (max-width: 480px) {
-  #orderSummary .order-summary-head {
-    flex-wrap: wrap;
-  }
-  #goToBaseBtn {
-    width: 100%;
-  }
 }
 
 .field-error {

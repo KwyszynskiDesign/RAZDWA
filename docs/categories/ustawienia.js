@@ -1,6 +1,7 @@
 // Ustawienia – dynamic price CRUD backed by localStorage
 // Key format: "kategoria-zakres" (np. "druk-bw-a4-1-5", "skan-auto-1-9")
 const STORAGE_KEY = 'razdwa_prices';
+const SNAPSHOT_KEY = 'razdwa_prices_snapshot';
 
 const DEFAULT_PRICES = {
   // === DRUK CZARNO-BIAŁY A4 ===
@@ -632,6 +633,17 @@ let prices = (function() {
   } catch { /* ignore */ }
   return base;
 })();
+
+function saveAsDefault() {
+  const updatedAt = new Date().toLocaleString('pl-PL', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit'
+  });
+  const snap = { keys: Object.assign({}, prices), updatedAt };
+  localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snap));
+  const el = document.getElementById('snapshotTimestamp');
+  if (el) el.textContent = 'Ostatnio zaktualizowano: ' + updatedAt;
+}
 
 function escAttr(str) {
   return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -1480,6 +1492,7 @@ function initializeSettingsPanel() {
     }
     const newKey = prefix + 'nowa-pozycja-' + Date.now();
     prices[newKey] = 0;
+    saveAsDefault();
     renderCategoryTabs();
     updateTable();
     const tbody = document.querySelector('#pricesTable tbody');
@@ -1488,19 +1501,42 @@ function initializeSettingsPanel() {
 
   saveBtn.onclick = () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+    saveAsDefault();
     showMsg('✅ Zapisano! Ceny zaktualizowane.');
     window.dispatchEvent(new StorageEvent('storage', { key: STORAGE_KEY }));
   };
 
   resetBtn.onclick = () => {
     if (!confirm('Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.')) return;
+    try {
+      const raw = localStorage.getItem(SNAPSHOT_KEY);
+      if (raw) {
+        const snap = JSON.parse(raw);
+        if (snap && snap.keys && typeof snap.keys === 'object') {
+          Object.assign(prices, snap.keys);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
+          renderCategoryTabs();
+          updateTable();
+          showMsg('🔄 Przywrócono ostatnio zapisany stan.');
+          return;
+        }
+      }
+    } catch { /* ignore */ }
     prices = Object.assign({}, DEFAULT_PRICES);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(prices));
     renderCategoryTabs();
     updateTable();
-    showMsg('🔄 Przywrócono domyślne ceny.');
+    showMsg('🔄 Przywrócono domyślne ceny (fabryczne).');
   };
   
+  const tsEl = document.getElementById('snapshotTimestamp');
+  if (tsEl) {
+    try {
+      const snap = JSON.parse(localStorage.getItem(SNAPSHOT_KEY) || 'null');
+      if (snap && snap.updatedAt) tsEl.textContent = 'Ostatnio zaktualizowano: ' + snap.updatedAt;
+    } catch { /* ignore */ }
+  }
+
   renderCategoryTabs();
   updateTable();
   console.log('✅ Settings panel initialized successfully');
