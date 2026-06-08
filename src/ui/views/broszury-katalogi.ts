@@ -137,6 +137,7 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
     const qty = parsePositiveInt(qtyInput.value);
     if (!qty) {
       resultDisplay.style.display = "none";
+      breakdownDisplay.style.display = "none";
       addToCartBtn.disabled = true;
       return;
     }

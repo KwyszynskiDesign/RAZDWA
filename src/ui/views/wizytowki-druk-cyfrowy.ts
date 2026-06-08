@@ -87,6 +87,8 @@ export const WizytowkiView: View = {
     const goViperprintBtn = container.querySelector("#w-go-viperprint") as HTMLButtonElement | null;
     const legendRows = container.querySelector("#w-legend-rows") as HTMLElement | null;
     const legendStandardEl = container.querySelector("#w-legend-standard") as HTMLElement | null;
+    const stdFormActions = (container.querySelector("#w-add-to-cart") as HTMLElement | null)?.closest(".form-actions") as HTMLElement | null;
+    const extPriceInput = container.querySelector("#w-ext-price") as HTMLInputElement | null;
 
     const updateLegend = () => {
       if (!legendRows) return;
@@ -154,6 +156,7 @@ export const WizytowkiView: View = {
         addToCartBtn.style.display = external ? 'none' : '';
         addToCartBtn.disabled = true;
       }
+      if (stdFormActions) stdFormActions.style.display = external ? 'none' : '';
       if (external) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
@@ -188,20 +191,22 @@ export const WizytowkiView: View = {
         const typeLabel = typeLabels[typeVal] ?? typeVal;
         const sizeLabel = extSizeSelect?.value || "85x55";
         const finishLabel = extFinishSelect?.value === "blyszczacy" ? "Błyszczący" : "Mat";
+        const unitPrice = parseFloat(extPriceInput?.value || "0") || 0;
         ctx.cart.addItem({
           id: `wizytowki-ext-${Date.now()}`,
           category: "Wizytówki",
           name: `Wizytówki ${typeLabel}`,
           quantity: qty,
           unit: "szt",
-          unitPrice: 0,
+          unitPrice,
           isExpress: false,
-          totalPrice: 0,
+          totalPrice: unitPrice * qty,
           optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
           payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
         });
 
         if (extQtyInput) extQtyInput.value = "";
+        if (extPriceInput) extPriceInput.value = "";
         if (extAddToCartBtn) extAddToCartBtn.disabled = true;
       };
     }
@@ -239,11 +244,13 @@ export const WizytowkiView: View = {
     const calculate = () => {
       if (isExternal() || !familySelect?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
+        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
         if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
       if (!qtyInput?.value) {
         if (resultDisplay) resultDisplay.style.display = 'none';
+        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
         if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }

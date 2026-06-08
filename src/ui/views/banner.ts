@@ -190,6 +190,7 @@ export const BannerView: View = {
       const { areaM2, widthCm, heightCm } = computeAreaFromInputs();
         if (!areaM2) {
           resultDisplay.style.display = "none";
+          if (breakdownDisplay) breakdownDisplay.style.display = "none";
           addToCartBtn.disabled = true;
           return;
         }

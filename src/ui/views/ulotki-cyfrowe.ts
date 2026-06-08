@@ -168,11 +168,13 @@ export const UlotkiCyfroweView: View = {
     const performCalculation = () => {
       if (!formatSelect.value) {
         resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         return;
       }
       if (!qtySelect.value) {
         resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         return;
       }

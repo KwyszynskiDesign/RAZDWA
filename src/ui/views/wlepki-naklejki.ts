@@ -227,11 +227,13 @@ export const WlepkiView: View = {
 
       if (mode === "szt" && !pieceTableSelect.value) {
         if (resultDiv) resultDiv.style.display = "none";
+        if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "none";
         addBtn.disabled = true;
         return;
       }
       if (mode === "m2" && !groupSelect.value) {
         if (resultDiv) resultDiv.style.display = "none";
+        if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = "none";
         addBtn.disabled = true;
         return;
       }
