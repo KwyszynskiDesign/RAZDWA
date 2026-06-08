@@ -7,7 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202606082132'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202606082215'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
@@ -70,7 +70,7 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  if (request.url.indexOf('script.google.com') !== -1 || request.url.indexOf('getPrices') !== -1) {
+  if (url.hostname === 'script.google.com' || url.search.indexOf('getPrices') !== -1) {
     event.respondWith(fetch(event.request));
     return;
   }

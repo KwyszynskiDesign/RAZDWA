@@ -286,7 +286,10 @@ export const ZaproszeniaKredaView: View = {
       addToCartBtn.disabled = true;
     });
     } catch (err) {
-      container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
+      const errDiv = document.createElement('div');
+      errDiv.className = 'error';
+      errDiv.textContent = `Błąd ładowania: ${err instanceof Error ? err.message : String(err)}`;
+      container.replaceChildren(errDiv);
     }
   }
 };

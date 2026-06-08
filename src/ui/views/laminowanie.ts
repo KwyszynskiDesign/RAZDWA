@@ -14,6 +14,10 @@ type BreakdownRow = {
 
 function normalizePolishText(text: string): string {
   return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
     .replace(/CiÄ™cie/g, "Cięcie")
     .replace(/ciÄ™cie/g, "cięcie")
     .replace(/rÄ™czne/g, "ręczne")

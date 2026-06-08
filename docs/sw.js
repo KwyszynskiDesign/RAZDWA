@@ -1,4 +1,4 @@
-var CACHE_VERSION = 'razdwa-v202606082124';
+var CACHE_VERSION = 'razdwa-v202606082210';
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -51,7 +51,7 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  if (request.url.indexOf('script.google.com') !== -1 || request.url.indexOf('getPrices') !== -1) {
+  if (url.hostname === 'script.google.com' || url.search.indexOf('getPrices') !== -1) {
     event.respondWith(fetch(event.request));
     return;
   }
@@ -82,7 +82,7 @@ self.addEventListener('fetch', function (event) {
 
   var isFont = request.destination === 'font' ||
     request.url.endsWith('.ttf') ||
-    request.url.includes('cdn.jsdelivr.net');
+    url.hostname === 'cdn.jsdelivr.net';
 
   if (
     request.destination === 'script' ||
