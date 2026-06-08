@@ -188,8 +188,8 @@ function toPdfSafeText(value: string): string {
     .replace(/Ź/g, "Z").replace(/ź/g, "z")
     .replace(/Ż/g, "Z").replace(/ż/g, "z")
     .replace(/[–—]/g, "-")
-    .replace(/[“”„]/g, "\"")
-    .replace(/[‘’]/g, "'")
+    .replace(/[""„]/g, "\"")
+    .replace(/['']/g, "'")
     .replace(/[^\x20-\x7E]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -393,12 +393,14 @@ function updateCartUI() {
 
   if (items.length === 0) {
     listEl.innerHTML = `
-      <div class=”basket-empty”>
-        <svg class=”basket-empty__icon” xmlns=”http://www.w3.org/2000/svg” width=”36” height=”36” viewBox=”0 0 24 24” fill=”none” stroke=”currentColor” stroke-width=”1.5” stroke-linecap=”round” stroke-linejoin=”round” aria-hidden=”true”><circle cx=”8” cy=”21” r=”1”/><circle cx=”19” cy=”21” r=”1”/><path d=”M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12”/></svg>
-        <div class=”basket-empty__title”>Koszyk jest pusty</div>
-        <div class=”basket-empty__hint”>Wybierz kategorię i dodaj usługę do wyceny</div>
+      <div class="basket-empty">
+        <svg class="basket-empty__icon" xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+        <div class="basket-empty__title">Koszyk jest pusty</div>
+        <div class="basket-empty__hint">Wybierz kategorię i dodaj usługę do wyceny</div>
       </div>
     `;
+    listEl.classList.remove("has-items");
+    listEl.classList.add("is-empty");
   } else {
     listEl.innerHTML = items.map((item, idx) => `
       <div class="basketItem">
@@ -412,6 +414,8 @@ function updateCartUI() {
         </div>
       </div>
     `).join("");
+    listEl.classList.remove("is-empty");
+    listEl.classList.add("has-items");
   }
 
   const total = cart.getGrandTotal();
@@ -659,6 +663,53 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);
+
+  function injectResetButtons(container: HTMLElement) {
+    const SKIP_VIEWS = ["#/ustawienia", "#/"];
+    const hash = window.location.hash || "#/";
+    if (SKIP_VIEWS.some(h => hash === h || hash.startsWith(h + "/"))) return;
+
+    const formActions = container.querySelectorAll<HTMLElement>(".form-actions");
+    formActions.forEach(fa => {
+      if (!fa.querySelector(".btn-success")) return;
+      if (fa.querySelector(".reset-order-btn")) return;
+
+      const inputEls = Array.from(
+        container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
+          "input[type='number'], input[type='text'], input[type='email'], textarea"
+        )
+      );
+      const selectEls = Array.from(container.querySelectorAll<HTMLSelectElement>("select"));
+      const checkboxEls = Array.from(
+        container.querySelectorAll<HTMLInputElement>("input[type='checkbox']")
+      );
+
+      const inputSnaps = inputEls.map(el => ({ el, value: el.value }));
+      const selectSnaps = selectEls.map(el => ({ el, idx: el.selectedIndex }));
+      const checkSnaps = checkboxEls.map(el => ({ el, checked: el.checked }));
+
+      const btn = document.createElement("button");
+      btn.className = "btn-danger reset-order-btn";
+      btn.type = "button";
+      btn.textContent = "Resetuj zamówienie";
+
+      btn.addEventListener("click", () => {
+        inputSnaps.forEach(({ el, value }) => { el.value = value; });
+        selectSnaps.forEach(({ el, idx }) => { el.selectedIndex = idx; });
+        checkSnaps.forEach(({ el, checked }) => { el.checked = checked; });
+        const firstEl = container.querySelector<HTMLElement>("input, select");
+        firstEl?.dispatchEvent(new Event("input", { bubbles: true }));
+        firstEl?.dispatchEvent(new Event("change", { bubbles: true }));
+      });
+
+      fa.appendChild(btn);
+    });
+  }
+
+  const resetObserver = new MutationObserver(() => {
+    setTimeout(() => injectResetButtons(viewContainer), 200);
+  });
+  resetObserver.observe(viewContainer, { childList: true });
 
   window.addEventListener(PRICES_UPDATED_EVENT, () => {
     const currentHash = window.location.hash || "#/";

@@ -399,7 +399,7 @@ export const PlakatyA4A3View: View = {
       };
       currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper, trimSurcharge };
 
-      unitPriceEl.innerText = formatPLN(res.singleTierPrice);
+      unitPriceEl.innerText = formatPLN(res.tierPrice);
       totalPriceEl.innerText = formatPLN(totalWithTrim);
 
       if (discountRow) {
@@ -420,8 +420,9 @@ export const PlakatyA4A3View: View = {
       if (paBreakdownBox && paBreakdownLines) {
         const breakdown: BreakdownRow[] = [
           { label: "Parametry", value: `${res.qty} szt, papier ${paper}g, wykończenie ${finish}` },
-          { label: "Cena za szt.", value: formatPLN(res.singleTierPrice) },
-          { label: "Cena bazowa", value: `${res.qty} szt × ${formatPLN(res.singleTierPrice)} = ${formatPLN(res.basePrice)}` },
+          { label: "Cena z cennika (próg 10 szt)", value: formatPLN(res.singleTierPrice) },
+          { label: `Cena łącznie (interpolacja, ${res.qty} szt)`, value: formatPLN(res.basePrice) },
+          { label: "Cena za szt. (wyliczona)", value: formatPLN(res.tierPrice) },
         ];
         if (trimSurcharge > 0) {
           breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });

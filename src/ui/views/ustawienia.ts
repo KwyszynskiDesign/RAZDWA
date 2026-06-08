@@ -2857,7 +2857,7 @@ export const UstawieniaView: View = {
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
-      if (!confirm("Przywrócić domyślne ceny? Twoje zmiany zostaną utracone.")) {
+      if (!confirm("Przywrócić fabryczne ceny bazowe? Niestandardowe warianty produktów zostaną zachowane, ale ich ceny zostaną zresetowane do wartości z cennika domyślnego.")) {
         return;
       }
 
@@ -2865,12 +2865,10 @@ export const UstawieniaView: View = {
       prices = loadPrices();
       customPriceLabels = loadPriceLabels();
       customPriceSubgroups = Object.create(null);
-      setVariantDefinitions([]);
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      showStatus("✓ Przywrócono domyślne ceny.");
-      // Emit event to notify all views about price changes
+      showStatus("✓ Przywrócono domyślne ceny bazowe. Warianty produktów zachowane.");
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 
