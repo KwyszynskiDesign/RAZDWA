@@ -431,8 +431,8 @@ export const PlakatyA4A3View: View = {
         } else {
           breakdown.push({ label: `Próg dolny (${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
           breakdown.push({ label: `Próg górny (${res.upperTierQty} szt)`, value: formatPLN(res.upperTierPrice!) });
-          breakdown.push({ label: `Cena łącznie (interpolacja, ${res.qty} szt)`, value: formatPLN(res.basePrice) });
-          breakdown.push({ label: "Cena za szt. (wyliczona)", value: formatPLN(res.tierPrice) });
+          breakdown.push({ label: `Cena łącznie (${res.qty} szt)`, value: formatPLN(res.basePrice) });
+          breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
         }
 
         if (trimSurcharge > 0) {

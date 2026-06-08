@@ -5,7 +5,7 @@ function makePinTogglePair() {
   let ariaExpanded = "false";
 
   const panel = {
-    hasAttribute: () => hidden,
+    hasAttribute: (_: string) => hidden,
     removeAttribute: (_: string) => { hidden = false; },
     setAttribute: (_: string, __: string) => { hidden = true; },
   };
