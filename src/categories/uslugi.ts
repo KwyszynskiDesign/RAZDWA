@@ -210,10 +210,17 @@ export function quoteUslugi(options: UslugiOptions): any {
   };
 }
 
+let _uslugiCleanup: (() => void) | null = null;
+
 export const uslugiCategory: CategoryModule = {
   id: 'uslugi',
   name: '🛠️ Usługi',
+  unmount() {
+    _uslugiCleanup?.();
+    _uslugiCleanup = null;
+  },
   mount: (container, ctx) => {
+    _uslugiCleanup?.();
     const isTimeBasedService = (serviceId: string): boolean => {
       return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
     };
@@ -308,7 +315,7 @@ export const uslugiCategory: CategoryModule = {
       renderServices();
     });
 
-    container.addEventListener('click', (event) => {
+    const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const addButton = target?.closest('.service-add-btn') as HTMLButtonElement | null;
       if (!addButton) return;
@@ -349,6 +356,9 @@ export const uslugiCategory: CategoryModule = {
 
       if (qtyInput) qtyInput.value = '1';
       if (hoursInput) hoursInput.value = '1';
-    });
+    };
+
+    container.addEventListener('click', handleClick);
+    _uslugiCleanup = () => container.removeEventListener('click', handleClick);
   }
 };

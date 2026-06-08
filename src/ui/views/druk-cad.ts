@@ -256,24 +256,26 @@ export const DrukCADView: View = {
       };
     };
 
-    const getEffectiveCadOps = (): CadOpItem[] => {
-      const extra: CadOpItem[] = [];
+    const getEffectiveCadOps = (): CadOpItem[] => [...cadOps];
+
+    const collectCommitOps = (): CadOpItem[] => {
+      const ops: CadOpItem[] = [...cadOps];
       const inlineScan = getInlineWfScanOp();
       if (inlineScan) {
-        const duplicateExists = cadOps.some(op =>
+        const dup = ops.some(op =>
           op.name === inlineScan.name &&
           op.optionsHint === inlineScan.optionsHint &&
           Math.abs(op.totalPrice - inlineScan.totalPrice) < 0.01
         );
-        if (!duplicateExists) extra.push(inlineScan);
+        if (!dup) ops.push(inlineScan);
       }
       const klientOp = getInlineKlientSkladanieOp();
-      if (klientOp) extra.push(klientOp);
+      if (klientOp) ops.push(klientOp);
       const nieformatoweOp = getInlineNieformatoweSkladanieOp();
-      if (nieformatoweOp) extra.push(nieformatoweOp);
+      if (nieformatoweOp) ops.push(nieformatoweOp);
       const paskiOp = getInlinePaskiWzmacniajaceOp();
-      if (paskiOp) extra.push(paskiOp);
-      return extra.length > 0 ? [...cadOps, ...extra] : cadOps;
+      if (paskiOp) ops.push(paskiOp);
+      return ops;
     };
 
     const updateCadOpsSummary = () => {
@@ -567,7 +569,7 @@ export const DrukCADView: View = {
         const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
         const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
-        const effectiveOps = getEffectiveCadOps();
+        const effectiveOps = collectCommitOps();
         const opsTotalBeforeClear = parseFloat(effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0).toFixed(2));
         const printBreakdownHint = currentResult.isMeter
           ? `${currentOptions.qty} × ${(currentOptions.lengthMm / 1000).toFixed(3)} mb (${displayCadFormat(currentOptions.format)}) = ${formatPLN(currentResult.basePrice)}`

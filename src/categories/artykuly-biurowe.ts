@@ -205,10 +205,17 @@ export function quoteArtykulyBiurowe(options: ArtykulyBiuroweOptions): any {
   };
 }
 
+let _artykulyCleanup: (() => void) | null = null;
+
 export const artykulyBiuroweCategory: CategoryModule = {
   id: 'artykuly-biurowe',
   name: '📎 Artykuły Biurowe',
+  unmount() {
+    _artykulyCleanup?.();
+    _artykulyCleanup = null;
+  },
   mount: (container, ctx) => {
+    _artykulyCleanup?.();
     container.innerHTML = `
       <div class="category-form">
         <h2>Artykuły Biurowe</h2>
@@ -285,7 +292,7 @@ export const artykulyBiuroweCategory: CategoryModule = {
       renderItems();
     });
 
-    container.addEventListener('click', (event) => {
+    const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       const addButton = target?.closest('.item-add-btn') as HTMLButtonElement | null;
       if (!addButton) return;
@@ -322,6 +329,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
       });
 
       if (qtyInput) qtyInput.value = '1';
-    });
+    };
+
+    container.addEventListener('click', handleClick);
+    _artykulyCleanup = () => container.removeEventListener('click', handleClick);
   }
 };
