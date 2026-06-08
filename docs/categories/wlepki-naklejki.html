@@ -419,31 +419,3 @@
         }
     }
 </style>
-
-<script>
-(() => {
-    const modeSelect = document.getElementById('wlepki-mode');
-    const pieceTableSelect = document.getElementById('wlepki-piece-table');
-    const modeM2 = document.getElementById('wlepki-cennik-m2');
-    const modeSzt = document.getElementById('wlepki-cennik-szt');
-
-    if (!modeSelect || !pieceTableSelect || !modeM2 || !modeSzt) {
-        return;
-    }
-
-    const updateCennikVisibility = () => {
-        const isSzt = modeSelect.value === 'szt';
-        modeM2.style.display = isSzt ? 'none' : '';
-        modeSzt.style.display = isSzt ? '' : 'none';
-
-        const selectedTable = pieceTableSelect.value;
-        modeSzt.querySelectorAll('[data-piece-table]').forEach((section) => {
-            section.style.display = section.getAttribute('data-piece-table') === selectedTable ? '' : 'none';
-        });
-    };
-
-    modeSelect.addEventListener('change', updateCennikVisibility);
-    pieceTableSelect.addEventListener('change', updateCennikVisibility);
-    updateCennikVisibility();
-})();
-</script>

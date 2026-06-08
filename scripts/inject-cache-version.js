@@ -65,8 +65,8 @@ function injectHtmlVersion(filePath) {
     content = content.replace(/\?v=[\w-]+/g, `?v=${version}`);
 
     content = content.replace(
-      /window\.APP_VERSION\s*=\s*['"`][\w-]*['"`]/,
-      `window.APP_VERSION='${version}'`
+      /(<meta name="app-version" content=")[\w-]*(")/,
+      `$1${version}$2`
     );
 
     fs.writeFileSync(filePath, content, 'utf8');
