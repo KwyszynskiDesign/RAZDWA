@@ -237,10 +237,11 @@ describe("Price Persistence", () => {
       expect(uslugiResult.totalPrice).toBe(60.00);
     });
 
-    it("resetting prices should clear all overrides", () => {
+    it("resetting prices should restore last saved state (saved overrides persist)", () => {
       setPrice("defaultPrices.artykuly-papier-a4-80g", 30.00);
       setPrice("defaultPrices.uslugi-formatowanie", 60.00);
-      
+
+      // Reset restores from last save — setPrice writes to localStorage, so overrides persist
       resetPrices();
 
       const artykulyResult = quoteArtykulyBiurowe({
@@ -267,11 +268,47 @@ describe("Price Persistence", () => {
         ]
       });
 
-      expect(artykulyResult.totalPrice).toBe(25.00); // Back to default
-      expect(uslugiResult.totalPrice).toBe(50.00); // Back to default
+      expect(artykulyResult.totalPrice).toBe(30.00); // Saved override preserved
+      expect(uslugiResult.totalPrice).toBe(60.00); // Saved override preserved
     });
 
-    it("should persist and clear custom subgroup metadata", () => {
+    it("resetting prices with cleared storage should restore factory defaults", () => {
+      setPrice("defaultPrices.artykuly-papier-a4-80g", 30.00);
+      setPrice("defaultPrices.uslugi-formatowanie", 60.00);
+
+      // Simulate cleared storage (e.g., user manually cleared localStorage)
+      storageData = {};
+      resetPrices();
+
+      const artykulyResult = quoteArtykulyBiurowe({
+        selectedItems: [
+          {
+            categoryName: "Papier",
+            itemId: "papier-a4-80g",
+            itemName: "Papier A4 80g",
+            quantity: 1,
+            price: 25.00
+          }
+        ]
+      });
+
+      const uslugiResult = quoteUslugi({
+        selectedServices: [
+          {
+            serviceId: "formatowanie",
+            serviceName: "Formatowanie",
+            price: 50.00,
+            quantity: 1,
+            hours: 1
+          }
+        ]
+      });
+
+      expect(artykulyResult.totalPrice).toBe(25.00); // Back to factory default
+      expect(uslugiResult.totalPrice).toBe(50.00); // Back to factory default
+    });
+
+    it("should persist custom subgroup metadata across reset", () => {
       setPriceSubgroups({
         "plakaty-a4-a3": {
           "plakaty-maly-canon-papier-350g-": "Papier 350g",
@@ -285,10 +322,11 @@ describe("Price Persistence", () => {
       expect(parsed["plakaty-a4-a3"]["plakaty-maly-canon-papier-350g-"]).toBe("Papier 350g");
       expect(getPriceSubgroups()["plakaty-a4-a3"]["plakaty-maly-canon-papier-350g-"]).toBe("Papier 350g");
 
+      // Reset does NOT wipe saved subgroups — it restores from last saved state
       resetPrices();
 
-      expect(storageData[PRICE_SUBGROUPS_STORAGE_KEY]).toBeUndefined();
-      expect(getPriceSubgroups()["plakaty-a4-a3"]).toBeUndefined();
+      expect(storageData[PRICE_SUBGROUPS_STORAGE_KEY]).toBeDefined();
+      expect(getPriceSubgroups()["plakaty-a4-a3"]["plakaty-maly-canon-papier-350g-"]).toBe("Papier 350g");
     });
   });
 });

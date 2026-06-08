@@ -62,7 +62,7 @@ describe('priceService', () => {
     resetPrices();
   });
 
-  it('resetPrices removes defaultPrices from localStorage when available', () => {
+  it('resetPrices restores defaultPrices from localStorage and preserves saved data', () => {
     const stored: Record<string, string> = { [PRICES_STORAGE_KEY]: '{"x":1}' };
     const mockLocalStorage = {
       getItem: (k: string) => stored[k] ?? null,
@@ -72,10 +72,14 @@ describe('priceService', () => {
     (globalThis as any).localStorage = mockLocalStorage;
 
     resetPrices();
-    expect(stored[PRICES_STORAGE_KEY]).toBeUndefined();
+    // localStorage data should be preserved (not wiped) — reset = restore from last save
+    expect(stored[PRICES_STORAGE_KEY]).toBe('{"x":1}');
+    // In-memory state should reflect the stored override
+    expect(getPrice('defaultPrices.x')).toBe(1);
 
     // Cleanup
     delete (globalThis as any).localStorage;
+    resetPrices();
   });
 
   it('setPrice on defaultPrices updates in-memory prices immediately', () => {

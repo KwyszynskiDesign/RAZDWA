@@ -2857,18 +2857,28 @@ export const UstawieniaView: View = {
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
-      if (!confirm("Przywrócić fabryczne ceny bazowe? Niestandardowe warianty produktów zostaną zachowane, ale ich ceny zostaną zresetowane do wartości z cennika domyślnego.")) {
+      if (!confirm("Przywrócić ostatnio zapisany stan cennika? Niezapisane zmiany zostaną odrzucone. Dodane i zapisane produkty oraz kategorie pozostaną bez zmian.")) {
         return;
       }
 
       resetPrices();
       prices = loadPrices();
-      customPriceLabels = loadPriceLabels();
-      customPriceSubgroups = Object.create(null);
+      const _resetVariants = getVariantDefinitions();
+      const _resetLegacyLabels = loadPriceLabels();
+      const _resetLegacySubgroups = getPriceSubgroups();
+      customPriceLabels = { ..._resetLegacyLabels, ...variantsToPriceLabels(_resetVariants) };
+      customPriceSubgroups = Object.create(null) as typeof customPriceSubgroups;
+      for (const [catId, prefixes] of Object.entries(_resetLegacySubgroups)) {
+        customPriceSubgroups[catId] = { ...prefixes };
+      }
+      for (const [catId, prefixes] of Object.entries(variantsToPriceSubgroups(_resetVariants))) {
+        if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+        Object.assign(customPriceSubgroups[catId], prefixes);
+      }
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      showStatus("✓ Przywrócono domyślne ceny bazowe. Warianty produktów zachowane.");
+      showStatus("✓ Przywrócono ostatnio zapisany stan cennika. Niezapisane zmiany odrzucone.");
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 

@@ -420,10 +420,21 @@ export const PlakatyA4A3View: View = {
       if (paBreakdownBox && paBreakdownLines) {
         const breakdown: BreakdownRow[] = [
           { label: "Parametry", value: `${res.qty} szt, papier ${paper}g, wykończenie ${finish}` },
-          { label: "Cena z cennika (próg 10 szt)", value: formatPLN(res.singleTierPrice) },
-          { label: `Cena łącznie (interpolacja, ${res.qty} szt)`, value: formatPLN(res.basePrice) },
-          { label: "Cena za szt. (wyliczona)", value: formatPLN(res.tierPrice) },
         ];
+
+        if (res.isExact) {
+          breakdown.push({ label: `Cena z cennika (próg ${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
+          breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
+        } else if (res.upperTierQty === null) {
+          breakdown.push({ label: `Cena z cennika (próg maks. ${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
+          breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
+        } else {
+          breakdown.push({ label: `Próg dolny (${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
+          breakdown.push({ label: `Próg górny (${res.upperTierQty} szt)`, value: formatPLN(res.upperTierPrice!) });
+          breakdown.push({ label: `Cena łącznie (interpolacja, ${res.qty} szt)`, value: formatPLN(res.basePrice) });
+          breakdown.push({ label: "Cena za szt. (wyliczona)", value: formatPLN(res.tierPrice) });
+        }
+
         if (trimSurcharge > 0) {
           breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });
         }

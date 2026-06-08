@@ -432,6 +432,11 @@ export interface PlakatyDuzyCanonResult {
   modifiersTotal: number;
   totalPrice: number;
   appliedModifiers: string[];
+  isExact: boolean;
+  lowerTierQty: number;
+  lowerTierPrice: number;
+  upperTierQty: number | null;
+  upperTierPrice: number | null;
 }
 
 export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): PlakatyDuzyCanonResult {
@@ -440,6 +445,34 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
 
   const qtyRaw = Math.max(DUZY_CANON_TABLE.minQty, Math.floor(input.qty));
   const qty = Math.min(qtyRaw, DUZY_CANON_TABLE.maxQty);
+
+  const sortedTiers = [...variant.tiers].sort((a: any, b: any) => a.qty - b.qty);
+
+  // Determine interpolation bounds for breakdown display
+  const exactMatch = sortedTiers.find((t: any) => t.qty === qty);
+  let isExact: boolean;
+  let lowerTierQty: number;
+  let lowerTierPrice: number;
+  let upperTierQty: number | null;
+  let upperTierPrice: number | null;
+
+  if (exactMatch) {
+    isExact = true;
+    lowerTierQty = exactMatch.qty;
+    lowerTierPrice = exactMatch.price;
+    upperTierQty = null;
+    upperTierPrice = null;
+  } else {
+    isExact = false;
+    const lowerTier = sortedTiers.reduce((prev: any, curr: any) =>
+      curr.qty <= qty && curr.qty > (prev?.qty || 0) ? curr : prev
+    );
+    const upperTier = sortedTiers.find((t: any) => t.qty > qty);
+    lowerTierQty = lowerTier?.qty ?? sortedTiers[0].qty;
+    lowerTierPrice = lowerTier?.price ?? sortedTiers[0].price;
+    upperTierQty = upperTier?.qty ?? null;
+    upperTierPrice = upperTier?.price ?? null;
+  }
 
   // Use linear interpolation to find the price
   const basePrice = interpolatePrice(qty, variant.tiers);
@@ -453,7 +486,7 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
                  Math.abs(t.qty - qty) < Math.abs(closest.qty - qty) ? t : closest
                );
   const tierQty = tier?.qty || qty;
-  const tierPrice = unitPrice;  // Use interpolated unit price, not tier price
+  const tierPrice = unitPrice;
 
   // For single-tier price reference
   const singleTier = variant.tiers.find((t: any) => t.qty === 1) ?? variant.tiers[0];
@@ -482,6 +515,11 @@ export function calculatePlakatyDuzyCanon(input: PlakatyDuzyCanonInput): Plakaty
     modifiersTotal,
     totalPrice: parseFloat((basePrice + modifiersTotal).toFixed(2)),
     appliedModifiers,
+    isExact,
+    lowerTierQty,
+    lowerTierPrice,
+    upperTierQty,
+    upperTierPrice,
   };
 }
 

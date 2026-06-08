@@ -130,7 +130,7 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
       }
     }
 
-    (function loadFromStorage() {
+    function applyStorageOverrides(): void {
       try {
         if (typeof localStorage === "undefined") return;
 
@@ -169,7 +169,9 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
       } catch {
         // ignore
       }
-    })();
+    }
+
+    applyStorageOverrides();
 
     export function getPrice(path: string): any {
       const keys = path.split(".");
@@ -217,25 +219,8 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
     }
 
     export function resetPrices(): void {
-      _prices = JSON.parse(JSON.stringify(_config));
-
-      try {
-        if (typeof localStorage !== "undefined") {
-          localStorage.removeItem(PRICES_STORAGE_KEY);
-        }
-      } catch {
-        // ignore
-      }
-
-      try {
-        if (typeof localStorage !== "undefined") {
-          localStorage.removeItem(PRICE_LABELS_STORAGE_KEY);
-          localStorage.removeItem(PRICE_SUBGROUPS_STORAGE_KEY);
-        }
-      } catch {
-        // ignore
-      }
-
+      _prices = cloneToNullPrototype(JSON.parse(JSON.stringify(_config)));
+      applyStorageOverrides();
       notifyPricesUpdated("defaultPrices");
     }
 

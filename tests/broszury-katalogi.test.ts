@@ -101,6 +101,8 @@ describe("resolveTierPrice", () => {
   });
 
   it("returns 0 when no prices are configured", () => {
+    // Clear saved prices before reset to simulate empty storage (factory defaults)
+    storageData = {};
     resetPrices();
     expect(resolveTierPrice("a4", 10)).toBe(0);
   });
