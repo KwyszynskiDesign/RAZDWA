@@ -64,6 +64,11 @@ function injectHtmlVersion(filePath) {
 
     content = content.replace(/\?v=[\w-]+/g, `?v=${version}`);
 
+    content = content.replace(
+      /window\.APP_VERSION\s*=\s*['"`][\w-]*['"`]/,
+      `window.APP_VERSION='${version}'`
+    );
+
     fs.writeFileSync(filePath, content, 'utf8');
     console.log(`✓ Updated HTML version in ${filePath} → ${version}`);
   } catch (error) {

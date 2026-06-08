@@ -19,7 +19,6 @@ import { WydrukiSpecjalneView } from "./views/wydruki-specjalne";
 import { FoliaSzronionaView } from "./views/folia-szroniona";
 import { WycinanieFoliiView } from "./views/wycinanie-folii";
 import { CanvasView } from "./views/canvas-fixed";
-import { CadOpsView } from "./views/cad-ops";
 import { CadUploadView } from "./views/cad-upload";
 import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
@@ -658,7 +657,6 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(FoliaSzronionaView);
   router.addRoute(WycinanieFoliiView);
   router.addRoute(CanvasView);
-  router.addRoute(CadOpsView);
   router.addRoute(CadUploadView);
   router.addRoute(UstawieniaView);
   router.addRoute(artykulyBiuroweCategory);
