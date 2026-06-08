@@ -3285,6 +3285,14 @@ body.settings-pricing-layout .left-col {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.draft-indicator {
+  font-size: 12px;
+  font-weight: 500;
+  color: #e67700;
+  padding: 4px 0 2px;
+  line-height: 1.4;
+}
+
 /* ===== HOME TILE SUBLABEL ===== */
 .home-tile-sublabel {
   font-size: 11px;

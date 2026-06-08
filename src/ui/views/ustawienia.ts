@@ -64,6 +64,7 @@ let _lastAddedKey: string | null = null;
 
 let customPriceLabels: PriceLabelMap = Object.create(null);
 let customPriceSubgroups: PriceSubgroupMap = Object.create(null);
+let _draftVariantDefs: VariantDefinition[] = [];
 
 function getCustomSubgroupDefinitions(categoryId: string): PrefixOption[] {
   const groups = customPriceSubgroups[categoryId] ?? Object.create(null);
@@ -2058,6 +2059,12 @@ export const UstawieniaView: View = {
       }, 3200);
     }
 
+    function updateDraftIndicator(): void {
+      const el = container.querySelector<HTMLElement>("#draft-indicator");
+      if (!el) return;
+      el.style.display = _draftVariantDefs.length > 0 ? "" : "none";
+    }
+
     function flushInputs(): void {
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
         const priceInput = row.querySelector<HTMLInputElement>("input[data-field='unitPrice']");
@@ -2529,15 +2536,17 @@ export const UstawieniaView: View = {
                   <code id="key-preview-value" class="settings-key-preview-code"></code>
                 </div>
 
-                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj do cennika</button>
+                <button id="btn-add-row" type="button" class="btn-success settings-action-btn">+ Dodaj wariant</button>
               </div>
 
               <hr class="settings-divider">
 
               <div class="settings-persist-group">
-                <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz cały cennik</button>
-                <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć domyślne</button>
+                <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz cennik</button>
+                <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć</button>
               </div>
+
+              <div id="draft-indicator" class="draft-indicator" style="display:none">● Niezapisane zmiany — kliknij „Zapisz cennik", aby utrwalić</div>
 
               <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
             </div>
@@ -2560,6 +2569,7 @@ export const UstawieniaView: View = {
     renderTabs();
     renderTable();
     syncAddCategorySelection();
+    updateDraftIndicator();
 
     // Asynchronicznie pobierz świeży stan z GAS (nie blokuje UI)
     fetchStateFromAppsScript().then((remote) => {
@@ -2740,7 +2750,6 @@ export const UstawieniaView: View = {
             [chosenPrefix]: subgroupName,
           },
         };
-        setPriceSubgroups(customPriceSubgroups);
       }
 
       const parsedPrice = priceValueRaw !== "" ? Number.parseFloat(priceValueRaw) : NaN;
@@ -2762,12 +2771,10 @@ export const UstawieniaView: View = {
         customPriceLabels[newKey] = legendText || productLabel;
       }
 
-      const currentDefaultPrices = (getPrice("defaultPrices") as Record<string, number | null>) ?? {};
-      setPrice("defaultPrices", { ...currentDefaultPrices, [newKey]: newVariantPrice });
-      setPriceLabels({ ...customPriceLabels });
-
-      // Persist variant definition to registry — na update zachowaj createdAt i sortOrder
-      const existingDef = isUpdate ? getVariantDefinitions().find((v) => v.key === newKey) : undefined;
+      // Draft: tylko aktualizacja in-memory; localStorage nie jest dotykany do momentu "Zapisz cennik"
+      const existingDef = isUpdate
+        ? (getVariantDefinitions().find((v) => v.key === newKey) ?? _draftVariantDefs.find((v) => v.key === newKey))
+        : undefined;
       const _now = new Date().toISOString();
       const _variantDef: VariantDefinition = {
         key: newKey,
@@ -2778,14 +2785,15 @@ export const UstawieniaView: View = {
         legend: legendText,
         visibleInSettings: true,
         visibleInCalculator: true,
-        sortOrder: existingDef?.sortOrder ?? getVariantDefinitions().length,
+        sortOrder: existingDef?.sortOrder ?? (getVariantDefinitions().length + _draftVariantDefs.length),
         createdAt: existingDef?.createdAt ?? _now,
         updatedAt: _now,
       };
-      upsertVariantDefinition(_variantDef);
+      _draftVariantDefs = _draftVariantDefs.filter((d) => d.key !== _variantDef.key).concat(_variantDef);
       logVariantOperation({ action: isUpdate ? "update" : "add", key: newKey, categoryId: chosenCategoryId, prefix: chosenPrefix, label: productLabel || legendText, qty: qtyValue, price: newVariantPrice, timestamp: _now });
 
-      showStatus(isUpdate ? `✓ Zaktualizowano: ${newKey}` : `✓ Dodano: ${newKey}`);
+      showStatus(isUpdate ? `✓ Zaktualizowano (niezapisane): ${newKey}` : `✓ Dodano (niezapisane): ${newKey}`);
+      updateDraftIndicator();
 
       renderTabs();
       renderTable();
@@ -2819,6 +2827,12 @@ export const UstawieniaView: View = {
       flushInputs();
 
 
+      // Commit draft variant definitions do localStorage przed zapisem cennika.
+      for (const dv of _draftVariantDefs) {
+        upsertVariantDefinition(dv);
+      }
+      _draftVariantDefs = [];
+
       // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
       // flushInputs() już zsynchronizował edytowalne pola aktywnej kategorii → prices.
       const persisted: Record<string, number | null> = {};
@@ -2837,7 +2851,8 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      showStatus("✓ Zapisano ceny.");
+      showStatus("✓ Zapisano cennik.");
+      updateDraftIndicator();
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       try {
@@ -2857,10 +2872,11 @@ export const UstawieniaView: View = {
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
-      if (!confirm("Przywrócić ostatnio zapisany stan cennika? Niezapisane zmiany zostaną odrzucone. Dodane i zapisane produkty oraz kategorie pozostaną bez zmian.")) {
+      if (!confirm("Przywrócić ostatnio zapisany stan cennika? Niezapisane zmiany zostaną odrzucone, w tym niezapisane warianty i kategorie.")) {
         return;
       }
 
+      _draftVariantDefs = [];
       resetPrices();
       prices = loadPrices();
       const _resetVariants = getVariantDefinitions();
@@ -2878,7 +2894,8 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      showStatus("✓ Przywrócono ostatnio zapisany stan cennika. Niezapisane zmiany odrzucone.");
+      updateDraftIndicator();
+      showStatus("✓ Przywrócono ostatnio zapisany stan cennika.");
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     });
 
