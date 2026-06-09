@@ -96,27 +96,35 @@ function escapeHtml(str: string): string {
 const SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
 try { localStorage.removeItem('razdwa_pin'); } catch {} // cleanup: PIN moved to server
 
-function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending") {
+function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending"): HTMLElement | null {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
-  if (!host) return;
+  if (!host) return null;
   const toast = document.createElement("div");
-  let variant = "sending";
-  if (type === "success") variant = "sent";
+  const variant = type === "success" ? "sent" : "sending";
   toast.className = `ghost-toast ghost-toast--${variant}`;
-  let icon = type === "sending" ? "⏳" : "✔️";
+  const icon = type === "sending" ? "⏳" : "✔️";
   toast.innerHTML = `
     <span class="ghost-toast__icon">${icon}</span>
     <span class="ghost-toast__message">${escapeHtml(message)}</span>
   `;
   host.prepend(toast);
   setTimeout(() => toast.classList.add("is-visible"), 10);
-  setTimeout(() => {
-    toast.classList.remove("is-visible");
-    setTimeout(() => toast.remove(), 350);
-  }, 3500);
+  if (type === "success") {
+    setTimeout(() => {
+      toast.classList.remove("is-visible");
+      setTimeout(() => toast.remove(), 350);
+    }, 3500);
+  }
+  return toast;
 }
 
-function hideOrderLoadingPopup() {/* niepotrzebne, zostawiam dla kompatybilności */}
+function dismissToast(toast: HTMLElement | null) {
+  if (!toast) return;
+  toast.classList.remove("is-visible");
+  setTimeout(() => toast.remove(), 350);
+}
+
+function hideOrderLoadingPopup() {/* zachowane dla kompatybilności */}
 
 function getSummaryPercentValue(elementId: string): number {
   const el = document.getElementById(elementId) as HTMLSelectElement | null;
@@ -805,7 +813,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (cart.isEmpty()) {
       showToast("Koszyk jest pusty", "error");
-      alert("Koszyk jest pusty!");
       return;
     }
 
@@ -815,6 +822,21 @@ document.addEventListener("DOMContentLoaded", () => {
       phone: (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "",
     });
     if (validationError) {
+      const showInlineErr = (inputId: string, msg: string | null): HTMLInputElement | null => {
+        const input = document.getElementById(inputId) as HTMLInputElement | null;
+        const err = document.getElementById(`${inputId}Err`);
+        if (err) { err.textContent = msg ?? ""; err.style.display = msg ? "block" : "none"; }
+        if (input) input.classList.toggle("is-invalid", !!msg);
+        return msg ? input : null;
+      };
+      const nameVal = (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "";
+      const emailVal = (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "";
+      const phoneVal = (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "";
+      const first =
+        showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
+        showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
+        showInlineErr("custPhone", phoneVal.replace(/\D/g, "").length < 9 ? "Podaj numer telefonu (min. 9 cyfr)" : null);
+      first?.focus();
       showToast(validationError, "error");
       return;
     }
@@ -846,15 +868,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
-      showOrderLoadingPopup("WYSYŁANIE...", "sending");
+      const sendingToast = showOrderLoadingPopup("WYSYŁANIE...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
+        dismissToast(sendingToast);
+
         if (result.ok) {
-          showOrderLoadingPopup("Wysłano do bazy (Google Sheets)", "success");
+          const orderRef = (() => {
+            if (!result.data || typeof result.data !== "object") return "";
+            const d = result.data as Record<string, unknown>;
+            const v = d.orderId ?? d.orderNumber ?? d.rowNumber ?? d.id ?? d.numer ?? d.nr;
+            return v ? ` (#${String(v)})` : "";
+          })();
+          const successMsg = result.verified
+            ? (result.message || "Wysłano do bazy") + orderRef
+            : `Wysłano do bazy (Google Sheets)${orderRef}`;
+          showOrderLoadingPopup(successMsg, "success");
           setTimeout(() => {
-            hideOrderLoadingPopup();
             if (result.verified === false) {
               showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
             }
@@ -880,12 +912,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         resetSending();
-        hideOrderLoadingPopup();
         showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
       } catch (error) {
+        dismissToast(sendingToast);
         resetSending();
-        hideOrderLoadingPopup();
-        showToast(`Błąd wysyłki: ${error}`, "error");
+        showToast(`Błąd wysyłki: ${error instanceof Error ? error.message : String(error)}`, "error");
       }
       return;
     }
