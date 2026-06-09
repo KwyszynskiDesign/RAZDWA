@@ -327,7 +327,7 @@ export const uslugiCategory: CategoryModule = {
       const hoursInput = container.querySelector(`input[data-hours-for="${serviceId}"]`) as HTMLInputElement | null;
 
       const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
-      const hours = Math.max(0.25, parseFloat(hoursInput?.value || '1') || 1);
+      const hours = Math.max(0.25, parseFloat((hoursInput?.value || '1').replace(',', '.')) || 1);
 
       const selectedService = {
         serviceId,
