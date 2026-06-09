@@ -331,6 +331,10 @@ describe("savePricesToAppsScript — body validation", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     delete (globalThis as any).fetch;
+    delete (globalThis as any).sessionStorage;
+    (globalThis as any).sessionStorage = {
+      getItem: (k: string) => k === 'adminSessionToken' ? 'test-session-token' : null,
+    };
   });
 
   it("body {ok:true} → result.ok=true, result.verified=true", async () => {
@@ -369,12 +373,28 @@ describe("savePricesToAppsScript — body validation", () => {
     expect(result.ok).toBe(false);
     expect(result.status).toBe(500);
   });
+
+  it("brak adminSessionToken → fail-fast, fetch nie wywołany", async () => {
+    delete (globalThis as any).sessionStorage;
+    const fetchSpy = vi.fn();
+    (globalThis as any).fetch = fetchSpy;
+
+    const result = await savePricesToAppsScript({}, GAS_CONFIG);
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toMatch(/token/i);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
 });
 
 describe("savePricesToAppsScript — dry-run", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     delete (globalThis as any).fetch;
+    delete (globalThis as any).sessionStorage;
+    (globalThis as any).sessionStorage = {
+      getItem: (k: string) => k === 'adminSessionToken' ? 'test-session-token' : null,
+    };
   });
 
   it("dryRun:true → fetch nie jest wywoływany", async () => {

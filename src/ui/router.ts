@@ -192,7 +192,7 @@ export class Router {
     }
 
     if (id === "zamowienia-zewnetrzne") {
-      return "ZAMÓWIENIA<br>ZEWNĘTRZNE";
+      return "Zamówienia<br>zewnętrzne";
     }
 
     return safeName;
