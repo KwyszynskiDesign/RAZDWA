@@ -443,10 +443,13 @@ export async function savePricesToAppsScript(
     return { ok: true, verified: true, message: "dry-run: cennik nie został wysłany." };
   }
 
-  const pin = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminPin') : null;
+  const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminSessionToken') : null;
+  if (!token) {
+    return { ok: false, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+  }
   const body = JSON.stringify({
     type: "prices_update",
-    pin,
+    token,
     prices,
   });
 
@@ -513,8 +516,11 @@ export async function saveVariantsToAppsScript(
     return { ok: true, verified: true, message: "dry-run: warianty nie zostały wysłane." };
   }
 
-  const pin = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminPin') : null;
-  const body = JSON.stringify({ type: "variants_update", pin, variants });
+  const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminSessionToken') : null;
+  if (!token) {
+    return { ok: false, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+  }
+  const body = JSON.stringify({ type: "variants_update", token, variants });
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), config.timeoutMs);
 
@@ -607,6 +613,7 @@ export async function fetchStateFromAppsScript(
 export interface PinVerifyResult {
   ok: boolean;
   firstRun?: boolean;
+  token?: string;
   error?: 'wrong_pin' | 'rate_limited' | 'offline' | 'server_error';
 }
 

@@ -52,6 +52,7 @@ export class Router {
 
     if (status.ok && status.firstRun) {
       sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
+      if (status.token) sessionStorage.setItem('adminSessionToken', status.token);
       await this.mountSettingsView();
       return;
     }
@@ -109,6 +110,7 @@ export class Router {
 
       if (result.ok) {
         sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
+        if (result.token) sessionStorage.setItem('adminSessionToken', result.token);
         if (pinInput) pinInput.value = '';
         await this.mountSettingsView();
         return;

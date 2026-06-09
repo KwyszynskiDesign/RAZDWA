@@ -262,19 +262,49 @@ function setAdminPin(newPin) {
 
 > Wywołaj `setAdminPin('TwójPin')` raz z panelu Apps Script, żeby ustawić PIN w PropertiesService. Potem usuń wywołanie.
 
-### Fragment doPost dla prices_update i variants_update (dopisz NA POCZĄTKU istniejącej funkcji doPost)
+### Fragmenty doPost — autoryzacja tokenem sesji (dopisz NA POCZĄTKU istniejącej funkcji doPost)
+
+Model bezpieczeństwa: frontend weryfikuje PIN raz (action=verifyPin). GAS wydaje krótkotrwały token sesji (UUID, 30 min). Wszystkie operacje zapisu wymagają tego tokenu — nie PIN-u.
+
+> **Wymagane:** `ADMIN_PIN` musi być ustawiony przez `setAdminPin(...)` zanim wdrożysz. Jeśli nie ma PIN-u w PropertiesService, zapis jest możliwy bez tokenu (tryb konfiguracji wstępnej).
 
 ```javascript
-// Dopisz jako pierwszy blok wewnątrz try{} w doPost(e):
+// Dopisz jako pierwszy blok wewnątrz try{} w doPost(e), przed logiką zamówień:
 const body = JSON.parse((e && e.postData && e.postData.contents) || '{}') || {};
 
+// ── weryfikacja PIN i wydanie tokenu sesji ───────────────────────────────────
+if (body.action === 'verifyPin') {
+  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+  if (!adminPin) {
+    const token = Utilities.getUuid();
+    CacheService.getScriptCache().put('adminToken_' + token, '1', 1800);
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: true, firstRun: true, token: token }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  if (body.pin !== adminPin) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, error: 'wrong_pin' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  const token = Utilities.getUuid();
+  CacheService.getScriptCache().put('adminToken_' + token, '1', 1800);
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, token: token }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ── zapis cennika ────────────────────────────────────────────────────────────
 if (body.type === 'prices_update') {
   Logger.log('POST prices_update');
   const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
-  if (adminPin && body.pin !== adminPin) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid PIN' }))
-      .setMimeType(ContentService.MimeType.JSON);
+  if (adminPin) {
+    const cached = body.token ? CacheService.getScriptCache().get('adminToken_' + body.token) : null;
+    if (!cached) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid or expired session token' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
   }
   if (!body.prices || typeof body.prices !== 'object') {
     return ContentService
@@ -287,13 +317,17 @@ if (body.type === 'prices_update') {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
+// ── zapis wariantów ──────────────────────────────────────────────────────────
 if (body.type === 'variants_update') {
   Logger.log('POST variants_update');
   const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
-  if (adminPin && body.pin !== adminPin) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid PIN' }))
-      .setMimeType(ContentService.MimeType.JSON);
+  if (adminPin) {
+    const cached = body.token ? CacheService.getScriptCache().get('adminToken_' + body.token) : null;
+    if (!cached) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid or expired session token' }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
   }
   if (!Array.isArray(body.variants)) {
     return ContentService
