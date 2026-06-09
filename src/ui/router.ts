@@ -383,8 +383,8 @@ export class Router {
     this.container.innerHTML = `
       <div class="home-categories-shell">
         <h2 class="home-categories-title">
-          <span class="home-categories-title-main">Witaj w kalkulatorze</span>
-          <span class="home-categories-title-sub">wybierz kategorię poniżej</span>
+          <span class="home-categories-title-main">Witaj w kalkulatorze.</span>
+          <span class="home-categories-title-sub">Wybierz kategorię poniżej</span>
         </h2>
         <div class="home-mini-groups">
           ${groupHtml}
