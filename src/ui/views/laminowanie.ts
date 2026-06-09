@@ -579,13 +579,12 @@ export const LaminowanieView: View = {
           payload: currentResult
         });
 
-        formatSelect.value = "";
-        qtyInput.value = "";
         currentResult = null;
         currentOptions = null;
         if (resultDisplay) resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         clearCalcBreakdown();
+        container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
 
@@ -711,16 +710,11 @@ export const LaminowanieView: View = {
       });
 
       bindState = null;
-      bindTypeChecks.forEach(c => { c.checked = false; });
-      bindColorChecks.forEach(c => { c.checked = false; });
-      if (bindTypeChecks[0]) bindTypeChecks[0].checked = true;
-      if (bindColorChecks[0]) bindColorChecks[0].checked = true;
-      if (bindQty) bindQty.value = "";
-      if (bindPages) bindPages.value = "20";
       if (bindAddBtn) bindAddBtn.disabled = true;
       if (bindResult) bindResult.style.display = 'none';
       if (bindBreakdown) bindBreakdown.style.display = 'none';
       clearCalcBreakdown();
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
 
     const oprType = container.querySelector("#opr-type") as HTMLSelectElement | null;
@@ -1157,25 +1151,13 @@ export const LaminowanieView: View = {
       });
 
       oprState = null;
-      if (oprType) oprType.selectedIndex = 0;
-      if (oprFormat) oprFormat.value = "A4";
-      if (oprPages) oprPages.value = "";
-      if (oprQty) oprQty.value = "";
-      if (oprColor) oprColor.value = "czarny";
-      if (oprCustomColor) oprCustomColor.value = "";
-      if (oprGrzbietColor) oprGrzbietColor.value = "czarna";
-      if (oprZaciskColor) oprZaciskColor.value = "czarny";
-      if (oprDocSource) oprDocSource.value = "printed-here";
-      if (oprThicknessCm) oprThicknessCm.value = "5";
-      if (oprHardUnbindCheck) oprHardUnbindCheck.checked = false;
-      if (oprHardResewCheck) oprHardResewCheck.checked = false;
-      if (oprCdCheck) oprCdCheck.checked = false;
-      syncOprRows();
       if (oprResult) oprResult.style.display = "none";
       if (oprTierHint) oprTierHint.innerText = "";
       if (oprAddBtn) oprAddBtn.disabled = true;
       if (oprExpressHint) oprExpressHint.style.display = "none";
       clearCalcBreakdown();
+      container.dispatchEvent(new CustomEvent("view:reset"));
+      syncOprRows();
     });
 
     oprHardUnbindPrice?.addEventListener("blur", () => {
@@ -1268,12 +1250,11 @@ export const LaminowanieView: View = {
       });
 
       introState = null;
-      if (introService) introService.selectedIndex = 0;
-      if (introQty) introQty.value = "";
       if (introAddBtn) introAddBtn.disabled = true;
       if (introExpressHint) introExpressHint.style.display = "none";
       if (introResult) introResult.style.display = 'none';
       clearCalcBreakdown();
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
 
     const recalcAll = () => {

@@ -408,6 +408,19 @@ export const DrukA4A3SkanView: View = {
       resultDisplay.style.display = 'none';
       if (breakdownDisplay) breakdownDisplay.style.display = 'none';
       addToCartBtn.disabled = true;
+
+      container.dispatchEvent(new CustomEvent("view:reset"));
+
+      container.querySelectorAll<HTMLElement>('.option-card').forEach(card => {
+        const checkbox = card.querySelector<HTMLInputElement>('input[type="checkbox"]');
+        if (!checkbox) return;
+        card.dataset.checked = String(checkbox.checked);
+        card.classList.toggle('checked', checkbox.checked);
+        card.setAttribute('aria-checked', String(checkbox.checked));
+      });
+      if (surchargeQtyRow) surchargeQtyRow.style.display = 'none';
+      updateSleeveQtyState();
+      setHiddenState(scanQtyRow, scanTypeSelect.value === "none");
     };
   }
 };

@@ -332,6 +332,7 @@ export const WydrukiSpecjalneView: View = {
       if (specialResultArea) specialResultArea.style.display = 'none';
       if (specialAddBtn) specialAddBtn.disabled = true;
       clearBreakdown();
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
   }
 };

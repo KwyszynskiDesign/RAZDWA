@@ -236,6 +236,7 @@ export const CanvasView: View = {
       if (resultEl) resultEl.style.display = 'none';
       if (breakdownEl) breakdownEl.style.display = 'none';
       addBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     };
 
     syncModeUI();

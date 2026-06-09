@@ -212,6 +212,7 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
     resultDisplay.style.display = 'none';
     breakdownDisplay.style.display = 'none';
     addToCartBtn.disabled = true;
+    container.dispatchEvent(new CustomEvent("view:reset"));
   };
 }
 

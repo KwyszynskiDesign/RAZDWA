@@ -284,6 +284,7 @@ export const ZaproszeniaKredaView: View = {
       resultArea.style.display = 'none';
       if (breakdownBox) breakdownBox.style.display = 'none';
       addToCartBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
     } catch (err) {
       const errDiv = document.createElement('div');

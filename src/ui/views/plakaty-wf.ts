@@ -349,6 +349,7 @@ export const PlakatyWFView: View = {
       resultBox.style.display = 'none';
       if (breakdownBox) breakdownBox.style.display = 'none';
       addBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     };
   },
 };

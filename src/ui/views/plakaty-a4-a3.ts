@@ -578,6 +578,7 @@ export const PlakatyA4A3View: View = {
       clearResult();
       currentResult = null;
       currentOptions = null;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     };
   },
 };

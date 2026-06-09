@@ -511,6 +511,9 @@ export const DrukCADView: View = {
       if (wfScanQtyInput) wfScanQtyInput.value = "";
       if (foldStatus) { foldStatus.style.display = "none"; foldStatus.textContent = ""; }
       if (scanStatus) { scanStatus.style.display = "none"; scanStatus.textContent = ""; }
+      if (klientSkladanieQtyRow) klientSkladanieQtyRow.style.display = "none";
+      if (nieformatoweSkladanieQtyRow) nieformatoweSkladanieQtyRow.style.display = "none";
+      if (paskiWzmacniajaceQtyRow) paskiWzmacniajaceQtyRow.style.display = "none";
       currentResult = null;
       currentOptions = null;
       resultDisplay.style.display = "none";
@@ -644,6 +647,7 @@ export const DrukCADView: View = {
         currentOptions = null;
         resultDisplay.style.display = 'none';
         addToCartBtn.disabled = true;
+        container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
 

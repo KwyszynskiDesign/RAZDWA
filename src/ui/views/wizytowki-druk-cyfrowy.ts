@@ -320,12 +320,12 @@ export const WizytowkiView: View = {
             payload: currentResult
           });
 
-          if (qtyInput) qtyInput.value = '100';
           currentResult = null;
           currentOptions = null;
           if (resultDisplay) resultDisplay.style.display = 'none';
           if (breakdownDisplay) breakdownDisplay.style.display = 'none';
           if (addToCartBtn) addToCartBtn.disabled = true;
+          container.dispatchEvent(new CustomEvent("view:reset"));
         }
       };
     }

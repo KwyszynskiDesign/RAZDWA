@@ -491,6 +491,7 @@ export const WlepkiView: View = {
       if (resultDiv) resultDiv.style.display = 'none';
       if (detailedBreakdownDisplay) detailedBreakdownDisplay.style.display = 'none';
       addBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
   }
 };

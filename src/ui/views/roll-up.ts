@@ -183,6 +183,7 @@ export const RollUpView: View = {
       resultArea.style.display = 'none';
       breakdownBox.style.display = 'none';
       addToCartBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;

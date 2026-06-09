@@ -670,6 +670,8 @@ document.addEventListener("DOMContentLoaded", () => {
   router.addRoute(artykulyBiuroweCategory);
   router.addRoute(uslugiCategory);
 
+  const viewContainersWithResetListener = new WeakSet<HTMLElement>();
+
   function injectResetButtons(container: HTMLElement) {
     const SKIP_VIEWS = ["#/ustawienia", "#/"];
     const hash = window.location.hash || "#/";
@@ -694,12 +696,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const selectSnaps = selectEls.map(el => ({ el, idx: el.selectedIndex }));
       const checkSnaps = checkboxEls.map(el => ({ el, checked: el.checked }));
 
-      const btn = document.createElement("button");
-      btn.className = "btn-danger reset-order-btn";
-      btn.type = "button";
-      btn.textContent = "Resetuj zamówienie";
-
-      btn.addEventListener("click", () => {
+      const performReset = () => {
         inputSnaps.forEach(({ el, value }) => { el.value = value; });
         selectSnaps.forEach(({ el, idx }) => { el.selectedIndex = idx; });
         checkSnaps.forEach(({ el, checked }) => { el.checked = checked; });
@@ -707,9 +704,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const firstEl = container.querySelector<HTMLElement>("input, select");
         firstEl?.dispatchEvent(new Event("input", { bubbles: true }));
         firstEl?.dispatchEvent(new Event("change", { bubbles: true }));
-      });
+      };
 
+      const btn = document.createElement("button");
+      btn.className = "btn-danger reset-order-btn";
+      btn.type = "button";
+      btn.textContent = "Resetuj zamówienie";
+      btn.addEventListener("click", performReset);
       fa.appendChild(btn);
+
+      if (!viewContainersWithResetListener.has(container)) {
+        viewContainersWithResetListener.add(container);
+        container.addEventListener("view:reset", performReset);
+      }
     });
   }
 

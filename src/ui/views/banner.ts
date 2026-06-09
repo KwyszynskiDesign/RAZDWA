@@ -253,6 +253,7 @@ export const BannerView: View = {
         resultDisplay.style.display = 'none';
         breakdownDisplay.style.display = 'none';
         addToCartBtn.disabled = true;
+        container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
   }

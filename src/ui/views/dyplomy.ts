@@ -162,6 +162,7 @@ export const DyplomyView: View = {
       resultArea.style.display = 'none';
       if (breakdownBox) breakdownBox.style.display = 'none';
       addToCartBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;

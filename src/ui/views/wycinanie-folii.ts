@@ -198,6 +198,7 @@ export const WycinanieFoliiView: View = {
       currentOptions = null;
       if (resultEl) resultEl.style.display = 'none';
       addBtn.disabled = true;
+      container.dispatchEvent(new CustomEvent("view:reset"));
     };
 
 

@@ -211,6 +211,7 @@ export const FoliaSzronionaView: View = {
         resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
         addToCartBtn.disabled = true;
+        container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
   }

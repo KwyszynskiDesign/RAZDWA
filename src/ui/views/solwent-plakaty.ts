@@ -142,6 +142,7 @@ export const SolwentPlakatyView: View = {
         currentResult = null;
         resultDisplay.style.display = 'none';
         addToCartBtn.disabled = true;
+        container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
   }
