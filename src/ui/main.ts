@@ -703,6 +703,7 @@ document.addEventListener("DOMContentLoaded", () => {
         inputSnaps.forEach(({ el, value }) => { el.value = value; });
         selectSnaps.forEach(({ el, idx }) => { el.selectedIndex = idx; });
         checkSnaps.forEach(({ el, checked }) => { el.checked = checked; });
+        container.dispatchEvent(new CustomEvent("cad:reset", { bubbles: false }));
         const firstEl = container.querySelector<HTMLElement>("input, select");
         firstEl?.dispatchEvent(new Event("input", { bubbles: true }));
         firstEl?.dispatchEvent(new Event("change", { bubbles: true }));

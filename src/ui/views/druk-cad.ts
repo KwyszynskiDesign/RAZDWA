@@ -503,6 +503,24 @@ export const DrukCADView: View = {
     let currentResult: any = null;
     let currentOptions: any = null;
 
+    const resetCadScanState = () => {
+      if (foldStatusTimer != null) { window.clearTimeout(foldStatusTimer); foldStatusTimer = null; }
+      if (scanStatusTimer != null) { window.clearTimeout(scanStatusTimer); scanStatusTimer = null; }
+      cadOps.splice(0, cadOps.length);
+      if (wfScanCmInput) wfScanCmInput.value = "";
+      if (wfScanQtyInput) wfScanQtyInput.value = "";
+      if (foldStatus) { foldStatus.style.display = "none"; foldStatus.textContent = ""; }
+      if (scanStatus) { scanStatus.style.display = "none"; scanStatus.textContent = ""; }
+      currentResult = null;
+      currentOptions = null;
+      resultDisplay.style.display = "none";
+      addToCartBtn.disabled = true;
+      updateOptionsSummary();
+      updateGrandTotal();
+    };
+
+    container.addEventListener("cad:reset", resetCadScanState);
+
     const performCalculation = () => {
       calcCount++;
       if (qtySheetsInput && qtySheetsInput.value.trim() === "") {
@@ -615,6 +633,8 @@ export const DrukCADView: View = {
         });
 
         cadOps.splice(0, cadOps.length);
+        if (wfScanCmInput) wfScanCmInput.value = "";
+        if (wfScanQtyInput) wfScanQtyInput.value = "";
         updateCadOpsSummary();
         updateGrandTotal();
 
