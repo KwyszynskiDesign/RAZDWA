@@ -246,7 +246,7 @@ header {
 /* PODSUMOWANIE (Koszyk) */
 .right-col {
   width: min(437px, 100%);
-  min-width: 399px;
+  min-width: 0;
   position: relative;
   z-index: 11;
   background: var(--surface);
@@ -659,7 +659,7 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   background: var(--surface);
   align-self: stretch;
   width: min(437px, 100%);
-  min-width: 399px;
+  min-width: 0;
   padding-left: 1rem !important;
   padding-right: 1rem !important;
 }
@@ -1922,7 +1922,7 @@ body.settings-pricing-layout .left-col {
 
 .right-col {
   width: min(437px, 100%);
-  min-width: 399px;
+  min-width: 0;
   position: sticky;
   top: 0;
   align-self: flex-start;
@@ -2897,6 +2897,7 @@ body.settings-pricing-layout .left-col {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
 }
 
