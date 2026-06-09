@@ -859,6 +859,12 @@ document.addEventListener("DOMContentLoaded", () => {
               showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
             }
             cart.clear();
+            if (summaryDiscountPercent) summaryDiscountPercent.value = "0";
+            if (summarySurchargePercent) summarySurchargePercent.value = "0";
+            if (globalExpress?.checked) {
+              globalExpress.checked = false;
+              document.getElementById("orderSummary")?.classList.remove("is-express");
+            }
             updateCartUI();
             (document.getElementById("custAddedBy") as HTMLInputElement | null)!.value = "";
             (document.getElementById("custName") as HTMLInputElement).value = "";

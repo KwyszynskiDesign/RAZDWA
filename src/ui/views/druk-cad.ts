@@ -281,7 +281,7 @@ export const DrukCADView: View = {
     const updateCadOpsSummary = () => {
       if (!summaryLines) return;
 
-      const effectiveOps = getEffectiveCadOps();
+      const effectiveOps = collectCommitOps();
       const lines: string[] = [];
 
       const pushLine = (label: string, value: number, cls = "") => {
@@ -325,7 +325,7 @@ export const DrukCADView: View = {
       if (optionsSummary) optionsSummary.style.display = currentResult ? "block" : "none";
     };
 
-    const getCadOpsTotal = () => getEffectiveCadOps().reduce((sum, op) => sum + op.totalPrice, 0);
+    const getCadOpsTotal = () => collectCommitOps().reduce((sum, op) => sum + op.totalPrice, 0);
 
     const zadrukFactor = resolveStoredPrice("modifier-druk-zadruk25", 0.5);
     const emailFeeUnit = resolveStoredPrice("druk-email", 1);
