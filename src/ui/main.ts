@@ -801,8 +801,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Clear basket
   document.getElementById("clearBtn")?.addEventListener("click", () => {
-    cart.clear();
-    updateCartUI();
+    const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+    if (!host) { cart.clear(); updateCartUI(); return; }
+
+    const existing = host.querySelector(".clear-confirm");
+    if (existing) return;
+
+    const dialog = document.createElement("div");
+    dialog.className = "clear-confirm";
+    dialog.innerHTML = `
+      <span class="clear-confirm__msg">Wyczyścić całą listę?</span>
+      <div class="clear-confirm__actions">
+        <button class="clear-confirm__cancel ghost">Anuluj</button>
+        <button class="clear-confirm__ok danger">Wyczyść</button>
+      </div>
+    `;
+    host.prepend(dialog);
+    requestAnimationFrame(() => dialog.classList.add("is-visible"));
+
+    const close = () => {
+      dialog.classList.remove("is-visible");
+      setTimeout(() => dialog.remove(), 200);
+    };
+
+    dialog.querySelector(".clear-confirm__cancel")?.addEventListener("click", close);
+    dialog.querySelector(".clear-confirm__ok")?.addEventListener("click", () => {
+      close();
+      cart.clear();
+      updateCartUI();
+    });
   });
 
   // Send order: Apps Script (if configured) or local Excel fallback

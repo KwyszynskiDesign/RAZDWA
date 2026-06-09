@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606092103 -->
+<!-- APP_VERSION: 202606092137 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,13 +28,13 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606092103" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606092103">
-  <link rel="stylesheet" href="assets/styles.css?v=202606092103">
+  <link rel="preload" href="assets/styles.css?v=202606092137" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606092137">
+  <link rel="stylesheet" href="assets/styles.css?v=202606092137">
 
-  <meta name="app-version" content="202606092103">
-  <script src="cache-buster.js?v=202606092103"></script>
-  <script src="init.js?v=202606092103" defer></script>
+  <meta name="app-version" content="202606092137">
+  <script src="cache-buster.js?v=202606092137"></script>
+  <script src="init.js?v=202606092137" defer></script>
 </head>
 <body>
   <div class="wrap">
@@ -152,6 +152,13 @@
             <button id="goToBaseBtn" type="button">Przejdź do bazy</button>
           </div>
 
+          <div class="summary" aria-label="Podsumowanie koszyka">
+            <div class="sumRow total">
+              <div class="k">Suma koszyka (kwota)</div>
+              <div class="v" id="basketTotal">0,00 z&#x142;</div>
+            </div>
+          </div>
+
           <div class="order-row order-row--express" style="margin-top: 10px;">
             <div class="express-toggle-wrap">
               <input type="checkbox" id="globalExpress">
@@ -182,13 +189,6 @@
                 <option value="9">+9%</option>
                 <option value="10">+10%</option>
               </select>
-            </div>
-          </div>
-
-          <div class="summary" aria-label="Podsumowanie koszyka">
-            <div class="sumRow total">
-              <div class="k">Suma koszyka (kwota)</div>
-              <div class="v" id="basketTotal">0,00 z&#x142;</div>
             </div>
           </div>
 
@@ -299,8 +299,8 @@
     </div>
   </div>
 
- <script src="assets/app.js?v=202606092103" type="module"></script>
- <script src="ui.js?v=202606092103" defer></script>
+ <script src="assets/app.js?v=202606092137" type="module"></script>
+ <script src="ui.js?v=202606092137" defer></script>
 
 </body>
 </html>
