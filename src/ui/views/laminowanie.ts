@@ -582,6 +582,7 @@ export const LaminowanieView: View = {
         currentResult = null;
         currentOptions = null;
         if (resultDisplay) resultDisplay.style.display = "none";
+        if (lamBreakdownBox) lamBreakdownBox.style.display = "none";
         addToCartBtn.disabled = true;
         clearCalcBreakdown();
         container.dispatchEvent(new CustomEvent("view:reset"));
@@ -1152,6 +1153,7 @@ export const LaminowanieView: View = {
 
       oprState = null;
       if (oprResult) oprResult.style.display = "none";
+      if (oprBreakdown) oprBreakdown.style.display = "none";
       if (oprTierHint) oprTierHint.innerText = "";
       if (oprAddBtn) oprAddBtn.disabled = true;
       if (oprExpressHint) oprExpressHint.style.display = "none";
@@ -1253,6 +1255,7 @@ export const LaminowanieView: View = {
       if (introAddBtn) introAddBtn.disabled = true;
       if (introExpressHint) introExpressHint.style.display = "none";
       if (introResult) introResult.style.display = 'none';
+      if (introBreakdown) introBreakdown.style.display = 'none';
       clearCalcBreakdown();
       container.dispatchEvent(new CustomEvent("view:reset"));
     });

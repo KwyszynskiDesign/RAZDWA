@@ -683,24 +683,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!fa.querySelector(".btn-success")) return;
       if (fa.querySelector(".reset-order-btn")) return;
 
-      const inputEls = Array.from(
+      const performReset = () => {
         container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
           "input[type='number'], input[type='text'], input[type='email'], textarea"
-        )
-      );
-      const selectEls = Array.from(container.querySelectorAll<HTMLSelectElement>("select"));
-      const checkboxEls = Array.from(
-        container.querySelectorAll<HTMLInputElement>("input[type='checkbox']")
-      );
+        ).forEach(el => { el.value = (el as HTMLInputElement).defaultValue ?? ""; });
 
-      const inputSnaps = inputEls.map(el => ({ el, value: el.value }));
-      const selectSnaps = selectEls.map(el => ({ el, idx: el.selectedIndex }));
-      const checkSnaps = checkboxEls.map(el => ({ el, checked: el.checked }));
+        container.querySelectorAll<HTMLSelectElement>("select").forEach(el => {
+          const def = Array.from(el.options).find(o => o.defaultSelected);
+          el.selectedIndex = def ? def.index : 0;
+        });
 
-      const performReset = () => {
-        inputSnaps.forEach(({ el, value }) => { el.value = value; });
-        selectSnaps.forEach(({ el, idx }) => { el.selectedIndex = idx; });
-        checkSnaps.forEach(({ el, checked }) => { el.checked = checked; });
+        container.querySelectorAll<HTMLInputElement>(
+          "input[type='checkbox'], input[type='radio']"
+        ).forEach(el => { el.checked = el.defaultChecked; });
+
         container.dispatchEvent(new CustomEvent("cad:reset", { bubbles: false }));
         const firstEl = container.querySelector<HTMLElement>("input, select");
         firstEl?.dispatchEvent(new Event("input", { bubbles: true }));
