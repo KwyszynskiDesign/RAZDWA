@@ -223,7 +223,7 @@ export const WizytowkiView: View = {
 
       const lines: BreakdownRow[] = [
         { label: "Nakład", value: `${options.qty} szt` },
-        { label: "Cena (interpolowana)", value: formatPLN(basePrice) },
+        { label: "Cena", value: formatPLN(basePrice) },
       ];
 
       if (isSatin) {
