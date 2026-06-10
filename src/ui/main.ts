@@ -679,6 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const formActions = container.querySelectorAll<HTMLElement>(".form-actions");
     formActions.forEach(fa => {
+      if (fa.hasAttribute("data-no-reset")) return;
       if (!fa.querySelector(".btn-success")) return;
       if (fa.querySelector(".reset-order-btn")) return;
 
@@ -841,6 +842,22 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Send order: Apps Script (if configured) or local Excel fallback
+  const resetOrderState = () => {
+    if (summaryDiscountPercent) {
+      summaryDiscountPercent.value = "0";
+      summaryDiscountPercent.dispatchEvent(new Event("change"));
+    }
+    if (summarySurchargePercent) {
+      summarySurchargePercent.value = "0";
+      summarySurchargePercent.dispatchEvent(new Event("change"));
+    }
+    if (globalExpress?.checked) {
+      globalExpress.checked = false;
+      document.getElementById("orderSummary")?.classList.remove("is-express");
+    }
+    updateCartUI();
+  };
+
   let isSubmitting = false;
 
   const handleSendOrder = async () => {
@@ -926,13 +943,7 @@ document.addEventListener("DOMContentLoaded", () => {
               showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
             }
             cart.clear();
-            if (summaryDiscountPercent) summaryDiscountPercent.value = "0";
-            if (summarySurchargePercent) summarySurchargePercent.value = "0";
-            if (globalExpress?.checked) {
-              globalExpress.checked = false;
-              document.getElementById("orderSummary")?.classList.remove("is-express");
-            }
-            updateCartUI();
+            resetOrderState();
             (document.getElementById("custAddedBy") as HTMLInputElement | null)!.value = "";
             (document.getElementById("custName") as HTMLInputElement).value = "";
             (document.getElementById("custCompany") as HTMLInputElement | null)!.value = "";

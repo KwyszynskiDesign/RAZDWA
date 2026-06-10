@@ -177,34 +177,6 @@ export const DrukCADView: View = {
       return format;
     };
 
-    const getInlineWfScanOp = (): CadOpItem | null => {
-      if (!wfScanCmInput || !wfScanQtyInput) return null;
-
-      const rawCm = (wfScanCmInput.value || "").trim();
-      if (!rawCm) return null;
-
-      const cm = parseFloat(rawCm.replace(",", "."));
-      const qty = parseInt(wfScanQtyInput.value, 10);
-      if (isNaN(cm) || cm <= 0 || isNaN(qty) || qty <= 0) return null;
-
-      try {
-        const mm = Math.round(cm * 10);
-        const result = quoteCadWfScan({ lengthMm: mm, qty });
-        return {
-          id: "cad-wf-scan-inline",
-          name: "Skanowanie wielkoformatowe",
-          quantity: qty,
-          unit: "szt",
-          unitPrice: result.unitPrice,
-          totalPrice: result.total,
-          optionsHint: `${qty} szt., ${cm} cm`,
-          payload: result
-        };
-      } catch {
-        return null;
-      }
-    };
-
     const getInlineKlientSkladanieOp = (): CadOpItem | null => {
       if (!optKlientSkladanie?.checked || !klientSkladanieQtyInput) return null;
       const qty = parseInt(klientSkladanieQtyInput.value, 10);
@@ -260,15 +232,6 @@ export const DrukCADView: View = {
 
     const collectCommitOps = (): CadOpItem[] => {
       const ops: CadOpItem[] = [...cadOps];
-      const inlineScan = getInlineWfScanOp();
-      if (inlineScan) {
-        const dup = ops.some(op =>
-          op.name === inlineScan.name &&
-          op.optionsHint === inlineScan.optionsHint &&
-          Math.abs(op.totalPrice - inlineScan.totalPrice) < 0.01
-        );
-        if (!dup) ops.push(inlineScan);
-      }
       const klientOp = getInlineKlientSkladanieOp();
       if (klientOp) ops.push(klientOp);
       const nieformatoweOp = getInlineNieformatoweSkladanieOp();

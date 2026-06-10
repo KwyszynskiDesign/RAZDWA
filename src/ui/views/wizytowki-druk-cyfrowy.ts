@@ -205,8 +205,7 @@ export const WizytowkiView: View = {
           payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
         });
 
-        if (extQtyInput) extQtyInput.value = "";
-        if (extPriceInput) extPriceInput.value = "";
+        container.dispatchEvent(new CustomEvent("view:reset"));
         if (extAddToCartBtn) extAddToCartBtn.disabled = true;
       };
     }
