@@ -919,6 +919,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const sendingToast = showOrderLoadingPopup("WYSYŁANIE...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
+        payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
+        const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
+        const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
+        if (_dPct || _sPct) {
+          const _note = [_dPct && `Rabat: ${_dPct}%`, _sPct && `Narzut: ${_sPct}%`].filter(Boolean).join(", ");
+          payload.customer.notes = [payload.customer.notes, _note].filter(Boolean).join(" | ");
+        }
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
         dismissToast(sendingToast);
@@ -940,14 +947,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             cart.clear();
             resetOrderState();
-            (document.getElementById("custAddedBy") as HTMLInputElement | null)!.value = "";
-            (document.getElementById("custName") as HTMLInputElement).value = "";
-            (document.getElementById("custCompany") as HTMLInputElement | null)!.value = "";
-            (document.getElementById("custNip") as HTMLInputElement | null)!.value = "";
-            (document.getElementById("custPhone") as HTMLInputElement).value = "";
-            (document.getElementById("custEmail") as HTMLInputElement).value = "";
-            (document.getElementById("custPriority") as HTMLSelectElement).value = "Normalny";
-            (document.getElementById("custNotes") as HTMLTextAreaElement | null)!.value = "";
+            const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
+            clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
+            clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
             resetSending();
           }, 3500);
           return;
@@ -1170,6 +1172,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!remote) return;
 
       if (Object.keys(remote.prices).length > 0) {
+        // GAS jest source of truth — nadpisuje lokalny cennik przy każdym starcie
         setPrice("defaultPrices", remote.prices as Record<string, number | null>);
         localStorage.setItem('razdwa_prices_ts', String(Date.now()));
       }
