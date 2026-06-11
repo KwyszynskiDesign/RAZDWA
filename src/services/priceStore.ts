@@ -1,0 +1,109 @@
+import type { PriceRecord, SyncLogEntry } from "../types/price-schema";
+
+const DB_NAME = "razdwa-price-db";
+const DB_VERSION = 1;
+
+let _dbPromise: Promise<IDBDatabase> | null = null;
+
+function openDB(): Promise<IDBDatabase> {
+  if (typeof indexedDB === "undefined") {
+    return Promise.reject(new Error("IndexedDB is not available in this environment"));
+  }
+  if (_dbPromise) return _dbPromise;
+  _dbPromise = new Promise((resolve, reject) => {
+    const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+    request.onupgradeneeded = (event) => {
+      const db = (event.target as IDBOpenDBRequest).result;
+      if (!db.objectStoreNames.contains("prices")) {
+        const store = db.createObjectStore("prices", { keyPath: "id" });
+        store.createIndex("by_category", "category", { unique: false });
+        // _dirty i _deleted są boolean — boolean nie jest prawidłowym kluczem IDB.
+        // getDirty/getDeleted używają filtrowania in-memory.
+      }
+      if (!db.objectStoreNames.contains("sync_log")) {
+        db.createObjectStore("sync_log", { keyPath: "id" });
+      }
+    };
+
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => {
+      _dbPromise = null;
+      reject(request.error);
+    };
+  });
+  return _dbPromise;
+}
+
+function req<T>(idbReq: IDBRequest<T>): Promise<T> {
+  return new Promise((resolve, reject) => {
+    idbReq.onsuccess = () => resolve(idbReq.result);
+    idbReq.onerror = () => reject(idbReq.error);
+  });
+}
+
+export const priceStore = {
+  async getAll(): Promise<PriceRecord[]> {
+    const db = await openDB();
+    return req(db.transaction("prices", "readonly").objectStore("prices").getAll());
+  },
+
+  async getById(id: string): Promise<PriceRecord | undefined> {
+    const db = await openDB();
+    return req(db.transaction("prices", "readonly").objectStore("prices").get(id));
+  },
+
+  async put(record: PriceRecord): Promise<void> {
+    const db = await openDB();
+    await req(db.transaction("prices", "readwrite").objectStore("prices").put(record));
+  },
+
+  async softDelete(id: string): Promise<void> {
+    const db = await openDB();
+    await new Promise<void>((resolve, reject) => {
+      const txn = db.transaction("prices", "readwrite");
+      const store = txn.objectStore("prices");
+      const getReq = store.get(id);
+      getReq.onsuccess = () => {
+        const record = getReq.result as PriceRecord | undefined;
+        if (!record) { resolve(); return; }
+        const putReq = store.put({
+          ...record,
+          _deleted: true,
+          _dirty: true,
+          updatedAt: new Date().toISOString(),
+        });
+        putReq.onsuccess = () => resolve();
+        putReq.onerror = () => reject(putReq.error);
+      };
+      getReq.onerror = () => reject(getReq.error);
+    });
+  },
+
+  async getDirty(): Promise<PriceRecord[]> {
+    const all = await this.getAll();
+    return all.filter((r) => r._dirty);
+  },
+
+  async count(): Promise<number> {
+    const db = await openDB();
+    return req(db.transaction("prices", "readonly").objectStore("prices").count());
+  },
+
+  async clearAll(): Promise<void> {
+    const db = await openDB();
+    await req(db.transaction("prices", "readwrite").objectStore("prices").clear());
+  },
+};
+
+export const syncLogStore = {
+  async put(entry: SyncLogEntry): Promise<void> {
+    const db = await openDB();
+    await req(db.transaction("sync_log", "readwrite").objectStore("sync_log").put(entry));
+  },
+
+  async getAll(): Promise<SyncLogEntry[]> {
+    const db = await openDB();
+    return req(db.transaction("sync_log", "readonly").objectStore("sync_log").getAll());
+  },
+};

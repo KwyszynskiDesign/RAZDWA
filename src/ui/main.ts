@@ -46,6 +46,7 @@ import { PDFDocument, StandardFonts, rgb, PDFFont } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
+import { runMigrationIfNeeded } from "../services/priceMigrator";
 
 const cart = new Cart();
 
@@ -1164,6 +1165,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFormValidation();
 
   syncVariantsToSubgroupsAtStartup();
+  runMigrationIfNeeded().catch((err) => console.warn("[priceMigrator] startup error:", err));
   router.start();
 
   (async () => {
