@@ -1,5 +1,6 @@
 /* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
 import { getPrice, getPriceLabels, PRICES_STORAGE_KEY } from "../services/priceService";
+import { priceStore } from "../services/priceStore";
 
 export function money(n: any) {
   return (Math.round((Number(n) || 0) * 100) / 100).toFixed(2);
@@ -123,24 +124,87 @@ export function extractVoucherSide(text: string): "jed" | "dwu" | null {
   return null;
 }
 
+// ---------------------------------------------------------------------------
+// IDB price cache — synchroniczny odczyt po asynchronicznym warm-up.
+//
+// null  = cache nie załadowany (np. trwa migracja lub środowisko testowe).
+//         resolveStoredPrice odpada do localStorage/default — brak regresji.
+// Map   = cache gotowy, resolveStoredPrice czyta z IDB.
+// ---------------------------------------------------------------------------
+let _priceCache: Map<string, number> | null = null;
+
+// Per-klucz deduplika logów — jeden warn per klucz per sesja.
+const _warnedKeys = new Set<string>();
+function warnOnce(id: string, msg: string): void {
+  if (_warnedKeys.has(id)) return;
+  _warnedKeys.add(id);
+  console.warn(msg);
+}
+
 /**
- * Resolve a single price from localStorage, falling back to defaultValue.
- * Use this for individual prices, modifiers and fixed fees.
+ * Ładuje wszystkie aktywne rekordy z IndexedDB do synchronicznego cache.
+ * Wywoływać raz po zakończeniu migracji, przed router.start().
+ * W środowisku bez IDB (Node/testy) cicho nie robi nic.
+ */
+export async function warmPriceCache(): Promise<void> {
+  try {
+    const records = await priceStore.getAll();
+    const map = new Map<string, number>();
+    for (const r of records) {
+      if (r.isActive && !r._deleted && r.label) {
+        map.set(r.label, r.price);
+      }
+    }
+    _priceCache = map;
+    console.info(`[priceCache] ${map.size} rekordów załadowanych z IDB`);
+  } catch {
+    // IDB niedostępne (środowisko Node / test) — cache zostaje null.
+    // resolveStoredPrice automatycznie używa fallbacku do localStorage.
+  }
+}
+
+/**
+ * Resolve a single price — IDB first, localStorage fallback, then defaultValue.
+ *
+ * Ścieżki odczytu (w kolejności):
+ *   1. IDB cache (_priceCache) — aktywne po warmPriceCache()
+ *   2. localStorage razdwa_prices — legacy override
+ *   3. alias localStorage — obsługa wariantów 610x841 ↔ 594x841
+ *   4. defaultValue — hardkodowana wartość z kodu kalkulatora
  */
 export function resolveStoredPrice(key: string, defaultValue: number): number {
-  const stored = readStoredPrices();
-  if (typeof stored[key] === "number") return stored[key];
+  // 1. IDB cache (primary)
+  if (_priceCache !== null) {
+    const cached = _priceCache.get(key);
+    if (cached !== undefined) return cached;
+    warnOnce(key, `[priceCache] "${key}" nieznany w IDB — fallback do localStorage/default`);
+  }
 
+  // 2. localStorage legacy override
+  const stored = readStoredPrices();
+  if (typeof stored[key] === "number") {
+    if (_priceCache !== null) {
+      warnOnce(`${key}:ls`, `[priceCache] "${key}" — legacy localStorage override (${stored[key]})`);
+    }
+    return stored[key];
+  }
+
+  // 3. Alias check — 610x841 ↔ 594x841 (istniejąca logika, niezmieniona)
   const aliases: Record<string, string> = {
     "plakaty-format-120g-formatowe-610x841": "plakaty-format-120g-formatowe-594x841",
     "plakaty-format-120g-formatowe-594x841": "plakaty-format-120g-formatowe-610x841",
     "plakaty-format-120g-nieformatowe-610x841": "plakaty-format-120g-nieformatowe-594x841",
     "plakaty-format-120g-nieformatowe-594x841": "plakaty-format-120g-nieformatowe-610x841"
   };
-
   const aliasKey = aliases[key];
-  if (aliasKey && typeof stored[aliasKey] === "number") return stored[aliasKey];
+  if (aliasKey && typeof stored[aliasKey] === "number") {
+    if (_priceCache !== null) {
+      warnOnce(`${key}:alias`, `[priceCache] "${key}" — alias "${aliasKey}" z localStorage (${stored[aliasKey]})`);
+    }
+    return stored[aliasKey];
+  }
 
+  // 4. Default
   return defaultValue;
 }
 

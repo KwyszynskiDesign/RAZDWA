@@ -47,6 +47,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
+import { warmPriceCache } from "../core/compat";
 
 const cart = new Cart();
 
@@ -1165,7 +1166,9 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFormValidation();
 
   syncVariantsToSubgroupsAtStartup();
-  runMigrationIfNeeded().catch((err) => console.warn("[priceMigrator] startup error:", err));
+  runMigrationIfNeeded()
+    .then(() => warmPriceCache())
+    .catch((err) => console.warn("[priceCache] startup error:", err));
   router.start();
 
   (async () => {
