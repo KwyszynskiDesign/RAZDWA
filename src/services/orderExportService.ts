@@ -347,7 +347,18 @@ function evaluateGasResult(
     }
   }
 
-  // HTTP 200 bez pola ok — uncertain success (np. GAS zwróciło HTML albo pusty JSON)
+  // HTTP 200 + brak parsowalnego body → najpewniej HTML błędu z catch po stronie GAS.
+  // Nie udajemy sukcesu — koszyk nie powinien się wyczyścić.
+  if (body === null) {
+    return {
+      ok: false,
+      status: httpStatus,
+      verified: false,
+      message: "GAS odpowiedział nie-JSONem (prawdopodobnie HTML błędu z catch po stronie Apps Script).",
+      data: null,
+    };
+  }
+  // HTTP 200 + parsowalne body bez pola ok — uncertain success (zachowane jak było)
   return { ok: true, status: httpStatus, message: fallbackMessage, data: body, verified: false };
 }
 
