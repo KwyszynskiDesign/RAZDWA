@@ -943,15 +943,22 @@ document.addEventListener("DOMContentLoaded", () => {
             ? (result.message || "Wysłano do bazy") + orderRef
             : `Wysłano do bazy (Google Sheets)${orderRef}`;
           showOrderLoadingPopup(successMsg, "success");
-          setTimeout(() => {
-            if (result.verified === false) {
-              showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
-            }
+          if (result.verified === false) {
+            showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
+          }
+          // Twardy gate: koszyk i stan zamówienia czyścimy NATYCHMIAST,
+          // ale tylko gdy GAS potwierdził zapis (verified===true).
+          // Dla verified===false (uncertain) zostawiamy koszyk — patrz PR-A i PR-B.
+          if (result.verified === true) {
             cart.clear();
             resetOrderState();
-            const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
-            clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
-            clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+          }
+          setTimeout(() => {
+            if (result.verified === true) {
+              const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
+              clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
+              clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+            }
             resetSending();
           }, 3500);
           return;
