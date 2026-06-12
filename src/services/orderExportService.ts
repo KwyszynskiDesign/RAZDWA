@@ -40,6 +40,13 @@ export interface OrderExportResult {
   message?: string;
   data?: unknown;
   verified?: boolean;
+  /**
+   * true wyłącznie w fallbacku no-cors: request wysłany, ale odpowiedź jest
+   * opaque i NIE wiemy czy GAS faktycznie zapisał zamówienie. UI ma traktować
+   * to jako "pending" — nie czyścić koszyka, pokazać osobny komunikat
+   * z prośbą o weryfikację w arkuszu.
+   */
+  unverified?: boolean;
 }
 
 interface AppsScriptCompactRowPayload {
@@ -358,8 +365,8 @@ function evaluateGasResult(
       data: null,
     };
   }
-  // HTTP 200 + parsowalne body bez pola ok — uncertain success (zachowane jak było)
-  return { ok: true, status: httpStatus, message: fallbackMessage, data: body, verified: false };
+  // HTTP 200 + parsowalne body bez pola ok — wynik niezweryfikowany, NIE jest sukcesem
+  return { ok: false, status: httpStatus, message: "GAS odpowiedział HTTP 200 bez pola 'ok' — zapis niezweryfikowany. Sprawdź arkusz Sheets.", data: body, verified: false, unverified: true };
 }
 
 export async function sendOrderToAppsScript(
@@ -418,10 +425,11 @@ export async function sendOrderToAppsScript(
         });
 
         return {
-          ok: true,
+          ok: false,
           status: 0,
           verified: false,
-          message: "Wysłano bez potwierdzenia odpowiedzi (ograniczenia CORS). Sprawdź czy rekord pojawił się w arkuszu.",
+          unverified: true,
+          message: "Wysłano bez potwierdzenia odpowiedzi (fallback no-cors). Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.",
         };
       } catch {
         // continue to final error below

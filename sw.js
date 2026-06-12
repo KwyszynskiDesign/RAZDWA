@@ -7,7 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202606110726'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202606120726'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
@@ -156,6 +156,24 @@ self.addEventListener('fetch', function (event) {
       })
       .catch(function () {
         return caches.match(request);
+      })
+  );
+});
+
+/**
+ * Background Sync (optional) — prices-sync tag
+ * Notifies open app windows to run pushPricesToGas().
+ * App works correctly without Background Sync support.
+ */
+self.addEventListener('sync', function (event) {
+  if (event.tag !== 'prices-sync') return;
+  event.waitUntil(
+    self.clients
+      .matchAll({ type: 'window', includeUncontrolled: false })
+      .then(function (clients) {
+        clients.forEach(function (client) {
+          client.postMessage({ type: 'prices-sync' });
+        });
       })
   );
 });

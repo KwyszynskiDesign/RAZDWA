@@ -548,6 +548,34 @@ function setupFormValidation(): void {
   }
 }
 
+const CUSTOMER_DRAFT_KEY = "razdwa_customer_draft";
+const DRAFT_FIELD_IDS = ["custName", "custPhone", "custEmail", "custPriority", "custNotes"] as const;
+
+function saveCustomerDraft(): void {
+  const draft: Record<string, string> = {};
+  for (const id of DRAFT_FIELD_IDS) {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+    if (el) draft[id] = el.value;
+  }
+  try { sessionStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
+}
+
+function restoreCustomerDraft(): void {
+  try {
+    const raw = sessionStorage.getItem(CUSTOMER_DRAFT_KEY);
+    if (!raw) return;
+    const draft = JSON.parse(raw) as Record<string, string>;
+    for (const id of DRAFT_FIELD_IDS) {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      if (el && id in draft) el.value = draft[id];
+    }
+  } catch {}
+}
+
+function clearCustomerDraft(): void {
+  try { sessionStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const viewContainer = document.getElementById("viewContainer");
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
@@ -932,35 +960,30 @@ document.addEventListener("DOMContentLoaded", () => {
 
         dismissToast(sendingToast);
 
-        if (result.ok) {
+        if (result.ok === true && result.verified === true) {
           const orderRef = (() => {
             if (!result.data || typeof result.data !== "object") return "";
             const d = result.data as Record<string, unknown>;
             const v = d.orderId ?? d.orderNumber ?? d.rowNumber ?? d.id ?? d.numer ?? d.nr;
             return v ? ` (#${String(v)})` : "";
           })();
-          const successMsg = result.verified
-            ? (result.message || "Wysłano do bazy") + orderRef
-            : `Wysłano do bazy (Google Sheets)${orderRef}`;
-          showOrderLoadingPopup(successMsg, "success");
-          if (result.verified === false) {
-            showToast(result.message || "Wysłano bez potwierdzenia odpowiedzi serwera.", "warning");
-          }
-          // Twardy gate: koszyk i stan zamówienia czyścimy NATYCHMIAST,
-          // ale tylko gdy GAS potwierdził zapis (verified===true).
-          // Dla verified===false (uncertain) zostawiamy koszyk — patrz PR-A i PR-B.
-          if (result.verified === true) {
-            cart.clear();
-            resetOrderState();
-          }
-          setTimeout(() => {
-            if (result.verified === true) {
-              const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
-              clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
-              clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
-            }
-            resetSending();
-          }, 3500);
+          showOrderLoadingPopup((result.message || "Wysłano do bazy") + orderRef, "success");
+          cart.clear();
+          resetOrderState();
+          clearCustomerDraft();
+          const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
+          clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
+          clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+          resetSending();
+          return;
+        }
+
+        if (result.unverified === true) {
+          showToast(
+            result.message || "Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia brak, wyślij ponownie.",
+            "warning"
+          );
+          resetSending();
           return;
         }
 
@@ -1171,6 +1194,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   updateCartUI();
   setupFormValidation();
+
+  restoreCustomerDraft();
+  for (const id of DRAFT_FIELD_IDS) {
+    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+    el?.addEventListener("input", saveCustomerDraft);
+    el?.addEventListener("change", saveCustomerDraft);
+  }
+  window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
+    const formDirty = ["custName", "custPhone", "custEmail", "custNotes"].some(id => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+      return (el?.value ?? "").trim().length > 0;
+    });
+    if (!cart.isEmpty() || formDirty) e.preventDefault();
+  });
 
   syncVariantsToSubgroupsAtStartup();
   runMigrationIfNeeded()

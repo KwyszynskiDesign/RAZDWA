@@ -1647,6 +1647,80 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   font-size: 12px;
 }
 
+/* Sync bar */
+.idb-sync-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  margin-bottom: 4px;
+}
+
+.idb-sync-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  flex: 1 1 200px;
+}
+
+.idb-sync-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.idb-sync-status--ok { color: var(--success); }
+.idb-sync-status--syncing { color: var(--primary); }
+.idb-sync-status--no_token { color: var(--text-secondary); }
+.idb-sync-status--error { color: var(--danger); }
+.idb-sync-status--unconfirmed { color: #e67e00; }
+.idb-sync-status--idle { color: var(--text-secondary); }
+
+.idb-sync-meta {
+  font-size: 12px;
+  color: var(--text-secondary);
+  flex: 1 1 180px;
+}
+
+.idb-dirty-badge {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--surface-alt);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.idb-dirty-badge--pending {
+  background: rgba(230, 126, 0, 0.1);
+  color: #e67e00;
+  border-color: rgba(230, 126, 0, 0.3);
+}
+
+.idb-sync-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.idb-sync-btn {
+  min-height: 34px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.idb-sync-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* NO UNDERLINES FIX - MENTOR UX */
 .tile, 
 .tile a, 

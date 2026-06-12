@@ -227,8 +227,9 @@ describe("orderExportService", () => {
       timeoutMs: 5000,
     });
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
     expect(result.verified).toBe(false);
+    expect(result.unverified).toBe(true);
     expect(result.message).toMatch(/bez potwierdzenia/i);
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[0]?.[1]?.mode).toBe("cors");
@@ -356,13 +357,14 @@ describe("savePricesToAppsScript — body validation", () => {
     expect(result.message).toBe("Arkusz chroniony");
   });
 
-  it("HTTP 200 bez pola ok → result.ok=true, result.verified=false (uncertain success)", async () => {
+  it("HTTP 200 bez pola ok → result.ok=false, result.verified=false (unverified, not a success)", async () => {
     (globalThis as any).fetch = makeMockFetch(200, { message: "Bez pola ok" });
 
     const result = await savePricesToAppsScript({}, GAS_CONFIG);
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
     expect(result.verified).toBe(false);
+    expect(result.unverified).toBe(true);
   });
 
   it("HTTP 500 → result.ok=false niezależnie od body", async () => {

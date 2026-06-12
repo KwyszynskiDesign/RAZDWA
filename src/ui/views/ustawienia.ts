@@ -41,6 +41,13 @@ import {
 import { priceStore } from "../../services/priceStore";
 import { warmPriceCache } from "../../core/compat";
 import type { PriceRecord } from "../../types/price-schema";
+import {
+  pushPricesToGas,
+  pullPricesFromGas,
+  readSyncStatus,
+  registerPriceSync,
+  type SyncStatusCode,
+} from "../../services/syncService";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -2485,8 +2492,37 @@ export const UstawieniaView: View = {
       }
 
       const sortedCats = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+      const dirtyCount = visible.filter((r) => r._dirty).length;
+
+      const syncStatus = readSyncStatus();
+      const SYNC_ICONS: Record<SyncStatusCode, string> = {
+        idle: "○",
+        syncing: "⟳",
+        ok: "✓",
+        no_token: "🔒",
+        error: "✕",
+        unconfirmed: "⚠",
+      };
+      const lastSync = syncStatus.lastSyncedAt
+        ? new Date(syncStatus.lastSyncedAt).toLocaleString("pl-PL")
+        : "—";
 
       let html = `
+        <div class="idb-sync-bar">
+          <div class="idb-sync-status idb-sync-status--${syncStatus.code}">
+            <span class="idb-sync-icon">${SYNC_ICONS[syncStatus.code]}</span>
+            ${escapeHtml(syncStatus.message)}
+          </div>
+          <div class="idb-sync-meta">
+            Ostatni sync: <strong>${escapeHtml(lastSync)}</strong>
+            &nbsp;·&nbsp;
+            <span class="idb-dirty-badge${dirtyCount > 0 ? " idb-dirty-badge--pending" : ""}">${dirtyCount} do sync</span>
+          </div>
+          <div class="idb-sync-actions">
+            <button id="idb-btn-push" type="button" class="btn-primary idb-sync-btn">⬆ Push do GAS</button>
+            <button id="idb-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>
+          </div>
+        </div>
         <details class="idb-add-section" open>
           <summary class="idb-add-summary">+ Dodaj nowy rekord</summary>
           <div class="idb-add-form">
@@ -2622,6 +2658,7 @@ export const UstawieniaView: View = {
               _dirty: true,
             });
             await warmPriceCache();
+            void registerPriceSync();
             showIdbStatus("✓ Zapisano");
             await renderIdbPanel();
           } catch (err) {
@@ -2694,11 +2731,46 @@ export const UstawieniaView: View = {
         try {
           await priceStore.put(newRecord);
           await warmPriceCache();
+          void registerPriceSync();
           showIdbStatus(`✓ Dodano: ${escapeHtml(label)}`);
           await renderIdbPanel();
         } catch (err) {
           showIdbStatus(`Błąd dodawania: ${String(err)}`, "error");
         }
+      });
+
+      const pushBtn = panel.querySelector<HTMLButtonElement>("#idb-btn-push");
+      pushBtn?.addEventListener("click", async () => {
+        pushBtn.disabled = true;
+        try {
+          const result = await pushPricesToGas();
+          showIdbStatus(
+            result.ok
+              ? `✓ Push: ${result.confirmed ?? 0}/${result.pushed ?? 0} potwierdzonych`
+              : `Błąd push: ${result.error ?? "nieznany"}`,
+            result.ok ? "success" : "error"
+          );
+        } finally {
+          pushBtn.disabled = false;
+        }
+        await renderIdbPanel();
+      });
+
+      const pullBtn = panel.querySelector<HTMLButtonElement>("#idb-btn-pull");
+      pullBtn?.addEventListener("click", async () => {
+        pullBtn.disabled = true;
+        try {
+          const result = await pullPricesFromGas();
+          showIdbStatus(
+            result.ok
+              ? `✓ Pull: ${result.pulled ?? 0} rek., scalono ${result.merged ?? 0}`
+              : `Błąd pull: ${result.error ?? "nieznany"}`,
+            result.ok ? "success" : "error"
+          );
+        } finally {
+          pullBtn.disabled = false;
+        }
+        await renderIdbPanel();
       });
     }
 
@@ -3208,9 +3280,21 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     };
 
+    function onSwMessage(event: MessageEvent): void {
+      if (event.data?.type === "prices-sync") {
+        void pushPricesToGas().then(() => renderIdbPanel());
+      }
+    }
+    if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.addEventListener("message", onSwMessage);
+    }
+
     window.addEventListener("storage", onStorage);
     _cleanup = () => {
       window.removeEventListener("storage", onStorage);
+      if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
+        navigator.serviceWorker.removeEventListener("message", onSwMessage);
+      }
       scrollTopButton.remove();
     };
   },

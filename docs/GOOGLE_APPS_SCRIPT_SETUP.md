@@ -342,3 +342,311 @@ if (body.type === 'variants_update') {
 
 // tutaj dalej istniejąca logika zamówień (saveOrder, saveClick, itp.) bez zmian
 ```
+
+---
+
+## 6) Sync rekordów cen — API_PRICE_RECORDS (Etap 4b)
+
+Dopisz **poniższe bloki do istniejącego `Code.gs` bez modyfikacji żadnych wcześniejszych funkcji**.
+Istniejące endpointy (`prices_update`, `variants_update`, `verifyPin`, zamówienia) pozostają bez zmian.
+
+### 6.1 Stałe — dopisz na górze pliku obok SHEET_NAME
+
+```javascript
+const PRICE_RECORDS_SHEET_NAME = 'API_PRICE_RECORDS';
+const PRICE_RECORDS_HEADERS = [
+  'id', 'category', 'subcategory', 'label',
+  'qtyFrom', 'qtyTo', 'unit', 'price', 'modifierType',
+  'isActive', 'createdAt', 'updatedAt', 'syncedAt',
+  '_dirty', '_deleted'
+];
+const PRICE_RECORDS_NUM_COLS = 15;
+
+// Upewnij się, że w pliku jest też ta stała (jeśli jeszcze jej nie ma):
+// const SETTINGS_PIN_KEY = 'ADMIN_PIN';
+```
+
+### 6.2 Arkusz API_PRICE_RECORDS
+
+```javascript
+function ensurePriceRecordsSheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(PRICE_RECORDS_SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(PRICE_RECORDS_SHEET_NAME);
+  }
+  var header = sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).getValues()[0];
+  var same = PRICE_RECORDS_HEADERS.every(function(h, i) {
+    return String(header[i] || '').trim() === h;
+  });
+  if (!same) {
+    sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).setValues([PRICE_RECORDS_HEADERS]);
+    sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).setFontWeight('bold');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+```
+
+### 6.3 Auth helper
+
+Używa `SETTINGS_PIN_KEY` i zwraca dokładne kody błędów spójne z istniejącym flow.
+
+```javascript
+function _verifyAdminSessionToken(data) {
+  var adminPin = PropertiesService.getScriptProperties().getProperty(SETTINGS_PIN_KEY);
+  if (!adminPin) {
+    return { ok: false, error: 'pin_not_configured' };
+  }
+  if (!data || !data.token) {
+    return { ok: false, error: 'missing_session_token' };
+  }
+  var cached = CacheService.getScriptCache().get('adminToken_' + data.token);
+  if (!cached) {
+    return { ok: false, error: 'invalid_or_expired_session_token' };
+  }
+  return { ok: true };
+}
+```
+
+### 6.4 Walidacja rekordu
+
+```javascript
+function _validatePriceRecord(r) {
+  if (!r || typeof r !== 'object') return { valid: false, error: 'Rekord nie jest obiektem' };
+  if (!r.id || typeof r.id !== 'string') return { valid: false, error: 'Brak id' };
+  if (!r.createdAt || typeof r.createdAt !== 'string') return { valid: false, error: 'Brak createdAt' };
+  if (!r.updatedAt || typeof r.updatedAt !== 'string') return { valid: false, error: 'Brak updatedAt' };
+  var price = Number(r.price);
+  if (!isFinite(price) || price < 0) return { valid: false, error: 'Nieprawidłowa price' };
+  var qtyFrom = Number(r.qtyFrom);
+  if (!isFinite(qtyFrom) || qtyFrom < 1) return { valid: false, error: 'qtyFrom musi być >= 1' };
+  if (r.qtyTo !== null && r.qtyTo !== undefined && r.qtyTo !== '') {
+    var qtyTo = Number(r.qtyTo);
+    if (!isFinite(qtyTo) || qtyTo < qtyFrom) {
+      return { valid: false, error: 'qtyTo musi być >= qtyFrom' };
+    }
+  }
+  return { valid: true };
+}
+```
+
+### 6.5 Konwersja rekord ↔ wiersz arkusza
+
+`qtyTo` = pusty string gdy null. `isActive`, `_dirty`, `_deleted` = string `'TRUE'`/`'FALSE'`.
+
+```javascript
+function _recordToRow(r) {
+  return [
+    String(r.id || ''),
+    String(r.category || ''),
+    String(r.subcategory || ''),
+    String(r.label || ''),
+    Number(r.qtyFrom) || 1,
+    (r.qtyTo === null || r.qtyTo === undefined || r.qtyTo === '') ? '' : Number(r.qtyTo),
+    String(r.unit || 'szt'),
+    Number(r.price),
+    String(r.modifierType || ''),
+    r.isActive === false ? 'FALSE' : 'TRUE',
+    String(r.createdAt || ''),
+    String(r.updatedAt || ''),
+    r.syncedAt ? String(r.syncedAt) : '',
+    r._dirty === true ? 'TRUE' : 'FALSE',
+    r._deleted === true ? 'TRUE' : 'FALSE'
+  ];
+}
+
+function _rowToRecord(rowValues) {
+  var id = String(rowValues[0] || '').trim();
+  var createdAt = String(rowValues[10] || '').trim();
+  var updatedAt = String(rowValues[11] || '').trim();
+  if (!id || !createdAt || !updatedAt) {
+    Logger.log('[API_PRICE_RECORDS] Pominięto uszkodzony rekord: id=' + id);
+    return null;
+  }
+  var qtyToRaw = rowValues[5];
+  var syncedAtRaw = String(rowValues[12] || '').trim();
+  return {
+    id: id,
+    category: String(rowValues[1] || ''),
+    subcategory: String(rowValues[2] || ''),
+    label: String(rowValues[3] || ''),
+    qtyFrom: Number(rowValues[4]) || 1,
+    qtyTo: (qtyToRaw === '' || qtyToRaw === null || qtyToRaw === undefined) ? null : Number(qtyToRaw),
+    unit: String(rowValues[6] || 'szt'),
+    price: Number(rowValues[7]) || 0,
+    modifierType: String(rowValues[8] || ''),
+    isActive: String(rowValues[9]).toUpperCase() !== 'FALSE',
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    syncedAt: syncedAtRaw || null,
+    _dirty: String(rowValues[13]).toUpperCase() === 'TRUE',
+    _deleted: String(rowValues[14]).toUpperCase() === 'TRUE'
+  };
+}
+```
+
+### 6.6 handlePricesPush
+
+Strategia: **partial success** — każdy rekord zapisywany niezależnie.
+Wynik zwraca tylko faktycznie zapisane `id` w `processed[]`.
+
+```javascript
+function handlePricesPush(data) {
+  var auth = _verifyAdminSessionToken(data);
+  if (!auth.ok) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: auth.error }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (!Array.isArray(data.records)) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola records[].' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var sheet = ensurePriceRecordsSheet();
+
+  // Zbuduj indeks id → rowIndex (1-based) — jeden odczyt dla całego arkusza
+  var idToRow = {};
+  var lastRow = sheet.getLastRow();
+  if (lastRow >= 2) {
+    var idCol = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+    for (var i = 0; i < idCol.length; i++) {
+      var existingId = String(idCol[i][0] || '').trim();
+      if (existingId) idToRow[existingId] = i + 2;
+    }
+  }
+
+  var syncedAt = new Date().toISOString();
+  var processed = [];
+  var newRows = [];
+
+  for (var ri = 0; ri < data.records.length; ri++) {
+    var r = data.records[ri];
+    var validation = _validatePriceRecord(r);
+    if (!validation.valid) {
+      Logger.log('[handlePricesPush] Pominięto id=' + (r && r.id) + ': ' + validation.error);
+      continue;
+    }
+
+    var toSave = {
+      id: r.id,
+      category: r.category || '',
+      subcategory: r.subcategory || '',
+      label: r.label || '',
+      qtyFrom: r.qtyFrom,
+      qtyTo: (r.qtyTo === null || r.qtyTo === undefined) ? null : r.qtyTo,
+      unit: r.unit || 'szt',
+      price: r.price,
+      modifierType: r.modifierType || '',
+      isActive: r.isActive !== false,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      syncedAt: syncedAt,
+      _dirty: false,
+      _deleted: r._deleted === true
+    };
+
+    var row = _recordToRow(toSave);
+    var existingRowIdx = idToRow[r.id];
+
+    if (existingRowIdx) {
+      try {
+        sheet.getRange(existingRowIdx, 1, 1, PRICE_RECORDS_NUM_COLS).setValues([row]);
+        processed.push(r.id);
+      } catch (e) {
+        Logger.log('[handlePricesPush] Błąd update id=' + r.id + ': ' + e);
+      }
+    } else {
+      newRows.push({ id: r.id, row: row });
+    }
+  }
+
+  // Batch append nowych wierszy — jeden setValues zamiast N appendRow
+  if (newRows.length > 0) {
+    var appendStart = sheet.getLastRow() + 1;
+    var rowArrays = newRows.map(function(item) { return item.row; });
+    try {
+      sheet.getRange(appendStart, 1, rowArrays.length, PRICE_RECORDS_NUM_COLS).setValues(rowArrays);
+      for (var ni = 0; ni < newRows.length; ni++) {
+        processed.push(newRows[ni].id);
+      }
+    } catch (e) {
+      Logger.log('[handlePricesPush] Błąd batch append: ' + e);
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, processed: processed, syncedAt: syncedAt }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+### 6.7 handlePricesPull
+
+```javascript
+function handlePricesPull(data) {
+  var auth = _verifyAdminSessionToken(data);
+  if (!auth.ok) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: auth.error }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  var sheet = ensurePriceRecordsSheet();
+  var lastRow = sheet.getLastRow();
+  var records = [];
+
+  if (lastRow >= 2) {
+    var allRows = sheet.getRange(2, 1, lastRow - 1, PRICE_RECORDS_NUM_COLS).getValues();
+    for (var i = 0; i < allRows.length; i++) {
+      var record = _rowToRecord(allRows[i]);
+      if (record !== null) {
+        records.push(record);
+      }
+    }
+  }
+
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: true, records: records }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+```
+
+### 6.8 Routing w doPost — dopisz PRZED blokiem obsługi zamówień
+
+```javascript
+// ── prices.push ───────────────────────────────────────────────────────────
+if (body.type === 'prices.push') {
+  Logger.log('POST prices.push — rekordów: ' + (Array.isArray(body.records) ? body.records.length : '?'));
+  return handlePricesPush(body);
+}
+
+// ── prices.pull ───────────────────────────────────────────────────────────
+if (body.type === 'prices.pull') {
+  Logger.log('POST prices.pull');
+  return handlePricesPull(body);
+}
+```
+
+### 6.9 Schemat arkusza API_PRICE_RECORDS (informacyjnie)
+
+| Kolumna | Pole | Typ w arkuszu |
+|---|---|---|
+| A | id | string (UUID) |
+| B | category | string |
+| C | subcategory | string |
+| D | label | string |
+| E | qtyFrom | number |
+| F | qtyTo | number lub `""` (puste = null) |
+| G | unit | string |
+| H | price | number |
+| I | modifierType | string lub `""` |
+| J | isActive | `"TRUE"` / `"FALSE"` |
+| K | createdAt | ISO string |
+| L | updatedAt | ISO string |
+| M | syncedAt | ISO string lub `""` |
+| N | _dirty | `"TRUE"` / `"FALSE"` |
+| O | _deleted | `"TRUE"` / `"FALSE"` |
