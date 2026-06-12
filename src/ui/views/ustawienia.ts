@@ -38,6 +38,9 @@ import {
   saveVariantsToAppsScript,
   fetchStateFromAppsScript,
 } from "../../services/orderExportService";
+import { priceStore } from "../../services/priceStore";
+import { warmPriceCache } from "../../core/compat";
+import type { PriceRecord } from "../../types/price-schema";
 
 const STORAGE_KEY = PRICES_STORAGE_KEY;
 
@@ -2451,6 +2454,254 @@ export const UstawieniaView: View = {
       });
     }
 
+    async function renderIdbPanel(): Promise<void> {
+      const content = container.querySelector<HTMLElement>("#idb-content");
+      if (!content) return;
+
+      content.innerHTML = `<p class="idb-loading">Ładowanie rekordów z IDB…</p>`;
+
+      let records: PriceRecord[];
+      try {
+        records = await priceStore.getAll();
+      } catch (err) {
+        content.innerHTML = `<p class="idb-error">Nie można załadować IDB: ${escapeHtml(String(err))}</p>`;
+        return;
+      }
+
+      const visible = records
+        .filter((r) => !r._deleted)
+        .sort(
+          (a, b) =>
+            a.category.localeCompare(b.category) ||
+            a.label.localeCompare(b.label) ||
+            a.qtyFrom - b.qtyFrom
+        );
+
+      const groups = new Map<string, PriceRecord[]>();
+      for (const r of visible) {
+        const list = groups.get(r.category) ?? [];
+        list.push(r);
+        groups.set(r.category, list);
+      }
+
+      const sortedCats = [...groups.keys()].sort((a, b) => a.localeCompare(b));
+
+      let html = `
+        <details class="idb-add-section" open>
+          <summary class="idb-add-summary">+ Dodaj nowy rekord</summary>
+          <div class="idb-add-form">
+            <div class="idb-add-row">
+              <label class="idb-add-label">Kategoria *</label>
+              <input id="idb-new-category" type="text" class="settings-input idb-add-input" placeholder="np. druk">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">Subkategoria</label>
+              <input id="idb-new-subcategory" type="text" class="settings-input idb-add-input" placeholder="np. bw-a4">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">Label (klucz) *</label>
+              <input id="idb-new-label" type="text" class="settings-input idb-add-input" placeholder="np. druk-bw-a4-1-5">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">Unit *</label>
+              <input id="idb-new-unit" type="text" class="settings-input idb-add-input" value="szt">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">qtyFrom (≥ 1) *</label>
+              <input id="idb-new-qty-from" type="number" min="1" step="1" class="settings-input idb-add-input" value="1">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">qtyTo (puste = brak granicy)</label>
+              <input id="idb-new-qty-to" type="number" min="1" step="1" class="settings-input idb-add-input" placeholder="puste = null">
+            </div>
+            <div class="idb-add-row">
+              <label class="idb-add-label">Cena (zł) *</label>
+              <input id="idb-new-price" type="number" min="0" step="0.01" class="settings-input idb-add-input" placeholder="0.00">
+            </div>
+            <button id="idb-btn-add" type="button" class="btn-success settings-action-btn">Dodaj rekord</button>
+          </div>
+        </details>
+        <div class="idb-groups">
+      `;
+
+      for (const cat of sortedCats) {
+        const rows = groups.get(cat)!;
+        html += `
+          <div class="idb-group">
+            <div class="idb-group-header">${escapeHtml(cat)} <span class="idb-group-count">(${rows.length})</span></div>
+            <table class="idb-table">
+              <thead>
+                <tr>
+                  <th>Label</th>
+                  <th class="idb-th-num">qtyFrom</th>
+                  <th class="idb-th-num">qtyTo</th>
+                  <th class="idb-th-unit">Unit</th>
+                  <th class="idb-th-price">Cena</th>
+                  <th class="idb-th-active">Aktywny</th>
+                  <th class="idb-th-save"></th>
+                </tr>
+              </thead>
+              <tbody>
+        `;
+        for (const r of rows) {
+          html += `
+            <tr data-id="${escapeHtml(r.id)}" class="${r.isActive ? "" : "idb-row-inactive"}">
+              <td class="idb-td-label">${escapeHtml(r.label)}</td>
+              <td class="idb-td-num">${r.qtyFrom}</td>
+              <td class="idb-td-num">${r.qtyTo === null ? "∞" : r.qtyTo}</td>
+              <td class="idb-td-unit">${escapeHtml(r.unit)}</td>
+              <td class="idb-td-price">
+                <input type="number" min="0" step="0.01"
+                  class="idb-price-input settings-input"
+                  data-id="${escapeHtml(r.id)}" value="${r.price}">
+              </td>
+              <td class="idb-td-active">
+                <input type="checkbox" class="idb-active-checkbox"
+                  data-id="${escapeHtml(r.id)}"${r.isActive ? " checked" : ""}>
+              </td>
+              <td class="idb-td-save">
+                <button type="button" class="btn-primary idb-btn-save"
+                  data-id="${escapeHtml(r.id)}">Zapisz</button>
+              </td>
+            </tr>
+          `;
+        }
+        html += `
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+
+      html += `</div>`;
+      content.innerHTML = html;
+      bindIdbPanel(records);
+    }
+
+    function showIdbStatus(message: string, tone: "success" | "error" = "success"): void {
+      const el = container.querySelector<HTMLElement>("#idb-status");
+      if (!el) return;
+      el.textContent = message;
+      el.dataset.tone = tone;
+      el.style.display = "block";
+      window.setTimeout(() => {
+        el.style.display = "none";
+      }, 3200);
+    }
+
+    function bindIdbPanel(records: PriceRecord[]): void {
+      const panel = container.querySelector<HTMLElement>("#idb-panel");
+      if (!panel) return;
+
+      const recordMap = new Map<string, PriceRecord>(records.map((r) => [r.id, r]));
+
+      panel.querySelectorAll<HTMLButtonElement>(".idb-btn-save").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const id = btn.dataset.id ?? "";
+          const rec = recordMap.get(id);
+          if (!rec) return;
+
+          const row = panel.querySelector<HTMLTableRowElement>(`tr[data-id="${id}"]`);
+          if (!row) return;
+
+          const priceInput = row.querySelector<HTMLInputElement>(".idb-price-input");
+          const activeCheckbox = row.querySelector<HTMLInputElement>(".idb-active-checkbox");
+
+          const newPrice = Number.parseFloat(priceInput?.value.trim() ?? "");
+          if (!Number.isFinite(newPrice) || newPrice < 0) {
+            showIdbStatus("Błąd: cena musi być liczbą ≥ 0", "error");
+            return;
+          }
+
+          try {
+            await priceStore.put({
+              ...rec,
+              price: newPrice,
+              isActive: activeCheckbox?.checked ?? rec.isActive,
+              updatedAt: new Date().toISOString(),
+              _dirty: true,
+            });
+            await warmPriceCache();
+            showIdbStatus("✓ Zapisano");
+            await renderIdbPanel();
+          } catch (err) {
+            showIdbStatus(`Błąd zapisu: ${String(err)}`, "error");
+          }
+        });
+      });
+
+      const addBtn = panel.querySelector<HTMLButtonElement>("#idb-btn-add");
+      addBtn?.addEventListener("click", async () => {
+        const get = (id: string) =>
+          (panel.querySelector<HTMLInputElement>(id)?.value ?? "").trim();
+
+        const category = get("#idb-new-category");
+        const subcategory = get("#idb-new-subcategory");
+        const label = get("#idb-new-label");
+        const unit = get("#idb-new-unit");
+        const qtyFromRaw = get("#idb-new-qty-from");
+        const qtyToRaw = get("#idb-new-qty-to");
+        const priceRaw = get("#idb-new-price");
+
+        if (!category) { showIdbStatus("Błąd: kategoria jest wymagana", "error"); return; }
+        if (!label) { showIdbStatus("Błąd: label jest wymagany", "error"); return; }
+        if (!unit) { showIdbStatus("Błąd: unit jest wymagany", "error"); return; }
+
+        const price = Number.parseFloat(priceRaw);
+        if (!Number.isFinite(price) || price < 0) {
+          showIdbStatus("Błąd: cena musi być liczbą ≥ 0", "error");
+          return;
+        }
+
+        const qtyFrom = Number.parseInt(qtyFromRaw, 10);
+        if (!Number.isFinite(qtyFrom) || qtyFrom < 1) {
+          showIdbStatus("Błąd: qtyFrom musi być liczbą ≥ 1", "error");
+          return;
+        }
+
+        let qtyTo: number | null = null;
+        if (qtyToRaw !== "") {
+          const n = Number.parseInt(qtyToRaw, 10);
+          if (!Number.isFinite(n)) {
+            showIdbStatus("Błąd: qtyTo musi być liczbą lub puste", "error");
+            return;
+          }
+          if (n < qtyFrom) {
+            showIdbStatus("Błąd: qtyTo musi być ≥ qtyFrom", "error");
+            return;
+          }
+          qtyTo = n;
+        }
+
+        const now = new Date().toISOString();
+        const newRecord: PriceRecord = {
+          id: crypto.randomUUID(),
+          category,
+          subcategory,
+          label,
+          qtyFrom,
+          qtyTo,
+          unit,
+          price,
+          isActive: true,
+          createdAt: now,
+          updatedAt: now,
+          syncedAt: null,
+          _dirty: true,
+          _deleted: false,
+        };
+
+        try {
+          await priceStore.put(newRecord);
+          await warmPriceCache();
+          showIdbStatus(`✓ Dodano: ${escapeHtml(label)}`);
+          await renderIdbPanel();
+        } catch (err) {
+          showIdbStatus(`Błąd dodawania: ${String(err)}`, "error");
+        }
+      });
+    }
+
     container.innerHTML = `
       <div class="settings-wrap">
         <div class="settings-header">
@@ -2458,6 +2709,15 @@ export const UstawieniaView: View = {
             <h2 class="settings-title">⚙️ Ustawienia cen</h2>
             <p class="settings-subtitle">Cennik jest podzielony na kategorie. Wybierz sekcję i zmieniaj tylko te ceny, które do niej należą.</p>
           </div>
+          <div class="idb-mode-switcher">
+            <button id="btn-mode-legacy" type="button" class="btn-secondary idb-mode-btn idb-mode-btn--active">Cennik (legacy)</button>
+            <button id="btn-mode-idb" type="button" class="btn-secondary idb-mode-btn">Panel IDB</button>
+          </div>
+        </div>
+
+        <div id="idb-panel" style="display:none">
+          <div id="idb-status" class="idb-status" style="display:none"></div>
+          <div id="idb-content"></div>
         </div>
 
         <div class="settings-layout">
@@ -2570,6 +2830,26 @@ export const UstawieniaView: View = {
     renderTable();
     syncAddCategorySelection();
     updateDraftIndicator();
+
+    const _btnModeLegacy = container.querySelector<HTMLButtonElement>("#btn-mode-legacy");
+    const _btnModeIdb = container.querySelector<HTMLButtonElement>("#btn-mode-idb");
+    const _idbPanel = container.querySelector<HTMLElement>("#idb-panel");
+    const _legacyLayout = container.querySelector<HTMLElement>(".settings-layout");
+
+    _btnModeLegacy?.addEventListener("click", () => {
+      if (_idbPanel) _idbPanel.style.display = "none";
+      if (_legacyLayout) _legacyLayout.style.display = "";
+      _btnModeLegacy.classList.add("idb-mode-btn--active");
+      _btnModeIdb?.classList.remove("idb-mode-btn--active");
+    });
+
+    _btnModeIdb?.addEventListener("click", () => {
+      if (_idbPanel) _idbPanel.style.display = "";
+      if (_legacyLayout) _legacyLayout.style.display = "none";
+      _btnModeIdb.classList.add("idb-mode-btn--active");
+      _btnModeLegacy?.classList.remove("idb-mode-btn--active");
+      void renderIdbPanel();
+    });
 
     // Asynchronicznie pobierz świeży stan z GAS (nie blokuje UI)
     fetchStateFromAppsScript().then((remote) => {

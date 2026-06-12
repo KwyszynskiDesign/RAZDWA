@@ -1465,6 +1465,188 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   color: var(--danger);
 }
 
+/* IDB Panel (Etap 3) */
+.idb-mode-switcher {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.idb-mode-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.idb-mode-btn--active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.idb-mode-btn--active:hover:not(:disabled) {
+  background: var(--primary-hover);
+}
+
+#idb-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.idb-status {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(44, 140, 64, 0.25);
+  background: rgba(44, 140, 64, 0.1);
+  color: var(--success);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.idb-status[data-tone="error"] {
+  border-color: rgba(201, 42, 42, 0.25);
+  background: rgba(201, 42, 42, 0.08);
+  color: var(--danger);
+}
+
+.idb-loading,
+.idb-error {
+  padding: 20px;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.idb-error { color: var(--danger); }
+
+.idb-add-section {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.idb-add-summary {
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  list-style: none;
+}
+
+.idb-add-summary::-webkit-details-marker { display: none; }
+
+.idb-add-form {
+  display: grid;
+  gap: 8px;
+  padding: 0 16px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+.idb-add-form > button { grid-column: 1 / -1; }
+
+.idb-add-row { display: grid; gap: 4px; }
+
+.idb-add-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.idb-add-input { width: 100%; }
+
+.idb-groups { display: grid; gap: 16px; }
+
+.idb-group {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.idb-group-header {
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--surface-alt);
+  border-bottom: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.idb-group-count {
+  font-weight: 400;
+  font-style: italic;
+}
+
+.idb-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.idb-table th,
+.idb-table td {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+
+.idb-table th {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  background: var(--surface-alt);
+}
+
+.idb-table tr:last-child td { border-bottom: none; }
+
+.idb-row-inactive td { opacity: 0.45; }
+
+.idb-td-label {
+  font-family: Consolas, "Courier New", monospace;
+  font-size: 12px;
+  word-break: break-all;
+  min-width: 180px;
+}
+
+.idb-th-num,
+.idb-td-num {
+  width: 64px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.idb-th-unit,
+.idb-td-unit { width: 56px; }
+
+.idb-th-price,
+.idb-td-price { width: 110px; }
+
+.idb-td-price .settings-input {
+  width: 90px;
+  text-align: right;
+}
+
+.idb-th-active,
+.idb-td-active {
+  width: 60px;
+  text-align: center;
+}
+
+.idb-th-save,
+.idb-td-save { width: 72px; }
+
+.idb-btn-save {
+  width: 100%;
+  min-height: 32px;
+  padding: 0 10px;
+  font-size: 12px;
+}
+
 /* NO UNDERLINES FIX - MENTOR UX */
 .tile, 
 .tile a, 
