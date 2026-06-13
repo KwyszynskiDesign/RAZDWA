@@ -946,7 +946,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
-      const sendingToast = showOrderLoadingPopup("WYSYŁANIE...", "sending");
+      const sendingToast = showOrderLoadingPopup("Trwa zapisywanie zamówienia...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
         payload.requestId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
@@ -964,8 +964,11 @@ document.addEventListener("DOMContentLoaded", () => {
         dismissToast(sendingToast);
 
         if (result.ok === true && result.verified === true) {
-          const orderRef = result.orderId != null ? ` (#${String(result.orderId)})` : "";
-          showOrderLoadingPopup((result.message || "Wysłano do bazy") + orderRef, "success");
+          const orderNum = result.orderId != null ? String(result.orderId) : null;
+          const successMsg = orderNum
+            ? `Zamówienie zostało zapisane. Numer zamówienia: ${orderNum}.`
+            : "Zamówienie zostało zapisane.";
+          showOrderLoadingPopup(successMsg, "success");
           cart.clear();
           resetOrderState();
           appendOrderHistory({
@@ -994,11 +997,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         resetSending();
-        showToast(`Błąd wysyłki: ${result.message || "nieznany błąd"}`, "error");
+        showToast("Nie udało się zapisać zamówienia. Spróbuj ponownie.", "error");
       } catch (error) {
         dismissToast(sendingToast);
         resetSending();
-        showToast(`Błąd wysyłki: ${error instanceof Error ? error.message : String(error)}`, "error");
+        showToast("Nie udało się zapisać zamówienia. Spróbuj ponownie.", "error");
       }
       return;
     }
@@ -1232,8 +1235,14 @@ document.addEventListener("DOMContentLoaded", () => {
         localStorage.setItem('razdwa_prices_ts', String(Date.now()));
       }
       if (remote.variants.length > 0) {
-        setVariantDefinitions(remote.variants);
-        syncVariantsToSubgroupsAtStartup();
+        const hasLocalVariants = Boolean(
+          typeof localStorage !== "undefined" && localStorage.getItem(VARIANTS_STORAGE_KEY)
+        );
+        if (!hasLocalVariants) {
+          setVariantDefinitions(remote.variants);
+          syncVariantsToSubgroupsAtStartup();
+          window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path: "variants" } }));
+        }
       }
     } catch {
       // offline - OK, nie blokuje startu
