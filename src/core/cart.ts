@@ -1,5 +1,5 @@
 import { CartItem } from "./types";
-import { EXPRESS_RATE } from "./modifiers";
+import { EXPRESS_RATE, getExpressRate } from "./modifiers";
 
 export class Cart {
   private items: CartItem[] = [];
@@ -68,10 +68,7 @@ export class Cart {
     return cents / 100;
   }
 
-  setExpressForAll(enabled: boolean, expressRate = EXPRESS_RATE) {
-    const rate = Number.isFinite(expressRate) && expressRate >= 0 ? expressRate : EXPRESS_RATE;
-    const factor = 1 + rate;
-
+  setExpressForAll(enabled: boolean) {
     this.items = this.items.map((item) => {
       const shouldBeExpress = !!enabled;
       const isCurrentlyExpress = !!item.isExpress;
@@ -81,14 +78,21 @@ export class Cart {
       }
 
       if (shouldBeExpress) {
+        const applyRate = getExpressRate();
+        const factor = 1 + applyRate;
         return {
           ...item,
           isExpress: true,
+          expressRate: applyRate,
           unitPrice: parseFloat((item.unitPrice * factor).toFixed(2)),
           totalPrice: parseFloat((item.totalPrice * factor).toFixed(2)),
         };
       }
 
+      const revertRate = Number.isFinite(item.expressRate) && (item.expressRate as number) >= 0
+        ? (item.expressRate as number)
+        : EXPRESS_RATE;
+      const factor = 1 + revertRate;
       return {
         ...item,
         isExpress: false,

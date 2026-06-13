@@ -24,7 +24,7 @@ import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
 import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
-import { EXPRESS_RATE } from "../core/modifiers";
+import { EXPRESS_RATE, getExpressRate } from "../core/modifiers";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
@@ -49,6 +49,7 @@ import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache } from "../core/compat";
+import { readSyncStatus, isPriceStale } from "../services/syncService";
 
 const cart = new Cart();
 
@@ -299,7 +300,8 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
   writeWrapped(`Telefon: ${customer.phone || "-"}`);
   writeWrapped(`E-mail: ${customer.email || "-"}`);
   writeWrapped(`Realizacja: ${customer.priority || "-"}`);
-  writeWrapped(`Tryb EXPRESS (+20%): ${((document.getElementById("globalExpress") as HTMLInputElement | null)?.checked ? "TAK" : "NIE")}`);
+  const hasExpressInCart = items.some(i => i.isExpress);
+  writeWrapped(`Tryb EXPRESS: ${hasExpressInCart ? "TAK" : "NIE"}`);
   writeWrapped(`Uwagi: ${customer.notes || "-"}`);
   spacer(10);
 
@@ -550,7 +552,7 @@ function setupFormValidation(): void {
 }
 
 const CUSTOMER_DRAFT_KEY = "razdwa_customer_draft";
-const DRAFT_FIELD_IDS = ["custName", "custPhone", "custEmail", "custPriority", "custNotes"] as const;
+const DRAFT_FIELD_IDS = ["custName", "custCompany", "custNip", "custPhone", "custEmail", "custPriority", "custAddedBy", "custNotes"] as const;
 
 function saveCustomerDraft(): void {
   const draft: Record<string, string> = {};
@@ -558,12 +560,12 @@ function saveCustomerDraft(): void {
     const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
     if (el) draft[id] = el.value;
   }
-  try { sessionStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
+  try { localStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
 }
 
 function restoreCustomerDraft(): void {
   try {
-    const raw = sessionStorage.getItem(CUSTOMER_DRAFT_KEY);
+    const raw = localStorage.getItem(CUSTOMER_DRAFT_KEY);
     if (!raw) return;
     const draft = JSON.parse(raw) as Record<string, string>;
     for (const id of DRAFT_FIELD_IDS) {
@@ -574,7 +576,7 @@ function restoreCustomerDraft(): void {
 }
 
 function clearCustomerDraft(): void {
-  try { sessionStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
+  try { localStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -610,16 +612,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  function normalizeExpressHint(hint: string, isExpress: boolean): string {
+    const hasTag = /\bEXPRESS\b/i.test(hint);
+    if (isExpress && !hasTag) return hint ? hint + ", EXPRESS" : "EXPRESS";
+    if (!isExpress && hasTag) return hint.replace(/,?\s*EXPRESS\b/gi, "").trim();
+    return hint;
+  }
+
   // Handle old razdwa:addToCart event from legacy JS categories
   document.addEventListener("razdwa:addToCart", (e: Event) => {
     const customEvent = e as CustomEvent;
     const detail = customEvent.detail || {};
     const category = detail.category || "Inne";
     const totalPrice = detail.totalPrice || 0;
-    const baseHint = detail.description || "";
-    const optionsHint = (globalExpress?.checked && !baseHint.includes("EXPRESS"))
-      ? baseHint + ", EXPRESS"
-      : baseHint;
+    const isExpress = !!(globalExpress?.checked);
+    const rate = isExpress ? getExpressRate() : undefined;
 
     const cartItem: CartItem = {
       id: `${category.toLowerCase().replace(/[^\w]+/g, "-")}-${Date.now()}`,
@@ -628,9 +635,10 @@ document.addEventListener("DOMContentLoaded", () => {
       quantity: 1,
       unit: "szt",
       unitPrice: totalPrice,
-      isExpress: globalExpress?.checked || false,
-      totalPrice: totalPrice * (globalExpress?.checked ? 1 + EXPRESS_RATE : 1),
-      optionsHint,
+      isExpress,
+      ...(rate != null && { expressRate: rate }),
+      totalPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
+      optionsHint: normalizeExpressHint(detail.description || "", isExpress),
       payload: detail
     };
 
@@ -645,12 +653,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const getCtx = (): ViewContext => ({
     cart: {
       addItem: (item) => {
-        cart.addItem(item);
+        const enriched = (item.isExpress && item.expressRate == null)
+          ? { ...item, expressRate: getExpressRate(), optionsHint: normalizeExpressHint(item.optionsHint, true) }
+          : (!item.isExpress ? { ...item, optionsHint: normalizeExpressHint(item.optionsHint, false) } : item);
+        cart.addItem(enriched);
         updateCartUI();
         showToast("Dodano do koszyka", "cart");
       }
     },
     addToBasket: (item) => {
+      const isExpress = globalExpress.checked;
+      const rate = isExpress ? getExpressRate() : undefined;
       const cartItem: CartItem = {
         id: `${item.category}-${Date.now()}`,
         category: item.category,
@@ -658,9 +671,10 @@ document.addEventListener("DOMContentLoaded", () => {
         quantity: 1,
         unit: "szt",
         unitPrice: item.price,
-        isExpress: globalExpress.checked,
-        totalPrice: item.price * (globalExpress.checked ? 1 + EXPRESS_RATE : 1),
-        optionsHint: item.description,
+        isExpress,
+        ...(rate != null && { expressRate: rate }),
+        totalPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
+        optionsHint: normalizeExpressHint(item.description, isExpress),
         payload: { originalPrice: item.price, description: item.description }
       };
       cart.addItem(cartItem);
@@ -951,16 +965,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
+      if (!exportConfig.dryRun) {
+        const syncStatus = readSyncStatus();
+        if (isPriceStale(syncStatus.lastSyncedAt)) {
+          resetSending();
+          showToast("Cennik niezsynchronizowany — odśwież stronę lub wykonaj sync przed wysyłką.", "error");
+          return;
+        }
+      }
+
       const sendingToast = showOrderLoadingPopup("Trwa zapisywanie zamówienia...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
         payload.requestId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
           ? crypto.randomUUID()
           : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
-        payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
         const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
         const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
+        payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
         if (_dPct || _sPct) {
+          payload.summary.adjustmentPercent = _sPct - _dPct;
           const _note = [_dPct && `Rabat: ${_dPct}%`, _sPct && `Narzut: ${_sPct}%`].filter(Boolean).join(", ");
           payload.customer.notes = [payload.customer.notes, _note].filter(Boolean).join(" | ");
         }
@@ -1216,9 +1240,11 @@ document.addEventListener("DOMContentLoaded", () => {
     el?.addEventListener("change", saveCustomerDraft);
   }
   window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
-    const formDirty = ["custName", "custPhone", "custEmail", "custNotes"].some(id => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
-      return (el?.value ?? "").trim().length > 0;
+    const formDirty = DRAFT_FIELD_IDS.some(id => {
+      const el = document.getElementById(id);
+      if (!el) return false;
+      if (el instanceof HTMLSelectElement) return el.selectedIndex !== 0;
+      return ((el as HTMLInputElement | HTMLTextAreaElement).value ?? "").trim().length > 0;
     });
     if (!cart.isEmpty() || formDirty) e.preventDefault();
   });

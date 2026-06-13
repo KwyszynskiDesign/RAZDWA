@@ -3,6 +3,11 @@
 export const EXPRESS_RATE = 0.2;
 
 import { z } from 'zod';
+import { resolveStoredPrice } from './compat';
+
+export function getExpressRate(): number {
+  return resolveStoredPrice('modifier-express', EXPRESS_RATE);
+}
 
 // Modifier definitions
 export type Modifier = {

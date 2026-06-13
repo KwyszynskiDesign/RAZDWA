@@ -21,6 +21,7 @@ export interface OrderExportPayload {
     itemsCount: number;
     total: number;
     hasExpress: boolean;
+    adjustmentPercent?: number;
   };
   items: Array<{
     category: string;

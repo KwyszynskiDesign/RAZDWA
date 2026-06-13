@@ -93,6 +93,7 @@ export interface CartItem {
   unit: string
   unitPrice: number
   isExpress?: boolean
+  expressRate?: number
   totalPrice: number
   optionsHint: string
   payload: unknown
