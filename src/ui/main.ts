@@ -27,7 +27,7 @@ import { formatPLN } from "../core/money";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer } from "../services/orderExportService";
+import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer, appendOrderHistory } from "../services/orderExportService";
 import {
   PRICES_UPDATED_EVENT,
   PRICES_STORAGE_KEY,
@@ -949,6 +949,9 @@ document.addEventListener("DOMContentLoaded", () => {
       const sendingToast = showOrderLoadingPopup("WYSYŁANIE...", "sending");
       try {
         const payload = buildOrderExportPayload(items, customer);
+        payload.requestId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
         payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
         const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
         const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
@@ -961,15 +964,18 @@ document.addEventListener("DOMContentLoaded", () => {
         dismissToast(sendingToast);
 
         if (result.ok === true && result.verified === true) {
-          const orderRef = (() => {
-            if (!result.data || typeof result.data !== "object") return "";
-            const d = result.data as Record<string, unknown>;
-            const v = d.orderId ?? d.orderNumber ?? d.rowNumber ?? d.id ?? d.numer ?? d.nr;
-            return v ? ` (#${String(v)})` : "";
-          })();
+          const orderRef = result.orderId != null ? ` (#${String(result.orderId)})` : "";
           showOrderLoadingPopup((result.message || "Wysłano do bazy") + orderRef, "success");
           cart.clear();
           resetOrderState();
+          appendOrderHistory({
+            requestId: payload.requestId ?? "",
+            orderId: result.orderId,
+            sentAt: new Date().toISOString(),
+            customer: { name: customer.name, email: customer.email },
+            itemsCount: items.length,
+            total: payload.summary.total,
+          });
           clearCustomerDraft();
           const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
           clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");

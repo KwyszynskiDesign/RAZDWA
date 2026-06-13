@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606120726 -->
+<!-- APP_VERSION: 202606130919 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,13 +28,13 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606120726" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606120726">
-  <link rel="stylesheet" href="assets/styles.css?v=202606120726">
+  <link rel="preload" href="assets/styles.css?v=202606130919" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606130919">
+  <link rel="stylesheet" href="assets/styles.css?v=202606130919">
 
-  <meta name="app-version" content="202606120726">
-  <script src="cache-buster.js?v=202606120726"></script>
-  <script src="init.js?v=202606120726" defer></script>
+  <meta name="app-version" content="202606130919">
+  <script src="cache-buster.js?v=202606130919"></script>
+  <script src="init.js?v=202606130919" defer></script>
 </head>
 <body>
   <div class="wrap">
@@ -52,10 +52,7 @@
           <input id="categorySearch" type="search" autocomplete="off">
           <button id="categorySearchButton" type="button">Szukaj</button>
         </div>
-        <a href="#/ustawienia" class="tile" role="button" tabindex="0" aria-label="Przejd&#x17A; do Ustawienia cen">
-              <span class="tile-icon" aria-hidden="true">&#x2699;&#xFE0F;</span>
-              <span class="tile-title">Ustawienia cen</span> 
-            </a>
+        
       </div>
     </header>
 
@@ -261,6 +258,10 @@
             <button id="employeeModeBtn" type="button" class="ghost employee-mode-btn" aria-expanded="false" aria-controls="pinPanelSection">&#x1F512; Panel pracownika</button>
           </div>
 
+          <div class="order-actions" style="margin-top:8px;">
+            <a href="#/ustawienia" class="ghost" role="button" tabindex="0" aria-label="Przejdź do Konfiguracja i ustawienia Cen">Konfiguracja i ustawienia Cen</a>
+          </div>
+
           <div id="pinPanelSection" hidden>
             <div style="height:1px;background:rgba(255,255,255,0.08);margin:28px 0 20px;"></div>
             <div>
@@ -299,8 +300,8 @@
     </div>
   </div>
 
- <script src="assets/app.js?v=202606120726" type="module"></script>
- <script src="ui.js?v=202606120726" defer></script>
+ <script src="assets/app.js?v=202606130919" type="module"></script>
+ <script src="ui.js?v=202606130919" defer></script>
 
 </body>
 </html>

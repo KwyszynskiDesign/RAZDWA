@@ -137,6 +137,7 @@ describe("orderExportService", () => {
       "Suma (PLN)",
       "Priorytet",
       "Ekspres",
+      "requestId",
     ]);
 
     expect(parsedBody["Data"]).toBeTypeOf("string");
@@ -234,6 +235,69 @@ describe("orderExportService", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(fetchMock.mock.calls[0]?.[1]?.mode).toBe("cors");
     expect(fetchMock.mock.calls[1]?.[1]?.mode).toBe("no-cors");
+  });
+
+  it("sendOrderToAppsScript includes requestId in request body", async () => {
+    const fetchMock = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      text: async () => "",
+    }));
+    (globalThis as any).fetch = fetchMock;
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    payload.requestId = "test-req-id-123";
+
+    await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    const requestBody = JSON.parse(String((fetchMock.mock.calls[0] as any)?.[1]?.body ?? "{}"));
+    expect(requestBody.requestId).toBe("test-req-id-123");
+  });
+
+  it("sendOrderToAppsScript exposes orderId from GAS response", async () => {
+    (globalThis as any).fetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: true, message: "Saved", orderId: "RZ-3A7F2B9C" }),
+      text: async () => "",
+    }));
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.orderId).toBe("RZ-3A7F2B9C");
+  });
+
+  it("sendOrderToAppsScript returns undefined orderId when GAS omits it", async () => {
+    (globalThis as any).fetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: true, message: "Saved" }),
+      text: async () => "",
+    }));
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.orderId).toBeUndefined();
   });
 
   it("sendOrderToAppsScript returns failure when disabled", async () => {

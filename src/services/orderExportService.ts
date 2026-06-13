@@ -15,6 +15,7 @@ const CURRENT_APPS_SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL ?? "";
 export interface OrderExportPayload {
   source: "razdwa-web";
   createdAt: string;
+  requestId?: string;
   customer: CustomerData & { notes?: string };
   summary: {
     itemsCount: number;
@@ -47,6 +48,7 @@ export interface OrderExportResult {
    * z prośbą o weryfikację w arkuszu.
    */
   unverified?: boolean;
+  orderId?: string | number;
 }
 
 interface AppsScriptCompactRowPayload {
@@ -68,6 +70,7 @@ interface AppsScriptCompactRowPayload {
   "Suma (PLN)": number;
   "Priorytet": string;
   "Ekspres": "TAK" | "NIE";
+  "RequestID": string;
 }
 
 type AppsScriptResponseBody = {
@@ -223,6 +226,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Suma (PLN)": totalSum,
     "Priorytet": String(payload.customer.priority ?? ""),
     "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
+    "RequestID": payload.requestId ?? "",
   };
 }
 
@@ -350,7 +354,10 @@ function evaluateGasResult(
       return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true };
     }
     if (body.ok === true) {
-      return { ok: true, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true };
+      const d = body as Record<string, unknown>;
+      const rawId = d.orderId ?? d.orderNumber ?? d.rowNumber ?? d.id ?? d.numer ?? d.nr;
+      const orderId = rawId != null ? (typeof rawId === "number" ? rawId : String(rawId)) : undefined;
+      return { ok: true, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, orderId };
     }
   }
 
@@ -684,4 +691,38 @@ export async function removePinOnServer(currentPin: string): Promise<PinSetResul
   const data = await pinPost({ action: 'removePin', currentPin });
   if (!data) return { ok: false, error: 'offline' };
   return data as unknown as PinSetResult;
+}
+
+// ── ORDER HISTORY ─────────────────────────────────────────────────────────────
+
+export const ORDER_HISTORY_KEY = "razdwa_order_history";
+const ORDER_HISTORY_MAX = 20;
+
+export interface OrderHistoryEntry {
+  requestId: string;
+  orderId?: string | number;
+  sentAt: string;
+  customer: { name: string; email: string };
+  itemsCount: number;
+  total: number;
+}
+
+export function getOrderHistory(): OrderHistoryEntry[] {
+  try {
+    if (typeof localStorage === "undefined") return [];
+    const raw = localStorage.getItem(ORDER_HISTORY_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? (parsed as OrderHistoryEntry[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function appendOrderHistory(entry: OrderHistoryEntry): void {
+  try {
+    if (typeof localStorage === "undefined") return;
+    const updated = [entry, ...getOrderHistory()].slice(0, ORDER_HISTORY_MAX);
+    localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(updated));
+  } catch {}
 }

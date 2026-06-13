@@ -23,6 +23,8 @@
 - Suma (PLN)
 - Priorytet
 - Ekspres
+- orderId
+- requestId
 
 ## 2) Utwórz Apps Script
 1. W arkuszu: Rozszerzenia → Apps Script.
@@ -34,7 +36,8 @@ const SHEET_NAME = 'orders';
 const HEADERS = [
   'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
   'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
-  'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres'
+  'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
+  'orderId', 'requestId'
 ];
 
 function ensureSheet() {
@@ -650,3 +653,192 @@ if (body.type === 'prices.pull') {
 | M | syncedAt | ISO string lub `""` |
 | N | _dirty | `"TRUE"` / `"FALSE"` |
 | O | _deleted | `"TRUE"` / `"FALSE"` |
+
+---
+
+## 7) Idempotencja zamówień — orderId, requestId, indeks PropertiesService (Etap 5)
+
+Dopisz poniższe funkcje do `Code.gs`, a następnie zastąp blok zapisu zamówień w `doPost` jednolinijkowym routingiem. Sekcja 1's arkusz `orders` otrzymuje 2 nowe kolumny — `ensureSheet()` doda je automatycznie.
+
+### 7.1 Zaktualizuj stałą HEADERS (zastąp istniejącą definicję)
+
+Już zaktualizowana wyżej w Sekcji 2. Jeśli masz inną wersję, użyj tej:
+
+```javascript
+const HEADERS = [
+  'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
+  'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
+  'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
+  'orderId', 'requestId'
+];
+```
+
+> Stare wiersze w arkuszu zachowują swoje dane — kolumny 19 (`orderId`) i 20 (`requestId`) będą puste dla historycznych zamówień.
+
+### 7.2 Nowe funkcje — dopisz do Code.gs
+
+```javascript
+function _generateOrderId() {
+  return 'RZ-' + Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+}
+
+function _cleanStaleRequestIds() {
+  var props = PropertiesService.getScriptProperties();
+  var all = props.getProperties();
+  var now = Date.now();
+  var cutoff = 48 * 60 * 60 * 1000;
+  var deleted = 0;
+  for (var key in all) {
+    if (key.indexOf('req_') !== 0) continue;
+    try {
+      var entry = JSON.parse(all[key]);
+      if (!entry || !entry.at || (now - new Date(entry.at).getTime() > cutoff)) {
+        props.deleteProperty(key);
+        deleted++;
+        if (deleted >= 50) break;
+      }
+    } catch (e) {
+      props.deleteProperty(key);
+      deleted++;
+      if (deleted >= 50) break;
+    }
+  }
+}
+
+function _scanOrdersForRequestId(requestId, sheet) {
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  var startRow = Math.max(2, lastRow - 49);
+  var numRows = lastRow - startRow + 1;
+  var data = sheet.getRange(startRow, 19, numRows, 2).getValues();
+  for (var i = data.length - 1; i >= 0; i--) {
+    if (String(data[i][1] || '').trim() === requestId) {
+      return String(data[i][0] || '').trim() || null;
+    }
+  }
+  return null;
+}
+
+function _orderResponse(ok, orderId, requestId, message, retryable) {
+  var payload = { ok: ok, message: message };
+  if (orderId) payload.orderId = orderId;
+  if (requestId) payload.requestId = requestId;
+  if (retryable) payload.retryable = true;
+  return ContentService
+    .createTextOutput(JSON.stringify(payload))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleOrderSave(body) {
+  _cleanStaleRequestIds();
+
+  var requestId = String(body['requestId'] || '').trim();
+  var props = PropertiesService.getScriptProperties();
+  var now = new Date();
+  var REQ_KEY = requestId ? 'req_' + requestId : null;
+
+  if (REQ_KEY) {
+    var existing = null;
+    try {
+      var raw = props.getProperty(REQ_KEY);
+      if (raw) existing = JSON.parse(raw);
+    } catch (e) { existing = null; }
+
+    if (existing) {
+      if (existing.status === 'done' && existing.orderId) {
+        return _orderResponse(true, existing.orderId, requestId, 'Zamówienie już zapisane.');
+      }
+      var pendingAge = now.getTime() - new Date(existing.at || 0).getTime();
+      if (existing.status === 'pending' && pendingAge < 30000) {
+        return _orderResponse(false, null, requestId, 'Zamówienie w trakcie zapisu — spróbuj za chwilę.', true);
+      }
+      if (existing.status === 'pending' && pendingAge >= 30000) {
+        var sheetForScan = ensureSheet();
+        var foundOrderId = _scanOrdersForRequestId(requestId, sheetForScan);
+        if (foundOrderId) {
+          try {
+            props.setProperty(REQ_KEY, JSON.stringify({ status: 'done', orderId: foundOrderId, at: existing.at }));
+          } catch (e) {}
+          return _orderResponse(true, foundOrderId, requestId, 'Zamówienie już zapisane.');
+        }
+      }
+    }
+  }
+
+  if (!body['Telefon']) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ ok: false, message: 'Numer telefonu jest wymagany.' }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  if (REQ_KEY) {
+    try {
+      props.setProperty(REQ_KEY, JSON.stringify({ status: 'pending', orderId: '', at: now.toISOString() }));
+    } catch (e) {
+      Logger.log('[handleOrderSave] Phase 1 setProperty failed: ' + e);
+    }
+  }
+
+  var orderId = _generateOrderId();
+  var sheet = ensureSheet();
+
+  sheet.appendRow([
+    body['Data'] || '',
+    body['Godzina'] || '',
+    body['Firma'] || '',
+    body['Kto dodał'] || '',
+    body['Imię'] || '',
+    body['Nazwisko'] || '',
+    body['NIP'] || '',
+    body['Telefon'] || '',
+    body['Email'] || '',
+    body['Materiał'] || '',
+    body['jedno/dwustronne'] || '',
+    body['Produkt'] || '',
+    toNumberOrBlank(body['Ilosc sztuk']),
+    toNumberOrBlank(body['Cena za sztukę']),
+    body['Uwagi'] || '',
+    toNumberOrBlank(body['Suma (PLN)']),
+    body['Priorytet'] || 'Normalny',
+    normalizeExpress(body['Ekspres']),
+    orderId,
+    requestId || ''
+  ]);
+
+  if (REQ_KEY) {
+    try {
+      props.setProperty(REQ_KEY, JSON.stringify({ status: 'done', orderId: orderId, at: now.toISOString() }));
+    } catch (e) {
+      Logger.log('[handleOrderSave] Phase 3 setProperty failed: ' + e);
+    }
+  }
+
+  return _orderResponse(true, orderId, requestId, 'Saved to sheet');
+}
+```
+
+### 7.3 Routing w doPost — zastąp blok zapisu zamówień
+
+Znajdź blok na końcu `doPost` zaczynający się od walidacji telefonu (lub `const row = body;`) do końca `try{}` i zastąp go:
+
+```javascript
+return handleOrderSave(body);
+```
+
+### 7.4 Schemat arkusza `orders` po zmianach
+
+| Kol | Pole | Uwagi |
+|---|---|---|
+| A–R (1–18) | bez zmian | Data → Ekspres |
+| S (19) | orderId | np. `RZ-3A7F2B9C`, generowane przez GAS |
+| T (20) | requestId | UUID z frontendu, kolumna audytowa |
+
+### 7.5 Indeks idempotencji — PropertiesService
+
+| Klucz | Wartość | Znaczenie |
+|---|---|---|
+| `req_{uuid}` | `{"status":"pending","orderId":"","at":"ISO"}` | Zapis w toku (Faza 1) |
+| `req_{uuid}` | `{"status":"done","orderId":"RZ-XXX","at":"ISO"}` | Zapis potwierdzony (Faza 3) |
+
+- Wpisy starsze niż 48 h usuwane automatycznie (max 50 per wywołanie).
+- `stale pending` (≥ 30 s) → scan ostatnich 50 wierszy → domknięcie indeksu bez duplikatu.
