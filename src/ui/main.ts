@@ -24,6 +24,7 @@ import { UstawieniaView } from "./views/ustawienia";
 import { artykulyBiuroweCategory } from "../categories/artykuly-biurowe";
 import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
+import { EXPRESS_RATE } from "../core/modifiers";
 import { Cart } from "../core/cart";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
@@ -435,9 +436,9 @@ function updateCartUI() {
   const globalExpressSummary = document.getElementById("globalExpressSummary") as HTMLElement | null;
   if (globalExpressSummary) {
     const expressEnabled = !!globalExpress?.checked;
-    const expressSurcharge = expressEnabled
-      ? parseFloat((total - total / 1.2).toFixed(2))
-      : 0;
+    const expressSurcharge = cart.getItems()
+      .filter(i => i.isExpress)
+      .reduce((s, i) => s + parseFloat((i.totalPrice - i.totalPrice / (1 + EXPRESS_RATE)).toFixed(2)), 0);
 
     globalExpressSummary.innerText = `Dopłata: ${formatPLN(expressSurcharge)}`;
     globalExpressSummary.classList.toggle("is-active", expressEnabled && expressSurcharge > 0);
@@ -615,6 +616,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const detail = customEvent.detail || {};
     const category = detail.category || "Inne";
     const totalPrice = detail.totalPrice || 0;
+    const baseHint = detail.description || "";
+    const optionsHint = (globalExpress?.checked && !baseHint.includes("EXPRESS"))
+      ? baseHint + ", EXPRESS"
+      : baseHint;
 
     const cartItem: CartItem = {
       id: `${category.toLowerCase().replace(/[^\w]+/g, "-")}-${Date.now()}`,
@@ -624,8 +629,8 @@ document.addEventListener("DOMContentLoaded", () => {
       unit: "szt",
       unitPrice: totalPrice,
       isExpress: globalExpress?.checked || false,
-      totalPrice: totalPrice * (globalExpress?.checked ? 1.2 : 1),
-      optionsHint: detail.description || "",
+      totalPrice: totalPrice * (globalExpress?.checked ? 1 + EXPRESS_RATE : 1),
+      optionsHint,
       payload: detail
     };
 
@@ -654,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         unit: "szt",
         unitPrice: item.price,
         isExpress: globalExpress.checked,
-        totalPrice: item.price * (globalExpress.checked ? 1.2 : 1),
+        totalPrice: item.price * (globalExpress.checked ? 1 + EXPRESS_RATE : 1),
         optionsHint: item.description,
         payload: { originalPrice: item.price, description: item.description }
       };

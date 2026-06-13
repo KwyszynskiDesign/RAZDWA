@@ -1,4 +1,5 @@
 import { CartItem } from "./types";
+import { EXPRESS_RATE } from "./modifiers";
 
 export class Cart {
   private items: CartItem[] = [];
@@ -67,8 +68,8 @@ export class Cart {
     return cents / 100;
   }
 
-  setExpressForAll(enabled: boolean, expressRate = 0.2) {
-    const rate = Number.isFinite(expressRate) && expressRate >= 0 ? expressRate : 0.2;
+  setExpressForAll(enabled: boolean, expressRate = EXPRESS_RATE) {
+    const rate = Number.isFinite(expressRate) && expressRate >= 0 ? expressRate : EXPRESS_RATE;
     const factor = 1 + rate;
 
     this.items = this.items.map((item) => {

@@ -1,5 +1,7 @@
 // src/core/modifiers.ts
 
+export const EXPRESS_RATE = 0.2;
+
 import { z } from 'zod';
 
 // Modifier definitions

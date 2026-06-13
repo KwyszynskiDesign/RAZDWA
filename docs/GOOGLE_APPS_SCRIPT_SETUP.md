@@ -839,5 +839,5 @@ W sekcji *Manage deployments* sprawdź, który deployment ma status *Active* i s
 
 1. Wyślij testowe zamówienie z aplikacji.
 2. W edytorze Apps Script otwórz **Executions** — sprawdź czy wywołanie się pojawiło i nie zgłosiło błędu.
-3. Sprawdź arkusz `orders` — nowy wiersz powinien mieć wypełnioną kolumnę S (`orderId`, format `RZ-XXXXXXXX`) i T (`RequestID`, UUID).
+3. Sprawdź arkusz `Zamówienia` — nowy wiersz powinien mieć wypełnioną kolumnę S (`orderId`, format `RZ-XXXXXXXX`) i T (`RequestID`, UUID).
 4. Wyślij to samo zamówienie ponownie (bez zmiany `RequestID`) — arkusz powinien mieć nadal jeden wiersz, odpowiedź powinna zawierać ten sam `orderId`.
