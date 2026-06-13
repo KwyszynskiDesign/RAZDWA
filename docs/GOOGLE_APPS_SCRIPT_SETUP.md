@@ -24,7 +24,6 @@
 - Priorytet
 - Ekspres
 - orderId
-- requestId
 
 ## 2) Utwórz Apps Script
 1. W arkuszu: Rozszerzenia → Apps Script.
@@ -37,7 +36,7 @@ const HEADERS = [
   'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
   'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
   'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
-  'orderId', 'requestId'
+  'orderId'
 ];
 
 function ensureSheet() {
@@ -103,7 +102,7 @@ function doPost(e) {
     ]);
 
     return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, message: 'Saved to sheet' }))
+      .createTextOutput(JSON.stringify({ ok: true, message: 'Zamówienie zapisane.' }))
       .setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
     return ContentService
@@ -656,7 +655,7 @@ if (body.type === 'prices.pull') {
 
 ---
 
-## 7) Idempotencja zamówień — orderId, requestId, indeks PropertiesService (Etap 5)
+## 7) Idempotencja zamówień — orderId, indeks PropertiesService (Etap 5)
 
 Dopisz poniższe funkcje do `Code.gs`, a następnie zastąp blok zapisu zamówień w `doPost` jednolinijkowym routingiem. Sekcja 1's arkusz `orders` otrzymuje 2 nowe kolumny — `ensureSheet()` doda je automatycznie.
 
@@ -669,11 +668,11 @@ const HEADERS = [
   'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
   'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
   'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
-  'orderId', 'requestId'
+  'orderId'
 ];
 ```
 
-> Stare wiersze w arkuszu zachowują swoje dane — kolumny 19 (`orderId`) i 20 (`requestId`) będą puste dla historycznych zamówień.
+> Stare wiersze w arkuszu zachowują swoje dane — kolumna 19 (`orderId`) będzie pusta dla historycznych zamówień.
 
 ### 7.2 Nowe funkcje — dopisz do Code.gs
 
@@ -705,24 +704,9 @@ function _cleanStaleRequestIds() {
   }
 }
 
-function _scanOrdersForRequestId(requestId, sheet) {
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 2) return null;
-  var startRow = Math.max(2, lastRow - 49);
-  var numRows = lastRow - startRow + 1;
-  var data = sheet.getRange(startRow, 19, numRows, 2).getValues();
-  for (var i = data.length - 1; i >= 0; i--) {
-    if (String(data[i][1] || '').trim() === requestId) {
-      return String(data[i][0] || '').trim() || null;
-    }
-  }
-  return null;
-}
-
 function _orderResponse(ok, orderId, requestId, message, retryable) {
   var payload = { ok: ok, message: message };
   if (orderId) payload.orderId = orderId;
-  if (requestId) payload.requestId = requestId;
   if (retryable) payload.retryable = true;
   return ContentService
     .createTextOutput(JSON.stringify(payload))
@@ -753,14 +737,7 @@ function handleOrderSave(body) {
         return _orderResponse(false, null, requestId, 'Zamówienie w trakcie zapisu — spróbuj za chwilę.', true);
       }
       if (existing.status === 'pending' && pendingAge >= 30000) {
-        var sheetForScan = ensureSheet();
-        var foundOrderId = _scanOrdersForRequestId(requestId, sheetForScan);
-        if (foundOrderId) {
-          try {
-            props.setProperty(REQ_KEY, JSON.stringify({ status: 'done', orderId: foundOrderId, at: existing.at }));
-          } catch (e) {}
-          return _orderResponse(true, foundOrderId, requestId, 'Zamówienie już zapisane.');
-        }
+        props.deleteProperty(REQ_KEY);
       }
     }
   }
@@ -801,8 +778,7 @@ function handleOrderSave(body) {
     toNumberOrBlank(body['Suma (PLN)']),
     body['Priorytet'] || 'Normalny',
     normalizeExpress(body['Ekspres']),
-    orderId,
-    requestId || ''
+    orderId
   ]);
 
   if (REQ_KEY) {
@@ -813,7 +789,7 @@ function handleOrderSave(body) {
     }
   }
 
-  return _orderResponse(true, orderId, requestId, 'Saved to sheet');
+  return _orderResponse(true, orderId, requestId, 'Zamówienie zapisane.');
 }
 ```
 
@@ -831,7 +807,6 @@ return handleOrderSave(body);
 |---|---|---|
 | A–R (1–18) | bez zmian | Data → Ekspres |
 | S (19) | orderId | np. `RZ-3A7F2B9C`, generowane przez GAS |
-| T (20) | requestId | UUID z frontendu, kolumna audytowa |
 
 ### 7.5 Indeks idempotencji — PropertiesService
 
@@ -841,4 +816,4 @@ return handleOrderSave(body);
 | `req_{uuid}` | `{"status":"done","orderId":"RZ-XXX","at":"ISO"}` | Zapis potwierdzony (Faza 3) |
 
 - Wpisy starsze niż 48 h usuwane automatycznie (max 50 per wywołanie).
-- `stale pending` (≥ 30 s) → scan ostatnich 50 wierszy → domknięcie indeksu bez duplikatu.
+- `stale pending` (≥ 30 s) → wpis usuwany, następne wywołanie traktowane jako nowe zamówienie.

@@ -137,7 +137,7 @@ describe("orderExportService", () => {
       "Suma (PLN)",
       "Priorytet",
       "Ekspres",
-      "requestId",
+      "RequestID",
     ]);
 
     expect(parsedBody["Data"]).toBeTypeOf("string");
@@ -237,12 +237,12 @@ describe("orderExportService", () => {
     expect(fetchMock.mock.calls[1]?.[1]?.mode).toBe("no-cors");
   });
 
-  it("sendOrderToAppsScript includes requestId in request body", async () => {
+  it("sendOrderToAppsScript includes RequestID in request body", async () => {
     const fetchMock = vi.fn(async () => ({
       ok: true,
       status: 200,
       headers: { get: () => "application/json" },
-      json: async () => ({ ok: true, message: "Saved to sheet" }),
+      json: async () => ({ ok: true, message: "Zamówienie zapisane." }),
       text: async () => "",
     }));
     (globalThis as any).fetch = fetchMock;
@@ -257,7 +257,7 @@ describe("orderExportService", () => {
     });
 
     const requestBody = JSON.parse(String((fetchMock.mock.calls[0] as any)?.[1]?.body ?? "{}"));
-    expect(requestBody.requestId).toBe("test-req-id-123");
+    expect(requestBody["RequestID"]).toBe("test-req-id-123");
   });
 
   it("sendOrderToAppsScript exposes orderId from GAS response", async () => {

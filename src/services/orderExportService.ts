@@ -511,7 +511,7 @@ export async function savePricesToAppsScript(
           body,
           signal: controller.signal,
         });
-        return { ok: true, status: 0, verified: false, message: "Cennik wysłany bez potwierdzenia (CORS). Sprawdź arkusz." };
+        return { ok: false, status: 0, verified: false, unverified: true, message: "Cennik wysłany bez potwierdzenia (CORS/sieć). Sprawdź arkusz Sheets — jeśli zmiany nie ma, wyślij ponownie." };
       } catch {
         // continue to final error
       }
