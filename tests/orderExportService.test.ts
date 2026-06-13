@@ -368,6 +368,48 @@ describe("orderExportService", () => {
     expect(parsedBody["Cena za sztukę"]).toBe("1.20");
     expect(parsedBody["Materiał"]).toContain("Kreda 130g");
   });
+
+  it("sendOrderToAppsScript passes retryable=true when GAS responds with ok:false retryable:true", async () => {
+    (globalThis as any).fetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: false, retryable: true, message: "Zamówienie w trakcie zapisu — spróbuj za chwilę." }),
+      text: async () => "",
+    }));
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.verified).toBe(true);
+    expect(result.retryable).toBe(true);
+    expect(result.message).toMatch(/trakcie zapisu/i);
+  });
+
+  it("sendOrderToAppsScript does not set retryable when GAS responds ok:false without retryable", async () => {
+    (globalThis as any).fetch = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      headers: { get: () => "application/json" },
+      json: async () => ({ ok: false, message: "Błąd walidacji." }),
+      text: async () => "",
+    }));
+
+    const payload = buildOrderExportPayload(sampleItems, sampleCustomer);
+    const result = await sendOrderToAppsScript(payload, {
+      enabled: true,
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      timeoutMs: 5000,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.retryable).toBeUndefined();
+  });
 });
 
 // ---------------------------------------------------------------------------

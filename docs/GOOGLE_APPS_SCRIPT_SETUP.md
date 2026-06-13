@@ -668,11 +668,11 @@ const HEADERS = [
   'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
   'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
   'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
-  'orderId'
+  'orderId', 'RequestID'
 ];
 ```
 
-> Stare wiersze w arkuszu zachowują swoje dane — kolumna 19 (`orderId`) będzie pusta dla historycznych zamówień.
+> Stare wiersze w arkuszu zachowują swoje dane — kolumny 19 (`orderId`) i 20 (`RequestID`) będą puste dla historycznych zamówień.
 
 ### 7.2 Nowe funkcje — dopisz do Code.gs
 
@@ -716,7 +716,7 @@ function _orderResponse(ok, orderId, requestId, message, retryable) {
 function handleOrderSave(body) {
   _cleanStaleRequestIds();
 
-  var requestId = String(body['requestId'] || '').trim();
+  var requestId = String(body['RequestID'] || '').trim();
   var props = PropertiesService.getScriptProperties();
   var now = new Date();
   var REQ_KEY = requestId ? 'req_' + requestId : null;
@@ -778,7 +778,8 @@ function handleOrderSave(body) {
     toNumberOrBlank(body['Suma (PLN)']),
     body['Priorytet'] || 'Normalny',
     normalizeExpress(body['Ekspres']),
-    orderId
+    orderId,
+    String(body['RequestID'] || '')
   ]);
 
   if (REQ_KEY) {
@@ -807,6 +808,7 @@ return handleOrderSave(body);
 |---|---|---|
 | A–R (1–18) | bez zmian | Data → Ekspres |
 | S (19) | orderId | np. `RZ-3A7F2B9C`, generowane przez GAS |
+| T (20) | RequestID | UUID z frontendu — klucz idempotencji (historyczne wiersze puste) |
 
 ### 7.5 Indeks idempotencji — PropertiesService
 
@@ -817,3 +819,25 @@ return handleOrderSave(body);
 
 - Wpisy starsze niż 48 h usuwane automatycznie (max 50 per wywołanie).
 - `stale pending` (≥ 30 s) → wpis usuwany, następne wywołanie traktowane jako nowe zamówienie.
+
+### 7.6 Wdrożenie zmian w Apps Script
+
+Po wklejeniu kodu z sekcji 7.1–7.3 wykonaj poniższe kroki.
+
+**Krok 1 — wdróż zaktualizowany kod**
+
+W edytorze Apps Script: **Deploy → Manage deployments**.
+
+- Jeśli masz już aktywny deployment typu *Web app*: kliknij ołówek (edytuj), zmień wersję na *New version*, potwierdź. **URL pozostaje ten sam** — nie musisz aktualizować go w aplikacji.
+- Jeśli nie masz aktywnego deploymentu: **Deploy → New deployment**, typ *Web app*, Execute as *Me*, Who has access *Anyone*. Skopiuj nowy URL i zaktualizuj go w ustawieniach aplikacji (sekcja *Integracja Google Sheets*).
+
+**Krok 2 — zweryfikuj aktywny URL**
+
+W sekcji *Manage deployments* sprawdź, który deployment ma status *Active* i skopiuj jego URL (`/exec`). Porównaj z URL zapisanym w aplikacji (`Ustawienia → Integracja`). Zaktualizuj URL w aplikacji tylko jeśli się różnią.
+
+**Krok 3 — zweryfikuj działanie idempotencji**
+
+1. Wyślij testowe zamówienie z aplikacji.
+2. W edytorze Apps Script otwórz **Executions** — sprawdź czy wywołanie się pojawiło i nie zgłosiło błędu.
+3. Sprawdź arkusz `orders` — nowy wiersz powinien mieć wypełnioną kolumnę S (`orderId`, format `RZ-XXXXXXXX`) i T (`RequestID`, UUID).
+4. Wyślij to samo zamówienie ponownie (bez zmiany `RequestID`) — arkusz powinien mieć nadal jeden wiersz, odpowiedź powinna zawierać ten sam `orderId`.

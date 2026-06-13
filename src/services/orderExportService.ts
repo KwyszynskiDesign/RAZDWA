@@ -49,6 +49,12 @@ export interface OrderExportResult {
    */
   unverified?: boolean;
   orderId?: string | number;
+  /**
+   * true gdy GAS potwierdził odbiór requestu ale zapis jest jeszcze w toku
+   * (stan 'pending' w PropertiesService). UI powinno poczekać ~30 s i ponowić
+   * z tym samym requestId.
+   */
+  retryable?: boolean;
 }
 
 interface AppsScriptCompactRowPayload {
@@ -351,7 +357,9 @@ function evaluateGasResult(
 
   if (body && typeof body === "object" && "ok" in body) {
     if (body.ok === false) {
-      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true };
+      const d = body as Record<string, unknown>;
+      const retryable = d.retryable === true ? true : undefined;
+      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, retryable };
     }
     if (body.ok === true) {
       const d = body as Record<string, unknown>;
