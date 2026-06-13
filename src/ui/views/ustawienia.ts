@@ -45,6 +45,7 @@ import {
   pushPricesToGas,
   pullPricesFromGas,
   readSyncStatus,
+  isPriceStale,
   registerPriceSync,
   type SyncStatusCode,
 } from "../../services/syncService";
@@ -2507,6 +2508,7 @@ export const UstawieniaView: View = {
         ? new Date(syncStatus.lastSyncedAt).toLocaleString("pl-PL")
         : "—";
 
+      const priceStale = isPriceStale(syncStatus.lastSyncedAt);
       let html = `
         <div class="idb-sync-bar">
           <div class="idb-sync-status idb-sync-status--${syncStatus.code}">
@@ -2518,6 +2520,7 @@ export const UstawieniaView: View = {
             &nbsp;·&nbsp;
             <span class="idb-dirty-badge${dirtyCount > 0 ? " idb-dirty-badge--pending" : ""}">${dirtyCount} do sync</span>
           </div>
+          ${priceStale ? `<div class="idb-stale-warning">⚠ Ceny mogą być nieaktualne (ostatni sync: ${escapeHtml(lastSync)}). Wykonaj Pull z GAS przed wyceną.</div>` : ""}
           <div class="idb-sync-actions">
             <button id="idb-btn-push" type="button" class="btn-primary idb-sync-btn">⬆ Push do GAS</button>
             <button id="idb-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>

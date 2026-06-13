@@ -5,6 +5,13 @@ import { getOrderExportConfig } from "./orderExportService";
 
 const SYNC_STATUS_KEY = "razdwa_price_sync_status";
 
+export const PRICE_TTL_MS = 48 * 60 * 60 * 1000;
+
+export function isPriceStale(lastSyncedAt: string | null): boolean {
+  if (!lastSyncedAt) return true;
+  return Date.now() - new Date(lastSyncedAt).getTime() > PRICE_TTL_MS;
+}
+
 export type SyncStatusCode =
   | "idle"
   | "syncing"
@@ -151,6 +158,14 @@ async function mergeRemotePrices(
     }
 
     if (remote.updatedAt > local.updatedAt) {
+      if (local._dirty) {
+        conflicts++;
+        console.warn(
+          `[syncService] Pominięto zdalny rekord id="${remote.id}" label="${local.label}": ` +
+          `lokalny jest _dirty (niezatwierdzony). remote.updatedAt="${remote.updatedAt}" > local.updatedAt="${local.updatedAt}" — wymagany push przed pull.`
+        );
+        continue;
+      }
       await priceStore.put(remote);
       merged++;
       continue;
@@ -306,8 +321,10 @@ export async function pullPricesFromGas(): Promise<SyncResult> {
     await warmPriceCache();
 
     const syncedAt = new Date().toISOString();
-    const msg = `✓ Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}, konfliktów: ${conflicts}.`;
-    writeSyncStatus({ code: "ok", lastSyncedAt: syncedAt, message: msg });
+    const msg = conflicts > 0
+      ? `Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}, pominięto ${conflicts} dirty (push wymagany).`
+      : `✓ Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}.`;
+    writeSyncStatus({ code: conflicts > 0 ? "unconfirmed" : "ok", lastSyncedAt: syncedAt, message: msg });
     return { ok: true, pulled: remoteRecords.length, merged, conflicts, syncedAt };
   } catch (err) {
     const isAbort = err instanceof Error && err.name === "AbortError";
