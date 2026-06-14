@@ -677,6 +677,47 @@ const HEADERS = [
 ### 7.2 Nowe funkcje — dopisz do Code.gs
 
 ```javascript
+function _validateOrderPayload(body) {
+  var phone = String(body['Telefon'] || '').trim();
+  if (!phone || phone.replace(/\D/g, '').length < 9) {
+    return { valid: false, message: 'Telefon jest wymagany i musi zawierać co najmniej 9 cyfr.' };
+  }
+
+  var produkt = String(body['Produkt'] || '').trim();
+  if (!produkt) {
+    return { valid: false, message: 'Pole Produkt nie może być puste.' };
+  }
+
+  var suma = parseFloat(body['Suma (PLN)']);
+  if (!isFinite(suma) || suma <= 0) {
+    return { valid: false, message: 'Suma (PLN) musi być liczbą większą od zera.' };
+  }
+
+  var qty = String(body['Ilosc sztuk'] || '').trim();
+  if (qty) {
+    var qtyParts = qty.split('|');
+    for (var i = 0; i < qtyParts.length; i++) {
+      var q = parseFloat(qtyParts[i].trim());
+      if (!isFinite(q) || q < 1) {
+        return { valid: false, message: 'Ilosc sztuk musi być liczbą co najmniej 1 dla każdej pozycji.' };
+      }
+    }
+  }
+
+  var cena = String(body['Cena za sztukę'] || '').trim();
+  if (cena) {
+    var cenaParts = cena.split('|');
+    for (var j = 0; j < cenaParts.length; j++) {
+      var c = parseFloat(cenaParts[j].trim());
+      if (!isFinite(c) || c < 0) {
+        return { valid: false, message: 'Cena za sztukę nie może być wartością ujemną.' };
+      }
+    }
+  }
+
+  return { valid: true };
+}
+
 function _generateOrderId() {
   return 'RZ-' + Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
 }
@@ -742,9 +783,10 @@ function handleOrderSave(body) {
     }
   }
 
-  if (!body['Telefon']) {
+  var validation = _validateOrderPayload(body);
+  if (!validation.valid) {
     return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Numer telefonu jest wymagany.' }))
+      .createTextOutput(JSON.stringify({ ok: false, message: validation.message }))
       .setMimeType(ContentService.MimeType.JSON);
   }
 

@@ -56,6 +56,7 @@ export interface OrderExportResult {
    * z tym samym requestId.
    */
   retryable?: boolean;
+  errorType?: 'timeout' | 'network' | 'no_cors_sent' | 'gas_error' | 'unknown';
 }
 
 interface AppsScriptCompactRowPayload {
@@ -353,14 +354,14 @@ function evaluateGasResult(
     : "";
 
   if (!httpOk) {
-    return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: false };
+    return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: false, errorType: 'gas_error' };
   }
 
   if (body && typeof body === "object" && "ok" in body) {
     if (body.ok === false) {
       const d = body as Record<string, unknown>;
       const retryable = d.retryable === true ? true : undefined;
-      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, retryable };
+      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, retryable, errorType: 'gas_error' };
     }
     if (body.ok === true) {
       const d = body as Record<string, unknown>;
@@ -379,10 +380,11 @@ function evaluateGasResult(
       verified: false,
       message: "GAS odpowiedział nie-JSONem (prawdopodobnie HTML błędu z catch po stronie Apps Script).",
       data: null,
+      errorType: 'gas_error',
     };
   }
   // HTTP 200 + parsowalne body bez pola ok — wynik niezweryfikowany, NIE jest sukcesem
-  return { ok: false, status: httpStatus, message: "GAS odpowiedział HTTP 200 bez pola 'ok' — zapis niezweryfikowany. Sprawdź arkusz Sheets.", data: body, verified: false, unverified: true };
+  return { ok: false, status: httpStatus, message: "GAS odpowiedział HTTP 200 bez pola 'ok' — zapis niezweryfikowany. Sprawdź arkusz Sheets.", data: body, verified: false, unverified: true, errorType: 'gas_error' };
 }
 
 export async function sendOrderToAppsScript(
@@ -429,6 +431,7 @@ export async function sendOrderToAppsScript(
         normalizedError.includes("load failed"));
 
     if (isCorsOrNetworkFailure) {
+      let noCorsAlsoFailed = false;
       try {
         await fetch(config.appsScriptUrl, {
           method: "POST",
@@ -445,18 +448,29 @@ export async function sendOrderToAppsScript(
           status: 0,
           verified: false,
           unverified: true,
+          errorType: 'no_cors_sent',
           message: "Wysłano bez potwierdzenia odpowiedzi (fallback no-cors). Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.",
         };
       } catch {
-        // continue to final error below
+        noCorsAlsoFailed = true;
+      }
+
+      if (noCorsAlsoFailed) {
+        return {
+          ok: false,
+          verified: false,
+          errorType: 'network',
+          message: "Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.",
+        };
       }
     }
 
-    const msg = err instanceof Error && err.name === "AbortError"
-      ? "Przekroczono limit czasu wysyłki do Apps Script."
+    const isTimeout = err instanceof Error && err.name === "AbortError";
+    const msg = isTimeout
+      ? "Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie."
       : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}. Sprawdź URL Web App i uprawnienia wdrożenia.`;
 
-    return { ok: false, message: msg, verified: false };
+    return { ok: false, message: msg, verified: false, errorType: isTimeout ? 'timeout' : 'unknown' };
   } finally {
     clearTimeout(timeout);
   }

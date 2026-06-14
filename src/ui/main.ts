@@ -128,6 +128,60 @@ function dismissToast(toast: HTMLElement | null) {
   setTimeout(() => toast.remove(), 350);
 }
 
+const ORDER_STATUS_PANEL_ID = 'orderStatusPanel';
+
+function dismissOrderStatusPanel() {
+  document.getElementById(ORDER_STATUS_PANEL_ID)?.remove();
+}
+
+function showOrderStatusPanel(
+  type: 'unverified' | 'error' | 'pending',
+  opts: { requestId?: string; message?: string; errorType?: string }
+) {
+  dismissOrderStatusPanel();
+  const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+  if (!host) return;
+
+  const errorMessages: Record<string, string> = {
+    timeout: 'Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie.',
+    network: 'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.',
+    no_cors_sent: 'Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.',
+    gas_error: 'Serwer odrzucił zamówienie. Sprawdź dane formularza i spróbuj ponownie.',
+    unknown: 'Nieoczekiwany błąd. Spróbuj ponownie lub skontaktuj się z obsługą.',
+  };
+
+  const heading = type === 'unverified' ? 'Status zamówienia niepewny'
+    : type === 'pending' ? 'Zapis w toku'
+    : 'Nie udało się wysłać zamówienia';
+  const icon = type === 'unverified' ? '⚠' : type === 'pending' ? '⏳' : '✕';
+  const bodyMsg = type === 'unverified'
+    ? (opts.message || 'Nie udało się potwierdzić zapisu. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.')
+    : type === 'pending'
+    ? (opts.message || 'GAS przyjął zamówienie — zapis w toku. Poczekaj ok. 30 s, potem wyślij ponownie z tym samym ID.')
+    : (opts.errorType ? (errorMessages[opts.errorType] ?? errorMessages.unknown) : (opts.message || errorMessages.unknown));
+  const reqId = escapeHtml(opts.requestId || '—');
+  const metaHtml = type === 'unverified'
+    ? `Kod do weryfikacji: <strong>${reqId}</strong>`
+    : type === 'pending'
+    ? `Zamówienie w kolejce. ID: <strong>${reqId}</strong>`
+    : `Tryb awaryjny: zapisz dane klienta ręcznie lub zadzwoń do obsługi.<br>Kod sesji: <strong>${reqId}</strong>`;
+
+  const panel = document.createElement('div');
+  panel.id = ORDER_STATUS_PANEL_ID;
+  panel.className = `order-status-panel order-status-panel--${type}`;
+  panel.innerHTML = `
+    <div class="order-status-panel__header">
+      <span class="order-status-panel__icon">${icon}</span>
+      <span class="order-status-panel__title">${escapeHtml(heading)}</span>
+      <button type="button" class="order-status-panel__close" aria-label="Zamknij">✕</button>
+    </div>
+    <p class="order-status-panel__body">${escapeHtml(bodyMsg)}</p>
+    <p class="order-status-panel__meta">${metaHtml}</p>
+  `;
+  panel.querySelector('.order-status-panel__close')?.addEventListener('click', dismissOrderStatusPanel);
+  host.prepend(panel);
+}
+
 function hideOrderLoadingPopup() {/* zachowane dla kompatybilności */}
 
 function getSummaryPercentValue(elementId: string): number {
@@ -904,9 +958,47 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   let isSubmitting = false;
+  let lastSendRequestId: string | null = null;
+  let unverifiedSend: boolean = false;
+  let retryUnlockTimer: ReturnType<typeof setTimeout> | null = null;
 
   const handleSendOrder = async () => {
     if (isSubmitting) return;
+
+    if (unverifiedSend) {
+      const guardHost = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+      if (!guardHost) {
+        unverifiedSend = false;
+      } else {
+        if (guardHost.querySelector(".resend-confirm")) return;
+        dismissOrderStatusPanel();
+        const guardDialog = document.createElement("div");
+        guardDialog.className = "clear-confirm resend-confirm";
+        guardDialog.innerHTML = `
+          <span class="clear-confirm__msg">Zamówienie mogło już zostać zapisane. Wyślij ponownie?</span>
+          <div class="clear-confirm__actions">
+            <button class="clear-confirm__cancel ghost">Anuluj</button>
+            <button class="clear-confirm__ok danger">Wyślij ponownie</button>
+          </div>
+        `;
+        guardHost.prepend(guardDialog);
+        requestAnimationFrame(() => guardDialog.classList.add("is-visible"));
+        const closeGuard = () => {
+          guardDialog.classList.remove("is-visible");
+          setTimeout(() => guardDialog.remove(), 200);
+        };
+        guardDialog.querySelector(".clear-confirm__cancel")?.addEventListener("click", () => {
+          closeGuard();
+          showOrderStatusPanel('unverified', { requestId: lastSendRequestId ?? undefined });
+        });
+        guardDialog.querySelector(".clear-confirm__ok")?.addEventListener("click", () => {
+          closeGuard();
+          unverifiedSend = false;
+          handleSendOrder();
+        });
+        return;
+      }
+    }
 
     if (cart.isEmpty()) {
       showToast("Koszyk jest pusty", "error");
@@ -974,12 +1066,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
 
-      const sendingToast = showOrderLoadingPopup("Trwa zapisywanie zamówienia...", "sending");
-      try {
-        const payload = buildOrderExportPayload(items, customer);
+      dismissOrderStatusPanel();
+      const payload = buildOrderExportPayload(items, customer);
+      if (lastSendRequestId !== null) {
+        payload.requestId = lastSendRequestId;
+      } else {
         payload.requestId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
           ? crypto.randomUUID()
           : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+        lastSendRequestId = payload.requestId;
+      }
+      const sendingToast = showOrderLoadingPopup("Trwa zapisywanie zamówienia...", "sending");
+      try {
         const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
         const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
         payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
@@ -1012,25 +1110,43 @@ document.addEventListener("DOMContentLoaded", () => {
           const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
           clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
           clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+          lastSendRequestId = null;
+          unverifiedSend = false;
+          if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
           resetSending();
+          return;
+        }
+
+        if (result.retryable === true) {
+          showOrderStatusPanel('pending', { requestId: payload.requestId, message: result.message });
+          unverifiedSend = false;
+          retryUnlockTimer = setTimeout(() => {
+            dismissOrderStatusPanel();
+            retryUnlockTimer = null;
+            resetSending();
+          }, 30000);
           return;
         }
 
         if (result.unverified === true) {
-          showToast(
-            result.message || "Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia brak, wyślij ponownie.",
-            "warning"
-          );
+          showOrderStatusPanel('unverified', { requestId: payload.requestId, message: result.message });
+          unverifiedSend = true;
           resetSending();
           return;
         }
 
+        lastSendRequestId = null;
+        unverifiedSend = false;
+        if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
         resetSending();
-        showToast("Nie udało się zapisać zamówienia. Spróbuj ponownie.", "error");
+        showOrderStatusPanel('error', { requestId: payload.requestId, message: result.message, errorType: result.errorType });
       } catch (error) {
         dismissToast(sendingToast);
+        lastSendRequestId = null;
+        unverifiedSend = false;
+        if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
         resetSending();
-        showToast("Nie udało się zapisać zamówienia. Spróbuj ponownie.", "error");
+        showOrderStatusPanel('error', { requestId: payload.requestId, errorType: 'unknown' });
       }
       return;
     }
