@@ -552,7 +552,7 @@ function setupFormValidation(): void {
 }
 
 const CUSTOMER_DRAFT_KEY = "razdwa_customer_draft";
-const DRAFT_FIELD_IDS = ["custName", "custCompany", "custNip", "custPhone", "custEmail", "custPriority", "custAddedBy", "custNotes"] as const;
+const DRAFT_FIELD_IDS = ["custName", "custPhone", "custEmail", "custPriority", "custNotes"] as const;
 
 function saveCustomerDraft(): void {
   const draft: Record<string, string> = {};
@@ -560,12 +560,12 @@ function saveCustomerDraft(): void {
     const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
     if (el) draft[id] = el.value;
   }
-  try { localStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
+  try { sessionStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
 }
 
 function restoreCustomerDraft(): void {
   try {
-    const raw = localStorage.getItem(CUSTOMER_DRAFT_KEY);
+    const raw = sessionStorage.getItem(CUSTOMER_DRAFT_KEY);
     if (!raw) return;
     const draft = JSON.parse(raw) as Record<string, string>;
     for (const id of DRAFT_FIELD_IDS) {
@@ -576,7 +576,7 @@ function restoreCustomerDraft(): void {
 }
 
 function clearCustomerDraft(): void {
-  try { localStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
+  try { sessionStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -634,7 +634,7 @@ document.addEventListener("DOMContentLoaded", () => {
       name: category,
       quantity: 1,
       unit: "szt",
-      unitPrice: totalPrice,
+      unitPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
       isExpress,
       ...(rate != null && { expressRate: rate }),
       totalPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
@@ -670,7 +670,7 @@ document.addEventListener("DOMContentLoaded", () => {
         name: item.category,
         quantity: 1,
         unit: "szt",
-        unitPrice: item.price,
+        unitPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
         isExpress,
         ...(rate != null && { expressRate: rate }),
         totalPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
@@ -1240,11 +1240,9 @@ document.addEventListener("DOMContentLoaded", () => {
     el?.addEventListener("change", saveCustomerDraft);
   }
   window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
-    const formDirty = DRAFT_FIELD_IDS.some(id => {
-      const el = document.getElementById(id);
-      if (!el) return false;
-      if (el instanceof HTMLSelectElement) return el.selectedIndex !== 0;
-      return ((el as HTMLInputElement | HTMLTextAreaElement).value ?? "").trim().length > 0;
+    const formDirty = ["custName", "custPhone", "custEmail", "custNotes"].some(id => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+      return (el?.value ?? "").trim().length > 0;
     });
     if (!cart.isEmpty() || formDirty) e.preventDefault();
   });
