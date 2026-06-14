@@ -2777,6 +2777,7 @@ export const UstawieniaView: View = {
       });
     }
 
+    const isDebug = new URLSearchParams(window.location.search).get('debug') === '1';
     container.innerHTML = `
       <div class="settings-wrap">
         <div class="settings-header">
@@ -2784,10 +2785,10 @@ export const UstawieniaView: View = {
             <h2 class="settings-title">⚙️ Ustawienia cen</h2>
             <p class="settings-subtitle">Cennik jest podzielony na kategorie. Wybierz sekcję i zmieniaj tylko te ceny, które do niej należą.</p>
           </div>
-          <div class="idb-mode-switcher">
+          ${isDebug ? `<div class="idb-mode-switcher">
             <button id="btn-mode-legacy" type="button" class="btn-secondary idb-mode-btn idb-mode-btn--active">Cennik (legacy)</button>
             <button id="btn-mode-idb" type="button" class="btn-secondary idb-mode-btn">Panel IDB</button>
-          </div>
+          </div>` : ''}
         </div>
 
         <div id="idb-panel" style="display:none">
