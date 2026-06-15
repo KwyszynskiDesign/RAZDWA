@@ -263,7 +263,15 @@ function toPdfSafeText(value: string): string {
 
 const DEJAVU_CDN = "https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/";
 
-async function generateOrderReportPdf(items: CartItem[], customer: CustomerData) {
+interface OrderPdfSummary {
+  baseTotal: number;
+  adjustedTotal: number;
+  discountPercent: number;
+  surchargePercent: number;
+  orderId?: string;
+}
+
+async function generateOrderReportPdf(items: CartItem[], customer: CustomerData, summary: OrderPdfSummary) {
   const pdf = await PDFDocument.create();
 
   let fontRegular: PDFFont;
@@ -338,13 +346,16 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData)
     minute: "2-digit"
   });
 
-  const baseTotal = cart.getGrandTotal();
-  const adjustedTotal = applySummaryPercentAdjustments(baseTotal);
-  const discountPercent = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
-  const surchargePercent = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
+  const baseTotal = summary.baseTotal;
+  const adjustedTotal = summary.adjustedTotal;
+  const discountPercent = summary.discountPercent;
+  const surchargePercent = summary.surchargePercent;
 
   writeWrapped("Raport zamówienia", { size: 18, bold: true });
   writeWrapped(`Data wygenerowania: ${reportDate}`, { size: 10, color: [0.35, 0.4, 0.48] });
+  if (summary.orderId) {
+    writeWrapped(`Numer zamówienia: ${summary.orderId}`, { size: 11, bold: true });
+  }
   spacer(10);
 
   writeWrapped("Dane zamówienia", { size: 13, bold: true });
@@ -1044,7 +1055,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     try {
-      await generateOrderReportPdf(cart.getItems(), customer);
+      const baseTotal = cart.getGrandTotal();
+      await generateOrderReportPdf(cart.getItems(), customer, {
+        baseTotal,
+        adjustedTotal: applySummaryPercentAdjustments(baseTotal),
+        discountPercent: Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100),
+        surchargePercent: Math.round(getSummaryPercentValue("summarySurchargePercent") * 100),
+      });
       showToast("Wygenerowano raport PDF", "success");
     } catch (error) {
       console.error("Błąd generowania raportu PDF:", error);
@@ -1108,6 +1125,13 @@ document.addEventListener("DOMContentLoaded", () => {
   let unverifiedSend: boolean = false;
   let retryUnlockTimer: ReturnType<typeof setTimeout> | null = null;
   let activeSendingToast: HTMLElement | null = null;
+  interface OrderPdfSnapshot {
+    items: CartItem[];
+    customer: CustomerData;
+    summary: OrderPdfSummary;
+    sentAt: string;
+  }
+  let lastSentOrderSnapshot: OrderPdfSnapshot | null = null;
   let bigOrderConfirmedFor: string | null = null;
   const BIG_ORDER_TOTAL_PLN = 5000;
   const BIG_ORDER_ITEMS = 20;
@@ -1150,12 +1174,29 @@ document.addEventListener("DOMContentLoaded", () => {
           activeSendingToast = showOrderLoadingPopup(opts?.message ?? "Trwa zapisywanie zamówienia...", "sending");
         }
         break;
-      case 'success':
+      case 'success': {
         if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
-        showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
+        const successPopup = showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
+        if (successPopup && lastSentOrderSnapshot) {
+          const snapshot = lastSentOrderSnapshot;
+          const pdfBtn = document.createElement("button");
+          pdfBtn.type = "button";
+          pdfBtn.className = "ghost-toast__action";
+          pdfBtn.textContent = "Pobierz potwierdzenie PDF";
+          pdfBtn.addEventListener("click", async () => {
+            try {
+              await generateOrderReportPdf(snapshot.items, snapshot.customer, snapshot.summary);
+            } catch (error) {
+              console.error("Błąd generowania potwierdzenia PDF:", error);
+              showToast("Nie udało się wygenerować potwierdzenia PDF", "error");
+            }
+          });
+          successPopup.appendChild(pdfBtn);
+        }
         isSubmitting = false;
         setBusy(false, null);
         break;
+      }
       case 'pending':
         if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
         showOrderStatusPanel('pending', { requestId: opts?.requestId, message: opts?.message });
@@ -1375,6 +1416,19 @@ document.addEventListener("DOMContentLoaded", () => {
           const successMsg = orderNum
             ? `Zamówienie zostało zapisane. Numer zamówienia: ${orderNum}.`
             : "Zamówienie zostało zapisane.";
+          const snapshotBaseTotal = cart.getGrandTotal();
+          lastSentOrderSnapshot = {
+            items: items.map(i => ({ ...i })),
+            customer,
+            summary: {
+              baseTotal: snapshotBaseTotal,
+              adjustedTotal: applySummaryPercentAdjustments(snapshotBaseTotal),
+              discountPercent: _dPct,
+              surchargePercent: _sPct,
+              orderId: orderNum ?? undefined,
+            },
+            sentAt: new Date().toISOString(),
+          };
           applySendPhase('success', { message: successMsg });
           cart.clear();
           resetOrderState();
