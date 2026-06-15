@@ -1,4 +1,4 @@
-<!-- APP_VERSION: 202606141331 -->
+<!-- APP_VERSION: 202606150624 -->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -28,13 +28,13 @@
   <link rel="icon" type="image/png" href="profilowe/icon-16x16.png" sizes="16x16">
   <link rel="apple-touch-icon" href="profilowe/icon-192x192.png">
   <link rel="manifest" href="manifest.json">
-  <link rel="preload" href="assets/styles.css?v=202606141331" as="style">
-  <link rel="modulepreload" href="assets/app.js?v=202606141331">
-  <link rel="stylesheet" href="assets/styles.css?v=202606141331">
+  <link rel="preload" href="assets/styles.css?v=202606150624" as="style">
+  <link rel="modulepreload" href="assets/app.js?v=202606150624">
+  <link rel="stylesheet" href="assets/styles.css?v=202606150624">
 
-  <meta name="app-version" content="202606141331">
-  <script src="cache-buster.js?v=202606141331"></script>
-  <script src="init.js?v=202606141331" defer></script>
+  <meta name="app-version" content="202606150624">
+  <script src="cache-buster.js?v=202606150624"></script>
+  <script src="init.js?v=202606150624" defer></script>
 </head>
 <body>
   <div class="wrap">
@@ -161,8 +161,9 @@
               <input type="checkbox" id="globalExpress">
               <label for="globalExpress"> Tryb EXPRESS (+20%)</label>
             </div>
-            <div id="globalExpressSummary" class="express-summary">Dopłata: 0,00 zł</div>
+            <div id="globalExpressSummary" class="express-summary">Dop&#x142;ata: 0,00 z&#x142;</div>
           </div>
+          <small class="field-hint" style="margin-left:2px;">Priorytetowa realizacja w 24&nbsp;h. Do suma koszyka doliczane jest +20%.</small>
 
           <div class="summary-adjustments" aria-label="Rabat i doliczenie">
             <div class="summary-adjustment-col">
@@ -175,6 +176,7 @@
                 <option value="9">-9%</option>
                 <option value="10">-10%</option>
               </select>
+              <small class="field-hint">Obni&#x17C;enie ceny ko&#x144;cowej.</small>
             </div>
             <div class="summary-adjustment-col">
               <label class="summary-adjustment-title" for="summarySurchargePercent">Doliczenie</label>
@@ -186,6 +188,7 @@
                 <option value="9">+9%</option>
                 <option value="10">+10%</option>
               </select>
+              <small class="field-hint">Zwi&#x119;kszenie ceny ko&#x144;cowej.</small>
             </div>
           </div>
 
@@ -197,7 +200,7 @@
 
           <div class="order-actions">
             <button id="clearBtn" class="ghost">Wyczy&#x15B;&#x107; list&#x119;</button>
-            <button id="sendBtn" class="primary">Wy&#x15B;lij do bazy</button>
+            <button id="scrollToFormBtn" class="ghost">Wype&#x142;nij dane &#x2193;</button>
           </div>
 
           <div style="margin: 20px 0; height: 1px; background: rgba(255,255,255,0.1);"></div>
@@ -299,8 +302,14 @@
     </div>
   </div>
 
- <script src="assets/app.js?v=202606141331" type="module"></script>
- <script src="ui.js?v=202606141331" defer></script>
+ <script src="assets/app.js?v=202606150624" type="module"></script>
+ <script src="ui.js?v=202606150624" defer></script>
+ <script>
+   document.getElementById('scrollToFormBtn')?.addEventListener('click', function() {
+     var el = document.getElementById('custName');
+     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+   });
+ </script>
 
 </body>
 </html>

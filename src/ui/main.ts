@@ -1005,10 +1005,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const nipVal = (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() ?? "";
     const validationError = validateCustomerForm({
       name: (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "",
       email: (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "",
       phone: (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "",
+      nip: nipVal || undefined,
     });
     if (validationError) {
       const showInlineErr = (inputId: string, msg: string | null): HTMLInputElement | null => {
@@ -1021,10 +1023,12 @@ document.addEventListener("DOMContentLoaded", () => {
       const nameVal = (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "";
       const emailVal = (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "";
       const phoneVal = (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "";
+      const nipDigits = nipVal.replace(/\D/g, "");
       const first =
         showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
         showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
-        showInlineErr("custPhone", phoneVal.replace(/\D/g, "").length < 9 ? "Podaj numer telefonu (min. 9 cyfr)" : null);
+        showInlineErr("custPhone", phoneVal.replace(/\D/g, "").length < 9 ? "Podaj numer telefonu (min. 9 cyfr)" : null) ??
+        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null);
       first?.focus();
       showToast(validationError, "error");
       return;

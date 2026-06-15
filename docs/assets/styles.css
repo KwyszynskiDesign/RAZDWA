@@ -3144,6 +3144,15 @@ body.settings-pricing-layout .left-col {
   min-height: 38px;
 }
 
+a.employee-mode-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-sizing: border-box;
+  padding: 0 18px;
+}
+
 .employee-mode-btn[aria-expanded="true"] {
   border-color: var(--primary, #006494);
   color: var(--primary, #006494);
@@ -3630,6 +3639,7 @@ body.settings-pricing-layout .left-col {
   .wrap {
     height: auto;
     min-height: 100vh;
+    min-height: 100dvh;
   }
 
   .app-grid {
@@ -3900,6 +3910,14 @@ body.settings-pricing-layout .left-col {
 
 @media (hover: none) and (pointer: coarse) {
   .tile a:active { text-decoration: none; }
+}
+
+.field-hint {
+  display: block;
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.4;
 }
 
 .field-error {
