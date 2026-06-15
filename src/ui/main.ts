@@ -420,7 +420,11 @@ class SimpleEventEmitter {
 
 const eventEmitter = new SimpleEventEmitter();
 
-function showToast(message: string, variant: "cart" | "success" | "warning" | "error" = "cart") {
+function showToast(
+  message: string,
+  variant: "cart" | "success" | "warning" | "error" = "cart",
+  action?: { label: string; onClick: () => void }
+): HTMLElement | undefined {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
 
@@ -438,16 +442,34 @@ function showToast(message: string, variant: "cart" | "success" | "warning" | "e
     <span class="ghost-toast__message">${escapeHtml(message)}</span>
   `;
 
+  let hideTimer = 0;
+  const hide = () => {
+    if (hideTimer) clearTimeout(hideTimer);
+    toast.classList.remove("is-visible");
+    setTimeout(() => toast.remove(), 250);
+  };
+
+  if (action) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "ghost-toast__action";
+    btn.textContent = action.label;
+    btn.addEventListener("click", () => {
+      action.onClick();
+      hide();
+    });
+    toast.appendChild(btn);
+  }
+
   host.prepend(toast);
 
   requestAnimationFrame(() => {
     toast.classList.add("is-visible");
   });
 
-  setTimeout(() => {
-    toast.classList.remove("is-visible");
-    setTimeout(() => toast.remove(), 250);
-  }, variant === "success" ? 2400 : variant === "cart" ? 1600 : 2600);
+  hideTimer = window.setTimeout(hide, variant === "success" ? 2400 : variant === "cart" ? 1600 : 2600);
+
+  return toast;
 }
 
 function updateCartUI() {
@@ -680,13 +702,28 @@ document.addEventListener("DOMContentLoaded", () => {
   syncSettingsLayoutMode();
 
   // Event delegation for remove buttons rendered inside basket list
+  let lastUndoToast: HTMLElement | null = null;
   document.addEventListener("click", (e) => {
     const btn = (e.target as HTMLElement).closest("[data-remove-idx]");
     if (btn) {
       const idx = parseInt((btn as HTMLElement).dataset.removeIdx ?? "", 10);
       if (!isNaN(idx)) {
-        cart.removeItem(idx);
+        const removed = cart.removeItem(idx);
         updateCartUI();
+        if (removed) {
+          dismissToast(lastUndoToast);
+          let used = false;
+          lastUndoToast = showToast("Usunięto pozycję", "cart", {
+            label: "Cofnij",
+            onClick: () => {
+              if (used) return;
+              used = true;
+              cart.insertItem(idx, removed);
+              updateCartUI();
+              lastUndoToast = null;
+            },
+          }) ?? null;
+        }
       }
     }
   });
