@@ -673,6 +673,22 @@ document.addEventListener("DOMContentLoaded", () => {
     return hint;
   }
 
+  const MAX_ITEM_PRICE_PLN = 1_000_000;
+
+  function isAcceptableItemPrice(unitPrice: unknown, totalPrice: unknown): boolean {
+    const u = Number(unitPrice);
+    const t = Number(totalPrice);
+    if (!Number.isFinite(u) || !Number.isFinite(t)) return false;
+    if (u < 0) return false;
+    if (t <= 0) return false;
+    if (t > MAX_ITEM_PRICE_PLN) return false;
+    return true;
+  }
+
+  function rejectInvalidItemPrice(): void {
+    showToast("Nieprawidłowa cena pozycji — sprawdź konfigurację cennika.", "error");
+  }
+
   // Handle old razdwa:addToCart event from legacy JS categories
   document.addEventListener("razdwa:addToCart", (e: Event) => {
     const customEvent = e as CustomEvent;
@@ -696,6 +712,11 @@ document.addEventListener("DOMContentLoaded", () => {
       payload: detail
     };
 
+    if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
+      rejectInvalidItemPrice();
+      return;
+    }
+
     cart.addItem(cartItem);
     updateCartUI();
     showToast("Dodano do koszyka", "cart");
@@ -710,6 +731,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const enriched = (item.isExpress && item.expressRate == null)
           ? { ...item, expressRate: getExpressRate(), optionsHint: normalizeExpressHint(item.optionsHint, true) }
           : (!item.isExpress ? { ...item, optionsHint: normalizeExpressHint(item.optionsHint, false) } : item);
+        if (!isAcceptableItemPrice(enriched.unitPrice, enriched.totalPrice)) {
+          rejectInvalidItemPrice();
+          return;
+        }
         cart.addItem(enriched);
         updateCartUI();
         showToast("Dodano do koszyka", "cart");
@@ -731,6 +756,10 @@ document.addEventListener("DOMContentLoaded", () => {
         optionsHint: normalizeExpressHint(item.description, isExpress),
         payload: { originalPrice: item.price, description: item.description }
       };
+      if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
+        rejectInvalidItemPrice();
+        return;
+      }
       cart.addItem(cartItem);
       updateCartUI();
       showToast("Dodano do koszyka", "cart");
