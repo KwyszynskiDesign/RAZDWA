@@ -1,9 +1,10 @@
 import { CartItem } from "./types";
 import { EXPRESS_RATE, getExpressRate } from "./modifiers";
+import { cartStorageKey } from "./draftSession";
 
 export class Cart {
   private items: CartItem[] = [];
-  private storageKey = "razdwa-cart-v1";
+  private storageKey = cartStorageKey();
   private savedAt: number = 0;
 
   constructor() {

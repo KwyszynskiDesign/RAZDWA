@@ -26,6 +26,7 @@ import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
 import { EXPRESS_RATE, getExpressRate } from "../core/modifiers";
 import { Cart } from "../core/cart";
+import { customerDraftKey, touchDraftAlive, clearDraftSession } from "../core/draftSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
 import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer, appendOrderHistory } from "../services/orderExportService";
@@ -615,32 +616,46 @@ function setupFormValidation(): void {
   }
 }
 
-const CUSTOMER_DRAFT_KEY = "razdwa_customer_draft";
-const DRAFT_FIELD_IDS = ["custName", "custPhone", "custEmail", "custPriority", "custNotes"] as const;
+const DRAFT_FIELD_IDS = [
+  "custName",
+  "custCompany",
+  "custNip",
+  "custPhone",
+  "custEmail",
+  "custPriority",
+  "custAddedBy",
+  "custNotes",
+] as const;
 
 function saveCustomerDraft(): void {
-  const draft: Record<string, string> = {};
+  const fields: Record<string, string> = {};
   for (const id of DRAFT_FIELD_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-    if (el) draft[id] = el.value;
+    if (el) fields[id] = el.value;
   }
-  try { sessionStorage.setItem(CUSTOMER_DRAFT_KEY, JSON.stringify(draft)); } catch {}
+  try {
+    localStorage.setItem(customerDraftKey(), JSON.stringify({ fields, savedAt: Date.now() }));
+    touchDraftAlive();
+  } catch {}
 }
 
 function restoreCustomerDraft(): void {
   try {
-    const raw = sessionStorage.getItem(CUSTOMER_DRAFT_KEY);
+    const raw = localStorage.getItem(customerDraftKey());
     if (!raw) return;
-    const draft = JSON.parse(raw) as Record<string, string>;
+    const parsed = JSON.parse(raw) as { fields?: Record<string, string> } | Record<string, string>;
+    const fields = (parsed && typeof parsed === "object" && "fields" in parsed && (parsed as { fields?: Record<string, string> }).fields)
+      ? (parsed as { fields: Record<string, string> }).fields
+      : (parsed as Record<string, string>);
     for (const id of DRAFT_FIELD_IDS) {
       const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-      if (el && id in draft) el.value = draft[id];
+      if (el && id in fields) el.value = fields[id];
     }
   } catch {}
 }
 
 function clearCustomerDraft(): void {
-  try { sessionStorage.removeItem(CUSTOMER_DRAFT_KEY); } catch {}
+  clearDraftSession();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1571,17 +1586,26 @@ document.addEventListener("DOMContentLoaded", () => {
   setupFormValidation();
 
   restoreCustomerDraft();
+  const restoredPriorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
+  if (restoredPriorityEl) {
+    setExpressMode(restoredPriorityEl.value === "Express", "init");
+  }
   for (const id of DRAFT_FIELD_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
     el?.addEventListener("input", saveCustomerDraft);
     el?.addEventListener("change", saveCustomerDraft);
   }
+  touchDraftAlive();
+  window.setInterval(touchDraftAlive, 10_000);
   window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
-    const formDirty = ["custName", "custPhone", "custEmail", "custNotes"].some(id => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null;
+    const formDirty = DRAFT_FIELD_IDS.filter((id) => id !== "custPriority").some((id) => {
+      const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       return (el?.value ?? "").trim().length > 0;
     });
-    if (!cart.isEmpty() || formDirty) e.preventDefault();
+    if (!cart.isEmpty() || formDirty) {
+      e.preventDefault();
+      e.returnValue = "";
+    }
   });
 
   syncVariantsToSubgroupsAtStartup();
