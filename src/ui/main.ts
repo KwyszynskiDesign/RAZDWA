@@ -528,11 +528,21 @@ function setupFormValidation(): void {
   const emailEl = document.getElementById('custEmail') as HTMLInputElement | null;
   const phoneEl = document.getElementById('custPhone') as HTMLInputElement | null;
   const nipEl = document.getElementById('custNip') as HTMLInputElement | null;
+  const addedByEl = document.getElementById('custAddedBy') as HTMLInputElement | null;
 
   const nameErr = addErrorEl(nameEl);
   const emailErr = addErrorEl(emailEl);
   const phoneErr = addErrorEl(phoneEl);
   const nipErr = addErrorEl(nipEl);
+  const addedByErr = addErrorEl(addedByEl);
+
+  if (addedByEl && addedByErr) {
+    addedByEl.addEventListener('input', () => {
+      if (addedByErr.textContent && addedByEl.value.trim().length >= 2) {
+        showFieldError(addedByErr, null, addedByEl);
+      }
+    });
+  }
 
   if (nameEl && nameErr) {
     const validate = (v: string) =>
@@ -864,21 +874,76 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
-  // Re-render view when express mode changes
-  globalExpress.addEventListener("change", () => {
-    cart.setExpressForAll(globalExpress.checked);
-    updateCartUI();
+  let prevNonExpressPriority: string = "Normalny";
+  let isApplyingExpress = false;
 
-    // Toggle express styling on order summary
+  const isExpressActive = (): boolean => {
+    const cb = document.getElementById("globalExpress") as HTMLInputElement | null;
+    return !!cb?.checked;
+  };
+
+  const renderAfterExpressChange = () => {
+    updateCartUI();
     const orderSummary = document.getElementById("orderSummary");
     if (orderSummary) {
       orderSummary.classList.toggle("is-express", globalExpress.checked);
     }
-    // Trigger route refresh
     const currentHash = window.location.hash;
     window.location.hash = "";
     window.location.hash = currentHash;
+  };
+
+  const setExpressMode = (on: boolean, _source: "global" | "priority" | "init"): void => {
+    if (isApplyingExpress) return;
+    isApplyingExpress = true;
+    try {
+      const priorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
+      globalExpress.checked = on;
+      if (on) {
+        if (priorityEl && priorityEl.value !== "Express") {
+          prevNonExpressPriority = priorityEl.value || prevNonExpressPriority;
+          priorityEl.value = "Express";
+        }
+      } else {
+        if (priorityEl && priorityEl.value === "Express") {
+          priorityEl.value = prevNonExpressPriority || "Normalny";
+        }
+      }
+      cart.setExpressForAll(on);
+      try { saveCustomerDraft(); } catch {}
+      renderAfterExpressChange();
+    } finally {
+      isApplyingExpress = false;
+    }
+  };
+
+  globalExpress.addEventListener("change", () => {
+    if (isApplyingExpress) return;
+    setExpressMode(globalExpress.checked, "global");
   });
+
+  const custPriorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
+  custPriorityEl?.addEventListener("change", () => {
+    if (isApplyingExpress) return;
+    const wantsExpress = custPriorityEl.value === "Express";
+    if (!wantsExpress && custPriorityEl.value) {
+      prevNonExpressPriority = custPriorityEl.value;
+    }
+    if (wantsExpress !== globalExpress.checked) {
+      setExpressMode(wantsExpress, "priority");
+    }
+  });
+
+  // EXPRESS init: jeśli którakolwiek kontrolka wskazuje Express, wyrównaj do Express
+  const initialExpressOn = globalExpress.checked || (custPriorityEl?.value === "Express");
+  if (custPriorityEl && custPriorityEl.value && custPriorityEl.value !== "Express") {
+    prevNonExpressPriority = custPriorityEl.value;
+  }
+  if (initialExpressOn !== globalExpress.checked || (initialExpressOn && custPriorityEl?.value !== "Express")) {
+    setExpressMode(initialExpressOn, "init");
+  } else if (initialExpressOn) {
+    document.getElementById("orderSummary")?.classList.add("is-express");
+  }
 
   const summaryDiscountPercent = document.getElementById("summaryDiscountPercent") as HTMLSelectElement | null;
   const summarySurchargePercent = document.getElementById("summarySurchargePercent") as HTMLSelectElement | null;
@@ -990,6 +1055,107 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastSendRequestId: string | null = null;
   let unverifiedSend: boolean = false;
   let retryUnlockTimer: ReturnType<typeof setTimeout> | null = null;
+  let activeSendingToast: HTMLElement | null = null;
+  let bigOrderConfirmedFor: string | null = null;
+  const BIG_ORDER_TOTAL_PLN = 5000;
+  const BIG_ORDER_ITEMS = 20;
+
+  type SendPhase = 'idle' | 'validating' | 'sending' | 'success' | 'error' | 'unverified' | 'pending';
+
+  const setBtnState = (btn: HTMLButtonElement | null, label: string | null, busy: boolean) => {
+    if (!btn) return;
+    if (!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent ?? "";
+    btn.textContent = label ?? (btn.dataset.originalLabel || "");
+    btn.disabled = busy;
+    if (busy) btn.setAttribute("aria-busy", "true"); else btn.removeAttribute("aria-busy");
+    btn.classList.toggle("is-loading", busy);
+  };
+
+  const applySendPhase = (
+    phase: SendPhase,
+    opts?: { message?: string; requestId?: string; errorType?: string }
+  ): void => {
+    const sendBtnEl = document.getElementById("sendBtn") as HTMLButtonElement | null;
+    const sendBtn2El = document.getElementById("sendBtn2") as HTMLButtonElement | null;
+    const formEl = document.querySelector(".order-form") as HTMLElement | null;
+    const setBusy = (busy: boolean, label: string | null) => {
+      setBtnState(sendBtnEl, label, busy);
+      setBtnState(sendBtn2El, label, busy);
+      if (formEl) {
+        if (busy) formEl.setAttribute("aria-busy", "true"); else formEl.removeAttribute("aria-busy");
+      }
+    };
+
+    switch (phase) {
+      case 'validating':
+        isSubmitting = true;
+        setBusy(true, "Sprawdzanie…");
+        break;
+      case 'sending':
+        isSubmitting = true;
+        setBusy(true, "Wysyłanie…");
+        if (!activeSendingToast) {
+          activeSendingToast = showOrderLoadingPopup(opts?.message ?? "Trwa zapisywanie zamówienia...", "sending");
+        }
+        break;
+      case 'success':
+        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
+        isSubmitting = false;
+        setBusy(false, null);
+        break;
+      case 'pending':
+        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        showOrderStatusPanel('pending', { requestId: opts?.requestId, message: opts?.message });
+        isSubmitting = false;
+        setBusy(false, null);
+        break;
+      case 'unverified':
+        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        showOrderStatusPanel('unverified', { requestId: opts?.requestId, message: opts?.message });
+        isSubmitting = false;
+        setBusy(false, null);
+        break;
+      case 'error':
+        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        showOrderStatusPanel('error', { requestId: opts?.requestId, message: opts?.message, errorType: opts?.errorType });
+        isSubmitting = false;
+        setBusy(false, null);
+        break;
+      case 'idle':
+      default:
+        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        isSubmitting = false;
+        setBusy(false, null);
+        break;
+    }
+  };
+
+  const confirmBigOrder = (totalPln: number, itemsCount: number): Promise<boolean> => {
+    return new Promise(resolve => {
+      const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+      if (!host) { resolve(true); return; }
+      if (host.querySelector(".big-order-confirm")) { resolve(false); return; }
+      const dialog = document.createElement("div");
+      dialog.className = "clear-confirm big-order-confirm";
+      dialog.innerHTML = `
+        <span class="clear-confirm__msg">Duże zamówienie: ${formatPLN(totalPln)}, ${itemsCount} pozycji. Wysłać?</span>
+        <div class="clear-confirm__actions">
+          <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
+          <button type="button" class="clear-confirm__ok danger">Wyślij</button>
+        </div>
+      `;
+      host.prepend(dialog);
+      requestAnimationFrame(() => dialog.classList.add("is-visible"));
+      const close = (ok: boolean) => {
+        dialog.classList.remove("is-visible");
+        setTimeout(() => dialog.remove(), 200);
+        resolve(ok);
+      };
+      dialog.querySelector(".clear-confirm__cancel")?.addEventListener("click", () => close(false));
+      dialog.querySelector(".clear-confirm__ok")?.addEventListener("click", () => close(true));
+    });
+  };
 
   const handleSendOrder = async () => {
     if (isSubmitting) return;
@@ -1041,14 +1207,18 @@ document.addEventListener("DOMContentLoaded", () => {
       phone: (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "",
       nip: nipVal || undefined,
     });
-    if (validationError) {
-      const showInlineErr = (inputId: string, msg: string | null): HTMLInputElement | null => {
-        const input = document.getElementById(inputId) as HTMLInputElement | null;
-        const err = document.getElementById(`${inputId}Err`);
-        if (err) { err.textContent = msg ?? ""; err.style.display = msg ? "block" : "none"; }
-        if (input) input.classList.toggle("is-invalid", !!msg);
-        return msg ? input : null;
-      };
+    const showInlineErr = (inputId: string, msg: string | null): HTMLInputElement | null => {
+      const input = document.getElementById(inputId) as HTMLInputElement | null;
+      const err = document.getElementById(`${inputId}Err`);
+      if (err) { err.textContent = msg ?? ""; err.style.display = msg ? "block" : "none"; }
+      if (input) input.classList.toggle("is-invalid", !!msg);
+      return msg ? input : null;
+    };
+
+    const addedByVal = (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
+    const addedByInvalid = addedByVal.trim().length < 2;
+
+    if (validationError || addedByInvalid) {
       const nameVal = (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "";
       const emailVal = (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "";
       const phoneVal = (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "";
@@ -1057,25 +1227,20 @@ document.addEventListener("DOMContentLoaded", () => {
         showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
         showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
         showInlineErr("custPhone", phoneVal.replace(/\D/g, "").length < 9 ? "Podaj numer telefonu (min. 9 cyfr)" : null) ??
-        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null);
+        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null) ??
+        showInlineErr("custAddedBy", addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null);
       first?.focus();
-      showToast(validationError, "error");
+      showToast(validationError ?? "Uzupełnij pole „Kto dodał”.", "error");
       return;
     }
 
-    isSubmitting = true;
-    const sendBtnEl = document.getElementById("sendBtn") as HTMLButtonElement | null;
-    const sendBtn2El = document.getElementById("sendBtn2") as HTMLButtonElement | null;
-    if (sendBtnEl) sendBtnEl.disabled = true;
-    if (sendBtn2El) sendBtn2El.disabled = true;
+    applySendPhase('validating');
 
     const resetSending = () => {
-      isSubmitting = false;
-      if (sendBtnEl) sendBtnEl.disabled = false;
-      if (sendBtn2El) sendBtn2El.disabled = false;
+      applySendPhase('idle');
     };
 
-    const customer: CustomerData = {
+    const buildCustomer = (): CustomerData => ({
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
@@ -1084,7 +1249,25 @@ document.addEventListener("DOMContentLoaded", () => {
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
       notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
-    };
+    });
+
+    let customer = buildCustomer();
+
+    // EXPRESS hard guard: spróbuj wyrównać helperem, dopiero potem blokuj
+    const items0 = cart.getItems();
+    const hasExpressItems = items0.some(i => !!i.isExpress);
+    const priorityIsExpress = customer.priority === "Express";
+    if (hasExpressItems !== priorityIsExpress || isExpressActive() !== priorityIsExpress) {
+      setExpressMode(isExpressActive() || priorityIsExpress, "init");
+      customer = buildCustomer();
+      const itemsAfter = cart.getItems();
+      const stillInconsistent = itemsAfter.some(i => !!i.isExpress) !== (customer.priority === "Express");
+      if (stillInconsistent) {
+        showToast("Tryb EXPRESS i Realizacja są niespójne. Sprawdź ustawienia i spróbuj ponownie.", "error");
+        resetSending();
+        return;
+      }
+    }
 
     const items = cart.getItems();
     const exportConfig = getOrderExportConfig();
@@ -1109,7 +1292,21 @@ document.addEventListener("DOMContentLoaded", () => {
           : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
         lastSendRequestId = payload.requestId;
       }
-      const sendingToast = showOrderLoadingPopup("Trwa zapisywanie zamówienia...", "sending");
+
+      const provisionalTotal = applySummaryPercentAdjustments(cart.getGrandTotal());
+      const needsBigConfirm =
+        (provisionalTotal >= BIG_ORDER_TOTAL_PLN || items.length >= BIG_ORDER_ITEMS) &&
+        bigOrderConfirmedFor !== payload.requestId;
+      if (needsBigConfirm) {
+        const ok = await confirmBigOrder(provisionalTotal, items.length);
+        if (!ok) {
+          resetSending();
+          return;
+        }
+        bigOrderConfirmedFor = payload.requestId;
+      }
+
+      applySendPhase('sending');
       try {
         const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
         const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
@@ -1121,14 +1318,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const result = await sendOrderToAppsScript(payload, exportConfig);
 
-        dismissToast(sendingToast);
-
         if (result.ok === true && result.verified === true) {
           const orderNum = result.orderId != null ? String(result.orderId) : null;
           const successMsg = orderNum
             ? `Zamówienie zostało zapisane. Numer zamówienia: ${orderNum}.`
             : "Zamówienie zostało zapisane.";
-          showOrderLoadingPopup(successMsg, "success");
+          applySendPhase('success', { message: successMsg });
           cart.clear();
           resetOrderState();
           appendOrderHistory({
@@ -1145,41 +1340,34 @@ document.addEventListener("DOMContentLoaded", () => {
           clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
           lastSendRequestId = null;
           unverifiedSend = false;
+          bigOrderConfirmedFor = null;
           if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-          resetSending();
           return;
         }
 
         if (result.retryable === true) {
-          showOrderStatusPanel('pending', { requestId: payload.requestId, message: result.message });
+          applySendPhase('pending', { requestId: payload.requestId, message: result.message });
           unverifiedSend = false;
           retryUnlockTimer = setTimeout(() => {
             dismissOrderStatusPanel();
             retryUnlockTimer = null;
-            resetSending();
           }, 30000);
           return;
         }
 
         if (result.unverified === true) {
-          showOrderStatusPanel('unverified', { requestId: payload.requestId, message: result.message });
+          applySendPhase('unverified', { requestId: payload.requestId, message: result.message });
           unverifiedSend = true;
-          resetSending();
           return;
         }
 
-        lastSendRequestId = null;
         unverifiedSend = false;
         if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-        resetSending();
-        showOrderStatusPanel('error', { requestId: payload.requestId, message: result.message, errorType: result.errorType });
+        applySendPhase('error', { requestId: payload.requestId, message: result.message, errorType: result.errorType });
       } catch (error) {
-        dismissToast(sendingToast);
-        lastSendRequestId = null;
         unverifiedSend = false;
         if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-        resetSending();
-        showOrderStatusPanel('error', { requestId: payload.requestId, errorType: 'unknown' });
+        applySendPhase('error', { requestId: payload.requestId, errorType: 'unknown' });
       }
       return;
     }
