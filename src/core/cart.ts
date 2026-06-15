@@ -48,11 +48,19 @@ export class Cart {
     this.save();
   }
 
-  removeItem(index: number) {
+  removeItem(index: number): CartItem | null {
     if (index >= 0 && index < this.items.length) {
-      this.items.splice(index, 1);
+      const [removed] = this.items.splice(index, 1);
       this.save();
+      return removed ?? null;
     }
+    return null;
+  }
+
+  insertItem(index: number, item: CartItem) {
+    const clamped = Math.max(0, Math.min(index, this.items.length));
+    this.items.splice(clamped, 0, item);
+    this.save();
   }
 
   clear() {

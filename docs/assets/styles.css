@@ -3433,6 +3433,25 @@ a.employee-mode-btn {
   line-height: 1.35;
 }
 
+.ghost-toast__action {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(59, 130, 246, 0.32);
+  background: rgba(59, 130, 246, 0.10);
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ghost-toast__action:hover {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
 .ghost-toast--sending {
   border-color: rgba(245, 158, 11, 0.30);
   background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,251,235,0.95));
