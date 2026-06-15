@@ -3464,6 +3464,7 @@ a.employee-mode-btn {
   opacity: 0;
   transform: translateY(-4px) scale(0.98);
   transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: auto;
 }
 .clear-confirm.is-visible {
   opacity: 1;
