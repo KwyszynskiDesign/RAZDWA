@@ -920,8 +920,8 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.innerHTML = `
       <span class="clear-confirm__msg">Wyczyścić całą listę?</span>
       <div class="clear-confirm__actions">
-        <button class="clear-confirm__cancel ghost">Anuluj</button>
-        <button class="clear-confirm__ok danger">Wyczyść</button>
+        <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
+        <button type="button" class="clear-confirm__ok danger">Wyczyść</button>
       </div>
     `;
     host.prepend(dialog);
@@ -977,8 +977,8 @@ document.addEventListener("DOMContentLoaded", () => {
         guardDialog.innerHTML = `
           <span class="clear-confirm__msg">Zamówienie mogło już zostać zapisane. Wyślij ponownie?</span>
           <div class="clear-confirm__actions">
-            <button class="clear-confirm__cancel ghost">Anuluj</button>
-            <button class="clear-confirm__ok danger">Wyślij ponownie</button>
+            <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
+            <button type="button" class="clear-confirm__ok danger">Wyślij ponownie</button>
           </div>
         `;
         guardHost.prepend(guardDialog);
