@@ -49,7 +49,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
-import { warmPriceCache } from "../core/compat";
+import { warmPriceCache, getZeroPriceLabels } from "../core/compat";
 import { readSyncStatus, isPriceStale } from "../services/syncService";
 
 const cart = new Cart();
@@ -780,6 +780,8 @@ document.addEventListener("DOMContentLoaded", () => {
       unitPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
       isExpress,
       ...(rate != null && { expressRate: rate }),
+      baseUnitPrice: totalPrice,
+      baseTotalPrice: totalPrice,
       totalPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
       optionsHint: normalizeExpressHint(detail.description || "", isExpress),
       payload: detail
@@ -803,7 +805,9 @@ document.addEventListener("DOMContentLoaded", () => {
       addItem: (item) => {
         const enriched = (item.isExpress && item.expressRate == null)
           ? { ...item, expressRate: getExpressRate(), optionsHint: normalizeExpressHint(item.optionsHint, true) }
-          : (!item.isExpress ? { ...item, optionsHint: normalizeExpressHint(item.optionsHint, false) } : item);
+          : (!item.isExpress
+              ? { ...item, baseUnitPrice: item.unitPrice, baseTotalPrice: item.totalPrice, optionsHint: normalizeExpressHint(item.optionsHint, false) }
+              : item);
         if (!isAcceptableItemPrice(enriched.unitPrice, enriched.totalPrice)) {
           rejectInvalidItemPrice();
           return;
@@ -825,6 +829,8 @@ document.addEventListener("DOMContentLoaded", () => {
         unitPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
         isExpress,
         ...(rate != null && { expressRate: rate }),
+        baseUnitPrice: item.price,
+        baseTotalPrice: item.price,
         totalPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
         optionsHint: normalizeExpressHint(item.description, isExpress),
         payload: { originalPrice: item.price, description: item.description }
@@ -1699,9 +1705,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  const renderPriceBadge = (): void => {
+    const host = document.querySelector(".header-left");
+    if (!host) return;
+    let badge = document.getElementById("priceVersionBadge");
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "priceVersionBadge";
+      badge.style.cssText = "display:inline-flex;align-items:center;gap:6px;font-size:11px;line-height:1;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.06);color:#444;white-space:nowrap";
+      host.appendChild(badge);
+    }
+    const status = readSyncStatus();
+    const stale = isPriceStale(status.lastSyncedAt);
+    const when = status.lastSyncedAt
+      ? new Date(status.lastSyncedAt).toLocaleString("pl-PL", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" }).replace(",", "")
+      : null;
+    badge.textContent = when ? `Cennik z ${when}` : "Cennik niezsynchronizowany";
+    badge.title = stale
+      ? "Cennik może być nieaktualny — wykonaj synchronizację przed wysyłką."
+      : "Cennik zsynchronizowany";
+    badge.style.background = stale ? "rgba(220,140,0,.16)" : "rgba(0,140,60,.14)";
+    badge.style.color = stale ? "#8a5a00" : "#0a6b32";
+  };
+  renderPriceBadge();
+
+  const isAdminSession = (): boolean => {
+    try {
+      return typeof sessionStorage !== "undefined" && !!sessionStorage.getItem("adminSessionToken")?.trim();
+    } catch {
+      return false;
+    }
+  };
+
   syncVariantsToSubgroupsAtStartup();
   runMigrationIfNeeded()
     .then(() => warmPriceCache())
+    .then(() => {
+      const bad = getZeroPriceLabels();
+      if (bad.length > 0 && isAdminSession()) {
+        showToast(`Uwaga: ${bad.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`, "error");
+      }
+    })
     .catch((err) => console.warn("[priceCache] startup error:", err));
   router.start();
 
@@ -1727,8 +1771,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch {
       // offline - OK, nie blokuje startu
+    } finally {
+      renderPriceBadge();
     }
   })();
+
+  window.addEventListener(PRICES_UPDATED_EVENT, renderPriceBadge);
 });
 
 (window as any).scrollToTopTiles = () => {

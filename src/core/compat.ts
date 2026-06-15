@@ -146,17 +146,31 @@ function warnOnce(id: string, msg: string): void {
  * Wywoływać raz po zakończeniu migracji, przed router.start().
  * W środowisku bez IDB (Node/testy) cicho nie robi nic.
  */
+let _zeroPriceLabels: string[] = [];
+
+export function getZeroPriceLabels(): string[] {
+  return [..._zeroPriceLabels];
+}
+
 export async function warmPriceCache(): Promise<void> {
   try {
     const records = await priceStore.getAll();
     const map = new Map<string, number>();
+    const bad: string[] = [];
     for (const r of records) {
       if (r.isActive && !r._deleted && r.label) {
         map.set(r.label, r.price);
+        if (!Number.isFinite(r.price) || r.price <= 0) {
+          bad.push(r.label);
+        }
       }
     }
     _priceCache = map;
+    _zeroPriceLabels = bad;
     console.info(`[priceCache] ${map.size} rekordów załadowanych z IDB`);
+    if (bad.length > 0) {
+      console.warn(`[priceCache] ${bad.length} aktywnych pozycji z ceną 0/null: ${bad.join(", ")}`);
+    }
   } catch {
     // IDB niedostępne (środowisko Node / test) — cache zostaje null.
     // resolveStoredPrice automatycznie używa fallbacku do localStorage.
