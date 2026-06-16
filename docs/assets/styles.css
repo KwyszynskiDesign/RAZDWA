@@ -3621,6 +3621,43 @@ a.employee-mode-btn {
   line-height: 1.4;
 }
 
+.prices-sync {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 0 2px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.prices-sync-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.prices-sync-meta {
+  font-size: 12px;
+  color: var(--text-muted, #6b6b6b);
+}
+
+.prices-sync--idle .prices-sync-state {
+  color: #6b6b6b;
+}
+
+.prices-sync--saving .prices-sync-state {
+  color: #1c6fb8;
+}
+
+.prices-sync--synced .prices-sync-state {
+  color: var(--success, #2c8c40);
+}
+
+.prices-sync--error .prices-sync-state {
+  color: var(--danger, #c92a2a);
+}
+
 /* ===== HOME TILE SUBLABEL ===== */
 .home-tile-sublabel {
   font-size: 11px;
