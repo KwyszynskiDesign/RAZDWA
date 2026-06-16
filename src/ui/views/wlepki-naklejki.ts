@@ -2,6 +2,7 @@
 import { autoCalc } from "../autoCalc";
 import { calculateWlepki, calculateWlepkiSzt, WlepkiCalculation } from "../../categories/wlepki-naklejki";
 import { formatPLN } from "../../core/money";
+import { parseNumericInput } from "../../core/numericInput";
 import { getPrice } from "../../services/priceService";
 import { mergeStoredNumericTiers, resolveStoredPrice } from "../../core/compat";
 
@@ -261,7 +262,7 @@ export const WlepkiView: View = {
           const input = {
             mode: "szt" as const,
             tableId: selectedTable,
-            qty: parseInt(pieceQtyInput.value, 10) || 1,
+            qty: parseNumericInput(pieceQtyInput.value, { integer: true, min: 1 }) ?? 1,
             express: ctx.expressMode,
             paperFinish,
             foilType,
@@ -317,7 +318,7 @@ export const WlepkiView: View = {
           const input = {
             mode: "m2" as const,
             groupId: groupSelect.value,
-            area: parseFloat(areaInput.value) || 0,
+            area: parseNumericInput(areaInput.value) ?? 0,
             express: ctx.expressMode,
             modifiers,
             foilType,

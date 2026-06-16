@@ -2,6 +2,7 @@
 import { autoCalc } from "../autoCalc";
 import { calculatePlakatyFormat } from "../../categories/plakaty";
 import { formatPLN } from "../../core/money";
+import { parseNumericInput } from "../../core/numericInput";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
 
@@ -225,7 +226,7 @@ export const PlakatyWFView: View = {
         }
 
       const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
-        ? (parseFloat(lengthInput.value) || undefined)
+        ? (parseNumericInput(lengthInput.value) ?? undefined)
         : undefined;
 
       const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
