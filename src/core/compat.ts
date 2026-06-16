@@ -177,6 +177,16 @@ export async function warmPriceCache(): Promise<void> {
   }
 }
 
+export function hasCachedPrices(): boolean {
+  if (_priceCache !== null) return _priceCache.size > 0;
+  try {
+    const stored = readStoredPrices();
+    return Object.keys(stored).length > 0;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Resolve a single price — IDB first, localStorage fallback, then defaultValue.
  *
