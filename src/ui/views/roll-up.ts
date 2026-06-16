@@ -4,6 +4,7 @@ import { calculateRollUp, RollUpOptions } from "../../categories/roll-up";
 import { formatPLN } from "../../core/money";
 import { getPrice } from "../../services/priceService";
 import { resolveStoredPrice } from "../../core/compat";
+import { parseNumericInput } from "../../core/numericInput";
 
 type BreakdownRow = {
   label: string;
@@ -107,7 +108,8 @@ export const RollUpView: View = {
         addToCartBtn.disabled = true;
         return;
       }
-      if (!qtyInput.value) {
+      const qty = parseNumericInput(qtyInput.value, { integer: true, min: 1 });
+      if (qty === null) {
         resultArea.style.display = "none";
         breakdownBox.style.display = "none";
         addToCartBtn.disabled = true;
@@ -115,7 +117,7 @@ export const RollUpView: View = {
       }
       const options: RollUpOptions = {
         format: formatSel.value,
-        qty: parseInt(qtyInput.value) || 1,
+        qty,
         isReplacement: typeSel.value === "replacement",
         express: ctx.expressMode
       };

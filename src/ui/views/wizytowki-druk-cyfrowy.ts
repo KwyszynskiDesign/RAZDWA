@@ -4,6 +4,7 @@ import { formatPLN } from "../../core/money";
 import { mergeStoredQuantityTable, resolveStoredPrice } from "../../core/compat";
 import { autoCalc } from "../autoCalc";
 import { getPrice } from "../../services/priceService";
+import { parseNumericInput } from "../../core/numericInput";
 
 const SATIN_MULTIPLIER = 1.12;
 
@@ -247,7 +248,8 @@ export const WizytowkiView: View = {
         if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
-      if (!qtyInput?.value) {
+      const qty = parseNumericInput(qtyInput?.value, { integer: true, min: 1 });
+      if (qty === null) {
         if (resultDisplay) resultDisplay.style.display = 'none';
         if (breakdownDisplay) breakdownDisplay.style.display = 'none';
         if (addToCartBtn) addToCartBtn.disabled = true;
@@ -261,7 +263,7 @@ export const WizytowkiView: View = {
         family: "standard",
         format: sizeSelect.value,
         folia: 'none',
-        qty: parseInt(qtyInput.value),
+        qty,
         express: ctx.expressMode
       };
 
