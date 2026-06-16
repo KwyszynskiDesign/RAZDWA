@@ -252,7 +252,7 @@ export const VoucheryView: View = {
         }
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
-        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${result.basePrice.toFixed(2)} zł (papier: ${paperVal.replace("_", " ")})`;
+        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${formatPLN(result.basePrice)} (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = usesSatinBase ? "block" : "none";
         if (modiglianiHint) modiglianiHint.style.display = isModigliani ? "block" : "none";

@@ -155,7 +155,7 @@ export const WycinanieFoliiView: View = {
       totalEl.innerText = formatPLN(result.totalPrice);
       if (expressEl) expressEl.style.display = options.express ? "block" : "none";
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${appliedRate.toFixed(2)} zł/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
+        breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${formatPLN(appliedRate)}/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
       }
       if (resultEl) resultEl.style.display = "block";
       addBtn.disabled = false;

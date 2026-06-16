@@ -5,6 +5,7 @@ import {
   MinimumQuantityError,
 } from './errors'
 import { computeTotalPrice, SimplePriceTable } from './computeTotalPrice'
+import { formatPLN } from './money'
 
 /**
  * /src/core/pricing.ts
@@ -166,7 +167,7 @@ export function getPricingStats(tiers: PriceTier[]): {
  */
 export function formatTierRange(tier: PriceTier, unit: Unit): string {
   const maxStr = tier.max === null ? '+' : `-${tier.max}`
-  return `${tier.min}${maxStr} ${unit}: ${getTierUnitPrice(tier).toFixed(2)} zł/${unit}`
+  return `${tier.min}${maxStr} ${unit}: ${formatPLN(getTierUnitPrice(tier))}/${unit}`
 }
 
 /**
