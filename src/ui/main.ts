@@ -475,6 +475,24 @@ function showToast(
   return toast;
 }
 
+function getInvalidPricedCartItems(items: CartItem[]): CartItem[] {
+  return items.filter(item => {
+    const p = item.unitPrice;
+    return p === 0 || p == null || !Number.isFinite(p);
+  });
+}
+
+async function downloadOrderPdf(items: CartItem[], customer: CustomerData, summary: OrderPdfSummary): Promise<void> {
+  try {
+    await generateOrderReportPdf(items, customer, summary);
+    showToast("Wygenerowano raport PDF", "success");
+  } catch (error) {
+    console.error("Błąd generowania raportu PDF:", error);
+    showToast("Nie udało się wygenerować raportu PDF", "error");
+    alert("Wystąpił błąd podczas tworzenia raportu PDF.");
+  }
+}
+
 function updateCartUI() {
   const listEl = document.getElementById("basketList");
   const totalEl = document.getElementById("basketTotal");
@@ -1099,20 +1117,13 @@ document.addEventListener("DOMContentLoaded", () => {
       notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
     };
 
-    try {
-      const baseTotal = cart.getGrandTotal();
-      await generateOrderReportPdf(cart.getItems(), customer, {
-        baseTotal,
-        adjustedTotal: applySummaryPercentAdjustments(baseTotal),
-        discountPercent: Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100),
-        surchargePercent: Math.round(getSummaryPercentValue("summarySurchargePercent") * 100),
-      });
-      showToast("Wygenerowano raport PDF", "success");
-    } catch (error) {
-      console.error("Błąd generowania raportu PDF:", error);
-      showToast("Nie udało się wygenerować raportu PDF", "error");
-      alert("Wystąpił błąd podczas tworzenia raportu PDF.");
-    }
+    const baseTotal = cart.getGrandTotal();
+    await downloadOrderPdf(cart.getItems(), customer, {
+      baseTotal,
+      adjustedTotal: applySummaryPercentAdjustments(baseTotal),
+      discountPercent: Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100),
+      surchargePercent: Math.round(getSummaryPercentValue("summarySurchargePercent") * 100),
+    });
   });
 
   // Clear basket
@@ -1236,14 +1247,7 @@ document.addEventListener("DOMContentLoaded", () => {
           pdfBtn.type = "button";
           pdfBtn.className = "ghost-toast__action";
           pdfBtn.textContent = "Pobierz potwierdzenie PDF";
-          pdfBtn.addEventListener("click", async () => {
-            try {
-              await generateOrderReportPdf(snapshot.items, snapshot.customer, snapshot.summary);
-            } catch (error) {
-              console.error("Błąd generowania potwierdzenia PDF:", error);
-              showToast("Nie udało się wygenerować potwierdzenia PDF", "error");
-            }
-          });
+          pdfBtn.addEventListener("click", () => downloadOrderPdf(snapshot.items, snapshot.customer, snapshot.summary));
           successPopup.appendChild(pdfBtn);
         }
         if (successPopup) {
@@ -1441,9 +1445,9 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("Brak lokalnego cennika — wykonaj Pull z GAS w Ustawieniach przed wysyłką.", "error");
           return;
         }
-        const zeroPrices = getZeroPriceLabels();
-        if (zeroPrices.length > 0) {
-          showToast(`Uwaga: ${zeroPrices.length} poz. cennika z ceną 0/null — nie blokuje, jeśli te pozycje nie są w bieżącym zleceniu.`, "warning");
+        const invalidItems = getInvalidPricedCartItems(items);
+        if (invalidItems.length > 0) {
+          showToast(`Uwaga: ${invalidItems.length} poz. w bieżącym zleceniu z ceną 0/null — sprawdź cennik.`, "warning");
         }
       }
 
