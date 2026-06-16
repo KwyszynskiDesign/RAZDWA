@@ -83,6 +83,15 @@ export class Cart {
       const isCurrentlyExpress = !!item.isExpress;
 
       if (shouldBeExpress === isCurrentlyExpress) {
+        if (shouldBeExpress && (!Number.isFinite(item.expressRate) || !Number.isFinite(item.baseUnitPrice))) {
+          const rate = getExpressRate();
+          return {
+            ...item,
+            expressRate: Number.isFinite(item.expressRate) ? (item.expressRate as number) : rate,
+            baseUnitPrice: Number.isFinite(item.baseUnitPrice) ? (item.baseUnitPrice as number) : parseFloat((item.unitPrice / (1 + rate)).toFixed(2)),
+            baseTotalPrice: Number.isFinite(item.baseTotalPrice) ? (item.baseTotalPrice as number) : parseFloat((item.totalPrice / (1 + rate)).toFixed(2)),
+          };
+        }
         return item;
       }
 
