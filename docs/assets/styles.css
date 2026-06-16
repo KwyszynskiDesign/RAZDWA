@@ -1756,6 +1756,13 @@ button:focus-visible {
   outline: var(--focus-outline) !important;
 }
 
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: var(--focus-outline) !important;
+  outline-offset: 2px;
+}
+
 a[href]:focus-visible {
   outline: var(--focus-outline);
   outline-offset: 2px;
@@ -2064,7 +2071,7 @@ body.settings-pricing-layout .left-col {
   border-radius: 18px;
   position: sticky;
   top: 0;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   flex-direction: column;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.28);
@@ -3898,7 +3905,7 @@ a.employee-mode-btn {
     position: fixed;
     top: 0;
     left: 0;
-    height: 100vh;
+    height: 100dvh;
     border-radius: 0 18px 18px 0;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
@@ -3948,6 +3955,10 @@ a.employee-mode-btn {
 
   #viewContainer .cad-actions-bar button {
     width: 100%;
+  }
+
+  .cennik-table.pricing-legend {
+    overflow-x: auto;
   }
 }
 

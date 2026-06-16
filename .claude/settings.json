@@ -12,7 +12,8 @@
       "Bash(Select-Object -ExpandProperty FullName)",
       "Bash(Sort-Object)",
       "Bash(Get-ChildItem -Path \"h:\\\\RAZ DWA\\\\RAZDWA\" -Recurse -File)",
-      "PowerShell($env:TEMP = 'C:\\\\Temp'; npm --prefix \"h:\\\\RAZ DWA\\\\RAZDWA\" run build 2>&1 | Select-Object -Last 20)"
+      "PowerShell($env:TEMP = 'C:\\\\Temp'; npm --prefix \"h:\\\\RAZ DWA\\\\RAZDWA\" run build 2>&1 | Select-Object -Last 20)",
+      "Bash(echo \"exit: $?\")"
     ],
     "additionalDirectories": [
       "D:\\KWdesign"

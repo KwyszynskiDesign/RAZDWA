@@ -127,7 +127,7 @@ export const BannerView: View = {
 
       areaInput.value = "";
       if (computedAreaInfo) {
-        computedAreaInfo.innerText = "Wyliczona powierzchnia: -";
+        computedAreaInfo.innerText = "0,00 m² (wpisz wymiary)";
       }
       return {
         areaM2: 0,
