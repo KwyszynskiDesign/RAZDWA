@@ -2085,31 +2085,38 @@ export const UstawieniaView: View = {
       }
     }
 
-    type PricesSyncState = "idle" | "saving" | "synced" | "error";
+    type PricesSyncState = "saving" | "synced" | "error";
 
     const PRICES_SYNC_UI: Record<PricesSyncState, { icon: string; label: string }> = {
-      idle: { icon: "○", label: "Oczekuje na zapis" },
       saving: { icon: "⟳", label: "Zapisywanie…" },
       synced: { icon: "✓", label: "Zsynchronizowano" },
       error: { icon: "✕", label: "Błąd zapisu" },
     };
 
-    function setPricesSyncStatus(state: PricesSyncState, detail?: string): void {
+    function renderPricesSync(state: PricesSyncState | null, detail?: string): void {
       const root = container.querySelector<HTMLElement>("#prices-sync");
       if (!root) return;
+
+      if (!state) {
+        root.style.display = "none";
+        return;
+      }
 
       const ui = PRICES_SYNC_UI[state];
       const labelText = state === "error" && detail ? `${ui.label}: ${detail}` : ui.label;
       root.className = `prices-sync prices-sync--${state}`;
+      root.style.display = "";
 
       const icon = root.querySelector<HTMLElement>(".prices-sync-icon");
       const label = root.querySelector<HTMLElement>(".prices-sync-label");
+      const meta = root.querySelector<HTMLElement>(".prices-sync-meta");
       const time = root.querySelector<HTMLElement>(".prices-sync-time");
       if (icon) icon.textContent = ui.icon;
       if (label) label.textContent = labelText;
 
       const syncedAt = readPricesSyncedAt();
-      if (time) time.textContent = syncedAt ? new Date(syncedAt).toLocaleString("pl-PL") : "—";
+      if (meta) meta.style.display = syncedAt ? "" : "none";
+      if (time && syncedAt) time.textContent = new Date(syncedAt).toLocaleString("pl-PL");
     }
 
     function flushInputs(): void {
@@ -2928,9 +2935,9 @@ export const UstawieniaView: View = {
 
               <div id="draft-indicator" class="draft-indicator" style="display:none">● Niezapisane zmiany — kliknij „Zapisz cennik", aby utrwalić</div>
 
-              <div id="prices-sync" class="prices-sync prices-sync--idle">
-                <div class="prices-sync-state"><span class="prices-sync-icon">○</span><span class="prices-sync-label">Oczekuje na zapis</span></div>
-                <div class="prices-sync-meta">Ostatnia aktualizacja: <strong class="prices-sync-time">—</strong></div>
+              <div id="prices-sync" class="prices-sync" style="display:none">
+                <div class="prices-sync-state"><span class="prices-sync-icon"></span><span class="prices-sync-label"></span></div>
+                <div class="prices-sync-meta">Ostatnia aktualizacja: <strong class="prices-sync-time"></strong></div>
               </div>
 
               <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
@@ -3228,14 +3235,7 @@ export const UstawieniaView: View = {
       return getVariantDefinitions();
     }
 
-    setPricesSyncStatus(readPricesSyncedAt() ? "synced" : "idle");
-
-    container.addEventListener("input", (event) => {
-      const target = event.target as HTMLElement | null;
-      if (target?.matches("input[data-field='unitPrice']")) {
-        setPricesSyncStatus("idle");
-      }
-    });
+    renderPricesSync(readPricesSyncedAt() ? "synced" : null);
 
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
@@ -3269,7 +3269,7 @@ export const UstawieniaView: View = {
       updateDraftIndicator();
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
-      setPricesSyncStatus("saving");
+      renderPricesSync("saving");
       try {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
@@ -3280,13 +3280,13 @@ export const UstawieniaView: View = {
           } catch {
             /* localStorage niedostępny — pomijamy */
           }
-          setPricesSyncStatus("synced");
+          renderPricesSync("synced");
         } else {
-          setPricesSyncStatus("error", result.message);
+          renderPricesSync("error", result.message);
         }
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
-        setPricesSyncStatus("error", (err as Error)?.message);
+        renderPricesSync("error", (err as Error)?.message);
       }
 
       try {
