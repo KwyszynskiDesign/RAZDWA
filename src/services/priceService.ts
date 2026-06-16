@@ -35,7 +35,7 @@ function cloneToNullPrototype<T>(value: T): T {
 
 let _prices: any = cloneToNullPrototype(JSON.parse(JSON.stringify(_config)));
 
-function getConfigRoot(): any {
+export function getConfigRoot(): any {
   if (
     _prices &&
     typeof _prices === "object" &&

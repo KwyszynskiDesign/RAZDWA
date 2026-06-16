@@ -1,5 +1,5 @@
 /* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
-import { getPrice, getPriceLabels, PRICES_STORAGE_KEY } from "../services/priceService";
+import { getPrice, getPriceLabels, getConfigRoot, PRICES_STORAGE_KEY } from "../services/priceService";
 import { priceStore } from "../services/priceStore";
 
 export function money(n: any) {
@@ -150,6 +150,67 @@ let _zeroPriceLabels: string[] = [];
 
 export function getZeroPriceLabels(): string[] {
   return [..._zeroPriceLabels];
+}
+
+// Jawne sentinele „wycena ind." (cena 0 = custom, NIE błąd konfiguracji).
+// Klucz: `${config.id}-${material.storageId ?? material.id}` — zgodny z
+// folia-szroniona.ts. To wykluczenie skanu, nie zmiana konwencji 0=custom.
+const CUSTOM_QUOTE_KEYS = new Set<string>([
+  "folia-szroniona-oklejanie",
+  "folia-szroniona-owv-oklejanie",
+]);
+
+function tierUnitPrice(tier: any): number {
+  return typeof tier?.pricePerUnit === "number"
+    ? tier.pricePerUnit
+    : (typeof tier?.price === "number" ? tier.price : 0);
+}
+
+function scanTiers(label: string, tiers: any[], out: string[]): void {
+  if (!Array.isArray(tiers)) return;
+  for (const tier of tiers) {
+    const price = tierUnitPrice(tier);
+    if (!Number.isFinite(price) || price <= 0) {
+      const range = tier?.max == null ? `${tier?.min}+` : `${tier?.min}-${tier?.max}`;
+      out.push(`${label} (${range})`);
+    }
+  }
+}
+
+/**
+ * Skanuje domyślne tiery z konfiguracji cennika (prices.json) w poszukiwaniu
+ * cen 0/null, z pominięciem jawnych sentineli „wycena ind." (CUSTOM_QUOTE_KEYS).
+ * Czysta funkcja — czyta read-only getConfigRoot(), nie dotyka IDB.
+ */
+export function getZeroPriceDefaults(): string[] {
+  const out: string[] = [];
+  let root: any;
+  try {
+    root = getConfigRoot();
+  } catch {
+    return out;
+  }
+  if (!root || typeof root !== "object") return out;
+
+  for (const [catKey, config] of Object.entries(root as Record<string, any>)) {
+    if (catKey === "defaultPrices" || !config || typeof config !== "object") continue;
+    const baseId = typeof config.id === "string" ? config.id : catKey;
+
+    if (Array.isArray(config.materials)) {
+      for (const material of config.materials) {
+        const storageKey = `${baseId}-${material?.storageId ?? material?.id}`;
+        if (CUSTOM_QUOTE_KEYS.has(storageKey)) continue;
+        const label = material?.title ?? material?.name ?? storageKey;
+        scanTiers(label, material?.tiers, out);
+      }
+    }
+
+    if (Array.isArray(config.tiers)) {
+      scanTiers(config.title ?? baseId, config.tiers, out);
+    }
+  }
+
+  return out;
 }
 
 export async function warmPriceCache(): Promise<void> {

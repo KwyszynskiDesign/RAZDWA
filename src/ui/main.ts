@@ -49,7 +49,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm, isValidNIP, isValidPhone, normalizePhoneDigits } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
-import { warmPriceCache, getZeroPriceLabels, hasCachedPrices } from "../core/compat";
+import { warmPriceCache, getZeroPriceLabels, getZeroPriceDefaults, hasCachedPrices } from "../core/compat";
 
 const cart = new Cart();
 
@@ -1441,6 +1441,12 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("Brak lokalnego cennika — wykonaj Pull z GAS w Ustawieniach przed wysyłką.", "error");
           return;
         }
+        const zeroPrices = getZeroPriceLabels();
+        if (zeroPrices.length > 0) {
+          resetSending();
+          showToast(`Cennik niespójny: ${zeroPrices.length} aktywnych pozycji z ceną 0/null. Popraw w Ustawieniach przed wysyłką.`, "error");
+          return;
+        }
       }
 
       dismissOrderStatusPanel();
@@ -1780,7 +1786,7 @@ document.addEventListener("DOMContentLoaded", () => {
   runMigrationIfNeeded()
     .then(() => warmPriceCache())
     .then(() => {
-      const bad = getZeroPriceLabels();
+      const bad = [...new Set([...getZeroPriceLabels(), ...getZeroPriceDefaults()])];
       if (bad.length > 0 && isAdminSession()) {
         showToast(`Uwaga: ${bad.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`, "error");
       }
