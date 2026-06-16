@@ -9,14 +9,26 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
-function isValidNIP(nip: string): boolean {
-  const cleanNip = nip.replace(/-/g, '');
-  return /^\d{10}$/.test(cleanNip);
+export function normalizePhoneDigits(phone: string): string {
+  const digits = String(phone ?? "").replace(/\D/g, '');
+  if (digits.length > 9 && digits.startsWith('48')) {
+    return digits.slice(2);
+  }
+  return digits;
 }
 
-function isValidPhone(phone: string): boolean {
-  const cleanPhone = phone.replace(/\D/g, '');
-  return cleanPhone.length >= 9;
+export function isValidNIP(nip: string): boolean {
+  const cleanNip = String(nip ?? "").replace(/\D/g, '');
+  if (!/^\d{10}$/.test(cleanNip)) return false;
+  const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+  const sum = weights.reduce((acc, w, i) => acc + w * Number(cleanNip[i]), 0);
+  const checkDigit = sum % 11;
+  if (checkDigit === 10) return false;
+  return checkDigit === Number(cleanNip[9]);
+}
+
+export function isValidPhone(phone: string): boolean {
+  return normalizePhoneDigits(phone).length === 9;
 }
 
 export function validateCustomerForm(data: CustomerFormData): string | null {
@@ -25,7 +37,11 @@ export function validateCustomerForm(data: CustomerFormData): string | null {
   if (!data.email.trim()) return "Podaj adres e-mail klienta.";
   if (!isValidEmail(data.email.trim())) return "Nieprawidłowy format e-mail.";
   if (!data.phone.trim()) return "Podaj numer telefonu klienta.";
-  if (!isValidPhone(data.phone)) return "Numer telefonu musi mieć min. 9 cyfr.";
-  if (data.nip && !isValidNIP(data.nip)) return "NIP musi zawierać dokładnie 10 cyfr.";
+  if (!isValidPhone(data.phone)) return "Numer telefonu musi mieć 9 cyfr (krajowy, opcjonalnie z prefiksem +48).";
+  if (data.nip) {
+    const nipDigits = data.nip.replace(/\D/g, '');
+    if (nipDigits.length !== 10) return "NIP musi zawierać dokładnie 10 cyfr.";
+    if (!isValidNIP(data.nip)) return "NIP jest nieprawidłowy (błędna suma kontrolna).";
+  }
   return null;
 }

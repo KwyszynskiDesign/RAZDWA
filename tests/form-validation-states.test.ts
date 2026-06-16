@@ -42,9 +42,15 @@ describe("validateCustomerForm — extended coverage", () => {
     expect(err).toContain("NIP");
   });
 
-  it("accepts valid NIP (10 digits)", () => {
-    const err = validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789", nip: "1234567890" });
+  it("accepts valid NIP (10 digits, correct checksum)", () => {
+    const err = validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789", nip: "5260001246" });
     expect(err).toBeNull();
+  });
+
+  it("rejects NIP with invalid checksum", () => {
+    const err = validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789", nip: "1234567890" });
+    expect(err).toBeTruthy();
+    expect(err).toContain("NIP");
   });
 
   it("accepts form without NIP", () => {
