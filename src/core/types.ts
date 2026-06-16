@@ -94,6 +94,8 @@ export interface CartItem {
   unitPrice: number
   isExpress?: boolean
   expressRate?: number
+  baseUnitPrice?: number
+  baseTotalPrice?: number
   totalPrice: number
   optionsHint: string
   payload: unknown
