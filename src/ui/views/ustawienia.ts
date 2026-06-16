@@ -2829,6 +2829,13 @@ export const UstawieniaView: View = {
     }
 
     const isDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+    const _hSyncStatus = readSyncStatus();
+    const _hSyncIcons: Record<SyncStatusCode, string> = {
+      idle: "○", syncing: "⟳", ok: "✓", no_token: "🔒", error: "✕", unconfirmed: "⚠",
+    };
+    const _hLastSync = _hSyncStatus.lastSyncedAt
+      ? new Date(_hSyncStatus.lastSyncedAt).toLocaleString("pl-PL")
+      : "—";
     container.innerHTML = `
       <div class="settings-wrap">
         <div class="settings-header">
@@ -2840,6 +2847,12 @@ export const UstawieniaView: View = {
             <button id="btn-mode-legacy" type="button" class="btn-secondary idb-mode-btn idb-mode-btn--active">Cennik (legacy)</button>
             <button id="btn-mode-idb" type="button" class="btn-secondary idb-mode-btn">Panel IDB</button>
           </div>` : ''}
+          <div class="settings-sync-mini">
+            <span class="settings-sync-mini-status settings-sync-mini-status--${_hSyncStatus.code}">${_hSyncIcons[_hSyncStatus.code]} ${escapeHtml(_hSyncStatus.message)}</span>
+            <span class="settings-sync-mini-ts">Sync: <strong>${escapeHtml(_hLastSync)}</strong></span>
+            <button id="settings-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>
+            <span id="settings-sync-msg" class="settings-sync-mini-msg" style="display:none"></span>
+          </div>
         </div>
 
         <div id="idb-panel" style="display:none">
@@ -2957,6 +2970,36 @@ export const UstawieniaView: View = {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     container.appendChild(scrollTopButton);
+
+    const _settingsPullBtn = container.querySelector<HTMLButtonElement>("#settings-btn-pull");
+    const _settingsSyncMsg = container.querySelector<HTMLElement>("#settings-sync-msg");
+    _settingsPullBtn?.addEventListener("click", async () => {
+      _settingsPullBtn.disabled = true;
+      if (_settingsSyncMsg) { _settingsSyncMsg.textContent = "⟳ Pobieranie…"; _settingsSyncMsg.removeAttribute("data-tone"); _settingsSyncMsg.style.display = ""; }
+      try {
+        const result = await pullPricesFromGas();
+        if (_settingsSyncMsg) {
+          _settingsSyncMsg.textContent = result.ok
+            ? `✓ Pull: ${result.pulled ?? 0} rek., scalono ${result.merged ?? 0}`
+            : `✕ ${result.error ?? "Błąd pull"}`;
+          _settingsSyncMsg.dataset.tone = result.ok ? "success" : "error";
+        }
+        const freshStatus = readSyncStatus();
+        const statusSpan = container.querySelector<HTMLElement>(".settings-sync-mini-status");
+        if (statusSpan) {
+          statusSpan.className = `settings-sync-mini-status settings-sync-mini-status--${freshStatus.code}`;
+          statusSpan.textContent = `${_hSyncIcons[freshStatus.code]} ${freshStatus.message}`;
+        }
+        const tsStrong = container.querySelector<HTMLElement>(".settings-sync-mini-ts strong");
+        if (tsStrong) {
+          tsStrong.textContent = freshStatus.lastSyncedAt
+            ? new Date(freshStatus.lastSyncedAt).toLocaleString("pl-PL")
+            : "—";
+        }
+      } finally {
+        _settingsPullBtn.disabled = false;
+      }
+    });
 
     renderTabs();
     renderTable();
