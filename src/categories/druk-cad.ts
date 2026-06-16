@@ -2,6 +2,7 @@ import { CategoryModule } from "../ui/router";
 import { calculateCad } from "../core/compat-logic";
 import { getPrice } from "../services/priceService";
 import { resolveStoredPrice } from "../core/compat";
+import { formatPLN } from "../core/money";
 
 export interface DrukCADOptions {
   mode: "bw" | "color";
@@ -249,7 +250,7 @@ export const drukCADCategory: CategoryModule = {
 
       if (formatDisplay) formatDisplay.textContent = format;
       if (dimsDisplay) dimsDisplay.textContent = pricing.dims;
-      if (priceDisplay) priceDisplay.textContent = currentPrice.toFixed(2) + ' zł';
+      if (priceDisplay) priceDisplay.textContent = formatPLN(currentPrice);
 
       ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' formatowy - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
     }
@@ -272,11 +273,11 @@ export const drukCADCategory: CategoryModule = {
       const priceDisplay = container.querySelector('#nieformatowy-price');
       const breakdownDisplay = container.querySelector('#calc-breakdown');
 
-      if (pricePerMbDisplay) pricePerMbDisplay.textContent = pricePerMb.toFixed(2) + ' zł/mb';
+      if (pricePerMbDisplay) pricePerMbDisplay.textContent = formatPLN(pricePerMb) + '/mb';
       if (lengthDisplay) lengthDisplay.textContent = length.toFixed(3) + ' m';
-      if (priceDisplay) priceDisplay.textContent = currentPrice.toFixed(2) + ' zł';
+      if (priceDisplay) priceDisplay.textContent = formatPLN(currentPrice);
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = pricePerMb.toFixed(2) + ' zł/mb × ' + length.toFixed(3) + ' m = ' + currentPrice.toFixed(2) + ' zł';
+        breakdownDisplay.textContent = formatPLN(pricePerMb) + '/mb × ' + length.toFixed(3) + ' m = ' + formatPLN(currentPrice);
       }
 
       ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' nieformatowy ' + length.toFixed(3) + 'm - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
@@ -316,7 +317,7 @@ export const drukCADCategory: CategoryModule = {
       } else {
         const length = parseFloat(lengthInput.value);
         const pricePerMb = _getMbPricing(colorSelect.value, format)!.price;
-        description = format + ' nieformatowy, ' + length.toFixed(3) + ' m, ' + color + ' (' + pricePerMb.toFixed(2) + ' zł/mb)';
+        description = format + ' nieformatowy, ' + length.toFixed(3) + ' m, ' + color + ' (' + formatPLN(pricePerMb) + '/mb)';
       }
 
       ctx.addToBasket({
@@ -325,7 +326,7 @@ export const drukCADCategory: CategoryModule = {
         description: description
       });
 
-      alert('✅ Dodano: ' + currentPrice.toFixed(2) + ' zł');
+      alert('✅ Dodano: ' + formatPLN(currentPrice));
     });
 
     // Initialize
