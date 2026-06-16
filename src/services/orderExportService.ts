@@ -1,5 +1,6 @@
 import { CartItem, CustomerData } from "../core/types";
 import type { VariantDefinition } from "./priceService";
+import { normalizePhoneDigits } from "../core/customerValidation";
 
 export const ORDER_EXPORT_CONFIG_KEY = "razdwa_order_export_config";
 
@@ -223,7 +224,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Imię": firstName,
     "Nazwisko": lastName,
     "NIP": String(payload.customer.nip ?? ""),
-    "Telefon": String(payload.customer.phone ?? ""),
+    "Telefon": normalizePhoneDigits(String(payload.customer.phone ?? "")),
     "Email": String(payload.customer.email ?? ""),
     "Materiał": materials,
     "jedno/dwustronne": sidesStr,
