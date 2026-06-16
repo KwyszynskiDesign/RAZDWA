@@ -1443,9 +1443,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const zeroPrices = getZeroPriceLabels();
         if (zeroPrices.length > 0) {
-          resetSending();
-          showToast(`Cennik niespójny: ${zeroPrices.length} aktywnych pozycji z ceną 0/null. Popraw w Ustawieniach przed wysyłką.`, "error");
-          return;
+          showToast(`Uwaga: ${zeroPrices.length} poz. cennika z ceną 0/null — nie blokuje, jeśli te pozycje nie są w bieżącym zleceniu.`, "warning");
         }
       }
 
