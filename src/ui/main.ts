@@ -113,12 +113,6 @@ function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending
   `;
   host.prepend(toast);
   setTimeout(() => toast.classList.add("is-visible"), 10);
-  if (type === "success") {
-    setTimeout(() => {
-      toast.classList.remove("is-visible");
-      setTimeout(() => toast.remove(), 350);
-    }, 3500);
-  }
   return toast;
 }
 
@@ -396,13 +390,12 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
   const url = URL.createObjectURL(blob);
   const fileName = `raport-zamowienia-${now.toISOString().slice(0, 19).replace(/[T:]/g, "-")}.pdf`;
 
-  const opened = window.open(url, "_blank", "noopener,noreferrer");
-  if (!opened) {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = fileName;
-    link.click();
-  }
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
@@ -1234,6 +1227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         break;
       case 'success': {
+        dismissOrderStatusPanel();
         if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
         const successPopup = showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
         if (successPopup && lastSentOrderSnapshot) {
@@ -1251,6 +1245,12 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           });
           successPopup.appendChild(pdfBtn);
+        }
+        if (successPopup) {
+          setTimeout(() => {
+            successPopup.classList.remove("is-visible");
+            setTimeout(() => successPopup.remove(), 350);
+          }, 30000);
         }
         isSubmitting = false;
         setBusy(false, null);
