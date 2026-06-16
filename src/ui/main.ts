@@ -502,18 +502,41 @@ function updateCartUI() {
     listEl.classList.remove("has-items");
     listEl.classList.add("is-empty");
   } else {
-    listEl.innerHTML = items.map((item, idx) => `
+    // Render-only aggregation: scalamy wizualnie identyczne pozycje.
+    // Model koszyka (cart.ts) pozostaje płaską listą — grupowanie żyje wyłącznie tutaj.
+    const groups: { item: CartItem; indices: number[]; total: number }[] = [];
+    const groupIndexByKey = new Map<string, number>();
+    items.forEach((item, idx) => {
+      const key = [item.category, item.name, item.optionsHint, item.unitPrice, item.isExpress ? "1" : "0"].join("|");
+      const existing = groupIndexByKey.get(key);
+      if (existing != null) {
+        const g = groups[existing];
+        g.indices.push(idx);
+        g.total = parseFloat((g.total + item.totalPrice).toFixed(2));
+      } else {
+        groupIndexByKey.set(key, groups.length);
+        groups.push({ item, indices: [idx], total: item.totalPrice });
+      }
+    });
+
+    listEl.innerHTML = groups.map((g) => {
+      const count = g.indices.length;
+      const removeIdx = g.indices[g.indices.length - 1];
+      const qtyBadge = count > 1 ? ` <span class="basketQty">×${count}</span>` : "";
+      const removeLabel = count > 1 ? `Usuń jedną sztukę: ${g.item.name}` : `Usuń pozycję: ${g.item.name}`;
+      return `
       <div class="basketItem">
         <div class="basketItemContent">
-          <div class="basketName">${escapeHtml(item.name)}</div>
-          <div class="basketMeta">${escapeHtml(item.optionsHint)}</div>
+          <div class="basketName">${escapeHtml(g.item.name)}${qtyBadge}</div>
+          <div class="basketMeta">${escapeHtml(g.item.optionsHint)}</div>
         </div>
         <div class="basketItemRight">
-          <div class="basketPrice">${formatPLN(item.totalPrice)}</div>
-          <button class="iconBtn" data-remove-idx="${idx}" title="Usuń" aria-label="Usuń pozycję ${idx + 1}">×</button>
+          <div class="basketPrice">${formatPLN(g.total)}</div>
+          <button class="iconBtn" data-remove-idx="${removeIdx}" title="Usuń" aria-label="${escapeHtml(removeLabel)}">×</button>
         </div>
       </div>
-    `).join("");
+    `;
+    }).join("");
     listEl.classList.remove("is-empty");
     listEl.classList.add("has-items");
   }
