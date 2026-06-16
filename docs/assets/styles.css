@@ -3642,10 +3642,6 @@ a.employee-mode-btn {
   color: var(--text-muted, #6b6b6b);
 }
 
-.prices-sync--idle .prices-sync-state {
-  color: #6b6b6b;
-}
-
 .prices-sync--saving .prices-sync-state {
   color: #1c6fb8;
 }
