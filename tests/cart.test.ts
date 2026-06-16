@@ -71,4 +71,22 @@ describe("Cart", () => {
     expect(cart.getItems()[0]?.totalPrice).toBe(20);
     expect(cart.getGrandTotal()).toBe(20);
   });
+
+  it("should not drift prices when express is toggled repeatedly", () => {
+    const cart = new Cart();
+    cart.addItem({ ...mockItem, unitPrice: 13.33, totalPrice: 26.66 });
+
+    for (let i = 0; i < 5; i++) {
+      cart.setExpressForAll(true);
+      cart.setExpressForAll(false);
+    }
+
+    const item = cart.getItems()[0];
+    expect(item?.isExpress).toBe(false);
+    expect(item?.unitPrice).toBe(13.33);
+    expect(item?.totalPrice).toBe(26.66);
+
+    cart.setExpressForAll(true);
+    expect(cart.getItems()[0]?.totalPrice).toBe(31.99);
+  });
 });

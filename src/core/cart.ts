@@ -89,12 +89,16 @@ export class Cart {
       if (shouldBeExpress) {
         const applyRate = getExpressRate();
         const factor = 1 + applyRate;
+        const baseUnit = Number.isFinite(item.baseUnitPrice) ? (item.baseUnitPrice as number) : item.unitPrice;
+        const baseTotal = Number.isFinite(item.baseTotalPrice) ? (item.baseTotalPrice as number) : item.totalPrice;
         return {
           ...item,
           isExpress: true,
           expressRate: applyRate,
-          unitPrice: parseFloat((item.unitPrice * factor).toFixed(2)),
-          totalPrice: parseFloat((item.totalPrice * factor).toFixed(2)),
+          baseUnitPrice: baseUnit,
+          baseTotalPrice: baseTotal,
+          unitPrice: parseFloat((baseUnit * factor).toFixed(2)),
+          totalPrice: parseFloat((baseTotal * factor).toFixed(2)),
         };
       }
 
@@ -102,11 +106,17 @@ export class Cart {
         ? (item.expressRate as number)
         : EXPRESS_RATE;
       const factor = 1 + revertRate;
+      const restoredUnit = Number.isFinite(item.baseUnitPrice)
+        ? (item.baseUnitPrice as number)
+        : parseFloat((item.unitPrice / factor).toFixed(2));
+      const restoredTotal = Number.isFinite(item.baseTotalPrice)
+        ? (item.baseTotalPrice as number)
+        : parseFloat((item.totalPrice / factor).toFixed(2));
       return {
         ...item,
         isExpress: false,
-        unitPrice: parseFloat((item.unitPrice / factor).toFixed(2)),
-        totalPrice: parseFloat((item.totalPrice / factor).toFixed(2)),
+        unitPrice: restoredUnit,
+        totalPrice: restoredTotal,
       };
     });
 
