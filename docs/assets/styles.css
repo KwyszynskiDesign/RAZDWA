@@ -1675,17 +1675,22 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   line-height: 1;
 }
 
-.idb-sync-status--ok { color: var(--success); }
+.idb-sync-status--synced { color: var(--success); }
 .idb-sync-status--syncing { color: var(--primary); }
-.idb-sync-status--no_token { color: var(--text-secondary); }
+.idb-sync-status--pending { color: var(--text-secondary); }
 .idb-sync-status--error { color: var(--danger); }
-.idb-sync-status--unconfirmed { color: #e67e00; }
-.idb-sync-status--idle { color: var(--text-secondary); }
 
 .idb-sync-meta {
   font-size: 12px;
   color: var(--text-secondary);
   flex: 1 1 180px;
+}
+
+.idb-sync-detail {
+  flex: 1 1 100%;
+  font-size: 11px;
+  color: var(--text-secondary);
+  opacity: 0.75;
 }
 
 .idb-dirty-badge {

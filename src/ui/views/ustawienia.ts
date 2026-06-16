@@ -45,7 +45,6 @@ import {
   pushPricesToGas,
   pullPricesFromGas,
   readSyncStatus,
-  isPriceStale,
   registerPriceSync,
   type SyncStatusCode,
 } from "../../services/syncService";
@@ -2496,31 +2495,39 @@ export const UstawieniaView: View = {
       const dirtyCount = visible.filter((r) => r._dirty).length;
 
       const syncStatus = readSyncStatus();
-      const SYNC_ICONS: Record<SyncStatusCode, string> = {
-        idle: "○",
-        syncing: "⟳",
-        ok: "✓",
-        no_token: "🔒",
-        error: "✕",
-        unconfirmed: "⚠",
+
+      type CalmSyncState = "synced" | "pending" | "syncing" | "error";
+      const CALM_BY_CODE: Record<SyncStatusCode, { state: CalmSyncState; icon: string; label: string }> = {
+        ok: { state: "synced", icon: "✓", label: "Zsynchronizowany" },
+        syncing: { state: "syncing", icon: "⟳", label: "Synchronizacja w toku…" },
+        idle: { state: "pending", icon: "○", label: "Oczekuje na synchronizację" },
+        unconfirmed: { state: "pending", icon: "○", label: "Oczekuje na synchronizację" },
+        no_token: { state: "error", icon: "✕", label: "Błąd synchronizacji" },
+        error: { state: "error", icon: "✕", label: "Błąd synchronizacji" },
       };
+
+      let calm = CALM_BY_CODE[syncStatus.code] ?? CALM_BY_CODE.idle;
+      // Lokalne zmiany cen czekające na wysyłkę → status „oczekuje", nawet jeśli ostatni sync był OK.
+      if (calm.state === "synced" && dirtyCount > 0) {
+        calm = { state: "pending", icon: "○", label: "Oczekuje na synchronizację" };
+      }
+
       const lastSync = syncStatus.lastSyncedAt
         ? new Date(syncStatus.lastSyncedAt).toLocaleString("pl-PL")
         : "—";
 
-      const priceStale = isPriceStale(syncStatus.lastSyncedAt);
       let html = `
         <div class="idb-sync-bar">
-          <div class="idb-sync-status idb-sync-status--${syncStatus.code}">
-            <span class="idb-sync-icon">${SYNC_ICONS[syncStatus.code]}</span>
-            ${escapeHtml(syncStatus.message)}
+          <div class="idb-sync-status idb-sync-status--${calm.state}">
+            <span class="idb-sync-icon">${calm.icon}</span>
+            ${escapeHtml(calm.label)}
           </div>
           <div class="idb-sync-meta">
-            Ostatni sync: <strong>${escapeHtml(lastSync)}</strong>
+            Ostatnia aktualizacja: <strong>${escapeHtml(lastSync)}</strong>
             &nbsp;·&nbsp;
             <span class="idb-dirty-badge${dirtyCount > 0 ? " idb-dirty-badge--pending" : ""}">${dirtyCount} do sync</span>
           </div>
-          ${priceStale ? `<div class="idb-stale-warning">⚠ Ceny mogą być nieaktualne (ostatni sync: ${escapeHtml(lastSync)}). Wykonaj Pull z GAS przed wyceną.</div>` : ""}
+          ${syncStatus.message ? `<div class="idb-sync-detail">${escapeHtml(syncStatus.message)}</div>` : ""}
           <div class="idb-sync-actions">
             <button id="idb-btn-push" type="button" class="btn-primary idb-sync-btn">⬆ Push do GAS</button>
             <button id="idb-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>
