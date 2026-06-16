@@ -46,7 +46,7 @@ import {
 } from "../services/priceService";
 import { PDFDocument, StandardFonts, rgb, PDFFont } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import { validateCustomerForm } from "../core/customerValidation";
+import { validateCustomerForm, isValidNIP, isValidPhone, normalizePhoneDigits } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache, getZeroPriceLabels, hasCachedPrices } from "../core/compat";
@@ -641,23 +641,28 @@ function setupFormValidation(): void {
   }
 
   if (phoneEl && phoneErr) {
-    const getDigits = (v: string) => v.replace(/\D/g, '');
-    const formatPhone = (digits: string): string => {
-      const d = digits.slice(0, 9);
-      if (d.length <= 3) return d;
-      if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
-      return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+    const formatPhone = (raw: string): string => {
+      const hasPlus = String(raw ?? '').trim().startsWith('+');
+      const rawDigits = String(raw ?? '').replace(/\D/g, '');
+      const usePrefix = hasPlus || rawDigits.startsWith('48');
+      let national = rawDigits;
+      if (usePrefix && national.startsWith('48')) national = national.slice(2);
+      national = national.slice(0, 9);
+      let body: string;
+      if (national.length <= 3) body = national;
+      else if (national.length <= 6) body = `${national.slice(0, 3)} ${national.slice(3)}`;
+      else body = `${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`;
+      return usePrefix ? `+48 ${body}`.trimEnd() : body;
     };
     const validate = (v: string) => {
-      const d = getDigits(v);
+      const d = normalizePhoneDigits(v);
       if (!d) return 'Podaj numer telefonu';
-      if (d.length < 9) return 'Numer telefonu musi mieć min. 9 cyfr';
+      if (!isValidPhone(v)) return 'Numer telefonu musi mieć 9 cyfr (opcjonalnie z +48)';
       return null;
     };
 
     phoneEl.addEventListener('input', () => {
-      const digits = getDigits(phoneEl.value);
-      const formatted = formatPhone(digits);
+      const formatted = formatPhone(phoneEl.value);
       if (phoneEl.value !== formatted) phoneEl.value = formatted;
       if (phoneErr.textContent) showFieldError(phoneErr, validate(formatted), phoneEl);
     });
@@ -677,6 +682,7 @@ function setupFormValidation(): void {
       const d = getDigits(v);
       if (!d) return null;
       if (d.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
+      if (!isValidNIP(v)) return 'NIP jest nieprawidłowy (błędna suma kontrolna)';
       return null;
     };
 
@@ -1194,6 +1200,13 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.classList.toggle("is-loading", busy);
   };
 
+  const setSendButtonsDisabled = (disabled: boolean): void => {
+    const a = document.getElementById("sendBtn") as HTMLButtonElement | null;
+    const b = document.getElementById("sendBtn2") as HTMLButtonElement | null;
+    if (a) a.disabled = disabled;
+    if (b) b.disabled = disabled;
+  };
+
   const applySendPhase = (
     phase: SendPhase,
     opts?: { message?: string; requestId?: string; errorType?: string }
@@ -1247,8 +1260,8 @@ document.addEventListener("DOMContentLoaded", () => {
       case 'pending':
         if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
         showOrderStatusPanel('pending', { requestId: opts?.requestId, message: opts?.message });
-        isSubmitting = false;
-        setBusy(false, null);
+        isSubmitting = true;
+        setBusy(true, "Ponawianie możliwe za chwilę…");
         break;
       case 'unverified':
         if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
@@ -1335,7 +1348,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Natychmiastowa blokada double-submit: lock zanim ruszą walidacje i kroki async.
+    isSubmitting = true;
+    setSendButtonsDisabled(true);
+    const releaseGuard = () => {
+      isSubmitting = false;
+      setSendButtonsDisabled(false);
+    };
+
     if (cart.isEmpty()) {
+      releaseGuard();
       showToast("Koszyk jest pusty", "error");
       return;
     }
@@ -1366,10 +1388,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const first =
         showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
         showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
-        showInlineErr("custPhone", phoneVal.replace(/\D/g, "").length < 9 ? "Podaj numer telefonu (min. 9 cyfr)" : null) ??
-        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null) ??
+        showInlineErr("custPhone", !isValidPhone(phoneVal) ? "Podaj numer telefonu (9 cyfr, opcjonalnie z +48)" : null) ??
+        showInlineErr("custNip", nipDigits.length > 0 && (nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : !isValidNIP(nipVal) ? "NIP jest nieprawidłowy (błędna suma kontrolna)" : null) || null) ??
         showInlineErr("custAddedBy", addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null);
       first?.focus();
+      releaseGuard();
       showToast(validationError ?? "Uzupełnij pole „Kto dodał”.", "error");
       return;
     }
@@ -1507,6 +1530,7 @@ document.addEventListener("DOMContentLoaded", () => {
           retryUnlockTimer = setTimeout(() => {
             dismissOrderStatusPanel();
             retryUnlockTimer = null;
+            applySendPhase('idle');
           }, 30000);
           return;
         }
