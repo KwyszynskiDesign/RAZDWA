@@ -652,7 +652,7 @@ export const LaminowanieView: View = {
       const qty = parseInt(bindQty.value, 10) || 1;
       const pages = parseInt(bindPages.value, 10) || 1;
       const unitPrice = getBindingUnitPrice(type, subtype, qty, pages);
-      const expressFactor = ctx.expressMode ? 1.2 : 1;
+      const expressFactor = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
       const total = parseFloat((unitPrice * qty * expressFactor).toFixed(2));
 
       bindState = { type, subtype, color, qty, pages, unitPrice, total };
@@ -958,7 +958,7 @@ export const LaminowanieView: View = {
         : oprawyPrices.zbijana.extraPerCmPrintedHere;
       const extraThicknessPrice = parseFloat((extraCmUnits * extraPerCm).toFixed(2));
 
-      const expressFactor = ctx.expressMode ? 1.2 : 1;
+      const expressFactor = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
       const hardUnbind = type === "kanałowa" && (oprHardUnbindCheck?.checked ?? false);
       const hardUnbindUnitPrice = parseHardCoverServicePrice(oprHardUnbindPrice?.value, OPRAWA_TWARDA_ROZSZYCIE_DEFAULT);
       const hardUnbindPrice = hardUnbind ? hardUnbindUnitPrice : 0;
