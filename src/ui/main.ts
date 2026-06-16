@@ -49,7 +49,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
-import { warmPriceCache, getZeroPriceLabels } from "../core/compat";
+import { warmPriceCache, getZeroPriceLabels, hasCachedPrices } from "../core/compat";
 import { readSyncStatus, isPriceStale } from "../services/syncService";
 
 const cart = new Cart();
@@ -1414,11 +1414,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
       if (!exportConfig.dryRun) {
+        if (!hasCachedPrices()) {
+          resetSending();
+          showToast("Brak lokalnego cennika — wykonaj Pull z GAS w Ustawieniach przed wysyłką.", "error");
+          return;
+        }
         const syncStatus = readSyncStatus();
         if (isPriceStale(syncStatus.lastSyncedAt)) {
-          resetSending();
-          showToast("Cennik niezsynchronizowany — odśwież stronę lub wykonaj sync przed wysyłką.", "error");
-          return;
+          showToast("Pracujesz na ostatnim zapisanym cenniku — sync nie był wykonany od ponad 48h.", "warning");
         }
       }
 
