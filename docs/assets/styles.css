@@ -1500,6 +1500,12 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   font-weight: 600;
 }
 
+.settings-save-msg[data-tone="pending"] {
+  border-color: rgba(100, 120, 180, 0.25);
+  background: rgba(100, 120, 180, 0.08);
+  color: var(--text-secondary, #555);
+}
+
 .settings-save-msg[data-tone="error"] {
   border-color: rgba(201, 42, 42, 0.25);
   background: rgba(201, 42, 42, 0.08);

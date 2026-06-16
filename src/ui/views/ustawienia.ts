@@ -2058,15 +2058,17 @@ export const UstawieniaView: View = {
       return renderedCategories.find((category) => category.id === activeCategory) ?? renderedCategories[0];
     }
 
-    function showStatus(message: string, tone: "success" | "error" = "success") {
+    function showStatus(message: string, tone: "success" | "error" | "pending" = "success", persistent = false) {
       const msg = container.querySelector<HTMLElement>("#save-msg");
       if (!msg) return;
       msg.textContent = message;
       msg.dataset.tone = tone;
       msg.style.display = "block";
-      window.setTimeout(() => {
-        msg.style.display = "none";
-      }, 3200);
+      if (!persistent) {
+        window.setTimeout(() => {
+          msg.style.display = "none";
+        }, 3200);
+      }
     }
 
     function updateDraftIndicator(): void {
@@ -3308,10 +3310,10 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      showStatus("✓ Zapisano cennik.");
       updateDraftIndicator();
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
+      showStatus("⏳ Zapisywanie do GAS…", "pending", true);
       renderPricesSync("saving");
       try {
         const flatPrices = buildFlatPrices(persisted);
@@ -3324,12 +3326,15 @@ export const UstawieniaView: View = {
             /* localStorage niedostępny — pomijamy */
           }
           renderPricesSync("synced");
+          showStatus("✓ Zapisano cennik.");
         } else {
           renderPricesSync("error", result.message);
+          showStatus("✗ Błąd zapisu do GAS.", "error");
         }
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
         renderPricesSync("error", (err as Error)?.message);
+        showStatus("✗ Błąd zapisu do GAS.", "error");
       }
 
       try {
