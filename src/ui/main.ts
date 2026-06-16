@@ -545,6 +545,24 @@ function updateCartUI() {
   const adjustedTotal = applySummaryPercentAdjustments(total);
   totalEl.innerText = formatPLN(adjustedTotal);
 
+  const adjustNoteEl = document.getElementById("basketAdjustNote");
+  if (adjustNoteEl) {
+    const discountPercent = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
+    const surchargePercent = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
+    const modifierLabel = discountPercent > 0
+      ? `Rabat −${discountPercent}%`
+      : surchargePercent > 0
+        ? `Doliczenie +${surchargePercent}%`
+        : "";
+    if (modifierLabel) {
+      adjustNoteEl.textContent = `Przed: ${formatPLN(total)} · ${modifierLabel} · Po: ${formatPLN(adjustedTotal)}`;
+      adjustNoteEl.hidden = false;
+    } else {
+      adjustNoteEl.textContent = "";
+      adjustNoteEl.hidden = true;
+    }
+  }
+
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement | null;
   const globalExpressSummary = document.getElementById("globalExpressSummary") as HTMLElement | null;
   if (globalExpressSummary) {
