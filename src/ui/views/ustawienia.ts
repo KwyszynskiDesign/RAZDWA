@@ -2075,6 +2075,43 @@ export const UstawieniaView: View = {
       el.style.display = _draftVariantDefs.length > 0 ? "" : "none";
     }
 
+    const PRICES_SYNCED_AT_KEY = "razdwa_prices_gas_synced_at";
+
+    function readPricesSyncedAt(): string | null {
+      try {
+        return localStorage.getItem(PRICES_SYNCED_AT_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    type PricesSyncState = "idle" | "saving" | "synced" | "error";
+
+    const PRICES_SYNC_UI: Record<PricesSyncState, { icon: string; label: string }> = {
+      idle: { icon: "○", label: "Oczekuje na zapis" },
+      saving: { icon: "⟳", label: "Zapisywanie…" },
+      synced: { icon: "✓", label: "Zsynchronizowano" },
+      error: { icon: "✕", label: "Błąd zapisu" },
+    };
+
+    function setPricesSyncStatus(state: PricesSyncState, detail?: string): void {
+      const root = container.querySelector<HTMLElement>("#prices-sync");
+      if (!root) return;
+
+      const ui = PRICES_SYNC_UI[state];
+      const labelText = state === "error" && detail ? `${ui.label}: ${detail}` : ui.label;
+      root.className = `prices-sync prices-sync--${state}`;
+
+      const icon = root.querySelector<HTMLElement>(".prices-sync-icon");
+      const label = root.querySelector<HTMLElement>(".prices-sync-label");
+      const time = root.querySelector<HTMLElement>(".prices-sync-time");
+      if (icon) icon.textContent = ui.icon;
+      if (label) label.textContent = labelText;
+
+      const syncedAt = readPricesSyncedAt();
+      if (time) time.textContent = syncedAt ? new Date(syncedAt).toLocaleString("pl-PL") : "—";
+    }
+
     function flushInputs(): void {
       container.querySelectorAll<HTMLTableRowElement>("tbody tr[data-key]").forEach((row) => {
         const priceInput = row.querySelector<HTMLInputElement>("input[data-field='unitPrice']");
@@ -2891,6 +2928,11 @@ export const UstawieniaView: View = {
 
               <div id="draft-indicator" class="draft-indicator" style="display:none">● Niezapisane zmiany — kliknij „Zapisz cennik", aby utrwalić</div>
 
+              <div id="prices-sync" class="prices-sync prices-sync--idle">
+                <div class="prices-sync-state"><span class="prices-sync-icon">○</span><span class="prices-sync-label">Oczekuje na zapis</span></div>
+                <div class="prices-sync-meta">Ostatnia aktualizacja: <strong class="prices-sync-time">—</strong></div>
+              </div>
+
               <div id="save-msg" class="settings-save-msg" style="display:none;"></div>
             </div>
           </aside>
@@ -3186,6 +3228,15 @@ export const UstawieniaView: View = {
       return getVariantDefinitions();
     }
 
+    setPricesSyncStatus(readPricesSyncedAt() ? "synced" : "idle");
+
+    container.addEventListener("input", (event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.matches("input[data-field='unitPrice']")) {
+        setPricesSyncStatus("idle");
+      }
+    });
+
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
 
@@ -3218,12 +3269,24 @@ export const UstawieniaView: View = {
       updateDraftIndicator();
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
+      setPricesSyncStatus("saving");
       try {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
         localStorage.setItem('razdwa_prices_ts', '0');
+        if (result.ok) {
+          try {
+            localStorage.setItem(PRICES_SYNCED_AT_KEY, new Date().toISOString());
+          } catch {
+            /* localStorage niedostępny — pomijamy */
+          }
+          setPricesSyncStatus("synced");
+        } else {
+          setPricesSyncStatus("error", result.message);
+        }
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
+        setPricesSyncStatus("error", (err as Error)?.message);
       }
 
       try {
