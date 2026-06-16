@@ -199,7 +199,7 @@ export const UlotkiCyfroweView: View = {
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
         if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
-        if (tierHint) tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${result.totalPrice.toFixed(2)} zł`;
+        if (tierHint) tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${formatPLN(result.totalPrice)}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, paperVal);

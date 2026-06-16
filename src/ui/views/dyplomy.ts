@@ -107,9 +107,9 @@ export const DyplomyView: View = {
       if (tierHintEl) {
         const sideLabel = options.sides === 1 ? "jednostronne" : "dwustronne";
         const discountHint = options.sides === 1 && singleSidedDiscountRate > 0
-          ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${singleSidedDiscountAmount.toFixed(2)} zł`
+          ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${formatPLN(singleSidedDiscountAmount)}`
           : "";
-        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${tierPrice.toFixed(2)} zł (${sideLabel}${discountHint}; papier: ${paperVal.replace("_", " ")})`;
+        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${formatPLN(tierPrice)} (${sideLabel}${discountHint}; papier: ${paperVal.replace("_", " ")})`;
       }
       const discountHintEl = container.querySelector("#resDiscountHint") as HTMLElement;
       if (discountHintEl) {
