@@ -88,6 +88,10 @@ type AppsScriptResponseBody = {
   [key: string]: unknown;
 };
 
+if (!CURRENT_APPS_SCRIPT_URL) {
+  console.error('[orderExport] GOOGLE_APPS_SCRIPT_URL nie jest skonfigurowany — eksport zamówień wyłączony.');
+}
+
 const DEFAULT_CONFIG: OrderExportConfig = {
   appsScriptUrl: CURRENT_APPS_SCRIPT_URL,
   timeoutMs: 15000,
