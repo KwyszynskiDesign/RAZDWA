@@ -10,6 +10,8 @@ const IS_DEV =
 // v1 = import prices z DEFAULT_PRICES (bez Modifier).
 const MIGRATION_VERSION = 1;
 const MIGRATION_STATUS_KEY = "razdwa_migration_status";
+const MIGRATION_RETRY_KEY = "razdwa_migration_retry";
+const MIGRATION_RETRY_LIMIT = 3;
 
 interface MigrationStatus {
   version: number;
@@ -18,6 +20,33 @@ interface MigrationStatus {
   completedAt: string | null;
   imported: number;
   skipped: number;
+}
+
+function readRetryCount(): number {
+  try {
+    const raw = localStorage.getItem(MIGRATION_RETRY_KEY);
+    if (!raw) return 0;
+    const n = parseInt(raw, 10);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+  } catch {
+    return 0;
+  }
+}
+
+function writeRetryCount(n: number): void {
+  try {
+    localStorage.setItem(MIGRATION_RETRY_KEY, String(n));
+  } catch {
+    // localStorage niedostępny — pomijamy, brak licznika nie blokuje migracji.
+  }
+}
+
+function resetRetryCount(): void {
+  try {
+    localStorage.removeItem(MIGRATION_RETRY_KEY);
+  } catch {
+    // localStorage niedostępny — ignorujemy.
+  }
 }
 
 function readMigrationStatus(): MigrationStatus | null {
@@ -181,7 +210,18 @@ export async function runMigrationIfNeeded(): Promise<void> {
 
     if (isCurrentVersionComplete) {
       const count = await priceStore.count();
-      if (count > 0) return;
+      if (count > 0) {
+        resetRetryCount();
+        return;
+      }
+      const retries = readRetryCount();
+      if (retries >= MIGRATION_RETRY_LIMIT) {
+        console.error(
+          `[priceMigrator] status=completed ale IDB nadal pusta po ${retries} próbach — migracja zatrzymana (limit ${MIGRATION_RETRY_LIMIT}).`
+        );
+        return;
+      }
+      writeRetryCount(retries + 1);
       console.warn("[priceMigrator] status=completed ale IDB jest pusta — ponawiam migrację v" + MIGRATION_VERSION);
     }
 
@@ -258,6 +298,8 @@ export async function runMigrationIfNeeded(): Promise<void> {
       imported,
       skipped,
     });
+
+    if (imported > 0) resetRetryCount();
 
     console.info(`[priceMigrator] v${MIGRATION_VERSION} gotowe: ${imported} zaimportowano, ${skipped} pominięto`);
   } catch (err) {
