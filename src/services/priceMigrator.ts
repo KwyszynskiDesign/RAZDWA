@@ -36,8 +36,8 @@ function readMigrationStatus(): MigrationStatus | null {
 function writeMigrationStatus(s: MigrationStatus): void {
   try {
     localStorage.setItem(MIGRATION_STATUS_KEY, JSON.stringify(s));
-  } catch {
-    // ignore — nie blokujemy migracji przez brak zapisu statusu
+  } catch (e) {
+    console.error('[migration] Nie można zapisać statusu migracji w localStorage:', e);
   }
 }
 

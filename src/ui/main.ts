@@ -84,7 +84,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '2026-05-22-router-fix-2';
+;(window as any).__APP_BUILD__ = '2026-06-17-release-v1.0';
 
 function escapeHtml(str: string): string {
   return String(str)
