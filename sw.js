@@ -7,7 +7,7 @@
  * - Fetch: NetworkFirst (HTML), CacheFirst (static)
  */
 
-var CACHE_VERSION = 'razdwa-v202606170700'; // Injected by prebuild script
+var CACHE_VERSION = 'razdwa-v202606170523'; // Injected by prebuild script
 
 /**
  * Install Event: Skip precaching - use on-demand caching instead
@@ -87,7 +87,11 @@ self.addEventListener('fetch', function (event) {
           if (response && response.status === 200) {
             var clone = response.clone();
             caches.open(CACHE_VERSION).then(function (cache) {
-              cache.put(request, clone).catch(function () {});
+              cache.put(request, clone).catch(function (err) {
+                if (err && err.name === 'QuotaExceededError') {
+                  console.warn('[SW] Cache quota exceeded:', request.url, err.message);
+                }
+              });
             });
           }
           return response;
@@ -130,7 +134,11 @@ self.addEventListener('fetch', function (event) {
               if (response && response.status === 200) {
                 var clone = response.clone();
                 caches.open(CACHE_VERSION).then(function (cache) {
-                  cache.put(request, clone).catch(function () {});
+                  cache.put(request, clone).catch(function (err) {
+                    if (err && err.name === 'QuotaExceededError') {
+                      console.warn('[SW] Cache quota exceeded:', request.url, err.message);
+                    }
+                  });
                 });
               }
               return response;
@@ -149,7 +157,11 @@ self.addEventListener('fetch', function (event) {
         if (response && response.status === 200) {
           var clone = response.clone();
           caches.open(CACHE_VERSION).then(function (cache) {
-            cache.put(request, clone).catch(function () {});
+            cache.put(request, clone).catch(function (err) {
+              if (err && err.name === 'QuotaExceededError') {
+                console.warn('[SW] Cache quota exceeded:', request.url, err.message);
+              }
+            });
           });
         }
         return response;
