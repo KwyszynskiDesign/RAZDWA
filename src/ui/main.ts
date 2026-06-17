@@ -1243,12 +1243,27 @@ document.addEventListener("DOMContentLoaded", () => {
         const successPopup = showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
         if (successPopup && lastSentOrderSnapshot) {
           const snapshot = lastSentOrderSnapshot;
+          successPopup.classList.add("ghost-toast--success-order");
+          const content = document.createElement("div");
+          content.className = "ghost-toast__content";
+          while (successPopup.firstChild) content.appendChild(successPopup.firstChild);
+          successPopup.appendChild(content);
+          const actions = document.createElement("div");
+          actions.className = "ghost-toast__actions";
           const pdfBtn = document.createElement("button");
           pdfBtn.type = "button";
           pdfBtn.className = "ghost-toast__action";
           pdfBtn.textContent = "Pobierz potwierdzenie PDF";
-          pdfBtn.addEventListener("click", () => downloadOrderPdf(snapshot.items, snapshot.customer, snapshot.summary));
-          successPopup.appendChild(pdfBtn);
+          pdfBtn.addEventListener("click", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (pdfBtn.disabled) return;
+            pdfBtn.disabled = true;
+            downloadOrderPdf(snapshot.items, snapshot.customer, snapshot.summary)
+              .finally(() => { pdfBtn.disabled = false; });
+          });
+          actions.appendChild(pdfBtn);
+          successPopup.appendChild(actions);
         }
         if (successPopup) {
           setTimeout(() => {
