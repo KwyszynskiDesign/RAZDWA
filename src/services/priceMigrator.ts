@@ -2,6 +2,10 @@ import { getDefaultPricesMap } from "../core/compat";
 import { priceStore } from "./priceStore";
 import type { PriceRecord } from "../types/price-schema";
 
+const IS_DEV =
+  typeof location !== 'undefined' &&
+  (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+
 // Inkrementuj gdy zmienia się logika lub zakres migracji.
 // v1 = import prices z DEFAULT_PRICES (bez Modifier).
 const MIGRATION_VERSION = 1;
@@ -201,14 +205,14 @@ export async function runMigrationIfNeeded(): Promise<void> {
 
     for (const [key, rawValue] of entries) {
       if (rawValue === null) {
-        console.warn(`[priceMigrator] "${key}" wartość null — pominięto`);
+        if (IS_DEV) console.warn(`[priceMigrator] "${key}" wartość null — pominięto`);
         skipped++;
         continue;
       }
 
       const value = Number(rawValue);
       if (!Number.isFinite(value)) {
-        console.warn(`[priceMigrator] "${key}" wartość nienumeryczna "${rawValue}" — pominięto`);
+        if (IS_DEV) console.warn(`[priceMigrator] "${key}" wartość nienumeryczna "${rawValue}" — pominięto`);
         skipped++;
         continue;
       }
@@ -216,12 +220,12 @@ export async function runMigrationIfNeeded(): Promise<void> {
       const parsed = parseLegacyKey(key);
 
       if (parsed.isModifier) {
-        console.warn(`[priceMigrator] "${key}" pominięto: globalny Modifier — Modifier store poza zakresem Etapu 1`);
+        if (IS_DEV) console.warn(`[priceMigrator] "${key}" pominięto: globalny Modifier — Modifier store poza zakresem Etapu 1`);
         skipped++;
         continue;
       }
 
-      if (key.startsWith("druk-cad-")) {
+      if (IS_DEV && key.startsWith("druk-cad-")) {
         console.warn(`[priceMigrator] "${key}" category="druk" (niejednoznaczny CAD) — do poprawki w panelu Etap 3`);
       }
 
