@@ -381,15 +381,19 @@
 
         .notes-box { display: flex; flex-direction: column; gap: 4px; }
         .notes-box label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .notes-input {
+       .notes-input {
             width: 100%;
-            height: 34px;
+            height: auto;           /* Pozwalamy na elastyczną wysokość */
+            min-height: 34px;       /* Zachowujemy początkowy wymiar jednego wiersza */
             padding: 6px 10px;
             border: 1px solid var(--border);
             border-radius: 6px;
             font-size: 13px;
             background: #ffffff;
             transition: border-color 0.2s;
+            resize: none;           /* Blokujemy domyślny uchwyt zmiany rozmiaru w rogach */
+            overflow: hidden;       /* Ukrywamy scrollbar, bo skrypt dopasuje wysokość */
+            display: block;
         }
         .notes-input:focus { border-color: var(--primary); outline: none; }
 
@@ -771,7 +775,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-1"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-1">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-1" placeholder="____________________">
+                        <textarea class="notes-input" id="notes-cat-1" rows="1" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -800,7 +804,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-2"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-2">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-2" placeholder="____________________">
+                       <textarea class="notes-input" id="notes-cat-1" rows="2" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -831,7 +835,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-3"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-3">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-3" placeholder="____________________">
+                        <textarea class="notes-input" id="notes-cat-1" rows="3" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -863,7 +867,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-4"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-4">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-4" placeholder="____________________">
+                        <textarea class="notes-input" id="notes-cat-1" rows="4" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -889,7 +893,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-5"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-5">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-5" placeholder="____________________">
+                        <textarea class="notes-input" id="notes-cat-1" rows="5" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -921,7 +925,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-6"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-6">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-6" placeholder="____________________">
+                       <textarea class="notes-input" id="notes-cat-1" rows="6" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -953,7 +957,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-7"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-7">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-7" placeholder="____________________">
+                        <textarea class="notes-input" id="notes-cat-1" rows="7" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -985,7 +989,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-8"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-8">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-8" placeholder="____________________">
+                       <textarea class="notes-input" id="notes-cat-1" rows="8" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -1016,7 +1020,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-9"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-9">Uwagi:</label>
-                        <input type="text" class="notes-input" id="notes-cat-9" placeholder="____________________">
+                       <textarea class="notes-input" id="notes-cat-1" rows="9" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -1097,7 +1101,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             initUAT();
         });
-
+function autoResizeNotes(element) {
+    if (!element) return;
+    element.style.height = 'auto'; // Reset wysokości
+    element.style.height = element.scrollHeight + 'px'; // Ustawienie wysokości dopasowanej do tekstu
+}
         function initUAT() {
             // Config today date
             const today = new Date();
@@ -1131,10 +1139,11 @@
                 });
             });
 
-            // Register Area Notes Listeners
+         // Register Area Notes Listeners
             document.querySelectorAll('.notes-input').forEach(nInput => {
                 nInput.addEventListener('input', (e) => {
                     uatData.notes[nInput.id] = e.target.value;
+                    autoResizeNotes(e.target); // <-- To dopasuje wysokość przy pisaniu na żywo
                     saveStorage();
                 });
             });
@@ -1269,9 +1278,13 @@
                         uatData = Object.assign(uatData, o);
 
                         // Load notes
+                      // Load notes
                         Object.keys(uatData.notes || {}).forEach(k => {
                             const input = document.getElementById(k);
-                            if (input) input.value = uatData.notes[k];
+                            if (input) {
+                                input.value = uatData.notes[k];
+                                autoResizeNotes(input); // <-- To dopasuje wysokość po wczytaniu danych
+                            }
                         });
 
                         // Load final notes
@@ -1320,7 +1333,10 @@
             if (!confirm("⚠️ Czy na pewno chcesz całkowicie zresetować wszystkie warianty weryfikacyjne i usunąć notatki?")) return;
 
             uatData = { variants: {}, masters: {}, notes: {}, decision: "", finalNotes: "" };
-            document.querySelectorAll('.notes-input').forEach(n => n.value = "");
+           document.querySelectorAll('.notes-input').forEach(n => {
+                n.value = "";
+                n.style.height = 'auto'; // <-- Przywraca domyślną wysokość po resecie
+            });
             const fNotes = document.getElementById('uat-final-notes');
             if (fNotes) fNotes.value = "";
 
