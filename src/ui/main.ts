@@ -717,6 +717,8 @@ const DRAFT_FIELD_IDS = [
   "custNotes",
 ] as const;
 
+let userEditedForm = false;
+
 function saveCustomerDraft(): void {
   const fields: Record<string, string> = {};
   for (const id of DRAFT_FIELD_IDS) {
@@ -1775,13 +1777,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   for (const id of DRAFT_FIELD_IDS) {
     const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-    el?.addEventListener("input", saveCustomerDraft);
-    el?.addEventListener("change", saveCustomerDraft);
+    el?.addEventListener("input", () => { userEditedForm = true; saveCustomerDraft(); });
+    el?.addEventListener("change", () => { userEditedForm = true; saveCustomerDraft(); });
   }
   touchDraftAlive();
   window.setInterval(touchDraftAlive, 10_000);
   window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
-    const formDirty = DRAFT_FIELD_IDS.filter((id) => id !== "custPriority").some((id) => {
+    const formDirty = userEditedForm && DRAFT_FIELD_IDS.filter((id) => id !== "custPriority").some((id) => {
       const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       return (el?.value ?? "").trim().length > 0;
     });
