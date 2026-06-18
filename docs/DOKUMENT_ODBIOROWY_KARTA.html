@@ -526,15 +526,13 @@
         margin-bottom: 10px !important;    /* ← ZMIANA: zmniejszone */
     }
 
-    .card {
+      .card {
         border: 1px solid #000 !important;
         box-shadow: none !important;
         page-break-inside: avoid !important;
         break-inside: avoid !important;
-        max-height: 195mm !important;      /* ← ZMIANA: z "205mm" na "195mm" */
-        min-width: 0 !important;           /* ← DODANE: zapobiega rozszerzaniu kart */
-        overflow: hidden !important;       /* ← DODANE */
-        box-sizing: border-box !important; /* ← DODANE */
+        min-width: 0 !important;
+        box-sizing: border-box !important;
     }
     .card-header {
         background: #cbd5e1 !important;
@@ -594,14 +592,14 @@
     .cat-status-item.verified span { color: #000 !important; }
 
     .notes-box label { font-size: 9px !important; }  /* ← DODANE */
-    .notes-input {
+       .notes-input {
         border: 1px solid #000 !important;
         background: none !important;
-        height: auto !important;           /* ← ZMIANA: Pozwoli przeglądarce dopasować się do zawartości */
+        height: auto !important;
         min-height: 20px !important;
         font-size: 10px !important;        
         padding: 3px 6px !important;       
-        overflow: hidden !important;       /* Ukrywa ewentualne paski przewijania w PDF */
+        overflow: visible !important;      /* Pełna treść notatek w wydruku */
     }
 
     .decision-section {
@@ -647,6 +645,25 @@
     }
     .sig-label { font-size: 10px !important; }  /* ← DODANE */
 }
+
+        @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition: none !important;
+        animation: none !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .toast {
+        transform: none !important;
+        opacity: 1 !important;
+    }
+    
+    .progress-bar-fill {
+        transition: none !important;
+    }
+}
     </style>
 </head>
 <body>
@@ -672,8 +689,8 @@
 
             <!-- Action Buttons -->
             <div class="sticky-actions">
-                <button class="btn btn-save" onclick="exportJSON()">💾 Zapisz Stan</button>
-                <button class="btn btn-load" onclick="document.getElementById('hidden-file-input').click()">📂 Wczytaj Stan</button>
+               <button class="btn btn-save" onclick="exportJSON()" title="Pobiera plik JSON z aktualnym stanem weryfikacji">💾 Eksportuj do JSON</button>
+<button class="btn btn-load" onclick="document.getElementById('hidden-file-input').click()" title="Wczytuje wcześniej zapisany plik JSON">📂 Importuj z JSON</button>
                 <button class="btn btn-reset" onclick="resetFullAudit()">🧹 Reset</button>
                 <button class="btn btn-print" onclick="window.print()">🖨️ Wydrukuj / PDF</button>
             </div>
@@ -968,7 +985,7 @@
             <div class="card" id="card-cat-8">
                 <div class="card-header">
                     <span class="card-title">8. Cięcie i Introligatornia</span>
-                    <span class="card-progress-count">0 / 11</span>
+                   <span class="card-progress-count">0 / 9</span>
                 </div>
                 <div class="card-desc">Wlepki (mocny klej), folie ploterowe oraz 4 moduły opraw introligatorskich.</div>
                 <div class="card-body">
@@ -1103,10 +1120,20 @@
         document.addEventListener('DOMContentLoaded', () => {
             initUAT();
         });
+let resizeTimeouts = new Map();
+
 function autoResizeNotes(element) {
     if (!element) return;
-    element.style.height = 'auto'; // Reset wysokości
-    element.style.height = element.scrollHeight + 'px'; // Ustawienie wysokości dopasowanej do tekstu
+    // Czyść poprzedni timeout dla tego elementu
+    if (resizeTimeouts.has(element)) {
+        clearTimeout(resizeTimeouts.get(element));
+    }
+    const timeoutId = setTimeout(() => {
+        element.style.height = 'auto';
+        element.style.height = element.scrollHeight + 'px';
+        resizeTimeouts.delete(element);
+    }, 50);
+    resizeTimeouts.set(element, timeoutId);
 }
         function initUAT() {
             // Config today date
@@ -1267,9 +1294,15 @@ function autoResizeNotes(element) {
             }
         }
 
-        function saveStorage() {
-            try { localStorage.setItem(LOCAL_STORAGE_DB, JSON.stringify(uatData)); } catch(e) {}
+       function saveStorage() {
+    try { 
+        localStorage.setItem(LOCAL_STORAGE_DB, JSON.stringify(uatData)); 
+    } catch(e) {
+        if (e.name === 'QuotaExceededError') {
+            showToast("⚠️ Brak miejsca w pamięci przeglądarki. Wyeksportuj stan ręcznie.");
         }
+    }
+}
 
         function loadStorage() {
             try {
@@ -1302,7 +1335,8 @@ function autoResizeNotes(element) {
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(uatData, null, 2));
             const a = document.createElement('a');
             a.setAttribute("href", dataStr);
-            a.setAttribute("download", `razdwa_audyt_wariantow_uat_${new Date().toISOString().slice(0,10)}.json`);
+            const todayLocal = new Date().toLocaleDateString('pl-PL').split('.').join('-');
+a.setAttribute("download", `razdwa_audyt_wariantow_uat_${todayLocal}.json`);
             document.body.appendChild(a);
             a.click();
             a.remove();
@@ -1310,26 +1344,36 @@ function autoResizeNotes(element) {
         }
 
         function importJSON(e) {
-            const f = e.target.files[0];
-            if (!f) return;
+    const f = e.target.files[0];
+    if (!f) return;
 
-            const r = new FileReader();
-            r.onload = function(evt) {
-                try {
-                    const obj = JSON.parse(evt.target.result);
-                    if (obj && obj.variants) {
-                        uatData = obj;
-                        loadStorage();
-                        updateDashboard();
-                        renderDecisionBlocks();
-                        saveStorage();
-                        showToast("📂 Pomyślnie wczytano stan weryfikacji z pliku JSON.");
-                    }
-                } catch(err) { alert("Nieprawidłowy plik JSON."); }
-            };
-            r.readAsText(f);
-            e.target.value = "";
+    const r = new FileReader();
+    r.onload = function(evt) {
+        try {
+            const obj = JSON.parse(evt.target.result);
+            // Walidacja schematu
+            if (!obj || typeof obj !== 'object') {
+                throw new Error("Plik nie zawiera obiektu JSON.");
+            }
+            const requiredKeys = ['variants', 'masters', 'notes'];
+            const missing = requiredKeys.filter(k => !(k in obj));
+            if (missing.length > 0) {
+                throw new Error(`Brakujące klucze: ${missing.join(', ')}`);
+            }
+            
+            uatData = obj;
+            // NIE wywołuj loadStorage() — dane z pliku mają priorytet
+            updateDashboard();
+            renderDecisionBlocks();
+            saveStorage();
+            showToast("📂 Pomyślnie wczytano stan weryfikacji z pliku JSON.");
+        } catch(err) { 
+            alert("Nieprawidłowy plik JSON: " + err.message); 
         }
+    };
+    r.readAsText(f);
+    e.target.value = "";
+}
 
         function resetFullAudit() {
             if (!confirm("⚠️ Czy na pewno chcesz całkowicie zresetować wszystkie warianty weryfikacyjne i usunąć notatki?")) return;
@@ -1348,13 +1392,25 @@ function autoResizeNotes(element) {
             showToast("🧹 Całkowicie zresetowano dokument.");
         }
 
-        function showToast(m) {
-            const t = document.getElementById('system-toast');
-            if (!t) return;
-            t.innerText = m;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3500);
-        }
+       let toastTimeout = null;
+
+function showToast(m) {
+    const t = document.getElementById('system-toast');
+    if (!t) return;
+    
+    // Czyść poprzedni timeout
+    if (toastTimeout) clearTimeout(toastTimeout);
+    
+    t.innerText = m;
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
+    t.classList.add('show');
+    
+    toastTimeout = setTimeout(() => {
+        t.classList.remove('show');
+        toastTimeout = null;
+    }, 3500);
+}
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0d95ac7eaf92648',t:'MTc4MTc3NTg1Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
