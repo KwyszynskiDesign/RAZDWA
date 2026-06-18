@@ -597,9 +597,11 @@
     .notes-input {
         border: 1px solid #000 !important;
         background: none !important;
-        height: 20px !important;           /* ← ZMIANA: z "26px" na "20px" */
-        font-size: 10px !important;        /* ← DODANE */
-        padding: 3px 6px !important;       /* ← DODANE */
+        height: auto !important;           /* ← ZMIANA: Pozwoli przeglądarce dopasować się do zawartości */
+        min-height: 20px !important;
+        font-size: 10px !important;        
+        padding: 3px 6px !important;       
+        overflow: hidden !important;       /* Ukrywa ewentualne paski przewijania w PDF */
     }
 
     .decision-section {
@@ -804,7 +806,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-2"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-2">Uwagi:</label>
-                       <textarea class="notes-input" id="notes-cat-1" rows="2" placeholder="Wpisz uwagi..."></textarea>
+                       <textarea class="notes-input" id="notes-cat-2" rows="2" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -835,7 +837,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-3"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-3">Uwagi:</label>
-                        <textarea class="notes-input" id="notes-cat-1" rows="3" placeholder="Wpisz uwagi..."></textarea>
+                        <textarea class="notes-input" id="notes-cat-3" rows="3" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -867,7 +869,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-4"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-4">Uwagi:</label>
-                        <textarea class="notes-input" id="notes-cat-1" rows="4" placeholder="Wpisz uwagi..."></textarea>
+                        <textarea class="notes-input" id="notes-cat-4" rows="4" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -893,7 +895,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-5"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-5">Uwagi:</label>
-                        <textarea class="notes-input" id="notes-cat-1" rows="5" placeholder="Wpisz uwagi..."></textarea>
+                        <textarea class="notes-input" id="notes-cat-5" rows="5" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -925,7 +927,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-6"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-6">Uwagi:</label>
-                       <textarea class="notes-input" id="notes-cat-1" rows="6" placeholder="Wpisz uwagi..."></textarea>
+                       <textarea class="notes-input" id="notes-cat-6" rows="6" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -957,7 +959,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-7"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-7">Uwagi:</label>
-                        <textarea class="notes-input" id="notes-cat-1" rows="7" placeholder="Wpisz uwagi..."></textarea>
+                        <textarea class="notes-input" id="notes-cat-7" rows="7" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -989,7 +991,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-8"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-8">Uwagi:</label>
-                       <textarea class="notes-input" id="notes-cat-1" rows="8" placeholder="Wpisz uwagi..."></textarea>
+                       <textarea class="notes-input" id="notes-cat-8" rows="8" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
@@ -1020,7 +1022,7 @@
                     <label class="cat-status-item"><input type="checkbox" class="master-chk" id="master-cat-9"><span>Kategoria zweryfikowana</span></label>
                     <div class="notes-box">
                         <label for="notes-cat-9">Uwagi:</label>
-                       <textarea class="notes-input" id="notes-cat-1" rows="9" placeholder="Wpisz uwagi..."></textarea>
+                       <textarea class="notes-input" id="notes-cat-9" rows="9" placeholder="Wpisz uwagi..."></textarea>
                     </div>
                 </div>
             </div>
