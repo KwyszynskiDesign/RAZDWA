@@ -680,27 +680,18 @@ function setupFormValidation(): void {
   }
 
   if (nipEl && nipErr) {
-    const getDigits = (v: string) => v.replace(/\D/g, '');
-    const formatNip = (digits: string): string => {
-      const d = digits.slice(0, 10);
-      if (d.length <= 3) return d;
-      if (d.length <= 6) return `${d.slice(0, 3)}-${d.slice(3)}`;
-      if (d.length <= 8) return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`;
-      return `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6, 8)}-${d.slice(8)}`;
-    };
+    const normalizeNip = (v: string) => v.replace(/\D/g, '').slice(0, 10);
     const validate = (v: string) => {
-      const d = getDigits(v);
-      if (!d) return null;
-      if (d.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
+      if (!v) return null;
+      if (v.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
       if (!isValidNIP(v)) return 'NIP jest nieprawidłowy (błędna suma kontrolna)';
       return null;
     };
 
     nipEl.addEventListener('input', () => {
-      const digits = getDigits(nipEl.value);
-      const formatted = formatNip(digits);
-      if (nipEl.value !== formatted) nipEl.value = formatted;
-      if (nipErr.textContent) showFieldError(nipErr, validate(formatted), nipEl);
+      const normalized = normalizeNip(nipEl.value);
+      if (nipEl.value !== normalized) nipEl.value = normalized;
+      if (nipErr.textContent) showFieldError(nipErr, validate(normalized), nipEl);
     });
     nipEl.addEventListener('blur', () => showFieldError(nipErr, validate(nipEl.value), nipEl));
   }
@@ -1469,7 +1460,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!exportConfig.dryRun) {
         if (!hasCachedPrices()) {
           resetSending();
-          showToast("Brak lokalnego cennika — wykonaj Pull z GAS w Ustawieniach przed wysyłką.", "error");
+          showToast("Brak cennika — wykonaj Pull w ustawieniach przed wysyłką.", "error", {
+            label: "Otwórz ustawienia",
+            onClick: () => { window.location.hash = "#/ustawienia"; },
+          });
           return;
         }
       }
@@ -1839,8 +1833,8 @@ document.addEventListener("DOMContentLoaded", () => {
           window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path: "variants" } }));
         }
       }
-    } catch {
-      // offline - OK, nie blokuje startu
+    } catch (err) {
+      console.warn("[startupSync] fetchStateFromAppsScript failed:", err);
     }
   })();
 });
