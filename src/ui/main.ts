@@ -478,7 +478,7 @@ function showToast(
 function getInvalidPricedCartItems(items: CartItem[]): CartItem[] {
   return items.filter(item => {
     const p = item.unitPrice;
-    return p === 0 || p == null || !Number.isFinite(p);
+    return p <= 0 || p == null || !Number.isFinite(p);
   });
 }
 
@@ -1453,6 +1453,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     const items = cart.getItems();
+
+    const invalidItems = getInvalidPricedCartItems(items);
+    if (invalidItems.length > 0) {
+      const names = invalidItems.slice(0, 3).map(i => i.name).join(", ");
+      const suffix = invalidItems.length > 3 ? ` i ${invalidItems.length - 3} więcej` : "";
+      showToast(`Pozycje z nieprawidłową ceną (≤0/null/NaN): ${names}${suffix}. Usuń je lub popraw cennik przed wysyłką.`, "error");
+      resetSending();
+      return;
+    }
+
     const exportConfig = getOrderExportConfig();
 
     if (exportConfig.enabled && exportConfig.appsScriptUrl) {
@@ -1461,10 +1471,6 @@ document.addEventListener("DOMContentLoaded", () => {
           resetSending();
           showToast("Brak lokalnego cennika — wykonaj Pull z GAS w Ustawieniach przed wysyłką.", "error");
           return;
-        }
-        const invalidItems = getInvalidPricedCartItems(items);
-        if (invalidItems.length > 0) {
-          showToast(`Uwaga: ${invalidItems.length} poz. w bieżącym zleceniu z ceną 0/null — sprawdź cennik.`, "warning");
         }
       }
 
