@@ -90,6 +90,16 @@ export const WlepkiView: View = {
     const baseLabelEl = container.querySelector("#wlepki-base-label") as HTMLElement | null;
     const cennikPanel = container.querySelector("#wlepki-cennik-panel") as HTMLElement | null;
 
+    const sztQtyErrEl = document.createElement("div");
+    sztQtyErrEl.className = "field-error";
+    sztQtyErrEl.style.display = "none";
+    pieceQtyInput?.insertAdjacentElement("afterend", sztQtyErrEl);
+
+    const m2AreaErrEl = document.createElement("div");
+    m2AreaErrEl.className = "field-error";
+    m2AreaErrEl.style.display = "none";
+    areaInput?.insertAdjacentElement("afterend", m2AreaErrEl);
+
     const allModifiers = (tableData.modifiers || []).map((m: any) => {
       const modKey = `wlepki-modifier-${String(m.id).replace(/_/g, "-")}`;
       return { ...m, value: resolveStoredPrice(modKey, m.value) };
@@ -253,16 +263,24 @@ export const WlepkiView: View = {
             throw new Error("Dla opcji foliowej wybierz: folia biała albo transparentna.");
           }
 
-          if (!pieceQtyInput.value) {
+          const qty = parseNumericInput(pieceQtyInput.value, { integer: true, min: 1 });
+          if (qty === null) {
+            if (pieceQtyInput.value.trim() !== "") {
+              sztQtyErrEl.textContent = "Podaj ilość (min. 1 szt).";
+              sztQtyErrEl.style.display = "";
+            } else {
+              sztQtyErrEl.style.display = "none";
+            }
             if (resultDiv) resultDiv.style.display = "none";
             addBtn.disabled = true;
             return;
           }
+          sztQtyErrEl.style.display = "none";
 
           const input = {
             mode: "szt" as const,
             tableId: selectedTable,
-            qty: parseNumericInput(pieceQtyInput.value, { integer: true, min: 1 }) ?? 1,
+            qty,
             express: ctx.expressMode,
             paperFinish,
             foilType,
@@ -315,10 +333,24 @@ export const WlepkiView: View = {
             throw new Error("Dla opcji foliowej wybierz wykończenie: mat albo błysk.");
           }
 
+          const area = parseNumericInput(areaInput.value);
+          if (area === null) {
+            if (areaInput.value.trim() !== "") {
+              m2AreaErrEl.textContent = "Podaj powierzchnię większą niż 0.";
+              m2AreaErrEl.style.display = "";
+            } else {
+              m2AreaErrEl.style.display = "none";
+            }
+            if (resultDiv) resultDiv.style.display = "none";
+            addBtn.disabled = true;
+            return;
+          }
+          m2AreaErrEl.style.display = "none";
+
           const input = {
             mode: "m2" as const,
             groupId: groupSelect.value,
-            area: parseNumericInput(areaInput.value) ?? 0,
+            area,
             express: ctx.expressMode,
             modifiers,
             foilType,

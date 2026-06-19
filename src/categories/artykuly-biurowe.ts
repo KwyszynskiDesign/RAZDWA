@@ -158,7 +158,7 @@ function renderArticleItem(item: RenderedArticleItem): string {
   const itemPrice = typeof item.price === "number" ? item.price : 0;
   const priceDisplay = typeof item.price === "number" ? `${itemPrice.toFixed(2)} zł` : "—";
   const priceColor = typeof item.price === "number" ? "#0066cc" : "#9aa7b2";
-  const addDisabled = typeof item.price !== "number";
+  const addDisabled = !(typeof item.price === "number" && item.price > 0);
 
   return `
     <div style="display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; column-gap: 8px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">

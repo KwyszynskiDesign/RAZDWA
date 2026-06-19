@@ -90,6 +90,7 @@ export const WizytowkiView: View = {
     const legendStandardEl = container.querySelector("#w-legend-standard") as HTMLElement | null;
     const stdFormActions = (container.querySelector("#w-add-to-cart") as HTMLElement | null)?.closest(".form-actions") as HTMLElement | null;
     const extPriceInput = container.querySelector("#w-ext-price") as HTMLInputElement | null;
+    const extPriceErrEl = container.querySelector("#w-ext-price-err") as HTMLElement | null;
 
     const updateLegend = () => {
       if (!legendRows) return;
@@ -168,10 +169,20 @@ export const WizytowkiView: View = {
 
     if (familySelect) familySelect.onchange = syncMode;
 
-    extQtyInput?.addEventListener("input", () => {
-      const qty = parseInt(extQtyInput!.value, 10);
-      if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0);
-    });
+    const validateExtForm = () => {
+      const qty = parseInt(extQtyInput?.value ?? "", 10);
+      const price = parseNumericInput(extPriceInput?.value);
+      if (extAddToCartBtn) extAddToCartBtn.disabled = !(qty > 0 && price !== null);
+      if (extPriceErrEl) {
+        const raw = (extPriceInput?.value ?? "").trim();
+        const showErr = raw !== "" && price === null;
+        extPriceErrEl.textContent = showErr ? "Podaj cenę większą niż 0." : "";
+        extPriceErrEl.style.display = showErr ? "" : "none";
+      }
+    };
+
+    extQtyInput?.addEventListener("input", validateExtForm);
+    extPriceInput?.addEventListener("input", validateExtForm);
 
     if (goViperprintBtn) {
       goViperprintBtn.onclick = () => window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
@@ -192,7 +203,8 @@ export const WizytowkiView: View = {
         const typeLabel = typeLabels[typeVal] ?? typeVal;
         const sizeLabel = extSizeSelect?.value || "85x55";
         const finishLabel = extFinishSelect?.value === "blyszczacy" ? "Błyszczący" : "Mat";
-        const unitPrice = parseFloat(extPriceInput?.value || "0") || 0;
+        const unitPrice = parseNumericInput(extPriceInput?.value);
+        if (unitPrice === null) return;
         ctx.cart.addItem({
           id: `wizytowki-ext-${Date.now()}`,
           category: "Wizytówki",
