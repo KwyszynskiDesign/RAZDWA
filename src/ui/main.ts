@@ -1314,7 +1314,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const dialog = document.createElement("div");
       dialog.className = "clear-confirm big-order-confirm";
       dialog.innerHTML = `
-        <span class="clear-confirm__msg">Duże zamówienie: <strong>${formatPLN(totalPln)}</strong>, ${itemsCount} poz.${priorityBadge}<br><span style="font-size:0.88em;opacity:0.75;">${escapeHtml(cust.name)}${phoneHint}</span><div class="big-order-items">${itemsHtml}</div></span>
+        <div class="clear-confirm__msg">Duże zamówienie: <strong>${formatPLN(totalPln)}</strong>, ${itemsCount} poz.${priorityBadge}<br><span style="font-size:0.88em;opacity:0.75;">${escapeHtml(cust.name)}${phoneHint}</span><div class="big-order-items">${itemsHtml}</div></div>
         <div class="clear-confirm__actions">
           <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
           <button type="button" class="clear-confirm__ok danger">Wyślij</button>
