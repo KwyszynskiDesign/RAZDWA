@@ -1438,7 +1438,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const itemsAfter = cart.getItems();
       const stillInconsistent = itemsAfter.some(i => !!i.isExpress) !== (customer.priority === "Express");
       if (stillInconsistent) {
-        showToast("Tryb EXPRESS i Realizacja są niespójne. Sprawdź ustawienia i spróbuj ponownie.", "error");
+        const cbOn = isExpressActive();
+        const prioVal = customer.priority;
+        const cartHasExpress = itemsAfter.some(i => !!i.isExpress);
+        let expressErrMsg: string;
+        if (cbOn && prioVal !== "Express") {
+          expressErrMsg = `Checkbox EXPRESS jest zaznaczony, ale w polu „Realizacja” wybrano „${prioVal}”. Ustaw Realizacja = Express albo odznacz checkbox EXPRESS.`;
+        } else if (!cbOn && prioVal === "Express") {
+          expressErrMsg = `W polu „Realizacja” wybrano Express, ale checkbox EXPRESS jest wyłączony. Zaznacz checkbox EXPRESS albo zmień Realizacja na Normalny.`;
+        } else if (cartHasExpress && prioVal !== "Express") {
+          expressErrMsg = `Pozycje w koszyku są oznaczone EXPRESS, ale w polu „Realizacja” wybrano „${prioVal}”. Odznacz EXPRESS i dodaj pozycje ponownie albo ustaw Realizacja = Express.`;
+        } else {
+          expressErrMsg = `Tryb EXPRESS jest niespójny (checkbox =${cbOn ? "TAK" : "NIE"}, Realizacja =${prioVal}, koszyk =${cartHasExpress ? "EXPRESS" : "normalny"}). Odśwież stronę i spróbuj ponownie.`;
+        }
+        showToast(expressErrMsg, "error");
         resetSending();
         return;
       }
