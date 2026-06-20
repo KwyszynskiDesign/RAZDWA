@@ -165,7 +165,7 @@ export const FoliaSzronionaView: View = {
 
           lines.push({ label: "Łącznie", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
           if (breakdownDisplay) renderBreakdownRows(breakdownDisplay, lines);
-          addToCartBtn.disabled = false;
+          addToCartBtn.disabled = result.tierPrice <= 0;
           ctx.updateLastCalculated(result.totalPrice, "Folia szroniona / OWV");
       }
 

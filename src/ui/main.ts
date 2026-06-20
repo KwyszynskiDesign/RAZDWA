@@ -684,7 +684,6 @@ function setupFormValidation(): void {
     const validate = (v: string) => {
       if (!v) return null;
       if (v.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
-      if (!isValidNIP(v)) return 'NIP jest nieprawidłowy (błędna suma kontrolna)';
       return null;
     };
 
@@ -1400,7 +1399,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
         showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
         showInlineErr("custPhone", !isValidPhone(phoneVal) ? "Podaj numer telefonu (9 cyfr, opcjonalnie z +48)" : null) ??
-        showInlineErr("custNip", nipDigits.length > 0 && (nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : !isValidNIP(nipVal) ? "NIP jest nieprawidłowy (błędna suma kontrolna)" : null) || null) ??
+        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null) ??
         showInlineErr("custAddedBy", addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null);
       first?.focus();
       releaseGuard();

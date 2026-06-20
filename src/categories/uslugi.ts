@@ -168,7 +168,7 @@ function renderServiceItem(service: RenderedServiceItem, isTimeBased: boolean): 
   const servicePrice = typeof service.price === "number" ? service.price : 0;
   const priceDisplay = typeof service.price === "number" ? `${servicePrice.toFixed(2)} zł` : "—";
   const priceTextColor = typeof service.price === "number" ? "#0066cc" : "#9aa7b2";
-  const addDisabled = typeof service.price !== "number";
+  const addDisabled = !(typeof service.price === "number" && service.price > 0);
 
   return `
     <div style="display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; column-gap: 6px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">

@@ -50,7 +50,6 @@ export function validateCustomerForm(data: CustomerFormData): string | null {
   if (data.nip) {
     const nipDigits = data.nip.replace(/\D/g, '');
     if (nipDigits.length !== 10) return "NIP musi zawierać dokładnie 10 cyfr.";
-    if (!isValidNIP(data.nip)) return "NIP jest nieprawidłowy (błędna suma kontrolna).";
   }
   return null;
 }
