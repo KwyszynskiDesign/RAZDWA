@@ -421,7 +421,7 @@ export async function sendOrderToAppsScript(
       },
       body: JSON.stringify(compactPayload),
       signal: controller.signal,
-    });
+    }, 0);
 
     const responseBody = await readAppsScriptBody(response);
     return evaluateGasResult(responseBody, response.status, response.ok, "Zamówienie zapisane w arkuszu.");
