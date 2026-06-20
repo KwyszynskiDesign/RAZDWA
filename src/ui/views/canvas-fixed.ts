@@ -199,6 +199,11 @@ export const CanvasView: View = {
     modeSel.onchange = syncModeUI;
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
+    addBtn.addEventListener('pointerdown', () => {
+      if (addBtn.disabled && !modeSel.value) {
+        ctx.showToast?.('Wybierz tryb przed dodaniem do koszyka.', 'error');
+      }
+    });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 

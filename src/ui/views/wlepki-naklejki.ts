@@ -448,6 +448,15 @@ export const WlepkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
+    addBtn.addEventListener('pointerdown', () => {
+      if (!addBtn.disabled) return;
+      const mode = modeSelect.value === 'szt' ? 'szt' : 'm2';
+      if (mode === 'szt' && !pieceTableSelect.value) {
+        ctx.showToast?.('Wybierz rozmiar naklejki przed dodaniem do koszyka.', 'error');
+      } else if (mode === 'm2' && !groupSelect.value) {
+        ctx.showToast?.('Wybierz rodzaj folii przed dodaniem do koszyka.', 'error');
+      }
+    });
     pieceTableSelect.addEventListener("change", renderDynamicLegend);
     modeSelect.addEventListener("change", renderDynamicLegend);
     renderDynamicLegend();

@@ -214,6 +214,11 @@ export const UlotkiCyfroweView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && (!formatSelect.value || !qtySelect.value)) {
+        ctx.showToast?.('Wybierz format i nakład przed dodaniem do koszyka.', 'error');
+      }
+    });
     [formatSelect, qtySelect, paperSelect, ...sidesInputs].forEach((el) => {
       el.addEventListener("change", populateTables);
     });

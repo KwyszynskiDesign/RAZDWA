@@ -3586,6 +3586,50 @@ a.employee-mode-btn {
   color: var(--text-primary);
   white-space: nowrap;
 }
+.big-order-confirm {
+  align-items: flex-start;
+}
+.big-order-confirm .clear-confirm__msg {
+  white-space: normal;
+  flex: 1;
+  min-width: 0;
+}
+.big-order-items {
+  margin-top: 6px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.big-order-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  opacity: 0.88;
+}
+.big-order-item--more {
+  opacity: 0.55;
+  font-style: italic;
+  justify-content: flex-start;
+}
+.actions-divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px 0 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary, #94a3b8);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.actions-divider::before,
+.actions-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
 .clear-confirm__actions {
   display: flex;
   gap: 8px;

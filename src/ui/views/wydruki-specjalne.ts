@@ -280,6 +280,11 @@ export const WydrukiSpecjalneView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [specialAddBtn] });
+    specialAddBtn?.addEventListener('pointerdown', () => {
+      if (specialAddBtn.disabled && !specialVariant?.value) {
+        ctx.showToast?.('Wybierz rodzaj przed dodaniem do koszyka.', 'error');
+      }
+    });
     specialVariant?.addEventListener("change", updateVariantUI);
     updateVariantUI();
     updateLegends();

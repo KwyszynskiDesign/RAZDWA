@@ -302,6 +302,11 @@ export const WizytowkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
+    addToCartBtn?.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && !familySelect?.value) {
+        ctx.showToast?.('Wybierz rodzaj wizytówki przed dodaniem do koszyka.', 'error');
+      }
+    });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 

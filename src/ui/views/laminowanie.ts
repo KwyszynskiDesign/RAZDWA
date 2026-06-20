@@ -1281,6 +1281,21 @@ export const LaminowanieView: View = {
     };
 
     autoCalc({ root: container, calc: recalcAll, cancelOn: [addToCartBtn, bindAddBtn, oprAddBtn, introAddBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && !formatSelect.value) {
+        ctx.showToast?.('Wybierz format laminowania przed dodaniem do koszyka.', 'error');
+      }
+    });
+    oprAddBtn?.addEventListener('pointerdown', () => {
+      if (oprAddBtn.disabled && !oprType?.value) {
+        ctx.showToast?.('Wybierz rodzaj oprawy przed dodaniem do koszyka.', 'error');
+      }
+    });
+    introAddBtn?.addEventListener('pointerdown', () => {
+      if (introAddBtn.disabled && !introService?.value) {
+        ctx.showToast?.('Wybierz usługę introligatorni przed dodaniem do koszyka.', 'error');
+      }
+    });
     ctx?.on?.("prices-updated", () => { ensureLegend(getActiveTab()); recalcAll(); });
 
   }

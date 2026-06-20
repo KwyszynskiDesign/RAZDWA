@@ -158,6 +158,11 @@ export const RollUpView: View = {
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && (!typeSel.value || !formatSel.value)) {
+        ctx.showToast?.('Wybierz rodzaj i format przed dodaniem do koszyka.', 'error');
+      }
+    });
 
     ctx?.on?.("prices-updated", () => {
       updateLegend();

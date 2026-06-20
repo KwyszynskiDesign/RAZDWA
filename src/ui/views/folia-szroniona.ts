@@ -175,6 +175,11 @@ export const FoliaSzronionaView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && !serviceSelect.value) {
+        ctx.showToast?.('Wybierz usługę przed dodaniem do koszyka.', 'error');
+      }
+    });
     ensureLegend();
     serviceSelect.addEventListener("change", ensureLegend);
     ctx?.on?.("prices-updated", () => {

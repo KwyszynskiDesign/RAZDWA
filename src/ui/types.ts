@@ -9,6 +9,7 @@ export interface ViewContext {
   updateLastCalculated: (price: number, hint?: string) => void;
   on?: (event: string, callback: (data?: any) => void) => void;
   emit?: (event: string, data?: any) => void;
+  showToast?: (msg: string, type?: string) => void;
 }
 
 export interface View {

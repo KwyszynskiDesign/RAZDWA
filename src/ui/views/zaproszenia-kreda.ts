@@ -248,6 +248,11 @@ export const ZaproszeniaKredaView: View = {
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && (!formatSel.value || !paperSel.value)) {
+        ctx.showToast?.('Wybierz format i papier przed dodaniem do koszyka.', 'error');
+      }
+    });
     updateLegend();
     ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
 

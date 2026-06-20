@@ -116,6 +116,11 @@ export const SolwentPlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
+    addToCartBtn.addEventListener('pointerdown', () => {
+      if (addToCartBtn.disabled && !materialSelect.value) {
+        ctx.showToast?.('Wybierz materiał przed dodaniem do koszyka.', 'error');
+      }
+    });
     ensureLegend();
 
     materialSelect.addEventListener("change", ensureLegend);

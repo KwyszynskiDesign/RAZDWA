@@ -901,6 +901,9 @@ document.addEventListener("DOMContentLoaded", () => {
     },
     emit: (event, data) => {
       eventEmitter.emit(event, data);
+    },
+    showToast: (msg, type) => {
+      showToast(msg, (type ?? 'error') as any);
     }
   });
 
@@ -1294,17 +1297,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  const confirmBigOrder = (totalPln: number, itemsCount: number, cust: CustomerData): Promise<boolean> => {
+  const confirmBigOrder = (totalPln: number, itemsCount: number, cust: CustomerData, items: CartItem[]): Promise<boolean> => {
     return new Promise(resolve => {
       const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
       if (!host) { resolve(true); return; }
       if (host.querySelector(".big-order-confirm")) { resolve(false); return; }
       const priorityBadge = cust.priority === "Express" ? " · ⚡ EXPRESS" : "";
       const phoneHint = cust.phone ? ` · ${escapeHtml(cust.phone)}` : "";
+      const MAX = 5;
+      const shown = items.slice(0, MAX);
+      const extra = items.length - shown.length;
+      const itemsHtml = shown.map(i => {
+        const label = escapeHtml(i.name.length > 38 ? i.name.slice(0, 38) + '…' : i.name);
+        return `<div class="big-order-item"><span>${label}</span><span>${formatPLN(i.totalPrice)}</span></div>`;
+      }).join('') + (extra > 0 ? `<div class="big-order-item big-order-item--more">i ${extra} więcej…</div>` : '');
       const dialog = document.createElement("div");
       dialog.className = "clear-confirm big-order-confirm";
       dialog.innerHTML = `
-        <span class="clear-confirm__msg">Duże zamówienie: <strong>${formatPLN(totalPln)}</strong>, ${itemsCount} poz.${priorityBadge}<br><span style="font-size:0.88em;opacity:0.85;">${escapeHtml(cust.name)}${phoneHint}</span></span>
+        <span class="clear-confirm__msg">Duże zamówienie: <strong>${formatPLN(totalPln)}</strong>, ${itemsCount} poz.${priorityBadge}<br><span style="font-size:0.88em;opacity:0.75;">${escapeHtml(cust.name)}${phoneHint}</span><div class="big-order-items">${itemsHtml}</div></span>
         <div class="clear-confirm__actions">
           <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
           <button type="button" class="clear-confirm__ok danger">Wyślij</button>
@@ -1498,7 +1508,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (provisionalTotal >= BIG_ORDER_TOTAL_PLN || items.length >= BIG_ORDER_ITEMS) &&
         bigOrderConfirmedFor !== payload.requestId;
       if (needsBigConfirm) {
-        const ok = await confirmBigOrder(provisionalTotal, items.length, customer);
+        const ok = await confirmBigOrder(provisionalTotal, items.length, customer, items);
         if (!ok) {
           resetSending();
           return;
