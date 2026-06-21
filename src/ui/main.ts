@@ -828,7 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const u = Number(unitPrice);
     const t = Number(totalPrice);
     if (!Number.isFinite(u) || !Number.isFinite(t)) return false;
-    if (u < 0) return false;
+    if (u <= 0) return false;
     if (t <= 0) return false;
     if (t > MAX_ITEM_PRICE_PLN) return false;
     return true;
