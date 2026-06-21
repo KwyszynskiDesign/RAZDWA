@@ -18,7 +18,7 @@ export function normalizePhoneDigits(phone: string): string {
 }
 
 export function validateNIPDigits(digits: string): string | null {
-  if (digits.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
+  if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
   const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
   const sum = weights.reduce((acc, w, i) => acc + w * parseInt(digits[i], 10), 0);
   const check = sum % 11;
@@ -49,7 +49,7 @@ export function validateCustomerForm(data: CustomerFormData): string | null {
   if (!isValidPhone(data.phone)) return "Numer telefonu musi mieć 9 cyfr (krajowy, opcjonalnie z prefiksem +48).";
   if (data.nip) {
     const nipDigits = data.nip.replace(/\D/g, '');
-    if (nipDigits.length !== 10) return "NIP musi zawierać dokładnie 10 cyfr.";
+    if (nipDigits.length !== 10) return "NIP musi zawierać 10 cyfr";
   }
   return null;
 }

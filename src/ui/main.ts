@@ -680,10 +680,18 @@ function setupFormValidation(): void {
   }
 
   if (nipEl && nipErr) {
-    const normalizeNip = (v: string) => v.replace(/\D/g, '').slice(0, 10);
+    const formatNip = (digits: string): string => {
+      const d = digits.slice(0, 10);
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
+      if (d.length <= 8) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+      return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`;
+    };
+    const normalizeNip = (v: string): string => formatNip(v.replace(/\D/g, ''));
     const validate = (v: string) => {
-      if (!v) return null;
-      if (v.length !== 10) return 'NIP musi mieć dokładnie 10 cyfr';
+      const digits = v.replace(/\D/g, '');
+      if (!digits) return null;
+      if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
       return null;
     };
 
@@ -721,11 +729,11 @@ function saveCustomerDraft(): void {
   } catch {}
 }
 
-function restoreCustomerDraft(): void {
+function restoreCustomerDraft(): number | false | null {
   try {
     const raw = localStorage.getItem(customerDraftKey());
-    if (!raw) return;
-    const parsed = JSON.parse(raw) as { fields?: Record<string, string> } | Record<string, string>;
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { fields?: Record<string, string>; savedAt?: number } | Record<string, string>;
     const fields = (parsed && typeof parsed === "object" && "fields" in parsed && (parsed as { fields?: Record<string, string> }).fields)
       ? (parsed as { fields: Record<string, string> }).fields
       : (parsed as Record<string, string>);
@@ -733,11 +741,30 @@ function restoreCustomerDraft(): void {
       const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
       if (el && id in fields) el.value = fields[id];
     }
+    const savedAt = (parsed && typeof parsed === "object" && "savedAt" in parsed)
+      ? (parsed as { savedAt?: number }).savedAt
+      : undefined;
+    return typeof savedAt === "number" ? savedAt : false;
   } catch {}
+  return null;
 }
 
 function clearCustomerDraft(): void {
   clearDraftSession();
+}
+
+function updateDraftStatus(savedAt: number | false | null): void {
+  const el = document.getElementById("customer-restore-status") as HTMLElement | null;
+  if (!el) return;
+  if (savedAt === null) { el.style.display = "none"; return; }
+  if (savedAt === false) {
+    el.innerHTML = `Przywrócono ostatnio wpisane dane`;
+  } else {
+    const d = new Date(savedAt);
+    const formatted = d.toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    el.innerHTML = `Przywrócono ostatnio wpisane dane — <span style="opacity:0.8;">${formatted}</span>`;
+  }
+  el.style.display = "block";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -1105,7 +1132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
-      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
+      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(/\D/g, '') || undefined,
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
@@ -1411,7 +1438,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
         showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
         showInlineErr("custPhone", !isValidPhone(phoneVal) ? "Podaj numer telefonu (9 cyfr, opcjonalnie z +48)" : null) ??
-        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi mieć dokładnie 10 cyfr" : null) ??
+        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi zawierać 10 cyfr" : null) ??
         showInlineErr("custAddedBy", addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null);
       first?.focus();
       releaseGuard();
@@ -1429,7 +1456,7 @@ document.addEventListener("DOMContentLoaded", () => {
       addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
-      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() || undefined,
+      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(/\D/g, '') || undefined,
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
@@ -1558,6 +1585,7 @@ document.addEventListener("DOMContentLoaded", () => {
             total: payload.summary.total,
           });
           clearCustomerDraft();
+          updateDraftStatus(null);
           const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
           clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
           clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
@@ -1805,7 +1833,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCartUI();
   setupFormValidation();
 
-  restoreCustomerDraft();
+  updateDraftStatus(restoreCustomerDraft());
   const restoredPriorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
   if (restoredPriorityEl) {
     setExpressMode(restoredPriorityEl.value === "Express", "init");
