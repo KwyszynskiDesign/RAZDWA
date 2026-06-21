@@ -1596,7 +1596,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return;
         }
 
-        unverifiedSend = false;
+        unverifiedSend = result.errorType === 'timeout';
         if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
         applySendPhase('error', { requestId: payload.requestId, message: result.message, errorType: result.errorType });
       } catch (error) {
