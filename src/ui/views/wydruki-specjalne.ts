@@ -233,7 +233,7 @@ export const WydrukiSpecjalneView: View = {
       if (specialTotalPrice) specialTotalPrice.innerText = formatPLN(result.totalPrice);
       if (specialExpressHint) specialExpressHint.style.display = ctx.expressMode ? "block" : "none";
       if (specialResultArea) specialResultArea.style.display = "block";
-      if (specialAddBtn) specialAddBtn.disabled = result.totalPrice === 0;
+      if (specialAddBtn) specialAddBtn.disabled = result.totalPrice <= 0;
 
       ctx.updateLastCalculated(result.totalPrice, "Wydruki specjalne");
     };

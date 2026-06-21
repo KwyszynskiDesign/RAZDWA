@@ -557,7 +557,7 @@ export const LaminowanieView: View = {
         }
         
         if (resultDisplay) resultDisplay.style.display = "block";
-        addToCartBtn.disabled = false;
+        addToCartBtn.disabled = result.totalPrice <= 0;
 
         ctx.updateLastCalculated(result.totalPrice, "Introligatornia - laminowanie");
     };
@@ -660,7 +660,7 @@ export const LaminowanieView: View = {
       if (bindTotalPrice) bindTotalPrice.innerText = formatPLN(total);
       if (bindTierHint) bindTierHint.innerText = `Liczone: ${qty} szt. × ${formatPLN(unitPrice)}${ctx.expressMode ? " + EXPRESS 20%" : ""}.`;
       if (bindResult) bindResult.style.display = "block";
-      if (bindAddBtn) bindAddBtn.disabled = false;
+      if (bindAddBtn) bindAddBtn.disabled = total <= 0;
 
       renderCalcBreakdown("Bindowanie", [
         `Typ: ${type} / ${subtype}`,
@@ -1004,7 +1004,7 @@ export const LaminowanieView: View = {
       }
       if (oprExpressHint) oprExpressHint.style.display = ctx.expressMode ? "block" : "none";
       if (oprResult) oprResult.style.display = "block";
-      if (oprAddBtn) oprAddBtn.disabled = false;
+      if (oprAddBtn) oprAddBtn.disabled = total <= 0;
 
       const typeLabel = type === "skrecana"
         ? "skręcana"
@@ -1220,7 +1220,7 @@ export const LaminowanieView: View = {
       if (introUnitPrice) introUnitPrice.innerText = formatPLN(result.totalPrice / result.qty);
       if (introTierHint) introTierHint.innerText = `Liczone: ${result.qty} operacji × ${formatPLN(result.totalPrice / result.qty)}.`;
       if (introExpressHint) introExpressHint.style.display = "none";
-      if (introAddBtn) introAddBtn.disabled = false;
+      if (introAddBtn) introAddBtn.disabled = result.totalPrice <= 0;
 
       const unitPrice = parseFloat((result.totalPrice / result.qty).toFixed(2));
       if (introBreakdown && introBreakdownLines) {

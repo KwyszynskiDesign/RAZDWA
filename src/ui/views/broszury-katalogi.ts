@@ -178,7 +178,7 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
     renderBreakdownRows(breakdownLines, lines);
     breakdownDisplay.style.display = "block";
     resultDisplay.style.display = "block";
-    addToCartBtn.disabled = unitPrice === 0;
+    addToCartBtn.disabled = unitPrice <= 0;
 
     ctx.updateLastCalculated(totalPrice, "Broszury i katalogi");
   };

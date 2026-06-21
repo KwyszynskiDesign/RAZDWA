@@ -158,7 +158,7 @@ export const WycinanieFoliiView: View = {
         breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${formatPLN(appliedRate)}/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
       }
       if (resultEl) resultEl.style.display = "block";
-      addBtn.disabled = false;
+      addBtn.disabled = result.totalPrice <= 0;
 
       currentOptions = {
         ...options,
