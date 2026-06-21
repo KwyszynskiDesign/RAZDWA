@@ -213,7 +213,7 @@ export const WizytowkiView: View = {
           unit: "szt",
           unitPrice,
           isExpress: false,
-          totalPrice: unitPrice * qty,
+          totalPrice: parseFloat((unitPrice * qty).toFixed(2)),
           optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
           payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
         });
