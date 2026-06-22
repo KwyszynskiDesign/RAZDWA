@@ -31,6 +31,9 @@
 4. Backend / automatyzacja przetwarza żądanie.
 5. Wynik wraca do UI lub kolejnej usługi.
 
+## Endpoint Google Apps Script (source of truth)
+Endpoint backendu GAS jest konfiguracją **build-time**, nie runtime. Flow: GitHub Secret `GOOGLE_APPS_SCRIPT_URL` → esbuild `define` (`scripts/build.mjs`) → stała `CURRENT_APPS_SCRIPT_URL` w `orderExportService.ts` → zapieczona w bundlu `docs/assets/app.js`. Runtime override w localStorage (`razdwa_order_export_config`) istnieje i jest walidowany (`isValidGasUrl`: `https://script.google.com/.../exec`), lecz nie jest podłączony do UI — panel Ustawień nie ustawia URL.
+
 ## Granice odpowiedzialności
 - UI odpowiada za prezentację.
 - Logika odpowiada za reguły biznesowe.
