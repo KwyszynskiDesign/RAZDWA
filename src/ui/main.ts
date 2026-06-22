@@ -85,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606221027';
+;(window as any).__APP_BUILD__ = '202606221400';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -254,7 +254,7 @@ function toPdfSafeText(value: string): string {
     .trim();
 }
 
-const DEJAVU_CDN = "https://cdn.jsdelivr.net/npm/dejavu-fonts-ttf@2.37.3/ttf/";
+const DEJAVU_FONT_BASE = "assets/fonts/";
 
 interface OrderPdfSummary {
   baseTotal: number;
@@ -274,8 +274,8 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
   try {
     pdf.registerFontkit(fontkit);
     const [regularBuf, boldBuf] = await Promise.all([
-      fetch(DEJAVU_CDN + "DejaVuSans.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-      fetch(DEJAVU_CDN + "DejaVuSans-Bold.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+      fetch(DEJAVU_FONT_BASE + "DejaVuSans.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+      fetch(DEJAVU_FONT_BASE + "DejaVuSans-Bold.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
     ]);
     fontRegular = await pdf.embedFont(regularBuf);
     fontBold = await pdf.embedFont(boldBuf);
