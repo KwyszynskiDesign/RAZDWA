@@ -19,24 +19,8 @@ async function loadCadExtraOptions(): Promise<any[]> {
 
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
-
-async function ensurePdfJs(): Promise<void> {
-  if ((window as any).pdfjsLib) return;
-  await new Promise<void>((resolve, reject) => {
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
-    script.integrity = 'sha384-/1qUCSGwTur9vjf/z9lmu/eCUYbpOTgSjmpbMQZ1/CtX2v/WcAIKqRv+U1DUCG6e';
-    script.crossOrigin = 'anonymous';
-    script.referrerPolicy = 'no-referrer';
-    script.onload = () => {
-      const lib = (window as any).pdfjsLib;
-      if (lib) lib.GlobalWorkerOptions.workerSrc = './js/pdf.worker.min.js';
-      resolve();
-    };
-    script.onerror = () => reject(new Error('PDF.js load failed'));
-    document.head.appendChild(script);
-  });
-}
+const MAX_CAD_FILE_MB = 25;
+const MAX_CAD_FILE_BYTES = MAX_CAD_FILE_MB * 1024 * 1024;
 
 export const CadUploadView: View = {
   id: "cad-upload",
@@ -44,7 +28,6 @@ export const CadUploadView: View = {
 
   async mount(container: HTMLElement, ctx: ViewContext) {
     try {
-      await ensurePdfJs();
       const response = await fetch("categories/cad-upload.html");
       if (!response.ok) throw new Error("Failed to load template");
       container.innerHTML = await response.text();
@@ -369,11 +352,23 @@ export const CadUploadView: View = {
       }
 
       const incoming = Array.from(fileList);
-      const accepted = incoming.slice(0, remainingSlots);
-      const skipped = incoming.length - accepted.length;
+      const withinSize = incoming.filter((file) => file.size <= MAX_CAD_FILE_BYTES);
+      const oversized = incoming.length - withinSize.length;
 
-      if (skipped > 0) {
-        showStatus(`Dodano ${accepted.length} plików. Pominięto ${skipped} (limit ${MAX_CAD_FILES}).`, true);
+      const accepted = withinSize.slice(0, remainingSlots);
+      const skippedLimit = withinSize.length - accepted.length;
+
+      const messages: string[] = [];
+      messages.push(`Dodano ${accepted.length} plików.`);
+      if (oversized > 0) {
+        messages.push(`Pominięto ${oversized} (> ${MAX_CAD_FILE_MB} MB).`);
+      }
+      if (skippedLimit > 0) {
+        messages.push(`Pominięto ${skippedLimit} (limit ${MAX_CAD_FILES}).`);
+      }
+
+      if (oversized > 0 || skippedLimit > 0) {
+        showStatus(messages.join(" "), true);
       } else {
         showStatus("");
       }
