@@ -19,8 +19,10 @@ async function loadCadExtraOptions(): Promise<any[]> {
 
 const MAX_CAD_FILES = 50;
 const CAD_UPLOAD_CONCURRENCY = 4;
-const MAX_CAD_FILE_MB = 25;
-const MAX_CAD_FILE_BYTES = MAX_CAD_FILE_MB * 1024 * 1024;
+const CAD_FILE_WARN_MB = 25;
+const CAD_FILE_HARD_MB = 80;
+const CAD_FILE_WARN_BYTES = CAD_FILE_WARN_MB * 1024 * 1024;
+const CAD_FILE_HARD_BYTES = CAD_FILE_HARD_MB * 1024 * 1024;
 
 export const CadUploadView: View = {
   id: "cad-upload",
@@ -352,22 +354,26 @@ export const CadUploadView: View = {
       }
 
       const incoming = Array.from(fileList);
-      const withinSize = incoming.filter((file) => file.size <= MAX_CAD_FILE_BYTES);
+      const withinSize = incoming.filter((file) => file.size <= CAD_FILE_HARD_BYTES);
       const oversized = incoming.length - withinSize.length;
 
       const accepted = withinSize.slice(0, remainingSlots);
       const skippedLimit = withinSize.length - accepted.length;
+      const heavy = accepted.filter((file) => file.size > CAD_FILE_WARN_BYTES).length;
 
       const messages: string[] = [];
       messages.push(`Dodano ${accepted.length} plików.`);
       if (oversized > 0) {
-        messages.push(`Pominięto ${oversized} (> ${MAX_CAD_FILE_MB} MB).`);
+        messages.push(`Pominięto ${oversized} (> ${CAD_FILE_HARD_MB} MB).`);
       }
       if (skippedLimit > 0) {
         messages.push(`Pominięto ${skippedLimit} (limit ${MAX_CAD_FILES}).`);
       }
+      if (heavy > 0) {
+        messages.push(`${heavy} ciężkich (${CAD_FILE_WARN_MB}–${CAD_FILE_HARD_MB} MB) – przetwarzanie może potrwać dłużej.`);
+      }
 
-      if (oversized > 0 || skippedLimit > 0) {
+      if (oversized > 0 || skippedLimit > 0 || heavy > 0) {
         showStatus(messages.join(" "), true);
       } else {
         showStatus("");
