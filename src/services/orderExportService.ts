@@ -241,7 +241,7 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     "Ilosc sztuk": qtyStr,
     "Cena za sztukę": unitPriceStr,
     "Uwagi": notes,
-    "Suma (PLN)": totalSum,
+    "Suma (PLN)": Number(totalSum),
     "Priorytet": String(payload.customer.priority ?? ""),
     "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
     "RequestID": payload.requestId ?? "",
