@@ -13,6 +13,11 @@ export interface OrderExportConfig {
 
 const CURRENT_APPS_SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL ?? "";
 
+export function isValidGasUrl(url: unknown): boolean {
+  const s = String(url ?? "").trim();
+  return s.startsWith("https://script.google.com/") && s.endsWith("/exec");
+}
+
 export interface OrderExportPayload {
   source: "razdwa-web";
   createdAt: string;
@@ -250,7 +255,8 @@ export function getOrderExportConfig(): OrderExportConfig {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
     const parsedUrl = String(parsed.appsScriptUrl ?? "").trim();
-    const migratedUrl = parsedUrl || CURRENT_APPS_SCRIPT_URL;
+    // Zły/stale URL z localStorage ignorujemy i wracamy do build-time source of truth.
+    const migratedUrl = isValidGasUrl(parsedUrl) ? parsedUrl : CURRENT_APPS_SCRIPT_URL;
 
     return {
       appsScriptUrl: migratedUrl,
@@ -264,10 +270,20 @@ export function getOrderExportConfig(): OrderExportConfig {
 }
 
 export function setOrderExportConfig(config: Partial<OrderExportConfig>): OrderExportConfig {
+  const current = getOrderExportConfig();
+  const requestedUrl = config.appsScriptUrl !== undefined
+    ? String(config.appsScriptUrl ?? "").trim()
+    : current.appsScriptUrl;
+  // Override URL akceptujemy tylko gdy poprawny; w innym wypadku trzymamy build-time / poprzedni.
+  const nextUrl = isValidGasUrl(requestedUrl) ? requestedUrl : current.appsScriptUrl;
+  if (config.appsScriptUrl !== undefined && requestedUrl && !isValidGasUrl(requestedUrl)) {
+    console.error(`[orderExport] Odrzucono niepoprawny appsScriptUrl="${requestedUrl}" — wymagany https://script.google.com/.../exec.`);
+  }
+
   const merged: OrderExportConfig = {
-    ...getOrderExportConfig(),
+    ...current,
     ...config,
-    appsScriptUrl: String(config.appsScriptUrl ?? getOrderExportConfig().appsScriptUrl ?? "").trim(),
+    appsScriptUrl: nextUrl,
   };
 
   try {
