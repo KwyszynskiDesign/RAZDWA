@@ -1,6 +1,7 @@
 import { View, ViewContext } from "./types";
 import { VIPERPRINT_URL } from "../core/external-links";
 import { verifyPinOnServer } from "../services/orderExportService";
+import { isAdminSession, setAdminSession } from "../core/adminSession";
 
 export interface CategoryContext extends ViewContext {
   cart: {
@@ -23,11 +24,10 @@ export class Router {
   private getCtx: () => ViewContext;
   private categories: any[] = [];
   private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
-  private readonly SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
   private previousHash: string = "#/";
 
   private isSettingsAuthenticated(): boolean {
-    return sessionStorage.getItem(this.SETTINGS_AUTH_KEY) === '1';
+    return isAdminSession();
   }
 
   private async mountSettingsView(): Promise<void> {
@@ -51,8 +51,7 @@ export class Router {
     const status = await verifyPinOnServer();
 
     if (status.ok && status.firstRun) {
-      sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
-      if (status.token) sessionStorage.setItem('adminSessionToken', status.token);
+      setAdminSession(status.token);
       await this.mountSettingsView();
       return;
     }
@@ -109,8 +108,7 @@ export class Router {
       if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Zatwierdź'; }
 
       if (result.ok) {
-        sessionStorage.setItem(this.SETTINGS_AUTH_KEY, '1');
-        if (result.token) sessionStorage.setItem('adminSessionToken', result.token);
+        setAdminSession(result.token);
         if (pinInput) pinInput.value = '';
         await this.mountSettingsView();
         return;

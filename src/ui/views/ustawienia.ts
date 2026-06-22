@@ -6,6 +6,7 @@ import {
   findOrCreateCategory,
 } from "../../core/productCat";
 import { logVariantOperation } from "../../core/variantLogger";
+import { clearAdminSession } from "../../core/adminSession";
 import {
   buildUniquePriceKey,
   buildUniqueQuantityKey,
@@ -2853,6 +2854,7 @@ export const UstawieniaView: View = {
             <span class="settings-sync-mini-status settings-sync-mini-status--${_hSyncStatus.code}">${_hSyncIcons[_hSyncStatus.code]} ${escapeHtml(_hSyncStatus.message)}</span>
             <span class="settings-sync-mini-ts">Sync: <strong>${escapeHtml(_hLastSync)}</strong></span>
             <button id="settings-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>
+            <button id="settings-btn-logout" type="button" class="btn-secondary idb-sync-btn">🔒 Wyloguj</button>
             <span id="settings-sync-msg" class="settings-sync-mini-msg" style="display:none"></span>
           </div>
         </div>
@@ -2972,6 +2974,12 @@ export const UstawieniaView: View = {
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
     container.appendChild(scrollTopButton);
+
+    const _settingsLogoutBtn = container.querySelector<HTMLButtonElement>("#settings-btn-logout");
+    _settingsLogoutBtn?.addEventListener("click", () => {
+      clearAdminSession();
+      window.location.hash = "#/";
+    });
 
     const _settingsPullBtn = container.querySelector<HTMLButtonElement>("#settings-btn-pull");
     const _settingsSyncMsg = container.querySelector<HTMLElement>("#settings-sync-msg");
