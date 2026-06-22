@@ -1,29 +1,13 @@
-/**
- * RAZDWA Service Worker v2
- * Features:
- * - Automatic CACHE_VERSION injection via prebuild script
- * - Install: skip precaching (avoid fetch errors), use on-demand caching
- * - Activate: cleanup of old caches, immediate control claim
- * - Fetch: NetworkFirst (HTML), CacheFirst (static)
- */
+var CACHE_VERSION = 'razdwa-v202606220812';
 
-var CACHE_VERSION = 'razdwa-v202606220737'; // Injected by prebuild script
-
-/**
- * Install Event: Skip precaching - use on-demand caching instead
- */
 self.addEventListener('install', function (event) {
   event.waitUntil(
-    Promise.resolve()
-      .then(function () {
-        return self.skipWaiting(); // Activate immediately
-      })
+    Promise.resolve().then(function () {
+      return self.skipWaiting();
+    })
   );
 });
 
-/**
- * Activate Event: Cleanup old caches and claim clients immediately
- */
 self.addEventListener('activate', function (event) {
   event.waitUntil(
     caches
@@ -35,7 +19,6 @@ self.addEventListener('activate', function (event) {
               return name !== CACHE_VERSION;
             })
             .map(function (name) {
-              console.log('Deleting old cache:', name);
               return caches.delete(name);
             })
         );
@@ -46,20 +29,10 @@ self.addEventListener('activate', function (event) {
   );
 });
 
-/**
- * Fetch Event: Different strategies by resource type
- * - HTML: NetworkFirst (freshness > offline)
- * - Static (CSS, JS, images): CacheFirst (performance)
- */
 self.addEventListener('fetch', function (event) {
   var request = event.request;
 
-  if (
-    !request ||
-    request.method !== 'GET' ||
-    !request.url ||
-    request.url.indexOf('http') !== 0
-  ) {
+  if (!request || request.method !== 'GET' || !request.url || request.url.indexOf('http') !== 0) {
     return;
   }
 
@@ -75,30 +48,21 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
-  if (
-    url.pathname.endsWith('.html') ||
-    url.pathname === '/' ||
-    url.pathname.endsWith('/RAZDWA/') ||
-    url.pathname.endsWith('/app.js')
-  ) {
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request)
         .then(function (response) {
-          if (response && response.status === 200) {
+          if (response && response.ok) {
             var clone = response.clone();
             caches.open(CACHE_VERSION).then(function (cache) {
-              cache.put(request, clone).catch(function (err) {
-                if (err && err.name === 'QuotaExceededError') {
-                  console.warn('[SW] Cache quota exceeded:', request.url, err.message);
-                }
-              });
+              cache.put(request, clone).catch(function () {});
             });
           }
           return response;
         })
         .catch(function () {
-          return caches.match(request).catch(function () {
-            return new Response('Offline - no cached version available', {
+          return caches.match(request).then(function (cached) {
+            return cached || new Response('Offline - no cached version available', {
               status: 503,
               statusText: 'Service Unavailable'
             });
@@ -108,84 +72,64 @@ self.addEventListener('fetch', function (event) {
     return;
   }
 
+  var isFont = request.destination === 'font' ||
+    request.url.endsWith('.ttf') ||
+    url.hostname === 'cdn.jsdelivr.net';
+
   if (
-    url.pathname.endsWith('.js') ||
-    url.pathname.endsWith('.css') ||
-    url.pathname.endsWith('.png') ||
-    url.pathname.endsWith('.jpg') ||
-    url.pathname.endsWith('.jpeg') ||
-    url.pathname.endsWith('.gif') ||
-    url.pathname.endsWith('.webp') ||
-    url.pathname.endsWith('.svg') ||
-    url.pathname.endsWith('.woff') ||
-    url.pathname.endsWith('.woff2') ||
-    url.pathname.endsWith('.ttf') ||
-    url.pathname.endsWith('.eot')
+    request.destination === 'script' ||
+    request.destination === 'style' ||
+    request.destination === 'image' ||
+    isFont
   ) {
     event.respondWith(
-      caches
-        .match(request)
-        .then(function (cached) {
-          if (cached) {
-            return cached;
-          }
-          return fetch(request)
-            .then(function (response) {
-              if (response && response.status === 200) {
-                var clone = response.clone();
-                caches.open(CACHE_VERSION).then(function (cache) {
-                  cache.put(request, clone).catch(function (err) {
-                    if (err && err.name === 'QuotaExceededError') {
-                      console.warn('[SW] Cache quota exceeded:', request.url, err.message);
-                    }
-                  });
-                });
-              }
-              return response;
-            })
-            .catch(function () {
-              return caches.match(request);
+      caches.match(request).then(function (cached) {
+        if (cached) {
+          return cached;
+        }
+
+        return fetch(request)
+          .then(function (response) {
+            if (response && response.ok) {
+              var clone = response.clone();
+              caches.open(CACHE_VERSION).then(function (cache) {
+                cache.put(request, clone).catch(function () {});
+              });
+            }
+            return response;
+          })
+          .catch(function () {
+            return caches.match(request);
+          });
+      })
+    );
+    return;
+  }
+
+  var pathname = url.pathname;
+  if (pathname.endsWith('.html') || pathname.endsWith('.json')) {
+    event.respondWith(
+      fetch(request)
+        .then(function (response) {
+          if (response && response.ok) {
+            var clone = response.clone();
+            caches.open(CACHE_VERSION).then(function (cache) {
+              cache.put(request, clone).catch(function () {});
             });
+          }
+          return response;
+        })
+        .catch(function () {
+          return caches.match(request).then(function (cached) {
+            return cached || new Response('Offline - no cached version available', {
+              status: 503,
+              statusText: 'Service Unavailable'
+            });
+          });
         })
     );
     return;
   }
 
-  event.respondWith(
-    fetch(request)
-      .then(function (response) {
-        if (response && response.status === 200) {
-          var clone = response.clone();
-          caches.open(CACHE_VERSION).then(function (cache) {
-            cache.put(request, clone).catch(function (err) {
-              if (err && err.name === 'QuotaExceededError') {
-                console.warn('[SW] Cache quota exceeded:', request.url, err.message);
-              }
-            });
-          });
-        }
-        return response;
-      })
-      .catch(function () {
-        return caches.match(request);
-      })
-  );
-});
-
-/**
- * Background Sync (optional) — prices-sync tag
- * Notifies open app windows to run pushPricesToGas().
- * App works correctly without Background Sync support.
- */
-self.addEventListener('sync', function (event) {
-  if (event.tag !== 'prices-sync') return;
-  event.waitUntil(
-    self.clients
-      .matchAll({ type: 'window', includeUncontrolled: false })
-      .then(function (clients) {
-        clients.forEach(function (client) {
-          client.postMessage({ type: 'prices-sync' });
-        });
-      })
-  );
+  return;
 });

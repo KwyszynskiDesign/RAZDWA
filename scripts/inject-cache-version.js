@@ -101,6 +101,33 @@ function injectCacheBusterVersion(filePath) {
   }
 }
 
+function injectAppBuildVersion(filePath) {
+  try {
+    if (!fs.existsSync(filePath)) {
+      console.warn(`⚠ File not found: ${filePath}`);
+      return;
+    }
+
+    const version = formatHtmlVersion();
+    let content = fs.readFileSync(filePath, 'utf8');
+    const regex = /(__APP_BUILD__\s*=\s*['"`])([\w.\-]*)(['"`])/;
+
+    if (!regex.test(content)) {
+      console.warn(`⚠ __APP_BUILD__ pattern not found in ${filePath}`);
+      return;
+    }
+
+    const newContent = content.replace(regex, `$1${version}$3`);
+    if (newContent !== content) {
+      fs.writeFileSync(filePath, newContent, 'utf8');
+      console.log(`✓ Updated __APP_BUILD__ → ${version}`);
+    }
+  } catch (error) {
+    console.error(`✗ Error processing ${filePath}:`, error.message);
+    process.exit(1);
+  }
+}
+
 const rootDir = path.join(__dirname, '..');
 const swFiles = [
   path.join(rootDir, 'sw.js'),
@@ -108,9 +135,11 @@ const swFiles = [
 ];
 const htmlFile = path.join(rootDir, 'docs', 'index.html');
 const cacheBusterFile = path.join(rootDir, 'docs', 'cache-buster.js');
+const mainTsFile = path.join(rootDir, 'src', 'ui', 'main.ts');
 
 console.log('Injecting cache version...');
 swFiles.forEach(injectVersion);
 injectHtmlVersion(htmlFile);
 injectCacheBusterVersion(cacheBusterFile);
+injectAppBuildVersion(mainTsFile);
 console.log('Done!\n');

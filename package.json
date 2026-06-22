@@ -11,7 +11,7 @@
   "scripts": {
     "prebuild": "node scripts/inject-cache-version.js",
     "build": "npm run prebuild && node scripts/build.mjs",
-    "build:commit": "npm run build && git add docs/assets/app.js docs/sw.js docs/cache-buster.js docs/index.html sw.js && git commit -m \"build: update app.js and service worker cache version\"",
+    "build:commit": "npm run build && git add docs/assets/app.js docs/sw.js docs/cache-buster.js docs/index.html sw.js src/ui/main.ts && git commit -m \"build: update app.js and service worker cache version\"",
     "push:main": "git pull --rebase origin main && git push origin main --force-with-lease",
     "sync": "npm run build:commit && npm run push:main",
     "deploy": "npm run sync",
