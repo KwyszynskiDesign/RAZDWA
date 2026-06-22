@@ -85,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606221400';
+;(window as any).__APP_BUILD__ = '202606221743';
 
 function escapeHtml(str: string): string {
   return String(str)
