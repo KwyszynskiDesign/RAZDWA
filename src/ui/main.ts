@@ -27,6 +27,7 @@ import { formatPLN } from "../core/money";
 import { EXPRESS_RATE, getExpressRate } from "../core/modifiers";
 import { Cart } from "../core/cart";
 import { customerDraftKey, touchDraftAlive, clearDraftSession } from "../core/draftSession";
+import { isAdminSession, clearAdminSession } from "../core/adminSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
 import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer, appendOrderHistory } from "../services/orderExportService";
@@ -84,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606220827';
+;(window as any).__APP_BUILD__ = '202606221022';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -97,7 +98,6 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
-const SETTINGS_AUTH_KEY = 'razdwa_pin_auth';
 try { localStorage.removeItem('razdwa_pin'); } catch {} // cleanup: PIN moved to server
 
 function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending"): HTMLElement | null {
@@ -1802,7 +1802,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const result = await removePinOnServer(current);
     if (pinRemoveBtn) { pinRemoveBtn.disabled = false; pinRemoveBtn.textContent = 'Usuń PIN'; }
     if (result.ok) {
-      sessionStorage.removeItem(SETTINGS_AUTH_KEY);
+      clearAdminSession();
       collapseChangeForms();
       if (pinMsg) { pinMsg.textContent = 'PIN usunięty.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
       pinIsSet = false;
@@ -1858,14 +1858,6 @@ document.addEventListener("DOMContentLoaded", () => {
       e.returnValue = "";
     }
   });
-
-  const isAdminSession = (): boolean => {
-    try {
-      return typeof sessionStorage !== "undefined" && !!sessionStorage.getItem("adminSessionToken")?.trim();
-    } catch {
-      return false;
-    }
-  };
 
   syncVariantsToSubgroupsAtStartup();
   runMigrationIfNeeded()
