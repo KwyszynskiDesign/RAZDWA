@@ -1,11 +1,11 @@
 {
-  "name": "Kalkulator Raz Druku Dwa",
+  "name": "Kalkulator Studio Druku Raz Dwa",
   "short_name": "RazDwa",
-  "description": "Kalkulator cen brutto dla Studio Raz Druku Dwa",
+  "description": "Kalkulator cen brutto dla Studio Druku Raz Dwa",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#1a1a1a",
-  "theme_color": "#ff3c00",
+  "theme_color": "#004080",
   "icons": [
     {
       "src": "profilowe/icon-192x192.png",
