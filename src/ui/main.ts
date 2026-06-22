@@ -834,8 +834,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return true;
   }
 
-  function rejectInvalidItemPrice(): void {
-    showToast("Nieprawidłowa cena pozycji — sprawdź konfigurację cennika.", "error");
+  function rejectInvalidItemPrice(category?: string): void {
+    const msg = category
+      ? `Nieprawidłowa cena pozycji: ${category} — sprawdź konfigurację cennika.`
+      : "Nieprawidłowa cena pozycji — sprawdź konfigurację cennika.";
+    showToast(msg, "error");
   }
 
   // Handle old razdwa:addToCart event from legacy JS categories
@@ -864,7 +867,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
-      rejectInvalidItemPrice();
+      rejectInvalidItemPrice(cartItem.category);
       return;
     }
 
@@ -885,7 +888,7 @@ document.addEventListener("DOMContentLoaded", () => {
               ? { ...item, baseUnitPrice: item.unitPrice, baseTotalPrice: item.totalPrice, optionsHint: normalizeExpressHint(item.optionsHint, false) }
               : item);
         if (!isAcceptableItemPrice(enriched.unitPrice, enriched.totalPrice)) {
-          rejectInvalidItemPrice();
+          rejectInvalidItemPrice(enriched.category);
           return;
         }
         cart.addItem(enriched);
@@ -912,7 +915,7 @@ document.addEventListener("DOMContentLoaded", () => {
         payload: { originalPrice: item.price, description: item.description }
       };
       if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
-        rejectInvalidItemPrice();
+        rejectInvalidItemPrice(cartItem.category);
         return;
       }
       cart.addItem(cartItem);
