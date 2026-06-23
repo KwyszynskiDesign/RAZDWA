@@ -85,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606231213';
+;(window as any).__APP_BUILD__ = '202606231218';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -644,7 +644,13 @@ function setupFormValidation(): () => boolean {
       if (err.textContent) run();
       else el.setCustomValidity(validate(el.value) ?? '');
     });
-    revalidators.push(run);
+    // On submit: native reportValidity() is the single channel — sync the
+    // custom validity state and clear the inline field-error to avoid showing
+    // the same message twice. Inline errors stay live for blur/input via run().
+    revalidators.push(() => {
+      el.setCustomValidity(validate(el.value) ?? '');
+      showFieldError(err, null, el);
+    });
   };
 
   const formatPhone = (raw: string): string => {
