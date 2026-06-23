@@ -85,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606231202';
+;(window as any).__APP_BUILD__ = '202606231213';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -1222,6 +1222,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   type SendPhase = 'idle' | 'validating' | 'sending' | 'success' | 'error' | 'unverified' | 'pending';
 
+  const SEND_BUTTON_IDS = ["sendBtn", "sendBtn2"] as const;
+  const getSendButtons = (): HTMLButtonElement[] =>
+    SEND_BUTTON_IDS
+      .map(id => document.getElementById(id) as HTMLButtonElement | null)
+      .filter((el): el is HTMLButtonElement => el !== null);
+
   const setBtnState = (btn: HTMLButtonElement | null, label: string | null, busy: boolean) => {
     if (!btn) return;
     if (!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent ?? "";
@@ -1232,22 +1238,16 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const setSendButtonsDisabled = (disabled: boolean): void => {
-    const a = document.getElementById("sendBtn") as HTMLButtonElement | null;
-    const b = document.getElementById("sendBtn2") as HTMLButtonElement | null;
-    if (a) a.disabled = disabled;
-    if (b) b.disabled = disabled;
+    getSendButtons().forEach(btn => { btn.disabled = disabled; });
   };
 
   const applySendPhase = (
     phase: SendPhase,
     opts?: { message?: string; requestId?: string; errorType?: string }
   ): void => {
-    const sendBtnEl = document.getElementById("sendBtn") as HTMLButtonElement | null;
-    const sendBtn2El = document.getElementById("sendBtn2") as HTMLButtonElement | null;
     const formEl = document.querySelector(".order-form") as HTMLElement | null;
     const setBusy = (busy: boolean, label: string | null) => {
-      setBtnState(sendBtnEl, label, busy);
-      setBtnState(sendBtn2El, label, busy);
+      getSendButtons().forEach(btn => setBtnState(btn, label, busy));
       if (formEl) {
         if (busy) formEl.setAttribute("aria-busy", "true"); else formEl.removeAttribute("aria-busy");
       }
@@ -1614,11 +1614,8 @@ document.addEventListener("DOMContentLoaded", () => {
           unverifiedSend = false;
           let secondsLeft = 29;
           const tickCountdown = () => {
-            const a = document.getElementById("sendBtn") as HTMLButtonElement | null;
-            const b = document.getElementById("sendBtn2") as HTMLButtonElement | null;
             const label = secondsLeft > 0 ? `Poczekaj ${secondsLeft}s…` : "Ponawianie możliwe…";
-            if (a) a.textContent = label;
-            if (b) b.textContent = label;
+            getSendButtons().forEach(btn => { btn.textContent = label; });
             secondsLeft--;
           };
           const countdownInterval = setInterval(tickCountdown, 1000);
@@ -1652,8 +1649,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Brak aktywnej integracji Apps Script — skonfiguruj URL w ustawieniach.", "error");
   };
 
-  document.getElementById("sendBtn")?.addEventListener("click", handleSendOrder);
-  document.getElementById("sendBtn2")?.addEventListener("click", handleSendOrder);
+  getSendButtons().forEach(btn => btn.addEventListener("click", handleSendOrder));
 
   const pinNewInput = document.getElementById('pinNewInput') as HTMLInputElement | null;
   const pinConfirmInput = document.getElementById('pinConfirmInput') as HTMLInputElement | null;
