@@ -85,7 +85,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606230730';
+;(window as any).__APP_BUILD__ = '202606231202';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -588,7 +588,7 @@ function updateCartUI() {
 }
 
 
-function setupFormValidation(): void {
+function setupFormValidation(): () => boolean {
   function showFieldError(errEl: HTMLElement, message: string | null, input?: HTMLInputElement | null): void {
     errEl.textContent = message ?? '';
     errEl.style.display = message ? 'block' : 'none';
@@ -621,87 +621,90 @@ function setupFormValidation(): void {
   const nipErr = addErrorEl(nipEl);
   const addedByErr = addErrorEl(addedByEl);
 
-  if (addedByEl && addedByErr) {
-    addedByEl.addEventListener('input', () => {
-      if (addedByErr.textContent && addedByEl.value.trim().length >= 2) {
-        showFieldError(addedByErr, null, addedByEl);
+  const revalidators: Array<() => void> = [];
+
+  const bind = (
+    el: HTMLInputElement | null,
+    err: HTMLElement | null,
+    validate: (v: string) => string | null,
+    format?: (v: string) => string,
+  ): void => {
+    if (!el || !err) return;
+    const run = () => {
+      const msg = validate(el.value);
+      showFieldError(err, msg, el);
+      el.setCustomValidity(msg ?? '');
+    };
+    el.addEventListener('blur', run);
+    el.addEventListener('input', () => {
+      if (format) {
+        const formatted = format(el.value);
+        if (el.value !== formatted) el.value = formatted;
       }
+      if (err.textContent) run();
+      else el.setCustomValidity(validate(el.value) ?? '');
     });
-  }
+    revalidators.push(run);
+  };
 
-  if (nameEl && nameErr) {
-    const validate = (v: string) =>
-      v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null;
-    nameEl.addEventListener('blur', () => showFieldError(nameErr, validate(nameEl.value), nameEl));
-    nameEl.addEventListener('input', () => {
-      if (nameErr.textContent) showFieldError(nameErr, validate(nameEl.value), nameEl);
-    });
-  }
+  const formatPhone = (raw: string): string => {
+    const hasPlus = String(raw ?? '').trim().startsWith('+');
+    const rawDigits = String(raw ?? '').replace(/\D/g, '');
+    const usePrefix = hasPlus || rawDigits.startsWith('48');
+    let national = rawDigits;
+    if (usePrefix && national.startsWith('48')) national = national.slice(2);
+    national = national.slice(0, 9);
+    let body: string;
+    if (national.length <= 3) body = national;
+    else if (national.length <= 6) body = `${national.slice(0, 3)} ${national.slice(3)}`;
+    else body = `${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`;
+    return usePrefix ? `+48 ${body}`.trimEnd() : body;
+  };
 
-  if (emailEl && emailErr) {
-    const validate = (v: string) => {
-      if (!v.trim()) return 'Podaj adres e-mail';
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Nieprawidłowy format e-mail';
-      return null;
-    };
-    emailEl.addEventListener('blur', () => showFieldError(emailErr, validate(emailEl.value), emailEl));
-    emailEl.addEventListener('input', () => {
-      if (emailErr.textContent) showFieldError(emailErr, validate(emailEl.value), emailEl);
-    });
-  }
+  const formatNip = (v: string): string => {
+    const d = v.replace(/\D/g, '').slice(0, 10);
+    if (d.length <= 3) return d;
+    if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
+    if (d.length <= 8) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
+    return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`;
+  };
 
-  if (phoneEl && phoneErr) {
-    const formatPhone = (raw: string): string => {
-      const hasPlus = String(raw ?? '').trim().startsWith('+');
-      const rawDigits = String(raw ?? '').replace(/\D/g, '');
-      const usePrefix = hasPlus || rawDigits.startsWith('48');
-      let national = rawDigits;
-      if (usePrefix && national.startsWith('48')) national = national.slice(2);
-      national = national.slice(0, 9);
-      let body: string;
-      if (national.length <= 3) body = national;
-      else if (national.length <= 6) body = `${national.slice(0, 3)} ${national.slice(3)}`;
-      else body = `${national.slice(0, 3)} ${national.slice(3, 6)} ${national.slice(6)}`;
-      return usePrefix ? `+48 ${body}`.trimEnd() : body;
-    };
-    const validate = (v: string) => {
-      const d = normalizePhoneDigits(v);
-      if (!d) return 'Podaj numer telefonu';
-      if (!isValidPhone(v)) return 'Numer telefonu musi mieć 9 cyfr (opcjonalnie z +48)';
-      return null;
-    };
+  bind(nameEl, nameErr, (v) =>
+    v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null);
 
-    phoneEl.addEventListener('input', () => {
-      const formatted = formatPhone(phoneEl.value);
-      if (phoneEl.value !== formatted) phoneEl.value = formatted;
-      if (phoneErr.textContent) showFieldError(phoneErr, validate(formatted), phoneEl);
-    });
-    phoneEl.addEventListener('blur', () => showFieldError(phoneErr, validate(phoneEl.value), phoneEl));
-  }
+  bind(emailEl, emailErr, (v) => {
+    if (!v.trim()) return 'Podaj adres e-mail';
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Nieprawidłowy format e-mail';
+    return null;
+  });
 
-  if (nipEl && nipErr) {
-    const formatNip = (digits: string): string => {
-      const d = digits.slice(0, 10);
-      if (d.length <= 3) return d;
-      if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
-      if (d.length <= 8) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
-      return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`;
-    };
-    const normalizeNip = (v: string): string => formatNip(v.replace(/\D/g, ''));
-    const validate = (v: string) => {
-      const digits = v.replace(/\D/g, '');
-      if (!digits) return null;
-      if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
-      return null;
-    };
+  bind(phoneEl, phoneErr, (v) => {
+    const d = normalizePhoneDigits(v);
+    if (!d) return 'Podaj numer telefonu';
+    if (!isValidPhone(v)) return 'Numer telefonu wymaga poprawy (9 cyfr, opcjonalnie z +48)';
+    return null;
+  }, formatPhone);
 
-    nipEl.addEventListener('input', () => {
-      const normalized = normalizeNip(nipEl.value);
-      if (nipEl.value !== normalized) nipEl.value = normalized;
-      if (nipErr.textContent) showFieldError(nipErr, validate(normalized), nipEl);
-    });
-    nipEl.addEventListener('blur', () => showFieldError(nipErr, validate(nipEl.value), nipEl));
-  }
+  bind(nipEl, nipErr, (v) => {
+    const digits = v.replace(/\D/g, '');
+    if (!digits) return null;
+    if (digits.length !== 10) return 'NIP wymaga poprawy (10 cyfr)';
+    return null;
+  }, formatNip);
+
+  bind(addedByEl, addedByErr, (v) => {
+    if (!v.trim()) return 'Podaj, kto dodaje zamówienie (np. imię lub Biuro).';
+    if (v.trim().length < 2) return 'Podaj co najmniej 2 znaki.';
+    return null;
+  });
+
+  const form = document.getElementById('customerForm') as HTMLFormElement | null;
+  form?.addEventListener('submit', (e) => e.preventDefault());
+
+  return (): boolean => {
+    revalidators.forEach((run) => run());
+    return form ? form.reportValidity() : true;
+  };
 }
 
 const DRAFT_FIELD_IDS = [
@@ -1362,6 +1365,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  let revalidateCustomerForm: (() => boolean) | null = null;
+
   const handleSendOrder = async () => {
     if (isSubmitting) return;
 
@@ -1411,6 +1416,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cart.isEmpty()) {
       releaseGuard();
       showToast("Koszyk jest pusty", "error");
+      return;
+    }
+
+    if (revalidateCustomerForm && !revalidateCustomerForm()) {
+      releaseGuard();
       return;
     }
 
@@ -1834,7 +1844,7 @@ document.addEventListener("DOMContentLoaded", () => {
   void loadPinStatus();
 
   updateCartUI();
-  setupFormValidation();
+  revalidateCustomerForm = setupFormValidation();
 
   updateDraftStatus(restoreCustomerDraft());
   const restoredPriorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
