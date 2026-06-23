@@ -41,11 +41,9 @@ Endpoint backendu GAS jest konfiguracją **build-time**, nie runtime. Flow: GitH
 - Automatyzacje odpowiadają za powtarzalne procesy.
 
 ## Gotchas
-- [tu wpisz typowe błędy]
-- [tu wpisz ograniczenia stacku]
-- [tu wpisz rzeczy, których nie wolno robić]
+- `plakaty-wf.ts` i `canvas-fixed.ts` to aktywne widoki — nazwa pliku nie odpowiada route id ("plakaty", "canvas"); nie zmieniać nazw bez aktualizacji importu w `main.ts`
+- `docs/categories/ustawienia.js` jest ładowany przez `legacyScriptPages` w `router.ts` — nie usuwać bez weryfikacji że `UstawieniaView` TS przejmuje całą ścieżkę
 
 ## Decyzje architektoniczne
-- [decyzja 1]
-- [decyzja 2]
-- [decyzja 3]
+- **priceMigrator TODO-A** (`modifier-*`): klucze `modifier-express`, `modifier-satyna`, `modifier-express-vouchery` i in. są pomijane w migracji v1 (brak Modifier store). Efekt: modyfikatory działają przez `resolveStoredPrice()` z localStorage, nie z IDB. Domknięcie: `runModifierMigrationIfNeeded()` + Modifier store w ramach Etap 4 / sync.
+- **priceMigrator TODO-B** (`druk-cad-*`): klucze `druk-cad-*` trafiają do IDB z `category="druk"` (split po pierwszym segmencie). Efekt: żaden — app używa `getPrice("druk-cad")` z priceService, nie IDB. Domknięcie: ręczna korekta w panelu admina w Etapie 3.

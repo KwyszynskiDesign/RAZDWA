@@ -312,12 +312,10 @@ console.log(JSON.stringify(priceService.getPrice('banner'), null, 2));
 Po zapoznaniu się z tym przewodnikiem:
 
 1. Przeczytaj [AGENTS.md](../AGENTS.md) - zasady projektu
-2. Zobacz [przykłady](../docs/examples/priceService-examples.ts)
-3. Przeczytaj [dokumentację refaktoryzacji](REFACTORING_PRICE_SERVICE.md)
+2. Przeczytaj [dokumentację refaktoryzacji](REFACTORING_PRICE_SERVICE.md)
 
 ## Kontakt
 
 Jeśli masz pytania lub napotkasz problemy, sprawdź:
 - Issues w repozytorium
 - Dokumentacja w `/docs/`
-- Przykłady w `/docs/examples/`

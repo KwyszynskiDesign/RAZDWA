@@ -4,7 +4,7 @@
 Repo zawiera kalkulator cen oparty o cenniki z CSV. Nie ruszaj działających modułów. Dokładaj nowe kategorie jako osobne pliki. Każda zmiana ma testy. [file:16]
 
 ## Źródło danych
-Źródłem prawdy jest: `/data/menu-razdwa-Arkusz1-1.csv`. [file:16]
+Źródłem prawdy jest: `/cennik raz dwa druk  - Arkusz1.csv`.
 CSV zawiera wiele sekcji (nagłówki) i różne układy tabel (progi m2, progi sztuk, formaty A4/A3, dopłaty procentowe, teksty opisowe). [file:16]
 
 ## Zasady bezpieczeństwa zmian
@@ -15,7 +15,7 @@ CSV zawiera wiele sekcji (nagłówki) i różne układy tabel (progi m2, progi s
 
 ## Struktura repo (wymagana)
 - /data
-  - menu-razdwa-Arkusz1-1.csv  (surowe) [file:16]
+  - cennik raz dwa druk  - Arkusz1.csv  (surowe)
   - /normalized
     - *.json  (znormalizowane sekcje)
 - /src

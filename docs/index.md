@@ -16,18 +16,13 @@ Jeśli dopiero zaczynasz z projektem, przeczytaj w tej kolejności:
 ### Chcesz zrozumieć PriceService?
 → **[REFACTORING_PRICE_SERVICE.md](REFACTORING_PRICE_SERVICE.md)** - Pełna dokumentacja techniczna
 
-### Potrzebujesz przykładów kodu?
-→ **[examples/priceService-examples.ts](examples/priceService-examples.ts)** - 7 praktycznych przykładów
-
 ## 📁 Struktura dokumentacji
 
 ```
 docs/
 ├── index.md                          # ← Ten plik (nawigacja)
 ├── REFACTORING_PRICE_SERVICE.md      # Dokumentacja techniczna refaktoryzacji
-├── MIGRATION_GUIDE.md                # Przewodnik dla deweloperów
-└── examples/
-    └── priceService-examples.ts      # Przykłady użycia API
+└── MIGRATION_GUIDE.md                # Przewodnik dla deweloperów
 ```
 
 ## 🔧 Narzędzia
@@ -59,7 +54,6 @@ npx tsc
 ### Rozwój
 - [AGENTS.md](../AGENTS.md) - Zasady i standardy
 - [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Jak dodać nową kategorię
-- [examples/priceService-examples.ts](examples/priceService-examples.ts) - Przykłady kodu
 
 ### Historia zmian
 - [SUMMARY.md](../SUMMARY.md) - Podsumowanie refaktoryzacji PriceService
@@ -125,7 +119,7 @@ priceService.setPriceByPath('category.tiers.0.price', 60.0);
 ```
 
 ### Jak testować moduł?
-Zobacz [examples/priceService-examples.ts](examples/priceService-examples.ts) przykład 7.
+Zobacz testy w `/tests/priceService.test.ts`.
 
 ### Czy mogę importować JSON bezpośrednio?
 ❌ NIE - zawsze używaj `priceService.loadSync()`.
