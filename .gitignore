@@ -28,6 +28,10 @@ service-account.json
 .claude/skills/
 .claude/settings.local.json
 
+# Playwright — artefakty testów
+playwright-report/
+test-results/
+
 # Przypadkowe pliki
 result-display
 \#e2e8f0
