@@ -1148,12 +1148,12 @@ body:not(.home-compact-layout):not(.settings-pricing-layout) .app-grid {
   gap: 5px;
 }
 
-.settings-sync-mini-status--ok { color: var(--success); }
-.settings-sync-mini-status--syncing { color: var(--primary); }
-.settings-sync-mini-status--error { color: var(--danger); }
+.settings-sync-mini-status--ok,
+.settings-sync-mini-status--idle { color: var(--success); }
+.settings-sync-mini-status--syncing,
+.settings-sync-mini-status--unconfirmed { color: #e0a800; }
+.settings-sync-mini-status--error,
 .settings-sync-mini-status--no_token { color: var(--danger); }
-.settings-sync-mini-status--unconfirmed { color: #e67e00; }
-.settings-sync-mini-status--idle { color: var(--text-secondary); }
 
 .settings-sync-mini-ts {
   font-size: 12px;
