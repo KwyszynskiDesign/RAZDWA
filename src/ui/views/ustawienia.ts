@@ -2852,7 +2852,7 @@ export const UstawieniaView: View = {
     const isDebug = new URLSearchParams(window.location.search).get('debug') === '1';
     const _hSyncStatus = readSyncStatus();
     const _hSyncIcons: Record<SyncStatusCode, string> = {
-      idle: "○", syncing: "⟳", ok: "✓", no_token: "🔒", error: "✕", unconfirmed: "⚠",
+      idle: "●", syncing: "●", ok: "●", no_token: "●", error: "●", unconfirmed: "●",
     };
     const _hLastSync = _hSyncStatus.lastSyncedAt
       ? new Date(_hSyncStatus.lastSyncedAt).toLocaleString("pl-PL")
