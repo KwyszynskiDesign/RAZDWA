@@ -3811,6 +3811,42 @@ a.employee-mode-btn {
   color: var(--danger, #c92a2a);
 }
 
+.settings-sync-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--surface-muted, #f6f7f9);
+  border: 1px solid var(--border, #e5e7eb);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.settings-sync-status-headline {
+  font-weight: 600;
+  color: var(--text-secondary, #4b4b4b);
+}
+
+.settings-sync-status-meta,
+.settings-sync-status-detail {
+  color: var(--text-muted, #6b6b6b);
+}
+
+.settings-sync-status--synced .settings-sync-status-headline {
+  color: var(--success, #2c8c40);
+}
+
+.settings-sync-status--dirty .settings-sync-status-headline {
+  color: #e67e00;
+}
+
+.settings-sync-status--dirty .settings-sync-status-detail {
+  color: #e67e00;
+  font-weight: 500;
+}
+
 /* ===== HOME TILE SUBLABEL ===== */
 .home-tile-sublabel {
   font-size: 11px;
