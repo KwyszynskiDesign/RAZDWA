@@ -129,6 +129,14 @@ function dismissOrderStatusPanel() {
   document.getElementById(ORDER_STATUS_PANEL_ID)?.remove();
 }
 
+const ERROR_MESSAGES: Record<string, string> = {
+  timeout: 'Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie.',
+  network: 'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.',
+  no_cors_sent: 'Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.',
+  gas_error: 'Serwer odrzucił zamówienie. Sprawdź dane formularza i spróbuj ponownie.',
+  unknown: 'Nieoczekiwany błąd. Spróbuj ponownie lub skontaktuj się z obsługą.',
+};
+
 function showOrderStatusPanel(
   type: 'unverified' | 'error' | 'pending',
   opts: { requestId?: string; message?: string; errorType?: string }
@@ -136,14 +144,6 @@ function showOrderStatusPanel(
   dismissOrderStatusPanel();
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
-
-  const errorMessages: Record<string, string> = {
-    timeout: 'Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie.',
-    network: 'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.',
-    no_cors_sent: 'Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.',
-    gas_error: 'Serwer odrzucił zamówienie. Sprawdź dane formularza i spróbuj ponownie.',
-    unknown: 'Nieoczekiwany błąd. Spróbuj ponownie lub skontaktuj się z obsługą.',
-  };
 
   const heading = type === 'unverified' ? 'Status zamówienia niepewny'
     : type === 'pending' ? 'Zapis w toku'
@@ -153,7 +153,7 @@ function showOrderStatusPanel(
     ? (opts.message || 'Nie udało się potwierdzić zapisu. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.')
     : type === 'pending'
     ? (opts.message || 'GAS przyjął zamówienie — zapis w toku. Poczekaj ok. 30 s, potem wyślij ponownie z tym samym ID.')
-    : (opts.errorType ? (errorMessages[opts.errorType] ?? errorMessages.unknown) : (opts.message || errorMessages.unknown));
+    : (opts.errorType ? (ERROR_MESSAGES[opts.errorType] ?? ERROR_MESSAGES.unknown) : (opts.message || ERROR_MESSAGES.unknown));
   const reqId = escapeHtml(opts.requestId || '—');
   const metaHtml = type === 'unverified'
     ? `Kod do weryfikacji: <strong>${reqId}</strong>`
@@ -490,7 +490,6 @@ async function downloadOrderPdf(items: CartItem[], customer: CustomerData, summa
   } catch (error) {
     console.error("Błąd generowania raportu PDF:", error);
     showToast("Nie udało się wygenerować raportu PDF", "error");
-    alert("Wystąpił błąd podczas tworzenia raportu PDF.");
   }
 }
 
@@ -1178,7 +1177,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("copyBtn")?.addEventListener("click", async () => {
     if (cart.isEmpty()) {
       showToast("Koszyk jest pusty", "error");
-      alert("Koszyk jest pusty!");
       return;
     }
 
@@ -1275,7 +1273,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   let lastSentOrderSnapshot: OrderPdfSnapshot | null = null;
   let bigOrderConfirmedFor: string | null = null;
-  const BIG_ORDER_TOTAL_PLN = 5000;
   const BIG_ORDER_ITEMS = 20;
 
   type SendPhase = 'idle' | 'validating' | 'sending' | 'success' | 'error' | 'unverified' | 'pending';
@@ -1607,7 +1604,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const provisionalTotal = applySummaryPercentAdjustments(cart.getGrandTotal());
       const needsBigConfirm =
-        (provisionalTotal >= BIG_ORDER_TOTAL_PLN || items.length >= BIG_ORDER_ITEMS) &&
+        items.length > BIG_ORDER_ITEMS &&
         bigOrderConfirmedFor !== payload.requestId;
       if (needsBigConfirm) {
         const ok = await confirmBigOrder(provisionalTotal, items.length, customer, items);
