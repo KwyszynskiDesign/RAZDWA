@@ -2,6 +2,7 @@ import { CartItem, CustomerData } from "../core/types";
 import type { VariantDefinition } from "./priceService";
 import { normalizePhoneDigits } from "../core/customerValidation";
 import { GAS_URL } from "../core/env";
+import { getAdminToken } from "../core/adminSession";
 
 export const ORDER_EXPORT_CONFIG_KEY = "razdwa_order_export_config";
 
@@ -64,6 +65,7 @@ export interface OrderExportResult {
    */
   retryable?: boolean;
   errorType?: 'timeout' | 'network' | 'no_cors_sent' | 'gas_error' | 'unknown';
+  noToken?: boolean;
 }
 
 interface AppsScriptCompactRowPayload {
@@ -514,9 +516,9 @@ export async function savePricesToAppsScript(
     return { ok: true, verified: true, message: "dry-run: cennik nie został wysłany." };
   }
 
-  const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminSessionToken') : null;
+  const token = getAdminToken();
   if (!token) {
-    return { ok: false, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+    return { ok: false, noToken: true, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
   }
   const body = JSON.stringify({
     type: "prices_update",
@@ -587,9 +589,9 @@ export async function saveVariantsToAppsScript(
     return { ok: true, verified: true, message: "dry-run: warianty nie zostały wysłane." };
   }
 
-  const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('adminSessionToken') : null;
+  const token = getAdminToken();
   if (!token) {
-    return { ok: false, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+    return { ok: false, noToken: true, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
   }
   const body = JSON.stringify({ type: "variants_update", token, variants });
   const controller = new AbortController();

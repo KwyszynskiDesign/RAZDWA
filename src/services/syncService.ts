@@ -2,6 +2,7 @@ import { priceStore } from "./priceStore";
 import { warmPriceCache } from "../core/compat";
 import type { PriceRecord } from "../types/price-schema";
 import { getOrderExportConfig } from "./orderExportService";
+import { getAdminToken } from "../core/adminSession";
 
 const SYNC_STATUS_KEY = "razdwa_price_sync_status";
 
@@ -71,16 +72,6 @@ function writeSyncStatus(patch: Partial<SyncStatus>): void {
     localStorage.setItem(SYNC_STATUS_KEY, JSON.stringify(next));
   } catch {
     // ignore localStorage errors
-  }
-}
-
-function getAdminToken(): string | null {
-  try {
-    if (typeof sessionStorage === "undefined") return null;
-    const token = sessionStorage.getItem("adminSessionToken");
-    return token && token.trim() ? token : null;
-  } catch {
-    return null;
   }
 }
 

@@ -1,6 +1,15 @@
 /**
- * Single source of truth for admin session keys and checks.
- * No DOM side effects beyond sessionStorage access.
+ * Single source of truth for admin session state.
+ *
+ * Storage policy (C3):
+ *   sessionStorage — auth only, cleared on logout via clearAdminSession():
+ *     • razdwa_pin_auth   (PIN_AUTH_KEY)
+ *     • adminSessionToken (ADMIN_TOKEN_KEY)
+ *   localStorage — operational data only, never holds auth, never cleared on logout:
+ *     prices, variants, sync status, order config, order history,
+ *     migration state, draft/cart, UX state.
+ *
+ * clearAdminSession() is the single logout entrypoint for auth state.
  */
 
 export const PIN_AUTH_KEY = "razdwa_pin_auth";
