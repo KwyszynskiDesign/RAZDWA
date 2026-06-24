@@ -130,7 +130,6 @@ function injectAppBuildVersion(filePath) {
 
 const rootDir = path.join(__dirname, '..');
 const swFiles = [
-  path.join(rootDir, 'sw.js'),
   path.join(rootDir, 'docs', 'sw.js')
 ];
 const htmlFile = path.join(rootDir, 'docs', 'index.html');
