@@ -1,6 +1,7 @@
 import { CartItem, CustomerData } from "../core/types";
 import type { VariantDefinition } from "./priceService";
 import { normalizePhoneDigits } from "../core/customerValidation";
+import { GAS_URL } from "../core/env";
 
 export const ORDER_EXPORT_CONFIG_KEY = "razdwa_order_export_config";
 
@@ -11,7 +12,7 @@ export interface OrderExportConfig {
   dryRun?: boolean;
 }
 
-const CURRENT_APPS_SCRIPT_URL = process.env.GOOGLE_APPS_SCRIPT_URL ?? "";
+const CURRENT_APPS_SCRIPT_URL = GAS_URL;
 
 export function isValidGasUrl(url: unknown): boolean {
   const s = String(url ?? "").trim();

@@ -13,6 +13,8 @@ if (existsSync(".env")) {
 }
 
 const url = process.env.GOOGLE_APPS_SCRIPT_URL ?? "";
+const env = process.env.RAZDWA_ENV ?? "dev";
+const clientId = process.env.RAZDWA_CLIENT_ID ?? "";
 
 await build({
   entryPoints: ["src/ui/main.ts"],
@@ -24,5 +26,7 @@ await build({
   charset: "ascii",
   define: {
     "process.env.GOOGLE_APPS_SCRIPT_URL": JSON.stringify(url),
+    "process.env.RAZDWA_ENV": JSON.stringify(env),
+    "process.env.RAZDWA_CLIENT_ID": JSON.stringify(clientId),
   },
 });

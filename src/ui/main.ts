@@ -51,6 +51,7 @@ import { validateCustomerForm, isValidNIP, isValidPhone, normalizePhoneDigits } 
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache, getZeroPriceLabels, getZeroPriceDefaults, hasCachedPrices } from "../core/compat";
+import { checkStartupConfig } from "../core/startGuard";
 
 const cart = new Cart();
 
@@ -538,6 +539,7 @@ function updateCartUI() {
       <div class="basketItem">
         <div class="basketItemContent">
           <div class="basketName">${escapeHtml(g.item.name)}${qtyBadge}</div>
+          ${g.item.isExpress ? '<span class="expressChip">⚡ EXPRESS</span>' : ''}
           <div class="basketMeta">${escapeHtml(g.item.optionsHint)}</div>
         </div>
         <div class="basketItemRight">
@@ -667,14 +669,6 @@ function setupFormValidation(): () => boolean {
     return usePrefix ? `+48 ${body}`.trimEnd() : body;
   };
 
-  const formatNip = (v: string): string => {
-    const d = v.replace(/\D/g, '').slice(0, 10);
-    if (d.length <= 3) return d;
-    if (d.length <= 6) return `${d.slice(0, 3)} ${d.slice(3)}`;
-    if (d.length <= 8) return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6)}`;
-    return `${d.slice(0, 3)} ${d.slice(3, 6)} ${d.slice(6, 8)} ${d.slice(8)}`;
-  };
-
   bind(nameEl, nameErr, (v) =>
     v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null);
 
@@ -692,11 +686,11 @@ function setupFormValidation(): () => boolean {
   }, formatPhone);
 
   bind(nipEl, nipErr, (v) => {
-    const digits = v.replace(/\D/g, '');
+    const digits = v.replace(/[\s\-]/g, '').replace(/\D/g, '');
     if (!digits) return null;
-    if (digits.length !== 10) return 'NIP wymaga poprawy (10 cyfr)';
+    if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
     return null;
-  }, formatNip);
+  });
 
   bind(addedByEl, addedByErr, (v) => {
     if (!v.trim()) return 'Podaj, kto dodaje zamówienie (np. imię lub Biuro).';
@@ -776,7 +770,43 @@ function updateDraftStatus(savedAt: number | false | null): void {
   el.style.display = "block";
 }
 
+function showStartupErrorBanner(reason: string): void {
+  const banner = document.createElement("div");
+  banner.id = "startup-error-banner";
+  banner.setAttribute("role", "alert");
+  banner.style.cssText = [
+    "position:fixed",
+    "top:0",
+    "left:0",
+    "right:0",
+    "z-index:99999",
+    "background:#7f1d1d",
+    "color:#fef2f2",
+    "font-family:monospace",
+    "font-size:13px",
+    "line-height:1.5",
+    "padding:10px 16px",
+    "border-bottom:2px solid #b91c1c",
+    "white-space:pre-wrap",
+    "word-break:break-word",
+  ].join(";");
+  banner.textContent = `⚠ RAZDWA — BŁĄD KONFIGURACJI\n${reason}`;
+  document.body.insertAdjacentElement("afterbegin", banner);
+}
+
+let _startupConfigFailed = false;
+
 document.addEventListener("DOMContentLoaded", () => {
+  const guardResult = checkStartupConfig();
+  if (!guardResult.ok && guardResult.fatal) {
+    _startupConfigFailed = true;
+    showStartupErrorBanner(guardResult.reason);
+    ["sendBtn", "sendBtn2"].forEach(id => {
+      const btn = document.getElementById(id) as HTMLButtonElement | null;
+      if (btn) { btn.disabled = true; btn.title = "Błąd konfiguracji — eksport niedostępny"; }
+    });
+  }
+
   const viewContainer = document.getElementById("viewContainer");
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement;
 
@@ -1374,6 +1404,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let revalidateCustomerForm: (() => boolean) | null = null;
 
   const handleSendOrder = async () => {
+    if (_startupConfigFailed) {
+      showToast("Błąd konfiguracji aplikacji — eksport zamówień niedostępny.", "error");
+      return;
+    }
     if (isSubmitting) return;
 
     if (unverifiedSend) {
