@@ -285,7 +285,7 @@ export const PlakatyWFView: View = {
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
 
       resultBox.style.display = "block";
-      addBtn.disabled = false;
+      addBtn.disabled = currentResult.totalPrice <= 0;
       ctx.updateLastCalculated(currentResult.totalPrice, "Plakaty wielkoformatowe");
     };
 

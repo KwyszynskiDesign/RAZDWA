@@ -497,7 +497,15 @@ export const DrukCADView: View = {
         updateGrandTotal();
         return;
       }
-      const parsedQty = qtySheetsInput ? (parseInt(qtySheetsInput.value, 10) || 1) : 1;
+      const parsedQty = qtySheetsInput ? parseInt(qtySheetsInput.value, 10) : NaN;
+      if (isNaN(parsedQty) || parsedQty <= 0) {
+        resultDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        currentResult = null;
+        updateOptionsSummary();
+        updateGrandTotal();
+        return;
+      }
       const parsedLength = parseInt(lengthInput.value, 10);
       if (isNaN(parsedLength) || parsedLength <= 0) {
         resultDisplay.style.display = "none";
@@ -532,7 +540,7 @@ export const DrukCADView: View = {
       if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(result.totalPrice);
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
-      addToCartBtn.disabled = false;
+      addToCartBtn.disabled = result.totalPrice <= 0;
 
       updateOptionsSummary();
       updateGrandTotal();

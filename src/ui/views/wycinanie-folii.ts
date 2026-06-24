@@ -128,7 +128,21 @@ export const WycinanieFoliiView: View = {
       const color = getSelectedColor();
       
       if (!color) {
-        throw new Error("Wybierz kolor: złota, srebrna lub wpisz inny kolor.");
+        if (resultEl) resultEl.style.display = "none";
+        addBtn.disabled = true;
+        currentResult = null;
+        currentOptions = null;
+        return;
+      }
+
+      const widthMm = parseInt(widthInput.value) || 0;
+      const heightMm = parseInt(heightInput.value) || 0;
+      if (widthMm <= 0 || heightMm <= 0) {
+        if (resultEl) resultEl.style.display = "none";
+        addBtn.disabled = true;
+        currentResult = null;
+        currentOptions = null;
+        return;
       }
 
       const variantId: WycinanieFoliiOptions["variantId"] =
@@ -136,8 +150,8 @@ export const WycinanieFoliiView: View = {
 
       const options: WycinanieFoliiOptions = {
         variantId,
-        widthMm: parseInt(widthInput.value) || 0,
-        heightMm: parseInt(heightInput.value) || 0,
+        widthMm,
+        heightMm,
         express: ctx.expressMode
       };
 

@@ -212,7 +212,7 @@ export const BannerView: View = {
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       renderBreakdown(result, currentOptions);
       resultDisplay.style.display = "block";
-      addToCartBtn.disabled = false;
+      addToCartBtn.disabled = result.totalPrice <= 0;
 
       ctx.updateLastCalculated(result.totalPrice, "Banner");
     };

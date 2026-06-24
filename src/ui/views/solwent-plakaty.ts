@@ -110,7 +110,7 @@ export const SolwentPlakatyView: View = {
       if (areaValSpan) areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
-      addToCartBtn.disabled = false;
+      addToCartBtn.disabled = result.totalPrice <= 0;
 
       ctx.updateLastCalculated(result.totalPrice, "Solwent - Plakaty");
     };
