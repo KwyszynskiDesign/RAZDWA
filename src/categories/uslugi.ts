@@ -171,15 +171,18 @@ function renderServiceItem(service: RenderedServiceItem, isTimeBased: boolean): 
   const addDisabled = !(typeof service.price === "number" && service.price > 0);
 
   return `
-    <div style="display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; column-gap: 6px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">
-      <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${escapeHtml(service.name)}${isTimeBased ? ' <span style="font-size:0.78em; color:#e07b00; font-weight:600;">(czas)</span>' : ''}</label>
-      <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
-        <span style="font-size:0.7em; color:#7a8a9a;">ilość szt.</span>
-        <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity" aria-label="Ilość sztuk">
+    <div>
+      <div style="display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; column-gap: 6px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">
+        <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${escapeHtml(service.name)}${isTimeBased ? ' <span style="font-size:0.78em; color:#e07b00; font-weight:600;">(czas)</span>' : ''}</label>
+        <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <span style="font-size:0.7em; color:#7a8a9a;">ilość szt.</span>
+          <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity" aria-label="Ilość sztuk">
+        </div>
+        ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:96px;"><span style="font-size:0.7em; color:#e07b00; font-weight:700;">⏱ wpisz czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" placeholder="np. 1.5" title="Wpisz czas pracy w godzinach" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Wpisz czas pracy w godzinach"><span style="font-size:0.66em; color:#8b97a3;">np. 0.5, 1, 1.5</span></div>` : '<span style="width: 96px;"></span>'}
+        <span class="service-price" data-service-id="${service.id}" data-base-price="${servicePrice}" data-has-price="${typeof service.price === "number" ? "1" : "0"}" style="font-weight: bold; color: ${priceTextColor}; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
+        <button type="button" data-add-service-id="${service.id}" data-service-name="${escapeHtml(service.name)}" data-price="${servicePrice}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${escapeHtml(service.name)} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
       </div>
-      ${isTimeBased ? `<div style="display:flex; flex-direction:column; align-items:center; gap:2px; width:96px;"><span style="font-size:0.7em; color:#e07b00; font-weight:700;">⏱ wpisz czas (godz.)</span><input type="number" data-hours-for="${service.id}" value="1" min="0.25" step="0.25" max="24" placeholder="np. 1.5" title="Wpisz czas pracy w godzinach" style="width:100%; padding: 4px; font-size: 0.9em;" class="service-hours" aria-label="Wpisz czas pracy w godzinach"><span style="font-size:0.66em; color:#8b97a3;">np. 0.5, 1, 1.5</span></div>` : '<span style="width: 96px;"></span>'}
-      <span class="service-price" data-service-id="${service.id}" data-base-price="${servicePrice}" data-has-price="${typeof service.price === "number" ? "1" : "0"}" style="font-weight: bold; color: ${priceTextColor}; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
-      <button type="button" data-add-service-id="${service.id}" data-service-name="${escapeHtml(service.name)}" data-price="${servicePrice}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${escapeHtml(service.name)} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
+      ${addDisabled ? '<small style="display:block; margin-top:3px; padding-left:4px; font-size:0.78em; color:#9aa7b2;">Brak ceny — wycena indywidualna.</small>' : ''}
     </div>
   `;
 }

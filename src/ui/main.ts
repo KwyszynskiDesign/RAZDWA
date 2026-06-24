@@ -590,6 +590,27 @@ function updateCartUI() {
 }
 
 
+const ADDEDBY_RECENT_KEY = "razdwa_addedby_recent";
+const ADDEDBY_RECENT_MAX = 5;
+
+function getAddedByRecent(): string[] {
+  try { return JSON.parse(localStorage.getItem(ADDEDBY_RECENT_KEY) ?? "[]"); } catch { return []; }
+}
+
+function saveAddedByRecent(value: string): void {
+  const v = value.trim();
+  if (v.length < 2) return;
+  const list = getAddedByRecent().filter(x => x !== v);
+  list.unshift(v);
+  try { localStorage.setItem(ADDEDBY_RECENT_KEY, JSON.stringify(list.slice(0, ADDEDBY_RECENT_MAX))); } catch {}
+}
+
+function populateAddedByDatalist(): void {
+  const dl = document.getElementById("addedByOptions") as HTMLDataListElement | null;
+  if (!dl) return;
+  dl.innerHTML = getAddedByRecent().map(v => `<option value="${v}"></option>`).join("");
+}
+
 function setupFormValidation(): () => boolean {
   function showFieldError(errEl: HTMLElement, message: string | null, input?: HTMLInputElement | null): void {
     errEl.textContent = message ?? '';
@@ -697,6 +718,7 @@ function setupFormValidation(): () => boolean {
     if (v.trim().length < 2) return 'Podaj co najmniej 2 znaki.';
     return null;
   });
+  populateAddedByDatalist();
 
   const form = document.getElementById('customerForm') as HTMLFormElement | null;
   form?.addEventListener('submit', (e) => e.preventDefault());
@@ -1637,6 +1659,8 @@ document.addEventListener("DOMContentLoaded", () => {
             itemsCount: items.length,
             total: payload.summary.total,
           });
+          saveAddedByRecent(addedByVal);
+          populateAddedByDatalist();
           clearCustomerDraft();
           updateDraftStatus(null);
           const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };

@@ -508,6 +508,20 @@ tbody tr:hover {
   line-height: 1.4;
 }
 
+.expressChip {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 4px;
+  padding: 1px 5px;
+  margin-top: 2px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
 .basketPrice {
   font-size: 14px;
   font-weight: 700;
