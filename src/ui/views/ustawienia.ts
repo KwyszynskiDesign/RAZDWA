@@ -2074,8 +2074,26 @@ export const UstawieniaView: View = {
 
     function updateDraftIndicator(): void {
       const el = container.querySelector<HTMLElement>("#draft-indicator");
-      if (!el) return;
-      el.style.display = _draftVariantDefs.length > 0 ? "" : "none";
+      if (el) el.style.display = _draftVariantDefs.length > 0 ? "" : "none";
+      updateSyncStatusBlock();
+    }
+
+    function updateSyncStatusBlock(): void {
+      const root = container.querySelector<HTMLElement>("#sync-status-block");
+      if (!root) return;
+      const pending = _draftVariantDefs.length;
+      const syncedAt = readPricesSyncedAt();
+      const lastSync = syncedAt
+        ? new Date(syncedAt).toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" })
+        : "—";
+      root.classList.toggle("settings-sync-status--dirty", pending > 0);
+      root.classList.toggle("settings-sync-status--synced", pending === 0);
+      const headline = root.querySelector<HTMLElement>(".settings-sync-status-headline");
+      const meta = root.querySelector<HTMLElement>(".settings-sync-status-meta");
+      const detail = root.querySelector<HTMLElement>(".settings-sync-status-detail");
+      if (headline) headline.textContent = pending > 0 ? "Cennik niezsynchronizowany" : "Cennik zsynchronizowany";
+      if (meta) meta.textContent = `Ostatnia synchronizacja: ${lastSync}`;
+      if (detail) detail.textContent = pending > 0 ? `Niezsynchronizowane: ${pending}` : "Brak nowych zmian z GAS";
     }
 
     const PRICES_SYNCED_AT_KEY = "razdwa_prices_gas_synced_at";
@@ -2853,9 +2871,7 @@ export const UstawieniaView: View = {
           <div class="settings-sync-mini">
             <span class="settings-sync-mini-status settings-sync-mini-status--${_hSyncStatus.code}">${_hSyncIcons[_hSyncStatus.code]} ${escapeHtml(_hSyncStatus.message)}</span>
             <span class="settings-sync-mini-ts">Sync: <strong>${escapeHtml(_hLastSync)}</strong></span>
-            <button id="settings-btn-pull" type="button" class="btn-secondary idb-sync-btn">⬇ Pull z GAS</button>
             <button id="settings-btn-logout" type="button" class="btn-secondary idb-sync-btn">🔒 Wyloguj</button>
-            <span id="settings-sync-msg" class="settings-sync-mini-msg" style="display:none"></span>
           </div>
         </div>
 
@@ -2948,6 +2964,12 @@ export const UstawieniaView: View = {
               <div class="settings-persist-group">
                 <button id="btn-save" type="button" class="btn-primary settings-action-btn">💾 Zapisz cennik</button>
                 <button id="btn-reset" type="button" class="btn-secondary settings-action-btn">🔄 Przywróć</button>
+
+                <div id="sync-status-block" class="settings-sync-status settings-sync-status--synced">
+                  <span class="settings-sync-status-headline">Cennik zsynchronizowany</span>
+                  <span class="settings-sync-status-meta">Ostatnia synchronizacja: —</span>
+                  <span class="settings-sync-status-detail">Brak nowych zmian z GAS</span>
+                </div>
               </div>
 
               <div id="draft-indicator" class="draft-indicator" style="display:none">● Niezapisane zmiany — kliknij „Zapisz cennik", aby utrwalić</div>
@@ -2979,36 +3001,6 @@ export const UstawieniaView: View = {
     _settingsLogoutBtn?.addEventListener("click", () => {
       clearAdminSession();
       window.location.hash = "#/";
-    });
-
-    const _settingsPullBtn = container.querySelector<HTMLButtonElement>("#settings-btn-pull");
-    const _settingsSyncMsg = container.querySelector<HTMLElement>("#settings-sync-msg");
-    _settingsPullBtn?.addEventListener("click", async () => {
-      _settingsPullBtn.disabled = true;
-      if (_settingsSyncMsg) { _settingsSyncMsg.textContent = "⟳ Pobieranie…"; _settingsSyncMsg.removeAttribute("data-tone"); _settingsSyncMsg.style.display = ""; }
-      try {
-        const result = await pullPricesFromGas();
-        if (_settingsSyncMsg) {
-          _settingsSyncMsg.textContent = result.ok
-            ? `✓ Pull: ${result.pulled ?? 0} rek., scalono ${result.merged ?? 0}`
-            : `✕ ${result.error ?? "Błąd pull"}`;
-          _settingsSyncMsg.dataset.tone = result.ok ? "success" : "error";
-        }
-        const freshStatus = readSyncStatus();
-        const statusSpan = container.querySelector<HTMLElement>(".settings-sync-mini-status");
-        if (statusSpan) {
-          statusSpan.className = `settings-sync-mini-status settings-sync-mini-status--${freshStatus.code}`;
-          statusSpan.textContent = `${_hSyncIcons[freshStatus.code]} ${freshStatus.message}`;
-        }
-        const tsStrong = container.querySelector<HTMLElement>(".settings-sync-mini-ts strong");
-        if (tsStrong) {
-          tsStrong.textContent = freshStatus.lastSyncedAt
-            ? new Date(freshStatus.lastSyncedAt).toLocaleString("pl-PL")
-            : "—";
-        }
-      } finally {
-        _settingsPullBtn.disabled = false;
-      }
     });
 
     renderTabs();
@@ -3334,6 +3326,7 @@ export const UstawieniaView: View = {
             /* localStorage niedostępny — pomijamy */
           }
           renderPricesSync("synced");
+          updateSyncStatusBlock();
           showStatus("✓ Zapisano cennik.");
         } else {
           renderPricesSync("error", result.message);
