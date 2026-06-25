@@ -3,11 +3,16 @@ import {
   detectFormatFromDimensions,
   updateCadFileEntry,
   CadUploadFileEntry,
+  CAD_PDF_WARN_PAGES,
+  CAD_PDF_HARD_PAGES,
 } from "../../categories/cad-upload";
-
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 import { getPrice } from "../../services/priceService";
+
+type ParseResult =
+  | { ok: true; entry: CadUploadFileEntry }
+  | { ok: false; name: string; cause: string };
 
 // Helper to load extra CAD options from JSON
 async function loadCadExtraOptions(): Promise<any[]> {
@@ -734,19 +739,28 @@ export const CadUploadView: View = {
 
       showStatus(`Przetwarzanie ${acceptedFiles.length} plików...`);
 
-      const newFiles = await mapWithConcurrency(
+      const results = await mapWithConcurrency<File, ParseResult>(
         acceptedFiles,
         CAD_UPLOAD_CONCURRENCY,
         async (file, index) => {
-          const entry = await updateCadFileEntry(file, isColor);
-          showStatus(`Przetwarzanie: ${index + 1}/${acceptedFiles.length}`);
-          return entry;
+          try {
+            const entry = await updateCadFileEntry(file, isColor);
+            showStatus(`Przetwarzanie: ${index + 1}/${acceptedFiles.length}`);
+            return { ok: true, entry };
+          } catch (err) {
+            showStatus(`Przetwarzanie: ${index + 1}/${acceptedFiles.length}`);
+            return { ok: false, name: file.name, cause: (err as Error).message };
+          }
         }
       );
 
-      const validFiles = newFiles
-        .filter((file) => !!file && file.pageCount > 0)
-        .map((file) => ({ ...file, mode: getMode() }));
+      const validFiles = results
+        .filter((r): r is { ok: true; entry: CadUploadFileEntry } => r.ok)
+        .map(r => ({ ...r.entry, mode: getMode() }));
+
+      const failedFiles = results.filter(
+        (r): r is { ok: false; name: string; cause: string } => !r.ok
+      );
 
       files.push(...validFiles);
       syncSequentialIds();
@@ -755,7 +769,31 @@ export const CadUploadView: View = {
         warningEl.style.display = files.length > MAX_CAD_FILES ? "block" : "none";
       }
 
-      showStatus(`Dodano ${validFiles.length} plików. Łącznie: ${files.length}/${MAX_CAD_FILES}.`);
+      const messages: string[] = [];
+
+      if (validFiles.length > 0) {
+        messages.push(`Dodano ${validFiles.length} plików. Łącznie: ${files.length}/${MAX_CAD_FILES}.`);
+      }
+
+      if (failedFiles.length > 0) {
+        const failList = failedFiles.map(f => {
+          const causeText =
+            f.cause === "FORMAT_UNSUPPORTED" ? "niezgodny format" :
+            f.cause === "PAGES_LIMIT" ? `za dużo stron (limit: ${CAD_PDF_HARD_PAGES})` :
+            "plik uszkodzony / nie do odczytu";
+          return `${f.name} (${causeText})`;
+        }).join(", ");
+        messages.push(`Pominięto: ${failList}.`);
+      }
+
+      const warnPageFiles = validFiles.filter(f => f.pageCount >= CAD_PDF_WARN_PAGES);
+      if (warnPageFiles.length > 0) {
+        messages.push(`${warnPageFiles.length} plik(ów) ma ≥${CAD_PDF_WARN_PAGES} stron – przetwarzanie mogło potrwać dłużej.`);
+      }
+
+      const isWarn = failedFiles.length > 0 || warnPageFiles.length > 0;
+      showStatus(messages.join(" "), isWarn);
+
       renderFiles();
     }
 

@@ -2,6 +2,9 @@ import { CAD_BASE, CAD_PRICE, FOLD_PRICE, FORMAT_TOLERANCE_MM, WF_SCAN_PRICE_PER
 import { money } from "../core/compat";
 import { PDFDocument } from "pdf-lib";
 
+export const CAD_PDF_WARN_PAGES = 30;
+export const CAD_PDF_HARD_PAGES = 100;
+
 /** Pixel to millimeters conversion at 300 DPI */
 export const PX_TO_MM_300DPI = 25.4 / 300;
 
@@ -310,29 +313,6 @@ export function updateCadFileEntry(
           scanPrice: 0,
           totalPrice: parseFloat(money(printPrice))
         };
-      })
-      .catch(() => {
-        console.error("🔴 Error loading image dimensions");
-        return {
-          id: Date.now(),
-          name: file.name,
-          widthPx: 0,
-          heightPx: 0,
-          widthMm: 0,
-          heightMm: 0,
-          format: "unknown",
-          isFormatowy: false,
-          isStandardWidth: false,
-          pageCount: 0,
-          mode,
-          folding: false,
-          scanning: false,
-          printQty: 1,
-          printPrice: 0,
-          foldingPrice: 0,
-          scanPrice: 0,
-          totalPrice: 0
-        };
       });
   }
 
@@ -375,30 +355,31 @@ function pxToMm(px: number): number {
   return px * PX_TO_MM_300DPI;
 }
 
-function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number; pageCount: number }>{
+function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: number; pageCount: number }> {
   return new Promise(async (resolve, reject) => {
     if (file.type === "application/pdf") {
       try {
         const bytes = await file.arrayBuffer();
         const pdfDoc = await PDFDocument.load(bytes);
         const pageCount = pdfDoc.getPageCount();
+        if (pageCount >= CAD_PDF_HARD_PAGES) {
+          reject(new Error("PAGES_LIMIT"));
+          return;
+        }
         const page = pdfDoc.getPage(0);
-        const { width, height } = page.getSize(); // points (1/72 inch)
-        
-        // Convert points → px (300 DPI)
+        const { width, height } = page.getSize();
         const pxPerPoint = 300 / 72;
         const widthPx = Math.round(width * pxPerPoint);
         const heightPx = Math.round(height * pxPerPoint);
-        
         resolve({ widthPx, heightPx, pageCount });
-      } catch (err) {
-        reject(new Error("Failed to load PDF"));
+      } catch {
+        reject(new Error("READ_ERROR"));
       }
       return;
     }
 
     if (!file.type.startsWith("image/")) {
-      reject(new Error("Unsupported file type"));
+      reject(new Error("FORMAT_UNSUPPORTED"));
       return;
     }
 
@@ -412,10 +393,10 @@ function loadImageDimensions(file: File): Promise<{ widthPx: number; heightPx: n
           pageCount: 1
         });
       };
-      img.onerror = () => reject(new Error("Failed to load image"));
+      img.onerror = () => reject(new Error("READ_ERROR"));
       img.src = e.target?.result as string;
     };
-    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.onerror = () => reject(new Error("READ_ERROR"));
     reader.readAsDataURL(file);
   });
 }

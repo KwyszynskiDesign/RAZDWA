@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { PDFDocument } from "pdf-lib";
 import {
   calculateCadUpload,
   detectFormatFromDimensions,
@@ -6,10 +7,19 @@ import {
   calculateCadScanningPrice,
   calculateCadFoldingPrice,
   updateCadFileEntry,
+  CAD_PDF_WARN_PAGES,
+  CAD_PDF_HARD_PAGES,
 } from "../src/categories/cad-upload";
 import { calculateDrukCAD } from "../src/categories/druk-cad";
 import { setPrice, resetPrices } from "../src/services/priceService";
 import { getPrice } from "../src/services/priceService";
+
+async function makePdfFile(pageCount: number): Promise<File> {
+  const doc = await PDFDocument.create();
+  for (let i = 0; i < pageCount; i++) doc.addPage();
+  const bytes = await doc.save();
+  return new File([bytes.buffer as ArrayBuffer], "test.pdf", { type: "application/pdf" });
+}
 
 let storageData: Record<string, string> = {};
 
@@ -246,5 +256,50 @@ describe("Ustawienia cen CAD – spójność wartości", () => {
     for (const [fmt, key] of Object.entries(foldMap)) {
       expect(defaults[key]).toBe(Number(cadFold[fmt]));
     }
+  });
+});
+
+// ─── G — Guardy wydajnościowe CAD Upload ─────────────────────────────────────
+describe("G — Guardy wydajnościowe CAD Upload", () => {
+  it("eksportuje CAD_PDF_WARN_PAGES = 30", () => {
+    expect(CAD_PDF_WARN_PAGES).toBe(30);
+  });
+
+  it("eksportuje CAD_PDF_HARD_PAGES = 100", () => {
+    expect(CAD_PDF_HARD_PAGES).toBe(100);
+  });
+
+  it("PDF ≥ 100 stron → rejects z PAGES_LIMIT", async () => {
+    const file = await makePdfFile(CAD_PDF_HARD_PAGES);
+    await expect(updateCadFileEntry(file, true)).rejects.toThrow("PAGES_LIMIT");
+  });
+
+  it("PDF z 99 stronami → resolves (poniżej hard-stopu)", async () => {
+    const file = await makePdfFile(CAD_PDF_HARD_PAGES - 1);
+    const entry = await updateCadFileEntry(file, true);
+    expect(entry.pageCount).toBe(CAD_PDF_HARD_PAGES - 1);
+  });
+
+  it("PDF z 30 stronami → resolves, pageCount >= CAD_PDF_WARN_PAGES", async () => {
+    const file = await makePdfFile(CAD_PDF_WARN_PAGES);
+    const entry = await updateCadFileEntry(file, true);
+    expect(entry.pageCount).toBeGreaterThanOrEqual(CAD_PDF_WARN_PAGES);
+    expect(entry.pageCount).toBeLessThan(CAD_PDF_HARD_PAGES);
+  });
+
+  it("nieobsługiwany format pliku → rejects z FORMAT_UNSUPPORTED", async () => {
+    const file = new File(["dummy"], "test.docx", {
+      type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    });
+    await expect(updateCadFileEntry(file, true)).rejects.toThrow("FORMAT_UNSUPPORTED");
+  });
+
+  it("uszkodzony PDF → rejects z READ_ERROR", async () => {
+    const file = new File(
+      [new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x00])],
+      "corrupted.pdf",
+      { type: "application/pdf" }
+    );
+    await expect(updateCadFileEntry(file, true)).rejects.toThrow("READ_ERROR");
   });
 });
