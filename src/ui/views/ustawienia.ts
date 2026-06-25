@@ -40,7 +40,7 @@ import {
   fetchStateFromAppsScript,
 } from "../../services/orderExportService";
 import { priceStore } from "../../services/priceStore";
-import { warmPriceCache } from "../../core/compat";
+import { warmPriceCache, getZeroPriceLabels, getZeroPriceDefaults } from "../../core/compat";
 import type { PriceRecord } from "../../types/price-schema";
 import {
   pushPricesToGas,
@@ -2031,6 +2031,11 @@ export const UstawieniaView: View = {
     if (_cleanup) {
       _cleanup();
       _cleanup = null;
+    }
+
+    const _badPrices = [...new Set([...getZeroPriceLabels(), ...getZeroPriceDefaults()])];
+    if (_badPrices.length > 0) {
+      ctx.showToast?.(`Uwaga: ${_badPrices.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`, "error");
     }
 
     let prices = loadPrices();

@@ -30,7 +30,7 @@ import { customerDraftKey, touchDraftAlive, clearDraftSession } from "../core/dr
 import { isAdminSession, clearAdminSession } from "../core/adminSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer, appendOrderHistory } from "../services/orderExportService";
+import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer } from "../services/orderExportService";
 import {
   PRICES_UPDATED_EVENT,
   PRICES_STORAGE_KEY,
@@ -50,7 +50,7 @@ import fontkit from "@pdf-lib/fontkit";
 import { validateCustomerForm, isValidNIP, isValidPhone, normalizePhoneDigits } from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
-import { warmPriceCache, getZeroPriceLabels, getZeroPriceDefaults, hasCachedPrices } from "../core/compat";
+import { warmPriceCache, hasCachedPrices } from "../core/compat";
 import { checkStartupConfig } from "../core/startGuard";
 
 const cart = new Cart();
@@ -86,7 +86,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606251045';
+;(window as any).__APP_BUILD__ = '202606251740';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -1191,8 +1191,14 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    const addedByVal = (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
+    if (addedByVal.trim().length < 2) {
+      showToast(`Uzupełnij pole „Kto dodał".`, "error");
+      return;
+    }
+
     const customer: CustomerData = {
-      addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
+      addedBy: addedByVal.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
       company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
       nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(/\D/g, '') || undefined,
@@ -1222,7 +1228,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const dialog = document.createElement("div");
     dialog.className = "clear-confirm";
     dialog.innerHTML = `
-      <span class="clear-confirm__msg">Wyczyścić całą listę?</span>
+      <span class="clear-confirm__msg">Wyczyścić listę i dane klienta?</span>
       <div class="clear-confirm__actions">
         <button type="button" class="clear-confirm__cancel ghost">Anuluj</button>
         <button type="button" class="clear-confirm__ok danger">Wyczyść</button>
@@ -1240,7 +1246,12 @@ document.addEventListener("DOMContentLoaded", () => {
     dialog.querySelector(".clear-confirm__ok")?.addEventListener("click", () => {
       close();
       cart.clear();
-      updateCartUI();
+      clearCustomerDraft();
+      const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
+      clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
+      clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+      updateDraftStatus(null);
+      resetOrderState();
     });
   });
 
@@ -1654,14 +1665,6 @@ document.addEventListener("DOMContentLoaded", () => {
           applySendPhase('success', { message: successMsg });
           cart.clear();
           resetOrderState();
-          appendOrderHistory({
-            requestId: payload.requestId ?? "",
-            orderId: result.orderId,
-            sentAt: new Date().toISOString(),
-            customer: { name: customer.name, email: customer.email },
-            itemsCount: items.length,
-            total: payload.summary.total,
-          });
           saveAddedByRecent(addedByVal);
           populateAddedByDatalist();
           clearCustomerDraft();
@@ -1935,12 +1938,6 @@ document.addEventListener("DOMContentLoaded", () => {
   syncVariantsToSubgroupsAtStartup();
   runMigrationIfNeeded()
     .then(() => warmPriceCache())
-    .then(() => {
-      const bad = [...new Set([...getZeroPriceLabels(), ...getZeroPriceDefaults()])];
-      if (bad.length > 0 && isAdminSession()) {
-        showToast(`Uwaga: ${bad.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`, "error");
-      }
-    })
     .catch((err) => console.warn("[priceCache] startup error:", err));
   router.start();
 
