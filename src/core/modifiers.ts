@@ -5,23 +5,42 @@ export const EXPRESS_RATE = 0.2;
 import { z } from 'zod';
 import { resolveStoredPrice } from './compat';
 
+/**
+ * Pure: returns the override if provided, otherwise EXPRESS_RATE.
+ * Use this in tests and in core calculations where the stored value
+ * has already been resolved by the service layer.
+ */
+export function computeExpressRate(override?: number): number {
+  return override !== undefined && Number.isFinite(override) ? override : EXPRESS_RATE;
+}
+
+/**
+ * @side-effects reads localStorage + IDB via compat.resolveStoredPrice.
+ * Must not be called from pure core functions.
+ * Callers: src/core/cart.ts, src/ui/main.ts — migrate to computeExpressRate in Stage 7.
+ */
 export function getExpressRate(): number {
   return resolveStoredPrice('modifier-express', EXPRESS_RATE);
 }
 
-// Modifier definitions
-export type Modifier = {
+/**
+ * Simple in-memory modifier (name + flat delta).
+ * Named ModifierEntry to avoid collision with the full IDB Modifier in src/types/price-schema.ts.
+ */
+export type ModifierEntry = {
   name: string;
   value: number;
 };
 
-export const EXPRESS_MODIFIER: Modifier = {
+/** @deprecated use ModifierEntry */
+export type Modifier = ModifierEntry;
+
+export const EXPRESS_MODIFIER: ModifierEntry = {
   name: 'EXPRESS',
-  value: 20, // Example value; adjust as needed.
+  value: 20,
 };
 
-// Additional RAZDWA modifiers can be defined here
-export const ANOTHER_MODIFIER: Modifier = {
+export const ANOTHER_MODIFIER: ModifierEntry = {
   name: 'ANOTHER_MODIFIER',
   value: 10,
 };
@@ -38,7 +57,7 @@ export type ModifierApplicationResult = {
   breakdown: string[];
 };
 
-export function applyModifiers(basePrice: number, modifiers: Modifier[]): ModifierApplicationResult {
+export function applyModifiers(basePrice: number, modifiers: ModifierEntry[]): ModifierApplicationResult {
   let total = basePrice;
   const breakdown: string[] = [];
 
