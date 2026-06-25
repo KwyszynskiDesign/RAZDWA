@@ -16,16 +16,24 @@ export class Cart {
       const raw = localStorage.getItem(this.storageKey);
       if (!raw) return;
       const parsed: unknown = JSON.parse(raw);
+      const isValidItem = (item: unknown): item is CartItem => {
+        const i = item as CartItem;
+        return (
+          i != null &&
+          Number.isFinite(i.unitPrice) && i.unitPrice > 0 &&
+          Number.isFinite(i.totalPrice) && i.totalPrice > 0
+        );
+      };
       if (Array.isArray(parsed)) {
         // backward compat: old format without timestamp
         if (this.savedAt === 0) {
-          this.items = parsed as CartItem[];
+          this.items = (parsed as unknown[]).filter(isValidItem);
         }
       } else if (parsed && typeof parsed === "object") {
         const data = parsed as { items?: unknown; savedAt?: unknown };
         const storedAt = typeof data.savedAt === "number" ? data.savedAt : 0;
         if (storedAt >= this.savedAt && Array.isArray(data.items)) {
-          this.items = data.items as CartItem[];
+          this.items = (data.items as unknown[]).filter(isValidItem);
           this.savedAt = storedAt;
         }
       }

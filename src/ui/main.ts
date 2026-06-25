@@ -86,7 +86,7 @@ function syncVariantsToSubgroupsAtStartup(): void {
 }
 
 // App build/version stamp (used to verify deployed bundle and force visibility in Console)
-;(window as any).__APP_BUILD__ = '202606241032';
+;(window as any).__APP_BUILD__ = '202606251045';
 
 function escapeHtml(str: string): string {
   return String(str)
@@ -478,8 +478,9 @@ function showToast(
 
 function getInvalidPricedCartItems(items: CartItem[]): CartItem[] {
   return items.filter(item => {
-    const p = item.unitPrice;
-    return p <= 0 || p == null || !Number.isFinite(p);
+    const u = item.unitPrice;
+    const t = item.totalPrice;
+    return u <= 0 || !Number.isFinite(u) || t <= 0 || !Number.isFinite(t);
   });
 }
 
@@ -1603,6 +1604,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const provisionalTotal = applySummaryPercentAdjustments(cart.getGrandTotal());
+      if (provisionalTotal <= 0) {
+        releaseGuard();
+        showToast("Suma wyszła na zero — sprawdź rabat albo dodaj coś do koszyka.", "error");
+        return;
+      }
       const needsBigConfirm =
         items.length > BIG_ORDER_ITEMS &&
         bigOrderConfirmedFor !== payload.requestId;

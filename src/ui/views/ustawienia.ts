@@ -2819,6 +2819,11 @@ export const UstawieniaView: View = {
         pushBtn.disabled = true;
         try {
           const result = await pushPricesToGas();
+          if (!result.ok && result.error === 'no_token') {
+            clearAdminSession();
+            window.location.hash = '#/';
+            return;
+          }
           showIdbStatus(
             result.ok
               ? `✓ Push: ${result.confirmed ?? 0}/${result.pushed ?? 0} potwierdzonych`
@@ -2836,6 +2841,11 @@ export const UstawieniaView: View = {
         pullBtn.disabled = true;
         try {
           const result = await pullPricesFromGas();
+          if (!result.ok && result.error === 'no_token') {
+            clearAdminSession();
+            window.location.hash = '#/';
+            return;
+          }
           showIdbStatus(
             result.ok
               ? `✓ Pull: ${result.pulled ?? 0} rek., scalono ${result.merged ?? 0}`
@@ -3318,6 +3328,11 @@ export const UstawieniaView: View = {
       try {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
+        if (result.noToken) {
+          clearAdminSession();
+          window.location.hash = '#/';
+          return;
+        }
         localStorage.setItem('razdwa_prices_ts', '0');
         if (result.ok) {
           try {
