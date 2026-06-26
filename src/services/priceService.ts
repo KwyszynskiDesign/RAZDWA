@@ -5,7 +5,7 @@
  * zamiast importować src/config/prices.json bezpośrednio.
  */
 import _config from "../config/prices.json";
-import { initPriceRoot, priceSource } from '../bootstrap';
+import { initPriceRoot, priceSource, eventBus } from '../bootstrap';
 
 export const PRICES_STORAGE_KEY = "razdwa_prices";
 export const PRICE_LABELS_STORAGE_KEY = "razdwa_price_labels";
@@ -122,6 +122,7 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
 }
 
     function notifyPricesUpdated(path: string): void {
+      eventBus.emit({ type: 'price-changed', path, source: 'ui', timestamp: new Date().toISOString() });
       try {
         if (typeof window !== "undefined") {
           window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path } }));

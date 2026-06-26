@@ -52,7 +52,7 @@ import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache, hasCachedPrices } from "../core/compat";
 import { checkStartupConfig } from "../core/startGuard";
-import { categoryRegistry } from "../bootstrap";
+import { categoryRegistry, eventBus } from "../bootstrap";
 import { registerBuiltinCategories } from "../domain/registerBuiltinCategories";
 
 registerBuiltinCategories(categoryRegistry);
@@ -1123,12 +1123,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   resetObserver.observe(viewContainer, { childList: true });
 
-  window.addEventListener(PRICES_UPDATED_EVENT, () => {
+  eventBus.on('price-changed', () => {
     const currentHash = window.location.hash || "#/";
     if (!currentHash || currentHash === "#/" || currentHash === "#/ustawienia") {
       return;
     }
-
     router.handleRoute().catch(() => {});
   });
 

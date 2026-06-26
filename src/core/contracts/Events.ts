@@ -11,8 +11,8 @@
 export interface PriceChangedEvent {
   type: 'price-changed';
   path: string;
-  oldValue: number;
-  newValue: number;
+  oldValue?: number;
+  newValue?: number;
   source: 'ui' | 'import' | 'api';
   timestamp: string;
 }

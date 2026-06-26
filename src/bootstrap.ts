@@ -1,8 +1,10 @@
 import type { PriceDataSource } from './core/contracts/PriceDataSource';
 import type { CategoryRegistry } from './core/contracts/CategoryRegistry';
+import type { TypedEventEmitter } from './core/contracts/Events';
 import { JsonPriceSource } from './infrastructure/adapters/JsonPriceSource';
 import { LocalStorageOverrideSource } from './infrastructure/adapters/LocalStorageOverrideSource';
 import { DefaultCategoryRegistry } from './domain/CategoryRegistry';
+import { TypedEventDispatcher } from './infrastructure/events/TypedEventDispatcher';
 
 type RootGetter = () => unknown;
 let _rootGetter: RootGetter = () => ({});
@@ -21,3 +23,5 @@ export const priceSource: PriceDataSource = new LocalStorageOverrideSource(
 );
 
 export const categoryRegistry: CategoryRegistry = new DefaultCategoryRegistry();
+
+export const eventBus: TypedEventEmitter = new TypedEventDispatcher();
