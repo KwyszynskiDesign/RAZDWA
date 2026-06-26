@@ -5,6 +5,7 @@
  * zamiast importować src/config/prices.json bezpośrednio.
  */
 import _config from "../config/prices.json";
+import { initPriceRoot, priceSource } from '../bootstrap';
 
 export const PRICES_STORAGE_KEY = "razdwa_prices";
 export const PRICE_LABELS_STORAGE_KEY = "razdwa_price_labels";
@@ -172,18 +173,10 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
     }
 
     applyStorageOverrides();
+    initPriceRoot(getConfigRoot);
 
     export function getPrice(path: string): any {
-      const keys = path.split(".");
-      if (keys.some((k) => !isSafePathSegment(k))) return undefined;
-      let obj: any = getConfigRoot();
-
-      for (const key of keys) {
-        if (obj == null || typeof obj !== "object") return undefined;
-        obj = obj[key];
-      }
-
-      return obj;
+      return priceSource.getPrice(path);
     }
 
     export function setPrice(path: string, value: any): void {
