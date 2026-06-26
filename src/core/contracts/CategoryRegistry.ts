@@ -8,16 +8,9 @@
  * Implementation (DefaultCategoryRegistry) lives in src/domain/CategoryRegistry.ts (Stage 3).
  */
 
-import type { Unit, ModifierBreakdown } from '../types';
+import type { Unit, ModifierBreakdown, CategoryInput } from '../types';
 
-export type { ModifierBreakdown };
-
-export interface CategoryInput {
-  quantity: number;
-  unit?: Unit;
-  modifiers: string[];
-  [key: string]: unknown;
-}
+export type { ModifierBreakdown, CategoryInput };
 
 export interface CategoryOutput {
   success: boolean;

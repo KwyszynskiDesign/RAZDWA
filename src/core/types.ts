@@ -42,6 +42,7 @@ export interface PriceTable {
 
 export interface CategoryInput {
   quantity: number
+  unit?: Unit
   modifiers: string[]
   [key: string]: unknown
 }

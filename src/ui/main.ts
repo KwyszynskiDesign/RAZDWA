@@ -52,6 +52,10 @@ import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache, hasCachedPrices } from "../core/compat";
 import { checkStartupConfig } from "../core/startGuard";
+import { categoryRegistry } from "../bootstrap";
+import { registerBuiltinCategories } from "../domain/registerBuiltinCategories";
+
+registerBuiltinCategories(categoryRegistry);
 
 const cart = new Cart();
 
@@ -818,6 +822,40 @@ function showStartupErrorBanner(reason: string): void {
 
 let _startupConfigFailed = false;
 
+const RAZDWA_UNVERIFIED_KEY = "razdwa_unverified_request_id";
+
+function showUnverifiedSessionBanner(requestId: string): void {
+  const existing = document.getElementById("unverified-session-banner");
+  if (existing) return;
+  const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+  if (!host) return;
+  const banner = document.createElement("div");
+  banner.id = "unverified-session-banner";
+  banner.setAttribute("role", "alert");
+  banner.style.cssText = [
+    "display:flex",
+    "align-items:flex-start",
+    "gap:10px",
+    "padding:12px 14px",
+    "margin-bottom:10px",
+    "background:#fefce8",
+    "border:2px solid #fbbf24",
+    "border-radius:8px",
+    "font-size:0.88rem",
+    "line-height:1.4",
+    "color:#78350f",
+  ].join(";");
+  banner.innerHTML = `
+    <span style="font-size:1.1rem;flex-shrink:0;">&#9888;</span>
+    <span style="flex:1;">Poprzednie zamówienie mogło nie zostać zapisane w arkuszu (wysłano bez potwierdzenia odpowiedzi serwera). Sprawdź arkusz Sheets &mdash; jeśli zamówienia nie ma, wyślij ponownie.<br><span style="opacity:0.75;font-size:0.82rem;">Kod sesji: <strong>${escapeHtml(requestId)}</strong></span></span>
+    <button type="button" aria-label="Zamknij ostrzeżenie" style="background:none;border:none;cursor:pointer;font-size:1.1rem;color:#92400e;flex-shrink:0;padding:0 2px;">&#10005;</button>
+  `;
+  banner.querySelector("button")?.addEventListener("click", () => {
+    banner.style.display = "none";
+  });
+  host.prepend(banner);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const guardResult = checkStartupConfig();
   if (!guardResult.ok && guardResult.fatal) {
@@ -827,6 +865,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = document.getElementById(id) as HTMLButtonElement | null;
       if (btn) { btn.disabled = true; btn.title = "Błąd konfiguracji — eksport niedostępny"; }
     });
+  }
+
+  try {
+    const pendingId = sessionStorage.getItem(RAZDWA_UNVERIFIED_KEY);
+    if (pendingId) {
+      showUnverifiedSessionBanner(pendingId);
+    }
+  } catch {
+    // sessionStorage niedostępny — brak akcji
   }
 
   const viewContainer = document.getElementById("viewContainer");
@@ -1675,6 +1722,8 @@ document.addEventListener("DOMContentLoaded", () => {
           lastSendRequestId = null;
           unverifiedSend = false;
           bigOrderConfirmedFor = null;
+          try { sessionStorage.removeItem(RAZDWA_UNVERIFIED_KEY); } catch {}
+          document.getElementById("unverified-session-banner")?.remove();
           if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
           return;
         }
@@ -1701,6 +1750,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (result.unverified === true) {
           applySendPhase('unverified', { requestId: payload.requestId, message: result.message });
           unverifiedSend = true;
+          try { sessionStorage.setItem(RAZDWA_UNVERIFIED_KEY, payload.requestId ?? ""); } catch {}
           return;
         }
 
