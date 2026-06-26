@@ -10,7 +10,6 @@ import { initPriceRoot, priceSource, eventBus } from '../bootstrap';
 export const PRICES_STORAGE_KEY = "razdwa_prices";
 export const PRICE_LABELS_STORAGE_KEY = "razdwa_price_labels";
 export const PRICE_SUBGROUPS_STORAGE_KEY = "razdwa_price_subgroups";
-export const PRICES_UPDATED_EVENT = "razdwa:prices-updated";
 
 const FORBIDDEN_PATH_KEYS = new Set(["__proto__", "prototype", "constructor"]);
 
@@ -123,13 +122,6 @@ function writeStoredJsonNestedMap(storageKey: string, value: Record<string, Reco
 
     function notifyPricesUpdated(path: string): void {
       eventBus.emit({ type: 'price-changed', path, source: 'ui', timestamp: new Date().toISOString() });
-      try {
-        if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path } }));
-        }
-      } catch {
-        // ignore
-      }
     }
 
     function applyStorageOverrides(): void {

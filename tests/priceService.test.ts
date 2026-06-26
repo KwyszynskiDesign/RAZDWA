@@ -2,9 +2,11 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   getPrice, setPrice, resetPrices, PRICES_STORAGE_KEY,
   setVariantDefinitions, getVariantDefinitions,
-  PRICES_UPDATED_EVENT, VARIANTS_STORAGE_KEY,
+  VARIANTS_STORAGE_KEY,
   type VariantDefinition,
 } from '../src/services/priceService';
+import { eventBus } from '../src/bootstrap';
+import type { PriceChangedEvent } from '../src/core/contracts/Events';
 
 describe('priceService', () => {
   beforeEach(() => {
@@ -57,7 +59,6 @@ describe('priceService', () => {
     const saved = JSON.parse(stored[PRICES_STORAGE_KEY] ?? '{}');
     expect(saved['druk-bw-a4-1-5']).toBe(1.23);
 
-    // Cleanup
     delete (globalThis as any).localStorage;
     resetPrices();
   });
@@ -72,12 +73,9 @@ describe('priceService', () => {
     (globalThis as any).localStorage = mockLocalStorage;
 
     resetPrices();
-    // localStorage data should be preserved (not wiped) — reset = restore from last save
     expect(stored[PRICES_STORAGE_KEY]).toBe('{"x":1}');
-    // In-memory state should reflect the stored override
     expect(getPrice('defaultPrices.x')).toBe(1);
 
-    // Cleanup
     delete (globalThis as any).localStorage;
     resetPrices();
   });
@@ -92,31 +90,24 @@ describe('priceService', () => {
 
 describe('setVariantDefinitions', () => {
   const mockStorage: Record<string, string> = {};
-  const dispatched: Array<{ type: string; detail: unknown }> = [];
+  const typedEvents: PriceChangedEvent[] = [];
+  let unsub: (() => void) | null = null;
 
   beforeEach(() => {
     Object.keys(mockStorage).forEach(k => delete mockStorage[k]);
-    dispatched.length = 0;
+    typedEvents.length = 0;
     (globalThis as any).localStorage = {
       getItem: (k: string) => mockStorage[k] ?? null,
       setItem: (k: string, v: string) => { mockStorage[k] = v; },
       removeItem: (k: string) => { delete mockStorage[k]; },
     };
-    (globalThis as any).CustomEvent = class {
-      type: string; detail: unknown;
-      constructor(type: string, options?: { detail?: unknown }) {
-        this.type = type; this.detail = options?.detail;
-      }
-    };
-    (globalThis as any).window = {
-      dispatchEvent: (event: { type: string; detail: unknown }) => { dispatched.push(event); },
-    };
+    unsub = eventBus.on('price-changed', (e) => { typedEvents.push(e as PriceChangedEvent); });
   });
 
   afterEach(() => {
+    unsub?.();
+    unsub = null;
     delete (globalThis as any).localStorage;
-    delete (globalThis as any).window;
-    delete (globalThis as any).CustomEvent;
   });
 
   const sampleVariant: VariantDefinition = {
@@ -149,10 +140,11 @@ describe('setVariantDefinitions', () => {
     expect(result[0].key).toBe(sampleVariant.key);
   });
 
-  it('dispatches PRICES_UPDATED_EVENT with path="variants" after save', () => {
+  it('emits price-changed event with path="variants" after save', () => {
     setVariantDefinitions([sampleVariant]);
-    expect(dispatched).toHaveLength(1);
-    expect(dispatched[0].type).toBe(PRICES_UPDATED_EVENT);
-    expect((dispatched[0].detail as Record<string, unknown>)?.path).toBe("variants");
+    expect(typedEvents).toHaveLength(1);
+    expect(typedEvents[0].type).toBe('price-changed');
+    expect(typedEvents[0].path).toBe('variants');
+    expect(typedEvents[0].source).toBe('ui');
   });
 });

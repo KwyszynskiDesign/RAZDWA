@@ -32,7 +32,6 @@ import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
 import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer } from "../services/orderExportService";
 import {
-  PRICES_UPDATED_EVENT,
   PRICES_STORAGE_KEY,
   VARIANTS_STORAGE_KEY,
   getVariantDefinitions,
@@ -2007,7 +2006,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!hasLocalVariants) {
           setVariantDefinitions(remote.variants);
           syncVariantsToSubgroupsAtStartup();
-          window.dispatchEvent(new CustomEvent(PRICES_UPDATED_EVENT, { detail: { path: "variants" } }));
         }
       }
     } catch (err) {
