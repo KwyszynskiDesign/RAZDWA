@@ -512,6 +512,7 @@ export const CadUploadView: View = {
           isFormatowy: file.isFormatowy,
           isStandardWidth: file.isStandardWidth,
           pageCount: file.pageCount,
+          isPdf: file.isPdf,
           mode: getMode(),
           folding: file.folding,
           scanning: file.scanning,
@@ -1017,6 +1018,7 @@ export const CadUploadView: View = {
       dpiInput.addEventListener("change", (e) => {
         dpi = parseInt((e.target as HTMLInputElement).value) || 300;
         files = files.map((f) => {
+          if (f.isPdf) return f;
           f.widthMm = pxToMm(f.widthPx);
           f.heightMm = pxToMm(f.heightPx);
           const fmt = detectFormatFromDimensions(f.widthMm, f.heightMm, true);
@@ -1028,6 +1030,12 @@ export const CadUploadView: View = {
         });
         renderFiles();
       });
+
+      const dpiNote = document.createElement("p");
+      dpiNote.className = "cad-dpi-note";
+      dpiNote.style.cssText = "margin:4px 0 0;font-size:0.78rem;color:var(--text-secondary,#64748b);";
+      dpiNote.textContent = "DPI dotyczy tylko plików graficznych (np. skanów). Pliki PDF mają wbudowaną rozdzielczość i nie są przeliczane przy zmianie DPI.";
+      dpiInput.insertAdjacentElement("afterend", dpiNote);
     }
 
     // Add to cart buttons (Color and BW)

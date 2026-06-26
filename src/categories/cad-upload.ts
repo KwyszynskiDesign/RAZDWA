@@ -20,6 +20,7 @@ export interface CadUploadFileEntry {
   isFormatowy: boolean;
   isStandardWidth: boolean;
   pageCount: number;
+  isPdf: boolean;
   mode: 'color' | 'bw';
   folding: boolean;
   scanning: boolean;
@@ -304,6 +305,7 @@ export function updateCadFileEntry(
           isFormatowy: fmt.isFormatowy,
           isStandardWidth: fmt.isStandardWidth,
           pageCount,
+          isPdf: file.type === "application/pdf",
           mode,
           folding: false,
           scanning: false,
@@ -340,6 +342,7 @@ export function updateCadFileEntry(
     isFormatowy,
     isStandardWidth: entry.isStandardWidth || false,
     pageCount: entry.pageCount || 1,
+    isPdf: entry.isPdf || false,
     mode: entry.mode || mode,
     folding: entry.folding || false,
     scanning: entry.scanning || false,
