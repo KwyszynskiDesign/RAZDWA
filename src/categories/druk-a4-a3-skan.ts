@@ -364,7 +364,7 @@ export const drukA4A3Category: CategoryModule = {
       }
 
       if (breakdownDisplay) {
-        let parts = [];
+        const parts = [];
         
         if (currentResult.totalPrintPrice > 0) {
           parts.push(`Druk: ${currentResult.totalPrintPrice.toFixed(2)} zł`);
@@ -411,7 +411,7 @@ export const drukA4A3Category: CategoryModule = {
       const scanQty = scanQtyInput.value;
       const express = expressCheckbox.checked;
 
-      let descParts = [`${format}, ${quantity} str, ${color}`];
+      const descParts = [`${format}, ${quantity} str, ${color}`];
       if (surcharge && parseInt(surchargeQty) > 0) {
         descParts.push(`${surchargeQty} str z zadrukiem >25%`);
       }

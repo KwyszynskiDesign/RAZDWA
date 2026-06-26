@@ -61,21 +61,6 @@ export interface Modifier {
 }
 
 /**
- * Wpis logu synchronizacji — jeden rekord per próba sync.
- * Przechowywany w osobnym IndexedDB store "sync_log".
- */
-export interface SyncLogEntry {
-  id: string;
-  recordId: string;
-  recordType: RecordType;
-  operation: "upsert" | "delete";
-  timestamp: string;
-  status: SyncStatus;
-  errorMessage?: string;
-  payloadHash?: string;
-}
-
-/**
  * Format pliku importu JSON — tablica rekordów gotowa do załadowania do IDB.
  */
 export interface PriceDatabaseSnapshot {

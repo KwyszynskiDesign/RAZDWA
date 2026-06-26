@@ -1,0 +1,13 @@
+import tseslint from "typescript-eslint";
+
+export default tseslint.config(
+  { ignores: ["docs/**", "node_modules/**", "scripts/**"] },
+  {
+    files: ["src/**/*.ts", "tests/**/*.ts"],
+    extends: tseslint.configs.recommended,
+    rules: {
+      "@typescript-eslint/no-explicit-any": "warn",
+      "@typescript-eslint/no-unused-vars": "warn",
+    },
+  }
+);

@@ -65,7 +65,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
   let table: PriceTable;
   let formatLabel = "";
   let qtyForCalc = Math.max(1, options.quantity || 1);
-  let isCustom = false;
+  const isCustom = false;
   let areaM2: number | undefined;
 
   if (options.modeId === "m2-unframed") {

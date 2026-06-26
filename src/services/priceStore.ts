@@ -1,7 +1,7 @@
-import type { PriceRecord, SyncLogEntry } from "../types/price-schema";
+import type { PriceRecord } from "../types/price-schema";
 
 const DB_NAME = "razdwa-price-db";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 let _dbPromise: Promise<IDBDatabase> | null = null;
 
@@ -15,14 +15,14 @@ function openDB(): Promise<IDBDatabase> {
 
     request.onupgradeneeded = (event) => {
       const db = (event.target as IDBOpenDBRequest).result;
+      if (event.oldVersion < 2 && db.objectStoreNames.contains("sync_log")) {
+        db.deleteObjectStore("sync_log");
+      }
       if (!db.objectStoreNames.contains("prices")) {
         const store = db.createObjectStore("prices", { keyPath: "id" });
         store.createIndex("by_category", "category", { unique: false });
         // _dirty i _deleted są boolean — boolean nie jest prawidłowym kluczem IDB.
         // getDirty/getDeleted używają filtrowania in-memory.
-      }
-      if (!db.objectStoreNames.contains("sync_log")) {
-        db.createObjectStore("sync_log", { keyPath: "id" });
       }
     };
 
@@ -93,17 +93,5 @@ export const priceStore = {
   async clearAll(): Promise<void> {
     const db = await openDB();
     await req(db.transaction("prices", "readwrite").objectStore("prices").clear());
-  },
-};
-
-export const syncLogStore = {
-  async put(entry: SyncLogEntry): Promise<void> {
-    const db = await openDB();
-    await req(db.transaction("sync_log", "readwrite").objectStore("sync_log").put(entry));
-  },
-
-  async getAll(): Promise<SyncLogEntry[]> {
-    const db = await openDB();
-    return req(db.transaction("sync_log", "readonly").objectStore("sync_log").getAll());
   },
 };

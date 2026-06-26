@@ -3,7 +3,10 @@
     "@playwright/test": "^1.60.0",
     "@types/node": "^25.5.0",
     "esbuild": "^0.28.1",
+    "eslint": "^10.5.0",
+    "prettier": "^3.8.5",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.62.0",
     "vitest": "^4.1.0"
   },
   "name": "razdwa",
@@ -11,11 +14,12 @@
   "scripts": {
     "prebuild": "node scripts/inject-cache-version.js",
     "build": "npm run prebuild && node scripts/build.mjs",
-    "build:commit": "npm run build && git add docs/sw.js docs/cache-buster.js docs/index.html src/ui/main.ts && git commit -m \"build: update app.js and service worker cache version\"",
-    "push:main": "git pull --rebase origin main && git push origin main --force-with-lease",
-    "sync": "npm run build:commit && npm run push:main",
-    "deploy": "npm run sync",
     "dev": "npx http-server docs -p 8080 -o",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
     "test": "node scripts/run-vitest.mjs",
     "test:smoke": "playwright test"
   },
