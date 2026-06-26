@@ -23,7 +23,6 @@ export class Router {
   private container: HTMLElement;
   private getCtx: () => ViewContext;
   private categories: any[] = [];
-  private legacyScriptPages: Set<string> = new Set(["plakaty", "ustawienia"]);
   private previousHash: string = "#/";
 
   private isSettingsAuthenticated(): boolean {
@@ -286,16 +285,6 @@ export class Router {
             newScript.textContent = oldScript.textContent ?? '';
             oldScript.replaceWith(newScript);
           });
-          if (this.legacyScriptPages.has(path)) {
-            try {
-              const jsResp = await fetch(`categories/${path}.js`);
-              if (jsResp.ok) {
-                const script = document.createElement('script');
-                script.textContent = await jsResp.text();
-                this.container.appendChild(script);
-              }
-            } catch {}
-          }
         } else {
           this.renderNotFound(path);
         }

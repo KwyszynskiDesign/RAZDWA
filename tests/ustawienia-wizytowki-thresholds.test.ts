@@ -29,10 +29,4 @@ describe('Ustawienia cen - wizytówki', () => {
     });
   });
 
-  it('zawiera wszystkie progi wizytówek w legacy konfiguracji ustawień', () => {
-    const content = readFileSync(resolve(process.cwd(), 'docs/categories/ustawienia.js'), 'utf8');
-    REQUIRED_WIZYTOWKI_KEYS.forEach((key) => {
-      expect(content).toContain(`"${key}"`);
-    });
-  });
 });
