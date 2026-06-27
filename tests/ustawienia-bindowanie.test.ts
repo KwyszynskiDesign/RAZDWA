@@ -1,13 +1,26 @@
 import { describe, expect, it } from "vitest";
-import { getBindowanieSubgroupTitle, sortLaminowanieCategoryKeys } from "../src/ui/views/ustawienia";
+import {
+  getBindowanieSubgroupTitle,
+  sortLaminowanieCategoryKeys,
+} from "../src/ui/views/ustawienia";
 
 describe("Ustawienia bindowanie grouping", () => {
   it("maps bindowanie keys into table-based subgroups", () => {
-    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-1-50-do20-listwa")).toBe("PLASTIK • DO 20 KARTEK");
-    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-1-50-do20-spirala")).toBe("PLASTIK • DO 20 KARTEK");
-    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-51-100-do20")).toBe("PLASTIK • DO 20 KARTEK");
-    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-51-100-21-100")).toBe("PLASTIK • 21–100 KARTEK");
-    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-metal-51-100-do80")).toBe("METAL (SPIRALA METALOWA) • DO 80 KARTEK");
+    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-1-50-do20-listwa")).toBe(
+      "PLASTIK • DO 20 KARTEK"
+    );
+    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-1-50-do20-spirala")).toBe(
+      "PLASTIK • DO 20 KARTEK"
+    );
+    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-51-100-do20")).toBe(
+      "PLASTIK • DO 20 KARTEK"
+    );
+    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-plastik-51-100-21-100")).toBe(
+      "PLASTIK • 21–100 KARTEK"
+    );
+    expect(getBindowanieSubgroupTitle("laminowanie-bindowanie-metal-51-100-do80")).toBe(
+      "METAL (SPIRALA METALOWA) • DO 80 KARTEK"
+    );
   });
 
   it("sorts bindowanie keys in three subgroups and by quantity inside each subgroup", () => {

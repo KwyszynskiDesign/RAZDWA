@@ -20,7 +20,9 @@ describe("Breakdown panel layout coverage", () => {
         /id="[^"]*(Breakdown|breakdown-display)[^"]*"/i.test(content) ||
         /class="[^"]*d-breakdown-box[^"]*"/i.test(content);
 
-      expect(hasSupportedContainer, `${file} should expose a supported breakdown container`).toBe(true);
+      expect(hasSupportedContainer, `${file} should expose a supported breakdown container`).toBe(
+        true
+      );
     }
 
     expect(filesWithBreakdownHeading.length).toBeGreaterThan(0);

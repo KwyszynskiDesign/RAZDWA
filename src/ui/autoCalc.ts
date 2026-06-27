@@ -41,12 +41,12 @@ export function autoCalc({ root, calc, delay = 120, cancelOn }: AutoCalcOptions)
   root.addEventListener("change", run, true);
 
   const cancelTargets = (cancelOn ?? []).filter((el): el is HTMLElement => el != null);
-  cancelTargets.forEach(el => el.addEventListener("click", cancel));
+  cancelTargets.forEach((el) => el.addEventListener("click", cancel));
 
   return () => {
     cancel();
     root.removeEventListener("input", run, true);
     root.removeEventListener("change", run, true);
-    cancelTargets.forEach(el => el.removeEventListener("click", cancel));
+    cancelTargets.forEach((el) => el.removeEventListener("click", cancel));
   };
 }

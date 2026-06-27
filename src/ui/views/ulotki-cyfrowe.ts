@@ -1,7 +1,13 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { getUlotkiDwustronneTable, quoteUlotkiDwustronne } from "../../categories/ulotki-cyfrowe-dwustronne";
-import { getUlotkiJednostronneTable, quoteJednostronne } from "../../categories/ulotki-cyfrowe-jednostronne";
+import {
+  getUlotkiDwustronneTable,
+  quoteUlotkiDwustronne,
+} from "../../categories/ulotki-cyfrowe-dwustronne";
+import {
+  getUlotkiJednostronneTable,
+  quoteJednostronne,
+} from "../../categories/ulotki-cyfrowe-jednostronne";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 
@@ -69,12 +75,23 @@ export const UlotkiCyfroweView: View = {
     const tierHint = container.querySelector("#u-tier-hint") as HTMLElement;
     const expressHint = container.querySelector("#u-express-hint") as HTMLElement;
     const satinHint = container.querySelector("#u-satin-hint") as HTMLElement;
-    const sidesInputs = Array.from(container.querySelectorAll<HTMLInputElement>('input[name="sides"]'));
+    const sidesInputs = Array.from(
+      container.querySelectorAll<HTMLInputElement>('input[name="sides"]')
+    );
     const legendTitle = container.querySelector("#u-legend-title") as HTMLElement | null;
     const legendTbody = container.querySelector("#u-table-legend tbody") as HTMLElement | null;
-    const dynamicLegendNote = container.querySelector("#u-dynamic-legend-note") as HTMLElement | null;
+    const dynamicLegendNote = container.querySelector(
+      "#u-dynamic-legend-note"
+    ) as HTMLElement | null;
 
-    if (!formatSelect || !qtySelect || !paperSelect || !addToCartBtn || !resultDisplay || !totalPriceSpan) {
+    if (
+      !formatSelect ||
+      !qtySelect ||
+      !paperSelect ||
+      !addToCartBtn ||
+      !resultDisplay ||
+      !totalPriceSpan
+    ) {
       container.innerHTML = `<div class="error">Błąd: brak elementów formularza ulotek.</div>`;
       return;
     }
@@ -85,7 +102,7 @@ export const UlotkiCyfroweView: View = {
     const renderBreakdown = (result: any, options: any, paperVal: string) => {
       const basePrice = result.basePrice;
       const satinAmount = result.isSatin ? parseFloat((basePrice * 0.12).toFixed(2)) : 0;
-      const expressAmount = options.express ? parseFloat((basePrice * 0.20).toFixed(2)) : 0;
+      const expressAmount = options.express ? parseFloat((basePrice * 0.2).toFixed(2)) : 0;
 
       const lines: BreakdownRow[] = [
         { label: "Parametry", value: `${options.qty} szt, ${options.format}, ${options.sides}` },
@@ -93,22 +110,35 @@ export const UlotkiCyfroweView: View = {
       ];
 
       if (result.isSatin) {
-        lines.push({ label: "Satyna", value: `12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
+        lines.push({
+          label: "Satyna",
+          value: `12% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}`,
+        });
       }
 
       if (options.express) {
-        lines.push({ label: "EXPRESS", value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
+        lines.push({
+          label: "EXPRESS",
+          value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}`,
+        });
       }
 
-      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      lines.push({
+        label: "Razem",
+        value: formatPLN(result.totalPrice),
+        separatorTop: true,
+        strongValue: true,
+      });
 
       renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };
 
     const getSelectedSides = () => {
-      const selected = sidesInputs.find(i => i.checked);
-      return (selected?.value === "dwustronne" ? "dwustronne" : "jednostronne") as "jednostronne" | "dwustronne";
+      const selected = sidesInputs.find((i) => i.checked);
+      return (selected?.value === "dwustronne" ? "dwustronne" : "jednostronne") as
+        | "jednostronne"
+        | "dwustronne";
     };
 
     const populateTables = () => {
@@ -122,7 +152,10 @@ export const UlotkiCyfroweView: View = {
       const qtySet = new Set<number>();
 
       formatOrder.forEach((format) => {
-        const table = sides === "dwustronne" ? getUlotkiDwustronneTable(format) : getUlotkiJednostronneTable(format);
+        const table =
+          sides === "dwustronne"
+            ? getUlotkiDwustronneTable(format)
+            : getUlotkiJednostronneTable(format);
         const tiers = table.tiers ?? [];
         const map: Record<number, number> = {};
         tiers.forEach((tier: any) => {
@@ -148,12 +181,14 @@ export const UlotkiCyfroweView: View = {
       }
 
       if (legendTbody) {
-        legendTbody.innerHTML = qtyList.map((qty) => {
-          const a5 = priceByFormatByQty.A5?.[qty];
-          const a6 = priceByFormatByQty.A6?.[qty];
-          const dl = priceByFormatByQty.DL?.[qty];
-          return `<tr><td>${qty}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td><td>${typeof a6 === "number" ? formatPLN(a6) : "-"}</td><td>${typeof dl === "number" ? formatPLN(dl) : "-"}</td></tr>`;
-        }).join("");
+        legendTbody.innerHTML = qtyList
+          .map((qty) => {
+            const a5 = priceByFormatByQty.A5?.[qty];
+            const a6 = priceByFormatByQty.A6?.[qty];
+            const dl = priceByFormatByQty.DL?.[qty];
+            return `<tr><td>${qty}</td><td>${typeof a5 === "number" ? formatPLN(a5) : "-"}</td><td>${typeof a6 === "number" ? formatPLN(a6) : "-"}</td><td>${typeof dl === "number" ? formatPLN(dl) : "-"}</td></tr>`;
+          })
+          .join("");
       }
 
       if (legendTitle) {
@@ -186,20 +221,24 @@ export const UlotkiCyfroweView: View = {
         format: formatSelect.value,
         qty: parseInt(qtySelect.value, 10),
         express: ctx.expressMode,
-        sides
+        sides,
       };
 
       try {
-        const result = sides === "dwustronne"
-          ? quoteUlotkiDwustronne(currentOptions)
-          : quoteJednostronne(currentOptions);
+        const result =
+          sides === "dwustronne"
+            ? quoteUlotkiDwustronne(currentOptions)
+            : quoteJednostronne(currentOptions);
 
-        const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+        const totalPrice = isSatin
+          ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2))
+          : result.totalPrice;
         currentResult = { ...result, totalPrice, isSatin };
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
         if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
-        if (tierHint) tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${formatPLN(result.totalPrice)}`;
+        if (tierHint)
+          tierHint.innerText = `${currentOptions.qty} szt, ${currentOptions.format}, ${paperVal.replace("_", " ")} — cena bazowa: ${formatPLN(result.totalPrice)}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, paperVal);
@@ -214,9 +253,9 @@ export const UlotkiCyfroweView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
-    addToCartBtn.addEventListener('pointerdown', () => {
+    addToCartBtn.addEventListener("pointerdown", () => {
       if (addToCartBtn.disabled && (!formatSelect.value || !qtySelect.value)) {
-        ctx.showToast?.('Wybierz format i nakład przed dodaniem do koszyka.', 'error');
+        ctx.showToast?.("Wybierz format i nakład przed dodaniem do koszyka.", "error");
       }
     });
     [formatSelect, qtySelect, paperSelect, ...sidesInputs].forEach((el) => {
@@ -231,17 +270,17 @@ export const UlotkiCyfroweView: View = {
     addToCartBtn.onclick = () => {
       if (currentResult && currentOptions) {
         const pv = paperSelect.value;
-        const paperLabel = pv.startsWith('satyna_')
+        const paperLabel = pv.startsWith("satyna_")
           ? `Satyna ${pv.slice(7)}g`
           : `Kreda ${pv.slice(6)}g`;
-        const sidesLabel = currentOptions.sides === 'dwustronne' ? 'Dwustronne' : 'Jednostronne';
+        const sidesLabel = currentOptions.sides === "dwustronne" ? "Dwustronne" : "Jednostronne";
         const parts: string[] = [
           `${currentOptions.qty} szt`,
           currentOptions.format,
           sidesLabel,
-          paperLabel
+          paperLabel,
         ];
-        if (currentOptions.express) parts.push('EXPRESS (+20%)');
+        if (currentOptions.express) parts.push("EXPRESS (+20%)");
 
         ctx.cart.addItem({
           id: `ulotki-${Date.now()}`,
@@ -252,19 +291,19 @@ export const UlotkiCyfroweView: View = {
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: parts.join(', '),
-          payload: currentResult
+          optionsHint: parts.join(", "),
+          payload: currentResult,
         });
 
         currentResult = null;
         currentOptions = null;
-        resultDisplay.style.display = 'none';
-        breakdownDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
+        breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
 
     populateTables();
-  }
+  },
 };

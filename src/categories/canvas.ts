@@ -24,7 +24,7 @@ export type CanvasResult = CalculationResult & {
 const CANVAS_MODE_LABELS: Record<CanvasOptions["modeId"], string> = {
   framed: "Płótno Canvas z oprawą 240g",
   unframed: "Płótno Canvas bez oprawy (ramki) 240g",
-  "m2-unframed": "Sam wydruk (cena za m2)"
+  "m2-unframed": "Sam wydruk (cena za m2)",
 };
 
 function repairMojibake(value: string): string {
@@ -83,7 +83,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       unit: "m2",
       pricing: "per_unit",
       tiers: [{ min: 0, max: null, price: rate }],
-      modifiers: data?.modifiers
+      modifiers: data?.modifiers,
     };
     qtyForCalc = areaM2 * qtyForCalc;
     formatLabel = "Sam wydruk (m2)";
@@ -93,7 +93,10 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       throw new Error("Wybierz format canvas");
     }
 
-    if ((selectedFormat.customSize || selectedFormat.customQuote) && (!options.widthMm || !options.heightMm)) {
+    if (
+      (selectedFormat.customSize || selectedFormat.customQuote) &&
+      (!options.widthMm || !options.heightMm)
+    ) {
       formatLabel = selectedFormat.label;
       return {
         basePrice: 0,
@@ -104,7 +107,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         appliedModifiers: [],
         isCustom: true,
         modeLabel: getCanvasModeLabel(options.modeId, mode.name),
-        formatLabel: normalizeCanvasText(formatLabel)
+        formatLabel: normalizeCanvasText(formatLabel),
       };
     }
 
@@ -115,19 +118,26 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
       if (!isFinite(areaM2) || areaM2 <= 0) {
         throw new Error("Podaj poprawne wymiary dla formatu niestandardowego");
       }
-      const perimeterCm = 2 * (width + height) / 10;
-      const m2rate = options.modeId === "unframed"
-        ? resolveStoredPrice("canvas-m2-unframed", resolveStoredPrice("canvas-unframed-custom-m2", mode.customPricePerM2 ?? 180))
-        : resolveStoredPrice("canvas-framed-custom-m2", mode.customPricePerM2 ?? 180);
+      const perimeterCm = (2 * (width + height)) / 10;
+      const m2rate =
+        options.modeId === "unframed"
+          ? resolveStoredPrice(
+              "canvas-m2-unframed",
+              resolveStoredPrice("canvas-unframed-custom-m2", mode.customPricePerM2 ?? 180)
+            )
+          : resolveStoredPrice("canvas-framed-custom-m2", mode.customPricePerM2 ?? 180);
       const printCostUnit = parseFloat((areaM2 * m2rate).toFixed(2));
       let frameCostUnit = 0;
       if (options.modeId === "framed" && mode.customPricePerCmBorder) {
-        const borderRate = resolveStoredPrice("canvas-framed-custom-border", mode.customPricePerCmBorder);
+        const borderRate = resolveStoredPrice(
+          "canvas-framed-custom-border",
+          mode.customPricePerCmBorder
+        );
         frameCostUnit = parseFloat((perimeterCm * borderRate).toFixed(2));
       }
       const unitPrice = parseFloat((printCostUnit + frameCostUnit).toFixed(2));
       const qty = Math.max(1, options.quantity);
-      const expressMultiplier = options.express ? 1.20 : 1;
+      const expressMultiplier = options.express ? 1.2 : 1;
       const totalPrice = parseFloat((unitPrice * qty * expressMultiplier).toFixed(2));
       formatLabel = "Własny rozmiar (" + width + "x" + height + " mm)";
       return {
@@ -143,7 +153,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         formatLabel: normalizeCanvasText(formatLabel),
         areaM2,
         printCost: printCostUnit,
-        frameCost: frameCostUnit > 0 ? frameCostUnit : undefined
+        frameCost: frameCostUnit > 0 ? frameCostUnit : undefined,
       };
     } else {
       const key = "canvas-" + options.modeId + "-" + selectedFormat.id;
@@ -154,7 +164,7 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
         unit: "szt",
         pricing: "per_unit",
         tiers: [{ min: 1, max: null, price: unitPrice }],
-        modifiers: data?.modifiers
+        modifiers: data?.modifiers,
       };
       formatLabel = selectedFormat.label;
     }
@@ -170,6 +180,6 @@ export function calculateCanvas(options: CanvasOptions): CanvasResult {
     isCustom,
     modeLabel: getCanvasModeLabel(options.modeId, mode.name),
     formatLabel: normalizeCanvasText(formatLabel),
-    areaM2
+    areaM2,
   };
 }

@@ -13,7 +13,7 @@ export interface UlotkiDwustronneOptions {
 }
 
 export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
-  const prices = getPrice('ulotkiDwustronne');
+  const prices = getPrice("ulotkiDwustronne");
   const formatData = (prices.formats as any)[formatKey];
   if (!formatData) {
     throw new Error(`Invalid format: ${formatKey}`);
@@ -24,7 +24,7 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
     `ulotki-dwu-${fk}-`,
     (formatData.tiers as Array<{ min: number; max: number | null; price: number }>).map((tier) => ({
       ...tier,
-      price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price)
+      price: resolveStoredPrice(`ulotki-dwu-${fk}-${tier.min}`, tier.price),
     })),
     (key) => {
       const match = key.match(/^(?:.*-)?(\d+)$/i);
@@ -41,8 +41,13 @@ export function getUlotkiDwustronneTable(formatKey: string): PriceTable {
     pricing: "flat",
     tiers: tiersWithOverrides,
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
-    ]
+      {
+        id: "express",
+        name: "TRYB EXPRESS",
+        type: "percent",
+        value: resolveStoredPrice("modifier-express", 0.2),
+      },
+    ],
   };
 }
 

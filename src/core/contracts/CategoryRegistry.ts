@@ -8,7 +8,7 @@
  * Implementation (DefaultCategoryRegistry) lives in src/domain/CategoryRegistry.ts (Stage 3).
  */
 
-import type { Unit, ModifierBreakdown, CategoryInput } from '../types';
+import type { Unit, ModifierBreakdown, CategoryInput } from "../types";
 
 export type { ModifierBreakdown, CategoryInput };
 

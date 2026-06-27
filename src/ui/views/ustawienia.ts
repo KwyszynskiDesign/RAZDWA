@@ -1,5 +1,5 @@
 ﻿import { View, ViewContext } from "../types";
-import { escapeHtml } from '../../core/validation';
+import { escapeHtml } from "../../core/validation";
 import {
   type PriceCategory,
   BASE_PRICE_CATEGORIES,
@@ -138,7 +138,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "druk-email", label: "Dopłata e-mail" },
         { value: "druk-label-sticker", label: "Dopłata naklejka A6" },
         { value: "druk-koszulka", label: "Dopłata koszulka" },
-        { value: "modifier-druk-", label: "Dopłaty druk" },
+        { value: "modifier-druk-", label: "Dopłaty druk" }
       );
       break;
     case "solwent":
@@ -149,10 +149,16 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "solwent-blockout-200g-", label: "Solwent blockout 200g satyna" },
         { value: "plakaty-format-120g-formatowe-", label: "Plakaty 120g formatowe" },
         { value: "plakaty-format-120g-nieformatowe-", label: "Plakaty 120g nieformatowe" },
-        { value: "plakaty-format-260g-satyna-formatowe-", label: "Fotoplakaty 260g satyna formatowe" },
-        { value: "plakaty-format-260g-satyna-nieformatowe-", label: "Fotoplakaty 260g satyna nieformatowe" },
+        {
+          value: "plakaty-format-260g-satyna-formatowe-",
+          label: "Fotoplakaty 260g satyna formatowe",
+        },
+        {
+          value: "plakaty-format-260g-satyna-nieformatowe-",
+          label: "Fotoplakaty 260g satyna nieformatowe",
+        },
         { value: "plakaty-format-180g-pp-formatowe-", label: "Plakaty 180g PP formatowe" },
-        { value: "plakaty-format-180g-pp-nieformatowe-", label: "Plakaty 180g PP nieformatowe" },
+        { value: "plakaty-format-180g-pp-nieformatowe-", label: "Plakaty 180g PP nieformatowe" }
       );
       break;
     case "plakaty-a4-a3":
@@ -164,7 +170,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "plakaty-duzy-canon-a4-170-kreda-130-170-", label: "Duży Canon A4 130/170g" },
         { value: "plakaty-duzy-canon-a3-170-kreda-130-170-", label: "Duży Canon A3 130/170g" },
         { value: "plakaty-duzy-canon-a4-200-kreda-200-", label: "Duży Canon A4 200g" },
-        { value: "plakaty-duzy-canon-a3-200-kreda-200-", label: "Duży Canon A3 200g" },
+        { value: "plakaty-duzy-canon-a3-200-kreda-200-", label: "Duży Canon A3 200g" }
       );
       break;
     case "artykuly":
@@ -178,7 +184,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "artykuly-olowek", label: "Artykuły piśmiennicze – ołówki" },
         { value: "artykuly-pendrive-", label: "Pendrive’y" },
         { value: "artykuly-pudelko-", label: "Pudełka pakowe" },
-        { value: "artykuly-plyty-", label: "Płyty CD/DVD" },
+        { value: "artykuly-plyty-", label: "Płyty CD/DVD" }
       );
       break;
     case "uslugi":
@@ -189,14 +195,14 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "uslugi-poprawki-graficzne", label: "Poprawki graficzne" },
         { value: "uslugi-grafika-", label: "Usługi graficzne" },
         { value: "uslugi-pakiet-", label: "Pakiety graficzne" },
-        { value: "uslugi-social-media-", label: "Social media" },
+        { value: "uslugi-social-media-", label: "Social media" }
       );
       break;
     case "canvas":
       options.push(
         { value: "canvas-framed-", label: "Canvas z oprawą" },
         { value: "canvas-unframed-", label: "Canvas bez oprawy" },
-        { value: "canvas-m2-unframed", label: "Canvas bez oprawy – cena za m²" },
+        { value: "canvas-m2-unframed", label: "Canvas bez oprawy – cena za m²" }
       );
       break;
     case "ulotki":
@@ -206,7 +212,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "ulotki-jed-dl-", label: "Ulotki jednostronne DL" },
         { value: "ulotki-dwu-a5-", label: "Ulotki dwustronne A5" },
         { value: "ulotki-dwu-a6-", label: "Ulotki dwustronne A6" },
-        { value: "ulotki-dwu-dl-", label: "Ulotki dwustronne DL" },
+        { value: "ulotki-dwu-dl-", label: "Ulotki dwustronne DL" }
       );
       break;
     case "wizytowki":
@@ -214,14 +220,14 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "wizytowki-85x55-none-", label: "Wizytówki 85×55 bez laminatu" },
         { value: "wizytowki-85x55-matt_gloss-", label: "Wizytówki 85×55 z laminatem mat/błysk" },
         { value: "wizytowki-90x50-none-", label: "Wizytówki 90×50 bez laminatu" },
-        { value: "wizytowki-90x50-matt_gloss-", label: "Wizytówki 90×50 z laminatem mat/błysk" },
+        { value: "wizytowki-90x50-matt_gloss-", label: "Wizytówki 90×50 z laminatem mat/błysk" }
       );
       break;
     case "broszury-katalogi":
       options.push(
         { value: "broszury-katalogi-a4-", label: "Broszury i katalogi A4" },
         { value: "broszury-katalogi-a5-", label: "Broszury i katalogi A5" },
-        { value: "broszury-katalogi-dl-", label: "Broszury i katalogi DL" },
+        { value: "broszury-katalogi-dl-", label: "Broszury i katalogi DL" }
       );
       break;
     case "wlepki":
@@ -232,13 +238,13 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "wlepki-szt-papier-sra3-", label: "Naklejki papier SRA3 (szt)" },
         { value: "wlepki-szt-folia-sra3-", label: "Naklejki folia SRA3 (szt)" },
         { value: "wlepki-szt-plotowane-papier-", label: "Naklejki plotowane papier (szt)" },
-        { value: "wlepki-szt-plotowane-folia-", label: "Naklejki plotowane folia (szt)" },
+        { value: "wlepki-szt-plotowane-folia-", label: "Naklejki plotowane folia (szt)" }
       );
       break;
     case "banner":
       options.push(
         { value: "banner-powlekany-", label: "Banner powlekany (m²)" },
-        { value: "banner-blockout-", label: "Banner blockout (m²)" },
+        { value: "banner-blockout-", label: "Banner blockout (m²)" }
       );
       break;
     case "rollup":
@@ -247,7 +253,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "rollup-100x200-", label: "Roll-up 100×200 cm" },
         { value: "rollup-120x200-", label: "Roll-up 120×200 cm" },
         { value: "rollup-150x200-", label: "Roll-up 150×200 cm" },
-        { value: "rollup-wymiana-", label: "Wymiana wkładu roll-up" },
+        { value: "rollup-wymiana-", label: "Wymiana wkładu roll-up" }
       );
       break;
     case "folia":
@@ -255,7 +261,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "folia-szroniona-wydruk-", label: "Folia szroniona – wydruk (m²)" },
         { value: "folia-szroniona-oklejanie-", label: "Folia szroniona – oklejanie (m²)" },
         { value: "folia-szroniona-owv-wydruk-", label: "Folia OWV – wydruk (m²)" },
-        { value: "folia-szroniona-owv-oklejanie-", label: "Folia OWV – oklejanie (m²)" },
+        { value: "folia-szroniona-owv-oklejanie-", label: "Folia OWV – oklejanie (m²)" }
       );
       break;
     case "zaproszenia":
@@ -272,18 +278,45 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "zaproszenia-dl-single-skladane-", label: "Kreda DL jednostronne składane" },
         { value: "zaproszenia-dl-double-normal-", label: "Kreda DL dwustronne bez składania" },
         { value: "zaproszenia-dl-double-skladane-", label: "Kreda DL dwustronne składane" },
-        { value: "zaproszenia-satyna-a6-single-normal-", label: "Satyna A6 jednostronne bez składania" },
-        { value: "zaproszenia-satyna-a6-single-skladane-", label: "Satyna A6 jednostronne składane" },
-        { value: "zaproszenia-satyna-a6-double-normal-", label: "Satyna A6 dwustronne bez składania" },
+        {
+          value: "zaproszenia-satyna-a6-single-normal-",
+          label: "Satyna A6 jednostronne bez składania",
+        },
+        {
+          value: "zaproszenia-satyna-a6-single-skladane-",
+          label: "Satyna A6 jednostronne składane",
+        },
+        {
+          value: "zaproszenia-satyna-a6-double-normal-",
+          label: "Satyna A6 dwustronne bez składania",
+        },
         { value: "zaproszenia-satyna-a6-double-skladane-", label: "Satyna A6 dwustronne składane" },
-        { value: "zaproszenia-satyna-a5-single-normal-", label: "Satyna A5 jednostronne bez składania" },
-        { value: "zaproszenia-satyna-a5-single-skladane-", label: "Satyna A5 jednostronne składane" },
-        { value: "zaproszenia-satyna-a5-double-normal-", label: "Satyna A5 dwustronne bez składania" },
+        {
+          value: "zaproszenia-satyna-a5-single-normal-",
+          label: "Satyna A5 jednostronne bez składania",
+        },
+        {
+          value: "zaproszenia-satyna-a5-single-skladane-",
+          label: "Satyna A5 jednostronne składane",
+        },
+        {
+          value: "zaproszenia-satyna-a5-double-normal-",
+          label: "Satyna A5 dwustronne bez składania",
+        },
         { value: "zaproszenia-satyna-a5-double-skladane-", label: "Satyna A5 dwustronne składane" },
-        { value: "zaproszenia-satyna-dl-single-normal-", label: "Satyna DL jednostronne bez składania" },
-        { value: "zaproszenia-satyna-dl-single-skladane-", label: "Satyna DL jednostronne składane" },
-        { value: "zaproszenia-satyna-dl-double-normal-", label: "Satyna DL dwustronne bez składania" },
-        { value: "zaproszenia-satyna-dl-double-skladane-", label: "Satyna DL dwustronne składane" },
+        {
+          value: "zaproszenia-satyna-dl-single-normal-",
+          label: "Satyna DL jednostronne bez składania",
+        },
+        {
+          value: "zaproszenia-satyna-dl-single-skladane-",
+          label: "Satyna DL jednostronne składane",
+        },
+        {
+          value: "zaproszenia-satyna-dl-double-normal-",
+          label: "Satyna DL dwustronne bez składania",
+        },
+        { value: "zaproszenia-satyna-dl-double-skladane-", label: "Satyna DL dwustronne składane" }
       );
       break;
     case "druk-cad":
@@ -293,7 +326,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "druk-cad-bw-fmt-", label: "CAD czarno-biały – formatowy" },
         { value: "druk-cad-bw-mb-", label: "CAD czarno-biały – metr bieżący" },
         { value: "cad-fold-", label: "Składanie CAD (wg formatu)" },
-        { value: "cad-", label: "Usługi CAD (inne: skanowanie, paski, klienci)" },
+        { value: "cad-", label: "Usługi CAD (inne: skanowanie, paski, klienci)" }
       );
       break;
     case "laminowanie":
@@ -307,14 +340,17 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "laminowanie-oprawa-kanalowa-", label: "Oprawa kanałowa dyplomowa" },
         { value: "laminowanie-oprawa-zaciskowa-", label: "Oprawa zaciskowa" },
         { value: "laminowanie-oprawa-zbijane-", label: "Oprawa zbijana" },
-        { value: "laminowanie-oprawa-skrecane-", label: "Oprawa skręcana (śruby introligatorskie)" },
-        { value: "laminowanie-bindowanie-", label: "Bindowanie (plastik / metal)" },
+        {
+          value: "laminowanie-oprawa-skrecane-",
+          label: "Oprawa skręcana (śruby introligatorskie)",
+        },
+        { value: "laminowanie-bindowanie-", label: "Bindowanie (plastik / metal)" }
       );
       break;
     case "vouchery":
       options.push(
         { value: "vouchery-jed-", label: "Voucher jednostronny – nowy próg ilościowy" },
-        { value: "vouchery-dwu-", label: "Voucher dwustronny – nowy próg ilościowy" },
+        { value: "vouchery-dwu-", label: "Voucher dwustronny – nowy próg ilościowy" }
       );
       break;
     case "wycinanie-folii":
@@ -322,25 +358,19 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
       // Dodawanie nowych wariantów nie ma efektu – brak opcji prefiksu jest celowy.
       break;
     case "dyplomy":
-      options.push(
-        { value: "dyplomy-qty-", label: "Dyplomy – nowy próg ilościowy" },
-      );
+      options.push({ value: "dyplomy-qty-", label: "Dyplomy – nowy próg ilościowy" });
       break;
     case "koperty":
       options.push(
         { value: "koperty-", label: "Koperta (typ A–G, etykieta = litera)" },
-        { value: "artykuly-koperta-", label: "Koperta – pozycja artykułu biurowego" },
+        { value: "artykuly-koperta-", label: "Koperta – pozycja artykułu biurowego" }
       );
       break;
     case "pojedyncze-naklady":
-      options.push(
-        { value: "laminowanie-special-", label: "Pojedynczy nakład – nowa pozycja" },
-      );
+      options.push({ value: "laminowanie-special-", label: "Pojedynczy nakład – nowa pozycja" });
       break;
     case "modifiers":
-      options.push(
-        { value: "modifier-", label: "Nowa dopłata globalna (mnożnik procentowy)" },
-      );
+      options.push({ value: "modifier-", label: "Nowa dopłata globalna (mnożnik procentowy)" });
       break;
   }
 
@@ -350,7 +380,7 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
 }
 
 function isIconUrl(icon: string): boolean {
-  return /^https?:\/\//i.test(icon) || icon.endsWith('.svg');
+  return /^https?:\/\//i.test(icon) || icon.endsWith(".svg");
 }
 
 function renderCategoryIcon(icon: string, label: string): string {
@@ -397,9 +427,10 @@ function loadPrices(): PriceMap {
 
     Object.entries(sourceFormats).forEach(([formatKey, formatData]) => {
       ["single", "double"].forEach((sidesKey) => {
-        const foldEntries = formatData?.[sidesKey] && typeof formatData[sidesKey] === "object"
-          ? Object.entries(formatData[sidesKey] as Record<string, any>)
-          : [];
+        const foldEntries =
+          formatData?.[sidesKey] && typeof formatData[sidesKey] === "object"
+            ? Object.entries(formatData[sidesKey] as Record<string, any>)
+            : [];
 
         foldEntries.forEach(([foldKey, tiersRaw]) => {
           const tiers = tiersRaw as Record<string, number> | undefined;
@@ -430,13 +461,16 @@ function loadPrices(): PriceMap {
 
   const wycinanieKolorowaSingle = base["wycinanie-folii-kolorowa"];
   if (typeof wycinanieKolorowaSingle !== "number") {
-    const fromLegacy = base["wycinanie-folii-kolorowa-powyzej-1m2"] ?? base["wycinanie-folii-kolorowa-ponizej-1m2"];
+    const fromLegacy =
+      base["wycinanie-folii-kolorowa-powyzej-1m2"] ?? base["wycinanie-folii-kolorowa-ponizej-1m2"];
     if (typeof fromLegacy === "number") base["wycinanie-folii-kolorowa"] = fromLegacy;
   }
 
   const wycinanieZlotoSingle = base["wycinanie-folii-zloto-srebro"];
   if (typeof wycinanieZlotoSingle !== "number") {
-    const fromLegacy = base["wycinanie-folii-zloto-srebro-powyzej-1m2"] ?? base["wycinanie-folii-zloto-srebro-ponizej-1m2"];
+    const fromLegacy =
+      base["wycinanie-folii-zloto-srebro-powyzej-1m2"] ??
+      base["wycinanie-folii-zloto-srebro-ponizej-1m2"];
     if (typeof fromLegacy === "number") base["wycinanie-folii-zloto-srebro"] = fromLegacy;
   }
 
@@ -559,11 +593,16 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-a6-1-50": "Laminowanie A6 – 1–50 szt.",
   "laminowanie-a6-51-100": "Laminowanie A6 – 51–100 szt.",
   "laminowanie-a6-101-200": "Laminowanie A6 – 101–200 szt.",
-  "laminowanie-intro-gilotyna": "Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)",
-  "laminowanie-intro-trymer": "Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)",
-  "laminowanie-intro-dziurkowanie-powyzej-20": "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
-  "laminowanie-intro-zszywanie": "Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)",
-  "laminowanie-intro-broszurowanie": "Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)",
+  "laminowanie-intro-gilotyna":
+    "Introligatornia – usługi jednostkowe • Cięcie na gilotynie (za 1 cięcie)",
+  "laminowanie-intro-trymer":
+    "Introligatornia – usługi jednostkowe • Cięcie ręczne (TRYMER) (za 1 cięcie)",
+  "laminowanie-intro-dziurkowanie-powyzej-20":
+    "Introligatornia – usługi jednostkowe • Dziurkowanie powyżej 20 kartek (za 1 kartkę)",
+  "laminowanie-intro-zszywanie":
+    "Introligatornia – usługi jednostkowe • Zszywanie kartek (za 1 zszywkę)",
+  "laminowanie-intro-broszurowanie":
+    "Introligatornia – usługi jednostkowe • Broszurowanie / docinanie (za 1 cięcie)",
   "laminowanie-intro-bigowanie": "Introligatornia – usługi jednostkowe • Bigowanie (za 1 big)",
   "laminowanie-oprawa-grzbietowa-a4-do30": "Oprawa grzbietowa (listwa wsuwana) A4 – do 30 str.",
   "laminowanie-oprawa-grzbietowa-a4-do60": "Oprawa grzbietowa (listwa wsuwana) A4 – do 60 str.",
@@ -581,30 +620,50 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-zaciskowa-thermo-biala": "Biała – zszywka THERMO",
   "laminowanie-oprawa-zaciskowa-skoroszyt-zszywanie": "Skoroszyt + zszywanie",
   // Bindowanie – grupowanie zgodne z tabelą cennika (kolumny i zakresy kartek)
-  "laminowanie-bindowanie-plastik-1-50-do20-listwa": "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • listwa zatrzaskowa",
-  "laminowanie-bindowanie-plastik-1-50-do20-spirala": "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • spirala plastikowa",
+  "laminowanie-bindowanie-plastik-1-50-do20-listwa":
+    "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • listwa zatrzaskowa",
+  "laminowanie-bindowanie-plastik-1-50-do20-spirala":
+    "BINDOWANIE PLASTIK • 1–50 szt. • do 20 kartek • spirala plastikowa",
   "laminowanie-bindowanie-plastik-1-50-21-100": "BINDOWANIE PLASTIK • 1–50 szt. • 21–100 kartek",
-  "laminowanie-bindowanie-plastik-1-50-100plus": "BINDOWANIE PLASTIK • 1–50 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-plastik-1-50-100plus":
+    "BINDOWANIE PLASTIK • 1–50 szt. • powyżej 100 kartek",
   "laminowanie-bindowanie-plastik-51-100-do20": "BINDOWANIE PLASTIK • 51–100 szt. • do 20 kartek",
-  "laminowanie-bindowanie-plastik-51-100-21-100": "BINDOWANIE PLASTIK • 51–100 szt. • 21–100 kartek",
-  "laminowanie-bindowanie-plastik-51-100-100plus": "BINDOWANIE PLASTIK • 51–100 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-plastik-51-100-21-100":
+    "BINDOWANIE PLASTIK • 51–100 szt. • 21–100 kartek",
+  "laminowanie-bindowanie-plastik-51-100-100plus":
+    "BINDOWANIE PLASTIK • 51–100 szt. • powyżej 100 kartek",
   "laminowanie-bindowanie-plastik-101-200-do20": "BINDOWANIE PLASTIK • 101–200 szt. • do 20 kartek",
-  "laminowanie-bindowanie-plastik-101-200-21-100": "BINDOWANIE PLASTIK • 101–200 szt. • 21–100 kartek",
-  "laminowanie-bindowanie-plastik-101-200-100plus": "BINDOWANIE PLASTIK • 101–200 szt. • powyżej 100 kartek",
-  "laminowanie-bindowanie-metal-1-50-do40": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 40 kartek",
-  "laminowanie-bindowanie-metal-1-50-do80": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 80 kartek",
-  "laminowanie-bindowanie-metal-1-50-do120": "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 120 kartek",
-  "laminowanie-bindowanie-metal-51-100-do40": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 40 kartek",
-  "laminowanie-bindowanie-metal-51-100-do80": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 80 kartek",
-  "laminowanie-bindowanie-metal-51-100-do120": "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 120 kartek",
-  "laminowanie-oprawa-zbijane-printed-here": "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
-  "laminowanie-oprawa-skrecane-printed-here": "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
-  "laminowanie-oprawa-zbijane-client-supplied": "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
-  "laminowanie-oprawa-skrecane-client-supplied": "Oprawa skręcana (śruby introligatorskie) – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
-  "laminowanie-oprawa-zbijane-extra-per-cm-printed-here": "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (drukowana u nas)",
-  "laminowanie-oprawa-zbijane-extra-per-cm-client-supplied": "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (dostarczona przez klienta)",
+  "laminowanie-bindowanie-plastik-101-200-21-100":
+    "BINDOWANIE PLASTIK • 101–200 szt. • 21–100 kartek",
+  "laminowanie-bindowanie-plastik-101-200-100plus":
+    "BINDOWANIE PLASTIK • 101–200 szt. • powyżej 100 kartek",
+  "laminowanie-bindowanie-metal-1-50-do40":
+    "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 40 kartek",
+  "laminowanie-bindowanie-metal-1-50-do80":
+    "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 80 kartek",
+  "laminowanie-bindowanie-metal-1-50-do120":
+    "BINDOWANIE METAL (spirala metalowa) • 1–50 szt. • do 120 kartek",
+  "laminowanie-bindowanie-metal-51-100-do40":
+    "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 40 kartek",
+  "laminowanie-bindowanie-metal-51-100-do80":
+    "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 80 kartek",
+  "laminowanie-bindowanie-metal-51-100-do120":
+    "BINDOWANIE METAL (spirala metalowa) • 51–100 szt. • do 120 kartek",
+  "laminowanie-oprawa-zbijane-printed-here":
+    "Oprawa zbijana – dokumentacja drukowana u nas (cena od, do 5 cm)",
+  "laminowanie-oprawa-skrecane-printed-here":
+    "Oprawa skręcana (śruby introligatorskie) – dokumentacja drukowana u nas (cena od, do 5 cm)",
+  "laminowanie-oprawa-zbijane-client-supplied":
+    "Oprawa zbijana – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
+  "laminowanie-oprawa-skrecane-client-supplied":
+    "Oprawa skręcana (śruby introligatorskie) – dokumentacja dostarczona przez klienta (cena od, do 5 cm)",
+  "laminowanie-oprawa-zbijane-extra-per-cm-printed-here":
+    "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (drukowana u nas)",
+  "laminowanie-oprawa-zbijane-extra-per-cm-client-supplied":
+    "Oprawa zbijana/skręcana – każdy dodatkowy 1 cm powyżej 5 cm (dostarczona przez klienta)",
   "laminowanie-oprawa-twarda-rozszycie": "Oprawy twarde – rozszycie oprawy twardej (25–40 zł)",
-  "laminowanie-oprawa-twarda-ponowne-zszycie": "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
+  "laminowanie-oprawa-twarda-ponowne-zszycie":
+    "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
   "laminowanie-special-dyplom": "Pojedyncze nakłady – Dyplom",
   "laminowanie-special-zaproszenia-dodruk": "Pojedyncze nakłady – Zaproszenia (dodruk)",
   "laminowanie-special-katalog": "Pojedyncze nakłady – Katalog",
@@ -612,7 +671,8 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-special-koperty-nadruk": "Pojedyncze nakłady – Koperty – nadruk",
   "laminowanie-special-trymer-2x": "Pojedyncze nakłady – Cięcie trymer 2x",
   "laminowanie-special-trymer-4x": "Pojedyncze nakłady – Cięcie trymer 4x",
-  "laminowanie-special-double-sided-factor": "Pojedyncze nakłady / dodruki – dopłata za dwustronność",
+  "laminowanie-special-double-sided-factor":
+    "Pojedyncze nakłady / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",
   "solwent-150g-4-9": "Solwent 150g półmat – 4–9 m²",
@@ -666,10 +726,14 @@ const PRICE_LABELS: Record<string, string> = {
   "plakaty-format-180g-pp-nieformatowe-914x1292": "Plakaty 180g PP nieformatowe – A0+",
   "plakaty-maly-canon-margin-170-1-3": "Plakaty mały Canon z marginesem 130 g/170 g – 1–3 szt.",
   "plakaty-maly-canon-margin-170-4-9": "Plakaty mały Canon z marginesem 130 g/170 g – 4–9 szt.",
-  "plakaty-maly-canon-margin-170-A4-1-3": "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 1–3 szt.",
-  "plakaty-maly-canon-margin-170-A3-1-3": "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 1–3 szt.",
-  "plakaty-maly-canon-margin-170-A4-4-9": "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 4–9 szt.",
-  "plakaty-maly-canon-margin-170-A3-4-9": "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 4–9 szt.",
+  "plakaty-maly-canon-margin-170-A4-1-3":
+    "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-margin-170-A3-1-3":
+    "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-margin-170-A4-4-9":
+    "Plakaty mały Canon z marginesem 130 g/170 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-margin-170-A3-4-9":
+    "Plakaty mały Canon z marginesem 130 g/170 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-margin-200-1-3": "Plakaty mały Canon z marginesem 200 g – 1–3 szt.",
   "plakaty-maly-canon-margin-200-4-9": "Plakaty mały Canon z marginesem 200 g – 4–9 szt.",
   "plakaty-maly-canon-margin-200-A4-1-3": "Plakaty mały Canon z marginesem 200 g (A4) – 1–3 szt.",
@@ -678,16 +742,24 @@ const PRICE_LABELS: Record<string, string> = {
   "plakaty-maly-canon-margin-200-A3-4-9": "Plakaty mały Canon z marginesem 200 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-no-margin-170-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g – 1–3 szt.",
   "plakaty-maly-canon-no-margin-170-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-170-A4-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-170-A3-1-3": "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-170-A4-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-170-A3-4-9": "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-170-A4-1-3":
+    "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-170-A3-1-3":
+    "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-170-A4-4-9":
+    "Plakaty mały Canon bez marginesu 130 g/170 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-170-A3-4-9":
+    "Plakaty mały Canon bez marginesu 130 g/170 g (A3) – 4–9 szt.",
   "plakaty-maly-canon-no-margin-200-1-3": "Plakaty mały Canon bez marginesu 200 g – 1–3 szt.",
   "plakaty-maly-canon-no-margin-200-4-9": "Plakaty mały Canon bez marginesu 200 g – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-200-A4-1-3": "Plakaty mały Canon bez marginesu 200 g (A4) – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-200-A3-1-3": "Plakaty mały Canon bez marginesu 200 g (A3) – 1–3 szt.",
-  "plakaty-maly-canon-no-margin-200-A4-4-9": "Plakaty mały Canon bez marginesu 200 g (A4) – 4–9 szt.",
-  "plakaty-maly-canon-no-margin-200-A3-4-9": "Plakaty mały Canon bez marginesu 200 g (A3) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-200-A4-1-3":
+    "Plakaty mały Canon bez marginesu 200 g (A4) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-200-A3-1-3":
+    "Plakaty mały Canon bez marginesu 200 g (A3) – 1–3 szt.",
+  "plakaty-maly-canon-no-margin-200-A4-4-9":
+    "Plakaty mały Canon bez marginesu 200 g (A4) – 4–9 szt.",
+  "plakaty-maly-canon-no-margin-200-A3-4-9":
+    "Plakaty mały Canon bez marginesu 200 g (A3) – 4–9 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-10": "Plakaty duży Canon A4 130g/170g – 10 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-20": "Plakaty duży Canon A4 130g/170g – 20 szt.",
   "plakaty-duzy-canon-a4-170-kreda-130-170-30": "Plakaty duży Canon A4 130g/170g – 30 szt.",
@@ -1022,7 +1094,9 @@ function getPriceLabel(key: string): string {
     return `Ulotki dwustronne ${ulotkiDwuMatch[1].toUpperCase()} – ${ulotkiDwuMatch[2]} szt.`;
   }
 
-  const zaproszeniaMatch = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
+  const zaproszeniaMatch = key.match(
+    /^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/
+  );
   if (zaproszeniaMatch) {
     return `${zaproszeniaMatch[5]} szt.`;
   }
@@ -1071,9 +1145,7 @@ function getSolwentPlakatySectionTitle(key: string): string {
   if (key.startsWith("solwent-115g-")) return "SOLWENT 115G MATOWY";
   if (key.startsWith("solwent-150g-")) return "SOLWENT 150G PÓŁMAT";
   if (key.startsWith("solwent-200g-")) return "SOLWENT 200G POŁYSK";
-  if (
-    key.startsWith("solwent-blockout-200g-")
-  ) return "SOLWENT BLOCKOUT 200G SATYNA";
+  if (key.startsWith("solwent-blockout-200g-")) return "SOLWENT BLOCKOUT 200G SATYNA";
 
   if (key.startsWith("plakaty-format-120g-formatowe-")) return "120G FORMATOWE";
   if (key.startsWith("plakaty-format-120g-nieformatowe-")) return "120G NIEFORMATOWE";
@@ -1082,8 +1154,10 @@ function getSolwentPlakatySectionTitle(key: string): string {
   if (key.startsWith("plakaty-format-180g-pp-formatowe-")) return "180G PP FORMATOWE";
   if (key.startsWith("plakaty-format-180g-pp-nieformatowe-")) return "180G PP NIEFORMATOWE";
 
-  if (key.startsWith("plakaty-maly-canon-margin-170-")) return "MAŁY CANON Z MARGINESEM 130 G/170 G";
-  if (key.startsWith("plakaty-maly-canon-no-margin-170-")) return "MAŁY CANON BEZ MARGINESU 130 G/170 G";
+  if (key.startsWith("plakaty-maly-canon-margin-170-"))
+    return "MAŁY CANON Z MARGINESEM 130 G/170 G";
+  if (key.startsWith("plakaty-maly-canon-no-margin-170-"))
+    return "MAŁY CANON BEZ MARGINESU 130 G/170 G";
   if (key.startsWith("plakaty-maly-canon-margin-200-")) return "MAŁY CANON Z MARGINESEM 200 G";
   if (key.startsWith("plakaty-maly-canon-no-margin-200-")) return "MAŁY CANON BEZ MARGINESU 200 G";
 
@@ -1117,7 +1191,11 @@ function getLaminowanieSectionTitle(key: string): string {
   if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return "OPRAWA GRZBIETOWA";
   if (key.startsWith("laminowanie-oprawa-kanalowa-")) return "OPRAWA KANAŁOWA";
   if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return "OPRAWA ZACISKOWA";
-  if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-")) return "OPRAWA ZBIJANA / SKRĘCANA";
+  if (
+    key.startsWith("laminowanie-oprawa-zbijane-") ||
+    key.startsWith("laminowanie-oprawa-skrecane-")
+  )
+    return "OPRAWA ZBIJANA / SKRĘCANA";
   if (key.startsWith("laminowanie-oprawa-twarda-")) return "OPRAWY TWARDE";
   if (key.startsWith("laminowanie-bindowanie-")) return "BINDOWANIE";
 
@@ -1129,12 +1207,18 @@ export function isLaminowanieEmphasizedRow(key: string): boolean {
 }
 
 export function getBindowanieSubgroupTitle(key: string): string {
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa|-spirala)?)$/)) return "PLASTIK • DO 20 KARTEK";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/)) return "PLASTIK • 21–100 KARTEK";
-  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/)) return "PLASTIK • POWYŻEJ 100 KARTEK";
-  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/)) return "METAL (SPIRALA METALOWA) • DO 40 KARTEK";
-  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/)) return "METAL (SPIRALA METALOWA) • DO 80 KARTEK";
-  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/)) return "METAL (SPIRALA METALOWA) • DO 120 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-(do20(?:-listwa|-spirala)?)$/))
+    return "PLASTIK • DO 20 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-21-100$/))
+    return "PLASTIK • 21–100 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-plastik-\d+-\d+-100plus$/))
+    return "PLASTIK • POWYŻEJ 100 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do40$/))
+    return "METAL (SPIRALA METALOWA) • DO 40 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do80$/))
+    return "METAL (SPIRALA METALOWA) • DO 80 KARTEK";
+  if (key.match(/^laminowanie-bindowanie-metal-\d+-\d+-do120$/))
+    return "METAL (SPIRALA METALOWA) • DO 120 KARTEK";
 
   return "";
 }
@@ -1146,7 +1230,8 @@ function getDrukA4A3SkanSectionTitle(key: string): string {
   if (key.startsWith("druk-kolor-a3-")) return "DRUK KOLOROWY A3";
   if (key.startsWith("skan-auto-")) return "SKANOWANIE AUTOMATYCZNE";
   if (key.startsWith("skan-reczne-")) return "SKANOWANIE RĘCZNE";
-  if (key.startsWith("druk-") || key.startsWith("modifier-druk-")) return "DOPŁATY I USŁUGI DODATKOWE";
+  if (key.startsWith("druk-") || key.startsWith("modifier-druk-"))
+    return "DOPŁATY I USŁUGI DODATKOWE";
   return "DRUK A4/A3 + SKAN";
 }
 
@@ -1184,7 +1269,9 @@ function getBroszuryKatalogiSectionTitle(key: string): string {
 }
 
 function getZaproszeniaSectionTitle(key: string): string {
-  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
+  const m = key.match(
+    /^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/
+  );
   if (!m) return "ZAPROSZENIA";
 
   const materialLabel = m[1] ? "SATYNA" : "KREDA";
@@ -1196,13 +1283,17 @@ function getZaproszeniaSectionTitle(key: string): string {
 }
 
 function getZaproszeniaMaterialTitle(key: string): string {
-  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/);
+  const m = key.match(
+    /^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/
+  );
   if (!m) return "ZAPROSZENIA";
   return m[1] ? "ZAPROSZENIA SATYNA" : "ZAPROSZENIA KREDA";
 }
 
 function getZaproszeniaSubgroupTitle(key: string): string {
-  const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/);
+  const m = key.match(
+    /^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-\d+$/
+  );
   if (!m) return "";
 
   const formatLabel = m[2].toUpperCase();
@@ -1235,7 +1326,8 @@ function getArtykulySectionTitle(key: string): string {
   if (key.startsWith("artykuly-segregator-")) return "SEGREGATORY";
   if (key.startsWith("artykuly-koszulka-")) return "KOSZULKI NA DOKUMENTY";
   if (key.startsWith("artykuly-papier-")) return "PAPIER";
-  if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek")) return "ARTYKUŁY PIŚMIENNICZE";
+  if (key.startsWith("artykuly-dugopis") || key.startsWith("artykuly-olowek"))
+    return "ARTYKUŁY PIŚMIENNICZE";
   if (key.startsWith("artykuly-pendrive-")) return "PENDRIVE'Y";
   if (key.startsWith("artykuly-pudelko-")) return "PUDEŁKA PAKOWE";
   if (key.startsWith("artykuly-plyty-")) return "PŁYTY CD / DVD";
@@ -1290,7 +1382,7 @@ export function getRenderedCategories(prices: PriceMap): PriceCategory[] {
       icon: "🧩",
       prefixes: unmatchedKeys,
       description: "Klucze, które nie pasują do żadnej z głównych kategorii.",
-      newKeyPrefix: "inne-"
+      newKeyPrefix: "inne-",
     });
   }
 
@@ -1533,7 +1625,9 @@ function sortZaproszeniaCategoryKeys(keys: string[]): string[] {
   const formatRank: Record<string, number> = { a6: 0, a5: 1, dl: 2 };
 
   const parse = (key: string) => {
-    const m = key.match(/^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/);
+    const m = key.match(
+      /^zaproszenia-(satyna-)?(a6|a5|dl)-(single|double)-(normal|skladane|folded)-(\d+)$/
+    );
     if (!m) {
       return {
         material: 99,
@@ -1605,7 +1699,12 @@ export function sortLaminowanieCategoryKeys(keys: string[]): string[] {
     if (key.startsWith("laminowanie-oprawa-grzbietowa-")) return 7;
     if (key.startsWith("laminowanie-oprawa-kanalowa-")) return 8;
     if (key.startsWith("laminowanie-oprawa-zaciskowa-")) return 9;
-    if (key.startsWith("laminowanie-oprawa-zbijane-") || key.startsWith("laminowanie-oprawa-skrecane-") || key.startsWith("laminowanie-oprawa-twarda-")) return 10;
+    if (
+      key.startsWith("laminowanie-oprawa-zbijane-") ||
+      key.startsWith("laminowanie-oprawa-skrecane-") ||
+      key.startsWith("laminowanie-oprawa-twarda-")
+    )
+      return 10;
     if (key.startsWith("laminowanie-special-")) return 11;
     return 99;
   };
@@ -1701,7 +1800,8 @@ function sortPlakatyCategoryKeys(keys: string[]): string[] {
       key.startsWith("solwent-blockout-200g-") ||
       key.startsWith("solwent-blockout200g-") ||
       key.startsWith("plakaty-blockout200g-")
-    ) return 3;
+    )
+      return 3;
     if (key.startsWith("plakaty-format-120g-formatowe-")) return 4;
     if (key.startsWith("plakaty-format-120g-nieformatowe-")) return 5;
     if (key.startsWith("plakaty-format-260g-satyna-formatowe-")) return 6;
@@ -1877,7 +1977,8 @@ export function sortUslugiCategoryKeys(keys: string[]): string[] {
       key.startsWith("uslugi-grafika-") ||
       key.startsWith("uslugi-pakiet-") ||
       key.startsWith("uslugi-social-media-")
-    ) return 2;
+    )
+      return 2;
     return 99;
   };
 
@@ -1926,11 +2027,13 @@ function sortBroszuryKatalogiCategoryKeys(keys: string[]): string[] {
 
 function getCategoryKeys(prices: PriceMap, category: PriceCategory): string[] {
   if (category.id === "inne") {
-    return Object.keys(prices).filter((key) => category.prefixes.includes(key)).sort();
+    return Object.keys(prices)
+      .filter((key) => category.prefixes.includes(key))
+      .sort();
   }
 
   const keys = Object.keys(prices).filter((key) => keyMatchesCategory(key, category));
-  if (_lastAddedKey && (_lastAddedKey in prices)) {
+  if (_lastAddedKey && _lastAddedKey in prices) {
     const matched = keyMatchesCategory(_lastAddedKey, category);
   }
   if (category.id === "druk-a4-a3") {
@@ -2034,7 +2137,10 @@ export const UstawieniaView: View = {
 
     const _badPrices = [...new Set([...getZeroPriceLabels(), ...getZeroPriceDefaults()])];
     if (_badPrices.length > 0) {
-      ctx.showToast?.(`Uwaga: ${_badPrices.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`, "error");
+      ctx.showToast?.(
+        `Uwaga: ${_badPrices.length} pozycji cennika ma cenę 0/null. Sprawdź konfigurację.`,
+        "error"
+      );
     }
 
     let prices = loadPrices();
@@ -2060,10 +2166,17 @@ export const UstawieniaView: View = {
     let lastBasePrefix = "";
 
     function getActiveCategory(): PriceCategory {
-      return renderedCategories.find((category) => category.id === activeCategory) ?? renderedCategories[0];
+      return (
+        renderedCategories.find((category) => category.id === activeCategory) ??
+        renderedCategories[0]
+      );
     }
 
-    function showStatus(message: string, tone: "success" | "error" | "pending" = "success", persistent = false) {
+    function showStatus(
+      message: string,
+      tone: "success" | "error" | "pending" = "success",
+      persistent = false
+    ) {
       const msg = container.querySelector<HTMLElement>("#save-msg");
       if (!msg) return;
       msg.textContent = message;
@@ -2095,9 +2208,13 @@ export const UstawieniaView: View = {
       const headline = root.querySelector<HTMLElement>(".settings-sync-status-headline");
       const meta = root.querySelector<HTMLElement>(".settings-sync-status-meta");
       const detail = root.querySelector<HTMLElement>(".settings-sync-status-detail");
-      if (headline) headline.textContent = pending > 0 ? "Cennik niezsynchronizowany" : "Cennik zsynchronizowany";
+      if (headline)
+        headline.textContent =
+          pending > 0 ? "Cennik niezsynchronizowany" : "Cennik zsynchronizowany";
       if (meta) meta.textContent = `Ostatnia synchronizacja: ${lastSync}`;
-      if (detail) detail.textContent = pending > 0 ? `Niezsynchronizowane: ${pending}` : "Brak nowych zmian z GAS";
+      if (detail)
+        detail.textContent =
+          pending > 0 ? `Niezsynchronizowane: ${pending}` : "Brak nowych zmian z GAS";
     }
 
     const PRICES_SYNCED_AT_KEY = "razdwa_prices_gas_synced_at";
@@ -2150,7 +2267,8 @@ export const UstawieniaView: View = {
         const key = row.dataset.key ?? "";
         const rawValue = (priceInput?.value ?? "").trim();
         const parsedPrice = Number.parseFloat(rawValue);
-        const nextPrice: PriceValue = rawValue === "" ? null : (Number.isFinite(parsedPrice) ? parsedPrice : null);
+        const nextPrice: PriceValue =
+          rawValue === "" ? null : Number.isFinite(parsedPrice) ? parsedPrice : null;
 
         if (key) {
           prices[key] = nextPrice;
@@ -2167,15 +2285,17 @@ export const UstawieniaView: View = {
         activeCategory = renderedCategories[0]?.id ?? activeCategory;
       }
 
-      tabsEl.innerHTML = renderedCategories.map((category) => {
-        const isActive = category.id === activeCategory;
-        const count = getCategoryKeys(prices, category).length;
-        return `<button type="button" data-cat="${category.id}" class="settings-tab${isActive ? " settings-tab--active" : ""}">
+      tabsEl.innerHTML = renderedCategories
+        .map((category) => {
+          const isActive = category.id === activeCategory;
+          const count = getCategoryKeys(prices, category).length;
+          return `<button type="button" data-cat="${category.id}" class="settings-tab${isActive ? " settings-tab--active" : ""}">
           <span class="settings-tab-icon">${renderCategoryIcon(category.icon, category.label)}</span>
           <span class="settings-tab-label">${category.label}</span>
           <span class="settings-tab-count">${count}</span>
         </button>`;
-      }).join("");
+        })
+        .join("");
 
       tabsEl.querySelectorAll<HTMLButtonElement>("[data-cat]").forEach((button) => {
         button.addEventListener("click", () => {
@@ -2195,20 +2315,27 @@ export const UstawieniaView: View = {
       const addSubgroupInput = container.querySelector<HTMLInputElement>("#new-price-subgroup");
       const nextValue = renderedCategories.some((category) => category.id === activeCategory)
         ? activeCategory
-        : renderedCategories[0]?.id ?? addCategorySelect.value;
+        : (renderedCategories[0]?.id ?? addCategorySelect.value);
       addCategorySelect.value = nextValue;
 
       if (!addPrefixSelect) return;
 
-      const selectedCategory = renderedCategories.find((category) => category.id === addCategorySelect.value) ?? renderedCategories[0];
+      const selectedCategory =
+        renderedCategories.find((category) => category.id === addCategorySelect.value) ??
+        renderedCategories[0];
       if (!selectedCategory) return;
 
       const previousPrefix = addPrefixSelect.value;
       const prefixOptions = getAddablePrefixOptions(selectedCategory);
-      addPrefixSelect.innerHTML = prefixOptions.map((option) => `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`).join("");
+      addPrefixSelect.innerHTML = prefixOptions
+        .map(
+          (option) =>
+            `<option value="${escapeHtml(option.value)}">${escapeHtml(option.label)}</option>`
+        )
+        .join("");
       const nextPrefix = prefixOptions.some((option) => option.value === previousPrefix)
         ? previousPrefix
-        : prefixOptions[0]?.value ?? "";
+        : (prefixOptions[0]?.value ?? "");
       addPrefixSelect.value = nextPrefix;
 
       if (nextPrefix !== CUSTOM_PREFIX_VALUE) {
@@ -2245,7 +2372,9 @@ export const UstawieniaView: View = {
         }
 
         if (labelDescEl) {
-          labelDescEl.textContent = isQtyBased ? "Opis (opcjonalnie)" : "3. Nazwa wariantu / produktu";
+          labelDescEl.textContent = isQtyBased
+            ? "Opis (opcjonalnie)"
+            : "3. Nazwa wariantu / produktu";
         }
       }
     }
@@ -2478,7 +2607,19 @@ export const UstawieniaView: View = {
         }
 
         const label = getPriceLabel(key);
-        if (active.id !== "druk-cad" && active.id !== "druk-a4-a3" && active.id !== "solwent" && active.id !== "wlepki" && active.id !== "banner" && active.id !== "folia" && active.id !== "zaproszenia" && active.id !== "ulotki" && active.id !== "canvas" && active.id !== "artykuly" && active.id !== "uslugi") {
+        if (
+          active.id !== "druk-cad" &&
+          active.id !== "druk-a4-a3" &&
+          active.id !== "solwent" &&
+          active.id !== "wlepki" &&
+          active.id !== "banner" &&
+          active.id !== "folia" &&
+          active.id !== "zaproszenia" &&
+          active.id !== "ulotki" &&
+          active.id !== "canvas" &&
+          active.id !== "artykuly" &&
+          active.id !== "uslugi"
+        ) {
           const groupLabel = getProductGroupLabel(label);
           if (groupLabel !== previousGroup) {
             isBoldGroup = !isBoldGroup;
@@ -2487,12 +2628,13 @@ export const UstawieniaView: View = {
         }
 
         const value = prices[key];
-        const useAltLabel = active.id === "laminowanie"
-          ? isLaminowanieEmphasizedRow(key) || (previousLaminowanieSection === "BINDOWANIE" && isBoldGroup)
-          : isBoldGroup;
-        const displayPrice = typeof value === "number" && Number.isFinite(value)
-          ? value.toFixed(2)
-          : "";
+        const useAltLabel =
+          active.id === "laminowanie"
+            ? isLaminowanieEmphasizedRow(key) ||
+              (previousLaminowanieSection === "BINDOWANIE" && isBoldGroup)
+            : isBoldGroup;
+        const displayPrice =
+          typeof value === "number" && Number.isFinite(value) ? value.toFixed(2) : "";
 
         const rowClasses = ["settings-price-row"];
         if (active.id === "zaproszenia") {
@@ -2566,7 +2708,10 @@ export const UstawieniaView: View = {
       const syncStatus = readSyncStatus();
 
       type CalmSyncState = "synced" | "pending" | "syncing" | "error";
-      const CALM_BY_CODE: Record<SyncStatusCode, { state: CalmSyncState; icon: string; label: string }> = {
+      const CALM_BY_CODE: Record<
+        SyncStatusCode,
+        { state: CalmSyncState; icon: string; label: string }
+      > = {
         ok: { state: "synced", icon: "✓", label: "Zsynchronizowany" },
         syncing: { state: "syncing", icon: "⟳", label: "Synchronizacja w toku…" },
         idle: { state: "pending", icon: "○", label: "Oczekuje na synchronizację" },
@@ -2747,8 +2892,7 @@ export const UstawieniaView: View = {
 
       const addBtn = panel.querySelector<HTMLButtonElement>("#idb-btn-add");
       addBtn?.addEventListener("click", async () => {
-        const get = (id: string) =>
-          (panel.querySelector<HTMLInputElement>(id)?.value ?? "").trim();
+        const get = (id: string) => (panel.querySelector<HTMLInputElement>(id)?.value ?? "").trim();
 
         const category = get("#idb-new-category");
         const subcategory = get("#idb-new-subcategory");
@@ -2758,9 +2902,18 @@ export const UstawieniaView: View = {
         const qtyToRaw = get("#idb-new-qty-to");
         const priceRaw = get("#idb-new-price");
 
-        if (!category) { showIdbStatus("Błąd: kategoria jest wymagana", "error"); return; }
-        if (!label) { showIdbStatus("Błąd: label jest wymagany", "error"); return; }
-        if (!unit) { showIdbStatus("Błąd: unit jest wymagany", "error"); return; }
+        if (!category) {
+          showIdbStatus("Błąd: kategoria jest wymagana", "error");
+          return;
+        }
+        if (!label) {
+          showIdbStatus("Błąd: label jest wymagany", "error");
+          return;
+        }
+        if (!unit) {
+          showIdbStatus("Błąd: unit jest wymagany", "error");
+          return;
+        }
 
         const price = Number.parseFloat(priceRaw);
         if (!Number.isFinite(price) || price < 0) {
@@ -2821,9 +2974,9 @@ export const UstawieniaView: View = {
         pushBtn.disabled = true;
         try {
           const result = await pushPricesToGas();
-          if (!result.ok && result.error === 'no_token') {
+          if (!result.ok && result.error === "no_token") {
             clearAdminSession();
-            window.location.hash = '#/';
+            window.location.hash = "#/";
             return;
           }
           showIdbStatus(
@@ -2843,9 +2996,9 @@ export const UstawieniaView: View = {
         pullBtn.disabled = true;
         try {
           const result = await pullPricesFromGas();
-          if (!result.ok && result.error === 'no_token') {
+          if (!result.ok && result.error === "no_token") {
             clearAdminSession();
-            window.location.hash = '#/';
+            window.location.hash = "#/";
             return;
           }
           showIdbStatus(
@@ -2861,10 +3014,15 @@ export const UstawieniaView: View = {
       });
     }
 
-    const isDebug = new URLSearchParams(window.location.search).get('debug') === '1';
+    const isDebug = new URLSearchParams(window.location.search).get("debug") === "1";
     const _hSyncStatus = readSyncStatus();
     const _hSyncIcons: Record<SyncStatusCode, string> = {
-      idle: "●", syncing: "●", ok: "●", no_token: "●", error: "●", unconfirmed: "●",
+      idle: "●",
+      syncing: "●",
+      ok: "●",
+      no_token: "●",
+      error: "●",
+      unconfirmed: "●",
     };
     const _hLastSync = _hSyncStatus.lastSyncedAt
       ? new Date(_hSyncStatus.lastSyncedAt).toLocaleString("pl-PL")
@@ -2876,10 +3034,14 @@ export const UstawieniaView: View = {
             <h2 class="settings-title">⚙️ Ustawienia cen</h2>
             <p class="settings-subtitle">Cennik jest podzielony na kategorie. Wybierz sekcję i zmieniaj tylko te ceny, które do niej należą.</p>
           </div>
-          ${isDebug ? `<div class="idb-mode-switcher">
+          ${
+            isDebug
+              ? `<div class="idb-mode-switcher">
             <button id="btn-mode-legacy" type="button" class="btn-secondary idb-mode-btn idb-mode-btn--active">Cennik (legacy)</button>
             <button id="btn-mode-idb" type="button" class="btn-secondary idb-mode-btn">Panel IDB</button>
-          </div>` : ''}
+          </div>`
+              : ""
+          }
           <div class="settings-sync-mini">
             <span class="settings-sync-mini-status settings-sync-mini-status--${_hSyncStatus.code}">${_hSyncIcons[_hSyncStatus.code]} ${escapeHtml(_hSyncStatus.message)}</span>
             <span class="settings-sync-mini-ts">Sync: <strong>${escapeHtml(_hLastSync)}</strong></span>
@@ -2929,7 +3091,11 @@ export const UstawieniaView: View = {
                 <label class="settings-field">
                   <span class="settings-action-label">1. Kategoria</span>
                   <select id="new-price-category" class="settings-input">
-                    ${getAddableCategories().map((category) => `<option value="${category.id}">${category.label}</option>`).join("")}
+                    ${getAddableCategories()
+                      .map(
+                        (category) => `<option value="${category.id}">${category.label}</option>`
+                      )
+                      .join("")}
                   </select>
                 </label>
 
@@ -3041,52 +3207,58 @@ export const UstawieniaView: View = {
     });
 
     // Asynchronicznie pobierz świeży stan z GAS (nie blokuje UI)
-    fetchStateFromAppsScript().then((remote) => {
-      if (!remote) return;
+    fetchStateFromAppsScript()
+      .then((remote) => {
+        if (!remote) return;
 
-      let changed = false;
+        let changed = false;
 
-      // Ceny z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
-      // Jeśli localStorage zawiera już overrides, lokalny stan jest nowszy lub niezapisany –
-      // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
-      if (Object.keys(remote.prices).length > 0) {
-        try {
-          const hasLocalPrices = Boolean(
-            typeof localStorage !== "undefined" && localStorage.getItem(PRICES_STORAGE_KEY)
+        // Ceny z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
+        // Jeśli localStorage zawiera już overrides, lokalny stan jest nowszy lub niezapisany –
+        // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
+        if (Object.keys(remote.prices).length > 0) {
+          try {
+            const hasLocalPrices = Boolean(
+              typeof localStorage !== "undefined" && localStorage.getItem(PRICES_STORAGE_KEY)
+            );
+            if (!hasLocalPrices) {
+              setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+              prices = loadPrices();
+              changed = true;
+            }
+          } catch {
+            /* ignore */
+          }
+        }
+
+        if (remote.variants.length > 0) {
+          // Warianty z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
+          // Jeśli localStorage zawiera już warianty, lokalny stan jest nowszy lub niezapisany –
+          // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
+          const hasLocalVariants = Boolean(
+            typeof localStorage !== "undefined" && localStorage.getItem(VARIANTS_STORAGE_KEY)
           );
-          if (!hasLocalPrices) {
-            setPrice("defaultPrices", remote.prices as Record<string, number | null>);
-            prices = loadPrices();
+          if (!hasLocalVariants) {
+            setVariantDefinitions(remote.variants);
+            const fromVariants = variantsToPriceSubgroups(remote.variants);
+            for (const [catId, prefixes] of Object.entries(fromVariants)) {
+              if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
+              Object.assign(customPriceSubgroups[catId], prefixes);
+            }
+            Object.assign(customPriceLabels, variantsToPriceLabels(remote.variants));
             changed = true;
           }
-        } catch { /* ignore */ }
-      }
-
-      if (remote.variants.length > 0) {
-        // Warianty z GAS stosujemy tylko gdy localStorage jest pusty (bootstrap na nowym urządzeniu).
-        // Jeśli localStorage zawiera już warianty, lokalny stan jest nowszy lub niezapisany –
-        // nie nadpisujemy, żeby nowo dodane warianty nie znikały po reloadzie.
-        const hasLocalVariants = Boolean(
-          typeof localStorage !== "undefined" && localStorage.getItem(VARIANTS_STORAGE_KEY)
-        );
-        if (!hasLocalVariants) {
-          setVariantDefinitions(remote.variants);
-          const fromVariants = variantsToPriceSubgroups(remote.variants);
-          for (const [catId, prefixes] of Object.entries(fromVariants)) {
-            if (!customPriceSubgroups[catId]) customPriceSubgroups[catId] = Object.create(null);
-            Object.assign(customPriceSubgroups[catId], prefixes);
-          }
-          Object.assign(customPriceLabels, variantsToPriceLabels(remote.variants));
-          changed = true;
         }
-      }
 
-      if (changed) {
-        renderTabs();
-        renderTable();
-        syncAddCategorySelection();
-      }
-    }).catch(() => { /* offline – OK */ });
+        if (changed) {
+          renderTabs();
+          renderTable();
+          syncAddCategorySelection();
+        }
+      })
+      .catch(() => {
+        /* offline – OK */
+      });
 
     const addCategorySelect = container.querySelector<HTMLSelectElement>("#new-price-category");
     const addPrefixSelect = container.querySelector<HTMLSelectElement>("#new-price-prefix");
@@ -3100,8 +3272,16 @@ export const UstawieniaView: View = {
       const previewWrap = container.querySelector<HTMLElement>("#key-preview-wrap");
       const previewValue = container.querySelector<HTMLElement>("#key-preview-value");
       const chosenCategoryId = addCategorySelect?.value || activeCategory;
-      const chosenCategory = findOrCreateCategory(renderedCategories, chosenCategoryId, getActiveCategory());
-      const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+      const chosenCategory = findOrCreateCategory(
+        renderedCategories,
+        chosenCategoryId,
+        getActiveCategory()
+      );
+      const selectedPrefix =
+        addPrefixSelect?.value ||
+        chosenCategory.newKeyPrefix ||
+        chosenCategory.prefixes[0] ||
+        "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
       const qty = container.querySelector<HTMLInputElement>("#new-price-qty")?.value.trim() || "";
@@ -3112,8 +3292,14 @@ export const UstawieniaView: View = {
           if (previewWrap) previewWrap.style.display = "none";
           return;
         }
-        const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
-        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, prices, customPriceSubgroups[chosenCategory.id] ?? {});
+        const basePrefix =
+          lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+        chosenPrefix = buildUniqueSubgroupPrefix(
+          basePrefix,
+          subgroupName,
+          prices,
+          customPriceSubgroups[chosenCategory.id] ?? {}
+        );
       }
 
       let preview: string;
@@ -3165,8 +3351,16 @@ export const UstawieniaView: View = {
     container.querySelector("#btn-add-row")?.addEventListener("click", () => {
       flushInputs();
       const chosenCategoryId = addCategorySelect?.value || activeCategory;
-      const chosenCategory = findOrCreateCategory(renderedCategories, chosenCategoryId, getActiveCategory());
-      const selectedPrefix = addPrefixSelect?.value || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+      const chosenCategory = findOrCreateCategory(
+        renderedCategories,
+        chosenCategoryId,
+        getActiveCategory()
+      );
+      const selectedPrefix =
+        addPrefixSelect?.value ||
+        chosenCategory.newKeyPrefix ||
+        chosenCategory.prefixes[0] ||
+        "nowa-";
       const subgroupName = addSubgroupInput?.value.trim() || "";
       const productLabel = addLabelInput?.value.trim() || "";
       const priceValueRaw = addPriceInput?.value.trim() || "";
@@ -3176,26 +3370,62 @@ export const UstawieniaView: View = {
 
       if (isQuantityBasedCategory(chosenCategoryId)) {
         if (!qtyValue) {
-          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
+          logVariantOperation({
+            action: "skip",
+            key: "",
+            categoryId: chosenCategoryId,
+            prefix: selectedPrefix,
+            label: productLabel,
+            qty: qtyValue,
+            price: null,
+            timestamp: new Date().toISOString(),
+          });
           showStatus("⚠️ Wpisz ilość.", "error");
           addQtyInput?.focus();
           return;
         }
         if (chosenCategoryId === "broszury-katalogi") {
           if (!/^\d+-\d+$/.test(qtyValue)) {
-            logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
+            logVariantOperation({
+              action: "skip",
+              key: "",
+              categoryId: chosenCategoryId,
+              prefix: selectedPrefix,
+              label: productLabel,
+              qty: qtyValue,
+              price: null,
+              timestamp: new Date().toISOString(),
+            });
             showStatus("⚠️ Wpisz zakres ilości w formacie: 51-1000.", "error");
             addQtyInput?.focus();
             return;
           }
         } else if (!/^\d+$/.test(qtyValue)) {
-          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
+          logVariantOperation({
+            action: "skip",
+            key: "",
+            categoryId: chosenCategoryId,
+            prefix: selectedPrefix,
+            label: productLabel,
+            qty: qtyValue,
+            price: null,
+            timestamp: new Date().toISOString(),
+          });
           showStatus("⚠️ Wpisz poprawną ilość (np. 100).", "error");
           addQtyInput?.focus();
           return;
         }
       } else if (!productLabel) {
-        logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
+        logVariantOperation({
+          action: "skip",
+          key: "",
+          categoryId: chosenCategoryId,
+          prefix: selectedPrefix,
+          label: productLabel,
+          qty: qtyValue,
+          price: null,
+          timestamp: new Date().toISOString(),
+        });
         showStatus("⚠️ Wpisz nazwę wariantu / produktu.", "error");
         addLabelInput?.focus();
         return;
@@ -3204,13 +3434,28 @@ export const UstawieniaView: View = {
       let chosenPrefix = selectedPrefix;
       if (selectedPrefix === CUSTOM_PREFIX_VALUE) {
         if (!subgroupName) {
-          logVariantOperation({ action: "skip", key: "", categoryId: chosenCategoryId, prefix: selectedPrefix, label: productLabel, qty: qtyValue, price: null, timestamp: new Date().toISOString() });
+          logVariantOperation({
+            action: "skip",
+            key: "",
+            categoryId: chosenCategoryId,
+            prefix: selectedPrefix,
+            label: productLabel,
+            qty: qtyValue,
+            price: null,
+            timestamp: new Date().toISOString(),
+          });
           showStatus("⚠️ Wpisz nazwę nowej podgrupy.", "error");
           addSubgroupInput?.focus();
           return;
         }
-        const basePrefix = lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
-        chosenPrefix = buildUniqueSubgroupPrefix(basePrefix, subgroupName, prices, customPriceSubgroups[chosenCategory.id] ?? {});
+        const basePrefix =
+          lastBasePrefix || chosenCategory.newKeyPrefix || chosenCategory.prefixes[0] || "nowa-";
+        chosenPrefix = buildUniqueSubgroupPrefix(
+          basePrefix,
+          subgroupName,
+          prices,
+          customPriceSubgroups[chosenCategory.id] ?? {}
+        );
         const currentGroups = customPriceSubgroups[chosenCategory.id] ?? Object.create(null);
         customPriceSubgroups = {
           ...customPriceSubgroups,
@@ -3225,7 +3470,13 @@ export const UstawieniaView: View = {
       const newVariantPrice = Number.isFinite(parsedPrice) && parsedPrice >= 0 ? parsedPrice : null;
 
       // Idempotent upsert: jeśli wariant o tej samej sygnaturze już istnieje, rób update zamiast tworzyć nowy klucz.
-      const existingKey = findVariantBySignature(chosenCategoryId, chosenPrefix, productLabel, qtyValue, prices);
+      const existingKey = findVariantBySignature(
+        chosenCategoryId,
+        chosenPrefix,
+        productLabel,
+        qtyValue,
+        prices
+      );
       const isUpdate = existingKey !== null;
       const newKey = isUpdate
         ? existingKey
@@ -3242,26 +3493,44 @@ export const UstawieniaView: View = {
 
       // Draft: tylko aktualizacja in-memory; localStorage nie jest dotykany do momentu "Zapisz cennik"
       const existingDef = isUpdate
-        ? (getVariantDefinitions().find((v) => v.key === newKey) ?? _draftVariantDefs.find((v) => v.key === newKey))
+        ? (getVariantDefinitions().find((v) => v.key === newKey) ??
+          _draftVariantDefs.find((v) => v.key === newKey))
         : undefined;
       const _now = new Date().toISOString();
       const _variantDef: VariantDefinition = {
         key: newKey,
         categoryId: chosenCategoryId,
         subcategoryPrefix: chosenPrefix,
-        subgroupLabel: selectedPrefix === CUSTOM_PREFIX_VALUE ? subgroupName : (existingDef?.subgroupLabel ?? ""),
+        subgroupLabel:
+          selectedPrefix === CUSTOM_PREFIX_VALUE
+            ? subgroupName
+            : (existingDef?.subgroupLabel ?? ""),
         label: legendText || productLabel || getPriceLabel(newKey),
         legend: legendText,
         visibleInSettings: true,
         visibleInCalculator: true,
-        sortOrder: existingDef?.sortOrder ?? (getVariantDefinitions().length + _draftVariantDefs.length),
+        sortOrder:
+          existingDef?.sortOrder ?? getVariantDefinitions().length + _draftVariantDefs.length,
         createdAt: existingDef?.createdAt ?? _now,
         updatedAt: _now,
       };
-      _draftVariantDefs = _draftVariantDefs.filter((d) => d.key !== _variantDef.key).concat(_variantDef);
-      logVariantOperation({ action: isUpdate ? "update" : "add", key: newKey, categoryId: chosenCategoryId, prefix: chosenPrefix, label: productLabel || legendText, qty: qtyValue, price: newVariantPrice, timestamp: _now });
+      _draftVariantDefs = _draftVariantDefs
+        .filter((d) => d.key !== _variantDef.key)
+        .concat(_variantDef);
+      logVariantOperation({
+        action: isUpdate ? "update" : "add",
+        key: newKey,
+        categoryId: chosenCategoryId,
+        prefix: chosenPrefix,
+        label: productLabel || legendText,
+        qty: qtyValue,
+        price: newVariantPrice,
+        timestamp: _now,
+      });
 
-      showStatus(isUpdate ? `✓ Zaktualizowano (niezapisane): ${newKey}` : `✓ Dodano (niezapisane): ${newKey}`);
+      showStatus(
+        isUpdate ? `✓ Zaktualizowano (niezapisane): ${newKey}` : `✓ Dodano (niezapisane): ${newKey}`
+      );
       updateDraftIndicator();
 
       renderTabs();
@@ -3275,7 +3544,9 @@ export const UstawieniaView: View = {
       if (addQtyInput) addQtyInput.value = "";
       updateKeyPreview();
 
-      const priceInputs = container.querySelectorAll<HTMLInputElement>("tbody tr input[data-field='unitPrice']");
+      const priceInputs = container.querySelectorAll<HTMLInputElement>(
+        "tbody tr input[data-field='unitPrice']"
+      );
       const lastPriceInput = priceInputs[priceInputs.length - 1];
       if (lastPriceInput) {
         lastPriceInput.focus();
@@ -3296,7 +3567,6 @@ export const UstawieniaView: View = {
 
     container.querySelector("#btn-save")?.addEventListener("click", async () => {
       flushInputs();
-
 
       // Commit draft variant definitions do localStorage przed zapisem cennika.
       for (const dv of _draftVariantDefs) {
@@ -3332,10 +3602,10 @@ export const UstawieniaView: View = {
         const result = await savePricesToAppsScript(flatPrices);
         if (result.noToken) {
           clearAdminSession();
-          window.location.hash = '#/';
+          window.location.hash = "#/";
           return;
         }
-        localStorage.setItem('razdwa_prices_ts', '0');
+        localStorage.setItem("razdwa_prices_ts", "0");
         if (result.ok) {
           try {
             localStorage.setItem(PRICES_SYNCED_AT_KEY, new Date().toISOString());
@@ -3364,7 +3634,11 @@ export const UstawieniaView: View = {
     });
 
     container.querySelector("#btn-reset")?.addEventListener("click", () => {
-      if (!confirm("Przywrócić ostatnio zapisany stan cennika? Niezapisane zmiany zostaną odrzucone, w tym niezapisane warianty i kategorie.")) {
+      if (
+        !confirm(
+          "Przywrócić ostatnio zapisany stan cennika? Niezapisane zmiany zostaną odrzucone, w tym niezapisane warianty i kategorie."
+        )
+      ) {
         return;
       }
 

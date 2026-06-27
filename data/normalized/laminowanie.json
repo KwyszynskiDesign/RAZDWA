@@ -1,86 +1,91 @@
 {
   "formats": {
     "A3": [
-      { "min": 1, "max": 50, "price": 7.00 },
-      { "min": 51, "max": 100, "price": 6.00 },
-      { "min": 101, "max": 200, "price": 5.00 }
+      { "min": 1, "max": 50, "price": 7.0 },
+      { "min": 51, "max": 100, "price": 6.0 },
+      { "min": 101, "max": 200, "price": 5.0 }
     ],
     "A4": [
-      { "min": 1, "max": 50, "price": 5.00 },
-      { "min": 51, "max": 100, "price": 4.50 },
-      { "min": 101, "max": 200, "price": 4.00 }
+      { "min": 1, "max": 50, "price": 5.0 },
+      { "min": 51, "max": 100, "price": 4.5 },
+      { "min": 101, "max": 200, "price": 4.0 }
     ],
     "A5": [
-      { "min": 1, "max": 50, "price": 4.00 },
-      { "min": 51, "max": 100, "price": 3.50 },
-      { "min": 101, "max": 200, "price": 3.00 }
+      { "min": 1, "max": 50, "price": 4.0 },
+      { "min": 51, "max": 100, "price": 3.5 },
+      { "min": 101, "max": 200, "price": 3.0 }
     ],
     "A6": [
-      { "min": 1, "max": 50, "price": 3.00 },
-      { "min": 51, "max": 100, "price": 2.50 },
-      { "min": 101, "max": 200, "price": 2.00 }
+      { "min": 1, "max": 50, "price": 3.0 },
+      { "min": 51, "max": 100, "price": 2.5 },
+      { "min": 101, "max": 200, "price": 2.0 }
     ]
   },
   "introligatornia": {
     "unit": "szt",
     "items": [
       { "id": "gilotyna", "name": "Cięcie na gilotynie", "price": 0.07 },
-      { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.50 },
+      { "id": "trymer", "name": "Cięcie ręczne (trymer)", "price": 0.5 },
       { "id": "dziurkowanie-powyzej-20", "name": "Dziurkowanie powyżej 20 kartek", "price": 0.05 },
-      { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.30 },
-      { "id": "broszurowanie", "name": "Broszurowanie / docinanie", "price": 0.50 },
-      { "id": "bigowanie", "name": "Bigowanie", "price": 0.50 }
+      { "id": "zszywanie", "name": "Zszywanie kartek", "price": 0.3 },
+      { "id": "broszurowanie", "name": "Broszurowanie / docinanie", "price": 0.5 },
+      { "id": "bigowanie", "name": "Bigowanie", "price": 0.5 }
     ]
   },
   "bindowanie": {
     "unit": "szt",
     "plastik": {
       "1-50": {
-        "do20": { "listwa": 7.00, "spirala": 6.00 },
-        "21-100": 5.00,
-        "100+": 4.00
+        "do20": { "listwa": 7.0, "spirala": 6.0 },
+        "21-100": 5.0,
+        "100+": 4.0
       },
       "51-100": {
-        "do20": 9.00,
-        "21-100": 8.00,
-        "100+": 7.00
+        "do20": 9.0,
+        "21-100": 8.0,
+        "100+": 7.0
       },
       "101-200": {
-        "do20": 13.00,
-        "21-100": 12.00,
-        "100+": 11.00
+        "do20": 13.0,
+        "21-100": 12.0,
+        "100+": 11.0
       }
     },
     "metal": {
-      "1-50": { "do40": 11.00, "do80": 13.00, "do120": 15.00 },
-      "51-100": { "do40": 10.00, "do80": 11.00, "do120": 13.00 }
+      "1-50": { "do40": 11.0, "do80": 13.0, "do120": 15.0 },
+      "51-100": { "do40": 10.0, "do80": 11.0, "do120": 13.0 }
     }
   },
   "oprawy": {
     "grzbietowa": {
-      "A4": { "do30": 3.50, "do60": 4.50, "do90": 5.50, "do150": 7.00 },
-      "A3": { "do30": 7.00, "do60": 8.00, "do90": 9.00, "do150": 14.00 }
+      "A4": { "do30": 3.5, "do60": 4.5, "do90": 5.5, "do150": 7.0 },
+      "A3": { "do30": 7.0, "do60": 8.0, "do90": 9.0, "do150": 14.0 }
     },
-    "kanalowa": { "standard": 25.00, "pozostale": 35.00, "bezNapisu": 20.00, "wkarta": 10.00 },
-    "zaciskowa": { "miekka": 15.00, "thermoBiala": 8.00, "skoroszytZszywanie": 7.00 },
+    "kanalowa": { "standard": 25.0, "pozostale": 35.0, "bezNapisu": 20.0, "wkarta": 10.0 },
+    "zaciskowa": { "miekka": 15.0, "thermoBiala": 8.0, "skoroszytZszywanie": 7.0 },
     "zbijana": {
-      "printedHere": { "zbijane": 50.00, "skrecane": 60.00 },
-      "clientSupplied": { "zbijane": 60.00, "skrecane": 70.00 },
-      "extraPerCm": { "printedHere": 10.00, "clientSupplied": 12.00 }
+      "printedHere": { "zbijane": 50.0, "skrecane": 60.0 },
+      "clientSupplied": { "zbijane": 60.0, "skrecane": 70.0 },
+      "extraPerCm": { "printedHere": 10.0, "clientSupplied": 12.0 }
     },
-    "twarda": { "rozszycieMin": 25.00, "rozszycieMax": 40.00, "ponowneZszycieMin": 25.00, "ponowneZszycieMax": 40.00 }
+    "twarda": {
+      "rozszycieMin": 25.0,
+      "rozszycieMax": 40.0,
+      "ponowneZszycieMin": 25.0,
+      "ponowneZszycieMax": 40.0
+    }
   },
   "specialPrints": {
     "unit": "szt",
-    "doubleSidedSurchargeFactor": 0.50,
+    "doubleSidedSurchargeFactor": 0.5,
     "items": [
-      { "id": "dyplom", "name": "Dyplom", "price": 0.00 },
-      { "id": "zaproszenia-dodruk", "name": "Zaproszenia (dodruk)", "price": 0.00 },
-      { "id": "katalog", "name": "Katalog", "price": 0.00 },
-      { "id": "broszura", "name": "Broszura", "price": 0.00 },
-      { "id": "koperty-nadruk", "name": "Koperty – nadruk", "price": 0.00 },
-      { "id": "trymer-2x", "name": "Cięcie trymer 2x", "price": 1.00 },
-      { "id": "trymer-4x", "name": "Cięcie trymer 4x", "price": 2.00 }
+      { "id": "dyplom", "name": "Dyplom", "price": 0.0 },
+      { "id": "zaproszenia-dodruk", "name": "Zaproszenia (dodruk)", "price": 0.0 },
+      { "id": "katalog", "name": "Katalog", "price": 0.0 },
+      { "id": "broszura", "name": "Broszura", "price": 0.0 },
+      { "id": "koperty-nadruk", "name": "Koperty – nadruk", "price": 0.0 },
+      { "id": "trymer-2x", "name": "Cięcie trymer 2x", "price": 1.0 },
+      { "id": "trymer-4x", "name": "Cięcie trymer 4x", "price": 2.0 }
     ]
   }
 }

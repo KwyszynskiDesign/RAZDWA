@@ -33,9 +33,9 @@ export interface CategorySchema {
 export interface ModifierSchema {
   id: string;
   label: string;
-  type: 'percent' | 'flat';
+  type: "percent" | "flat";
   value: number;
-  appliesTo: 'all' | string;
+  appliesTo: "all" | string;
 }
 
 /**
@@ -51,11 +51,11 @@ export interface PriceSchemaContract {
 
 export function assertSchemaCompatible(
   stored: { version: unknown },
-  supported: SchemaVersion,
+  supported: SchemaVersion
 ): void {
   if (stored.version !== supported) {
     throw new Error(
-      `Price schema version mismatch: stored=${stored.version}, supported=${supported}`,
+      `Price schema version mismatch: stored=${stored.version}, supported=${supported}`
     );
   }
 }

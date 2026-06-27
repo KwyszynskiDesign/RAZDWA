@@ -42,8 +42,12 @@ export const CanvasView: View = {
     const priceTiersEl = container.querySelector("#cv-price-tiers") as HTMLElement;
     const legendM2Rate = container.querySelector("#cv-legend-m2-rate") as HTMLElement | null;
     const legendExpress = container.querySelector("#cv-legend-express") as HTMLElement | null;
-    const legendFramedRows = container.querySelector("#cv-legend-framed-rows") as HTMLElement | null;
-    const legendUnframedRows = container.querySelector("#cv-legend-unframed-rows") as HTMLElement | null;
+    const legendFramedRows = container.querySelector(
+      "#cv-legend-framed-rows"
+    ) as HTMLElement | null;
+    const legendUnframedRows = container.querySelector(
+      "#cv-legend-unframed-rows"
+    ) as HTMLElement | null;
     const legendNote = container.querySelector("#cv-legend-note") as HTMLElement | null;
 
     let currentOptions: CanvasOptions | null = null;
@@ -86,7 +90,10 @@ export const CanvasView: View = {
       }
 
       if (legendNote) {
-        const border = resolveStoredPrice("canvas-framed-custom-border", framedMode?.customPricePerCmBorder ?? 0.22);
+        const border = resolveStoredPrice(
+          "canvas-framed-custom-border",
+          framedMode?.customPricePerCmBorder ?? 0.22
+        );
         legendNote.innerText = `* Format niestandardowy wyceniany indywidualnie. Cena oprawy na zamówienie: ${formatPLN(border)} / cm.`;
       }
 
@@ -157,7 +164,7 @@ export const CanvasView: View = {
         quantity: parseInt(qtyInput.value, 10) || 1,
         widthMm: parseInt(widthInput.value, 10) || 0,
         heightMm: parseInt(heightInput.value, 10) || 0,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateCanvas(options);
@@ -181,10 +188,14 @@ export const CanvasView: View = {
           `<div class="canvas-breakdown-line">Format: ${result.formatLabel}</div>`,
           `<div class="canvas-breakdown-line">Ilość: ${Math.max(1, options.quantity)} szt</div>`,
           `<div class="canvas-breakdown-line">Cena jednostkowa: ${formatPLN(result.tierPrice)}</div>`,
-          `<div class="canvas-breakdown-line">Razem: ${formatPLN(result.totalPrice)}</div>`
+          `<div class="canvas-breakdown-line">Razem: ${formatPLN(result.totalPrice)}</div>`,
         ];
         if (options.modeId === "m2-unframed" && typeof result.areaM2 === "number") {
-          lines.splice(3, 0, `<div class="canvas-breakdown-line">Powierzchnia: ${result.areaM2.toFixed(2)} m²</div>`);
+          lines.splice(
+            3,
+            0,
+            `<div class="canvas-breakdown-line">Powierzchnia: ${result.areaM2.toFixed(2)} m²</div>`
+          );
         }
         breakdownLinesEl.innerHTML = lines.join("");
       }
@@ -199,13 +210,16 @@ export const CanvasView: View = {
     modeSel.onchange = syncModeUI;
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
-    addBtn.addEventListener('pointerdown', () => {
+    addBtn.addEventListener("pointerdown", () => {
       if (addBtn.disabled && !modeSel.value) {
-        ctx.showToast?.('Wybierz tryb przed dodaniem do koszyka.', 'error');
+        ctx.showToast?.("Wybierz tryb przed dodaniem do koszyka.", "error");
       }
     });
     updateLegend();
-    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      calculate();
+    });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;
@@ -217,7 +231,7 @@ export const CanvasView: View = {
         currentOptions.modeId === "m2-unframed" && typeof currentResult.areaM2 === "number"
           ? `${currentResult.areaM2.toFixed(2)} m² / szt`
           : "",
-        currentOptions.express ? "EXPRESS" : ""
+        currentOptions.express ? "EXPRESS" : "",
       ].filter(Boolean);
 
       ctx.cart.addItem({
@@ -232,18 +246,18 @@ export const CanvasView: View = {
         optionsHint: optionsHintParts.join(", "),
         payload: {
           ...currentOptions,
-          ...currentResult
-        }
+          ...currentResult,
+        },
       });
 
       currentResult = null;
       currentOptions = null;
-      if (resultEl) resultEl.style.display = 'none';
-      if (breakdownEl) breakdownEl.style.display = 'none';
+      if (resultEl) resultEl.style.display = "none";
+      if (breakdownEl) breakdownEl.style.display = "none";
       addBtn.disabled = true;
       container.dispatchEvent(new CustomEvent("view:reset"));
     };
 
     syncModeUI();
-  }
+  },
 };

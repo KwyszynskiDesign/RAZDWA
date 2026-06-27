@@ -12,8 +12,10 @@ export interface FoliaSzronionaOptions {
   express: boolean;
 }
 
-export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): CalculationResult & { isCustom: boolean } {
-  const tableData = getPrice('foliaSzroniona') as any;
+export function calculateFoliaSzroniona(
+  options: FoliaSzronionaOptions
+): CalculationResult & { isCustom: boolean } {
+  const tableData = getPrice("foliaSzroniona") as any;
   const materialData = tableData?.materials?.find((m: any) => m.id === options.serviceId);
 
   if (!materialData) {
@@ -32,7 +34,7 @@ export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): Calcula
       `folia-szroniona-${materialData.storageId ?? materialData.id}`,
       materialData.tiers
     ),
-    modifiers: tableData.modifiers
+    modifiers: tableData.modifiers,
   };
 
   const activeModifiers: string[] = [];
@@ -41,11 +43,12 @@ export function calculateFoliaSzroniona(options: FoliaSzronionaOptions): Calcula
   }
 
   const result = calculatePrice(priceTable, areaM2, activeModifiers);
-  const isCustomService = options.serviceId === "full-service" || options.serviceId === "owv-full-service";
+  const isCustomService =
+    options.serviceId === "full-service" || options.serviceId === "owv-full-service";
   const isCustom = isCustomService && areaM2 > 20;
 
   return {
     ...result,
-    isCustom
+    isCustom,
   };
 }

@@ -24,7 +24,7 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
     `ulotki-jed-${fk}-`,
     (formatData.tiers as Array<{ min: number; max: number | null; price: number }>).map((tier) => ({
       ...tier,
-      price: resolveStoredPrice(`ulotki-jed-${fk}-${tier.min}`, tier.price)
+      price: resolveStoredPrice(`ulotki-jed-${fk}-${tier.min}`, tier.price),
     })),
     (key) => {
       const match = key.match(/^(?:.*-)?(\d+)$/i);
@@ -41,8 +41,13 @@ export function getUlotkiJednostronneTable(formatKey: string): PriceTable {
     pricing: "flat",
     tiers: tiersWithOverrides,
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
-    ]
+      {
+        id: "express",
+        name: "TRYB EXPRESS",
+        type: "percent",
+        value: resolveStoredPrice("modifier-express", 0.2),
+      },
+    ],
   };
 }
 

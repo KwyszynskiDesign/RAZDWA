@@ -27,9 +27,15 @@ beforeEach(() => {
   storageData = {};
   vi.stubGlobal("localStorage", {
     getItem: (key: string) => storageData[key] || null,
-    setItem: (key: string, value: string) => { storageData[key] = value; },
-    removeItem: (key: string) => { delete storageData[key]; },
-    clear: () => { storageData = {}; }
+    setItem: (key: string, value: string) => {
+      storageData[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete storageData[key];
+    },
+    clear: () => {
+      storageData = {};
+    },
   });
   resetPrices();
 });
@@ -41,66 +47,69 @@ afterEach(() => {
 
 // ─── detectFormatFromDimensions ───────────────────────────────────────────────
 describe("detectFormatFromDimensions", () => {
-  it("A0  841×1189 → A0",  () => expect(detectFormatFromDimensions(841, 1189)).toBe('A0'));
-  it("A0+ 914×1292 → A0p (internal key)", () => expect(detectFormatFromDimensions(914, 1292)).toBe('A0p'));
-  it("A1+ 610×914 → A1p (internal key)", () => expect(detectFormatFromDimensions(610, 914)).toBe('A1p'));
-  it("A1  594× 841 → A1",  () => expect(detectFormatFromDimensions(594,  841)).toBe('A1'));
-  it("A2  420× 594 → A2",  () => expect(detectFormatFromDimensions(420,  594)).toBe('A2'));
-  it("A3  297× 420 → A3",  () => expect(detectFormatFromDimensions(297,  420)).toBe('A3'));
-  it("200×300 → nieformatowy", () => expect(detectFormatFromDimensions(200, 300)).toBe('nieformatowy'));
+  it("A0  841×1189 → A0", () => expect(detectFormatFromDimensions(841, 1189)).toBe("A0"));
+  it("A0+ 914×1292 → A0p (internal key)", () =>
+    expect(detectFormatFromDimensions(914, 1292)).toBe("A0p"));
+  it("A1+ 610×914 → A1p (internal key)", () =>
+    expect(detectFormatFromDimensions(610, 914)).toBe("A1p"));
+  it("A1  594× 841 → A1", () => expect(detectFormatFromDimensions(594, 841)).toBe("A1"));
+  it("A2  420× 594 → A2", () => expect(detectFormatFromDimensions(420, 594)).toBe("A2"));
+  it("A3  297× 420 → A3", () => expect(detectFormatFromDimensions(297, 420)).toBe("A3"));
+  it("200×300 → nieformatowy", () =>
+    expect(detectFormatFromDimensions(200, 300)).toBe("nieformatowy"));
   // orientation-independent
-  it("landscape A1 841×594 → A1", () => expect(detectFormatFromDimensions(841, 594)).toBe('A1'));
+  it("landscape A1 841×594 → A1", () => expect(detectFormatFromDimensions(841, 594)).toBe("A1"));
 });
 
 // ─── calculatePriceFromDimensions ─────────────────────────────────────────────
 describe("calculatePriceFromDimensions", () => {
   it("A0 kolor formatowy (841×1189) qty=1 → 24.00 zł", () =>
-    expect(calculatePriceFromDimensions(841, 1189, 'color', 1)).toBe(24.00));
+    expect(calculatePriceFromDimensions(841, 1189, "color", 1)).toBe(24.0));
 
   it("A0+ cz-b formatowy (914×1292) qty=1 → 12.00 zł", () =>
-    expect(calculatePriceFromDimensions(914, 1292, 'bw', 1)).toBe(12.00));
+    expect(calculatePriceFromDimensions(914, 1292, "bw", 1)).toBe(12.0));
 
   it("A1+ kolor formatowy (610×914) qty=1 → 14.00 zł", () =>
-    expect(calculatePriceFromDimensions(610, 914, 'color', 1)).toBe(14.00));
+    expect(calculatePriceFromDimensions(610, 914, "color", 1)).toBe(14.0));
 
   it("A1+ cz-b nieformatowy (610×1000) qty=1 → 10.60 zł", () =>
     // 10.60 zł/mb × 1.000 m = 10.60
-    expect(calculatePriceFromDimensions(610, 1000, 'bw', 1)).toBe(10.60));
+    expect(calculatePriceFromDimensions(610, 1000, "bw", 1)).toBe(10.6));
 
   it("A1 kolor nieformatowy (594×2000) qty=1 → 28.60 zł", () =>
     // 14.30 zł/mb × 2.000 m = 28.60
-    expect(calculatePriceFromDimensions(594, 2000, 'color', 1)).toBe(28.60));
+    expect(calculatePriceFromDimensions(594, 2000, "color", 1)).toBe(28.6));
 
   it("A3 kolor nieformatowy (297×1200) qty=1 → 14.40 zł", () =>
     // 12.00 zł/mb × 1.200 m = 14.40
-    expect(calculatePriceFromDimensions(297, 1200, 'color', 1)).toBe(14.40));
+    expect(calculatePriceFromDimensions(297, 1200, "color", 1)).toBe(14.4));
 
   it("A0 kolor formatowy qty=2 → 48.00 zł", () =>
-    expect(calculatePriceFromDimensions(841, 1189, 'color', 2)).toBe(48.00));
+    expect(calculatePriceFromDimensions(841, 1189, "color", 2)).toBe(48.0));
 
   it("zerowe wymiary → 0.00 zł", () =>
-    expect(calculatePriceFromDimensions(0, 0, 'color', 1)).toBe(0));
+    expect(calculatePriceFromDimensions(0, 0, "color", 1)).toBe(0));
 });
 
 // ─── calculateCadUpload ───────────────────────────────────────────────────────
 describe("calculateCadUpload", () => {
   it("A0 kolor formatowy → 24.00 zł, format=A0", () => {
     const r = calculateCadUpload({ wMm: 841, hMm: 1189 });
-    expect(r.totalPrice).toBe(24.00);
-    expect(r.detectedFormat).toBe('A0');
-    expect(r.mode).toBe('color');
+    expect(r.totalPrice).toBe(24.0);
+    expect(r.detectedFormat).toBe("A0");
+    expect(r.mode).toBe("color");
     expect(r.qty).toBe(1);
   });
 
   it("A1 cz-b formatowy qty=2 → 16.00 zł", () => {
-    const r = calculateCadUpload({ wMm: 594, hMm: 841, mode: 'bw', qty: 2 });
-    expect(r.totalPrice).toBe(16.00); // 8.00 × 2
+    const r = calculateCadUpload({ wMm: 594, hMm: 841, mode: "bw", qty: 2 });
+    expect(r.totalPrice).toBe(16.0); // 8.00 × 2
   });
 
   it("A0+ cz-b formatowy (914×1292) → 12.00 zł", () => {
-    const r = calculateCadUpload({ wMm: 914, hMm: 1292, mode: 'bw' });
-    expect(r.totalPrice).toBe(12.00);
-    expect(r.detectedFormat).toBe('A0p');
+    const r = calculateCadUpload({ wMm: 914, hMm: 1292, mode: "bw" });
+    expect(r.totalPrice).toBe(12.0);
+    expect(r.detectedFormat).toBe("A0p");
   });
 
   it("0×0 → 0.00 zł (edge: brak wymiarów)", () => {
@@ -295,11 +304,9 @@ describe("G — Guardy wydajnościowe CAD Upload", () => {
   });
 
   it("uszkodzony PDF → rejects z READ_ERROR", async () => {
-    const file = new File(
-      [new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x00])],
-      "corrupted.pdf",
-      { type: "application/pdf" }
-    );
+    const file = new File([new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x00])], "corrupted.pdf", {
+      type: "application/pdf",
+    });
     await expect(updateCadFileEntry(file, true)).rejects.toThrow("READ_ERROR");
   });
 });

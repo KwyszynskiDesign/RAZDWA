@@ -11,13 +11,13 @@
 
 ### Co jest source of truth
 
-| Obszar | Source of truth | Plik |
-|--------|----------------|------|
-| Odczyt cen | `priceSource` (adapter chain) | `src/bootstrap.ts` |
-| Eventy domenowe | `eventBus.emit('price-changed')` | `src/bootstrap.ts` |
-| Kategorie (obliczenia) | `categoryRegistry` | `src/bootstrap.ts` |
-| Dane cenowe (build-time) | `src/config/prices.json` via `JsonPriceSource` | — |
-| Overrides użytkownika | `localStorage['razdwa_prices']` via `LocalStorageOverrideSource` | — |
+| Obszar                   | Source of truth                                                  | Plik               |
+| ------------------------ | ---------------------------------------------------------------- | ------------------ |
+| Odczyt cen               | `priceSource` (adapter chain)                                    | `src/bootstrap.ts` |
+| Eventy domenowe          | `eventBus.emit('price-changed')`                                 | `src/bootstrap.ts` |
+| Kategorie (obliczenia)   | `categoryRegistry`                                               | `src/bootstrap.ts` |
+| Dane cenowe (build-time) | `src/config/prices.json` via `JsonPriceSource`                   | —                  |
+| Overrides użytkownika    | `localStorage['razdwa_prices']` via `LocalStorageOverrideSource` | —                  |
 
 ### Co jest adapterem
 
@@ -36,13 +36,13 @@ src/domain/
 
 ### Co jest legacy bridge (nie ruszać bez Stage 7)
 
-| Bridge | Lokalizacja | Dlaczego zostaje |
-|--------|------------|-----------------|
-| `getPrice()` → `priceSource` | `priceService.ts:179` | 30+ kategorii wciąż importuje `getPrice()` bezpośrednio |
-| `getConfigRoot()` w `compat.ts` | `core/compat.ts:2` | `getDefaultPricesMap()`, `warmPriceCache()` nadal z niego korzystają |
-| `applyStorageOverrides()` | `priceService.ts:135` | Eager merge na start; coexists z lazy `LocalStorageOverrideSource` — obie ścieżki potrzebne |
+| Bridge                               | Lokalizacja                          | Dlaczego zostaje                                                                                         |
+| ------------------------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `getPrice()` → `priceSource`         | `priceService.ts:179`                | 30+ kategorii wciąż importuje `getPrice()` bezpośrednio                                                  |
+| `getConfigRoot()` w `compat.ts`      | `core/compat.ts:2`                   | `getDefaultPricesMap()`, `warmPriceCache()` nadal z niego korzystają                                     |
+| `applyStorageOverrides()`            | `priceService.ts:135`                | Eager merge na start; coexists z lazy `LocalStorageOverrideSource` — obie ścieżki potrzebne              |
 | `SimpleEventEmitter` + `ctx.emit/on` | `main.ts:408`, `ustawienia.ts:3273+` | 4 martwe wywołania `ctx.emit("prices-updated")`, brak listenerów; usunięcie = edit w 3400-linijnym pliku |
-| `CategoryModule` (mount/unmount) | `src/ui/router.ts` | 20 kategorii nie ma `CategoryDefinition`, wciąż korzysta ze starego DOM-routingu |
+| `CategoryModule` (mount/unmount)     | `src/ui/router.ts`                   | 20 kategorii nie ma `CategoryDefinition`, wciąż korzysta ze starego DOM-routingu                         |
 
 ---
 
@@ -52,9 +52,9 @@ src/domain/
 
 ```typescript
 // Trzy singletonowe zależności:
-export const priceSource: PriceDataSource         // LocalStorageOverrideSource → JsonPriceSource
-export const categoryRegistry: CategoryRegistry   // DefaultCategoryRegistry (dyplomy + banner)
-export const eventBus: TypedEventEmitter          // TypedEventDispatcher (in-process)
+export const priceSource: PriceDataSource; // LocalStorageOverrideSource → JsonPriceSource
+export const categoryRegistry: CategoryRegistry; // DefaultCategoryRegistry (dyplomy + banner)
+export const eventBus: TypedEventEmitter; // TypedEventDispatcher (in-process)
 ```
 
 ### Ścieżka odczytu cen (po Stage 2)
@@ -79,8 +79,8 @@ priceService.setPrice(...)
 
 ```typescript
 // Bootstrap rejestruje 2 kategorie przez wrapper:
-categoryRegistry.register({ id: 'dyplomy', unit: 'szt', calculate: wrapDyplomy })
-categoryRegistry.register({ id: 'banner',  unit: 'm2',  calculate: wrapBanner  })
+categoryRegistry.register({ id: "dyplomy", unit: "szt", calculate: wrapDyplomy });
+categoryRegistry.register({ id: "banner", unit: "m2", calculate: wrapBanner });
 
 // Pozostałe 20 kategorii: wciąż przez CategoryModule (legacy DOM-routing)
 // Docelowo Stage 7: wszystkie przez CategoryDefinition
@@ -90,21 +90,21 @@ categoryRegistry.register({ id: 'banner',  unit: 'm2',  calculate: wrapBanner  }
 
 ## Kontrakty (src/core/contracts/)
 
-| Plik | Status | Używany przez |
-|------|--------|--------------|
-| `PriceDataSource.ts` | ✅ zaimplementowany | `JsonPriceSource`, `LocalStorageOverrideSource`, `priceService` |
-| `CategoryRegistry.ts` | ✅ zaimplementowany | `DefaultCategoryRegistry`, `registerBuiltinCategories`, `bootstrap` |
-| `Events.ts` | ✅ zaimplementowany | `TypedEventDispatcher`, `priceService`, `main.ts`, testy |
-| `PriceSchema.ts` | 📋 typ-only, niezaimplementowany | Nikt (aspiracyjny — dla klonów) |
+| Plik                  | Status                           | Używany przez                                                       |
+| --------------------- | -------------------------------- | ------------------------------------------------------------------- |
+| `PriceDataSource.ts`  | ✅ zaimplementowany              | `JsonPriceSource`, `LocalStorageOverrideSource`, `priceService`     |
+| `CategoryRegistry.ts` | ✅ zaimplementowany              | `DefaultCategoryRegistry`, `registerBuiltinCategories`, `bootstrap` |
+| `Events.ts`           | ✅ zaimplementowany              | `TypedEventDispatcher`, `priceService`, `main.ts`, testy            |
+| `PriceSchema.ts`      | 📋 typ-only, niezaimplementowany | Nikt (aspiracyjny — dla klonów)                                     |
 
 ### Typy eventów domenowych
 
-| Event | Status | Emituje | Słucha |
-|-------|--------|---------|--------|
-| `price-changed` | ✅ aktywny | `priceService.notifyPricesUpdated` | `main.ts`, testy |
-| `category-updated` | 📋 typ-only | nikt | nikt |
-| `validation-failed` | 📋 typ-only | nikt | nikt |
-| `variant-changed` | 📋 typ-only | nikt | nikt |
+| Event               | Status      | Emituje                            | Słucha           |
+| ------------------- | ----------- | ---------------------------------- | ---------------- |
+| `price-changed`     | ✅ aktywny  | `priceService.notifyPricesUpdated` | `main.ts`, testy |
+| `category-updated`  | 📋 typ-only | nikt                               | nikt             |
+| `validation-failed` | 📋 typ-only | nikt                               | nikt             |
+| `variant-changed`   | 📋 typ-only | nikt                               | nikt             |
 
 ---
 
@@ -135,7 +135,7 @@ Poniższe punkty z oryginalnego planu (Etap 5–7) są **out of scope** dla Stag
 
 ### D3: TypedEventDispatcher in-process (nie window-backed)
 
-`eventBus` nie dispatcha `window.CustomEvent`. Jest czystym in-process Map. 
+`eventBus` nie dispatcha `window.CustomEvent`. Jest czystym in-process Map.
 
 **Dlaczego**: testy bez DOM, brak cross-frame pollution, łatwiejszy cleanup (unsubscribe function).
 

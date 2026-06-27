@@ -10,24 +10,25 @@ function isValidEmail(email: string): boolean {
 }
 
 export function normalizePhoneDigits(phone: string): string {
-  const digits = String(phone ?? "").replace(/\D/g, '');
-  if (digits.length > 9 && digits.startsWith('48')) {
+  const digits = String(phone ?? "").replace(/\D/g, "");
+  if (digits.length > 9 && digits.startsWith("48")) {
     return digits.slice(2);
   }
   return digits;
 }
 
 export function validateNIPDigits(digits: string): string | null {
-  if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
+  if (digits.length !== 10) return "NIP musi zawierać 10 cyfr";
   const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
   const sum = weights.reduce((acc, w, i) => acc + w * parseInt(digits[i], 10), 0);
   const check = sum % 11;
-  if (check === 10 || check !== parseInt(digits[9], 10)) return 'Nieprawidłowy NIP (błędna suma kontrolna)';
+  if (check === 10 || check !== parseInt(digits[9], 10))
+    return "Nieprawidłowy NIP (błędna suma kontrolna)";
   return null;
 }
 
 export function isValidNIP(nip: string): boolean {
-  const cleanNip = String(nip ?? "").replace(/\D/g, '');
+  const cleanNip = String(nip ?? "").replace(/\D/g, "");
   if (!/^\d{10}$/.test(cleanNip)) return false;
   const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
   const sum = weights.reduce((acc, w, i) => acc + w * Number(cleanNip[i]), 0);
@@ -46,9 +47,10 @@ export function validateCustomerForm(data: CustomerFormData): string | null {
   if (!data.email.trim()) return "Podaj adres e-mail klienta.";
   if (!isValidEmail(data.email.trim())) return "Nieprawidłowy format e-mail.";
   if (!data.phone.trim()) return "Podaj numer telefonu klienta.";
-  if (!isValidPhone(data.phone)) return "Numer telefonu musi mieć 9 cyfr (krajowy, opcjonalnie z prefiksem +48).";
+  if (!isValidPhone(data.phone))
+    return "Numer telefonu musi mieć 9 cyfr (krajowy, opcjonalnie z prefiksem +48).";
   if (data.nip) {
-    const nipDigits = data.nip.replace(/\D/g, '');
+    const nipDigits = data.nip.replace(/\D/g, "");
     if (nipDigits.length !== 10) return "NIP musi zawierać 10 cyfr";
   }
   return null;

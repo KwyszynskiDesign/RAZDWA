@@ -6,18 +6,18 @@ describe("Ulotki - Cyfrowe Dwustronne", () => {
     const result = quoteUlotkiDwustronne({
       format: "A5",
       qty: 100,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(140.00);
+    expect(result.totalPrice).toBe(140.0);
   });
 
   it("calculates A6 1000szt correctly (476 PLN)", () => {
     const result = quoteUlotkiDwustronne({
       format: "A6",
       qty: 1000,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(476.00);
+    expect(result.totalPrice).toBe(476.0);
   });
 
   it("applies Express +20% correctly", () => {
@@ -25,26 +25,26 @@ describe("Ulotki - Cyfrowe Dwustronne", () => {
     const result = quoteUlotkiDwustronne({
       format: "A5",
       qty: 100,
-      express: true
+      express: true,
     });
-    expect(result.totalPrice).toBe(168.00);
+    expect(result.totalPrice).toBe(168.0);
   });
 
   it("handles A6 10szt (40 PLN)", () => {
     const result = quoteUlotkiDwustronne({
       format: "A6",
       qty: 10,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(40.00);
+    expect(result.totalPrice).toBe(40.0);
   });
 
   it("handles DL 50szt (70 PLN)", () => {
     const result = quoteUlotkiDwustronne({
       format: "DL",
       qty: 50,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(70.00);
+    expect(result.totalPrice).toBe(70.0);
   });
 });

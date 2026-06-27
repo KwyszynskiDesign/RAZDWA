@@ -7,7 +7,9 @@ import uslugiData from "../../data/normalized/uslugi.json";
 const uslugiCategoryData: any = uslugiData as any;
 const CUSTOM_SERVICE_PREFIX = "uslugi-";
 const BASE_SERVICE_IDS = new Set<string>(
-  (uslugiCategoryData.categories ?? []).flatMap((category: any) => (category.items ?? []).map((item: any) => item.id))
+  (uslugiCategoryData.categories ?? []).flatMap((category: any) =>
+    (category.items ?? []).map((item: any) => item.id)
+  )
 );
 const BASE_SERVICE_IDS_NORMALIZED = new Set<string>(
   [...BASE_SERVICE_IDS].map((id) => normalizeServiceToken(id))
@@ -62,7 +64,10 @@ function normalizeServiceToken(value: string): string {
     .toLowerCase();
 }
 
-function findEquivalentStoredServiceKey(serviceId: string, storedPrices: Record<string, number | null>): string | null {
+function findEquivalentStoredServiceKey(
+  serviceId: string,
+  storedPrices: Record<string, number | null>
+): string | null {
   const directKey = `${CUSTOM_SERVICE_PREFIX}${serviceId}`;
   if (typeof storedPrices[directKey] === "number") return directKey;
 
@@ -173,7 +178,7 @@ function renderServiceItem(service: RenderedServiceItem, isTimeBased: boolean): 
   return `
     <div>
       <div style="display: grid; grid-template-columns: auto 1fr auto auto auto; align-items: center; column-gap: 6px; padding: 5px 8px; background-color: #ffffff; border: 1px solid #e7edf5; border-radius: 6px;">
-        <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${escapeHtml(service.name)}${isTimeBased ? ' <span style="font-size:0.78em; color:#e07b00; font-weight:600;">(czas)</span>' : ''}</label>
+        <label style="cursor: pointer; margin: 0; font-size: 0.93em; line-height: 1.2;">${escapeHtml(service.name)}${isTimeBased ? ' <span style="font-size:0.78em; color:#e07b00; font-weight:600;">(czas)</span>' : ""}</label>
         <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
           <span style="font-size:0.7em; color:#7a8a9a;">ilość szt.</span>
           <input type="number" data-qty-for="${service.id}" value="1" min="1" max="99" style="width: 48px; padding: 4px; font-size: 0.9em;" class="service-quantity" aria-label="Ilość sztuk">
@@ -182,7 +187,7 @@ function renderServiceItem(service: RenderedServiceItem, isTimeBased: boolean): 
         <span class="service-price" data-service-id="${service.id}" data-base-price="${servicePrice}" data-has-price="${typeof service.price === "number" ? "1" : "0"}" style="font-weight: bold; color: ${priceTextColor}; min-width: 64px; text-align: right; font-size: 0.9em;">${priceDisplay}</span>
         <button type="button" data-add-service-id="${service.id}" data-service-name="${escapeHtml(service.name)}" data-price="${servicePrice}" class="btn btn-success service-add-btn add-pill-btn" aria-label="Dodaj usługę ${escapeHtml(service.name)} do koszyka" ${addDisabled ? "disabled" : ""}>+</button>
       </div>
-      ${addDisabled ? '<small style="display:block; margin-top:3px; padding-left:4px; font-size:0.78em; color:#9aa7b2;">Brak ceny — wycena indywidualna.</small>' : ''}
+      ${addDisabled ? '<small style="display:block; margin-top:3px; padding-left:4px; font-size:0.78em; color:#9aa7b2;">Brak ceny — wycena indywidualna.</small>' : ""}
     </div>
   `;
 }
@@ -209,15 +214,15 @@ export function quoteUslugi(options: UslugiOptions): any {
 
   return {
     servicesCount: options.selectedServices.length,
-    totalPrice: parseFloat(totalPrice.toFixed(2))
+    totalPrice: parseFloat(totalPrice.toFixed(2)),
   };
 }
 
 let _uslugiCleanup: (() => void) | null = null;
 
 export const uslugiCategory: CategoryModule = {
-  id: 'uslugi',
-  name: '🛠️ Usługi',
+  id: "uslugi",
+  name: "🛠️ Usługi",
   unmount() {
     _uslugiCleanup?.();
     _uslugiCleanup = null;
@@ -225,7 +230,7 @@ export const uslugiCategory: CategoryModule = {
   mount: (container, ctx) => {
     _uslugiCleanup?.();
     const isTimeBasedService = (serviceId: string): boolean => {
-      return serviceId === 'formatowanie' || serviceId === 'poprawki-graficzne';
+      return serviceId === "formatowanie" || serviceId === "poprawki-graficzne";
     };
 
     const getTimeBasedHint = (serviceName: string): string => {
@@ -253,9 +258,9 @@ export const uslugiCategory: CategoryModule = {
       </div>
     `;
 
-    const servicesList = container.querySelector('#services-list') as HTMLElement;
-    const searchInput = container.querySelector('#uslugi-search') as HTMLInputElement;
-    let searchQuery = '';
+    const servicesList = container.querySelector("#services-list") as HTMLElement;
+    const searchInput = container.querySelector("#uslugi-search") as HTMLInputElement;
+    let searchQuery = "";
 
     const renderServices = () => {
       servicesList.innerHTML = "";
@@ -265,35 +270,36 @@ export const uslugiCategory: CategoryModule = {
 
       for (const category of renderedCategories) {
         const filteredItems = q
-          ? category.items.filter(s => s.name.toLowerCase().includes(q))
+          ? category.items.filter((s) => s.name.toLowerCase().includes(q))
           : category.items;
 
         if (!filteredItems.length) continue;
 
-        const categoryDiv = document.createElement('div');
-        categoryDiv.style.marginBottom = '8px';
-        categoryDiv.style.padding = '8px';
-        categoryDiv.style.backgroundColor = '#f7f9fb';
-        categoryDiv.style.border = '1px solid #e3e8ef';
-        categoryDiv.style.borderRadius = '8px';
+        const categoryDiv = document.createElement("div");
+        categoryDiv.style.marginBottom = "8px";
+        categoryDiv.style.padding = "8px";
+        categoryDiv.style.backgroundColor = "#f7f9fb";
+        categoryDiv.style.border = "1px solid #e3e8ef";
+        categoryDiv.style.borderRadius = "8px";
         categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${escapeHtml(category.name)}</h3>`;
 
-        const servicesDiv = document.createElement('div');
-        servicesDiv.style.display = 'grid';
-        servicesDiv.style.gap = '6px';
+        const servicesDiv = document.createElement("div");
+        servicesDiv.style.display = "grid";
+        servicesDiv.style.gap = "6px";
 
         for (const service of filteredItems) {
           const isTimeBased = isTimeBasedService(service.id);
-          const serviceDiv = document.createElement('div');
+          const serviceDiv = document.createElement("div");
           serviceDiv.innerHTML = renderServiceItem(service, isTimeBased);
           servicesDiv.appendChild(serviceDiv.firstElementChild as HTMLElement);
 
           if (isTimeBased) {
-            const noteDiv = document.createElement('div');
-            noteDiv.style.cssText = 'font-size:0.78em; color:#7a8a9a; padding:2px 8px 4px 12px; font-style:italic;';
+            const noteDiv = document.createElement("div");
+            noteDiv.style.cssText =
+              "font-size:0.78em; color:#7a8a9a; padding:2px 8px 4px 12px; font-style:italic;";
             const noteParts = [getTimeBasedHint(service.name)];
             if (service.note) noteParts.push(service.note);
-            noteDiv.innerHTML = `ℹ️ ${escapeHtml(noteParts.join(' '))}`;
+            noteDiv.innerHTML = `ℹ️ ${escapeHtml(noteParts.join(" "))}`;
             servicesDiv.appendChild(noteDiv);
           }
         }
@@ -309,59 +315,62 @@ export const uslugiCategory: CategoryModule = {
 
     renderServices();
 
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener("input", () => {
       searchQuery = searchInput.value;
       renderServices();
     });
 
-    ctx?.on?.('prices-updated', () => {
+    ctx?.on?.("prices-updated", () => {
       renderServices();
     });
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      const addButton = target?.closest('.service-add-btn') as HTMLButtonElement | null;
+      const addButton = target?.closest(".service-add-btn") as HTMLButtonElement | null;
       if (!addButton) return;
 
-      const serviceId = addButton.getAttribute('data-add-service-id') || '';
-      const serviceName = addButton.getAttribute('data-service-name') || '';
-      const price = parseFloat(addButton.getAttribute('data-price') || '0');
-      const qtyInput = container.querySelector(`input[data-qty-for="${serviceId}"]`) as HTMLInputElement | null;
-      const hoursInput = container.querySelector(`input[data-hours-for="${serviceId}"]`) as HTMLInputElement | null;
+      const serviceId = addButton.getAttribute("data-add-service-id") || "";
+      const serviceName = addButton.getAttribute("data-service-name") || "";
+      const price = parseFloat(addButton.getAttribute("data-price") || "0");
+      const qtyInput = container.querySelector(
+        `input[data-qty-for="${serviceId}"]`
+      ) as HTMLInputElement | null;
+      const hoursInput = container.querySelector(
+        `input[data-hours-for="${serviceId}"]`
+      ) as HTMLInputElement | null;
 
-      const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
-      const hours = Math.max(0.25, parseFloat((hoursInput?.value || '1').replace(',', '.')) || 1);
+      const quantity = Math.max(1, parseInt(qtyInput?.value || "1", 10) || 1);
+      const hours = Math.max(0.25, parseFloat((hoursInput?.value || "1").replace(",", ".")) || 1);
 
       const selectedService = {
         serviceId,
         serviceName,
         price,
         quantity,
-        hours
+        hours,
       };
 
       const result = quoteUslugi({ selectedServices: [selectedService] });
 
       ctx.updateLastCalculated(result.totalPrice, `Usługi - ${serviceName}`);
-      ctx?.emit?.('price-calculated', {
-        categoryId: 'uslugi',
+      ctx?.emit?.("price-calculated", {
+        categoryId: "uslugi",
         totalPrice: result.totalPrice,
-        details: result
+        details: result,
       });
 
       ctx.addToBasket({
-        category: 'Usługi',
+        category: "Usługi",
         price: result.totalPrice,
-        description: hours !== 1
-          ? `${serviceName} × ${quantity} (${hours}h)`
-          : `${serviceName} × ${quantity}`
+        description:
+          hours !== 1 ? `${serviceName} × ${quantity} (${hours}h)` : `${serviceName} × ${quantity}`,
       });
 
-      if (qtyInput) qtyInput.value = '1';
-      if (hoursInput) hoursInput.value = '1';
+      if (qtyInput) qtyInput.value = "1";
+      if (hoursInput) hoursInput.value = "1";
     };
 
-    container.addEventListener('click', handleClick);
-    _uslugiCleanup = () => container.removeEventListener('click', handleClick);
-  }
+    container.addEventListener("click", handleClick);
+    _uslugiCleanup = () => container.removeEventListener("click", handleClick);
+  },
 };

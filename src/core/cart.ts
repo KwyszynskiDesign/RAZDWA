@@ -20,8 +20,10 @@ export class Cart {
         const i = item as CartItem;
         return (
           i != null &&
-          Number.isFinite(i.unitPrice) && i.unitPrice > 0 &&
-          Number.isFinite(i.totalPrice) && i.totalPrice > 0
+          Number.isFinite(i.unitPrice) &&
+          i.unitPrice > 0 &&
+          Number.isFinite(i.totalPrice) &&
+          i.totalPrice > 0
         );
       };
       if (Array.isArray(parsed)) {
@@ -45,7 +47,10 @@ export class Cart {
   private save() {
     try {
       this.savedAt = Date.now();
-      localStorage.setItem(this.storageKey, JSON.stringify({ items: this.items, savedAt: this.savedAt }));
+      localStorage.setItem(
+        this.storageKey,
+        JSON.stringify({ items: this.items, savedAt: this.savedAt })
+      );
     } catch {
       // storage write failed — cart state is still in memory
     }
@@ -91,13 +96,20 @@ export class Cart {
       const isCurrentlyExpress = !!item.isExpress;
 
       if (shouldBeExpress === isCurrentlyExpress) {
-        if (shouldBeExpress && (!Number.isFinite(item.expressRate) || !Number.isFinite(item.baseUnitPrice))) {
+        if (
+          shouldBeExpress &&
+          (!Number.isFinite(item.expressRate) || !Number.isFinite(item.baseUnitPrice))
+        ) {
           const rate = getExpressRate();
           return {
             ...item,
             expressRate: Number.isFinite(item.expressRate) ? (item.expressRate as number) : rate,
-            baseUnitPrice: Number.isFinite(item.baseUnitPrice) ? (item.baseUnitPrice as number) : parseFloat((item.unitPrice / (1 + rate)).toFixed(2)),
-            baseTotalPrice: Number.isFinite(item.baseTotalPrice) ? (item.baseTotalPrice as number) : parseFloat((item.totalPrice / (1 + rate)).toFixed(2)),
+            baseUnitPrice: Number.isFinite(item.baseUnitPrice)
+              ? (item.baseUnitPrice as number)
+              : parseFloat((item.unitPrice / (1 + rate)).toFixed(2)),
+            baseTotalPrice: Number.isFinite(item.baseTotalPrice)
+              ? (item.baseTotalPrice as number)
+              : parseFloat((item.totalPrice / (1 + rate)).toFixed(2)),
           };
         }
         return item;
@@ -106,8 +118,12 @@ export class Cart {
       if (shouldBeExpress) {
         const applyRate = getExpressRate();
         const factor = 1 + applyRate;
-        const baseUnit = Number.isFinite(item.baseUnitPrice) ? (item.baseUnitPrice as number) : item.unitPrice;
-        const baseTotal = Number.isFinite(item.baseTotalPrice) ? (item.baseTotalPrice as number) : item.totalPrice;
+        const baseUnit = Number.isFinite(item.baseUnitPrice)
+          ? (item.baseUnitPrice as number)
+          : item.unitPrice;
+        const baseTotal = Number.isFinite(item.baseTotalPrice)
+          ? (item.baseTotalPrice as number)
+          : item.totalPrice;
         return {
           ...item,
           isExpress: true,
@@ -119,9 +135,10 @@ export class Cart {
         };
       }
 
-      const revertRate = Number.isFinite(item.expressRate) && (item.expressRate as number) >= 0
-        ? (item.expressRate as number)
-        : EXPRESS_RATE;
+      const revertRate =
+        Number.isFinite(item.expressRate) && (item.expressRate as number) >= 0
+          ? (item.expressRate as number)
+          : EXPRESS_RATE;
       const factor = 1 + revertRate;
       const restoredUnit = Number.isFinite(item.baseUnitPrice)
         ? (item.baseUnitPrice as number)

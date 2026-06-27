@@ -13,13 +13,7 @@ export function isPriceStale(lastSyncedAt: string | null): boolean {
   return Date.now() - new Date(lastSyncedAt).getTime() > PRICE_TTL_MS;
 }
 
-export type SyncStatusCode =
-  | "idle"
-  | "syncing"
-  | "ok"
-  | "no_token"
-  | "error"
-  | "unconfirmed";
+export type SyncStatusCode = "idle" | "syncing" | "ok" | "no_token" | "error" | "unconfirmed";
 
 export interface SyncStatus {
   code: SyncStatusCode;
@@ -54,7 +48,8 @@ export function readSyncStatus(): SyncStatus {
     const raw = localStorage.getItem(SYNC_STATUS_KEY);
     if (!raw) return { ...DEFAULT_STATUS };
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return { ...DEFAULT_STATUS };
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return { ...DEFAULT_STATUS };
     return parsed as SyncStatus;
   } catch {
     return { ...DEFAULT_STATUS };
@@ -153,7 +148,7 @@ async function mergeRemotePrices(
         conflicts++;
         console.warn(
           `[syncService] Pominięto zdalny rekord id="${remote.id}" label="${local.label}": ` +
-          `lokalny jest _dirty (niezatwierdzony). remote.updatedAt="${remote.updatedAt}" > local.updatedAt="${local.updatedAt}" — wymagany push przed pull.`
+            `lokalny jest _dirty (niezatwierdzony). remote.updatedAt="${remote.updatedAt}" > local.updatedAt="${local.updatedAt}" — wymagany push przed pull.`
         );
         continue;
       }
@@ -166,9 +161,9 @@ async function mergeRemotePrices(
       conflicts++;
       console.warn(
         `[syncService] Konflikt id="${remote.id}" label="${local.label}": ` +
-        `local.price=${local.price} remote.price=${remote.price} ` +
-        `local.isActive=${local.isActive} remote.isActive=${remote.isActive} ` +
-        `local.updatedAt="${local.updatedAt}" remote.updatedAt="${remote.updatedAt}" — lokalny wygrywa`
+          `local.price=${local.price} remote.price=${remote.price} ` +
+          `local.isActive=${local.isActive} remote.isActive=${remote.isActive} ` +
+          `local.updatedAt="${local.updatedAt}" remote.updatedAt="${remote.updatedAt}" — lokalny wygrywa`
       );
     }
   }
@@ -179,7 +174,10 @@ async function mergeRemotePrices(
 export async function pushPricesToGas(): Promise<SyncResult> {
   const token = getAdminToken();
   if (!token) {
-    writeSyncStatus({ code: "no_token", message: "Brak tokenu sesji admina — zaloguj się ponownie." });
+    writeSyncStatus({
+      code: "no_token",
+      message: "Brak tokenu sesji admina — zaloguj się ponownie.",
+    });
     return { ok: false, error: "no_token" };
   }
 
@@ -203,7 +201,11 @@ export async function pushPricesToGas(): Promise<SyncResult> {
     return { ok: true, pushed: 0, confirmed: 0 };
   }
 
-  writeSyncStatus({ code: "syncing", message: `Wysyłam ${dirty.length} rekordów…`, dirtyCount: dirty.length });
+  writeSyncStatus({
+    code: "syncing",
+    message: `Wysyłam ${dirty.length} rekordów…`,
+    dirtyCount: dirty.length,
+  });
 
   try {
     const body = JSON.stringify({
@@ -266,7 +268,10 @@ export async function pushPricesToGas(): Promise<SyncResult> {
 export async function pullPricesFromGas(): Promise<SyncResult> {
   const token = getAdminToken();
   if (!token) {
-    writeSyncStatus({ code: "no_token", message: "Brak tokenu sesji admina — zaloguj się ponownie." });
+    writeSyncStatus({
+      code: "no_token",
+      message: "Brak tokenu sesji admina — zaloguj się ponownie.",
+    });
     return { ok: false, error: "no_token" };
   }
 
@@ -312,10 +317,15 @@ export async function pullPricesFromGas(): Promise<SyncResult> {
     await warmPriceCache();
 
     const syncedAt = new Date().toISOString();
-    const msg = conflicts > 0
-      ? `Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}, pominięto ${conflicts} dirty (push wymagany).`
-      : `✓ Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}.`;
-    writeSyncStatus({ code: conflicts > 0 ? "unconfirmed" : "ok", lastSyncedAt: syncedAt, message: msg });
+    const msg =
+      conflicts > 0
+        ? `Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}, pominięto ${conflicts} dirty (push wymagany).`
+        : `✓ Pull zakończony: ${remoteRecords.length} rek., scalono ${merged}.`;
+    writeSyncStatus({
+      code: conflicts > 0 ? "unconfirmed" : "ok",
+      lastSyncedAt: syncedAt,
+      message: msg,
+    });
     return { ok: true, pulled: remoteRecords.length, merged, conflicts, syncedAt };
   } catch (err) {
     const isAbort = err instanceof Error && err.name === "AbortError";

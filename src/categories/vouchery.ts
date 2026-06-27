@@ -18,7 +18,9 @@ type VoucherTier = {
 };
 
 function getResolvedBaseTiers(): VoucherTier[] {
-  const baseTiers = (getPrice("vouchery") as Array<{ qty: number; single: number; double: number }> | undefined) ?? [];
+  const baseTiers =
+    (getPrice("vouchery") as Array<{ qty: number; single: number; double: number }> | undefined) ??
+    [];
   const tiersByQty = new Map<number, VoucherTier>();
 
   for (const tier of baseTiers) {
@@ -89,8 +91,11 @@ function getSelectedTier(qty: number, tiers: VoucherTier[]): VoucherTier {
 
 function getPriceForQuantity(qty: number, isSingle: boolean): number {
   const tiers = getResolvedBaseTiers();
-  const priceKey = isSingle ? 'single' : 'double';
-  return getInterpolatedPrice(tiers.map(t => ({ qty: t.qty, price: t[priceKey] })), qty);
+  const priceKey = isSingle ? "single" : "double";
+  return getInterpolatedPrice(
+    tiers.map((t) => ({ qty: t.qty, price: t[priceKey] })),
+    qty
+  );
 }
 
 export interface VoucheryOptions {
@@ -105,10 +110,10 @@ export function quoteVouchery(options: VoucheryOptions): any {
   const voucheryData = getResolvedBaseTiers();
   const selectedTier = getSelectedTier(options.qty, voucheryData);
 
-  const basePrice = getPriceForQuantity(options.qty, options.sides === 'single');
+  const basePrice = getPriceForQuantity(options.qty, options.sides === "single");
   const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-  const expressRate = resolveStoredPrice("modifier-express", 0.20);
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+  const expressRate = resolveStoredPrice("modifier-express", 0.2);
 
   let materialModifiersTotal = 0;
 
@@ -129,7 +134,7 @@ export function quoteVouchery(options: VoucheryOptions): any {
     tierQty: selectedTier.qty,
     basePrice,
     modifiersTotal: parseFloat(modifiersTotal.toFixed(2)),
-    totalPrice: parseFloat(total.toFixed(2))
+    totalPrice: parseFloat(total.toFixed(2)),
   };
 }
 
@@ -142,8 +147,8 @@ export function getVoucheryPriceForQuantity(qty: number, isSingle: boolean): num
 }
 
 export const voucheryCategory: CategoryModule = {
-  id: 'vouchery',
-  name: '🎟️ Vouchery',
+  id: "vouchery",
+  name: "🎟️ Vouchery",
   mount: (container, ctx) => {
     container.innerHTML = `
       <div class="category-form">
@@ -198,25 +203,29 @@ export const voucheryCategory: CategoryModule = {
 
     let currentPrice = 0;
 
-    const calculateBtn = container.querySelector('#calculate');
-    const addBtn = container.querySelector('#addToBasket');
-    const totalDisplay = container.querySelector('#total-price');
-    const breakdownDisplay = container.querySelector('#price-breakdown');
+    const calculateBtn = container.querySelector("#calculate");
+    const addBtn = container.querySelector("#addToBasket");
+    const totalDisplay = container.querySelector("#total-price");
+    const breakdownDisplay = container.querySelector("#price-breakdown");
 
-    calculateBtn?.addEventListener('click', () => {
-      const format = (container.querySelector('#format') as HTMLSelectElement).value;
-      const quantity = parseInt((container.querySelector('#quantity') as HTMLInputElement).value) || 1;
-      const sides = (container.querySelector('#sides') as HTMLSelectElement).value;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+    calculateBtn?.addEventListener("click", () => {
+      const format = (container.querySelector("#format") as HTMLSelectElement).value;
+      const quantity =
+        parseInt((container.querySelector("#quantity") as HTMLInputElement).value) || 1;
+      const sides = (container.querySelector("#sides") as HTMLSelectElement).value;
+      const paper = (container.querySelector("#paper") as HTMLSelectElement).value;
 
-      const basePrice = getPriceForQuantity(quantity, sides === 'single');
-      const paperMultiplier = paper === 'satin' ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
-      const expressMultiplier = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
+      const basePrice = getPriceForQuantity(quantity, sides === "single");
+      const paperMultiplier =
+        paper === "satin" ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
+      const expressMultiplier = ctx.expressMode
+        ? 1 + resolveStoredPrice("modifier-express", 0.2)
+        : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
       if (totalDisplay) {
-        totalDisplay.textContent = currentPrice.toFixed(2) + ' zł';
+        totalDisplay.textContent = currentPrice.toFixed(2) + " zł";
       }
 
       if (breakdownDisplay) {
@@ -229,30 +238,53 @@ export const voucheryCategory: CategoryModule = {
             break;
           }
         }
-        breakdownDisplay.textContent = 'Podstawa: ' + basePrice.toFixed(2) + ' zł za ' + quantity + ' szt (przedział: ' + tierInfo.qty + '+ szt)';
+        breakdownDisplay.textContent =
+          "Podstawa: " +
+          basePrice.toFixed(2) +
+          " zł za " +
+          quantity +
+          " szt (przedział: " +
+          tierInfo.qty +
+          "+ szt)";
       }
 
-      ctx.updateLastCalculated(currentPrice, 'Vouchery ' + format + ' ' + (sides === 'single' ? 'jednostronne' : 'dwustronne') + ' - ' + quantity + ' szt');
+      ctx.updateLastCalculated(
+        currentPrice,
+        "Vouchery " +
+          format +
+          " " +
+          (sides === "single" ? "jednostronne" : "dwustronne") +
+          " - " +
+          quantity +
+          " szt"
+      );
     });
 
-    addBtn?.addEventListener('click', () => {
+    addBtn?.addEventListener("click", () => {
       if (currentPrice === 0) {
-        alert('⚠️ Najpierw oblicz cenę!');
+        alert("⚠️ Najpierw oblicz cenę!");
         return;
       }
 
-      const format = (container.querySelector('#format') as HTMLSelectElement).value;
-      const quantity = (container.querySelector('#quantity') as HTMLInputElement).value;
-      const sides = (container.querySelector('#sides') as HTMLSelectElement).value;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+      const format = (container.querySelector("#format") as HTMLSelectElement).value;
+      const quantity = (container.querySelector("#quantity") as HTMLInputElement).value;
+      const sides = (container.querySelector("#sides") as HTMLSelectElement).value;
+      const paper = (container.querySelector("#paper") as HTMLSelectElement).value;
 
       ctx.addToBasket({
-        category: 'Vouchery',
+        category: "Vouchery",
         price: currentPrice,
-        description: format + ' ' + (sides === 'single' ? 'jednostronne' : 'dwustronne') + ', ' + quantity + ' szt, ' + (paper === 'satin' ? 'satyna' : 'standard')
+        description:
+          format +
+          " " +
+          (sides === "single" ? "jednostronne" : "dwustronne") +
+          ", " +
+          quantity +
+          " szt, " +
+          (paper === "satin" ? "satyna" : "standard"),
       });
 
-      alert('✅ Dodano: ' + currentPrice.toFixed(2) + ' zł');
+      alert("✅ Dodano: " + currentPrice.toFixed(2) + " zł");
     });
-  }
+  },
 };

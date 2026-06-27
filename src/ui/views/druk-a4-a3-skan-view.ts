@@ -46,14 +46,18 @@ export const DrukA4A3SkanView: View = {
   },
 
   initLogic(container: HTMLElement, ctx: ViewContext) {
-    const pricing = categories.find(c => c.id === "druk-a4-a3-skan" || c.id === "druk-a4-a3")?.pricing;
+    const pricing = categories.find(
+      (c) => c.id === "druk-a4-a3-skan" || c.id === "druk-a4-a3"
+    )?.pricing;
     if (!pricing) return;
 
     const modeSelect = container.querySelector("#d-mode") as HTMLSelectElement;
     const formatSelect = container.querySelector("#d-format") as HTMLSelectElement;
     const printQtyInput = container.querySelector("#d-print-qty") as HTMLInputElement;
     const emailCheck = container.querySelector("#d-email") as HTMLInputElement;
-    const labelStickerCheck = container.querySelector("#d-label-sticker") as HTMLInputElement | null;
+    const labelStickerCheck = container.querySelector(
+      "#d-label-sticker"
+    ) as HTMLInputElement | null;
     const sleeveCheck = container.querySelector("#d-sleeve") as HTMLInputElement | null;
     const sleeveQtyInput = container.querySelector("#d-sleeve-qty") as HTMLInputElement | null;
     const surchargeCheck = container.querySelector("#d-surcharge") as HTMLInputElement | null;
@@ -71,7 +75,8 @@ export const DrukA4A3SkanView: View = {
     const expressHint = container.querySelector("#d-express-hint") as HTMLElement;
     const pricingLegend = container.querySelector(".d-pricing-block") as HTMLElement | null;
 
-    const rangeLabel = (from: number, to: number) => (to >= 999999999 || to >= 99999 ? `${from}+` : `${from}-${to}`);
+    const rangeLabel = (from: number, to: number) =>
+      to >= 999999999 || to >= 99999 ? `${from}+` : `${from}-${to}`;
     const printTierKey = (mode: "bw" | "color", format: "A4" | "A3", from: number, to: number) => {
       const modeKey = mode === "bw" ? "bw" : "kolor";
       const suffix = to > 50000 ? `${from}+` : `${from}-${to}`;
@@ -124,11 +129,13 @@ export const DrukA4A3SkanView: View = {
             <th>A4</th>
             <th>A3</th>
           </tr>
-          ${Array.from({ length: maxPrintRows }).map((_, idx) => {
-            const a4 = bwA4[idx];
-            const a3 = bwA3[idx];
-            return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
-          }).join("")}
+          ${Array.from({ length: maxPrintRows })
+            .map((_, idx) => {
+              const a4 = bwA4[idx];
+              const a3 = bwA3[idx];
+              return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
+            })
+            .join("")}
         </table>
 
         <h4>DRUK KOLOROWY</h4>
@@ -138,11 +145,13 @@ export const DrukA4A3SkanView: View = {
             <th>A4</th>
             <th>A3</th>
           </tr>
-          ${Array.from({ length: maxPrintRows }).map((_, idx) => {
-            const a4 = colorA4[idx];
-            const a3 = colorA3[idx];
-            return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
-          }).join("")}
+          ${Array.from({ length: maxPrintRows })
+            .map((_, idx) => {
+              const a4 = colorA4[idx];
+              const a3 = colorA3[idx];
+              return `<tr><td>${a4?.range ?? a3?.range ?? "-"} str.</td><td>${a4 ? formatPLN(a4.price) : "-"}</td><td>${a3 ? formatPLN(a3.price) : "-"}</td></tr>`;
+            })
+            .join("")}
         </table>
 
         <h4>SKANOWANIE</h4>
@@ -153,11 +162,13 @@ export const DrukA4A3SkanView: View = {
             <th>Ręczne sztuki</th>
             <th>Ręczne cena</th>
           </tr>
-          ${Array.from({ length: maxScanRows }).map((_, idx) => {
-            const auto = autoScan[idx];
-            const manual = manualScan[idx];
-            return `<tr><td>${auto?.range ? `${auto.range} str.` : "-"}</td><td>${auto ? formatPLN(auto.price) : "-"}</td><td>${manual?.range ? `${manual.range} str.` : "-"}</td><td>${manual ? formatPLN(manual.price) : "-"}</td></tr>`;
-          }).join("")}
+          ${Array.from({ length: maxScanRows })
+            .map((_, idx) => {
+              const auto = autoScan[idx];
+              const manual = manualScan[idx];
+              return `<tr><td>${auto?.range ? `${auto.range} str.` : "-"}</td><td>${auto ? formatPLN(auto.price) : "-"}</td><td>${manual?.range ? `${manual.range} str.` : "-"}</td><td>${manual ? formatPLN(manual.price) : "-"}</td></tr>`;
+            })
+            .join("")}
         </table>
 
         <div class="d-note">
@@ -176,7 +187,7 @@ export const DrukA4A3SkanView: View = {
       element.style.display = hidden ? "none" : "";
     };
 
-    container.querySelectorAll<HTMLElement>(".option-card").forEach(card => {
+    container.querySelectorAll<HTMLElement>(".option-card").forEach((card) => {
       const toggleCard = () => {
         const isChecked = card.dataset.checked === "true";
         card.dataset.checked = String(!isChecked);
@@ -237,7 +248,10 @@ export const DrukA4A3SkanView: View = {
       const requestedSurchargeQty = parseInt(surchargeQtyInput.value) || 0;
       const surchargeEnabled = surchargeCheck ? surchargeCheck.checked : requestedSurchargeQty > 0;
       const surchargeQty = surchargeEnabled
-        ? Math.min(Math.max(requestedSurchargeQty > 0 ? requestedSurchargeQty : printQty, 0), Math.max(printQty, 0))
+        ? Math.min(
+            Math.max(requestedSurchargeQty > 0 ? requestedSurchargeQty : printQty, 0),
+            Math.max(printQty, 0)
+          )
         : 0;
       const requestedSleeveQty = Math.max(0, parseInt(sleeveQtyInput?.value || "0") || 0);
       const sleeveQty = (sleeveCheck?.checked ?? false) ? Math.max(1, requestedSleeveQty) : 0;
@@ -255,7 +269,7 @@ export const DrukA4A3SkanView: View = {
         surchargeQty,
         scanType: scanTypeSelect.value,
         scanQty,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateDrukA4A3Skan(currentOptions, pricing);
@@ -276,24 +290,42 @@ export const DrukA4A3SkanView: View = {
         const lines: BreakdownRow[] = [];
 
         const modeLabel = currentOptions.mode === "bw" ? "czarno-biały" : "kolorowy";
-        const printParams = printQtySafe > 0 ? `${currentOptions.format}, ${printQtySafe} str., ${modeLabel}` : "bez druku";
-        const scanParams = result.totalScanPrice > 0 ? `, skan ${currentOptions.scanType === "auto" ? "automatyczny" : "ręczny"}: ${currentOptions.scanQty} str.` : "";
+        const printParams =
+          printQtySafe > 0
+            ? `${currentOptions.format}, ${printQtySafe} str., ${modeLabel}`
+            : "bez druku";
+        const scanParams =
+          result.totalScanPrice > 0
+            ? `, skan ${currentOptions.scanType === "auto" ? "automatyczny" : "ręczny"}: ${currentOptions.scanQty} str.`
+            : "";
         lines.push({ label: "Parametry", value: `${printParams}${scanParams}` });
 
         if (printQtySafe > 0) {
           if (currentOptions.surcharge && surchargeQtySafe > 0) {
             // All pages at base price, then surcharge as extra on top
             const allPagesCost = parseFloat((printQtySafe * unitPrintValue).toFixed(2));
-            lines.push({ label: "Druk", value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(allPagesCost)}` });
-            lines.push({ label: "Zadruk >25% (dopłata)", value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}` });
+            lines.push({
+              label: "Druk",
+              value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(allPagesCost)}`,
+            });
+            lines.push({
+              label: "Zadruk >25% (dopłata)",
+              value: `${surchargeQtySafe} str. × ${formatPLN(unitPrintValue)} × 50% = ${formatPLN(result.surchargePrice)}`,
+            });
           } else {
             // All pages at normal price
-            lines.push({ label: "Druk", value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}` });
+            lines.push({
+              label: "Druk",
+              value: `${printQtySafe} str. × ${formatPLN(unitPrintValue)} = ${formatPLN(result.totalPrintPrice)}`,
+            });
           }
         }
 
         if (result.totalScanPrice > 0) {
-          lines.push({ label: "Skanowanie", value: `${currentOptions.scanType === "auto" ? "automatyczne" : "ręczne"}, ${currentOptions.scanQty} str. = ${formatPLN(result.totalScanPrice)}` });
+          lines.push({
+            label: "Skanowanie",
+            value: `${currentOptions.scanType === "auto" ? "automatyczne" : "ręczne"}, ${currentOptions.scanQty} str. = ${formatPLN(result.totalScanPrice)}`,
+          });
         }
 
         if (result.emailPrice > 0) {
@@ -305,11 +337,17 @@ export const DrukA4A3SkanView: View = {
         }
 
         if (result.sleevePrice > 0) {
-          lines.push({ label: "Koszulka", value: `${currentOptions.sleeveQty} szt. × ${formatPLN(sleeveUnit)} = ${formatPLN(result.sleevePrice)}` });
+          lines.push({
+            label: "Koszulka",
+            value: `${currentOptions.sleeveQty} szt. × ${formatPLN(sleeveUnit)} = ${formatPLN(result.sleevePrice)}`,
+          });
         }
 
         if (currentOptions.express) {
-          lines.push({ label: "EXPRESS", value: `+20% × ${formatPLN(baseWithoutExpress)} = ${formatPLN(expressCost)}` });
+          lines.push({
+            label: "EXPRESS",
+            value: `+20% × ${formatPLN(baseWithoutExpress)} = ${formatPLN(expressCost)}`,
+          });
         }
 
         lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true });
@@ -354,8 +392,10 @@ export const DrukA4A3SkanView: View = {
       const scanLabel = currentOptions.scanType === "auto" ? "auto" : "ręczny";
 
       const details: string[] = [];
-      if (hasPrint) details.push(`druk ${printQty} str. ${currentOptions.format.toUpperCase()} (${modeLabel})`);
-      if (currentOptions.surcharge && currentOptions.surchargeQty > 0) details.push(`zadruk >25%: ${currentOptions.surchargeQty} str.`);
+      if (hasPrint)
+        details.push(`druk ${printQty} str. ${currentOptions.format.toUpperCase()} (${modeLabel})`);
+      if (currentOptions.surcharge && currentOptions.surchargeQty > 0)
+        details.push(`zadruk >25%: ${currentOptions.surchargeQty} str.`);
       if (hasScan) details.push(`skan ${scanLabel}: ${scanQty} str.`);
       if (currentOptions.email) details.push("wysyłka e-mail");
       if (currentOptions.labelSticker) details.push("naklejka A6: +1,60 zł");
@@ -398,29 +438,29 @@ export const DrukA4A3SkanView: View = {
             emailPrice: currentResult.emailPrice,
             stickerPrice: currentResult.stickerPrice,
             sleevePrice: currentResult.sleevePrice,
-            totalPrice
-          }
-        }
+            totalPrice,
+          },
+        },
       });
 
       currentResult = null;
       currentOptions = null;
-      resultDisplay.style.display = 'none';
-      if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+      resultDisplay.style.display = "none";
+      if (breakdownDisplay) breakdownDisplay.style.display = "none";
       addToCartBtn.disabled = true;
 
       container.dispatchEvent(new CustomEvent("view:reset"));
 
-      container.querySelectorAll<HTMLElement>('.option-card').forEach(card => {
+      container.querySelectorAll<HTMLElement>(".option-card").forEach((card) => {
         const checkbox = card.querySelector<HTMLInputElement>('input[type="checkbox"]');
         if (!checkbox) return;
         card.dataset.checked = String(checkbox.checked);
-        card.classList.toggle('checked', checkbox.checked);
-        card.setAttribute('aria-checked', String(checkbox.checked));
+        card.classList.toggle("checked", checkbox.checked);
+        card.setAttribute("aria-checked", String(checkbox.checked));
       });
-      if (surchargeQtyRow) surchargeQtyRow.style.display = 'none';
+      if (surchargeQtyRow) surchargeQtyRow.style.display = "none";
       updateSleeveQtyState();
       setHiddenState(scanQtyRow, scanTypeSelect.value === "none");
     };
-  }
+  },
 };

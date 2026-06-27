@@ -3,9 +3,7 @@
   "title": "Folia szroniona / OWV",
   "unit": "m2",
   "pricing": "per_unit",
-  "rules": [
-    { "type": "minimum", "unit": "m2", "value": 1.0 }
-  ],
+  "rules": [{ "type": "minimum", "unit": "m2", "value": 1.0 }],
   "materials": [
     {
       "id": "owv-material-only",
@@ -61,7 +59,5 @@
       ]
     }
   ],
-  "modifiers": [
-    { "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.20 }
-  ]
+  "modifiers": [{ "id": "express", "name": "EXPRESS (+20%)", "type": "percent", "value": 0.2 }]
 }

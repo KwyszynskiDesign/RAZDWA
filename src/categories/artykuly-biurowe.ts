@@ -8,7 +8,9 @@ const artykulyBiuroweData: any = artykulyData as any;
 const ENVELOPE_LETTERS = ["a", "b", "c", "d", "e", "f", "g"] as const;
 const CUSTOM_ARTYKULY_PREFIX = "artykuly-";
 const BASE_ARTYKULY_IDS = new Set<string>([
-  ...(artykulyBiuroweData.categories ?? []).flatMap((category: any) => (category.items ?? []).map((item: any) => item.id)),
+  ...(artykulyBiuroweData.categories ?? []).flatMap((category: any) =>
+    (category.items ?? []).map((item: any) => item.id)
+  ),
   ...ENVELOPE_LETTERS.map((letter) => `koperty-${letter}`),
 ]);
 const BASE_ARTYKULY_IDS_NORMALIZED = new Set<string>(
@@ -46,7 +48,10 @@ function normalizeArticleToken(value: string): string {
     .toLowerCase();
 }
 
-function findEquivalentStoredArticleKey(itemId: string, storedPrices: Record<string, number | null>): string | null {
+function findEquivalentStoredArticleKey(
+  itemId: string,
+  storedPrices: Record<string, number | null>
+): string | null {
   const directKey = `${CUSTOM_ARTYKULY_PREFIX}${itemId}`;
   if (typeof storedPrices[directKey] === "number") return directKey;
 
@@ -191,7 +196,9 @@ export function quoteArtykulyBiurowe(options: ArtykulyBiuroweOptions): any {
   let totalQuantity = 0;
 
   for (const item of options.selectedItems) {
-    const storageKey = isEnvelopeLetterItem(item.itemId) ? item.itemId.toLowerCase() : `artykuly-${item.itemId}`;
+    const storageKey = isEnvelopeLetterItem(item.itemId)
+      ? item.itemId.toLowerCase()
+      : `artykuly-${item.itemId}`;
     const price = resolveStoredPrice(storageKey, item.price);
     const itemTotal = price * item.quantity;
     totalPrice += itemTotal;
@@ -201,15 +208,15 @@ export function quoteArtykulyBiurowe(options: ArtykulyBiuroweOptions): any {
   return {
     itemsCount: options.selectedItems.length,
     totalQuantity,
-    totalPrice: parseFloat(totalPrice.toFixed(2))
+    totalPrice: parseFloat(totalPrice.toFixed(2)),
   };
 }
 
 let _artykulyCleanup: (() => void) | null = null;
 
 export const artykulyBiuroweCategory: CategoryModule = {
-  id: 'artykuly-biurowe',
-  name: '📎 Artykuły Biurowe',
+  id: "artykuly-biurowe",
+  name: "📎 Artykuły Biurowe",
   unmount() {
     _artykulyCleanup?.();
     _artykulyCleanup = null;
@@ -237,9 +244,9 @@ export const artykulyBiuroweCategory: CategoryModule = {
       </div>
     `;
 
-    const itemsList = container.querySelector('#items-list') as HTMLElement;
-    const searchInput = container.querySelector('#artykuly-search') as HTMLInputElement;
-    let searchQuery = '';
+    const itemsList = container.querySelector("#items-list") as HTMLElement;
+    const searchInput = container.querySelector("#artykuly-search") as HTMLInputElement;
+    let searchQuery = "";
 
     const renderItems = () => {
       itemsList.innerHTML = "";
@@ -249,25 +256,25 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
       for (const category of displayCategories) {
         const filteredItems = q
-          ? category.items.filter(item => item.name.toLowerCase().includes(q))
+          ? category.items.filter((item) => item.name.toLowerCase().includes(q))
           : category.items;
 
         if (!filteredItems.length) continue;
 
-        const categoryDiv = document.createElement('div');
-        categoryDiv.style.marginBottom = '10px';
-        categoryDiv.style.padding = '8px 10px';
-        categoryDiv.style.backgroundColor = '#f7f9fb';
-        categoryDiv.style.border = '1px solid #e3e8ef';
-        categoryDiv.style.borderRadius = '8px';
+        const categoryDiv = document.createElement("div");
+        categoryDiv.style.marginBottom = "10px";
+        categoryDiv.style.padding = "8px 10px";
+        categoryDiv.style.backgroundColor = "#f7f9fb";
+        categoryDiv.style.border = "1px solid #e3e8ef";
+        categoryDiv.style.borderRadius = "8px";
         categoryDiv.innerHTML = `<h3 style="color: #2d3a4a; margin: 0 0 6px 0; font-size: 0.95rem;">${escapeHtml(category.name)}</h3>`;
 
-        const itemsDiv = document.createElement('div');
-        itemsDiv.style.display = 'grid';
-        itemsDiv.style.gap = '5px';
+        const itemsDiv = document.createElement("div");
+        itemsDiv.style.display = "grid";
+        itemsDiv.style.gap = "5px";
 
         for (const item of filteredItems) {
-          const itemDiv = document.createElement('div');
+          const itemDiv = document.createElement("div");
           itemDiv.innerHTML = renderArticleItem(item);
           itemsDiv.appendChild(itemDiv.firstElementChild as HTMLElement);
         }
@@ -283,55 +290,59 @@ export const artykulyBiuroweCategory: CategoryModule = {
 
     renderItems();
 
-    searchInput.addEventListener('input', () => {
+    searchInput.addEventListener("input", () => {
       searchQuery = searchInput.value;
       renderItems();
     });
 
-    ctx?.on?.('prices-updated', () => {
+    ctx?.on?.("prices-updated", () => {
       renderItems();
     });
 
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      const addButton = target?.closest('.item-add-btn') as HTMLButtonElement | null;
+      const addButton = target?.closest(".item-add-btn") as HTMLButtonElement | null;
       if (!addButton) return;
 
-      const itemId = addButton.getAttribute('data-add-item-id') || '';
-      const itemName = addButton.getAttribute('data-item-name') || '';
-      const basePrice = parseFloat(addButton.getAttribute('data-price') || '0');
+      const itemId = addButton.getAttribute("data-add-item-id") || "";
+      const itemName = addButton.getAttribute("data-item-name") || "";
+      const basePrice = parseFloat(addButton.getAttribute("data-price") || "0");
       const storageKey = isEnvelopeLetterItem(itemId) ? itemId.toLowerCase() : `artykuly-${itemId}`;
       const price = resolveStoredPrice(storageKey, basePrice);
-      const qtyInput = container.querySelector(`input[data-qty-for="${itemId}"]`) as HTMLInputElement | null;
-      const quantity = Math.max(1, parseInt(qtyInput?.value || '1', 10) || 1);
+      const qtyInput = container.querySelector(
+        `input[data-qty-for="${itemId}"]`
+      ) as HTMLInputElement | null;
+      const quantity = Math.max(1, parseInt(qtyInput?.value || "1", 10) || 1);
 
-      const selectedItems: ArtykulyBiuroweOptions['selectedItems'] = [{
-        categoryName: '',
-        itemId,
-        itemName,
-        quantity,
-        price
-      }];
+      const selectedItems: ArtykulyBiuroweOptions["selectedItems"] = [
+        {
+          categoryName: "",
+          itemId,
+          itemName,
+          quantity,
+          price,
+        },
+      ];
 
       const result = quoteArtykulyBiurowe({ selectedItems });
 
       ctx.updateLastCalculated(result.totalPrice, `Artykuły biurowe - ${itemName}`);
-      ctx?.emit?.('price-calculated', {
-        categoryId: 'artykuly-biurowe',
+      ctx?.emit?.("price-calculated", {
+        categoryId: "artykuly-biurowe",
         totalPrice: result.totalPrice,
-        details: result
+        details: result,
       });
 
       ctx.addToBasket({
-        category: 'Artykuły biurowe',
+        category: "Artykuły biurowe",
         price: result.totalPrice,
-        description: `${itemName} × ${quantity}`
+        description: `${itemName} × ${quantity}`,
       });
 
-      if (qtyInput) qtyInput.value = '1';
+      if (qtyInput) qtyInput.value = "1";
     };
 
-    container.addEventListener('click', handleClick);
-    _artykulyCleanup = () => container.removeEventListener('click', handleClick);
-  }
+    container.addEventListener("click", handleClick);
+    _artykulyCleanup = () => container.removeEventListener("click", handleClick);
+  },
 };

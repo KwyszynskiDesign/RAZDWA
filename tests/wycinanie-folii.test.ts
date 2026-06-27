@@ -7,7 +7,7 @@ describe("Wycinanie z folii", () => {
       variantId: "kolorowa",
       widthMm: 500,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     // 0.5 m2 * 200 (poniżej 1m2) = 100
@@ -20,7 +20,7 @@ describe("Wycinanie z folii", () => {
       variantId: "kolorowa",
       widthMm: 1000,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     // 1 m2 * 125 = 125
@@ -33,7 +33,7 @@ describe("Wycinanie z folii", () => {
       variantId: "zloto-srebro",
       widthMm: 1000,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     // 1 m2 * 150 = 150
@@ -46,7 +46,7 @@ describe("Wycinanie z folii", () => {
       variantId: "zloto-srebro",
       widthMm: 500,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     // 0.5 m2 * 220 (poniżej 1m2) = 110
@@ -59,7 +59,7 @@ describe("Wycinanie z folii", () => {
       variantId: "kolorowa",
       widthMm: 100,
       heightMm: 100,
-      express: false
+      express: false,
     });
 
     // 0.01 m2 * 200 = 2 => min 30
@@ -71,7 +71,7 @@ describe("Wycinanie z folii", () => {
       variantId: "kolorowa",
       widthMm: 1000,
       heightMm: 1000,
-      express: true
+      express: true,
     });
 
     // 1 m2 * 125 = 125; +20% => 150
@@ -83,14 +83,14 @@ describe("Wycinanie z folii", () => {
       variantId: "kolorowa",
       widthMm: 500,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     const large = calculateWycinanieFolii({
       variantId: "kolorowa",
       widthMm: 1000,
       heightMm: 1000,
-      express: false
+      express: false,
     });
 
     expect(small.tierPrice).toBe(200); // poniżej 1m2

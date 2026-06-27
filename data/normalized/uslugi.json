@@ -10,19 +10,19 @@
         {
           "id": "formatowanie",
           "name": "Formatowanie",
-          "priceMin": 65.00,
-          "priceMax": 65.00,
+          "priceMin": 65.0,
+          "priceMax": 65.0,
           "note": "Cena uzależniona od poświęconego czasu. 65 zł = godzina pracy"
         },
         {
           "id": "archiwizacja-cd",
           "name": "Nagranie płyty CD-ROM",
-          "price": 5.00
+          "price": 5.0
         },
         {
           "id": "archiwizacja-dvd",
           "name": "Nagranie płyty DVD",
-          "price": 7.00
+          "price": 7.0
         }
       ]
     },
@@ -32,17 +32,17 @@
         {
           "id": "scalanie-1-9",
           "name": "Scalanie/Nazwanie plików (1-9 plików)",
-          "price": 7.00
+          "price": 7.0
         },
         {
           "id": "scalanie-9-19",
           "name": "Scalanie/Nazwanie plików (9-19 plików)",
-          "price": 12.00
+          "price": 12.0
         },
         {
           "id": "scalanie-20+",
           "name": "Scalanie/Nazwanie plików (powyżej 20 plików)",
-          "price": 20.00
+          "price": 20.0
         }
       ]
     },
@@ -52,44 +52,44 @@
         {
           "id": "poprawki-graficzne",
           "name": "Poprawki graficzne pliku klienta",
-          "price": 65.00,
-          "priceMin": 10.00,
+          "price": 65.0,
+          "priceMin": 10.0,
           "note": "Cena uzależniona od czasu i złożoności. 65 zł = godzina pracy, minimalna kwota 10 zł"
         },
         {
           "id": "grafika-baner-prosty",
           "name": "Przygotowanie graficzne BANERU/ROLLUP (prosty)",
-          "price": 160.00
+          "price": 160.0
         },
         {
           "id": "grafika-baner-zlozony",
           "name": "Przygotowanie graficzne BANERU/ROLLUP (złożony)",
-          "price": 250.00
+          "price": 250.0
         },
         {
           "id": "grafika-wizytowka-jednostronna",
           "name": "Przygotowanie graficzne WIZYTÓWKI (jednostronna)",
-          "price": 120.00
+          "price": 120.0
         },
         {
           "id": "grafika-wizytowka-dwustronna",
           "name": "Przygotowanie graficzne WIZYTÓWKI (dwustronna)",
-          "price": 180.00
+          "price": 180.0
         },
         {
           "id": "grafika-ulotka-jednostronna",
           "name": "Przygotowanie graficzne ULOTKI (jednostronna)",
-          "price": 150.00
+          "price": 150.0
         },
         {
           "id": "grafika-ulotka-dwustronna",
           "name": "Przygotowanie graficzne ULOTKI (dwustronna)",
-          "price": 210.00
+          "price": 210.0
         },
         {
           "id": "grafika-logotyp",
           "name": "Przygotowanie graficzne LOGOTYPU (podstawowy)",
-          "price": 550.00
+          "price": 550.0
         }
       ]
     },
@@ -99,12 +99,12 @@
         {
           "id": "pakiet-prosty",
           "name": "PAKIET PROSTY - wizytówka+ulotka+baner",
-          "price": 349.00
+          "price": 349.0
         },
         {
           "id": "pakiet-zlozony",
           "name": "PAKIET ZŁOŻONY - wizytówka+ulotka+baner",
-          "price": 449.00
+          "price": 449.0
         }
       ]
     },
@@ -114,13 +114,13 @@
         {
           "id": "social-media-1-projekt",
           "name": "Projekt grafik na SOCIAL MEDIA (1 projekt)",
-          "price": 80.00,
+          "price": 80.0,
           "note": "W cenie: 2 propozycje + 2 poprawki (max 30 min pracy grafika)"
         },
         {
           "id": "social-media-3-projekty",
           "name": "Projekt grafik na SOCIAL MEDIA (3 projekty)",
-          "price": 190.00,
+          "price": 190.0,
           "note": "W cenie: 2 propozycje + 2 poprawki (max 30 min pracy grafika). Więcej poprawek dodatkowo PŁATNE"
         }
       ]

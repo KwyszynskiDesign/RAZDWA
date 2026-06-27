@@ -37,9 +37,9 @@ export interface PriceDataSource {
 export function resolvePriceNumber(
   source: PriceDataSource,
   path: string,
-  defaultValue: number,
+  defaultValue: number
 ): number {
   const raw = source.getPrice(path);
-  const n = typeof raw === 'number' ? raw : Number(raw);
+  const n = typeof raw === "number" ? raw : Number(raw);
   return Number.isFinite(n) ? n : defaultValue;
 }

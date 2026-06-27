@@ -20,7 +20,7 @@ export const DrukCADView: View = {
       container.innerHTML = await response.text();
       this.initLogic?.(container, ctx);
     } catch (err) {
-      console.error('[DrukCAD] mount error', err);
+      console.error("[DrukCAD] mount error", err);
       container.innerHTML = `<div class="error">Błąd ładowania: ${err instanceof Error ? err.message : err}</div>`;
     }
   },
@@ -56,27 +56,51 @@ export const DrukCADView: View = {
     const optEmail = container.querySelector("#cad-opt-email") as HTMLInputElement | null;
     const optionsSummary = container.querySelector("#cad-options-summary") as HTMLElement | null;
     const summaryLines = container.querySelector("#cad-summary-lines") as HTMLElement | null;
-    const optZadruk25PriceSpan = container.querySelector("#cad-opt-zadruk25-price") as HTMLElement | null;
+    const optZadruk25PriceSpan = container.querySelector(
+      "#cad-opt-zadruk25-price"
+    ) as HTMLElement | null;
     const optScalePriceSpan = container.querySelector("#cad-opt-scale-price") as HTMLElement | null;
     const optEmailPriceSpan = container.querySelector("#cad-opt-email-price") as HTMLElement | null;
-    const totalWithOptionsSpan = container.querySelector("#cad-total-with-options") as HTMLElement | null;
+    const totalWithOptionsSpan = container.querySelector(
+      "#cad-total-with-options"
+    ) as HTMLElement | null;
 
-    const foldFormatSelect = container.querySelector("#cad-fold-format") as HTMLSelectElement | null;
+    const foldFormatSelect = container.querySelector(
+      "#cad-fold-format"
+    ) as HTMLSelectElement | null;
     const foldQtyInput = container.querySelector("#cad-fold-qty") as HTMLInputElement | null;
     const foldAddBtn = container.querySelector("#cad-fold-add") as HTMLButtonElement | null;
     const wfScanCmInput = container.querySelector("#cad-wf-scan-cm") as HTMLInputElement | null;
     const wfScanQtyInput = container.querySelector("#cad-wf-scan-qty") as HTMLInputElement | null;
     const wfScanAddBtn = container.querySelector("#cad-wf-scan-add") as HTMLButtonElement | null;
 
-    const optKlientSkladanie = container.querySelector("#cad-opt-klient-skladanie") as HTMLInputElement | null;
-    const klientSkladanieQtyRow = container.querySelector("#cad-klient-skladanie-qty-row") as HTMLElement | null;
-    const klientSkladanieQtyInput = container.querySelector("#cad-klient-skladanie-qty") as HTMLInputElement | null;
-    const optNieformatoweSkladanie = container.querySelector("#cad-opt-nieformatowe-skladanie") as HTMLInputElement | null;
-    const nieformatoweSkladanieQtyRow = container.querySelector("#cad-nieformatowe-skladanie-qty-row") as HTMLElement | null;
-    const nieformatoweSkladanieQtyInput = container.querySelector("#cad-nieformatowe-skladanie-qty") as HTMLInputElement | null;
-    const optPaskiWzmacniajace = container.querySelector("#cad-opt-paski-wzmacniajace") as HTMLInputElement | null;
-    const paskiWzmacniajaceQtyRow = container.querySelector("#cad-paski-wzmacniajace-qty-row") as HTMLElement | null;
-    const paskiWzmacniajaceQtyInput = container.querySelector("#cad-paski-wzmacniajace-qty") as HTMLInputElement | null;
+    const optKlientSkladanie = container.querySelector(
+      "#cad-opt-klient-skladanie"
+    ) as HTMLInputElement | null;
+    const klientSkladanieQtyRow = container.querySelector(
+      "#cad-klient-skladanie-qty-row"
+    ) as HTMLElement | null;
+    const klientSkladanieQtyInput = container.querySelector(
+      "#cad-klient-skladanie-qty"
+    ) as HTMLInputElement | null;
+    const optNieformatoweSkladanie = container.querySelector(
+      "#cad-opt-nieformatowe-skladanie"
+    ) as HTMLInputElement | null;
+    const nieformatoweSkladanieQtyRow = container.querySelector(
+      "#cad-nieformatowe-skladanie-qty-row"
+    ) as HTMLElement | null;
+    const nieformatoweSkladanieQtyInput = container.querySelector(
+      "#cad-nieformatowe-skladanie-qty"
+    ) as HTMLInputElement | null;
+    const optPaskiWzmacniajace = container.querySelector(
+      "#cad-opt-paski-wzmacniajace"
+    ) as HTMLInputElement | null;
+    const paskiWzmacniajaceQtyRow = container.querySelector(
+      "#cad-paski-wzmacniajace-qty-row"
+    ) as HTMLElement | null;
+    const paskiWzmacniajaceQtyInput = container.querySelector(
+      "#cad-paski-wzmacniajace-qty"
+    ) as HTMLInputElement | null;
 
     const ensureLegend = () => {
       let legend = container.querySelector<HTMLElement>("#cad-dynamic-legend");
@@ -86,7 +110,11 @@ export const DrukCADView: View = {
         legend.className = "card";
         legend.style.marginTop = "50px";
         const anchor = container.querySelector("#cad-summary-lines") as HTMLElement | null;
-        (anchor ?? container.querySelector("#cad-breakdown-display") ?? resultDisplay).insertAdjacentElement("afterend", legend);
+        (
+          anchor ??
+          container.querySelector("#cad-breakdown-display") ??
+          resultDisplay
+        ).insertAdjacentElement("afterend", legend);
       }
 
       const collectRowsForMode = (mode: "bw" | "color", modeLabel: string) => {
@@ -95,18 +123,28 @@ export const DrukCADView: View = {
         const mbMap = data.price?.[mode]?.mb ?? {};
         const allFormats = Array.from(new Set([...Object.keys(fmtMap), ...Object.keys(mbMap)]));
 
-        return allFormats.map((format) => {
-          const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
-          const fmtBase = Number((fmtMap as any)[format] ?? 0);
-          const mbBase = Number((mbMap as any)[format] ?? 0);
-          const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
-          const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
+        return allFormats
+          .map((format) => {
+            const normalized = String(format)
+              .toLowerCase()
+              .replace("0p", "0plus")
+              .replace("1p", "1plus")
+              .replace("r1067", "mb1067");
+            const fmtBase = Number((fmtMap as any)[format] ?? 0);
+            const mbBase = Number((mbMap as any)[format] ?? 0);
+            const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
+            const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
 
-          const fmtPrice = (fmtMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
-          const mbPrice = (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
+            const fmtPrice =
+              (fmtMap as any)[format] == null
+                ? "-"
+                : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
+            const mbPrice =
+              (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
 
-          return `<tr><td class="col-mode">${modeLabel}</td><td class="col-format">${displayCadFormat(String(format))}</td><td class="col-format-price">${fmtPrice}</td><td class="col-nonformat-price">${mbPrice}</td></tr>`;
-        }).join("");
+            return `<tr><td class="col-mode">${modeLabel}</td><td class="col-format">${displayCadFormat(String(format))}</td><td class="col-format-price">${fmtPrice}</td><td class="col-nonformat-price">${mbPrice}</td></tr>`;
+          })
+          .join("");
       };
 
       const bwRows = collectRowsForMode("bw", "Czarno-biały");
@@ -190,7 +228,7 @@ export const DrukCADView: View = {
         unitPrice: price,
         totalPrice: parseFloat((price * qty).toFixed(2)),
         optionsHint: `${qty} szt.`,
-        payload: { price, qty }
+        payload: { price, qty },
       };
     };
 
@@ -207,7 +245,7 @@ export const DrukCADView: View = {
         unitPrice: price,
         totalPrice: parseFloat((price * qty).toFixed(2)),
         optionsHint: `${qty} m²`,
-        payload: { price, qty }
+        payload: { price, qty },
       };
     };
 
@@ -224,7 +262,7 @@ export const DrukCADView: View = {
         unitPrice: price,
         totalPrice: parseFloat((price * qty).toFixed(2)),
         optionsHint: `${qty} szt.`,
-        payload: { price, qty }
+        payload: { price, qty },
       };
     };
 
@@ -274,7 +312,9 @@ export const DrukCADView: View = {
         pushLine(`Druk (${drukHint}):`, currentResult.totalPrice);
       }
 
-      const printBreakdown = currentResult ? getPrintOptionsBreakdown(currentResult.totalPrice) : { zadruk25: 0, scale: 0, email: 0, total: 0 };
+      const printBreakdown = currentResult
+        ? getPrintOptionsBreakdown(currentResult.totalPrice)
+        : { zadruk25: 0, scale: 0, email: 0, total: 0 };
       pushIfValue("Zadruk >25% (+50%):", printBreakdown.zadruk25);
       pushIfValue("Skalowanie (+50%):", printBreakdown.scale);
       pushIfValue("Wysyłka e-mail:", printBreakdown.email);
@@ -316,7 +356,8 @@ export const DrukCADView: View = {
       if (optEmailPriceSpan) optEmailPriceSpan.innerText = formatPLN(breakdown.email);
 
       const opsTotal = getCadOpsTotal();
-      if (totalWithOptionsSpan) totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + opsTotal);
+      if (totalWithOptionsSpan)
+        totalWithOptionsSpan.innerText = formatPLN(printTotal + breakdown.total + opsTotal);
       updateCadOpsSummary();
     };
 
@@ -345,7 +386,7 @@ export const DrukCADView: View = {
           unitPrice: result.unit,
           totalPrice: result.total,
           optionsHint: `${qty} szt.`,
-          payload: result
+          payload: result,
         });
         if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
         flashAddedStatus(foldStatus, "fold");
@@ -381,7 +422,7 @@ export const DrukCADView: View = {
           unitPrice: result.unitPrice,
           totalPrice: result.total,
           optionsHint: `${qty} szt., ${cm} cm`,
-          payload: result
+          payload: result,
         });
         if (resultDisplay.style.display === "none") resultDisplay.style.display = "block";
         flashAddedStatus(scanStatus, "scan");
@@ -401,30 +442,37 @@ export const DrukCADView: View = {
     });
 
     optKlientSkladanie?.addEventListener("change", () => {
-      if (klientSkladanieQtyRow) klientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
+      if (klientSkladanieQtyRow)
+        klientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "block" : "none";
       updateCadOpsSummary();
       updateOptionsSummary();
       updateGrandTotal();
     });
     optNieformatoweSkladanie?.addEventListener("change", () => {
-      if (nieformatoweSkladanieQtyRow) nieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "block" : "none";
+      if (nieformatoweSkladanieQtyRow)
+        nieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked
+          ? "block"
+          : "none";
       updateCadOpsSummary();
       updateOptionsSummary();
       updateGrandTotal();
     });
     optPaskiWzmacniajace?.addEventListener("change", () => {
-      if (paskiWzmacniajaceQtyRow) paskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
+      if (paskiWzmacniajaceQtyRow)
+        paskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "block" : "none";
       updateCadOpsSummary();
       updateOptionsSummary();
       updateGrandTotal();
     });
-    [klientSkladanieQtyInput, nieformatoweSkladanieQtyInput, paskiWzmacniajaceQtyInput].forEach((el) => {
-      el?.addEventListener("input", () => {
-        updateCadOpsSummary();
-        updateOptionsSummary();
-        updateGrandTotal();
-      });
-    });
+    [klientSkladanieQtyInput, nieformatoweSkladanieQtyInput, paskiWzmacniajaceQtyInput].forEach(
+      (el) => {
+        el?.addEventListener("input", () => {
+          updateCadOpsSummary();
+          updateOptionsSummary();
+          updateGrandTotal();
+        });
+      }
+    );
 
     const updateUI = () => {
       updateUICount++;
@@ -467,13 +515,25 @@ export const DrukCADView: View = {
     let currentOptions: any = null;
 
     const resetCadScanState = () => {
-      if (foldStatusTimer != null) { window.clearTimeout(foldStatusTimer); foldStatusTimer = null; }
-      if (scanStatusTimer != null) { window.clearTimeout(scanStatusTimer); scanStatusTimer = null; }
+      if (foldStatusTimer != null) {
+        window.clearTimeout(foldStatusTimer);
+        foldStatusTimer = null;
+      }
+      if (scanStatusTimer != null) {
+        window.clearTimeout(scanStatusTimer);
+        scanStatusTimer = null;
+      }
       cadOps.splice(0, cadOps.length);
       if (wfScanCmInput) wfScanCmInput.value = "";
       if (wfScanQtyInput) wfScanQtyInput.value = "";
-      if (foldStatus) { foldStatus.style.display = "none"; foldStatus.textContent = ""; }
-      if (scanStatus) { scanStatus.style.display = "none"; scanStatus.textContent = ""; }
+      if (foldStatus) {
+        foldStatus.style.display = "none";
+        foldStatus.textContent = "";
+      }
+      if (scanStatus) {
+        scanStatus.style.display = "none";
+        scanStatus.textContent = "";
+      }
       if (klientSkladanieQtyRow) klientSkladanieQtyRow.style.display = "none";
       if (nieformatoweSkladanieQtyRow) nieformatoweSkladanieQtyRow.style.display = "none";
       if (paskiWzmacniajaceQtyRow) paskiWzmacniajaceQtyRow.style.display = "none";
@@ -521,7 +581,7 @@ export const DrukCADView: View = {
         format: formatSelect.value,
         lengthMm: parsedLength,
         qty: parsedQty,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateDrukCAD(currentOptions, data);
@@ -546,7 +606,10 @@ export const DrukCADView: View = {
       updateGrandTotal();
 
       const optionsTotal = getPrintOptionsBreakdown(result.totalPrice).total;
-      ctx.updateLastCalculated(result.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
+      ctx.updateLastCalculated(
+        result.totalPrice + optionsTotal + getCadOpsTotal(),
+        "Druk CAD + usługi"
+      );
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
@@ -560,26 +623,32 @@ export const DrukCADView: View = {
       if (currentResult && currentOptions) {
         const qtyLabel = currentResult.isMeter ? "" : `${currentOptions.qty} szt, `;
         const printOptions = getPrintOptionsBreakdown(currentResult.totalPrice);
-        const printTotalWithOptions = parseFloat((currentResult.totalPrice + printOptions.total).toFixed(2));
+        const printTotalWithOptions = parseFloat(
+          (currentResult.totalPrice + printOptions.total).toFixed(2)
+        );
         const effectiveOps = collectCommitOps();
-        const opsTotalBeforeClear = parseFloat(effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0).toFixed(2));
+        const opsTotalBeforeClear = parseFloat(
+          effectiveOps.reduce((sum, op) => sum + op.totalPrice, 0).toFixed(2)
+        );
         const printBreakdownHint = currentResult.isMeter
           ? `${currentOptions.qty} × ${(currentOptions.lengthMm / 1000).toFixed(3)} mb (${displayCadFormat(currentOptions.format)}) = ${formatPLN(currentResult.basePrice)}`
           : `${currentOptions.qty} × ${displayCadFormat(currentOptions.format)} = ${formatPLN(currentResult.basePrice)}`;
         const opts = [
-          `${displayCadFormat(currentOptions.format)} (${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'})`,
-            `${qtyLabel}${currentOptions.lengthMm} mm`,
+          `${displayCadFormat(currentOptions.format)} (${currentOptions.mode === "bw" ? "CZ-B" : "KOLOR"})`,
+          `${qtyLabel}${currentOptions.lengthMm} mm`,
           `Cena druku: ${printBreakdownHint}`,
           optZadruk25?.checked ? "Zadruk >25% (+50%)" : "",
           optScale?.checked ? "Skalowanie (+50%)" : "",
           optEmail?.checked ? `Wysyłka e-mail (+${formatPLN(emailFeeUnit)})` : "",
-          ctx.expressMode ? "EXPRESS" : ""
-        ].filter(Boolean).join(", ");
+          ctx.expressMode ? "EXPRESS" : "",
+        ]
+          .filter(Boolean)
+          .join(", ");
 
         ctx.cart.addItem({
           id: `cad-${Date.now()}`,
           category: "Druk CAD wielkoformatowy",
-          name: `${displayCadFormat(currentOptions.format)} ${currentOptions.mode === 'bw' ? 'CZ-B' : 'KOLOR'}`,
+          name: `${displayCadFormat(currentOptions.format)} ${currentOptions.mode === "bw" ? "CZ-B" : "KOLOR"}`,
           quantity: currentOptions.lengthMm,
           unit: "mm",
           unitPrice: printTotalWithOptions / currentOptions.lengthMm,
@@ -587,8 +656,12 @@ export const DrukCADView: View = {
           totalPrice: parseFloat((printTotalWithOptions + opsTotalBeforeClear).toFixed(2)),
           optionsHint: [
             opts,
-            ...effectiveOps.map(op => `${op.name}: ${op.optionsHint} = ${formatPLN(op.totalPrice)}`)
-          ].filter(Boolean).join(" | "),
+            ...effectiveOps.map(
+              (op) => `${op.name}: ${op.optionsHint} = ${formatPLN(op.totalPrice)}`
+            ),
+          ]
+            .filter(Boolean)
+            .join(" | "),
           payload: {
             ...currentResult,
             options: {
@@ -603,7 +676,7 @@ export const DrukCADView: View = {
             ops: effectiveOps,
             opsTotal: opsTotalBeforeClear,
             totalWithOptions: parseFloat((printTotalWithOptions + opsTotalBeforeClear).toFixed(2)),
-          }
+          },
         });
 
         cadOps.splice(0, cadOps.length);
@@ -616,7 +689,7 @@ export const DrukCADView: View = {
 
         currentResult = null;
         currentOptions = null;
-        resultDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         container.dispatchEvent(new CustomEvent("view:reset"));
       }
@@ -628,12 +701,15 @@ export const DrukCADView: View = {
         updateGrandTotal();
         if (currentResult) {
           const optionsTotal = getPrintOptionsBreakdown(currentResult.totalPrice).total;
-          ctx.updateLastCalculated(currentResult.totalPrice + optionsTotal + getCadOpsTotal(), "Druk CAD + usługi");
+          ctx.updateLastCalculated(
+            currentResult.totalPrice + optionsTotal + getCadOpsTotal(),
+            "Druk CAD + usługi"
+          );
         }
       });
     });
 
     updateOptionsSummary();
     updateGrandTotal();
-  }
+  },
 };

@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { buildOrderExportPayload, getOrderExportConfig, ORDER_EXPORT_CONFIG_KEY, savePricesToAppsScript, sendOrderToAppsScript, setOrderExportConfig } from "../src/services/orderExportService";
+import {
+  buildOrderExportPayload,
+  getOrderExportConfig,
+  ORDER_EXPORT_CONFIG_KEY,
+  savePricesToAppsScript,
+  sendOrderToAppsScript,
+  setOrderExportConfig,
+} from "../src/services/orderExportService";
 import { CartItem, CustomerData } from "../src/core/types";
 
 const sampleItems: CartItem[] = [
@@ -59,11 +66,19 @@ describe("orderExportService", () => {
     const stored: Record<string, string> = {};
     (globalThis as any).localStorage = {
       getItem: (k: string) => stored[k] ?? null,
-      setItem: (k: string, v: string) => { stored[k] = v; },
-      removeItem: (k: string) => { delete stored[k]; },
+      setItem: (k: string, v: string) => {
+        stored[k] = v;
+      },
+      removeItem: (k: string) => {
+        delete stored[k];
+      },
     };
 
-    setOrderExportConfig({ appsScriptUrl: "https://script.google.com/macros/s/test/exec", enabled: true, timeoutMs: 9000 });
+    setOrderExportConfig({
+      appsScriptUrl: "https://script.google.com/macros/s/test/exec",
+      enabled: true,
+      timeoutMs: 9000,
+    });
     const cfg = getOrderExportConfig();
 
     expect(cfg.enabled).toBe(true);
@@ -374,7 +389,11 @@ describe("orderExportService", () => {
       ok: true,
       status: 200,
       headers: { get: () => "application/json" },
-      json: async () => ({ ok: false, retryable: true, message: "Zamówienie w trakcie zapisu — spróbuj za chwilę." }),
+      json: async () => ({
+        ok: false,
+        retryable: true,
+        message: "Zamówienie w trakcie zapisu — spróbuj za chwilę.",
+      }),
       text: async () => "",
     }));
 
@@ -440,7 +459,7 @@ describe("savePricesToAppsScript — body validation", () => {
     delete (globalThis as any).fetch;
     delete (globalThis as any).sessionStorage;
     (globalThis as any).sessionStorage = {
-      getItem: (k: string) => k === 'adminSessionToken' ? 'test-session-token' : null,
+      getItem: (k: string) => (k === "adminSessionToken" ? "test-session-token" : null),
     };
   });
 
@@ -501,7 +520,7 @@ describe("savePricesToAppsScript — dry-run", () => {
     delete (globalThis as any).fetch;
     delete (globalThis as any).sessionStorage;
     (globalThis as any).sessionStorage = {
-      getItem: (k: string) => k === 'adminSessionToken' ? 'test-session-token' : null,
+      getItem: (k: string) => (k === "adminSessionToken" ? "test-session-token" : null),
     };
   });
 

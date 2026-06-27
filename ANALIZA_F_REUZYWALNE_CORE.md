@@ -62,6 +62,7 @@
 ### 1.2 Interfejsy Kluczowe
 
 #### Kontrakt UI → Kategoria
+
 ```typescript
 // src/ui/types.ts
 interface ViewContext {
@@ -89,6 +90,7 @@ interface CategoryContext extends ViewContext {
 ```
 
 #### Kontrakt Kategoria → Core
+
 ```typescript
 // src/core/types.ts
 interface PriceTable {
@@ -129,13 +131,13 @@ export function calculateBanner(options: BannerOptions): CalculationResult { ...
 
 ## 2. GRANICE ODPOWIEDZIALNOŚCI (Obecne)
 
-| Warstwa | Odpowiedzialność | Dependencje | Problem |
-|---------|------------------|-------------|---------|
-| **UI** | Rendering, interakcja użytkownika | ViewContext, Router | Tight coupling do CategoryModule (mount) |
-| **Category** | Orchestracja, walidacja, transform danych | getPrice, calculatePrice, formatPLN | Zmieszane: logika biznesowa + konwersja danych |
-| **PriceService** | Centralizacja dostępu, localStorage cache | config/prices.json | Hard-coded ścieżka do JSON, brak adaptera |
-| **Core** | Pure calculations | Tylko typy TypeScript | ✓ Czysty, no side effects |
-| **Config** | Source of truth dla cen | CSV → JSON (manual conversion) | Brak automacji, CSV nie zsynchronizowany |
+| Warstwa          | Odpowiedzialność                          | Dependencje                         | Problem                                        |
+| ---------------- | ----------------------------------------- | ----------------------------------- | ---------------------------------------------- |
+| **UI**           | Rendering, interakcja użytkownika         | ViewContext, Router                 | Tight coupling do CategoryModule (mount)       |
+| **Category**     | Orchestracja, walidacja, transform danych | getPrice, calculatePrice, formatPLN | Zmieszane: logika biznesowa + konwersja danych |
+| **PriceService** | Centralizacja dostępu, localStorage cache | config/prices.json                  | Hard-coded ścieżka do JSON, brak adaptera      |
+| **Core**         | Pure calculations                         | Tylko typy TypeScript               | ✓ Czysty, no side effects                      |
+| **Config**       | Source of truth dla cen                   | CSV → JSON (manual conversion)      | Brak automacji, CSV nie zsynchronizowany       |
 
 ---
 
@@ -151,7 +153,8 @@ const tableData = getPrice("banner") as any;      // Magiczny string
 const materialData = tableData.materials.find(...); // Brak typowania
 ```
 
-**Implikacja**: 
+**Implikacja**:
+
 - Zmiana struktu JSON → kaskadowe zmiany w kategoriach
 - Brak walidacji schematu w compile-time
 - Trudne klonowanie (każdy klon musi pamiętać dokładnie te ścieżki)
@@ -167,7 +170,7 @@ Dzisiaj:
   src/config/prices.json → hardcoded w priceService
   src/services/priceService.ts → getPrice() global
   localStorage override → wbudowany w priceService
-  
+
 Problem:
   - CSV nie ma adaptera (ręczna konwersja)
   - Google Apps Script integration → hardcoded URL w orderExportService
@@ -175,6 +178,7 @@ Problem:
 ```
 
 **Efekt dla Klonowania**:
+
 - Każdy klon musi znowu:
   1. Załadować CSV
   2. Ręcznie przekonwertować do JSON
@@ -190,12 +194,13 @@ Problem:
 ```typescript
 interface ViewContext {
   on?: (event: string, callback: (data?: any) => void) => void;
-  emit?: (event: string, data?: any) => void;  // any ← brak schematu!
+  emit?: (event: string, data?: any) => void; // any ← brak schematu!
   showToast?: (msg: string, type?: string) => void;
 }
 ```
 
 **Implikacja**:
+
 - UI i kategorie wymijają się "po zmroku" (stringly-typed events)
 - Niemożliwość type-checkingu podczas migracji
 - Klony będą mieć inny event system (GraphQL, REST, Websockets?) — brak kontraktu
@@ -215,7 +220,8 @@ interface ViewContext {
 - Wszystko w jednym pliku!
 ```
 
-**Problem**: 
+**Problem**:
+
 - Brak interfejsu dla alternatywnych źródeł danych
 - Testowanie: mockowanie całego serwisu jest inwazyjne
 - Rozszerzalność: dodanie nowego źródła = modyfikacja monolitu
@@ -237,7 +243,8 @@ BASE_PRICE_CATEGORIES = [{id: "druk-a4-a3", label: "Druk A4/A3", ...}]
 export interface DrukA4A3Options { format: "A4" | "A3"; ... }
 ```
 
-**Efekt**: 
+**Efekt**:
+
 - Brak single source of truth
 - Desynchronizacja metadata ← trudno klonować
 - Validacja schematu musi być w trzech miejscach
@@ -255,6 +262,7 @@ export interface DrukA4A3Options { format: "A4" | "A3"; ... }
 ```
 
 **Problem**:
+
 - Kod utrzymanie dla wstecznej kompatybilności
 - Zasłania nowe abstrakcje (Category abstraction)
 - Klony będą musiały zrozumieć, czy to jeszcze potrzebne
@@ -265,12 +273,12 @@ export interface DrukA4A3Options { format: "A4" | "A3"; ... }
 
 ### 4.1 Źródła Danych (Dzisiaj)
 
-| Źródło | Format | Integracja | Problem |
-|--------|--------|-----------|---------|
-| **CSV** | `cennik raz dwa druk - Arkusz1.csv` | Ręczna konwersja JSON | Brak automacji, podatne na błędy |
-| **localStorage** | Object<string, number> | `priceService.setPrice()` | User overrides tylko w UI |
-| **IDB** | `razdwa_prices` cache | `resolveStoredPrice()` (legacy) | Migracja niekompletna (TODO-A, TODO-B) |
-| **Google Apps Script** | HTTPS endpoint | `orderExportService.ts` | URL zapieczona w bundle (no dynamic config) |
+| Źródło                 | Format                              | Integracja                      | Problem                                     |
+| ---------------------- | ----------------------------------- | ------------------------------- | ------------------------------------------- |
+| **CSV**                | `cennik raz dwa druk - Arkusz1.csv` | Ręczna konwersja JSON           | Brak automacji, podatne na błędy            |
+| **localStorage**       | Object<string, number>              | `priceService.setPrice()`       | User overrides tylko w UI                   |
+| **IDB**                | `razdwa_prices` cache               | `resolveStoredPrice()` (legacy) | Migracja niekompletna (TODO-A, TODO-B)      |
+| **Google Apps Script** | HTTPS endpoint                      | `orderExportService.ts`         | URL zapieczona w bundle (no dynamic config) |
 
 ### 4.2 Event System
 
@@ -294,7 +302,8 @@ const materialData = tableData.materials.find(...);
 if (!materialData) throw new Error(`Unknown material: ${options.material}`);
 ```
 
-**Brak**: 
+**Brak**:
+
 - JSON Schema dla cen
 - Runtime validation dla options
 - Dokumentacji API
@@ -305,12 +314,14 @@ if (!materialData) throw new Error(`Unknown material: ${options.material}`);
 
 ### D1: Granica Core vs Config
 
-**Obecna Reguła**: 
+**Obecna Reguła**:
+
 - Core = logika Pure (pricing.ts, money.ts)
 - Config = dane + metadata (prices.json)
 - Compat = legacy glue (ZAGROŻONE)
 
 **Do Zapisu**:
+
 ```
 CORE BOUNDARY (nigdy się nie zmienia między klonami):
   ✓ PriceTable struct
@@ -318,7 +329,7 @@ CORE BOUNDARY (nigdy się nie zmienia między klonami):
   ✓ Modifier application (percent, fixed)
   ✓ formatPLN()
   ✗ getPrice() — to nie jest core, to adapter!
-  
+
 CONFIG BOUNDARY (zmienia się per klon):
   ✓ prices.json (dane)
   ✓ categories metadata
@@ -336,10 +347,10 @@ CONFIG BOUNDARY (zmienia się per klon):
 export interface PriceDataSource {
   // Synchroniczne odczytanie
   getPrice(path: string): any;
-  
+
   // Ustawienie (jeśli writable)
   setPrice?(path: string, value: any): void;
-  
+
   // Subskrypcja zmian (jeśli observable)
   onChanged?(path: string, callback: (value: any) => void): () => void;
 }
@@ -564,32 +575,33 @@ src/
 
 // Uniwersalny input contract
 export interface CategoryInput {
-  quantity: number;          // zawsze jest
-  unit?: Unit;               // opcjonalnie nadpisuje default
-  modifiers: string[];       // ["express", "satyna"]
-  [key: string]: unknown;    // category-specific fields (material, format, etc)
+  quantity: number; // zawsze jest
+  unit?: Unit; // opcjonalnie nadpisuje default
+  modifiers: string[]; // ["express", "satyna"]
+  [key: string]: unknown; // category-specific fields (material, format, etc)
 }
 
 // Uniwersalny output contract
 export interface CategoryOutput {
   success: boolean;
-  basePrice: number;         // bez modyfikatorów
+  basePrice: number; // bez modyfikatorów
   effectiveQuantity: number; // po minimum rules
-  modifiers: {               // breakdown
+  modifiers: {
+    // breakdown
     [id: string]: {
       name: string;
-      type: 'percent' | 'fixed' | 'multiplicative';
+      type: "percent" | "fixed" | "multiplicative";
       value: number;
       appliedAmount: number; // PLN
-    }
+    };
   };
   totalPrice: number;
   warnings: string[];
   metadata?: {
-    tier: PriceTier;         // która cena została użyta
-    interpolated: boolean;   // czy użyta interpolacja
-    appliedRules: string[];  // które reguły zadziałały
-  }
+    tier: PriceTier; // która cena została użyta
+    interpolated: boolean; // czy użyta interpolacja
+    appliedRules: string[]; // które reguły zadziałały
+  };
 }
 
 // Kategoria musi implementować
@@ -597,8 +609,8 @@ export interface CategoryDefinition {
   id: string;
   label: string;
   unit: Unit;
-  schema: JSONSchema7;  // Runtime validation
-  
+  schema: JSONSchema7; // Runtime validation
+
   validate(input: unknown): input is CategoryInput | ValidationError;
   calculate(input: CategoryInput): CategoryOutput;
 }
@@ -678,34 +690,35 @@ export const eventSchema = {
 
 ### 8.1 Ryzyka Wysokie (Blokerów)
 
-| Ryzyka | Opis | Mitygacja |
-|--------|------|-----------|
-| **Breaking change w core.pricing** | Zmieszane warianty CalculationResult (legacy fields) | Utworzyć V2 obok V1, migrować stopniowo |
-| **localStorage overrides** | Dzisiaj: flat keys ("banner-200g" → 60), docelowo: structured | Migracja schematu + fallback reader |
-| **ViewContext.emit()** | Brak typed events — zmiana spowoduje cascading errors | Type-safe EventEmitter, stawiaj deprecation warnings |
-| **CSV → JSON** | Ręczny proces, podatny na błędy | Build script do konwersji (zautomatyzować) |
+| Ryzyka                             | Opis                                                          | Mitygacja                                            |
+| ---------------------------------- | ------------------------------------------------------------- | ---------------------------------------------------- |
+| **Breaking change w core.pricing** | Zmieszane warianty CalculationResult (legacy fields)          | Utworzyć V2 obok V1, migrować stopniowo              |
+| **localStorage overrides**         | Dzisiaj: flat keys ("banner-200g" → 60), docelowo: structured | Migracja schematu + fallback reader                  |
+| **ViewContext.emit()**             | Brak typed events — zmiana spowoduje cascading errors         | Type-safe EventEmitter, stawiaj deprecation warnings |
+| **CSV → JSON**                     | Ręczny proces, podatny na błędy                               | Build script do konwersji (zautomatyzować)           |
 
 ### 8.2 Ryzyka Średnie
 
-| Ryzyka | Opis | Mitygacja |
-|--------|------|-----------|
+| Ryzyka                            | Opis                                | Mitygacja                                                    |
+| --------------------------------- | ----------------------------------- | ------------------------------------------------------------ |
 | **getPrice() -> PriceDataSource** | Każda kategoria hardcodeuje ścieżki | Wrapper do translacji ("banner" → source.getPrice("banner")) |
-| **Kompatybilność testów** | Stare testy mockują getPrice | Testy muszą mockować PriceDataSource |
-| **Google Apps Script URL** | Zapieczona w bundle | Runtime lookup w localStorage + fallback |
-| **Metadata desynchronizacja** | Categories w 3 miejscach | Single registry, generuj pozostałe |
+| **Kompatybilność testów**         | Stare testy mockują getPrice        | Testy muszą mockować PriceDataSource                         |
+| **Google Apps Script URL**        | Zapieczona w bundle                 | Runtime lookup w localStorage + fallback                     |
+| **Metadata desynchronizacja**     | Categories w 3 miejscach            | Single registry, generuj pozostałe                           |
 
 ### 8.3 Ryzyka Niskie
 
-| Ryzyka | Opis | Mitygacja |
-|--------|------|-----------|
-| **Legacy compat.ts** | Przestarzały kod (migracja v1) | Oznacz @deprecated, redirect na nowe API |
-| **Performance** | Dodatkowe warstwy abstrakcji | Profiluj na produkcji, nie optymalizuj spekulacyjnie |
+| Ryzyka               | Opis                           | Mitygacja                                            |
+| -------------------- | ------------------------------ | ---------------------------------------------------- |
+| **Legacy compat.ts** | Przestarzały kod (migracja v1) | Oznacz @deprecated, redirect na nowe API             |
+| **Performance**      | Dodatkowe warstwy abstrakcji   | Profiluj na produkcji, nie optymalizuj spekulacyjnie |
 
 ---
 
 ## 9. KOLEJNOŚĆ WYDZIELEŃ (Etapy Migracji)
 
 ### Etap 1️⃣: Kontrakty i Interfejsy (2-3 dni, no breaking changes)
+
 ```
 Zadania:
 1. src/core/contracts/PriceDataSource.ts    (interface)
@@ -721,6 +734,7 @@ Output: Czyste interfejsy, można używać parallelnie z old code
 ---
 
 ### Etap 2️⃣: Adaptery Infrastrukturalne (3-5 dni, no breaking changes)
+
 ```
 Zadania:
 1. src/infrastructure/adapters/JsonPriceSource.ts
@@ -737,6 +751,7 @@ Backcompat: getPrice() = CompositeSource(['localStorage', 'json'])
 ---
 
 ### Etap 3️⃣: CategoryRegistry i Migracja Kategorii (5-7 dni, progressive deprecation)
+
 ```
 Zadania:
 1. src/domain/CategoryRegistry.ts (impl + factory)
@@ -756,6 +771,7 @@ Backcompat: Stare imports ("import { calculateBanner } from ...") still work
 ---
 
 ### Etap 4️⃣: TypeScript Event System (2-3 dni, no breaking changes)
+
 ```
 Zadania:
 1. src/infrastructure/services/EventDispatcher.ts (typed emitter)
@@ -771,6 +787,7 @@ Backcompat: String-based events warned w console, redirect na typed
 ---
 
 ### Etap 5️⃣: CSV Import Adapter (3-4 dni, new feature, no breaking changes)
+
 ```
 Zadania:
 1. Build script: CSV -> JSON converter (scripts/csv-to-prices.js)
@@ -786,6 +803,7 @@ Output: Automacja procesu CSV -> prices.json
 ---
 
 ### Etap 6️⃣: API Adapter (dla Klonów) (3-4 dni, optional, extensibility)
+
 ```
 Zadania:
 1. src/infrastructure/adapters/ApiPriceSource.ts
@@ -801,6 +819,7 @@ Output: Klony mogą linkować do zewnętrznego API cen
 ---
 
 ### Etap 7️⃣: Dependency Injection i PriceServiceV2 (4-5 dni, breaking: stare imports muszą się zmienić)
+
 ```
 Zadania:
 1. src/infrastructure/services/PriceServiceV2.ts (DI container)
@@ -906,23 +925,24 @@ Strategy:
 
 ## 11. PODSUMOWANIE: Tabela Decyzji
 
-| Decyzja | Odpowiedź | Implikacja |
-|---------|-----------|-----------|
-| **Core boundary** | Tylko pure calculations + types | ✓ Reużywalny, no side effects |
-| **Data source abstraction** | PriceDataSource interface + adaptery | ✓ Klony mogą swap impl (JSON/API/CSV) |
-| **Metadata source of truth** | CategoryRegistry (single) | ✓ Brak desynchronizacji |
-| **Event typing** | Typed discriminated unions | ✓ Compile-time safety |
-| **Kontrakt UI-Domain** | ViewContext typed, CategoryDefinition | ✓ Brak magic strings |
-| **CSV automation** | Build script CSV→JSON + adapter | ✓ Klony ładują CSV w 1 komendzie |
-| **Dependency injection** | src/bootstrap.ts factory | ✓ Config centralized, testability |
-| **Wersjonowanie** | PriceSchemaVersion + migrations | ✓ Klony mogą mieć inny cennik |
-| **Backward compat** | Stare APIs z deprecation warnings | ✓ Migracja bez crashu |
+| Decyzja                      | Odpowiedź                             | Implikacja                            |
+| ---------------------------- | ------------------------------------- | ------------------------------------- |
+| **Core boundary**            | Tylko pure calculations + types       | ✓ Reużywalny, no side effects         |
+| **Data source abstraction**  | PriceDataSource interface + adaptery  | ✓ Klony mogą swap impl (JSON/API/CSV) |
+| **Metadata source of truth** | CategoryRegistry (single)             | ✓ Brak desynchronizacji               |
+| **Event typing**             | Typed discriminated unions            | ✓ Compile-time safety                 |
+| **Kontrakt UI-Domain**       | ViewContext typed, CategoryDefinition | ✓ Brak magic strings                  |
+| **CSV automation**           | Build script CSV→JSON + adapter       | ✓ Klony ładują CSV w 1 komendzie      |
+| **Dependency injection**     | src/bootstrap.ts factory              | ✓ Config centralized, testability     |
+| **Wersjonowanie**            | PriceSchemaVersion + migrations       | ✓ Klony mogą mieć inny cennik         |
+| **Backward compat**          | Stare APIs z deprecation warnings     | ✓ Migracja bez crashu                 |
 
 ---
 
 ## 12. ARTEFAKTY DO OPRACOWANIA (Next Steps)
 
 ### Dla Implementacji (Jeśli Go):
+
 1. **Specyfikacja Interfejsów** (OpenAPI/AsyncAPI)
 2. **Implementacja Etapu 1** (Kontrakty)
 3. **Test Plan** (Regression + Integration)
@@ -930,6 +950,7 @@ Strategy:
 5. **Documentation for Clones** (Jak dodać nową kategorię, jak zmienić source danych)
 
 ### Dla Klonów (Dzisiaj):
+
 1. **CLONE_SETUP.md**: Krok-po-kroku instrukcje
    - Fork repa
    - Załaduj CSV via script

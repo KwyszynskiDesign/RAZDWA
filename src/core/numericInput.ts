@@ -5,10 +5,10 @@
  */
 
 export interface NumericInputOptions {
-  min?: number
-  max?: number
-  allowZero?: boolean
-  integer?: boolean
+  min?: number;
+  max?: number;
+  allowZero?: boolean;
+  integer?: boolean;
 }
 
 /**
@@ -20,19 +20,19 @@ export function parseNumericInput(
   value: string | null | undefined,
   options: NumericInputOptions = {}
 ): number | null {
-  const { min, max, allowZero = false, integer = false } = options
+  const { min, max, allowZero = false, integer = false } = options;
 
-  const normalized = (value ?? '').toString().trim().replace(',', '.')
-  if (normalized === '') return null
+  const normalized = (value ?? "").toString().trim().replace(",", ".");
+  if (normalized === "") return null;
 
-  const parsed = integer ? parseInt(normalized, 10) : parseFloat(normalized)
-  if (!Number.isFinite(parsed)) return null
+  const parsed = integer ? parseInt(normalized, 10) : parseFloat(normalized);
+  if (!Number.isFinite(parsed)) return null;
 
-  const lowerBound = min ?? (allowZero ? 0 : undefined)
-  if (lowerBound !== undefined && parsed < lowerBound) return null
-  if (lowerBound === undefined && !allowZero && parsed <= 0) return null
+  const lowerBound = min ?? (allowZero ? 0 : undefined);
+  if (lowerBound !== undefined && parsed < lowerBound) return null;
+  if (lowerBound === undefined && !allowZero && parsed <= 0) return null;
 
-  if (max !== undefined && parsed > max) return null
+  if (max !== undefined && parsed > max) return null;
 
-  return parsed
+  return parsed;
 }

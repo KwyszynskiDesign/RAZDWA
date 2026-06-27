@@ -4,17 +4,22 @@ import { resolveStoredPrice } from "../core/compat";
 
 const _biz: any = getPrice("wizytowki");
 
-function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boolean): number {
-  const table = _biz.cyfrowe.standardPrices[format][foiled ? 'lam' : 'noLam'];
-  const foliaKey = foiled ? 'matt_gloss' : 'none';
-  const keys = Object.keys(table || {}).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+function getPriceForQuantity(format: "85x55" | "90x50", qty: number, foiled: boolean): number {
+  const table = _biz.cyfrowe.standardPrices[format][foiled ? "lam" : "noLam"];
+  const foliaKey = foiled ? "matt_gloss" : "none";
+  const keys = Object.keys(table || {})
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
   if (!keys.length) throw new Error(`Brak progu cenowego dla ${qty} szt (${format})`);
-  const resolve = (k: number) => resolveStoredPrice(`wizytowki-${format}-${foliaKey}-${k}szt`, table[k]);
+  const resolve = (k: number) =>
+    resolveStoredPrice(`wizytowki-${format}-${foliaKey}-${k}szt`, table[k]);
   if (qty <= keys[0]) return resolve(keys[0]);
   const last = keys[keys.length - 1];
   if (qty >= last) return resolve(last);
   for (let i = 0; i < keys.length - 1; i++) {
-    const lo = keys[i], hi = keys[i + 1];
+    const lo = keys[i],
+      hi = keys[i + 1];
     if (qty <= hi) {
       const t = (qty - lo) / (hi - lo);
       return Math.round((resolve(lo) + t * (resolve(hi) - resolve(lo))) * 100) / 100;
@@ -27,22 +32,31 @@ function getPriceForQuantity(format: '85x55' | '90x50', qty: number, foiled: boo
  * @deprecated Use wizytowkiCategory module instead.
  * Kept for compatibility with tests.
  */
-export function quoteWizytowki(options: { format: '85x55' | '90x50'; qty: number; folia: 'none' | 'matt_gloss'; express: boolean }) {
-  const basePrice = getPriceForQuantity(options.format, options.qty, options.folia === 'matt_gloss');
+export function quoteWizytowki(options: {
+  format: "85x55" | "90x50";
+  qty: number;
+  folia: "none" | "matt_gloss";
+  express: boolean;
+}) {
+  const basePrice = getPriceForQuantity(
+    options.format,
+    options.qty,
+    options.folia === "matt_gloss"
+  );
   let totalPrice = basePrice;
   if (options.express) {
-    totalPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
+    totalPrice *= 1 + resolveStoredPrice("modifier-express", 0.2);
   }
 
   return {
     totalPrice: parseFloat(totalPrice.toFixed(2)),
-    basePrice
+    basePrice,
   };
 }
 
 export const wizytowkiCategory: CategoryModule = {
-  id: 'wizytowki',
-  name: '💼 Wizytówki',
+  id: "wizytowki",
+  name: "💼 Wizytówki",
   mount: (container, ctx) => {
     container.innerHTML = `
       <div class="category-form">
@@ -99,24 +113,26 @@ export const wizytowkiCategory: CategoryModule = {
 
     let currentPrice = 0;
 
-    const calculateBtn = container.querySelector('#calculate');
-    const addBtn = container.querySelector('#addToBasket');
-    const totalDisplay = container.querySelector('#total-price');
-    const breakdownDisplay = container.querySelector('#price-breakdown');
+    const calculateBtn = container.querySelector("#calculate");
+    const addBtn = container.querySelector("#addToBasket");
+    const totalDisplay = container.querySelector("#total-price");
+    const breakdownDisplay = container.querySelector("#price-breakdown");
 
-    calculateBtn?.addEventListener('click', () => {
-      const format = (container.querySelector('#format') as HTMLSelectElement).value as '85x55' | '90x50';
-      const quantity = parseInt((container.querySelector('#quantity') as HTMLSelectElement).value);
-      const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
-      if (foiling === 'foil') {
-        if (totalDisplay) totalDisplay.textContent = '-';
-        if (breakdownDisplay) breakdownDisplay.textContent = 'Wizytówki foliowane (mat/błysk) ';
+    calculateBtn?.addEventListener("click", () => {
+      const format = (container.querySelector("#format") as HTMLSelectElement).value as
+        | "85x55"
+        | "90x50";
+      const quantity = parseInt((container.querySelector("#quantity") as HTMLSelectElement).value);
+      const foiling = (container.querySelector("#foiling") as HTMLSelectElement).value;
+      if (foiling === "foil") {
+        if (totalDisplay) totalDisplay.textContent = "-";
+        if (breakdownDisplay) breakdownDisplay.textContent = "Wizytówki foliowane (mat/błysk) ";
         ctx.updateLastCalculated(0, `Wizytówki foliowane - ${format} - ${quantity} szt`);
         currentPrice = 0;
         return;
       }
       currentPrice = getPriceForQuantity(format, quantity, false);
-      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.2);
 
       if (totalDisplay) {
         totalDisplay.textContent = `${currentPrice.toFixed(2)} zł`;
@@ -129,27 +145,26 @@ export const wizytowkiCategory: CategoryModule = {
       ctx.updateLastCalculated(currentPrice, `Wizytówki ${format} - ${quantity} szt`);
     });
 
-    addBtn?.addEventListener('click', () => {
+    addBtn?.addEventListener("click", () => {
       if (currentPrice === 0) {
-        alert('⚠️ Najpierw oblicz cenę!');
+        alert("⚠️ Najpierw oblicz cenę!");
         return;
       }
 
-
-      const format = (container.querySelector('#format') as HTMLSelectElement).value;
-      const quantity = (container.querySelector('#quantity') as HTMLSelectElement).value;
-      const foiling = (container.querySelector('#foiling') as HTMLSelectElement).value;
-      if (foiling === 'foil') {
-        alert('Wizytówki foliowane –g');
+      const format = (container.querySelector("#format") as HTMLSelectElement).value;
+      const quantity = (container.querySelector("#quantity") as HTMLSelectElement).value;
+      const foiling = (container.querySelector("#foiling") as HTMLSelectElement).value;
+      if (foiling === "foil") {
+        alert("Wizytówki foliowane –g");
         return;
       }
       ctx.addToBasket({
-        category: 'Wizytówki',
+        category: "Wizytówki",
         price: currentPrice,
-        description: `${format} mm, ${quantity} szt, bez foliowania`
+        description: `${format} mm, ${quantity} szt, bez foliowania`,
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
     });
-  }
+  },
 };

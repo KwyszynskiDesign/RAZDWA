@@ -4,11 +4,11 @@
  * → computeShipping → addTaxes to produce a final CalculationResult.
  */
 
-import { calculateBasePrice, BaseCalcTable } from './calculateBasePrice';
-import { applyDiscounts } from './applyDiscounts';
-import { addTaxes } from './addTaxes';
-import { computeShipping } from './computeShipping';
-import type { CalculationResult as CoreCalculationResult } from './types';
+import { calculateBasePrice, BaseCalcTable } from "./calculateBasePrice";
+import { applyDiscounts } from "./applyDiscounts";
+import { addTaxes } from "./addTaxes";
+import { computeShipping } from "./computeShipping";
+import type { CalculationResult as CoreCalculationResult } from "./types";
 
 type SimpleModifier = { id: string; name?: string; type: string; value: number };
 type SimpleRule = { type: string; unit: string; value: number };
@@ -30,7 +30,7 @@ export function computeTotalPrice(
     basePrice,
     effectiveQuantity,
     activeModifiers,
-    (table.modifiers ?? []).map(modifier => ({
+    (table.modifiers ?? []).map((modifier) => ({
       ...modifier,
       name: modifier.name ?? modifier.id,
     }))
@@ -40,7 +40,7 @@ export function computeTotalPrice(
   totalPrice += computeShipping(totalPrice);
   totalPrice = addTaxes(totalPrice);
 
-  const minPLNRule = (table.rules ?? []).find(r => r.type === 'minimum' && r.unit === 'pln');
+  const minPLNRule = (table.rules ?? []).find((r) => r.type === "minimum" && r.unit === "pln");
   if (minPLNRule && totalPrice < minPLNRule.value) totalPrice = minPLNRule.value;
 
   return {

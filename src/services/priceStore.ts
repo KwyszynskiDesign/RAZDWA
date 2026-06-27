@@ -66,7 +66,10 @@ export const priceStore = {
       const getReq = store.get(id);
       getReq.onsuccess = () => {
         const record = getReq.result as PriceRecord | undefined;
-        if (!record) { resolve(); return; }
+        if (!record) {
+          resolve();
+          return;
+        }
         const putReq = store.put({
           ...record,
           _deleted: true,

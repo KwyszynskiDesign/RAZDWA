@@ -28,7 +28,12 @@
     }
   ],
   "modifiers": [
-    { "id": "oczkowanie", "name": "Oczkowanie (+2.50 zł/m2)", "type": "fixed_per_unit", "value": 2.50 },
-    { "id": "express", "name": "TRYB EXPRESS (+20%)", "type": "percent", "value": 0.20 }
+    {
+      "id": "oczkowanie",
+      "name": "Oczkowanie (+2.50 zł/m2)",
+      "type": "fixed_per_unit",
+      "value": 2.5
+    },
+    { "id": "express", "name": "TRYB EXPRESS (+20%)", "type": "percent", "value": 0.2 }
   ]
 }

@@ -17,9 +17,17 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     id: "druk-a4-a3",
     label: "Druk A4/A3 + skan",
     icon: "assets/icons/printer.svg",
-    prefixes: ["druk-bw-", "druk-kolor-", "skan-", "druk-email", "druk-label-sticker", "druk-koszulka", "modifier-druk-"],
+    prefixes: [
+      "druk-bw-",
+      "druk-kolor-",
+      "skan-",
+      "druk-email",
+      "druk-label-sticker",
+      "druk-koszulka",
+      "modifier-druk-",
+    ],
     description: "Ceny druku czarno-białego, kolorowego, skanowania i dopłaty za duży zadruk.",
-    newKeyPrefix: "druk-bw-a4-"
+    newKeyPrefix: "druk-bw-a4-",
   },
   {
     id: "druk-cad",
@@ -27,15 +35,23 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/drafting-compass.svg",
     prefixes: ["druk-cad-", "cad-fold-", "cad-"],
     description: "Stawki CAD formatowe, za metr bieżący, składanie i usługi dodatkowe.",
-    newKeyPrefix: "druk-cad-bw-fmt-"
+    newKeyPrefix: "druk-cad-bw-fmt-",
   },
   {
     id: "laminowanie",
     label: "Introligatornia",
     icon: "assets/icons/book-open.svg",
-    prefixes: ["laminowanie-a3-", "laminowanie-a4-", "laminowanie-a5-", "laminowanie-a6-", "laminowanie-intro-", "laminowanie-oprawa-", "laminowanie-bindowanie-"],
+    prefixes: [
+      "laminowanie-a3-",
+      "laminowanie-a4-",
+      "laminowanie-a5-",
+      "laminowanie-a6-",
+      "laminowanie-intro-",
+      "laminowanie-oprawa-",
+      "laminowanie-bindowanie-",
+    ],
     description: "Laminowanie na gorąco, oprawy, bindowanie oraz usługi introligatorskie.",
-    newKeyPrefix: "laminowanie-a4-"
+    newKeyPrefix: "laminowanie-a4-",
   },
   {
     id: "solwent",
@@ -43,7 +59,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/palette.svg",
     prefixes: ["solwent-", "plakaty-format-", "plakaty-blockout200g-"],
     description: "Cenniki solwentu oraz plakatów A3-A0+.",
-    newKeyPrefix: "solwent-150g-"
+    newKeyPrefix: "solwent-150g-",
   },
   {
     id: "plakaty-a4-a3",
@@ -51,7 +67,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/image.svg",
     prefixes: ["plakaty-maly-canon-", "plakaty-duzy-canon-"],
     description: "Cenniki plakatów A4-A3 (mały/duży Canon).",
-    newKeyPrefix: "plakaty-maly-canon-"
+    newKeyPrefix: "plakaty-maly-canon-",
   },
   {
     id: "vouchery",
@@ -59,7 +75,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/ticket-percent.svg",
     prefixes: ["vouchery-"],
     description: "Ceny voucherów jednostronnych i dwustronnych.",
-    newKeyPrefix: "vouchery-1-jed"
+    newKeyPrefix: "vouchery-1-jed",
   },
   {
     id: "banner",
@@ -67,7 +83,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/layout-panel-top.svg",
     prefixes: ["banner-"],
     description: "Materiały bannerowe i dopłata za oczkowanie.",
-    newKeyPrefix: "banner-powlekany-"
+    newKeyPrefix: "banner-powlekany-",
   },
   {
     id: "rollup",
@@ -75,7 +91,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/panel-top.svg",
     prefixes: ["rollup-"],
     description: "Komplety roll-up oraz wymiana wkładu.",
-    newKeyPrefix: "rollup-85x200-"
+    newKeyPrefix: "rollup-85x200-",
   },
   {
     id: "folia",
@@ -83,7 +99,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/layers.svg",
     prefixes: ["folia-szroniona-"],
     description: "Wydruk i oklejanie folii szronionej oraz OWV.",
-    newKeyPrefix: "folia-szroniona-wydruk-"
+    newKeyPrefix: "folia-szroniona-wydruk-",
   },
   {
     id: "wycinanie-folii",
@@ -91,7 +107,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/scissors.svg",
     prefixes: ["wycinanie-folii-"],
     description: "Stawki wycinania folii kolorowej i złoto/srebro.",
-    newKeyPrefix: "wycinanie-folii-kolorowa"
+    newKeyPrefix: "wycinanie-folii-kolorowa",
   },
   {
     id: "canvas",
@@ -99,7 +115,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/gallery-horizontal.svg",
     prefixes: ["canvas-"],
     description: "Canvas z oprawą, bez oprawy i stawka za m².",
-    newKeyPrefix: "canvas-framed-"
+    newKeyPrefix: "canvas-framed-",
   },
   {
     id: "wlepki",
@@ -107,7 +123,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/sticker.svg",
     prefixes: ["wlepki-"],
     description: "Naklejki standardowe, po obrysie, PP i dopłaty dodatkowe.",
-    newKeyPrefix: "wlepki-standard-folia-"
+    newKeyPrefix: "wlepki-standard-folia-",
   },
   {
     id: "wizytowki",
@@ -115,7 +131,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/id-card.svg",
     prefixes: ["wizytowki-"],
     description: "Ceny wizytówek standard i z folią dla obu formatów.",
-    newKeyPrefix: "wizytowki-85x55-none-"
+    newKeyPrefix: "wizytowki-85x55-none-",
   },
   {
     id: "zaproszenia",
@@ -123,7 +139,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/mail.svg",
     prefixes: ["zaproszenia-"],
     description: "Ceny zaproszeń (format, strony, łamanie, ilość).",
-    newKeyPrefix: "zaproszenia-a6-single-normal-"
+    newKeyPrefix: "zaproszenia-a6-single-normal-",
   },
   {
     id: "ulotki",
@@ -131,7 +147,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/file-text.svg",
     prefixes: ["ulotki-jed-", "ulotki-dwu-"],
     description: "Ceny ulotek jednostronnych i dwustronnych dla formatów A6, A5 i DL.",
-    newKeyPrefix: "ulotki-jed-a6-"
+    newKeyPrefix: "ulotki-jed-a6-",
   },
   {
     id: "dyplomy",
@@ -139,7 +155,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/award.svg",
     prefixes: ["dyplomy-qty-"],
     description: "Ceny dyplomów wg progów ilościowych.",
-    newKeyPrefix: "dyplomy-qty-"
+    newKeyPrefix: "dyplomy-qty-",
   },
   {
     id: "artykuly",
@@ -155,10 +171,10 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
       "artykuly-olowek",
       "artykuly-pendrive-",
       "artykuly-pudelko-",
-      "artykuly-plyty-"
+      "artykuly-plyty-",
     ],
     description: "Ceny materiałów biurowych i akcesoriów.",
-    newKeyPrefix: "artykuly-"
+    newKeyPrefix: "artykuly-",
   },
   {
     id: "uslugi",
@@ -166,7 +182,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/handshake.svg",
     prefixes: ["uslugi-"],
     description: "Stawki usług dodatkowych, projektowych i archiwizacji.",
-    newKeyPrefix: "uslugi-"
+    newKeyPrefix: "uslugi-",
   },
   {
     id: "koperty",
@@ -174,7 +190,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/mail.svg",
     prefixes: ["koperty-", "artykuly-koperta-"],
     description: "Ceny kopert (A–G oraz pozycje kopert z artykułów biurowych).",
-    newKeyPrefix: "artykuly-koperta-"
+    newKeyPrefix: "artykuly-koperta-",
   },
   {
     id: "pojedyncze-naklady",
@@ -182,7 +198,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "🧾",
     prefixes: ["laminowanie-special-"],
     description: "Ceny usług dla pojedynczych nakładów i wydruki specjalne.",
-    newKeyPrefix: "laminowanie-special-"
+    newKeyPrefix: "laminowanie-special-",
   },
   {
     id: "broszury-katalogi",
@@ -190,7 +206,7 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/book-text.svg",
     prefixes: ["broszury-katalogi-"],
     description: "Ceny broszur i katalogów wg formatu i nakładu.",
-    newKeyPrefix: "broszury-katalogi-a4-"
+    newKeyPrefix: "broszury-katalogi-a4-",
   },
   {
     id: "modifiers",
@@ -198,8 +214,8 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     icon: "assets/icons/settings.svg",
     prefixes: ["modifier-express", "modifier-satyna", "modifier-modigliani"],
     description: "Dopłaty procentowe współdzielone przez wiele kalkulatorów.",
-    newKeyPrefix: "modifier-"
-  }
+    newKeyPrefix: "modifier-",
+  },
 ];
 
 /**
@@ -214,7 +230,6 @@ export function findOrCreateCategory(
 ): PriceCategory {
   return (
     categories.find((c) => c.id === id) ??
-    fallback ??
-    { id, label: id, icon: "🧩", prefixes: [`${id}-`], description: "" }
+    fallback ?? { id, label: id, icon: "🧩", prefixes: [`${id}-`], description: "" }
   );
 }

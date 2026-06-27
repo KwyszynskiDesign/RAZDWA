@@ -8,7 +8,10 @@ beforeEach(() => {
     history: { replaceState: vi.fn() },
     open: vi.fn(),
   });
-  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, text: async () => "" })));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({ ok: false, text: async () => "" }))
+  );
 });
 
 afterEach(() => {
@@ -46,7 +49,7 @@ describe("Router home screen – ekran startowy", () => {
     const { router, container } = makeRouter();
     (window as any).location.hash = "";
     router.start();
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     expect(container.innerHTML).toContain("home-categories-shell");
     expect(container.innerHTML).not.toContain("emptyState");
   });
@@ -76,7 +79,7 @@ describe("Router home screen – ekran startowy", () => {
     const { router } = makeRouter();
     (window as any).location.hash = "#/";
     router.start();
-    await new Promise(r => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
     expect(fetch).not.toHaveBeenCalled();
   });
 });

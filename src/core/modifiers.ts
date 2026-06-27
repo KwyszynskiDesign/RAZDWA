@@ -2,8 +2,8 @@
 
 export const EXPRESS_RATE = 0.2;
 
-import { z } from 'zod';
-import { resolveStoredPrice } from './compat';
+import { z } from "zod";
+import { resolveStoredPrice } from "./compat";
 
 /**
  * Pure: returns the override if provided, otherwise EXPRESS_RATE.
@@ -20,7 +20,7 @@ export function computeExpressRate(override?: number): number {
  * Callers: src/core/cart.ts, src/ui/main.ts — migrate to computeExpressRate in Stage 7.
  */
 export function getExpressRate(): number {
-  return resolveStoredPrice('modifier-express', EXPRESS_RATE);
+  return resolveStoredPrice("modifier-express", EXPRESS_RATE);
 }
 
 /**
@@ -36,12 +36,12 @@ export type ModifierEntry = {
 export type Modifier = ModifierEntry;
 
 export const EXPRESS_MODIFIER: ModifierEntry = {
-  name: 'EXPRESS',
+  name: "EXPRESS",
   value: 20,
 };
 
 export const ANOTHER_MODIFIER: ModifierEntry = {
-  name: 'ANOTHER_MODIFIER',
+  name: "ANOTHER_MODIFIER",
   value: 10,
 };
 
@@ -57,14 +57,19 @@ export type ModifierApplicationResult = {
   breakdown: string[];
 };
 
-export function applyModifiers(basePrice: number, modifiers: ModifierEntry[]): ModifierApplicationResult {
+export function applyModifiers(
+  basePrice: number,
+  modifiers: ModifierEntry[]
+): ModifierApplicationResult {
   let total = basePrice;
   const breakdown: string[] = [];
 
   for (const modifier of modifiers) {
     const result = ModifierSchema.safeParse(modifier);
     if (!result.success) {
-      throw new Error(`Invalid modifier: ${result.error.issues.map((issue: z.ZodIssue) => issue.message).join(', ')}`);
+      throw new Error(
+        `Invalid modifier: ${result.error.issues.map((issue: z.ZodIssue) => issue.message).join(", ")}`
+      );
     }
 
     total += modifier.value;

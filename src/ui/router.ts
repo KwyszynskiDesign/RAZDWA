@@ -30,7 +30,7 @@ export class Router {
   }
 
   private async mountSettingsView(): Promise<void> {
-    const view = this.routes.get('ustawienia');
+    const view = this.routes.get("ustawienia");
     if (!view) return;
     this.currentView = view;
     try {
@@ -55,7 +55,7 @@ export class Router {
       return;
     }
 
-    if (status.error === 'offline' || status.error === 'server_error') {
+    if (status.error === "offline" || status.error === "server_error") {
       this.container.innerHTML = `
         <div style="max-width:360px;margin:60px auto;padding:32px;background:var(--surface);border:1px solid var(--border);border-radius:16px;text-align:center;">
           <p style="margin:0 0 16px;font-size:15px;">&#x26A0;&#xFE0F; Brak po&#x142;&#x105;czenia z serwerem.<br>Nie mo&#x17C;na zweryfikowa&#x107; dost&#x119;pu.</p>
@@ -66,7 +66,7 @@ export class Router {
           <a href="#/" style="display:block;font-size:13px;color:var(--text-secondary);">&#x2190; Wr&#xF3;&#x107; do strony g&#x142;&#xF3;wnej</a>
         </div>
       `;
-      this.container.querySelector('#gateRetryBtn')?.addEventListener('click', () => {
+      this.container.querySelector("#gateRetryBtn")?.addEventListener("click", () => {
         this.checkAndRenderSettingsGate().catch(() => {});
       });
       return;
@@ -90,63 +90,74 @@ export class Router {
       </div>
     `;
 
-    const pinInput = this.container.querySelector<HTMLInputElement>('#gatePin');
-    const submitBtn = this.container.querySelector<HTMLButtonElement>('#gatePinBtn');
-    const errorEl = this.container.querySelector<HTMLElement>('#gatePinErr');
+    const pinInput = this.container.querySelector<HTMLInputElement>("#gatePin");
+    const submitBtn = this.container.querySelector<HTMLButtonElement>("#gatePinBtn");
+    const errorEl = this.container.querySelector<HTMLElement>("#gatePinErr");
 
     pinInput?.focus();
 
     const attempt = async () => {
-      const val = pinInput?.value ?? '';
+      const val = pinInput?.value ?? "";
       if (!val) return;
 
-      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳'; }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "⏳";
+      }
 
       const result = await verifyPinOnServer(val);
 
-      if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Zatwierdź'; }
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Zatwierdź";
+      }
 
       if (result.ok) {
         setAdminSession(result.token);
-        if (pinInput) pinInput.value = '';
+        if (pinInput) pinInput.value = "";
         await this.mountSettingsView();
         return;
       }
 
-      if (pinInput) { pinInput.value = ''; pinInput.focus(); }
+      if (pinInput) {
+        pinInput.value = "";
+        pinInput.focus();
+      }
 
       if (!errorEl) return;
-      errorEl.style.display = 'block';
+      errorEl.style.display = "block";
 
-      if (result.error === 'rate_limited') {
-        errorEl.textContent = 'Zbyt wiele nieudanych pr\xF3b. Spr\xF3buj za 15 minut.';
+      if (result.error === "rate_limited") {
+        errorEl.textContent = "Zbyt wiele nieudanych pr\xF3b. Spr\xF3buj za 15 minut.";
         if (submitBtn) submitBtn.disabled = true;
-      } else if (result.error === 'offline' || result.error === 'server_error') {
-        errorEl.textContent = 'Błąd połączenia z serwerem.';
+      } else if (result.error === "offline" || result.error === "server_error") {
+        errorEl.textContent = "Błąd połączenia z serwerem.";
       } else {
-        errorEl.textContent = 'Nieprawidłowy PIN.';
+        errorEl.textContent = "Nieprawidłowy PIN.";
       }
     };
 
-    submitBtn?.addEventListener('click', () => attempt().catch(() => {}));
-    pinInput?.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'Enter') attempt().catch(() => {}); });
+    submitBtn?.addEventListener("click", () => attempt().catch(() => {}));
+    pinInput?.addEventListener("keydown", (e: KeyboardEvent) => {
+      if (e.key === "Enter") attempt().catch(() => {});
+    });
   }
 
   private isIconUrl(icon: string): boolean {
-    return /^https?:\/\//i.test(icon) || icon.endsWith('.svg');
+    return /^https?:\/\//i.test(icon) || icon.endsWith(".svg");
   }
-  
+
   private escapeHtml(value: string): string {
     return String(value)
-      .replace(/[\r\n\t]+/g, ' ')
-      .replace(/\\n/g, ' ')
+      .replace(/[\r\n\t]+/g, " ")
+      .replace(/\\n/g, " ")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
       .replace(/\"/g, "&quot;")
       .replace(/'/g, "&#39;");
   }
-  
+
   private getCustomHomeIcon(id: string): string | null {
     if (id === "roll-up") {
       return `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="M12 16v5"/><path d="M8 21h8"/></svg>`;
@@ -185,7 +196,7 @@ export class Router {
     }
 
     if (id === "druk-cad") {
-      return "Druk CAD<br><span class=\"home-tile-sublabel\">wielkoformatowy</span>";
+      return 'Druk CAD<br><span class="home-tile-sublabel">wielkoformatowy</span>';
     }
 
     if (id === "zamowienia-zewnetrzne") {
@@ -250,7 +261,7 @@ export class Router {
       return;
     }
 
-    if (path === 'ustawienia' && !this.isSettingsAuthenticated()) {
+    if (path === "ustawienia" && !this.isSettingsAuthenticated()) {
       if (this.currentView?.unmount) {
         this.currentView.unmount();
         this.currentView = null;
@@ -280,9 +291,9 @@ export class Router {
           this.currentView = null;
           this.container.innerHTML = await resp.text();
           // Re-execute inline <script> tags (innerHTML does not run scripts)
-          this.container.querySelectorAll<HTMLScriptElement>('script').forEach(oldScript => {
-            const newScript = document.createElement('script');
-            newScript.textContent = oldScript.textContent ?? '';
+          this.container.querySelectorAll<HTMLScriptElement>("script").forEach((oldScript) => {
+            const newScript = document.createElement("script");
+            newScript.textContent = oldScript.textContent ?? "";
             oldScript.replaceWith(newScript);
           });
         } else {
@@ -309,65 +320,90 @@ export class Router {
     const groupedHomeTiles: Array<{ title: string; ids: string[] }> = [
       {
         title: "Druk Cyfrowy",
-        ids: ["druk-a4-a3", "ulotki-cyfrowe", "wizytowki-druk-cyfrowy", "dyplomy", "zaproszenia-kreda", "vouchery", "plakaty-a4-a3", "broszury-katalogi"]
+        ids: [
+          "druk-a4-a3",
+          "ulotki-cyfrowe",
+          "wizytowki-druk-cyfrowy",
+          "dyplomy",
+          "zaproszenia-kreda",
+          "vouchery",
+          "plakaty-a4-a3",
+          "broszury-katalogi",
+        ],
       },
       {
         title: "Ploter i Wielki Format",
-        ids: ["druk-cad", "cad-upload", "plakaty", "banner", "canvas", "roll-up"]
+        ids: ["druk-cad", "cad-upload", "plakaty", "banner", "canvas", "roll-up"],
       },
       {
         title: "Cięcie i Folie",
-        ids: ["wlepki-naklejki", "folia-szroniona", "wycinanie-folii"]
+        ids: ["wlepki-naklejki", "folia-szroniona", "wycinanie-folii"],
       },
       {
         title: "Wykończenie i Inne",
-        ids: ["laminowanie", "wydruki-specjalne", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"]
-      }
+        ids: [
+          "laminowanie",
+          "wydruki-specjalne",
+          "artykuly-biurowe",
+          "uslugi",
+          "zamowienia-zewnetrzne",
+        ],
+      },
     ];
 
-    const fallbackMeta: Record<string, { id: string; name: string; icon: string; implemented: boolean }> = {
-      uslugi: { id: "uslugi", name: "Usługi", icon: "assets/icons/handshake.svg", implemented: true },
+    const fallbackMeta: Record<
+      string,
+      { id: string; name: string; icon: string; implemented: boolean }
+    > = {
+      uslugi: {
+        id: "uslugi",
+        name: "Usługi",
+        icon: "assets/icons/handshake.svg",
+        implemented: true,
+      },
       "zamowienia-zewnetrzne": {
         id: "zamowienia-zewnetrzne",
         name: "Zamówienia zewnętrzne",
         icon: "assets/icons/external-link.svg",
-        implemented: true
+        implemented: true,
       },
       "wydruki-specjalne": {
         id: "wydruki-specjalne",
         name: "Pojedyncze nakłady",
         icon: "assets/icons/file-text.svg",
-        implemented: true
-      }
+        implemented: true,
+      },
     };
 
-    const groupHtml = groupedHomeTiles.map((group) => {
-      const tiles = group.ids
-        .map((id) => categoriesById.get(id) ?? fallbackMeta[id])
-        .filter(Boolean)
-        .filter((cat: any) => cat.implemented !== false)
-        .map((cat: any) => {
-          const id = String(cat.id ?? "");
-          const icon = String(cat.icon ?? "📁");
-          const name = String(cat.name ?? id);
-          const iconMarkup = this.renderCategoryIcon(icon, name, id);
-          const labelMarkup = this.renderHomeTileLabel(id, name);
-          return `
+    const groupHtml = groupedHomeTiles
+      .map((group) => {
+        const tiles = group.ids
+          .map((id) => categoriesById.get(id) ?? fallbackMeta[id])
+          .filter(Boolean)
+          .filter((cat: any) => cat.implemented !== false)
+          .map((cat: any) => {
+            const id = String(cat.id ?? "");
+            const icon = String(cat.icon ?? "📁");
+            const name = String(cat.name ?? id);
+            const iconMarkup = this.renderCategoryIcon(icon, name, id);
+            const labelMarkup = this.renderHomeTileLabel(id, name);
+            return `
             <a href="#/${id}" class="home-mini-tile" aria-label="Przejdź do ${name}">
               <span class="home-mini-icon">${iconMarkup}</span>
               <span class="home-mini-label">${labelMarkup}</span>
             </a>
           `;
-        })
-        .join("");
+          })
+          .join("");
 
-      return `
+        return `
         <section class="home-mini-group">
           <h3 class="home-mini-group-title">${group.title}</h3>
           <div class="home-mini-grid">${tiles}</div>
         </section>
       `;
-    }).join("");
+      })
+      .join("");
 
     this.container.innerHTML = `
       <div class="home-categories-shell">

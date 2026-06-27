@@ -49,7 +49,8 @@ const DUZY_CANON_FORMAT_LABELS: Record<string, string> = {
 
 export function getPlakatyA4A3LegendStyles() {
   return {
-    panelTitle: "margin:0 0 8px; padding:6px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:0.02em; color:#1e3a8a; background:#eff6ff; font-weight:700;",
+    panelTitle:
+      "margin:0 0 8px; padding:6px 10px; border-radius:8px; text-transform:uppercase; letter-spacing:0.02em; color:#1e3a8a; background:#eff6ff; font-weight:700;",
     groupHeader: "color:#1e3a8a; background:#eff6ff; font-weight:700;",
     groupHeaderStrong: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
     quantityHeader: "color:#1e3a8a; background:#eff6ff; font-weight:800;",
@@ -85,16 +86,34 @@ export const PlakatyA4A3View: View = {
     const canonFormatSelect = container.querySelector("#pa-canon-format") as HTMLSelectElement;
     const canonQtyInput = container.querySelector("#pa-canon-qty") as HTMLInputElement;
 
-    const duzyCanonPaperSelect = container.querySelector("#pa-duzy-canon-paper") as HTMLSelectElement;
-    const duzyCanonFinishSelect = container.querySelector("#pa-duzy-canon-finish") as HTMLSelectElement;
-    const duzyCanonFormatSelect = container.querySelector("#pa-duzy-canon-format") as HTMLSelectElement;
+    const duzyCanonPaperSelect = container.querySelector(
+      "#pa-duzy-canon-paper"
+    ) as HTMLSelectElement;
+    const duzyCanonFinishSelect = container.querySelector(
+      "#pa-duzy-canon-finish"
+    ) as HTMLSelectElement;
+    const duzyCanonFormatSelect = container.querySelector(
+      "#pa-duzy-canon-format"
+    ) as HTMLSelectElement;
     const duzyCanonQtyInput = container.querySelector("#pa-duzy-canon-qty") as HTMLInputElement;
-    const duzyCanonTrim2Checkbox = container.querySelector("#pa-duzy-canon-trim-2") as HTMLInputElement | null;
-    const duzyCanonTrim4Checkbox = container.querySelector("#pa-duzy-canon-trim-4") as HTMLInputElement | null;
-    const duzyCanonTrim2QtyGroup = container.querySelector("#pa-duzy-canon-trim-2-qty-group") as HTMLElement | null;
-    const duzyCanonTrim4QtyGroup = container.querySelector("#pa-duzy-canon-trim-4-qty-group") as HTMLElement | null;
-    const duzyCanonTrim2QtyInput = container.querySelector("#pa-duzy-canon-trim-2-qty") as HTMLInputElement | null;
-    const duzyCanonTrim4QtyInput = container.querySelector("#pa-duzy-canon-trim-4-qty") as HTMLInputElement | null;
+    const duzyCanonTrim2Checkbox = container.querySelector(
+      "#pa-duzy-canon-trim-2"
+    ) as HTMLInputElement | null;
+    const duzyCanonTrim4Checkbox = container.querySelector(
+      "#pa-duzy-canon-trim-4"
+    ) as HTMLInputElement | null;
+    const duzyCanonTrim2QtyGroup = container.querySelector(
+      "#pa-duzy-canon-trim-2-qty-group"
+    ) as HTMLElement | null;
+    const duzyCanonTrim4QtyGroup = container.querySelector(
+      "#pa-duzy-canon-trim-4-qty-group"
+    ) as HTMLElement | null;
+    const duzyCanonTrim2QtyInput = container.querySelector(
+      "#pa-duzy-canon-trim-2-qty"
+    ) as HTMLInputElement | null;
+    const duzyCanonTrim4QtyInput = container.querySelector(
+      "#pa-duzy-canon-trim-4-qty"
+    ) as HTMLInputElement | null;
 
     const addBtn = container.querySelector("#pa-add-to-cart") as HTMLButtonElement;
     const resultBox = container.querySelector("#pa-result-area") as HTMLElement;
@@ -178,31 +197,48 @@ export const PlakatyA4A3View: View = {
       };
 
       const malyCanonPanelsHtml = [
-        buildCombinedMalyCanonTable(malyCanonPanels[0], malyCanonPanels[2], "130 g/170 g", formatGroupLabel("Z marginesem", "130/170g"), formatGroupLabel("Bez marginesu", "130/170g")),
-        buildCombinedMalyCanonTable(malyCanonPanels[1], malyCanonPanels[3], "200 g", formatGroupLabel("Z marginesem", "200g"), formatGroupLabel("Bez marginesu", "200g")),
+        buildCombinedMalyCanonTable(
+          malyCanonPanels[0],
+          malyCanonPanels[2],
+          "130 g/170 g",
+          formatGroupLabel("Z marginesem", "130/170g"),
+          formatGroupLabel("Bez marginesu", "130/170g")
+        ),
+        buildCombinedMalyCanonTable(
+          malyCanonPanels[1],
+          malyCanonPanels[3],
+          "200 g",
+          formatGroupLabel("Z marginesem", "200g"),
+          formatGroupLabel("Bez marginesu", "200g")
+        ),
       ].join("");
 
-      const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[])
-        .map((tier) => tier.qty);
+      const duzyQuantities = ((findDuzyVariant("a4-170-kreda-130-170")?.tiers ?? []) as any[]).map(
+        (tier) => tier.qty
+      );
 
       const duzy170Rows = duzyQuantities
-        .map((qty) => `
+        .map(
+          (qty) => `
           <tr>
             <td>${qty} szt</td>
             <td>${getDuzyPrice("a4-170-kreda-130-170", qty)}</td>
             <td>${getDuzyPrice("a3-170-kreda-130-170", qty)}</td>
           </tr>
-        `)
+        `
+        )
         .join("");
 
       const duzy200Rows = duzyQuantities
-        .map((qty) => `
+        .map(
+          (qty) => `
           <tr>
             <td>${qty} szt</td>
             <td>${getDuzyPrice("a4-200-kreda-200", qty)}</td>
             <td>${getDuzyPrice("a3-200-kreda-200", qty)}</td>
           </tr>
-        `)
+        `
+        )
         .join("");
 
       legend.innerHTML = `
@@ -247,16 +283,19 @@ export const PlakatyA4A3View: View = {
       { id: "a3-200-kreda-200", name: "A3 200g kreda 200" },
     ]) as Array<{ id: string; name: string }>;
 
-    const duzyCanonPaperOptions = duzyVariants.reduce((acc, variant) => {
-      const key = variant.id.includes("200") ? "200" : "170";
-      if (!acc.some((option) => option.value === key)) {
-        acc.push({
-          value: key,
-          label: key === "200" ? "200g kreda" : "170g kreda",
-        });
-      }
-      return acc;
-    }, [] as Array<{ value: string; label: string }>);
+    const duzyCanonPaperOptions = duzyVariants.reduce(
+      (acc, variant) => {
+        const key = variant.id.includes("200") ? "200" : "170";
+        if (!acc.some((option) => option.value === key)) {
+          acc.push({
+            value: key,
+            label: key === "200" ? "200g kreda" : "170g kreda",
+          });
+        }
+        return acc;
+      },
+      [] as Array<{ value: string; label: string }>
+    );
 
     if (!duzyCanonPaperOptions.some((o) => o.value === "130")) {
       duzyCanonPaperOptions.unshift({ value: "130", label: "130g kreda" });
@@ -273,7 +312,10 @@ export const PlakatyA4A3View: View = {
       .join("");
 
     duzyCanonFormatSelect.innerHTML = duzyCanonFormatOptions
-      .map((format) => `<option value="${format}">${DUZY_CANON_FORMAT_LABELS[format] ?? format.toUpperCase()}</option>`)
+      .map(
+        (format) =>
+          `<option value="${format}">${DUZY_CANON_FORMAT_LABELS[format] ?? format.toUpperCase()}</option>`
+      )
       .join("");
 
     const resolveDuzyCanonVariantId = () => {
@@ -335,7 +377,12 @@ export const PlakatyA4A3View: View = {
       const finish = canonFinishSelect.value === "blysk" ? "błysk" : "mat";
       const paper = canonPaperSelect.value;
 
-      const res = calculatePlakatyMalyCanon({ variantId: matId, format: fmt, qty, express: ctx.expressMode });
+      const res = calculatePlakatyMalyCanon({
+        variantId: matId,
+        format: fmt,
+        qty,
+        express: ctx.expressMode,
+      });
       const trimSurcharge = getDuzyCanonTrimSurcharge();
       const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
 
@@ -366,14 +413,25 @@ export const PlakatyA4A3View: View = {
       const paBreakdownLines = container.querySelector<HTMLElement>("#pa-breakdown-lines");
       if (paBreakdownBox && paBreakdownLines) {
         const breakdown: BreakdownRow[] = [
-          { label: "Parametry", value: `${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}` },
+          {
+            label: "Parametry",
+            value: `${qty} szt, format ${fmt}, papier ${paper}, wykończenie ${finish}`,
+          },
           { label: "Cena za szt.", value: formatPLN(res.tierPrice) },
-          { label: "Cena bazowa", value: `${qty} szt × ${formatPLN(res.tierPrice)} = ${formatPLN(res.basePrice)}` },
+          {
+            label: "Cena bazowa",
+            value: `${qty} szt × ${formatPLN(res.tierPrice)} = ${formatPLN(res.basePrice)}`,
+          },
         ];
         if (trimSurcharge > 0) {
           breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });
         }
-        breakdown.push({ label: "Razem", value: formatPLN(totalWithTrim), separatorTop: true, strongValue: true });
+        breakdown.push({
+          label: "Razem",
+          value: formatPLN(totalWithTrim),
+          separatorTop: true,
+          strongValue: true,
+        });
         renderBreakdownRows(paBreakdownLines, breakdown);
         paBreakdownBox.style.display = "block";
       }
@@ -397,7 +455,14 @@ export const PlakatyA4A3View: View = {
         totalPrice: totalWithTrim,
         trimSurcharge,
       };
-      currentOptions = { type: "duzy-canon", variantId, qty: res.qty, finish, paper, trimSurcharge };
+      currentOptions = {
+        type: "duzy-canon",
+        variantId,
+        qty: res.qty,
+        finish,
+        paper,
+        trimSurcharge,
+      };
 
       unitPriceEl.innerText = formatPLN(res.tierPrice);
       totalPriceEl.innerText = formatPLN(totalWithTrim);
@@ -423,22 +488,42 @@ export const PlakatyA4A3View: View = {
         ];
 
         if (res.isExact) {
-          breakdown.push({ label: `Cena z cennika (próg ${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
+          breakdown.push({
+            label: `Cena z cennika (próg ${res.lowerTierQty} szt)`,
+            value: formatPLN(res.lowerTierPrice),
+          });
           breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
         } else if (res.upperTierQty === null) {
-          breakdown.push({ label: `Cena z cennika (próg maks. ${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
+          breakdown.push({
+            label: `Cena z cennika (próg maks. ${res.lowerTierQty} szt)`,
+            value: formatPLN(res.lowerTierPrice),
+          });
           breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
         } else {
-          breakdown.push({ label: `Próg dolny (${res.lowerTierQty} szt)`, value: formatPLN(res.lowerTierPrice) });
-          breakdown.push({ label: `Próg górny (${res.upperTierQty} szt)`, value: formatPLN(res.upperTierPrice!) });
-          breakdown.push({ label: `Cena łącznie (${res.qty} szt)`, value: formatPLN(res.basePrice) });
+          breakdown.push({
+            label: `Próg dolny (${res.lowerTierQty} szt)`,
+            value: formatPLN(res.lowerTierPrice),
+          });
+          breakdown.push({
+            label: `Próg górny (${res.upperTierQty} szt)`,
+            value: formatPLN(res.upperTierPrice!),
+          });
+          breakdown.push({
+            label: `Cena łącznie (${res.qty} szt)`,
+            value: formatPLN(res.basePrice),
+          });
           breakdown.push({ label: "Cena za szt.", value: formatPLN(res.tierPrice) });
         }
 
         if (trimSurcharge > 0) {
           breakdown.push({ label: "Trymer", value: formatPLN(trimSurcharge) });
         }
-        breakdown.push({ label: "Razem", value: formatPLN(currentResult.totalPrice), separatorTop: true, strongValue: true });
+        breakdown.push({
+          label: "Razem",
+          value: formatPLN(currentResult.totalPrice),
+          separatorTop: true,
+          strongValue: true,
+        });
         renderBreakdownRows(paBreakdownLines, breakdown);
         paBreakdownBox.style.display = "block";
       }
@@ -499,14 +584,24 @@ export const PlakatyA4A3View: View = {
     // Handle Duży Canon trim checkboxes
     const recalcForDuzyTrimChange = () => {
       // Show/hide quantity inputs
-      if (duzyCanonTrim2QtyGroup) duzyCanonTrim2QtyGroup.style.display = duzyCanonTrim2Checkbox?.checked ? "block" : "none";
-      if (duzyCanonTrim4QtyGroup) duzyCanonTrim4QtyGroup.style.display = duzyCanonTrim4Checkbox?.checked ? "block" : "none";
+      if (duzyCanonTrim2QtyGroup)
+        duzyCanonTrim2QtyGroup.style.display = duzyCanonTrim2Checkbox?.checked ? "block" : "none";
+      if (duzyCanonTrim4QtyGroup)
+        duzyCanonTrim4QtyGroup.style.display = duzyCanonTrim4Checkbox?.checked ? "block" : "none";
 
       // Set default values when shown
-      if (duzyCanonTrim2Checkbox?.checked && duzyCanonTrim2QtyInput && !duzyCanonTrim2QtyInput.value) {
+      if (
+        duzyCanonTrim2Checkbox?.checked &&
+        duzyCanonTrim2QtyInput &&
+        !duzyCanonTrim2QtyInput.value
+      ) {
         duzyCanonTrim2QtyInput.value = duzyCanonQtyInput.value || "1";
       }
-      if (duzyCanonTrim4Checkbox?.checked && duzyCanonTrim4QtyInput && !duzyCanonTrim4QtyInput.value) {
+      if (
+        duzyCanonTrim4Checkbox?.checked &&
+        duzyCanonTrim4QtyInput &&
+        !duzyCanonTrim4QtyInput.value
+      ) {
         duzyCanonTrim4QtyInput.value = duzyCanonQtyInput.value || "1";
       }
 
@@ -544,7 +639,10 @@ export const PlakatyA4A3View: View = {
 
       if (currentOptions.type === "canon") {
         const canonTypeName = canonVariantSelect.options[canonVariantSelect.selectedIndex].text;
-        const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+        const trimHint =
+          currentOptions.trimSurcharge > 0
+            ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}`
+            : "";
         const hint = `${currentOptions.fmt} × ${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${trimHint}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,
@@ -559,7 +657,10 @@ export const PlakatyA4A3View: View = {
           payload: currentResult,
         });
       } else {
-        const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+        const trimHint =
+          currentOptions.trimSurcharge > 0
+            ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}`
+            : "";
         const hint = `${currentOptions.qty} szt, ${currentOptions.paper}g kreda, ${currentOptions.finish}${trimHint}`;
         ctx.cart.addItem({
           id: `plakaty-a4-a3-${Date.now()}`,

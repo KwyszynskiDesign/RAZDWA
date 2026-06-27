@@ -18,13 +18,13 @@ function renderHintContent(target: HTMLElement, lines: string[]): void {
 const data: any = getPrice("plakaty");
 
 const FORMAT_LABELS: Record<string, string> = {
-  "297x420":  "A3 (297×420 mm)",
-  "420x594":  "A2 (420×594 mm)",
-  "594x841":  "A1 (594×841 mm)",
-  "610x841":  "A1+ (610×841 mm)",
+  "297x420": "A3 (297×420 mm)",
+  "420x594": "A2 (420×594 mm)",
+  "594x841": "A1 (594×841 mm)",
+  "610x841": "A1+ (610×841 mm)",
   "841x1189": "A0 (841×1189 mm)",
   "914x1292": "A0+ (914×1292 mm)",
-  "rolka1067": "Rolka 1067 mm",
+  rolka1067: "Rolka 1067 mm",
 };
 
 export const PlakatyWFView: View = {
@@ -81,20 +81,26 @@ export const PlakatyWFView: View = {
         (breakdownBox ?? resultBox).insertAdjacentElement("afterend", legend);
       }
 
-      const selectedMaterial = (tableData.formatowe?.materials ?? []).find((m: any) => m.id === materialSelect.value);
+      const selectedMaterial = (tableData.formatowe?.materials ?? []).find(
+        (m: any) => m.id === materialSelect.value
+      );
       if (!selectedMaterial) return;
 
-      const priceRows = Object.entries(selectedMaterial.prices ?? {}).map(([format, basePrice]) => {
-        const key = `plakaty-format-${selectedMaterial.id}-${format}`;
-        const resolved = resolveStoredPrice(key, Number(basePrice));
-        return `<tr><td>${FORMAT_LABELS[format] ?? format}</td><td>${formatPLN(resolved)}</td></tr>`;
-      }).join("");
+      const priceRows = Object.entries(selectedMaterial.prices ?? {})
+        .map(([format, basePrice]) => {
+          const key = `plakaty-format-${selectedMaterial.id}-${format}`;
+          const resolved = resolveStoredPrice(key, Number(basePrice));
+          return `<tr><td>${FORMAT_LABELS[format] ?? format}</td><td>${formatPLN(resolved)}</td></tr>`;
+        })
+        .join("");
 
-      const discountRows = ((tableData.formatowe?.discounts?.[selectedMaterial.discountGroup]) ?? []).map((tier: any) => {
-        const pct = Math.round((1 - Number(tier.factor)) * 100);
-        const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
-        return `<tr><td>${label}</td><td>${pct > 0 ? `-${pct}%` : "brak"}</td></tr>`;
-      }).join("");
+      const discountRows = (tableData.formatowe?.discounts?.[selectedMaterial.discountGroup] ?? [])
+        .map((tier: any) => {
+          const pct = Math.round((1 - Number(tier.factor)) * 100);
+          const label = tier.max == null ? `${tier.min}+ szt` : `${tier.min}-${tier.max} szt`;
+          return `<tr><td>${label}</td><td>${pct > 0 ? `-${pct}%` : "brak"}</td></tr>`;
+        })
+        .join("");
 
       legend.innerHTML = `
         <h4 style="margin:10px 0 6px;">${selectedMaterial.name}</h4>
@@ -104,7 +110,9 @@ export const PlakatyWFView: View = {
     };
 
     const allMaterials = [...tableData.formatowe.materials];
-    materialSelect.innerHTML = allMaterials.map((m: any) => `<option value="${m.id}">${m.name}</option>`).join("");
+    materialSelect.innerHTML = allMaterials
+      .map((m: any) => `<option value="${m.id}">${m.name}</option>`)
+      .join("");
 
     const parsePositiveInt = (value: string): number | null => {
       const parsed = Number.parseInt(value, 10);
@@ -125,7 +133,13 @@ export const PlakatyWFView: View = {
       if (labeled) return labeled.split(" ")[0];
       const dims = parseFormatDimensions(formatKey);
       if (!dims) return formatKey;
-      const byLength: Record<number, string> = { 420: "A3", 594: "A2", 841: "A1", 1189: "A0", 1292: "A0+" };
+      const byLength: Record<number, string> = {
+        420: "A3",
+        594: "A2",
+        841: "A1",
+        1189: "A0",
+        1292: "A0+",
+      };
       return byLength[dims.lengthMm] ?? formatKey;
     };
 
@@ -137,7 +151,9 @@ export const PlakatyWFView: View = {
       const optionLabel = String(selectedOption?.textContent ?? "").toLowerCase();
       if (optionLabel.includes("nieformat")) return true;
 
-      const selectedMaterial = (tableData.formatowe?.materials ?? []).find((m: any) => m.id === matId);
+      const selectedMaterial = (tableData.formatowe?.materials ?? []).find(
+        (m: any) => m.id === matId
+      );
       const materialName = String(selectedMaterial?.name ?? "").toLowerCase();
       return materialName.includes("nieformat");
     };
@@ -161,7 +177,9 @@ export const PlakatyWFView: View = {
       const mat = tableData.formatowe.materials.find((m: any) => m.id === matId);
       if (!mat) return;
       const keys = Object.keys(mat.prices);
-      formatSelect.innerHTML = keys.map((k: string) => `<option value="${k}">${FORMAT_LABELS[k] ?? k}</option>`).join("");
+      formatSelect.innerHTML = keys
+        .map((k: string) => `<option value="${k}">${FORMAT_LABELS[k] ?? k}</option>`)
+        .join("");
     };
 
     const updateLengthInput = (matId: string) => {
@@ -217,19 +235,26 @@ export const PlakatyWFView: View = {
       const matId = materialSelect.value;
       const fmt = formatSelect.value;
       const qty = parsePositiveInt(qtyInput.value);
-        if (!qty) {
-          resultBox.style.display = "none";
-          if (breakdownBox) breakdownBox.style.display = "none";
-          if (breakdownLines) breakdownLines.innerHTML = "";
-          addBtn.disabled = true;
-          return;
-        }
+      if (!qty) {
+        resultBox.style.display = "none";
+        if (breakdownBox) breakdownBox.style.display = "none";
+        if (breakdownLines) breakdownLines.innerHTML = "";
+        addBtn.disabled = true;
+        return;
+      }
 
-      const customLengthMm = lengthGroup && lengthGroup.style.display !== "none"
-        ? (parseNumericInput(lengthInput.value) ?? undefined)
-        : undefined;
+      const customLengthMm =
+        lengthGroup && lengthGroup.style.display !== "none"
+          ? (parseNumericInput(lengthInput.value) ?? undefined)
+          : undefined;
 
-      const res = calculatePlakatyFormat({ materialId: matId, formatKey: fmt, qty, customLengthMm, express: ctx.expressMode });
+      const res = calculatePlakatyFormat({
+        materialId: matId,
+        formatKey: fmt,
+        qty,
+        customLengthMm,
+        express: ctx.expressMode,
+      });
       currentResult = res;
       const trimSurcharge = getTrimSurcharge();
       const totalWithTrim = parseFloat((res.totalPrice + trimSurcharge).toFixed(2));
@@ -252,10 +277,11 @@ export const PlakatyWFView: View = {
 
       const fmtLabel = formatShortLabel(fmt);
       const dimsForDisplay = parseFormatDimensions(fmt);
-      const sizeLabel = (dimsForDisplay && customLengthMm && customLengthMm !== dimsForDisplay.lengthMm)
-        ? `${dimsForDisplay.widthMm}\u00d7${customLengthMm}\u00a0mm`
-        : fmtLabel;
-      if (qtyLabel) qtyLabel.innerText = "Ilość:"; 
+      const sizeLabel =
+        dimsForDisplay && customLengthMm && customLengthMm !== dimsForDisplay.lengthMm
+          ? `${dimsForDisplay.widthMm}\u00d7${customLengthMm}\u00a0mm`
+          : fmtLabel;
+      if (qtyLabel) qtyLabel.innerText = "Ilość:";
       if (qtyValEl) qtyValEl.innerText = `${qty} szt, ${sizeLabel}`;
 
       if (calcHintEl) {
@@ -267,17 +293,23 @@ export const PlakatyWFView: View = {
       if (breakdownBox && breakdownLines) {
         const breakdown: string[] = [];
         const materialName = materialSelect.options[materialSelect.selectedIndex]?.text ?? matId;
-        breakdown.push(`<div><strong>Parametry:</strong> ${qty} szt, ${FORMAT_LABELS[fmt] ?? fmt}, ${materialName}</div>`);
+        breakdown.push(
+          `<div><strong>Parametry:</strong> ${qty} szt, ${FORMAT_LABELS[fmt] ?? fmt}, ${materialName}</div>`
+        );
         breakdown.push(`<div><strong>Cena z tabeli:</strong> ${formatPLN(res.unitPrice)}</div>`);
         if (res.discountFactor < 1) {
           const pct = Math.round((1 - res.discountFactor) * 100);
           const saved = parseFloat((res.effectiveUnitPrice * res.qty - res.basePrice).toFixed(2));
-          breakdown.push(`<div><strong>Rabat ilościowy (${pct}%):</strong> -${formatPLN(saved)}</div>`);
+          breakdown.push(
+            `<div><strong>Rabat ilościowy (${pct}%):</strong> -${formatPLN(saved)}</div>`
+          );
         }
         if (trimSurcharge > 0) {
           breakdown.push(`<div><strong>Trymer:</strong> ${formatPLN(trimSurcharge)}</div>`);
         }
-        breakdown.push(`<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`);
+        breakdown.push(
+          `<div style="padding-top:8px;border-top:1px solid rgba(255,255,255,0.08);"><strong>Razem:</strong> ${formatPLN(totalWithTrim)}</div>`
+        );
         breakdownLines.innerHTML = breakdown.join("");
         breakdownBox.style.display = "block";
       }
@@ -290,7 +322,10 @@ export const PlakatyWFView: View = {
     };
 
     autoCalc({ root: container, calc: calcWielkoformatowe, cancelOn: [addBtn] });
-    ctx?.on?.("prices-updated", () => { ensureLegend(); calcWielkoformatowe(); });
+    ctx?.on?.("prices-updated", () => {
+      ensureLegend();
+      calcWielkoformatowe();
+    });
 
     // Handle trim checkboxes
     const recalcForTrimChange = () => {
@@ -321,16 +356,31 @@ export const PlakatyWFView: View = {
       const matName = materialSelect.options[materialSelect.selectedIndex].text;
       const fmtLabel = formatShortLabel(currentOptions.fmt);
       const dimsForCart = parseFormatDimensions(currentOptions.fmt);
-      const sizeLabelCart = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm)
-        ? `${dimsForCart.widthMm}\u00d7${currentOptions.customLengthMm}\u00a0mm`
-        : fmtLabel;
-      const lengthHint = (dimsForCart && currentOptions.customLengthMm && currentOptions.customLengthMm !== dimsForCart.lengthMm) ? "" : (currentOptions.customLengthMm ? `, długość: ${currentOptions.customLengthMm} mm` : "");
+      const sizeLabelCart =
+        dimsForCart &&
+        currentOptions.customLengthMm &&
+        currentOptions.customLengthMm !== dimsForCart.lengthMm
+          ? `${dimsForCart.widthMm}\u00d7${currentOptions.customLengthMm}\u00a0mm`
+          : fmtLabel;
+      const lengthHint =
+        dimsForCart &&
+        currentOptions.customLengthMm &&
+        currentOptions.customLengthMm !== dimsForCart.lengthMm
+          ? ""
+          : currentOptions.customLengthMm
+            ? `, długość: ${currentOptions.customLengthMm} mm`
+            : "";
       const calcHint = buildNieformatCalcHint(currentResult);
-      const trimHint = currentOptions.trimSurcharge > 0 ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}` : "";
+      const trimHint =
+        currentOptions.trimSurcharge > 0
+          ? `, trymer: +${formatPLN(currentOptions.trimSurcharge)}`
+          : "";
       const hintBase = `${sizeLabelCart} × ${currentOptions.qty} szt${lengthHint}${trimHint}${ctx.expressMode ? ", EXPRESS" : ""}`;
       const hint = calcHint.length ? `${hintBase} | ${calcHint.join(" ")}` : hintBase;
 
-      const totalPrice = parseFloat((currentResult.totalPrice + currentOptions.trimSurcharge).toFixed(2));
+      const totalPrice = parseFloat(
+        (currentResult.totalPrice + currentOptions.trimSurcharge).toFixed(2)
+      );
 
       ctx.cart.addItem({
         id: `plakaty-${Date.now()}`,
@@ -347,11 +397,10 @@ export const PlakatyWFView: View = {
 
       currentResult = null;
       currentOptions = null;
-      resultBox.style.display = 'none';
-      if (breakdownBox) breakdownBox.style.display = 'none';
+      resultBox.style.display = "none";
+      if (breakdownBox) breakdownBox.style.display = "none";
       addBtn.disabled = true;
       container.dispatchEvent(new CustomEvent("view:reset"));
     };
   },
 };
-

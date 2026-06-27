@@ -7,17 +7,17 @@
     {
       "id": "cad-klient-skladanie",
       "name": "Składanie CAD – rysunki od klienta (szt)",
-      "price": 4.00
+      "price": 4.0
     },
     {
       "id": "cad-nieformatowe-skladanie",
       "name": "Składanie CAD – nieformatowe (m²)",
-      "price": 2.50
+      "price": 2.5
     },
     {
       "id": "cad-paski-wzmacniajace",
       "name": "CAD – doklejanie pasków wzmacniających (szt)",
-      "price": 0.80
+      "price": 0.8
     }
   ]
 }

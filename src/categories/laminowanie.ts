@@ -42,7 +42,7 @@ export interface WydrukiSpecjalneResult {
 }
 
 export function getLaminowanieTable(formatKey: string): PriceTable {
-  const prices = getPrice('laminowanie');
+  const prices = getPrice("laminowanie");
   const tiers = (prices.formats as any)[formatKey];
   if (!tiers) {
     throw new Error(`Invalid format: ${formatKey}`);
@@ -55,8 +55,13 @@ export function getLaminowanieTable(formatKey: string): PriceTable {
     pricing: "per_unit",
     tiers: overrideTiersWithStoredPrices(`laminowanie-${formatKey.toLowerCase()}`, tiers),
     modifiers: [
-      { id: "express", name: "TRYB EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
-    ]
+      {
+        id: "express",
+        name: "TRYB EXPRESS",
+        type: "percent",
+        value: resolveStoredPrice("modifier-express", 0.2),
+      },
+    ],
   };
 }
 
@@ -69,10 +74,9 @@ export function quoteLaminowanie(options: LaminowanieOptions): CalculationResult
 }
 
 export function quoteIntroligatornia(options: IntroligatorniaOptions): IntroligatorniaResult {
-  const laminowanieData = getPrice('laminowanie') as any;
-  const requestedId = options.serviceId === "druk-powyzej-20"
-    ? "dziurkowanie-powyzej-20"
-    : options.serviceId;
+  const laminowanieData = getPrice("laminowanie") as any;
+  const requestedId =
+    options.serviceId === "druk-powyzej-20" ? "dziurkowanie-powyzej-20" : options.serviceId;
   const item = laminowanieData?.introligatornia?.items?.find((i: any) => i.id === requestedId);
 
   if (!item) {
@@ -81,12 +85,13 @@ export function quoteIntroligatornia(options: IntroligatorniaOptions): Introliga
 
   const qty = Math.max(1, Math.floor(options.qty));
   const normalizedId = item.id === "druk-powyzej-20" ? "dziurkowanie-powyzej-20" : item.id;
-  const unitPrice = normalizedId === "dziurkowanie-powyzej-20"
-    ? resolveStoredPrice(
-      "laminowanie-intro-dziurkowanie-powyzej-20",
-      resolveStoredPrice("laminowanie-intro-druk-powyzej-20", item.price)
-    )
-    : resolveStoredPrice(`laminowanie-intro-${normalizedId}`, item.price);
+  const unitPrice =
+    normalizedId === "dziurkowanie-powyzej-20"
+      ? resolveStoredPrice(
+          "laminowanie-intro-dziurkowanie-powyzej-20",
+          resolveStoredPrice("laminowanie-intro-druk-powyzej-20", item.price)
+        )
+      : resolveStoredPrice(`laminowanie-intro-${normalizedId}`, item.price);
   const basePrice = unitPrice * qty;
   const totalPrice = parseFloat(basePrice.toFixed(2));
 
@@ -100,8 +105,10 @@ export function quoteIntroligatornia(options: IntroligatorniaOptions): Introliga
 }
 
 export function quoteWydrukiSpecjalne(options: WydrukiSpecjalneOptions): WydrukiSpecjalneResult {
-  const laminowanieData = getPrice('laminowanie') as any;
-  const variant = laminowanieData?.specialPrints?.items?.find((i: any) => i.id === options.variantId);
+  const laminowanieData = getPrice("laminowanie") as any;
+  const variant = laminowanieData?.specialPrints?.items?.find(
+    (i: any) => i.id === options.variantId
+  );
 
   if (!variant) {
     throw new Error(`Invalid special print variant: ${options.variantId}`);
@@ -113,7 +120,7 @@ export function quoteWydrukiSpecjalne(options: WydrukiSpecjalneOptions): Wydruki
 
   let totalPrice = unitPrice * qty;
   if (options.doubleSided) {
-    totalPrice *= (1 + doubleSidedFactor);
+    totalPrice *= 1 + doubleSidedFactor;
   }
   if (options.express) {
     totalPrice *= 1.2;

@@ -30,7 +30,15 @@ import { customerDraftKey, touchDraftAlive, clearDraftSession } from "../core/dr
 import { isAdminSession, clearAdminSession } from "../core/adminSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
-import { buildOrderExportPayload, getOrderExportConfig, sendOrderToAppsScript, fetchStateFromAppsScript, verifyPinOnServer, setPinOnServer, removePinOnServer } from "../services/orderExportService";
+import {
+  buildOrderExportPayload,
+  getOrderExportConfig,
+  sendOrderToAppsScript,
+  fetchStateFromAppsScript,
+  verifyPinOnServer,
+  setPinOnServer,
+  removePinOnServer,
+} from "../services/orderExportService";
 import {
   PRICES_STORAGE_KEY,
   VARIANTS_STORAGE_KEY,
@@ -46,7 +54,12 @@ import {
 } from "../services/priceService";
 import { PDFDocument, StandardFonts, rgb, PDFFont } from "pdf-lib";
 import fontkit from "@pdf-lib/fontkit";
-import { validateCustomerForm, isValidNIP, isValidPhone, normalizePhoneDigits } from "../core/customerValidation";
+import {
+  validateCustomerForm,
+  isValidNIP,
+  isValidPhone,
+  normalizePhoneDigits,
+} from "../core/customerValidation";
 import categories from "../../data/categories.json";
 import { runMigrationIfNeeded } from "../services/priceMigrator";
 import { warmPriceCache, hasCachedPrices } from "../core/compat";
@@ -65,8 +78,8 @@ function syncVariantsToSubgroupsAtStartup(): void {
 
     const fromVariants = variantsToPriceSubgroups(variants);
     const existing = getPriceSubgroups();
-    const needsSubgroupSync = Object.entries(fromVariants).some(
-      ([catId, prefixes]) => Object.keys(prefixes).some(prefix => !existing[catId]?.[prefix])
+    const needsSubgroupSync = Object.entries(fromVariants).some(([catId, prefixes]) =>
+      Object.keys(prefixes).some((prefix) => !existing[catId]?.[prefix])
     );
     if (needsSubgroupSync) {
       const merged: Record<string, Record<string, string>> = {};
@@ -90,8 +103,8 @@ function syncVariantsToSubgroupsAtStartup(): void {
 
 function escapeHtml(str: string): string {
   return String(str)
-    .replace(/[\r\n\t]+/g, ' ')
-    .replace(/\\n/g, ' ')
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\\n/g, " ")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -99,9 +112,14 @@ function escapeHtml(str: string): string {
     .replace(/'/g, "&#39;");
 }
 
-try { localStorage.removeItem('razdwa_pin'); } catch {} // cleanup: PIN moved to server
+try {
+  localStorage.removeItem("razdwa_pin");
+} catch {} // cleanup: PIN moved to server
 
-function showOrderLoadingPopup(message: string = "WYSYŁANIE...", type: "sending" | "success" = "sending"): HTMLElement | null {
+function showOrderLoadingPopup(
+  message: string = "WYSYŁANIE...",
+  type: "sending" | "success" = "sending"
+): HTMLElement | null {
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return null;
   const toast = document.createElement("div");
@@ -123,45 +141,55 @@ function dismissToast(toast: HTMLElement | null) {
   setTimeout(() => toast.remove(), 350);
 }
 
-const ORDER_STATUS_PANEL_ID = 'orderStatusPanel';
+const ORDER_STATUS_PANEL_ID = "orderStatusPanel";
 
 function dismissOrderStatusPanel() {
   document.getElementById(ORDER_STATUS_PANEL_ID)?.remove();
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
-  timeout: 'Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie.',
-  network: 'Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.',
-  no_cors_sent: 'Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.',
-  gas_error: 'Serwer odrzucił zamówienie. Sprawdź dane formularza i spróbuj ponownie.',
-  unknown: 'Nieoczekiwany błąd. Spróbuj ponownie lub skontaktuj się z obsługą.',
+  timeout: "Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie.",
+  network: "Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.",
+  no_cors_sent:
+    "Wysłano bez potwierdzenia odpowiedzi serwera. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.",
+  gas_error: "Serwer odrzucił zamówienie. Sprawdź dane formularza i spróbuj ponownie.",
+  unknown: "Nieoczekiwany błąd. Spróbuj ponownie lub skontaktuj się z obsługą.",
 };
 
 function showOrderStatusPanel(
-  type: 'unverified' | 'error' | 'pending',
+  type: "unverified" | "error" | "pending",
   opts: { requestId?: string; message?: string; errorType?: string }
 ) {
   dismissOrderStatusPanel();
   const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
   if (!host) return;
 
-  const heading = type === 'unverified' ? 'Status zamówienia niepewny'
-    : type === 'pending' ? 'Zapis w toku'
-    : 'Nie udało się wysłać zamówienia';
-  const icon = type === 'unverified' ? '⚠' : type === 'pending' ? '⏳' : '✕';
-  const bodyMsg = type === 'unverified'
-    ? (opts.message || 'Nie udało się potwierdzić zapisu. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.')
-    : type === 'pending'
-    ? (opts.message || 'GAS przyjął zamówienie — zapis w toku. Poczekaj ok. 30 s, potem wyślij ponownie z tym samym ID.')
-    : (opts.errorType ? (ERROR_MESSAGES[opts.errorType] ?? ERROR_MESSAGES.unknown) : (opts.message || ERROR_MESSAGES.unknown));
-  const reqId = escapeHtml(opts.requestId || '—');
-  const metaHtml = type === 'unverified'
-    ? `Kod do weryfikacji: <strong>${reqId}</strong>`
-    : type === 'pending'
-    ? `Zamówienie w kolejce. ID: <strong>${reqId}</strong>`
-    : `Tryb awaryjny: zapisz dane klienta ręcznie lub zadzwoń do obsługi.<br>Kod sesji: <strong>${reqId}</strong>`;
+  const heading =
+    type === "unverified"
+      ? "Status zamówienia niepewny"
+      : type === "pending"
+        ? "Zapis w toku"
+        : "Nie udało się wysłać zamówienia";
+  const icon = type === "unverified" ? "⚠" : type === "pending" ? "⏳" : "✕";
+  const bodyMsg =
+    type === "unverified"
+      ? opts.message ||
+        "Nie udało się potwierdzić zapisu. Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie."
+      : type === "pending"
+        ? opts.message ||
+          "GAS przyjął zamówienie — zapis w toku. Poczekaj ok. 30 s, potem wyślij ponownie z tym samym ID."
+        : opts.errorType
+          ? (ERROR_MESSAGES[opts.errorType] ?? ERROR_MESSAGES.unknown)
+          : opts.message || ERROR_MESSAGES.unknown;
+  const reqId = escapeHtml(opts.requestId || "—");
+  const metaHtml =
+    type === "unverified"
+      ? `Kod do weryfikacji: <strong>${reqId}</strong>`
+      : type === "pending"
+        ? `Zamówienie w kolejce. ID: <strong>${reqId}</strong>`
+        : `Tryb awaryjny: zapisz dane klienta ręcznie lub zadzwoń do obsługi.<br>Kod sesji: <strong>${reqId}</strong>`;
 
-  const panel = document.createElement('div');
+  const panel = document.createElement("div");
   panel.id = ORDER_STATUS_PANEL_ID;
   panel.className = `order-status-panel order-status-panel--${type}`;
   panel.innerHTML = `
@@ -173,11 +201,15 @@ function showOrderStatusPanel(
     <p class="order-status-panel__body">${escapeHtml(bodyMsg)}</p>
     <p class="order-status-panel__meta">${metaHtml}</p>
   `;
-  panel.querySelector('.order-status-panel__close')?.addEventListener('click', dismissOrderStatusPanel);
+  panel
+    .querySelector(".order-status-panel__close")
+    ?.addEventListener("click", dismissOrderStatusPanel);
   host.prepend(panel);
 }
 
-function hideOrderLoadingPopup() {/* zachowane dla kompatybilności */}
+function hideOrderLoadingPopup() {
+  /* zachowane dla kompatybilności */
+}
 
 function getSummaryPercentValue(elementId: string): number {
   const el = document.getElementById(elementId) as HTMLSelectElement | null;
@@ -196,7 +228,9 @@ function applySummaryPercentAdjustments(baseAmount: number): number {
 }
 
 function splitTextByWidth(text: string, maxWidth: number, font: any, fontSize: number): string[] {
-  const normalized = String(text ?? "").replace(/\s+/g, " ").trim();
+  const normalized = String(text ?? "")
+    .replace(/\s+/g, " ")
+    .trim();
   if (!normalized) return [""];
 
   const words = normalized.split(" ");
@@ -238,17 +272,26 @@ function toPdfSafeText(value: string): string {
   // Standard fonts in pdf-lib use WinAnsi and cannot render PL diacritics.
   // All non-ASCII uses \uXXXX escapes to stay safe for esbuild --charset=ascii.
   return String(value ?? "")
-    .replace(/Ą/g, "A").replace(/ą/g, "a")
-    .replace(/Ć/g, "C").replace(/ć/g, "c")
-    .replace(/Ę/g, "E").replace(/ę/g, "e")
-    .replace(/Ł/g, "L").replace(/ł/g, "l")
-    .replace(/Ń/g, "N").replace(/ń/g, "n")
-    .replace(/Ó/g, "O").replace(/ó/g, "o")
-    .replace(/Ś/g, "S").replace(/ś/g, "s")
-    .replace(/Ź/g, "Z").replace(/ź/g, "z")
-    .replace(/Ż/g, "Z").replace(/ż/g, "z")
+    .replace(/Ą/g, "A")
+    .replace(/ą/g, "a")
+    .replace(/Ć/g, "C")
+    .replace(/ć/g, "c")
+    .replace(/Ę/g, "E")
+    .replace(/ę/g, "e")
+    .replace(/Ł/g, "L")
+    .replace(/ł/g, "l")
+    .replace(/Ń/g, "N")
+    .replace(/ń/g, "n")
+    .replace(/Ó/g, "O")
+    .replace(/ó/g, "o")
+    .replace(/Ś/g, "S")
+    .replace(/ś/g, "s")
+    .replace(/Ź/g, "Z")
+    .replace(/ź/g, "z")
+    .replace(/Ż/g, "Z")
+    .replace(/ż/g, "z")
     .replace(/[–—]/g, "-")
-    .replace(/[""„]/g, "\"")
+    .replace(/[""„]/g, '"')
     .replace(/['']/g, "'")
     .replace(/[^\x20-\x7E]/g, " ")
     .replace(/\s+/g, " ")
@@ -265,7 +308,11 @@ interface OrderPdfSummary {
   orderId?: string;
 }
 
-async function generateOrderReportPdf(items: CartItem[], customer: CustomerData, summary: OrderPdfSummary) {
+async function generateOrderReportPdf(
+  items: CartItem[],
+  customer: CustomerData,
+  summary: OrderPdfSummary
+) {
   const pdf = await PDFDocument.create();
 
   let fontRegular: PDFFont;
@@ -275,8 +322,14 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
   try {
     pdf.registerFontkit(fontkit);
     const [regularBuf, boldBuf] = await Promise.all([
-      fetch(DEJAVU_CDN + "DejaVuSans.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
-      fetch(DEJAVU_CDN + "DejaVuSans-Bold.ttf").then(r => { if (!r.ok) throw new Error(); return r.arrayBuffer(); }),
+      fetch(DEJAVU_CDN + "DejaVuSans.ttf").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.arrayBuffer();
+      }),
+      fetch(DEJAVU_CDN + "DejaVuSans-Bold.ttf").then((r) => {
+        if (!r.ok) throw new Error();
+        return r.arrayBuffer();
+      }),
     ]);
     fontRegular = await pdf.embedFont(regularBuf);
     fontBold = await pdf.embedFont(boldBuf);
@@ -320,7 +373,7 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
         y,
         size,
         font,
-        color: rgb(r, g, b)
+        color: rgb(r, g, b),
       });
       y -= lineHeight;
     }
@@ -337,7 +390,7 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
     month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
   });
 
   const baseTotal = summary.baseTotal;
@@ -360,7 +413,7 @@ async function generateOrderReportPdf(items: CartItem[], customer: CustomerData,
   writeWrapped(`Telefon: ${customer.phone || "-"}`);
   writeWrapped(`E-mail: ${customer.email || "-"}`);
   writeWrapped(`Realizacja: ${customer.priority || "-"}`);
-  const hasExpressInCart = items.some(i => i.isExpress);
+  const hasExpressInCart = items.some((i) => i.isExpress);
   writeWrapped(`Tryb EXPRESS: ${hasExpressInCart ? "TAK" : "NIE"}`);
   writeWrapped(`Uwagi: ${customer.notes || "-"}`);
   spacer(10);
@@ -412,7 +465,7 @@ class SimpleEventEmitter {
   }
 
   emit(event: string, data?: any) {
-    this.listeners.get(event)?.forEach(callback => {
+    this.listeners.get(event)?.forEach((callback) => {
       try {
         callback(data);
       } catch (err) {
@@ -434,13 +487,8 @@ function showToast(
 
   const toast = document.createElement("div");
   toast.className = `ghost-toast ghost-toast--${variant}`;
-  const icon = variant === "success"
-    ? "✓"
-    : variant === "warning"
-      ? "!"
-      : variant === "error"
-        ? "×"
-        : "+";
+  const icon =
+    variant === "success" ? "✓" : variant === "warning" ? "!" : variant === "error" ? "×" : "+";
   toast.innerHTML = `
     <span class="ghost-toast__icon">${icon}</span>
     <span class="ghost-toast__message">${escapeHtml(message)}</span>
@@ -471,20 +519,27 @@ function showToast(
     toast.classList.add("is-visible");
   });
 
-  hideTimer = window.setTimeout(hide, variant === "success" ? 2400 : variant === "cart" ? 1600 : 2600);
+  hideTimer = window.setTimeout(
+    hide,
+    variant === "success" ? 2400 : variant === "cart" ? 1600 : 2600
+  );
 
   return toast;
 }
 
 function getInvalidPricedCartItems(items: CartItem[]): CartItem[] {
-  return items.filter(item => {
+  return items.filter((item) => {
     const u = item.unitPrice;
     const t = item.totalPrice;
     return u <= 0 || !Number.isFinite(u) || t <= 0 || !Number.isFinite(t);
   });
 }
 
-async function downloadOrderPdf(items: CartItem[], customer: CustomerData, summary: OrderPdfSummary): Promise<void> {
+async function downloadOrderPdf(
+  items: CartItem[],
+  customer: CustomerData,
+  summary: OrderPdfSummary
+): Promise<void> {
   try {
     await generateOrderReportPdf(items, customer, summary);
     showToast("Wygenerowano raport PDF", "success");
@@ -518,7 +573,13 @@ function updateCartUI() {
     const groups: { item: CartItem; indices: number[]; total: number }[] = [];
     const groupIndexByKey = new Map<string, number>();
     items.forEach((item, idx) => {
-      const key = [item.category, item.name, item.optionsHint, item.unitPrice, item.isExpress ? "1" : "0"].join("|");
+      const key = [
+        item.category,
+        item.name,
+        item.optionsHint,
+        item.unitPrice,
+        item.isExpress ? "1" : "0",
+      ].join("|");
       const existing = groupIndexByKey.get(key);
       if (existing != null) {
         const g = groups[existing];
@@ -530,16 +591,18 @@ function updateCartUI() {
       }
     });
 
-    listEl.innerHTML = groups.map((g) => {
-      const count = g.indices.length;
-      const removeIdx = g.indices[g.indices.length - 1];
-      const qtyBadge = count > 1 ? ` <span class="basketQty">×${count}</span>` : "";
-      const removeLabel = count > 1 ? `Usuń jedną sztukę: ${g.item.name}` : `Usuń pozycję: ${g.item.name}`;
-      return `
+    listEl.innerHTML = groups
+      .map((g) => {
+        const count = g.indices.length;
+        const removeIdx = g.indices[g.indices.length - 1];
+        const qtyBadge = count > 1 ? ` <span class="basketQty">×${count}</span>` : "";
+        const removeLabel =
+          count > 1 ? `Usuń jedną sztukę: ${g.item.name}` : `Usuń pozycję: ${g.item.name}`;
+        return `
       <div class="basketItem">
         <div class="basketItemContent">
           <div class="basketName">${escapeHtml(g.item.name)}${qtyBadge}</div>
-          ${g.item.isExpress ? '<span class="expressChip">⚡ EXPRESS</span>' : ''}
+          ${g.item.isExpress ? '<span class="expressChip">⚡ EXPRESS</span>' : ""}
           <div class="basketMeta">${escapeHtml(g.item.optionsHint)}</div>
         </div>
         <div class="basketItemRight">
@@ -548,7 +611,8 @@ function updateCartUI() {
         </div>
       </div>
     `;
-    }).join("");
+      })
+      .join("");
     listEl.classList.remove("is-empty");
     listEl.classList.add("has-items");
   }
@@ -561,11 +625,12 @@ function updateCartUI() {
   if (adjustNoteEl) {
     const discountPercent = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
     const surchargePercent = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
-    const modifierLabel = discountPercent > 0
-      ? `Rabat −${discountPercent}%`
-      : surchargePercent > 0
-        ? `Doliczenie +${surchargePercent}%`
-        : "";
+    const modifierLabel =
+      discountPercent > 0
+        ? `Rabat −${discountPercent}%`
+        : surchargePercent > 0
+          ? `Doliczenie +${surchargePercent}%`
+          : "";
     if (modifierLabel) {
       adjustNoteEl.textContent = `Przed: ${formatPLN(total)} · ${modifierLabel} · Po: ${formatPLN(adjustedTotal)}`;
       adjustNoteEl.hidden = false;
@@ -576,46 +641,62 @@ function updateCartUI() {
   }
 
   const globalExpress = document.getElementById("globalExpress") as HTMLInputElement | null;
-  const globalExpressSummary = document.getElementById("globalExpressSummary") as HTMLElement | null;
+  const globalExpressSummary = document.getElementById(
+    "globalExpressSummary"
+  ) as HTMLElement | null;
   if (globalExpressSummary) {
     const expressEnabled = !!globalExpress?.checked;
-    const expressSurcharge = cart.getItems()
-      .filter(i => i.isExpress)
-      .reduce((s, i) => s + parseFloat((i.totalPrice - i.totalPrice / (1 + EXPRESS_RATE)).toFixed(2)), 0);
+    const expressSurcharge = cart
+      .getItems()
+      .filter((i) => i.isExpress)
+      .reduce(
+        (s, i) => s + parseFloat((i.totalPrice - i.totalPrice / (1 + EXPRESS_RATE)).toFixed(2)),
+        0
+      );
 
     globalExpressSummary.innerText = `Dopłata: ${formatPLN(expressSurcharge)}`;
     globalExpressSummary.classList.toggle("is-active", expressEnabled && expressSurcharge > 0);
   }
-
 }
-
 
 const ADDEDBY_RECENT_KEY = "razdwa_addedby_recent";
 const ADDEDBY_RECENT_MAX = 5;
 
 function getAddedByRecent(): string[] {
-  try { return JSON.parse(localStorage.getItem(ADDEDBY_RECENT_KEY) ?? "[]"); } catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(ADDEDBY_RECENT_KEY) ?? "[]");
+  } catch {
+    return [];
+  }
 }
 
 function saveAddedByRecent(value: string): void {
   const v = value.trim();
   if (v.length < 2) return;
-  const list = getAddedByRecent().filter(x => x !== v);
+  const list = getAddedByRecent().filter((x) => x !== v);
   list.unshift(v);
-  try { localStorage.setItem(ADDEDBY_RECENT_KEY, JSON.stringify(list.slice(0, ADDEDBY_RECENT_MAX))); } catch {}
+  try {
+    localStorage.setItem(ADDEDBY_RECENT_KEY, JSON.stringify(list.slice(0, ADDEDBY_RECENT_MAX)));
+  } catch {}
 }
 
 function populateAddedByDatalist(): void {
   const dl = document.getElementById("addedByOptions") as HTMLDataListElement | null;
   if (!dl) return;
-  dl.innerHTML = getAddedByRecent().map(v => `<option value="${v}"></option>`).join("");
+  dl.innerHTML = getAddedByRecent()
+    .map((v) => `<option value="${v}"></option>`)
+    .join("");
 }
 
 function setupFormValidation(): () => boolean {
-  function showFieldError(errEl: HTMLElement, message: string | null, input?: HTMLInputElement | null): void {
-    errEl.textContent = message ?? '';
-    errEl.style.display = message ? 'block' : 'none';
-    if (input) input.classList.toggle('is-invalid', !!message);
+  function showFieldError(
+    errEl: HTMLElement,
+    message: string | null,
+    input?: HTMLInputElement | null
+  ): void {
+    errEl.textContent = message ?? "";
+    errEl.style.display = message ? "block" : "none";
+    if (input) input.classList.toggle("is-invalid", !!message);
   }
 
   function addErrorEl(input: HTMLInputElement | null): HTMLElement | null {
@@ -623,20 +704,20 @@ function setupFormValidation(): () => boolean {
     const errId = `${input.id}Err`;
     let el = document.getElementById(errId);
     if (!el) {
-      el = document.createElement('div');
+      el = document.createElement("div");
       el.id = errId;
-      el.className = 'field-error';
-      el.setAttribute('aria-live', 'polite');
-      input.insertAdjacentElement('afterend', el);
+      el.className = "field-error";
+      el.setAttribute("aria-live", "polite");
+      input.insertAdjacentElement("afterend", el);
     }
     return el;
   }
 
-  const nameEl = document.getElementById('custName') as HTMLInputElement | null;
-  const emailEl = document.getElementById('custEmail') as HTMLInputElement | null;
-  const phoneEl = document.getElementById('custPhone') as HTMLInputElement | null;
-  const nipEl = document.getElementById('custNip') as HTMLInputElement | null;
-  const addedByEl = document.getElementById('custAddedBy') as HTMLInputElement | null;
+  const nameEl = document.getElementById("custName") as HTMLInputElement | null;
+  const emailEl = document.getElementById("custEmail") as HTMLInputElement | null;
+  const phoneEl = document.getElementById("custPhone") as HTMLInputElement | null;
+  const nipEl = document.getElementById("custNip") as HTMLInputElement | null;
+  const addedByEl = document.getElementById("custAddedBy") as HTMLInputElement | null;
 
   const nameErr = addErrorEl(nameEl);
   const emailErr = addErrorEl(emailEl);
@@ -650,38 +731,40 @@ function setupFormValidation(): () => boolean {
     el: HTMLInputElement | null,
     err: HTMLElement | null,
     validate: (v: string) => string | null,
-    format?: (v: string) => string,
+    format?: (v: string) => string
   ): void => {
     if (!el || !err) return;
     const run = () => {
       const msg = validate(el.value);
       showFieldError(err, msg, el);
-      el.setCustomValidity(msg ?? '');
+      el.setCustomValidity(msg ?? "");
     };
-    el.addEventListener('blur', run);
-    el.addEventListener('input', () => {
+    el.addEventListener("blur", run);
+    el.addEventListener("input", () => {
       if (format) {
         const formatted = format(el.value);
         if (el.value !== formatted) el.value = formatted;
       }
       if (err.textContent) run();
-      else el.setCustomValidity(validate(el.value) ?? '');
+      else el.setCustomValidity(validate(el.value) ?? "");
     });
     // On submit: native reportValidity() is the single channel — sync the
     // custom validity state and clear the inline field-error to avoid showing
     // the same message twice. Inline errors stay live for blur/input via run().
     revalidators.push(() => {
-      el.setCustomValidity(validate(el.value) ?? '');
+      el.setCustomValidity(validate(el.value) ?? "");
       showFieldError(err, null, el);
     });
   };
 
   const formatPhone = (raw: string): string => {
-    const hasPlus = String(raw ?? '').trim().startsWith('+');
-    const rawDigits = String(raw ?? '').replace(/\D/g, '');
-    const usePrefix = hasPlus || rawDigits.startsWith('48');
+    const hasPlus = String(raw ?? "")
+      .trim()
+      .startsWith("+");
+    const rawDigits = String(raw ?? "").replace(/\D/g, "");
+    const usePrefix = hasPlus || rawDigits.startsWith("48");
     let national = rawDigits;
-    if (usePrefix && national.startsWith('48')) national = national.slice(2);
+    if (usePrefix && national.startsWith("48")) national = national.slice(2);
     national = national.slice(0, 9);
     let body: string;
     if (national.length <= 3) body = national;
@@ -691,37 +774,43 @@ function setupFormValidation(): () => boolean {
   };
 
   bind(nameEl, nameErr, (v) =>
-    v.trim().length < 2 ? 'Podaj imię i nazwisko (min. 2 znaki)' : null);
+    v.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null
+  );
 
   bind(emailEl, emailErr, (v) => {
-    if (!v.trim()) return 'Podaj adres e-mail';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return 'Nieprawidłowy format e-mail';
+    if (!v.trim()) return "Podaj adres e-mail";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Nieprawidłowy format e-mail";
     return null;
   });
 
-  bind(phoneEl, phoneErr, (v) => {
-    const d = normalizePhoneDigits(v);
-    if (!d) return 'Podaj numer telefonu';
-    if (!isValidPhone(v)) return 'Numer telefonu wymaga poprawy (9 cyfr, opcjonalnie z +48)';
-    return null;
-  }, formatPhone);
+  bind(
+    phoneEl,
+    phoneErr,
+    (v) => {
+      const d = normalizePhoneDigits(v);
+      if (!d) return "Podaj numer telefonu";
+      if (!isValidPhone(v)) return "Numer telefonu wymaga poprawy (9 cyfr, opcjonalnie z +48)";
+      return null;
+    },
+    formatPhone
+  );
 
   bind(nipEl, nipErr, (v) => {
-    const digits = v.replace(/[\s\-]/g, '').replace(/\D/g, '');
+    const digits = v.replace(/[\s\-]/g, "").replace(/\D/g, "");
     if (!digits) return null;
-    if (digits.length !== 10) return 'NIP musi zawierać 10 cyfr';
+    if (digits.length !== 10) return "NIP musi zawierać 10 cyfr";
     return null;
   });
 
   bind(addedByEl, addedByErr, (v) => {
-    if (!v.trim()) return 'Podaj, kto dodaje zamówienie (np. imię lub Biuro).';
-    if (v.trim().length < 2) return 'Podaj co najmniej 2 znaki.';
+    if (!v.trim()) return "Podaj, kto dodaje zamówienie (np. imię lub Biuro).";
+    if (v.trim().length < 2) return "Podaj co najmniej 2 znaki.";
     return null;
   });
   populateAddedByDatalist();
 
-  const form = document.getElementById('customerForm') as HTMLFormElement | null;
-  form?.addEventListener('submit', (e) => e.preventDefault());
+  const form = document.getElementById("customerForm") as HTMLFormElement | null;
+  form?.addEventListener("submit", (e) => e.preventDefault());
 
   return (): boolean => {
     revalidators.forEach((run) => run());
@@ -745,7 +834,11 @@ let userEditedForm = false;
 function saveCustomerDraft(): void {
   const fields: Record<string, string> = {};
   for (const id of DRAFT_FIELD_IDS) {
-    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+    const el = document.getElementById(id) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement
+      | null;
     if (el) fields[id] = el.value;
   }
   try {
@@ -758,17 +851,28 @@ function restoreCustomerDraft(): number | false | null {
   try {
     const raw = localStorage.getItem(customerDraftKey());
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as { fields?: Record<string, string>; savedAt?: number } | Record<string, string>;
-    const fields = (parsed && typeof parsed === "object" && "fields" in parsed && (parsed as { fields?: Record<string, string> }).fields)
-      ? (parsed as { fields: Record<string, string> }).fields
-      : (parsed as Record<string, string>);
+    const parsed = JSON.parse(raw) as
+      | { fields?: Record<string, string>; savedAt?: number }
+      | Record<string, string>;
+    const fields =
+      parsed &&
+      typeof parsed === "object" &&
+      "fields" in parsed &&
+      (parsed as { fields?: Record<string, string> }).fields
+        ? (parsed as { fields: Record<string, string> }).fields
+        : (parsed as Record<string, string>);
     for (const id of DRAFT_FIELD_IDS) {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
+      const el = document.getElementById(id) as
+        | HTMLInputElement
+        | HTMLSelectElement
+        | HTMLTextAreaElement
+        | null;
       if (el && id in fields) el.value = fields[id];
     }
-    const savedAt = (parsed && typeof parsed === "object" && "savedAt" in parsed)
-      ? (parsed as { savedAt?: number }).savedAt
-      : undefined;
+    const savedAt =
+      parsed && typeof parsed === "object" && "savedAt" in parsed
+        ? (parsed as { savedAt?: number }).savedAt
+        : undefined;
     return typeof savedAt === "number" ? savedAt : false;
   } catch {}
   return null;
@@ -781,12 +885,21 @@ function clearCustomerDraft(): void {
 function updateDraftStatus(savedAt: number | false | null): void {
   const el = document.getElementById("customer-restore-status") as HTMLElement | null;
   if (!el) return;
-  if (savedAt === null) { el.style.display = "none"; return; }
+  if (savedAt === null) {
+    el.style.display = "none";
+    return;
+  }
   if (savedAt === false) {
     el.innerHTML = `Przywrócono ostatnio wpisane dane`;
   } else {
     const d = new Date(savedAt);
-    const formatted = d.toLocaleString("pl-PL", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    const formatted = d.toLocaleString("pl-PL", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
     el.innerHTML = `Przywrócono ostatnio wpisane dane — <span style="opacity:0.8;">${formatted}</span>`;
   }
   el.style.display = "block";
@@ -857,9 +970,12 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!guardResult.ok && guardResult.fatal) {
     _startupConfigFailed = true;
     showStartupErrorBanner(guardResult.reason);
-    ["sendBtn", "sendBtn2"].forEach(id => {
+    ["sendBtn", "sendBtn2"].forEach((id) => {
       const btn = document.getElementById(id) as HTMLButtonElement | null;
-      if (btn) { btn.disabled = true; btn.title = "Błąd konfiguracji — eksport niedostępny"; }
+      if (btn) {
+        btn.disabled = true;
+        btn.title = "Błąd konfiguracji — eksport niedostępny";
+      }
     });
   }
 
@@ -904,16 +1020,17 @@ document.addEventListener("DOMContentLoaded", () => {
         if (removed) {
           dismissToast(lastUndoToast);
           let used = false;
-          lastUndoToast = showToast("Usunięto pozycję", "cart", {
-            label: "Cofnij",
-            onClick: () => {
-              if (used) return;
-              used = true;
-              cart.insertItem(idx, removed);
-              updateCartUI();
-              lastUndoToast = null;
-            },
-          }) ?? null;
+          lastUndoToast =
+            showToast("Usunięto pozycję", "cart", {
+              label: "Cofnij",
+              onClick: () => {
+                if (used) return;
+                used = true;
+                cart.insertItem(idx, removed);
+                updateCartUI();
+                lastUndoToast = null;
+              },
+            }) ?? null;
         }
       }
     }
@@ -951,7 +1068,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const detail = customEvent.detail || {};
     const category = detail.category || "Inne";
     const totalPrice = detail.totalPrice || 0;
-    const isExpress = !!(globalExpress?.checked);
+    const isExpress = !!globalExpress?.checked;
     const rate = isExpress ? getExpressRate() : undefined;
 
     const cartItem: CartItem = {
@@ -967,7 +1084,7 @@ document.addEventListener("DOMContentLoaded", () => {
       baseTotalPrice: totalPrice,
       totalPrice: rate != null ? parseFloat((totalPrice * (1 + rate)).toFixed(2)) : totalPrice,
       optionsHint: normalizeExpressHint(detail.description || "", isExpress),
-      payload: detail
+      payload: detail,
     };
 
     if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
@@ -982,15 +1099,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (!viewContainer || !globalExpress) return;
 
-
   const getCtx = (): ViewContext => ({
     cart: {
       addItem: (item) => {
-        const enriched = (item.isExpress && item.expressRate == null)
-          ? { ...item, expressRate: getExpressRate(), optionsHint: normalizeExpressHint(item.optionsHint, true) }
-          : (!item.isExpress
-              ? { ...item, baseUnitPrice: item.unitPrice, baseTotalPrice: item.totalPrice, optionsHint: normalizeExpressHint(item.optionsHint, false) }
-              : item);
+        const enriched =
+          item.isExpress && item.expressRate == null
+            ? {
+                ...item,
+                expressRate: getExpressRate(),
+                optionsHint: normalizeExpressHint(item.optionsHint, true),
+              }
+            : !item.isExpress
+              ? {
+                  ...item,
+                  baseUnitPrice: item.unitPrice,
+                  baseTotalPrice: item.totalPrice,
+                  optionsHint: normalizeExpressHint(item.optionsHint, false),
+                }
+              : item;
         if (!isAcceptableItemPrice(enriched.unitPrice, enriched.totalPrice)) {
           rejectInvalidItemPrice(enriched.category);
           return;
@@ -998,7 +1124,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cart.addItem(enriched);
         updateCartUI();
         showToast("Dodano do koszyka", "cart");
-      }
+      },
     },
     addToBasket: (item) => {
       const isExpress = globalExpress.checked;
@@ -1016,7 +1142,7 @@ document.addEventListener("DOMContentLoaded", () => {
         baseTotalPrice: item.price,
         totalPrice: rate != null ? parseFloat((item.price * (1 + rate)).toFixed(2)) : item.price,
         optionsHint: normalizeExpressHint(item.description, isExpress),
-        payload: { originalPrice: item.price, description: item.description }
+        payload: { originalPrice: item.price, description: item.description },
       };
       if (!isAcceptableItemPrice(cartItem.unitPrice, cartItem.totalPrice)) {
         rejectInvalidItemPrice(cartItem.category);
@@ -1037,8 +1163,8 @@ document.addEventListener("DOMContentLoaded", () => {
       eventEmitter.emit(event, data);
     },
     showToast: (msg, type) => {
-      showToast(msg, (type ?? 'error') as any);
-    }
+      showToast(msg, (type ?? "error") as any);
+    },
   });
 
   const router = new Router(viewContainer, getCtx);
@@ -1072,27 +1198,33 @@ document.addEventListener("DOMContentLoaded", () => {
   function injectResetButtons(container: HTMLElement) {
     const SKIP_VIEWS = ["#/ustawienia", "#/"];
     const hash = window.location.hash || "#/";
-    if (SKIP_VIEWS.some(h => hash === h || hash.startsWith(h + "/"))) return;
+    if (SKIP_VIEWS.some((h) => hash === h || hash.startsWith(h + "/"))) return;
 
     const formActions = container.querySelectorAll<HTMLElement>(".form-actions");
-    formActions.forEach(fa => {
+    formActions.forEach((fa) => {
       if (fa.hasAttribute("data-no-reset")) return;
       if (!fa.querySelector(".btn-success")) return;
       if (fa.querySelector(".reset-order-btn")) return;
 
       const performReset = () => {
-        container.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>(
-          "input[type='number'], input[type='text'], input[type='email'], textarea"
-        ).forEach(el => { el.value = (el as HTMLInputElement).defaultValue ?? ""; });
+        container
+          .querySelectorAll<
+            HTMLInputElement | HTMLTextAreaElement
+          >("input[type='number'], input[type='text'], input[type='email'], textarea")
+          .forEach((el) => {
+            el.value = (el as HTMLInputElement).defaultValue ?? "";
+          });
 
-        container.querySelectorAll<HTMLSelectElement>("select").forEach(el => {
-          const def = Array.from(el.options).find(o => o.defaultSelected);
+        container.querySelectorAll<HTMLSelectElement>("select").forEach((el) => {
+          const def = Array.from(el.options).find((o) => o.defaultSelected);
           el.selectedIndex = def ? def.index : 0;
         });
 
-        container.querySelectorAll<HTMLInputElement>(
-          "input[type='checkbox'], input[type='radio']"
-        ).forEach(el => { el.checked = el.defaultChecked; });
+        container
+          .querySelectorAll<HTMLInputElement>("input[type='checkbox'], input[type='radio']")
+          .forEach((el) => {
+            el.checked = el.defaultChecked;
+          });
 
         container.dispatchEvent(new CustomEvent("cad:reset", { bubbles: false }));
         const firstEl = container.querySelector<HTMLElement>("input, select");
@@ -1119,14 +1251,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
   resetObserver.observe(viewContainer, { childList: true });
 
-  eventBus.on('price-changed', () => {
+  eventBus.on("price-changed", () => {
     const currentHash = window.location.hash || "#/";
     if (!currentHash || currentHash === "#/" || currentHash === "#/ustawienia") {
       return;
     }
     router.handleRoute().catch(() => {});
   });
-
 
   let prevNonExpressPriority: string = "Normalny";
   let isApplyingExpress = false;
@@ -1164,7 +1295,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
       cart.setExpressForAll(on);
-      try { saveCustomerDraft(); } catch {}
+      try {
+        saveCustomerDraft();
+      } catch {}
       renderAfterExpressChange();
     } finally {
       isApplyingExpress = false;
@@ -1189,18 +1322,25 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // EXPRESS init: jeśli którakolwiek kontrolka wskazuje Express, wyrównaj do Express
-  const initialExpressOn = globalExpress.checked || (custPriorityEl?.value === "Express");
+  const initialExpressOn = globalExpress.checked || custPriorityEl?.value === "Express";
   if (custPriorityEl && custPriorityEl.value && custPriorityEl.value !== "Express") {
     prevNonExpressPriority = custPriorityEl.value;
   }
-  if (initialExpressOn !== globalExpress.checked || (initialExpressOn && custPriorityEl?.value !== "Express")) {
+  if (
+    initialExpressOn !== globalExpress.checked ||
+    (initialExpressOn && custPriorityEl?.value !== "Express")
+  ) {
     setExpressMode(initialExpressOn, "init");
   } else if (initialExpressOn) {
     document.getElementById("orderSummary")?.classList.add("is-express");
   }
 
-  const summaryDiscountPercent = document.getElementById("summaryDiscountPercent") as HTMLSelectElement | null;
-  const summarySurchargePercent = document.getElementById("summarySurchargePercent") as HTMLSelectElement | null;
+  const summaryDiscountPercent = document.getElementById(
+    "summaryDiscountPercent"
+  ) as HTMLSelectElement | null;
+  const summarySurchargePercent = document.getElementById(
+    "summarySurchargePercent"
+  ) as HTMLSelectElement | null;
 
   [summaryDiscountPercent, summarySurchargePercent].forEach((selectEl) => {
     selectEl?.addEventListener("change", () => {
@@ -1233,7 +1373,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const addedByVal = (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
+    const addedByVal =
+      (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
     if (addedByVal.trim().length < 2) {
       showToast(`Uzupełnij pole „Kto dodał".`, "error");
       return;
@@ -1242,12 +1383,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const customer: CustomerData = {
       addedBy: addedByVal.trim() || undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
-      company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
-      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(/\D/g, '') || undefined,
+      company:
+        (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() ||
+        undefined,
+      nip:
+        (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(
+          /\D/g,
+          ""
+        ) || undefined,
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
-      notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
+      notes:
+        (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || "",
     };
 
     const baseTotal = cart.getGrandTotal();
@@ -1262,7 +1410,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Clear basket
   document.getElementById("clearBtn")?.addEventListener("click", () => {
     const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
-    if (!host) { cart.clear(); updateCartUI(); return; }
+    if (!host) {
+      cart.clear();
+      updateCartUI();
+      return;
+    }
 
     const existing = host.querySelector(".clear-confirm");
     if (existing) return;
@@ -1289,9 +1441,18 @@ document.addEventListener("DOMContentLoaded", () => {
       close();
       cart.clear();
       clearCustomerDraft();
-      const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
-      clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
-      clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+      const clearField = (id: string, val = "") => {
+        const el = document.getElementById(id) as HTMLInputElement | null;
+        if (el) el.value = val;
+      };
+      clearField("custAddedBy");
+      clearField("custName");
+      clearField("custCompany");
+      clearField("custNip");
+      clearField("custPhone");
+      clearField("custEmail");
+      clearField("custPriority", "Normalny");
+      clearField("custNotes");
       updateDraftStatus(null);
       resetOrderState();
     });
@@ -1330,25 +1491,35 @@ document.addEventListener("DOMContentLoaded", () => {
   let bigOrderConfirmedFor: string | null = null;
   const BIG_ORDER_ITEMS = 20;
 
-  type SendPhase = 'idle' | 'validating' | 'sending' | 'success' | 'error' | 'unverified' | 'pending';
+  type SendPhase =
+    | "idle"
+    | "validating"
+    | "sending"
+    | "success"
+    | "error"
+    | "unverified"
+    | "pending";
 
   const SEND_BUTTON_IDS = ["sendBtn", "sendBtn2"] as const;
   const getSendButtons = (): HTMLButtonElement[] =>
-    SEND_BUTTON_IDS
-      .map(id => document.getElementById(id) as HTMLButtonElement | null)
-      .filter((el): el is HTMLButtonElement => el !== null);
+    SEND_BUTTON_IDS.map((id) => document.getElementById(id) as HTMLButtonElement | null).filter(
+      (el): el is HTMLButtonElement => el !== null
+    );
 
   const setBtnState = (btn: HTMLButtonElement | null, label: string | null, busy: boolean) => {
     if (!btn) return;
     if (!btn.dataset.originalLabel) btn.dataset.originalLabel = btn.textContent ?? "";
     btn.textContent = label ?? (btn.dataset.originalLabel || "");
     btn.disabled = busy;
-    if (busy) btn.setAttribute("aria-busy", "true"); else btn.removeAttribute("aria-busy");
+    if (busy) btn.setAttribute("aria-busy", "true");
+    else btn.removeAttribute("aria-busy");
     btn.classList.toggle("is-loading", busy);
   };
 
   const setSendButtonsDisabled = (disabled: boolean): void => {
-    getSendButtons().forEach(btn => { btn.disabled = disabled; });
+    getSendButtons().forEach((btn) => {
+      btn.disabled = disabled;
+    });
   };
 
   const applySendPhase = (
@@ -1357,28 +1528,38 @@ document.addEventListener("DOMContentLoaded", () => {
   ): void => {
     const formEl = document.querySelector(".order-form") as HTMLElement | null;
     const setBusy = (busy: boolean, label: string | null) => {
-      getSendButtons().forEach(btn => setBtnState(btn, label, busy));
+      getSendButtons().forEach((btn) => setBtnState(btn, label, busy));
       if (formEl) {
-        if (busy) formEl.setAttribute("aria-busy", "true"); else formEl.removeAttribute("aria-busy");
+        if (busy) formEl.setAttribute("aria-busy", "true");
+        else formEl.removeAttribute("aria-busy");
       }
     };
 
     switch (phase) {
-      case 'validating':
+      case "validating":
         isSubmitting = true;
         setBusy(true, "Sprawdzanie…");
         break;
-      case 'sending':
+      case "sending":
         isSubmitting = true;
         setBusy(true, "Wysyłanie…");
         if (!activeSendingToast) {
-          activeSendingToast = showOrderLoadingPopup(opts?.message ?? "Trwa zapisywanie zamówienia...", "sending");
+          activeSendingToast = showOrderLoadingPopup(
+            opts?.message ?? "Trwa zapisywanie zamówienia...",
+            "sending"
+          );
         }
         break;
-      case 'success': {
+      case "success": {
         dismissOrderStatusPanel();
-        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
-        const successPopup = showOrderLoadingPopup(opts?.message ?? "Zamówienie zostało zapisane.", "success");
+        if (activeSendingToast) {
+          dismissToast(activeSendingToast);
+          activeSendingToast = null;
+        }
+        const successPopup = showOrderLoadingPopup(
+          opts?.message ?? "Zamówienie zostało zapisane.",
+          "success"
+        );
         if (successPopup && lastSentOrderSnapshot) {
           const snapshot = lastSentOrderSnapshot;
           successPopup.classList.add("ghost-toast--success-order");
@@ -1397,8 +1578,9 @@ document.addEventListener("DOMContentLoaded", () => {
             event.stopPropagation();
             if (pdfBtn.disabled) return;
             pdfBtn.disabled = true;
-            downloadOrderPdf(snapshot.items, snapshot.customer, snapshot.summary)
-              .finally(() => { pdfBtn.disabled = false; });
+            downloadOrderPdf(snapshot.items, snapshot.customer, snapshot.summary).finally(() => {
+              pdfBtn.disabled = false;
+            });
           });
           actions.appendChild(pdfBtn);
           successPopup.appendChild(actions);
@@ -1413,47 +1595,80 @@ document.addEventListener("DOMContentLoaded", () => {
         setBusy(false, null);
         break;
       }
-      case 'pending':
-        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
-        showOrderStatusPanel('pending', { requestId: opts?.requestId, message: opts?.message });
+      case "pending":
+        if (activeSendingToast) {
+          dismissToast(activeSendingToast);
+          activeSendingToast = null;
+        }
+        showOrderStatusPanel("pending", { requestId: opts?.requestId, message: opts?.message });
         isSubmitting = true;
         setBusy(true, "Ponawianie możliwe za chwilę…");
         break;
-      case 'unverified':
-        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
-        showOrderStatusPanel('unverified', { requestId: opts?.requestId, message: opts?.message });
+      case "unverified":
+        if (activeSendingToast) {
+          dismissToast(activeSendingToast);
+          activeSendingToast = null;
+        }
+        showOrderStatusPanel("unverified", { requestId: opts?.requestId, message: opts?.message });
         isSubmitting = false;
         setBusy(false, null);
         break;
-      case 'error':
-        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
-        showOrderStatusPanel('error', { requestId: opts?.requestId, message: opts?.message, errorType: opts?.errorType });
+      case "error":
+        if (activeSendingToast) {
+          dismissToast(activeSendingToast);
+          activeSendingToast = null;
+        }
+        showOrderStatusPanel("error", {
+          requestId: opts?.requestId,
+          message: opts?.message,
+          errorType: opts?.errorType,
+        });
         isSubmitting = false;
         setBusy(false, null);
         break;
-      case 'idle':
+      case "idle":
       default:
-        if (activeSendingToast) { dismissToast(activeSendingToast); activeSendingToast = null; }
+        if (activeSendingToast) {
+          dismissToast(activeSendingToast);
+          activeSendingToast = null;
+        }
         isSubmitting = false;
         setBusy(false, null);
         break;
     }
   };
 
-  const confirmBigOrder = (totalPln: number, itemsCount: number, cust: CustomerData, items: CartItem[]): Promise<boolean> => {
-    return new Promise(resolve => {
+  const confirmBigOrder = (
+    totalPln: number,
+    itemsCount: number,
+    cust: CustomerData,
+    items: CartItem[]
+  ): Promise<boolean> => {
+    return new Promise((resolve) => {
       const host = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
-      if (!host) { resolve(true); return; }
-      if (host.querySelector(".big-order-confirm")) { resolve(false); return; }
+      if (!host) {
+        resolve(true);
+        return;
+      }
+      if (host.querySelector(".big-order-confirm")) {
+        resolve(false);
+        return;
+      }
       const priorityBadge = cust.priority === "Express" ? " · ⚡ EXPRESS" : "";
       const phoneHint = cust.phone ? ` · ${escapeHtml(cust.phone)}` : "";
       const MAX = 5;
       const shown = items.slice(0, MAX);
       const extra = items.length - shown.length;
-      const itemsHtml = shown.map(i => {
-        const label = escapeHtml(i.name.length > 38 ? i.name.slice(0, 38) + '…' : i.name);
-        return `<div class="big-order-item"><span>${label}</span><span>${formatPLN(i.totalPrice)}</span></div>`;
-      }).join('') + (extra > 0 ? `<div class="big-order-item big-order-item--more">i ${extra} więcej…</div>` : '');
+      const itemsHtml =
+        shown
+          .map((i) => {
+            const label = escapeHtml(i.name.length > 38 ? i.name.slice(0, 38) + "…" : i.name);
+            return `<div class="big-order-item"><span>${label}</span><span>${formatPLN(i.totalPrice)}</span></div>`;
+          })
+          .join("") +
+        (extra > 0
+          ? `<div class="big-order-item big-order-item--more">i ${extra} więcej…</div>`
+          : "");
       const dialog = document.createElement("div");
       dialog.className = "clear-confirm big-order-confirm";
       dialog.innerHTML = `
@@ -1485,7 +1700,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isSubmitting) return;
 
     if (unverifiedSend) {
-      const guardHost = document.getElementById("toastHost") ?? document.getElementById("orderSummary");
+      const guardHost =
+        document.getElementById("toastHost") ?? document.getElementById("orderSummary");
       if (!guardHost) {
         unverifiedSend = false;
       } else {
@@ -1508,7 +1724,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         guardDialog.querySelector(".clear-confirm__cancel")?.addEventListener("click", () => {
           closeGuard();
-          showOrderStatusPanel('unverified', { requestId: lastSendRequestId ?? undefined });
+          showOrderStatusPanel("unverified", { requestId: lastSendRequestId ?? undefined });
         });
         guardDialog.querySelector(".clear-confirm__ok")?.addEventListener("click", () => {
           closeGuard();
@@ -1538,7 +1754,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    const nipVal = (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() ?? "";
+    const nipVal =
+      (document.getElementById("custNip") as HTMLInputElement | null)?.value?.trim() ?? "";
     const validationError = validateCustomerForm({
       name: (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "",
       email: (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "",
@@ -1548,63 +1765,98 @@ document.addEventListener("DOMContentLoaded", () => {
     const showInlineErr = (inputId: string, msg: string | null): HTMLInputElement | null => {
       const input = document.getElementById(inputId) as HTMLInputElement | null;
       const err = document.getElementById(`${inputId}Err`);
-      if (err) { err.textContent = msg ?? ""; err.style.display = msg ? "block" : "none"; }
+      if (err) {
+        err.textContent = msg ?? "";
+        err.style.display = msg ? "block" : "none";
+      }
       if (input) input.classList.toggle("is-invalid", !!msg);
       return msg ? input : null;
     };
 
-    const addedByVal = (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
+    const addedByVal =
+      (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value ?? "";
     const addedByInvalid = addedByVal.trim().length < 2;
 
     if (validationError || addedByInvalid) {
       const nameVal = (document.getElementById("custName") as HTMLInputElement | null)?.value ?? "";
-      const emailVal = (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "";
-      const phoneVal = (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "";
+      const emailVal =
+        (document.getElementById("custEmail") as HTMLInputElement | null)?.value ?? "";
+      const phoneVal =
+        (document.getElementById("custPhone") as HTMLInputElement | null)?.value ?? "";
       const nipDigits = nipVal.replace(/\D/g, "");
       const first =
-        showInlineErr("custName", nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null) ??
-        showInlineErr("custEmail", !emailVal.trim() ? "Podaj adres e-mail" : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim()) ? "Nieprawidłowy format e-mail" : null) ??
-        showInlineErr("custPhone", !isValidPhone(phoneVal) ? "Podaj numer telefonu (9 cyfr, opcjonalnie z +48)" : null) ??
-        showInlineErr("custNip", nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi zawierać 10 cyfr" : null) ??
-        showInlineErr("custAddedBy", addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null);
+        showInlineErr(
+          "custName",
+          nameVal.trim().length < 2 ? "Podaj imię i nazwisko (min. 2 znaki)" : null
+        ) ??
+        showInlineErr(
+          "custEmail",
+          !emailVal.trim()
+            ? "Podaj adres e-mail"
+            : !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim())
+              ? "Nieprawidłowy format e-mail"
+              : null
+        ) ??
+        showInlineErr(
+          "custPhone",
+          !isValidPhone(phoneVal) ? "Podaj numer telefonu (9 cyfr, opcjonalnie z +48)" : null
+        ) ??
+        showInlineErr(
+          "custNip",
+          nipDigits.length > 0 && nipDigits.length !== 10 ? "NIP musi zawierać 10 cyfr" : null
+        ) ??
+        showInlineErr(
+          "custAddedBy",
+          addedByInvalid ? "Podaj, kto dodaje zamówienie (np. imię lub Biuro)." : null
+        );
       first?.focus();
       releaseGuard();
       showToast(validationError ?? "Uzupełnij pole „Kto dodał”.", "error");
       return;
     }
 
-    applySendPhase('validating');
+    applySendPhase("validating");
 
     const resetSending = () => {
-      applySendPhase('idle');
+      applySendPhase("idle");
     };
 
     const buildCustomer = (): CustomerData => ({
-      addedBy: (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() || undefined,
+      addedBy:
+        (document.getElementById("custAddedBy") as HTMLInputElement | null)?.value?.trim() ||
+        undefined,
       name: (document.getElementById("custName") as HTMLInputElement).value || "Anonim",
-      company: (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() || undefined,
-      nip: (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(/\D/g, '') || undefined,
+      company:
+        (document.getElementById("custCompany") as HTMLInputElement | null)?.value?.trim() ||
+        undefined,
+      nip:
+        (document.getElementById("custNip") as HTMLInputElement | null)?.value?.replace(
+          /\D/g,
+          ""
+        ) || undefined,
       phone: (document.getElementById("custPhone") as HTMLInputElement).value || "-",
       email: (document.getElementById("custEmail") as HTMLInputElement).value || "-",
       priority: (document.getElementById("custPriority") as HTMLSelectElement).value,
-      notes: (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || ""
+      notes:
+        (document.getElementById("custNotes") as HTMLTextAreaElement | null)?.value?.trim() || "",
     });
 
     let customer = buildCustomer();
 
     // EXPRESS hard guard: spróbuj wyrównać helperem, dopiero potem blokuj
     const items0 = cart.getItems();
-    const hasExpressItems = items0.some(i => !!i.isExpress);
+    const hasExpressItems = items0.some((i) => !!i.isExpress);
     const priorityIsExpress = customer.priority === "Express";
     if (hasExpressItems !== priorityIsExpress || isExpressActive() !== priorityIsExpress) {
       setExpressMode(isExpressActive() || priorityIsExpress, "init");
       customer = buildCustomer();
       const itemsAfter = cart.getItems();
-      const stillInconsistent = itemsAfter.some(i => !!i.isExpress) !== (customer.priority === "Express");
+      const stillInconsistent =
+        itemsAfter.some((i) => !!i.isExpress) !== (customer.priority === "Express");
       if (stillInconsistent) {
         const cbOn = isExpressActive();
         const prioVal = customer.priority;
-        const cartHasExpress = itemsAfter.some(i => !!i.isExpress);
+        const cartHasExpress = itemsAfter.some((i) => !!i.isExpress);
         let expressErrMsg: string;
         if (cbOn && prioVal !== "Express") {
           expressErrMsg = `Checkbox EXPRESS jest zaznaczony, ale w polu „Realizacja” wybrano „${prioVal}”. Ustaw Realizacja = Express albo odznacz checkbox EXPRESS.`;
@@ -1625,9 +1877,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const invalidItems = getInvalidPricedCartItems(items);
     if (invalidItems.length > 0) {
-      const names = invalidItems.slice(0, 3).map(i => i.name).join(", ");
+      const names = invalidItems
+        .slice(0, 3)
+        .map((i) => i.name)
+        .join(", ");
       const suffix = invalidItems.length > 3 ? ` i ${invalidItems.length - 3} więcej` : "";
-      showToast(`Pozycje z nieprawidłową ceną (≤0/null/NaN): ${names}${suffix}. Usuń je lub popraw cennik przed wysyłką.`, "error");
+      showToast(
+        `Pozycje z nieprawidłową ceną (≤0/null/NaN): ${names}${suffix}. Usuń je lub popraw cennik przed wysyłką.`,
+        "error"
+      );
       resetSending();
       return;
     }
@@ -1640,7 +1898,9 @@ document.addEventListener("DOMContentLoaded", () => {
           resetSending();
           showToast("Brak cennika — wykonaj Pull w ustawieniach przed wysyłką.", "error", {
             label: "Otwórz ustawienia",
-            onClick: () => { window.location.hash = "#/ustawienia"; },
+            onClick: () => {
+              window.location.hash = "#/ustawienia";
+            },
           });
           return;
         }
@@ -1651,9 +1911,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (lastSendRequestId !== null) {
         payload.requestId = lastSendRequestId;
       } else {
-        payload.requestId = typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+        payload.requestId =
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
         lastSendRequestId = payload.requestId;
       }
 
@@ -1664,8 +1925,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const needsBigConfirm =
-        items.length > BIG_ORDER_ITEMS &&
-        bigOrderConfirmedFor !== payload.requestId;
+        items.length > BIG_ORDER_ITEMS && bigOrderConfirmedFor !== payload.requestId;
       if (needsBigConfirm) {
         const ok = await confirmBigOrder(provisionalTotal, items.length, customer, items);
         if (!ok) {
@@ -1675,14 +1935,16 @@ document.addEventListener("DOMContentLoaded", () => {
         bigOrderConfirmedFor = payload.requestId;
       }
 
-      applySendPhase('sending');
+      applySendPhase("sending");
       try {
         const _dPct = Math.round(getSummaryPercentValue("summaryDiscountPercent") * 100);
         const _sPct = Math.round(getSummaryPercentValue("summarySurchargePercent") * 100);
         payload.summary.total = applySummaryPercentAdjustments(cart.getGrandTotal());
         if (_dPct || _sPct) {
           payload.summary.adjustmentPercent = _sPct - _dPct;
-          const _note = [_dPct && `Rabat: ${_dPct}%`, _sPct && `Narzut: ${_sPct}%`].filter(Boolean).join(", ");
+          const _note = [_dPct && `Rabat: ${_dPct}%`, _sPct && `Narzut: ${_sPct}%`]
+            .filter(Boolean)
+            .join(", ");
           payload.customer.notes = [payload.customer.notes, _note].filter(Boolean).join(" | ");
         }
         const result = await sendOrderToAppsScript(payload, exportConfig);
@@ -1694,7 +1956,7 @@ document.addEventListener("DOMContentLoaded", () => {
             : "Zamówienie zostało zapisane.";
           const snapshotBaseTotal = cart.getGrandTotal();
           lastSentOrderSnapshot = {
-            items: items.map(i => ({ ...i })),
+            items: items.map((i) => ({ ...i })),
             customer,
             summary: {
               baseTotal: snapshotBaseTotal,
@@ -1705,47 +1967,74 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             sentAt: new Date().toISOString(),
           };
-          applySendPhase('success', { message: successMsg });
+          applySendPhase("success", { message: successMsg });
           cart.clear();
           resetOrderState();
           saveAddedByRecent(addedByVal);
           populateAddedByDatalist();
           clearCustomerDraft();
           updateDraftStatus(null);
-          const clearField = (id: string, val = "") => { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.value = val; };
-          clearField("custAddedBy"); clearField("custName"); clearField("custCompany"); clearField("custNip");
-          clearField("custPhone"); clearField("custEmail"); clearField("custPriority", "Normalny"); clearField("custNotes");
+          const clearField = (id: string, val = "") => {
+            const el = document.getElementById(id) as HTMLInputElement | null;
+            if (el) el.value = val;
+          };
+          clearField("custAddedBy");
+          clearField("custName");
+          clearField("custCompany");
+          clearField("custNip");
+          clearField("custPhone");
+          clearField("custEmail");
+          clearField("custPriority", "Normalny");
+          clearField("custNotes");
           lastSendRequestId = null;
           unverifiedSend = false;
           bigOrderConfirmedFor = null;
-          try { sessionStorage.removeItem(RAZDWA_UNVERIFIED_KEY); } catch {}
+          try {
+            sessionStorage.removeItem(RAZDWA_UNVERIFIED_KEY);
+          } catch {}
           document.getElementById("unverified-session-banner")?.remove();
-          if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-          if (submitCooldownTimer !== null) { clearInterval(submitCooldownTimer); submitCooldownTimer = null; }
+          if (retryUnlockTimer !== null) {
+            clearTimeout(retryUnlockTimer);
+            retryUnlockTimer = null;
+          }
+          if (submitCooldownTimer !== null) {
+            clearInterval(submitCooldownTimer);
+            submitCooldownTimer = null;
+          }
           const cooldownBtns = getSendButtons();
           const originalLabel = cooldownBtns[0]?.dataset.originalLabel ?? "Wyślij zamówienie";
           let cooldownLeft = 30;
-          cooldownBtns.forEach(btn => { btn.disabled = true; btn.textContent = `${originalLabel} (${cooldownLeft}s)`; });
+          cooldownBtns.forEach((btn) => {
+            btn.disabled = true;
+            btn.textContent = `${originalLabel} (${cooldownLeft}s)`;
+          });
           submitCooldownTimer = setInterval(() => {
             cooldownLeft--;
             if (cooldownLeft > 0) {
-              cooldownBtns.forEach(btn => { btn.textContent = `${originalLabel} (${cooldownLeft}s)`; });
+              cooldownBtns.forEach((btn) => {
+                btn.textContent = `${originalLabel} (${cooldownLeft}s)`;
+              });
             } else {
               clearInterval(submitCooldownTimer!);
               submitCooldownTimer = null;
-              cooldownBtns.forEach(btn => { btn.disabled = false; btn.textContent = originalLabel; });
+              cooldownBtns.forEach((btn) => {
+                btn.disabled = false;
+                btn.textContent = originalLabel;
+              });
             }
           }, 1000);
           return;
         }
 
         if (result.retryable === true) {
-          applySendPhase('pending', { requestId: payload.requestId, message: result.message });
+          applySendPhase("pending", { requestId: payload.requestId, message: result.message });
           unverifiedSend = false;
           let secondsLeft = 29;
           const tickCountdown = () => {
             const label = secondsLeft > 0 ? `Poczekaj ${secondsLeft}s…` : "Ponawianie możliwe…";
-            getSendButtons().forEach(btn => { btn.textContent = label; });
+            getSendButtons().forEach((btn) => {
+              btn.textContent = label;
+            });
             secondsLeft--;
           };
           const countdownInterval = setInterval(tickCountdown, 1000);
@@ -1753,25 +2042,37 @@ document.addEventListener("DOMContentLoaded", () => {
             clearInterval(countdownInterval);
             dismissOrderStatusPanel();
             retryUnlockTimer = null;
-            applySendPhase('idle');
+            applySendPhase("idle");
           }, 30000);
           return;
         }
 
         if (result.unverified === true) {
-          applySendPhase('unverified', { requestId: payload.requestId, message: result.message });
+          applySendPhase("unverified", { requestId: payload.requestId, message: result.message });
           unverifiedSend = true;
-          try { sessionStorage.setItem(RAZDWA_UNVERIFIED_KEY, payload.requestId ?? ""); } catch {}
+          try {
+            sessionStorage.setItem(RAZDWA_UNVERIFIED_KEY, payload.requestId ?? "");
+          } catch {}
           return;
         }
 
-        unverifiedSend = result.errorType === 'timeout';
-        if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-        applySendPhase('error', { requestId: payload.requestId, message: result.message, errorType: result.errorType });
+        unverifiedSend = result.errorType === "timeout";
+        if (retryUnlockTimer !== null) {
+          clearTimeout(retryUnlockTimer);
+          retryUnlockTimer = null;
+        }
+        applySendPhase("error", {
+          requestId: payload.requestId,
+          message: result.message,
+          errorType: result.errorType,
+        });
       } catch (error) {
         unverifiedSend = false;
-        if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
-        applySendPhase('error', { requestId: payload.requestId, errorType: 'unknown' });
+        if (retryUnlockTimer !== null) {
+          clearTimeout(retryUnlockTimer);
+          retryUnlockTimer = null;
+        }
+        applySendPhase("error", { requestId: payload.requestId, errorType: "unknown" });
       }
       return;
     }
@@ -1780,63 +2081,75 @@ document.addEventListener("DOMContentLoaded", () => {
     showToast("Brak aktywnej integracji Apps Script — skonfiguruj URL w ustawieniach.", "error");
   };
 
-  getSendButtons().forEach(btn => btn.addEventListener("click", handleSendOrder));
+  getSendButtons().forEach((btn) => btn.addEventListener("click", handleSendOrder));
 
-  const pinNewInput = document.getElementById('pinNewInput') as HTMLInputElement | null;
-  const pinConfirmInput = document.getElementById('pinConfirmInput') as HTMLInputElement | null;
-  const pinSaveBtn = document.getElementById('pinSaveBtn') as HTMLButtonElement | null;
-  const pinMsg = document.getElementById('pinMsg') as HTMLElement | null;
-  const pinSetForm = document.getElementById('pinSetForm') as HTMLElement | null;
-  const pinChangeForm = document.getElementById('pinChangeForm') as HTMLElement | null;
-  const pinStatusEl = document.getElementById('pinStatus') as HTMLElement | null;
+  const pinNewInput = document.getElementById("pinNewInput") as HTMLInputElement | null;
+  const pinConfirmInput = document.getElementById("pinConfirmInput") as HTMLInputElement | null;
+  const pinSaveBtn = document.getElementById("pinSaveBtn") as HTMLButtonElement | null;
+  const pinMsg = document.getElementById("pinMsg") as HTMLElement | null;
+  const pinSetForm = document.getElementById("pinSetForm") as HTMLElement | null;
+  const pinChangeForm = document.getElementById("pinChangeForm") as HTMLElement | null;
+  const pinStatusEl = document.getElementById("pinStatus") as HTMLElement | null;
 
-  const pinChangeToggleBtn = document.getElementById('pinChangeToggleBtn') as HTMLButtonElement | null;
-  const pinChangeExpandedForm = document.getElementById('pinChangeExpandedForm') as HTMLElement | null;
-  const pinCurrentInput = document.getElementById('pinCurrentInput') as HTMLInputElement | null;
-  const pinNewChangeInput = document.getElementById('pinNewChangeInput') as HTMLInputElement | null;
-  const pinConfirmChangeInput = document.getElementById('pinConfirmChangeInput') as HTMLInputElement | null;
-  const pinDoChangeBtn = document.getElementById('pinDoChangeBtn') as HTMLButtonElement | null;
-  const pinChangeCancelBtn = document.getElementById('pinChangeCancelBtn') as HTMLButtonElement | null;
-  const pinRemoveToggleBtn = document.getElementById('pinRemoveToggleBtn') as HTMLButtonElement | null;
-  const pinRemoveSection = document.getElementById('pinRemoveSection') as HTMLElement | null;
-  const pinRemoveConfirmInput = document.getElementById('pinRemoveConfirmInput') as HTMLInputElement | null;
-  const pinRemoveBtn = document.getElementById('pinRemoveBtn') as HTMLButtonElement | null;
+  const pinChangeToggleBtn = document.getElementById(
+    "pinChangeToggleBtn"
+  ) as HTMLButtonElement | null;
+  const pinChangeExpandedForm = document.getElementById(
+    "pinChangeExpandedForm"
+  ) as HTMLElement | null;
+  const pinCurrentInput = document.getElementById("pinCurrentInput") as HTMLInputElement | null;
+  const pinNewChangeInput = document.getElementById("pinNewChangeInput") as HTMLInputElement | null;
+  const pinConfirmChangeInput = document.getElementById(
+    "pinConfirmChangeInput"
+  ) as HTMLInputElement | null;
+  const pinDoChangeBtn = document.getElementById("pinDoChangeBtn") as HTMLButtonElement | null;
+  const pinChangeCancelBtn = document.getElementById(
+    "pinChangeCancelBtn"
+  ) as HTMLButtonElement | null;
+  const pinRemoveToggleBtn = document.getElementById(
+    "pinRemoveToggleBtn"
+  ) as HTMLButtonElement | null;
+  const pinRemoveSection = document.getElementById("pinRemoveSection") as HTMLElement | null;
+  const pinRemoveConfirmInput = document.getElementById(
+    "pinRemoveConfirmInput"
+  ) as HTMLInputElement | null;
+  const pinRemoveBtn = document.getElementById("pinRemoveBtn") as HTMLButtonElement | null;
 
   let pinIsSet: boolean | null = null;
 
   const collapseChangeForms = () => {
-    if (pinChangeExpandedForm) pinChangeExpandedForm.style.display = 'none';
-    if (pinRemoveSection) pinRemoveSection.style.display = 'none';
-    if (pinCurrentInput) pinCurrentInput.value = '';
-    if (pinNewChangeInput) pinNewChangeInput.value = '';
-    if (pinConfirmChangeInput) pinConfirmChangeInput.value = '';
-    if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = '';
+    if (pinChangeExpandedForm) pinChangeExpandedForm.style.display = "none";
+    if (pinRemoveSection) pinRemoveSection.style.display = "none";
+    if (pinCurrentInput) pinCurrentInput.value = "";
+    if (pinNewChangeInput) pinNewChangeInput.value = "";
+    if (pinConfirmChangeInput) pinConfirmChangeInput.value = "";
+    if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = "";
   };
 
   const refreshPinUI = () => {
-    if (pinSetForm) pinSetForm.style.display = pinIsSet ? 'none' : 'block';
-    if (pinChangeForm) pinChangeForm.style.display = pinIsSet ? 'block' : 'none';
+    if (pinSetForm) pinSetForm.style.display = pinIsSet ? "none" : "block";
+    if (pinChangeForm) pinChangeForm.style.display = pinIsSet ? "block" : "none";
     collapseChangeForms();
     if (pinStatusEl) {
       if (pinIsSet === null) {
-        pinStatusEl.textContent = '⏳ Sprawdzam status PIN...';
-        pinStatusEl.style.color = '#94a3b8';
+        pinStatusEl.textContent = "⏳ Sprawdzam status PIN...";
+        pinStatusEl.style.color = "#94a3b8";
       } else if (pinIsSet) {
-        pinStatusEl.textContent = '🔒 PIN aktywny — panel ustawień zablokowany';
-        pinStatusEl.style.color = '#16a34a';
+        pinStatusEl.textContent = "🔒 PIN aktywny — panel ustawień zablokowany";
+        pinStatusEl.style.color = "#16a34a";
       } else {
-        pinStatusEl.textContent = '🔓 Brak PINu — panel ustawień dostępny dla każdego';
-        pinStatusEl.style.color = '#b45309';
+        pinStatusEl.textContent = "🔓 Brak PINu — panel ustawień dostępny dla każdego";
+        pinStatusEl.style.color = "#b45309";
       }
     }
   };
 
   const loadPinStatus = async () => {
     const result = await verifyPinOnServer();
-    if (result.error === 'offline' || result.error === 'server_error') {
+    if (result.error === "offline" || result.error === "server_error") {
       if (pinStatusEl) {
-        pinStatusEl.textContent = '⚠️ Nie można sprawdzić statusu (brak połączenia)';
-        pinStatusEl.style.color = '#b45309';
+        pinStatusEl.textContent = "⚠️ Nie można sprawdzić statusu (brak połączenia)";
+        pinStatusEl.style.color = "#b45309";
       }
       return;
     }
@@ -1844,125 +2157,200 @@ document.addEventListener("DOMContentLoaded", () => {
     refreshPinUI();
   };
 
-  pinSaveBtn?.addEventListener('click', async () => {
-    const val = pinNewInput?.value ?? '';
-    const confirmVal = pinConfirmInput?.value ?? '';
+  pinSaveBtn?.addEventListener("click", async () => {
+    const val = pinNewInput?.value ?? "";
+    const confirmVal = pinConfirmInput?.value ?? "";
     if (val.length < 4) {
-      if (pinMsg) { pinMsg.textContent = 'PIN musi mieć min. 4 znaki.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "PIN musi mieć min. 4 znaki.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
     if (val !== confirmVal) {
-      if (pinMsg) { pinMsg.textContent = 'PINy nie są zgodne.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "PINy nie są zgodne.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
-    if (pinSaveBtn) { pinSaveBtn.disabled = true; pinSaveBtn.textContent = '⏳ Zapisuję...'; }
+    if (pinSaveBtn) {
+      pinSaveBtn.disabled = true;
+      pinSaveBtn.textContent = "⏳ Zapisuję...";
+    }
     const result = await setPinOnServer(val);
-    if (pinSaveBtn) { pinSaveBtn.disabled = false; pinSaveBtn.textContent = 'Zapisz PIN'; }
+    if (pinSaveBtn) {
+      pinSaveBtn.disabled = false;
+      pinSaveBtn.textContent = "Zapisz PIN";
+    }
     if (result.ok) {
-      if (pinNewInput) pinNewInput.value = '';
-      if (pinConfirmInput) pinConfirmInput.value = '';
-      if (pinMsg) { pinMsg.textContent = 'PIN zapisany.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+      if (pinNewInput) pinNewInput.value = "";
+      if (pinConfirmInput) pinConfirmInput.value = "";
+      if (pinMsg) {
+        pinMsg.textContent = "PIN zapisany.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#16a34a";
+      }
       pinIsSet = true;
       refreshPinUI();
     } else {
-      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
-        : result.error === 'wrong_current' ? 'Nieprawidłowy aktualny PIN.'
-        : 'Błąd zapisu PIN.';
-      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      const errText =
+        result.error === "offline"
+          ? "Błąd połączenia z serwerem."
+          : result.error === "wrong_current"
+            ? "Nieprawidłowy aktualny PIN."
+            : "Błąd zapisu PIN.";
+      if (pinMsg) {
+        pinMsg.textContent = errText;
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
     }
   });
 
-  pinChangeToggleBtn?.addEventListener('click', () => {
+  pinChangeToggleBtn?.addEventListener("click", () => {
     if (!pinChangeExpandedForm) return;
-    const isOpen = pinChangeExpandedForm.style.display !== 'none';
+    const isOpen = pinChangeExpandedForm.style.display !== "none";
     if (isOpen) {
       collapseChangeForms();
-      if (pinMsg) pinMsg.style.display = 'none';
+      if (pinMsg) pinMsg.style.display = "none";
     } else {
-      pinChangeExpandedForm.style.display = 'block';
+      pinChangeExpandedForm.style.display = "block";
     }
   });
 
-  pinChangeCancelBtn?.addEventListener('click', () => {
+  pinChangeCancelBtn?.addEventListener("click", () => {
     collapseChangeForms();
-    if (pinMsg) pinMsg.style.display = 'none';
+    if (pinMsg) pinMsg.style.display = "none";
   });
 
-  pinDoChangeBtn?.addEventListener('click', async () => {
-    const current = pinCurrentInput?.value ?? '';
-    const newVal = pinNewChangeInput?.value ?? '';
-    const confirmVal = pinConfirmChangeInput?.value ?? '';
+  pinDoChangeBtn?.addEventListener("click", async () => {
+    const current = pinCurrentInput?.value ?? "";
+    const newVal = pinNewChangeInput?.value ?? "";
+    const confirmVal = pinConfirmChangeInput?.value ?? "";
     if (!current) {
-      if (pinMsg) { pinMsg.textContent = 'Podaj aktualny PIN.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "Podaj aktualny PIN.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
     if (newVal.length < 4) {
-      if (pinMsg) { pinMsg.textContent = 'Nowy PIN musi mieć min. 4 znaki.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "Nowy PIN musi mieć min. 4 znaki.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
     if (newVal !== confirmVal) {
-      if (pinMsg) { pinMsg.textContent = 'PINy nie są zgodne.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "PINy nie są zgodne.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
-    if (pinDoChangeBtn) { pinDoChangeBtn.disabled = true; pinDoChangeBtn.textContent = '⏳ Zapisuję...'; }
+    if (pinDoChangeBtn) {
+      pinDoChangeBtn.disabled = true;
+      pinDoChangeBtn.textContent = "⏳ Zapisuję...";
+    }
     const result = await setPinOnServer(newVal, current);
-    if (pinDoChangeBtn) { pinDoChangeBtn.disabled = false; pinDoChangeBtn.textContent = 'Zapisz nowy PIN'; }
+    if (pinDoChangeBtn) {
+      pinDoChangeBtn.disabled = false;
+      pinDoChangeBtn.textContent = "Zapisz nowy PIN";
+    }
     if (result.ok) {
       collapseChangeForms();
-      if (pinMsg) { pinMsg.textContent = 'PIN zmieniony.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+      if (pinMsg) {
+        pinMsg.textContent = "PIN zmieniony.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#16a34a";
+      }
     } else {
-      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
-        : result.error === 'wrong_current' ? 'Nieprawidłowy aktualny PIN.'
-        : 'Błąd zmiany PIN.';
-      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      const errText =
+        result.error === "offline"
+          ? "Błąd połączenia z serwerem."
+          : result.error === "wrong_current"
+            ? "Nieprawidłowy aktualny PIN."
+            : "Błąd zmiany PIN.";
+      if (pinMsg) {
+        pinMsg.textContent = errText;
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
     }
   });
 
-  pinRemoveToggleBtn?.addEventListener('click', () => {
+  pinRemoveToggleBtn?.addEventListener("click", () => {
     if (!pinRemoveSection) return;
-    const isOpen = pinRemoveSection.style.display !== 'none';
+    const isOpen = pinRemoveSection.style.display !== "none";
     if (isOpen) {
-      pinRemoveSection.style.display = 'none';
-      if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = '';
+      pinRemoveSection.style.display = "none";
+      if (pinRemoveConfirmInput) pinRemoveConfirmInput.value = "";
     } else {
-      pinRemoveSection.style.display = 'block';
+      pinRemoveSection.style.display = "block";
     }
   });
 
-  pinRemoveBtn?.addEventListener('click', async () => {
-    const current = pinRemoveConfirmInput?.value ?? '';
+  pinRemoveBtn?.addEventListener("click", async () => {
+    const current = pinRemoveConfirmInput?.value ?? "";
     if (!current) {
-      if (pinMsg) { pinMsg.textContent = 'Podaj aktualny PIN, aby usunąć.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      if (pinMsg) {
+        pinMsg.textContent = "Podaj aktualny PIN, aby usunąć.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
       return;
     }
-    if (pinRemoveBtn) { pinRemoveBtn.disabled = true; pinRemoveBtn.textContent = '⏳ Usuwam...'; }
+    if (pinRemoveBtn) {
+      pinRemoveBtn.disabled = true;
+      pinRemoveBtn.textContent = "⏳ Usuwam...";
+    }
     const result = await removePinOnServer(current);
-    if (pinRemoveBtn) { pinRemoveBtn.disabled = false; pinRemoveBtn.textContent = 'Usuń PIN'; }
+    if (pinRemoveBtn) {
+      pinRemoveBtn.disabled = false;
+      pinRemoveBtn.textContent = "Usuń PIN";
+    }
     if (result.ok) {
       clearAdminSession();
       collapseChangeForms();
-      if (pinMsg) { pinMsg.textContent = 'PIN usunięty.'; pinMsg.style.display = 'block'; pinMsg.style.color = '#16a34a'; }
+      if (pinMsg) {
+        pinMsg.textContent = "PIN usunięty.";
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#16a34a";
+      }
       pinIsSet = false;
       refreshPinUI();
     } else {
-      const errText = result.error === 'offline' ? 'Błąd połączenia z serwerem.'
-        : result.error === 'wrong_current' ? 'Nieprawidłowy PIN.'
-        : 'Błąd usuwania PIN.';
-      if (pinMsg) { pinMsg.textContent = errText; pinMsg.style.display = 'block'; pinMsg.style.color = '#dc2626'; }
+      const errText =
+        result.error === "offline"
+          ? "Błąd połączenia z serwerem."
+          : result.error === "wrong_current"
+            ? "Nieprawidłowy PIN."
+            : "Błąd usuwania PIN.";
+      if (pinMsg) {
+        pinMsg.textContent = errText;
+        pinMsg.style.display = "block";
+        pinMsg.style.color = "#dc2626";
+      }
     }
   });
 
-  const employeeModeBtn = document.getElementById('employeeModeBtn') as HTMLButtonElement | null;
-  const pinPanelSection = document.getElementById('pinPanelSection') as HTMLElement | null;
+  const employeeModeBtn = document.getElementById("employeeModeBtn") as HTMLButtonElement | null;
+  const pinPanelSection = document.getElementById("pinPanelSection") as HTMLElement | null;
   if (employeeModeBtn && pinPanelSection) {
-    employeeModeBtn.addEventListener('click', () => {
-      const isHidden = pinPanelSection.hasAttribute('hidden');
+    employeeModeBtn.addEventListener("click", () => {
+      const isHidden = pinPanelSection.hasAttribute("hidden");
       if (isHidden) {
-        pinPanelSection.removeAttribute('hidden');
-        employeeModeBtn.setAttribute('aria-expanded', 'true');
+        pinPanelSection.removeAttribute("hidden");
+        employeeModeBtn.setAttribute("aria-expanded", "true");
       } else {
-        pinPanelSection.setAttribute('hidden', '');
-        employeeModeBtn.setAttribute('aria-expanded', 'false');
+        pinPanelSection.setAttribute("hidden", "");
+        employeeModeBtn.setAttribute("aria-expanded", "false");
       }
     });
   }
@@ -1979,17 +2367,33 @@ document.addEventListener("DOMContentLoaded", () => {
     setExpressMode(restoredPriorityEl.value === "Express", "init");
   }
   for (const id of DRAFT_FIELD_IDS) {
-    const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-    el?.addEventListener("input", () => { userEditedForm = true; saveCustomerDraft(); });
-    el?.addEventListener("change", () => { userEditedForm = true; saveCustomerDraft(); });
+    const el = document.getElementById(id) as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement
+      | null;
+    el?.addEventListener("input", () => {
+      userEditedForm = true;
+      saveCustomerDraft();
+    });
+    el?.addEventListener("change", () => {
+      userEditedForm = true;
+      saveCustomerDraft();
+    });
   }
   touchDraftAlive();
   window.setInterval(touchDraftAlive, 10_000);
   window.addEventListener("beforeunload", (e: BeforeUnloadEvent) => {
-    const formDirty = userEditedForm && DRAFT_FIELD_IDS.filter((id) => id !== "custPriority").some((id) => {
-      const el = document.getElementById(id) as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement | null;
-      return (el?.value ?? "").trim().length > 0;
-    });
+    const formDirty =
+      userEditedForm &&
+      DRAFT_FIELD_IDS.filter((id) => id !== "custPriority").some((id) => {
+        const el = document.getElementById(id) as
+          | HTMLInputElement
+          | HTMLSelectElement
+          | HTMLTextAreaElement
+          | null;
+        return (el?.value ?? "").trim().length > 0;
+      });
     if (!cart.isEmpty() || formDirty) {
       e.preventDefault();
       e.returnValue = "";
@@ -2004,7 +2408,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   (async () => {
     const STARTUP_SYNC_TTL_MS = 4 * 60 * 60 * 1000;
-    const lastSyncTs = Number(localStorage.getItem('razdwa_prices_ts') ?? '0');
+    const lastSyncTs = Number(localStorage.getItem("razdwa_prices_ts") ?? "0");
     if (Date.now() - lastSyncTs < STARTUP_SYNC_TTL_MS) return;
 
     try {
@@ -2014,7 +2418,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Object.keys(remote.prices).length > 0) {
         // GAS jest source of truth — nadpisuje lokalny cennik przy każdym starcie
         setPrice("defaultPrices", remote.prices as Record<string, number | null>);
-        localStorage.setItem('razdwa_prices_ts', String(Date.now()));
+        localStorage.setItem("razdwa_prices_ts", String(Date.now()));
       }
       if (remote.variants.length > 0) {
         const hasLocalVariants = Boolean(
@@ -2032,10 +2436,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 (window as any).scrollToTopTiles = () => {
-  const grid = document.querySelector('.category-sticky');
+  const grid = document.querySelector(".category-sticky");
   if (grid) {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    grid.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    grid.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth" });
   }
 };
-

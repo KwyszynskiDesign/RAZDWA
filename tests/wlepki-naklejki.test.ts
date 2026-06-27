@@ -1,94 +1,94 @@
-import { describe, it, expect } from 'vitest';
-import { calculateWlepki, calculateWlepkiSzt } from '../src/categories/wlepki-naklejki';
+import { describe, it, expect } from "vitest";
+import { calculateWlepki, calculateWlepkiSzt } from "../src/categories/wlepki-naklejki";
 
-describe('Wlepki / Naklejki Category', () => {
-  it('should calculate Folia biała po obrysie 1-5m2 at 67zł/m2', () => {
+describe("Wlepki / Naklejki Category", () => {
+  it("should calculate Folia biała po obrysie 1-5m2 at 67zł/m2", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 2,
-      modifiers: []
+      modifiers: [],
     });
     expect(result.tierPrice).toBe(67);
     expect(result.totalPrice).toBe(134);
   });
 
-  it('should apply mocny klej +12%', () => {
+  it("should apply mocny klej +12%", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 1,
-      modifiers: ['mocny_klej']
+      modifiers: ["mocny_klej"],
     });
     // 67 * 1.12 = 75.04
     expect(result.totalPrice).toBeCloseTo(75.04);
   });
 
-  it('should handle express +20%', () => {
+  it("should handle express +20%", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 1,
       modifiers: [],
-      express: true
+      express: true,
     });
     // 67 * 1.20 = 80.40
-    expect(result.totalPrice).toBeCloseTo(80.40);
+    expect(result.totalPrice).toBeCloseTo(80.4);
   });
 
-  it('should apply fixed modifiers (arkusze +2zł/m2)', () => {
+  it("should apply fixed modifiers (arkusze +2zł/m2)", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 1,
-      modifiers: ['arkusze']
+      modifiers: ["arkusze"],
     });
     // 67 + 2 = 69
     expect(result.totalPrice).toBe(69);
   });
 
-  it('should apply both percent and fixed modifiers correctly', () => {
+  it("should apply both percent and fixed modifiers correctly", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 1,
-      modifiers: ['mocny_klej', 'pojedyncze']
+      modifiers: ["mocny_klej", "pojedyncze"],
     });
     // (67 * 1.12) + 10 = 75.04 + 10 = 85.04
     expect(result.totalPrice).toBeCloseTo(85.04);
   });
 
-  it('should enforce minimalka 1m2', () => {
+  it("should enforce minimalka 1m2", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_obrys_folia',
+      groupId: "wlepki_obrys_folia",
       area: 0.5,
-      modifiers: []
+      modifiers: [],
     });
     // 1m2 * 67 = 67
     expect(result.totalPrice).toBe(67);
   });
 
-  it('should handle Polipropylen tiers', () => {
+  it("should handle Polipropylen tiers", () => {
     const result = calculateWlepki({
-      groupId: 'wlepki_polipropylen',
+      groupId: "wlepki_polipropylen",
       area: 12,
-      modifiers: []
+      modifiers: [],
     });
     // 12m2 * 42 = 504
     expect(result.tierPrice).toBe(42);
     expect(result.totalPrice).toBe(504);
   });
 
-  it('should calculate sztukowe papier SRA3', () => {
-    const result = calculateWlepkiSzt({ tableId: 'papier-sra3', qty: 3 });
+  it("should calculate sztukowe papier SRA3", () => {
+    const result = calculateWlepkiSzt({ tableId: "papier-sra3", qty: 3 });
     expect(result.unitPrice).toBe(29);
     expect(result.totalPrice).toBe(29);
   });
 
-  it('should calculate sztukowe with nearest higher threshold', () => {
-    const result = calculateWlepkiSzt({ tableId: 'folia-sra3', qty: 11 });
+  it("should calculate sztukowe with nearest higher threshold", () => {
+    const result = calculateWlepkiSzt({ tableId: "folia-sra3", qty: 11 });
     // next threshold is 15
     expect(result.chargedQty).toBe(15);
     expect(result.totalPrice).toBe(295);
   });
 
-  it('should apply express in sztukowe mode', () => {
-    const result = calculateWlepkiSzt({ tableId: 'plotowane-folia', qty: 1, express: true });
+  it("should apply express in sztukowe mode", () => {
+    const result = calculateWlepkiSzt({ tableId: "plotowane-folia", qty: 1, express: true });
     // 50 * 1.2 = 60
     expect(result.totalPrice).toBe(60);
   });

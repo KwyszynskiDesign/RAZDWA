@@ -4,7 +4,7 @@ import { getRenderedCategories, isLaminowanieEmphasizedRow } from "../src/ui/vie
 describe("Ustawienia category mapping", () => {
   it("assigns plakaty blockout keys to the Solwent / plakaty category", () => {
     const prices = {
-      "plakaty-blockout200g-1-3": 80
+      "plakaty-blockout200g-1-3": 80,
     };
 
     const categories = getRenderedCategories(prices);
@@ -17,7 +17,7 @@ describe("Ustawienia category mapping", () => {
 
   it("assigns CAD fold keys to the CAD wielkoformatowy category", () => {
     const prices = {
-      "cad-fold-a0": 2.5
+      "cad-fold-a0": 2.5,
     };
 
     const categories = getRenderedCategories(prices);
@@ -30,7 +30,7 @@ describe("Ustawienia category mapping", () => {
 
   it("assigns CAD scanning key to the CAD wielkoformatowy category", () => {
     const prices = {
-      "cad-skanowanie": 0.08
+      "cad-skanowanie": 0.08,
     };
 
     const categories = getRenderedCategories(prices);

@@ -3,7 +3,7 @@
  * No DOM, no localStorage — safe to import in tests.
  */
 
-export type VariantAction = 'add' | 'update' | 'skip';
+export type VariantAction = "add" | "update" | "skip";
 
 export interface VariantLogEntry {
   action: VariantAction;
@@ -21,7 +21,7 @@ const _log: VariantLogEntry[] = [];
 
 export function logVariantOperation(entry: VariantLogEntry): void {
   _log.push(entry);
-  const keyPart = entry.key ? ` ${entry.key}` : ` (${entry.categoryId}/${entry.prefix || '?'})`;
+  const keyPart = entry.key ? ` ${entry.key}` : ` (${entry.categoryId}/${entry.prefix || "?"})`;
 }
 
 export function getVariantLog(): readonly VariantLogEntry[] {

@@ -1,6 +1,7 @@
 # Integracja Google Apps Script → Google Sheets
 
 ## 1) Utwórz arkusz docelowy
+
 1. Załóż nowy arkusz Google.
 2. Nazwij zakładkę np. `orders`.
 3. W wierszu 1 utwórz nagłówki (TYLKO te i w tej kolejności):
@@ -26,17 +27,33 @@
 - orderId
 
 ## 2) Utwórz Apps Script
+
 1. W arkuszu: Rozszerzenia → Apps Script.
 2. Wklej poniższy kod do pliku `Code.gs`.
 3. Podmień `SHEET_NAME` jeśli używasz innej nazwy zakładki.
 
 ```javascript
-const SHEET_NAME = 'orders';
+const SHEET_NAME = "orders";
 const HEADERS = [
-  'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
-  'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
-  'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
-  'orderId'
+  "Data",
+  "Godzina",
+  "Firma",
+  "Kto dodał",
+  "Imię",
+  "Nazwisko",
+  "NIP",
+  "Telefon",
+  "Email",
+  "Materiał",
+  "jedno/dwustronne",
+  "Produkt",
+  "Ilosc sztuk",
+  "Cena za sztukę",
+  "Uwagi",
+  "Suma (PLN)",
+  "Priorytet",
+  "Ekspres",
+  "orderId",
 ];
 
 function ensureSheet() {
@@ -45,10 +62,10 @@ function ensureSheet() {
 
   // Synchronizacja nagłówków także dla istniejącego arkusza
   const current = sheet.getRange(1, 1, 1, HEADERS.length).getValues()[0];
-  const same = HEADERS.every((h, i) => String(current[i] || '').trim() === h);
+  const same = HEADERS.every((h, i) => String(current[i] || "").trim() === h);
   if (!same) {
     sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight('bold');
+    sheet.getRange(1, 1, 1, HEADERS.length).setFontWeight("bold");
     sheet.setFrozenRows(1);
   }
 
@@ -56,63 +73,64 @@ function ensureSheet() {
 }
 
 function normalizeExpress(v) {
-  return (v === true || v === 'true' || v === 1 || v === '1' || v === 'TAK' || v === 'TAK ⚡')
-    ? 'TAK ⚡'
-    : 'NIE';
+  return v === true || v === "true" || v === 1 || v === "1" || v === "TAK" || v === "TAK ⚡"
+    ? "TAK ⚡"
+    : "NIE";
 }
 
 function toNumberOrBlank(v) {
   const n = Number(v);
-  return Number.isFinite(n) ? n : '';
+  return Number.isFinite(n) ? n : "";
 }
 
 function doPost(e) {
   try {
-    const body = JSON.parse((e && e.postData && e.postData.contents) || '{}') || {};
+    const body = JSON.parse((e && e.postData && e.postData.contents) || "{}") || {};
     const row = body;
 
     // Wymagane minimum: telefon
-    if (!row['Telefon']) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ ok: false, message: 'Numer telefonu jest wymagany.' }))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (!row["Telefon"]) {
+      return ContentService.createTextOutput(
+        JSON.stringify({ ok: false, message: "Numer telefonu jest wymagany." })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
 
     const sheet = ensureSheet();
 
     sheet.appendRow([
-      row['Data'] || '',
-      row['Godzina'] || '',
-      row['Firma'] || '',
-      row['Kto dodał'] || '',
-      row['Imię'] || '',
-      row['Nazwisko'] || '',
-      row['NIP'] || '',
-      row['Telefon'] || '',
-      row['Email'] || '',
-      row['Materiał'] || '',
-      row['jedno/dwustronne'] || '',
-      row['Produkt'] || '',
-      toNumberOrBlank(row['Ilosc sztuk']),
-      toNumberOrBlank(row['Cena za sztukę']),
-      row['Uwagi'] || '',
-      toNumberOrBlank(row['Suma (PLN)']),
-      row['Priorytet'] || 'Normalny',
-      normalizeExpress(row['Ekspres'])
+      row["Data"] || "",
+      row["Godzina"] || "",
+      row["Firma"] || "",
+      row["Kto dodał"] || "",
+      row["Imię"] || "",
+      row["Nazwisko"] || "",
+      row["NIP"] || "",
+      row["Telefon"] || "",
+      row["Email"] || "",
+      row["Materiał"] || "",
+      row["jedno/dwustronne"] || "",
+      row["Produkt"] || "",
+      toNumberOrBlank(row["Ilosc sztuk"]),
+      toNumberOrBlank(row["Cena za sztukę"]),
+      row["Uwagi"] || "",
+      toNumberOrBlank(row["Suma (PLN)"]),
+      row["Priorytet"] || "Normalny",
+      normalizeExpress(row["Ekspres"]),
     ]);
 
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, message: 'Zamówienie zapisane.' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: true, message: "Zamówienie zapisane." })
+    ).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: String(err) }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: String(err) })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 }
 ```
 
 ## 3) Wdróż Web App
+
 1. Kliknij **Deploy** → **New deployment**.
 2. Typ: **Web app**.
 3. Execute as: **Me**.
@@ -120,6 +138,7 @@ function doPost(e) {
 5. Skopiuj URL kończący się na `/exec`.
 
 ## 4) Wklej URL do aplikacji RAZDWA
+
 1. Otwórz kategorię **Ustawienia cen**.
 2. Sekcja **Integracja Google Sheets (Apps Script)**:
    - wklej URL Web App,
@@ -137,8 +156,8 @@ Dopisz poniższe **bez ingerencji w istniejące funkcje** (`doPost` z `saveOrder
 ### Stałe (dopisz na górze pliku, obok SHEET_NAME)
 
 ```javascript
-const CENNIK_SHEET_NAME = 'cennik';
-const VARIANTS_SHEET_NAME = 'variants';
+const CENNIK_SHEET_NAME = "cennik";
+const VARIANTS_SHEET_NAME = "variants";
 const CHUNK_SIZE = 400;
 ```
 
@@ -156,11 +175,11 @@ function readCennik() {
   if (lastRow < 1) return {};
   const data = sheet.getRange(1, 1, lastRow, 2).getValues();
   const result = {};
-  data.forEach(function(row) {
-    const key = String(row[0] || '').trim();
+  data.forEach(function (row) {
+    const key = String(row[0] || "").trim();
     if (!key) return;
     const val = row[1];
-    result[key] = (val === '' || val === null || val === undefined) ? null : Number(val);
+    result[key] = val === "" || val === null || val === undefined ? null : Number(val);
   });
   return result;
 }
@@ -172,9 +191,9 @@ function writeCennik(prices) {
   if (keys.length === 0) return;
   for (var i = 0; i < keys.length; i += CHUNK_SIZE) {
     const chunk = keys.slice(i, i + CHUNK_SIZE);
-    const rows = chunk.map(function(k) {
+    const rows = chunk.map(function (k) {
       const v = prices[k];
-      return [k, (v === null || v === undefined) ? '' : v];
+      return [k, v === null || v === undefined ? "" : v];
     });
     sheet.getRange(i + 1, 1, rows.length, 2).setValues(rows);
   }
@@ -192,7 +211,7 @@ function ensureVariantsSheet() {
 function readVariants() {
   const sheet = ensureVariantsSheet();
   if (sheet.getLastRow() < 1) return [];
-  const raw = String(sheet.getRange(1, 1).getValue() || '').trim();
+  const raw = String(sheet.getRange(1, 1).getValue() || "").trim();
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);
@@ -219,30 +238,31 @@ function writeVariants(variants) {
 function doGet(e) {
   try {
     var action = e && e.parameter && e.parameter.action;
-    if (action === 'getState') {
-      Logger.log('GET getState');
-      return ContentService
-        .createTextOutput(JSON.stringify({ prices: readCennik(), variants: readVariants() }))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (action === "getState") {
+      Logger.log("GET getState");
+      return ContentService.createTextOutput(
+        JSON.stringify({ prices: readCennik(), variants: readVariants() })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
-    if (action === 'getPrices') {
-      Logger.log('GET getPrices');
-      return ContentService
-        .createTextOutput(JSON.stringify(readCennik()))
-        .setMimeType(ContentService.MimeType.JSON);
+    if (action === "getPrices") {
+      Logger.log("GET getPrices");
+      return ContentService.createTextOutput(JSON.stringify(readCennik())).setMimeType(
+        ContentService.MimeType.JSON
+      );
     }
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Unknown action' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: "Unknown action" })
+    ).setMimeType(ContentService.MimeType.JSON);
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: String(err) }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: String(err) })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 }
 ```
 
 Odpowiedź dla `getState`:
+
 ```json
 {
   "prices": { "druk-bw-a4-1-5": 0.5, "solwent-150g-1-3": 45, ... },
@@ -257,8 +277,8 @@ Odpowiedź dla `getState`:
 
 ```javascript
 function setAdminPin(newPin) {
-  PropertiesService.getScriptProperties().setProperty('ADMIN_PIN', String(newPin));
-  Logger.log('PIN ustawiony.');
+  PropertiesService.getScriptProperties().setProperty("ADMIN_PIN", String(newPin));
+  Logger.log("PIN ustawiony.");
 }
 ```
 
@@ -272,74 +292,78 @@ Model bezpieczeństwa: frontend weryfikuje PIN raz (action=verifyPin). GAS wydaj
 
 ```javascript
 // Dopisz jako pierwszy blok wewnątrz try{} w doPost(e), przed logiką zamówień:
-const body = JSON.parse((e && e.postData && e.postData.contents) || '{}') || {};
+const body = JSON.parse((e && e.postData && e.postData.contents) || "{}") || {};
 
 // ── weryfikacja PIN i wydanie tokenu sesji ───────────────────────────────────
-if (body.action === 'verifyPin') {
-  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+if (body.action === "verifyPin") {
+  const adminPin = PropertiesService.getScriptProperties().getProperty("ADMIN_PIN");
   if (!adminPin) {
     const token = Utilities.getUuid();
-    CacheService.getScriptCache().put('adminToken_' + token, '1', 1800);
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: true, firstRun: true, token: token }))
-      .setMimeType(ContentService.MimeType.JSON);
+    CacheService.getScriptCache().put("adminToken_" + token, "1", 1800);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: true, firstRun: true, token: token })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
   if (body.pin !== adminPin) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, error: 'wrong_pin' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, error: "wrong_pin" })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
   const token = Utilities.getUuid();
-  CacheService.getScriptCache().put('adminToken_' + token, '1', 1800);
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, token: token }))
-    .setMimeType(ContentService.MimeType.JSON);
+  CacheService.getScriptCache().put("adminToken_" + token, "1", 1800);
+  return ContentService.createTextOutput(JSON.stringify({ ok: true, token: token })).setMimeType(
+    ContentService.MimeType.JSON
+  );
 }
 
 // ── zapis cennika ────────────────────────────────────────────────────────────
-if (body.type === 'prices_update') {
-  Logger.log('POST prices_update');
-  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+if (body.type === "prices_update") {
+  Logger.log("POST prices_update");
+  const adminPin = PropertiesService.getScriptProperties().getProperty("ADMIN_PIN");
   if (adminPin) {
-    const cached = body.token ? CacheService.getScriptCache().get('adminToken_' + body.token) : null;
+    const cached = body.token
+      ? CacheService.getScriptCache().get("adminToken_" + body.token)
+      : null;
     if (!cached) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid or expired session token' }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(
+        JSON.stringify({ ok: false, message: "Unauthorized: invalid or expired session token" })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
   }
-  if (!body.prices || typeof body.prices !== 'object') {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola prices.' }))
-      .setMimeType(ContentService.MimeType.JSON);
+  if (!body.prices || typeof body.prices !== "object") {
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: "Brak pola prices." })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
   writeCennik(body.prices);
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, message: 'Cennik zapisany.' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok: true, message: "Cennik zapisany." })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 
 // ── zapis wariantów ──────────────────────────────────────────────────────────
-if (body.type === 'variants_update') {
-  Logger.log('POST variants_update');
-  const adminPin = PropertiesService.getScriptProperties().getProperty('ADMIN_PIN');
+if (body.type === "variants_update") {
+  Logger.log("POST variants_update");
+  const adminPin = PropertiesService.getScriptProperties().getProperty("ADMIN_PIN");
   if (adminPin) {
-    const cached = body.token ? CacheService.getScriptCache().get('adminToken_' + body.token) : null;
+    const cached = body.token
+      ? CacheService.getScriptCache().get("adminToken_" + body.token)
+      : null;
     if (!cached) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ ok: false, message: 'Unauthorized: invalid or expired session token' }))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(
+        JSON.stringify({ ok: false, message: "Unauthorized: invalid or expired session token" })
+      ).setMimeType(ContentService.MimeType.JSON);
     }
   }
   if (!Array.isArray(body.variants)) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola variants.' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: "Brak pola variants." })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
   writeVariants(body.variants);
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, message: 'Warianty zapisane.' }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok: true, message: "Warianty zapisane." })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 
 // tutaj dalej istniejąca logika zamówień (saveOrder, saveClick, itp.) bez zmian
@@ -355,12 +379,23 @@ Istniejące endpointy (`prices_update`, `variants_update`, `verifyPin`, zamówie
 ### 6.1 Stałe — dopisz na górze pliku obok SHEET_NAME
 
 ```javascript
-const PRICE_RECORDS_SHEET_NAME = 'API_PRICE_RECORDS';
+const PRICE_RECORDS_SHEET_NAME = "API_PRICE_RECORDS";
 const PRICE_RECORDS_HEADERS = [
-  'id', 'category', 'subcategory', 'label',
-  'qtyFrom', 'qtyTo', 'unit', 'price', 'modifierType',
-  'isActive', 'createdAt', 'updatedAt', 'syncedAt',
-  '_dirty', '_deleted'
+  "id",
+  "category",
+  "subcategory",
+  "label",
+  "qtyFrom",
+  "qtyTo",
+  "unit",
+  "price",
+  "modifierType",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+  "syncedAt",
+  "_dirty",
+  "_deleted",
 ];
 const PRICE_RECORDS_NUM_COLS = 15;
 
@@ -378,12 +413,12 @@ function ensurePriceRecordsSheet() {
     sheet = ss.insertSheet(PRICE_RECORDS_SHEET_NAME);
   }
   var header = sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).getValues()[0];
-  var same = PRICE_RECORDS_HEADERS.every(function(h, i) {
-    return String(header[i] || '').trim() === h;
+  var same = PRICE_RECORDS_HEADERS.every(function (h, i) {
+    return String(header[i] || "").trim() === h;
   });
   if (!same) {
     sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).setValues([PRICE_RECORDS_HEADERS]);
-    sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).setFontWeight('bold');
+    sheet.getRange(1, 1, 1, PRICE_RECORDS_NUM_COLS).setFontWeight("bold");
     sheet.setFrozenRows(1);
   }
   return sheet;
@@ -398,14 +433,14 @@ Używa `SETTINGS_PIN_KEY` i zwraca dokładne kody błędów spójne z istniejąc
 function _verifyAdminSessionToken(data) {
   var adminPin = PropertiesService.getScriptProperties().getProperty(SETTINGS_PIN_KEY);
   if (!adminPin) {
-    return { ok: false, error: 'pin_not_configured' };
+    return { ok: false, error: "pin_not_configured" };
   }
   if (!data || !data.token) {
-    return { ok: false, error: 'missing_session_token' };
+    return { ok: false, error: "missing_session_token" };
   }
-  var cached = CacheService.getScriptCache().get('adminToken_' + data.token);
+  var cached = CacheService.getScriptCache().get("adminToken_" + data.token);
   if (!cached) {
-    return { ok: false, error: 'invalid_or_expired_session_token' };
+    return { ok: false, error: "invalid_or_expired_session_token" };
   }
   return { ok: true };
 }
@@ -415,18 +450,20 @@ function _verifyAdminSessionToken(data) {
 
 ```javascript
 function _validatePriceRecord(r) {
-  if (!r || typeof r !== 'object') return { valid: false, error: 'Rekord nie jest obiektem' };
-  if (!r.id || typeof r.id !== 'string') return { valid: false, error: 'Brak id' };
-  if (!r.createdAt || typeof r.createdAt !== 'string') return { valid: false, error: 'Brak createdAt' };
-  if (!r.updatedAt || typeof r.updatedAt !== 'string') return { valid: false, error: 'Brak updatedAt' };
+  if (!r || typeof r !== "object") return { valid: false, error: "Rekord nie jest obiektem" };
+  if (!r.id || typeof r.id !== "string") return { valid: false, error: "Brak id" };
+  if (!r.createdAt || typeof r.createdAt !== "string")
+    return { valid: false, error: "Brak createdAt" };
+  if (!r.updatedAt || typeof r.updatedAt !== "string")
+    return { valid: false, error: "Brak updatedAt" };
   var price = Number(r.price);
-  if (!isFinite(price) || price < 0) return { valid: false, error: 'Nieprawidłowa price' };
+  if (!isFinite(price) || price < 0) return { valid: false, error: "Nieprawidłowa price" };
   var qtyFrom = Number(r.qtyFrom);
-  if (!isFinite(qtyFrom) || qtyFrom < 1) return { valid: false, error: 'qtyFrom musi być >= 1' };
-  if (r.qtyTo !== null && r.qtyTo !== undefined && r.qtyTo !== '') {
+  if (!isFinite(qtyFrom) || qtyFrom < 1) return { valid: false, error: "qtyFrom musi być >= 1" };
+  if (r.qtyTo !== null && r.qtyTo !== undefined && r.qtyTo !== "") {
     var qtyTo = Number(r.qtyTo);
     if (!isFinite(qtyTo) || qtyTo < qtyFrom) {
-      return { valid: false, error: 'qtyTo musi być >= qtyFrom' };
+      return { valid: false, error: "qtyTo musi być >= qtyFrom" };
     }
   }
   return { valid: true };
@@ -440,50 +477,50 @@ function _validatePriceRecord(r) {
 ```javascript
 function _recordToRow(r) {
   return [
-    String(r.id || ''),
-    String(r.category || ''),
-    String(r.subcategory || ''),
-    String(r.label || ''),
+    String(r.id || ""),
+    String(r.category || ""),
+    String(r.subcategory || ""),
+    String(r.label || ""),
     Number(r.qtyFrom) || 1,
-    (r.qtyTo === null || r.qtyTo === undefined || r.qtyTo === '') ? '' : Number(r.qtyTo),
-    String(r.unit || 'szt'),
+    r.qtyTo === null || r.qtyTo === undefined || r.qtyTo === "" ? "" : Number(r.qtyTo),
+    String(r.unit || "szt"),
     Number(r.price),
-    String(r.modifierType || ''),
-    r.isActive === false ? 'FALSE' : 'TRUE',
-    String(r.createdAt || ''),
-    String(r.updatedAt || ''),
-    r.syncedAt ? String(r.syncedAt) : '',
-    r._dirty === true ? 'TRUE' : 'FALSE',
-    r._deleted === true ? 'TRUE' : 'FALSE'
+    String(r.modifierType || ""),
+    r.isActive === false ? "FALSE" : "TRUE",
+    String(r.createdAt || ""),
+    String(r.updatedAt || ""),
+    r.syncedAt ? String(r.syncedAt) : "",
+    r._dirty === true ? "TRUE" : "FALSE",
+    r._deleted === true ? "TRUE" : "FALSE",
   ];
 }
 
 function _rowToRecord(rowValues) {
-  var id = String(rowValues[0] || '').trim();
-  var createdAt = String(rowValues[10] || '').trim();
-  var updatedAt = String(rowValues[11] || '').trim();
+  var id = String(rowValues[0] || "").trim();
+  var createdAt = String(rowValues[10] || "").trim();
+  var updatedAt = String(rowValues[11] || "").trim();
   if (!id || !createdAt || !updatedAt) {
-    Logger.log('[API_PRICE_RECORDS] Pominięto uszkodzony rekord: id=' + id);
+    Logger.log("[API_PRICE_RECORDS] Pominięto uszkodzony rekord: id=" + id);
     return null;
   }
   var qtyToRaw = rowValues[5];
-  var syncedAtRaw = String(rowValues[12] || '').trim();
+  var syncedAtRaw = String(rowValues[12] || "").trim();
   return {
     id: id,
-    category: String(rowValues[1] || ''),
-    subcategory: String(rowValues[2] || ''),
-    label: String(rowValues[3] || ''),
+    category: String(rowValues[1] || ""),
+    subcategory: String(rowValues[2] || ""),
+    label: String(rowValues[3] || ""),
     qtyFrom: Number(rowValues[4]) || 1,
-    qtyTo: (qtyToRaw === '' || qtyToRaw === null || qtyToRaw === undefined) ? null : Number(qtyToRaw),
-    unit: String(rowValues[6] || 'szt'),
+    qtyTo: qtyToRaw === "" || qtyToRaw === null || qtyToRaw === undefined ? null : Number(qtyToRaw),
+    unit: String(rowValues[6] || "szt"),
     price: Number(rowValues[7]) || 0,
-    modifierType: String(rowValues[8] || ''),
-    isActive: String(rowValues[9]).toUpperCase() !== 'FALSE',
+    modifierType: String(rowValues[8] || ""),
+    isActive: String(rowValues[9]).toUpperCase() !== "FALSE",
     createdAt: createdAt,
     updatedAt: updatedAt,
     syncedAt: syncedAtRaw || null,
-    _dirty: String(rowValues[13]).toUpperCase() === 'TRUE',
-    _deleted: String(rowValues[14]).toUpperCase() === 'TRUE'
+    _dirty: String(rowValues[13]).toUpperCase() === "TRUE",
+    _deleted: String(rowValues[14]).toUpperCase() === "TRUE",
   };
 }
 ```
@@ -497,15 +534,15 @@ Wynik zwraca tylko faktycznie zapisane `id` w `processed[]`.
 function handlePricesPush(data) {
   var auth = _verifyAdminSessionToken(data);
   if (!auth.ok) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: auth.error }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: auth.error })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 
   if (!Array.isArray(data.records)) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: 'Brak pola records[].' }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: "Brak pola records[]." })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 
   var sheet = ensurePriceRecordsSheet();
@@ -516,7 +553,7 @@ function handlePricesPush(data) {
   if (lastRow >= 2) {
     var idCol = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
     for (var i = 0; i < idCol.length; i++) {
-      var existingId = String(idCol[i][0] || '').trim();
+      var existingId = String(idCol[i][0] || "").trim();
       if (existingId) idToRow[existingId] = i + 2;
     }
   }
@@ -529,26 +566,26 @@ function handlePricesPush(data) {
     var r = data.records[ri];
     var validation = _validatePriceRecord(r);
     if (!validation.valid) {
-      Logger.log('[handlePricesPush] Pominięto id=' + (r && r.id) + ': ' + validation.error);
+      Logger.log("[handlePricesPush] Pominięto id=" + (r && r.id) + ": " + validation.error);
       continue;
     }
 
     var toSave = {
       id: r.id,
-      category: r.category || '',
-      subcategory: r.subcategory || '',
-      label: r.label || '',
+      category: r.category || "",
+      subcategory: r.subcategory || "",
+      label: r.label || "",
       qtyFrom: r.qtyFrom,
-      qtyTo: (r.qtyTo === null || r.qtyTo === undefined) ? null : r.qtyTo,
-      unit: r.unit || 'szt',
+      qtyTo: r.qtyTo === null || r.qtyTo === undefined ? null : r.qtyTo,
+      unit: r.unit || "szt",
       price: r.price,
-      modifierType: r.modifierType || '',
+      modifierType: r.modifierType || "",
       isActive: r.isActive !== false,
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
       syncedAt: syncedAt,
       _dirty: false,
-      _deleted: r._deleted === true
+      _deleted: r._deleted === true,
     };
 
     var row = _recordToRow(toSave);
@@ -559,7 +596,7 @@ function handlePricesPush(data) {
         sheet.getRange(existingRowIdx, 1, 1, PRICE_RECORDS_NUM_COLS).setValues([row]);
         processed.push(r.id);
       } catch (e) {
-        Logger.log('[handlePricesPush] Błąd update id=' + r.id + ': ' + e);
+        Logger.log("[handlePricesPush] Błąd update id=" + r.id + ": " + e);
       }
     } else {
       newRows.push({ id: r.id, row: row });
@@ -569,20 +606,22 @@ function handlePricesPush(data) {
   // Batch append nowych wierszy — jeden setValues zamiast N appendRow
   if (newRows.length > 0) {
     var appendStart = sheet.getLastRow() + 1;
-    var rowArrays = newRows.map(function(item) { return item.row; });
+    var rowArrays = newRows.map(function (item) {
+      return item.row;
+    });
     try {
       sheet.getRange(appendStart, 1, rowArrays.length, PRICE_RECORDS_NUM_COLS).setValues(rowArrays);
       for (var ni = 0; ni < newRows.length; ni++) {
         processed.push(newRows[ni].id);
       }
     } catch (e) {
-      Logger.log('[handlePricesPush] Błąd batch append: ' + e);
+      Logger.log("[handlePricesPush] Błąd batch append: " + e);
     }
   }
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, processed: processed, syncedAt: syncedAt }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok: true, processed: processed, syncedAt: syncedAt })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 ```
 
@@ -592,9 +631,9 @@ function handlePricesPush(data) {
 function handlePricesPull(data) {
   var auth = _verifyAdminSessionToken(data);
   if (!auth.ok) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: auth.error }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: auth.error })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 
   var sheet = ensurePriceRecordsSheet();
@@ -611,9 +650,9 @@ function handlePricesPull(data) {
     }
   }
 
-  return ContentService
-    .createTextOutput(JSON.stringify({ ok: true, records: records }))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(
+    JSON.stringify({ ok: true, records: records })
+  ).setMimeType(ContentService.MimeType.JSON);
 }
 ```
 
@@ -621,37 +660,39 @@ function handlePricesPull(data) {
 
 ```javascript
 // ── prices.push ───────────────────────────────────────────────────────────
-if (body.type === 'prices.push') {
-  Logger.log('POST prices.push — rekordów: ' + (Array.isArray(body.records) ? body.records.length : '?'));
+if (body.type === "prices.push") {
+  Logger.log(
+    "POST prices.push — rekordów: " + (Array.isArray(body.records) ? body.records.length : "?")
+  );
   return handlePricesPush(body);
 }
 
 // ── prices.pull ───────────────────────────────────────────────────────────
-if (body.type === 'prices.pull') {
-  Logger.log('POST prices.pull');
+if (body.type === "prices.pull") {
+  Logger.log("POST prices.pull");
   return handlePricesPull(body);
 }
 ```
 
 ### 6.9 Schemat arkusza API_PRICE_RECORDS (informacyjnie)
 
-| Kolumna | Pole | Typ w arkuszu |
-|---|---|---|
-| A | id | string (UUID) |
-| B | category | string |
-| C | subcategory | string |
-| D | label | string |
-| E | qtyFrom | number |
-| F | qtyTo | number lub `""` (puste = null) |
-| G | unit | string |
-| H | price | number |
-| I | modifierType | string lub `""` |
-| J | isActive | `"TRUE"` / `"FALSE"` |
-| K | createdAt | ISO string |
-| L | updatedAt | ISO string |
-| M | syncedAt | ISO string lub `""` |
-| N | _dirty | `"TRUE"` / `"FALSE"` |
-| O | _deleted | `"TRUE"` / `"FALSE"` |
+| Kolumna | Pole         | Typ w arkuszu                  |
+| ------- | ------------ | ------------------------------ |
+| A       | id           | string (UUID)                  |
+| B       | category     | string                         |
+| C       | subcategory  | string                         |
+| D       | label        | string                         |
+| E       | qtyFrom      | number                         |
+| F       | qtyTo        | number lub `""` (puste = null) |
+| G       | unit         | string                         |
+| H       | price        | number                         |
+| I       | modifierType | string lub `""`                |
+| J       | isActive     | `"TRUE"` / `"FALSE"`           |
+| K       | createdAt    | ISO string                     |
+| L       | updatedAt    | ISO string                     |
+| M       | syncedAt     | ISO string lub `""`            |
+| N       | \_dirty      | `"TRUE"` / `"FALSE"`           |
+| O       | \_deleted    | `"TRUE"` / `"FALSE"`           |
 
 ---
 
@@ -665,10 +706,26 @@ Już zaktualizowana wyżej w Sekcji 2. Jeśli masz inną wersję, użyj tej:
 
 ```javascript
 const HEADERS = [
-  'Data', 'Godzina', 'Firma', 'Kto dodał', 'Imię', 'Nazwisko', 'NIP', 'Telefon', 'Email',
-  'Materiał', 'jedno/dwustronne', 'Produkt', 'Ilosc sztuk', 'Cena za sztukę',
-  'Uwagi', 'Suma (PLN)', 'Priorytet', 'Ekspres',
-  'orderId', 'RequestID'
+  "Data",
+  "Godzina",
+  "Firma",
+  "Kto dodał",
+  "Imię",
+  "Nazwisko",
+  "NIP",
+  "Telefon",
+  "Email",
+  "Materiał",
+  "jedno/dwustronne",
+  "Produkt",
+  "Ilosc sztuk",
+  "Cena za sztukę",
+  "Uwagi",
+  "Suma (PLN)",
+  "Priorytet",
+  "Ekspres",
+  "orderId",
+  "RequestID",
 ];
 ```
 
@@ -678,39 +735,42 @@ const HEADERS = [
 
 ```javascript
 function _validateOrderPayload(body) {
-  var phone = String(body['Telefon'] || '').trim();
-  if (!phone || phone.replace(/\D/g, '').length < 9) {
-    return { valid: false, message: 'Telefon jest wymagany i musi zawierać co najmniej 9 cyfr.' };
+  var phone = String(body["Telefon"] || "").trim();
+  if (!phone || phone.replace(/\D/g, "").length < 9) {
+    return { valid: false, message: "Telefon jest wymagany i musi zawierać co najmniej 9 cyfr." };
   }
 
-  var produkt = String(body['Produkt'] || '').trim();
+  var produkt = String(body["Produkt"] || "").trim();
   if (!produkt) {
-    return { valid: false, message: 'Pole Produkt nie może być puste.' };
+    return { valid: false, message: "Pole Produkt nie może być puste." };
   }
 
-  var suma = parseFloat(body['Suma (PLN)']);
+  var suma = parseFloat(body["Suma (PLN)"]);
   if (!isFinite(suma) || suma <= 0) {
-    return { valid: false, message: 'Suma (PLN) musi być liczbą większą od zera.' };
+    return { valid: false, message: "Suma (PLN) musi być liczbą większą od zera." };
   }
 
-  var qty = String(body['Ilosc sztuk'] || '').trim();
+  var qty = String(body["Ilosc sztuk"] || "").trim();
   if (qty) {
-    var qtyParts = qty.split('|');
+    var qtyParts = qty.split("|");
     for (var i = 0; i < qtyParts.length; i++) {
       var q = parseFloat(qtyParts[i].trim());
       if (!isFinite(q) || q < 1) {
-        return { valid: false, message: 'Ilosc sztuk musi być liczbą co najmniej 1 dla każdej pozycji.' };
+        return {
+          valid: false,
+          message: "Ilosc sztuk musi być liczbą co najmniej 1 dla każdej pozycji.",
+        };
       }
     }
   }
 
-  var cena = String(body['Cena za sztukę'] || '').trim();
+  var cena = String(body["Cena za sztukę"] || "").trim();
   if (cena) {
-    var cenaParts = cena.split('|');
+    var cenaParts = cena.split("|");
     for (var j = 0; j < cenaParts.length; j++) {
       var c = parseFloat(cenaParts[j].trim());
       if (!isFinite(c) || c < 0) {
-        return { valid: false, message: 'Cena za sztukę nie może być wartością ujemną.' };
+        return { valid: false, message: "Cena za sztukę nie może być wartością ujemną." };
       }
     }
   }
@@ -719,7 +779,7 @@ function _validateOrderPayload(body) {
 }
 
 function _generateOrderId() {
-  return 'RZ-' + Utilities.getUuid().replace(/-/g, '').slice(0, 8).toUpperCase();
+  return "RZ-" + Utilities.getUuid().replace(/-/g, "").slice(0, 8).toUpperCase();
 }
 
 function _cleanStaleRequestIds() {
@@ -729,10 +789,10 @@ function _cleanStaleRequestIds() {
   var cutoff = 48 * 60 * 60 * 1000;
   var deleted = 0;
   for (var key in all) {
-    if (key.indexOf('req_') !== 0) continue;
+    if (key.indexOf("req_") !== 0) continue;
     try {
       var entry = JSON.parse(all[key]);
-      if (!entry || !entry.at || (now - new Date(entry.at).getTime() > cutoff)) {
+      if (!entry || !entry.at || now - new Date(entry.at).getTime() > cutoff) {
         props.deleteProperty(key);
         deleted++;
         if (deleted >= 50) break;
@@ -749,35 +809,43 @@ function _orderResponse(ok, orderId, requestId, message, retryable) {
   var payload = { ok: ok, message: message };
   if (orderId) payload.orderId = orderId;
   if (retryable) payload.retryable = true;
-  return ContentService
-    .createTextOutput(JSON.stringify(payload))
-    .setMimeType(ContentService.MimeType.JSON);
+  return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(
+    ContentService.MimeType.JSON
+  );
 }
 
 function handleOrderSave(body) {
   _cleanStaleRequestIds();
 
-  var requestId = String(body['RequestID'] || '').trim();
+  var requestId = String(body["RequestID"] || "").trim();
   var props = PropertiesService.getScriptProperties();
   var now = new Date();
-  var REQ_KEY = requestId ? 'req_' + requestId : null;
+  var REQ_KEY = requestId ? "req_" + requestId : null;
 
   if (REQ_KEY) {
     var existing = null;
     try {
       var raw = props.getProperty(REQ_KEY);
       if (raw) existing = JSON.parse(raw);
-    } catch (e) { existing = null; }
+    } catch (e) {
+      existing = null;
+    }
 
     if (existing) {
-      if (existing.status === 'done' && existing.orderId) {
-        return _orderResponse(true, existing.orderId, requestId, 'Zamówienie już zapisane.');
+      if (existing.status === "done" && existing.orderId) {
+        return _orderResponse(true, existing.orderId, requestId, "Zamówienie już zapisane.");
       }
       var pendingAge = now.getTime() - new Date(existing.at || 0).getTime();
-      if (existing.status === 'pending' && pendingAge < 30000) {
-        return _orderResponse(false, null, requestId, 'Zamówienie w trakcie zapisu — spróbuj za chwilę.', true);
+      if (existing.status === "pending" && pendingAge < 30000) {
+        return _orderResponse(
+          false,
+          null,
+          requestId,
+          "Zamówienie w trakcie zapisu — spróbuj za chwilę.",
+          true
+        );
       }
-      if (existing.status === 'pending' && pendingAge >= 30000) {
+      if (existing.status === "pending" && pendingAge >= 30000) {
         props.deleteProperty(REQ_KEY);
       }
     }
@@ -785,16 +853,19 @@ function handleOrderSave(body) {
 
   var validation = _validateOrderPayload(body);
   if (!validation.valid) {
-    return ContentService
-      .createTextOutput(JSON.stringify({ ok: false, message: validation.message }))
-      .setMimeType(ContentService.MimeType.JSON);
+    return ContentService.createTextOutput(
+      JSON.stringify({ ok: false, message: validation.message })
+    ).setMimeType(ContentService.MimeType.JSON);
   }
 
   if (REQ_KEY) {
     try {
-      props.setProperty(REQ_KEY, JSON.stringify({ status: 'pending', orderId: '', at: now.toISOString() }));
+      props.setProperty(
+        REQ_KEY,
+        JSON.stringify({ status: "pending", orderId: "", at: now.toISOString() })
+      );
     } catch (e) {
-      Logger.log('[handleOrderSave] Phase 1 setProperty failed: ' + e);
+      Logger.log("[handleOrderSave] Phase 1 setProperty failed: " + e);
     }
   }
 
@@ -802,37 +873,40 @@ function handleOrderSave(body) {
   var sheet = ensureSheet();
 
   sheet.appendRow([
-    body['Data'] || '',
-    body['Godzina'] || '',
-    body['Firma'] || '',
-    body['Kto dodał'] || '',
-    body['Imię'] || '',
-    body['Nazwisko'] || '',
-    body['NIP'] || '',
-    body['Telefon'] || '',
-    body['Email'] || '',
-    body['Materiał'] || '',
-    body['jedno/dwustronne'] || '',
-    body['Produkt'] || '',
-    toNumberOrBlank(body['Ilosc sztuk']),
-    toNumberOrBlank(body['Cena za sztukę']),
-    body['Uwagi'] || '',
-    toNumberOrBlank(body['Suma (PLN)']),
-    body['Priorytet'] || 'Normalny',
-    normalizeExpress(body['Ekspres']),
+    body["Data"] || "",
+    body["Godzina"] || "",
+    body["Firma"] || "",
+    body["Kto dodał"] || "",
+    body["Imię"] || "",
+    body["Nazwisko"] || "",
+    body["NIP"] || "",
+    body["Telefon"] || "",
+    body["Email"] || "",
+    body["Materiał"] || "",
+    body["jedno/dwustronne"] || "",
+    body["Produkt"] || "",
+    toNumberOrBlank(body["Ilosc sztuk"]),
+    toNumberOrBlank(body["Cena za sztukę"]),
+    body["Uwagi"] || "",
+    toNumberOrBlank(body["Suma (PLN)"]),
+    body["Priorytet"] || "Normalny",
+    normalizeExpress(body["Ekspres"]),
     orderId,
-    String(body['RequestID'] || '')
+    String(body["RequestID"] || ""),
   ]);
 
   if (REQ_KEY) {
     try {
-      props.setProperty(REQ_KEY, JSON.stringify({ status: 'done', orderId: orderId, at: now.toISOString() }));
+      props.setProperty(
+        REQ_KEY,
+        JSON.stringify({ status: "done", orderId: orderId, at: now.toISOString() })
+      );
     } catch (e) {
-      Logger.log('[handleOrderSave] Phase 3 setProperty failed: ' + e);
+      Logger.log("[handleOrderSave] Phase 3 setProperty failed: " + e);
     }
   }
 
-  return _orderResponse(true, orderId, requestId, 'Zamówienie zapisane.');
+  return _orderResponse(true, orderId, requestId, "Zamówienie zapisane.");
 }
 ```
 
@@ -846,17 +920,17 @@ return handleOrderSave(body);
 
 ### 7.4 Schemat arkusza `orders` po zmianach
 
-| Kol | Pole | Uwagi |
-|---|---|---|
-| A–R (1–18) | bez zmian | Data → Ekspres |
-| S (19) | orderId | np. `RZ-3A7F2B9C`, generowane przez GAS |
-| T (20) | RequestID | UUID z frontendu — klucz idempotencji (historyczne wiersze puste) |
+| Kol        | Pole      | Uwagi                                                             |
+| ---------- | --------- | ----------------------------------------------------------------- |
+| A–R (1–18) | bez zmian | Data → Ekspres                                                    |
+| S (19)     | orderId   | np. `RZ-3A7F2B9C`, generowane przez GAS                           |
+| T (20)     | RequestID | UUID z frontendu — klucz idempotencji (historyczne wiersze puste) |
 
 ### 7.5 Indeks idempotencji — PropertiesService
 
-| Klucz | Wartość | Znaczenie |
-|---|---|---|
-| `req_{uuid}` | `{"status":"pending","orderId":"","at":"ISO"}` | Zapis w toku (Faza 1) |
+| Klucz        | Wartość                                           | Znaczenie                   |
+| ------------ | ------------------------------------------------- | --------------------------- |
+| `req_{uuid}` | `{"status":"pending","orderId":"","at":"ISO"}`    | Zapis w toku (Faza 1)       |
 | `req_{uuid}` | `{"status":"done","orderId":"RZ-XXX","at":"ISO"}` | Zapis potwierdzony (Faza 3) |
 
 - Wpisy starsze niż 48 h usuwane automatycznie (max 50 per wywołanie).
@@ -870,12 +944,12 @@ Po wklejeniu kodu z sekcji 7.1–7.3 wykonaj poniższe kroki.
 
 W edytorze Apps Script: **Deploy → Manage deployments**.
 
-- Jeśli masz już aktywny deployment typu *Web app*: kliknij ołówek (edytuj), zmień wersję na *New version*, potwierdź. **URL pozostaje ten sam** — nie musisz aktualizować go w aplikacji.
-- Jeśli nie masz aktywnego deploymentu: **Deploy → New deployment**, typ *Web app*, Execute as *Me*, Who has access *Anyone*. Skopiuj nowy URL i zaktualizuj go w ustawieniach aplikacji (sekcja *Integracja Google Sheets*).
+- Jeśli masz już aktywny deployment typu _Web app_: kliknij ołówek (edytuj), zmień wersję na _New version_, potwierdź. **URL pozostaje ten sam** — nie musisz aktualizować go w aplikacji.
+- Jeśli nie masz aktywnego deploymentu: **Deploy → New deployment**, typ _Web app_, Execute as _Me_, Who has access _Anyone_. Skopiuj nowy URL i zaktualizuj go w ustawieniach aplikacji (sekcja _Integracja Google Sheets_).
 
 **Krok 2 — zweryfikuj aktywny URL**
 
-W sekcji *Manage deployments* sprawdź, który deployment ma status *Active* i skopiuj jego URL (`/exec`). Porównaj z URL zapisanym w aplikacji (`Ustawienia → Integracja`). Zaktualizuj URL w aplikacji tylko jeśli się różnią.
+W sekcji _Manage deployments_ sprawdź, który deployment ma status _Active_ i skopiuj jego URL (`/exec`). Porównaj z URL zapisanym w aplikacji (`Ustawienia → Integracja`). Zaktualizuj URL w aplikacji tylko jeśli się różnią.
 
 **Krok 3 — zweryfikuj działanie idempotencji**
 

@@ -26,14 +26,14 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     pages: options.printQty,
     email: options.email,
     ink25: options.surcharge,
-    ink25Qty: options.surchargeQty
+    ink25Qty: options.surchargeQty,
   });
 
   let scanResult = { total: 0, unitPrice: 0 };
   if (options.scanType !== "none" && options.scanQty > 0) {
     scanResult = calculateSimpleScan({
       type: options.scanType as "auto" | "manual",
-      pages: options.scanQty
+      pages: options.scanQty,
     });
   }
 
@@ -42,7 +42,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     ? resolveStoredPrice("druk-label-sticker", stickerBase)
     : 0;
 
-  const sleeveBase = 0.80;
+  const sleeveBase = 0.8;
   const sleeveUnitPrice = resolveStoredPrice("druk-koszulka", sleeveBase);
   const requestedSleeveQty = Math.max(0, Math.floor(Number(options.sleeveQty ?? 0)));
   const sleeveQty = options.sleeve ? requestedSleeveQty : 0;
@@ -51,7 +51,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
   const baseTotal = printResult.grandTotal + scanResult.total + stickerPrice + sleevePrice;
   let finalTotal = baseTotal;
   if (options.express) {
-    finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.20));
+    finalTotal = baseTotal * (1 + resolveStoredPrice("modifier-express", 0.2));
   }
 
   return {
@@ -65,7 +65,7 @@ export function calculateDrukA4A3Skan(options: DrukA4A3SkanOptions, pricing?: an
     sleevePrice: parseFloat(sleevePrice.toFixed(2)),
     sleeveQty,
     surchargePrice: parseFloat(printResult.inkTotal.toFixed(2)),
-    baseTotal
+    baseTotal,
   };
 }
 
@@ -87,14 +87,15 @@ function getPricePerPage(
   }
 
   const adminModeKey = color === "czarnoBialy" ? "bw" : "kolor";
-  const suffix = selectedTier.to > 50000 ? `${selectedTier.from}+` : `${selectedTier.from}-${selectedTier.to}`;
+  const suffix =
+    selectedTier.to > 50000 ? `${selectedTier.from}+` : `${selectedTier.from}-${selectedTier.to}`;
   const storageKey = `druk-${adminModeKey}-${format.toLowerCase()}-${suffix}`;
   return resolveStoredPrice(storageKey, selectedTier.unit);
 }
 
 export const drukA4A3Category: CategoryModule = {
-  id: 'druk-a4-a3',
-  name: '📄 Druk A4/A3 + skan',
+  id: "druk-a4-a3",
+  name: "📄 Druk A4/A3 + skan",
   mount: (container, ctx) => {
     const categoryData = getPrice("druk-a4-a3") as any;
     const printBwTitle = categoryData?.pricing?.print_bw?.title || "Druk czarnobiały";
@@ -245,32 +246,38 @@ export const drukA4A3Category: CategoryModule = {
     let currentPrice = 0;
     let currentResult: any = null;
 
-    const formatSelect = container.querySelector('#format') as HTMLSelectElement;
-    const quantityInput = container.querySelector('#quantity') as HTMLInputElement;
-    const colorRadios = container.querySelectorAll('input[name="color"]') as NodeListOf<HTMLInputElement>;
-    const surchargeCheckbox = container.querySelector('#surcharge') as HTMLInputElement;
-    const surchargeQtyInput = container.querySelector('#surchargeQty') as HTMLInputElement;
-    const surchargeQtyContainer = container.querySelector('#surcharge-qty-container') as HTMLElement;
-    const emailCheckbox = container.querySelector('#email') as HTMLInputElement;
-    const scanTypeRadios = container.querySelectorAll('input[name="scanType"]') as NodeListOf<HTMLInputElement>;
-    const scanQtyInput = container.querySelector('#scanQty') as HTMLInputElement;
-    const scanQtyContainer = container.querySelector('#scan-qty-container') as HTMLElement;
-    const expressCheckbox = container.querySelector('#express') as HTMLInputElement;
-    const calculateBtn = container.querySelector('#calculate');
-    const addBtn = container.querySelector('#addToBasket');
-    const tiersList = container.querySelector('#tiers-list');
-    const pricePerPageDisplay = container.querySelector('#price-per-page');
-    const totalDisplay = container.querySelector('#total-price');
-    const breakdownDisplay = container.querySelector('#price-breakdown');
+    const formatSelect = container.querySelector("#format") as HTMLSelectElement;
+    const quantityInput = container.querySelector("#quantity") as HTMLInputElement;
+    const colorRadios = container.querySelectorAll(
+      'input[name="color"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const surchargeCheckbox = container.querySelector("#surcharge") as HTMLInputElement;
+    const surchargeQtyInput = container.querySelector("#surchargeQty") as HTMLInputElement;
+    const surchargeQtyContainer = container.querySelector(
+      "#surcharge-qty-container"
+    ) as HTMLElement;
+    const emailCheckbox = container.querySelector("#email") as HTMLInputElement;
+    const scanTypeRadios = container.querySelectorAll(
+      'input[name="scanType"]'
+    ) as NodeListOf<HTMLInputElement>;
+    const scanQtyInput = container.querySelector("#scanQty") as HTMLInputElement;
+    const scanQtyContainer = container.querySelector("#scan-qty-container") as HTMLElement;
+    const expressCheckbox = container.querySelector("#express") as HTMLInputElement;
+    const calculateBtn = container.querySelector("#calculate");
+    const addBtn = container.querySelector("#addToBasket");
+    const tiersList = container.querySelector("#tiers-list");
+    const pricePerPageDisplay = container.querySelector("#price-per-page");
+    const totalDisplay = container.querySelector("#total-price");
+    const breakdownDisplay = container.querySelector("#price-breakdown");
 
     // Helper functions to get values from radio buttons
     function getSelectedColor(): "czarnoBialy" | "kolorowy" {
-      const selected = Array.from(colorRadios).find(r => r.checked);
+      const selected = Array.from(colorRadios).find((r) => r.checked);
       return (selected?.value as "czarnoBialy" | "kolorowy") || "czarnoBialy";
     }
 
     function getSelectedScanType(): "none" | "auto" | "manual" {
-      const selected = Array.from(scanTypeRadios).find(r => r.checked);
+      const selected = Array.from(scanTypeRadios).find((r) => r.checked);
       return (selected?.value as "none" | "auto" | "manual") || "none";
     }
 
@@ -282,52 +289,53 @@ export const drukA4A3Category: CategoryModule = {
       const tiers = (PRICE.print as any)[modeKey][format];
 
       if (tiersList) {
-        tiersList.innerHTML = tiers.map((tier: any) => {
-          const rangeText = tier.to >= 99999
-            ? `${tier.from}+ str`
-            : `${tier.from}-${tier.to} str`;
-          const adminModeKey = color === "czarnoBialy" ? "bw" : "kolor";
-          const suffix = tier.to > 50000 ? `${tier.from}+` : `${tier.from}-${tier.to}`;
-          const storageKey = `druk-${adminModeKey}-${format.toLowerCase()}-${suffix}`;
-          const displayPrice = resolveStoredPrice(storageKey, tier.unit);
-          return `<div style="display: flex; justify-content: space-between; padding: 5px 0; color: #ccc;">
+        tiersList.innerHTML = tiers
+          .map((tier: any) => {
+            const rangeText =
+              tier.to >= 99999 ? `${tier.from}+ str` : `${tier.from}-${tier.to} str`;
+            const adminModeKey = color === "czarnoBialy" ? "bw" : "kolor";
+            const suffix = tier.to > 50000 ? `${tier.from}+` : `${tier.from}-${tier.to}`;
+            const storageKey = `druk-${adminModeKey}-${format.toLowerCase()}-${suffix}`;
+            const displayPrice = resolveStoredPrice(storageKey, tier.unit);
+            return `<div style="display: flex; justify-content: space-between; padding: 5px 0; color: #ccc;">
             <span>${rangeText}</span>
             <span style="color: #667eea;">${displayPrice.toFixed(2)} zł/str</span>
           </div>`;
-        }).join('');
+          })
+          .join("");
       }
     }
 
     // Toggle surcharge quantity input
-    surchargeCheckbox.addEventListener('change', () => {
+    surchargeCheckbox.addEventListener("change", () => {
       if (surchargeQtyContainer) {
-        surchargeQtyContainer.style.display = surchargeCheckbox.checked ? 'block' : 'none';
+        surchargeQtyContainer.style.display = surchargeCheckbox.checked ? "block" : "none";
       }
       if (!surchargeCheckbox.checked) {
-        surchargeQtyInput.value = '0';
+        surchargeQtyInput.value = "0";
       }
     });
 
     // Toggle scan quantity input based on selected scan type
-    scanTypeRadios.forEach(radio => {
-      radio.addEventListener('change', () => {
+    scanTypeRadios.forEach((radio) => {
+      radio.addEventListener("change", () => {
         if (scanQtyContainer) {
-          scanQtyContainer.style.display = getSelectedScanType() !== 'none' ? 'block' : 'none';
+          scanQtyContainer.style.display = getSelectedScanType() !== "none" ? "block" : "none";
         }
-        if (getSelectedScanType() === 'none') {
-          scanQtyInput.value = '0';
+        if (getSelectedScanType() === "none") {
+          scanQtyInput.value = "0";
         }
       });
     });
 
     // Update tiers when format or color changes
-    formatSelect.addEventListener('change', updateTiersDisplay);
-    colorRadios.forEach(radio => {
-      radio.addEventListener('change', updateTiersDisplay);
+    formatSelect.addEventListener("change", updateTiersDisplay);
+    colorRadios.forEach((radio) => {
+      radio.addEventListener("change", updateTiersDisplay);
     });
     updateTiersDisplay();
 
-    calculateBtn?.addEventListener('click', () => {
+    calculateBtn?.addEventListener("click", () => {
       const format = formatSelect.value as "A4" | "A3";
       const quantity = parseInt(quantityInput.value) || 1;
       const color = getSelectedColor();
@@ -350,7 +358,7 @@ export const drukA4A3Category: CategoryModule = {
         surchargeQty,
         scanType,
         scanQty,
-        express
+        express,
       });
 
       currentPrice = currentResult.totalPrice;
@@ -365,7 +373,7 @@ export const drukA4A3Category: CategoryModule = {
 
       if (breakdownDisplay) {
         const parts = [];
-        
+
         if (currentResult.totalPrintPrice > 0) {
           parts.push(`Druk: ${currentResult.totalPrintPrice.toFixed(2)} zł`);
         }
@@ -388,16 +396,16 @@ export const drukA4A3Category: CategoryModule = {
           const expressCharge = currentPrice - currentResult.baseTotal;
           parts.push(`EXPRESS: +${expressCharge.toFixed(2)} zł`);
         }
-        
-        breakdownDisplay.textContent = parts.join(' | ');
+
+        breakdownDisplay.textContent = parts.join(" | ");
       }
 
       ctx.updateLastCalculated(currentPrice, `Druk ${format} ${colorLabel} - ${quantity} str`);
     });
 
-    addBtn?.addEventListener('click', () => {
+    addBtn?.addEventListener("click", () => {
       if (currentPrice === 0) {
-        alert('⚠️ Najpierw oblicz cenę!');
+        alert("⚠️ Najpierw oblicz cenę!");
         return;
       }
 
@@ -415,20 +423,20 @@ export const drukA4A3Category: CategoryModule = {
       if (surcharge && parseInt(surchargeQty) > 0) {
         descParts.push(`${surchargeQty} str z zadrukiem >25%`);
       }
-      if (email) descParts.push('E-mail');
-      if (scanType !== 'none' && parseInt(scanQty) > 0) {
-        const scanLabel = scanType === 'auto' ? 'skan auto' : 'skan ręczny';
+      if (email) descParts.push("E-mail");
+      if (scanType !== "none" && parseInt(scanQty) > 0) {
+        const scanLabel = scanType === "auto" ? "skan auto" : "skan ręczny";
         descParts.push(`${scanLabel} ${scanQty} str`);
       }
-      if (express) descParts.push('EXPRESS');
+      if (express) descParts.push("EXPRESS");
 
       ctx.addToBasket({
-        category: 'Druk A4/A3',
+        category: "Druk A4/A3",
         price: currentPrice,
-        description: descParts.join(', ')
+        description: descParts.join(", "),
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
     });
-  }
+  },
 };

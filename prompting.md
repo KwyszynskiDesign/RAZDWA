@@ -1,10 +1,13 @@
 # Prompting.md
 
 ## Cel
+
 Ten plik opisuje, jak pisać prompty do Claude Code i podobnych narzędzi, aby były szybkie, precyzyjne i mało kosztowne.
 
 ## Zasada główna
+
 Każdy prompt ma jasno określać:
+
 - co budujemy,
 - po co to budujemy,
 - jaki ma być efekt końcowy,
@@ -13,6 +16,7 @@ Każdy prompt ma jasno określać:
 - jaki format odpowiedzi jest oczekiwany.
 
 ## Dobry prompt zawiera
+
 - Cel.
 - Kontekst.
 - Ograniczenia.
@@ -22,6 +26,7 @@ Każdy prompt ma jasno określać:
 - Priorytety.
 
 ## Jak pisać prompty
+
 - Bądź konkretny.
 - Unikaj ogólników.
 - Używaj krótkich zdań.
@@ -31,6 +36,7 @@ Każdy prompt ma jasno określać:
 - Nie mieszaj kilku zadań naraz, jeśli nie trzeba.
 
 ## Wzór promptu
+
 Cel:
 [co ma powstać]
 
@@ -50,6 +56,7 @@ Kryterium sukcesu:
 [po czym poznajemy, że zadanie jest wykonane dobrze]
 
 ## Praca z Claude Code
+
 - Najpierw plan, potem implementacja.
 - Najpierw logika, potem kod.
 - Jeśli trzeba, każ poprosić o doprecyzowanie braków.
@@ -57,6 +64,7 @@ Kryterium sukcesu:
 - Po każdej większej zmianie sprawdzaj, czy wynik dalej zgadza się z celem.
 
 ## Anty-wzorce
+
 - „Zrób to lepiej”.
 - „Napraw wszystko”.
 - „Ogarnij cały projekt”.
@@ -64,6 +72,7 @@ Kryterium sukcesu:
 - „Zmień kod, żeby działał lepiej”.
 
 Zamiast tego:
+
 - wskaż plik,
 - wskaż problem,
 - wskaż oczekiwany efekt,

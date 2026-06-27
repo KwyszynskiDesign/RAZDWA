@@ -3,8 +3,8 @@ import { priceStore } from "./priceStore";
 import type { PriceRecord } from "../types/price-schema";
 
 const IS_DEV =
-  typeof location !== 'undefined' &&
-  (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  typeof location !== "undefined" &&
+  (location.hostname === "localhost" || location.hostname === "127.0.0.1");
 
 // Inkrementuj gdy zmienia się logika lub zakres migracji.
 // v1 = import prices z DEFAULT_PRICES (bez Modifier).
@@ -66,7 +66,7 @@ function writeMigrationStatus(s: MigrationStatus): void {
   try {
     localStorage.setItem(MIGRATION_STATUS_KEY, JSON.stringify(s));
   } catch (e) {
-    console.error('[migration] Nie można zapisać statusu migracji w localStorage:', e);
+    console.error("[migration] Nie można zapisać statusu migracji w localStorage:", e);
   }
 }
 
@@ -128,7 +128,12 @@ function parseLegacyKey(key: string): ParsedKey {
   const rangeMatch = key.match(/^(.+)-(\d+)-(\d+)$/);
   if (rangeMatch) {
     const [, prefix, from, to] = rangeMatch;
-    return { ...splitPrefix(prefix), qtyFrom: parseInt(from, 10), qtyTo: parseInt(to, 10), isModifier: false };
+    return {
+      ...splitPrefix(prefix),
+      qtyFrom: parseInt(from, 10),
+      qtyTo: parseInt(to, 10),
+      isModifier: false,
+    };
   }
 
   // R3 — open-ended N+
@@ -161,7 +166,8 @@ function inferUnit(key: string): string {
     /^banner-(?!oczkowanie)/.test(key) ||
     /^folia-szroniona-wydruk/.test(key) ||
     /^wlepki-(obrys|polipropylen|standard)-/.test(key)
-  ) return "m2";
+  )
+    return "m2";
   return "szt";
 }
 
@@ -204,9 +210,7 @@ export async function runMigrationIfNeeded(): Promise<void> {
   try {
     const stored = readMigrationStatus();
     const isCurrentVersionComplete =
-      stored !== null &&
-      stored.version === MIGRATION_VERSION &&
-      stored.status === "completed";
+      stored !== null && stored.version === MIGRATION_VERSION && stored.status === "completed";
 
     if (isCurrentVersionComplete) {
       const count = await priceStore.count();
@@ -222,7 +226,10 @@ export async function runMigrationIfNeeded(): Promise<void> {
         return;
       }
       writeRetryCount(retries + 1);
-      console.warn("[priceMigrator] status=completed ale IDB jest pusta — ponawiam migrację v" + MIGRATION_VERSION);
+      console.warn(
+        "[priceMigrator] status=completed ale IDB jest pusta — ponawiam migrację v" +
+          MIGRATION_VERSION
+      );
     }
 
     const startedAt = new Date().toISOString();
@@ -252,7 +259,8 @@ export async function runMigrationIfNeeded(): Promise<void> {
 
       const value = Number(rawValue);
       if (!Number.isFinite(value)) {
-        if (IS_DEV) console.warn(`[priceMigrator] "${key}" wartość nienumeryczna "${rawValue}" — pominięto`);
+        if (IS_DEV)
+          console.warn(`[priceMigrator] "${key}" wartość nienumeryczna "${rawValue}" — pominięto`);
         skipped++;
         continue;
       }
@@ -260,13 +268,18 @@ export async function runMigrationIfNeeded(): Promise<void> {
       const parsed = parseLegacyKey(key);
 
       if (parsed.isModifier) {
-        if (IS_DEV) console.warn(`[priceMigrator] "${key}" pominięto: globalny Modifier — Modifier store poza zakresem Etapu 1`);
+        if (IS_DEV)
+          console.warn(
+            `[priceMigrator] "${key}" pominięto: globalny Modifier — Modifier store poza zakresem Etapu 1`
+          );
         skipped++;
         continue;
       }
 
       if (IS_DEV && key.startsWith("druk-cad-")) {
-        console.warn(`[priceMigrator] "${key}" category="druk" (niejednoznaczny CAD) — do poprawki w panelu Etap 3`);
+        console.warn(
+          `[priceMigrator] "${key}" category="druk" (niejednoznaczny CAD) — do poprawki w panelu Etap 3`
+        );
       }
 
       const record: PriceRecord = {
@@ -301,7 +314,9 @@ export async function runMigrationIfNeeded(): Promise<void> {
 
     if (imported > 0) resetRetryCount();
 
-    console.info(`[priceMigrator] v${MIGRATION_VERSION} gotowe: ${imported} zaimportowano, ${skipped} pominięto`);
+    console.info(
+      `[priceMigrator] v${MIGRATION_VERSION} gotowe: ${imported} zaimportowano, ${skipped} pominięto`
+    );
   } catch (err) {
     console.warn("[priceMigrator] migracja nie powiodła się:", err);
     // Status pozostaje "in_progress" — przy kolejnym starcie migracja zostanie ponowiona.

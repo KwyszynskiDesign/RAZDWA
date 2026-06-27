@@ -6,13 +6,19 @@ function makePinTogglePair() {
 
   const panel = {
     hasAttribute: (_: string) => hidden,
-    removeAttribute: (_: string) => { hidden = false; },
-    setAttribute: (_: string, __: string) => { hidden = true; },
+    removeAttribute: (_: string) => {
+      hidden = false;
+    },
+    setAttribute: (_: string, __: string) => {
+      hidden = true;
+    },
   };
 
   const btn = {
     ariaExpanded,
-    setAttribute: (_attr: string, val: string) => { ariaExpanded = val; },
+    setAttribute: (_attr: string, val: string) => {
+      ariaExpanded = val;
+    },
     getAttribute: (_attr: string) => ariaExpanded,
   };
 

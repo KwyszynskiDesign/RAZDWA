@@ -10,15 +10,13 @@ const mockTable: PriceTable = {
   tiers: [
     { min: 0, max: 3, price: 100 },
     { min: 3, max: 10, price: 80 },
-    { min: 10, max: null, price: 60 }
+    { min: 10, max: null, price: 60 },
   ],
-  rules: [
-    { type: "minimum", unit: "m2", value: 1 }
-  ],
+  rules: [{ type: "minimum", unit: "m2", value: 1 }],
   modifiers: [
-    { id: "EXPRESS", type: "percent", value: 0.20 },
-    { id: "FIXED", type: "fixed", value: 50 }
-  ]
+    { id: "EXPRESS", type: "percent", value: 0.2 },
+    { id: "FIXED", type: "fixed", value: 50 },
+  ],
 };
 
 describe("Pricing Core", () => {

@@ -9,7 +9,10 @@ beforeEach(() => {
     history: { replaceState: vi.fn() },
     open: vi.fn(),
   });
-  vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, text: async () => "" })));
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => ({ ok: false, text: async () => "" }))
+  );
 });
 
 afterEach(() => {
@@ -102,13 +105,15 @@ describe("Router error rendering (escapeHtml)", () => {
     const evilView: View = {
       id: "evil",
       name: "Evil",
-      mount: async () => { throw new Error('<img src=x onerror=alert(1)>'); },
+      mount: async () => {
+        throw new Error("<img src=x onerror=alert(1)>");
+      },
     };
     router.addRoute(evilView);
     (window as any).location.hash = "#/evil";
     await router.handleRoute();
     const html = (container as unknown as { innerHTML: string }).innerHTML;
-    expect(html).not.toContain('<img src=x onerror=alert(1)>');
+    expect(html).not.toContain("<img src=x onerror=alert(1)>");
     expect(html).toContain("&lt;img");
   });
 });

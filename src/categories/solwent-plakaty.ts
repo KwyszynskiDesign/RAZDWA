@@ -35,17 +35,23 @@ function normalizeMaterialKey(value: string): string {
 }
 
 export function calculateSolwentPlakaty(input: SolwentPlakatyInput): CalculationResult {
-  const tableData = getPrice('solwentPlakaty') as any;
+  const tableData = getPrice("solwentPlakaty") as any;
   const materialKey = normalizeMaterialKey(input.material);
-  const gsmToken = String(input.material ?? "").match(/(\d{2,3}g)/i)?.[1]?.toLowerCase();
+  const gsmToken = String(input.material ?? "")
+    .match(/(\d{2,3}g)/i)?.[1]
+    ?.toLowerCase();
 
-  const materialData = tableData.materials.find((m: any) => {
-    return m.id === input.material
-      || normalizeMaterialKey(m.name) === materialKey
-      || normalizeMaterialKey(m.id) === materialKey;
-  }) ?? tableData.materials.find((m: any) => {
-    return gsmToken ? String(m.id).toLowerCase() === gsmToken : false;
-  });
+  const materialData =
+    tableData.materials.find((m: any) => {
+      return (
+        m.id === input.material ||
+        normalizeMaterialKey(m.name) === materialKey ||
+        normalizeMaterialKey(m.id) === materialKey
+      );
+    }) ??
+    tableData.materials.find((m: any) => {
+      return gsmToken ? String(m.id).toLowerCase() === gsmToken : false;
+    });
 
   if (!materialData) {
     throw new Error(`Unknown material: ${input.material}`);
@@ -58,7 +64,7 @@ export function calculateSolwentPlakaty(input: SolwentPlakatyInput): Calculation
     pricing: tableData.pricing,
     tiers: overrideTiersWithStoredPrices(`solwent-${materialData.id}`, materialData.tiers),
     rules: tableData.rules,
-    modifiers: tableData.modifiers
+    modifiers: tableData.modifiers,
   };
 
   const activeModifiers: string[] = [];

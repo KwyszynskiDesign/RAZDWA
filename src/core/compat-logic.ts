@@ -53,7 +53,9 @@ export function calculateSimplePrint(options: {
   const unitPrice = storedPrice(printStorageKey, tier.unit);
   const surchargeFactor = storedPrice("modifier-druk-zadruk25", 0.5);
 
-  const requestedSurchargeQty = Number.isFinite(options.ink25Qty) ? Math.max(0, options.ink25Qty) : 0;
+  const requestedSurchargeQty = Number.isFinite(options.ink25Qty)
+    ? Math.max(0, options.ink25Qty)
+    : 0;
   const surchargeQty = options.ink25 ? Math.min(options.pages, requestedSurchargeQty) : 0;
   const normalQty = Math.max(0, options.pages - surchargeQty);
 
@@ -82,10 +84,7 @@ export function calculateSimplePrint(options: {
 }
 
 /** A4/A3 Scan calculation logic */
-export function calculateSimpleScan(options: {
-  type: "auto" | "manual";
-  pages: number;
-}) {
+export function calculateSimpleScan(options: { type: "auto" | "manual"; pages: number }) {
   if (options.pages <= 0) return { unitPrice: 0, total: 0 };
   const tiers = (PRICE.scan as any)[options.type];
   const tier = pickTier(tiers, options.pages);
@@ -198,9 +197,7 @@ export function calculateBusinessCards(options: {
     table = optObj.prices;
   } else {
     const tablesByFinish =
-      options.finish === "softtouch"
-        ? BIZ?.cyfrowe?.softtouchPrices
-        : BIZ?.cyfrowe?.standardPrices;
+      options.finish === "softtouch" ? BIZ?.cyfrowe?.softtouchPrices : BIZ?.cyfrowe?.standardPrices;
     if (!tablesByFinish || !options.size || !options.lam) {
       throw new Error("Błąd: brak danych cenowych dla wybranej konfiguracji");
     }
@@ -214,17 +211,16 @@ export function calculateBusinessCards(options: {
   if (options.family !== "deluxe" && options.size) {
     const foliaKey = options.lam === "noLam" ? "none" : "matt_gloss";
     const storagePrefix = `wizytowki-${options.size}-${foliaKey}-`;
-    table = mergeStoredQuantityTable(
-      storagePrefix,
-      table,
-      (key) => {
-        const match = key.match(/^(?:.*-)?(\d+)szt$/i);
-        return match ? Number.parseInt(match[1], 10) : null;
-      }
-    );
+    table = mergeStoredQuantityTable(storagePrefix, table, (key) => {
+      const match = key.match(/^(?:.*-)?(\d+)szt$/i);
+      return match ? Number.parseInt(match[1], 10) : null;
+    });
   }
 
-  const keys = Object.keys(table).map(Number).filter(Number.isFinite).sort((a, b) => a - b);
+  const keys = Object.keys(table)
+    .map(Number)
+    .filter(Number.isFinite)
+    .sort((a, b) => a - b);
   if (!keys.length) throw new Error("Brak progu cenowego dla takiej ilości.");
 
   const qty = options.qty;
@@ -241,7 +237,8 @@ export function calculateBusinessCards(options: {
   }
 
   for (let i = 0; i < keys.length - 1; i++) {
-    const lo = keys[i], hi = keys[i + 1];
+    const lo = keys[i],
+      hi = keys[i + 1];
     if (qty <= hi) {
       const loPrice = Number(table[lo]);
       const hiPrice = Number(table[hi]);

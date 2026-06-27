@@ -1,12 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { quoteLaminowanie, quoteIntroligatornia, quoteWydrukiSpecjalne } from "../src/categories/laminowanie";
+import {
+  quoteLaminowanie,
+  quoteIntroligatornia,
+  quoteWydrukiSpecjalne,
+} from "../src/categories/laminowanie";
 
 describe("Laminowanie", () => {
   it("should calculate price for A3 (1-50szt) = 7 PLN/szt", () => {
     const result = quoteLaminowanie({
       format: "A3",
       qty: 10,
-      express: false
+      express: false,
     });
     // 10 * 7 = 70
     expect(result.totalPrice).toBe(70);
@@ -16,7 +20,7 @@ describe("Laminowanie", () => {
     const result = quoteLaminowanie({
       format: "A3",
       qty: 60,
-      express: false
+      express: false,
     });
     // 60 * 6 = 360
     expect(result.totalPrice).toBe(360);
@@ -26,7 +30,7 @@ describe("Laminowanie", () => {
     const result = quoteLaminowanie({
       format: "A4",
       qty: 150,
-      express: false
+      express: false,
     });
     // 150 * 4 = 600
     expect(result.totalPrice).toBe(600);
@@ -36,7 +40,7 @@ describe("Laminowanie", () => {
     const result = quoteLaminowanie({
       format: "A6",
       qty: 1,
-      express: false
+      express: false,
     });
     expect(result.totalPrice).toBe(3);
   });
@@ -45,25 +49,27 @@ describe("Laminowanie", () => {
     const result = quoteLaminowanie({
       format: "A3",
       qty: 10,
-      express: true
+      express: true,
     });
     // 70 * 1.2 = 84
     expect(result.totalPrice).toBe(84);
   });
 
   it("should throw error for invalid format", () => {
-    expect(() => quoteLaminowanie({
+    expect(() =>
+      quoteLaminowanie({
         format: "INVALID",
         qty: 10,
-        express: false
-    })).toThrow("Invalid format: INVALID");
+        express: false,
+      })
+    ).toThrow("Invalid format: INVALID");
   });
 
   it("should calculate introligatornia: gilotyna", () => {
     const result = quoteIntroligatornia({
       serviceId: "gilotyna",
       qty: 10,
-      express: false
+      express: false,
     });
     expect(result.totalPrice).toBe(0.7);
   });
@@ -72,18 +78,20 @@ describe("Laminowanie", () => {
     const result = quoteIntroligatornia({
       serviceId: "bigowanie",
       qty: 2,
-      express: true
+      express: true,
     });
     // 2 * 0.5 = 1.0 (bez dopłaty express)
     expect(result.totalPrice).toBe(1.0);
   });
 
   it("should throw for invalid introligatornia service", () => {
-    expect(() => quoteIntroligatornia({
-      serviceId: "invalid",
-      qty: 1,
-      express: false
-    })).toThrow();
+    expect(() =>
+      quoteIntroligatornia({
+        serviceId: "invalid",
+        qty: 1,
+        express: false,
+      })
+    ).toThrow();
   });
 
   it("should calculate introligatornia: dziurkowanie powyzej 20 kartek", () => {
@@ -150,12 +158,22 @@ describe("Laminowanie", () => {
   });
 
   it("regression: katalog returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
-    const result = quoteWydrukiSpecjalne({ variantId: "katalog", qty: 5, doubleSided: false, express: false });
+    const result = quoteWydrukiSpecjalne({
+      variantId: "katalog",
+      qty: 5,
+      doubleSided: false,
+      express: false,
+    });
     expect(result.totalPrice).toBe(0);
   });
 
   it("regression: broszura returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
-    const result = quoteWydrukiSpecjalne({ variantId: "broszura", qty: 5, doubleSided: false, express: false });
+    const result = quoteWydrukiSpecjalne({
+      variantId: "broszura",
+      qty: 5,
+      doubleSided: false,
+      express: false,
+    });
     expect(result.totalPrice).toBe(0);
   });
 });

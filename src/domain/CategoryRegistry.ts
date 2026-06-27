@@ -1,4 +1,4 @@
-import type { CategoryDefinition, CategoryRegistry } from '../core/contracts/CategoryRegistry';
+import type { CategoryDefinition, CategoryRegistry } from "../core/contracts/CategoryRegistry";
 
 export class DefaultCategoryRegistry implements CategoryRegistry {
   private readonly _map = new Map<string, CategoryDefinition>();

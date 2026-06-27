@@ -10,15 +10,13 @@ const mockTable = {
   tiers: [
     { min: 0, max: 3, price: 100 },
     { min: 3, max: 10, price: 80 },
-    { min: 10, max: null, price: 60 }
+    { min: 10, max: null, price: 60 },
   ],
-  rules: [
-    { type: "minimum", unit: "m2", value: 1 }
-  ],
+  rules: [{ type: "minimum", unit: "m2", value: 1 }],
   modifiers: [
-    { id: "EXPRESS", name: "EXPRESS", type: "percent", value: 0.20 },
-    { id: "FIXED", name: "FIXED", type: "fixed", value: 50 }
-  ]
+    { id: "EXPRESS", name: "EXPRESS", type: "percent", value: 0.2 },
+    { id: "FIXED", name: "FIXED", type: "fixed", value: 50 },
+  ],
 };
 
 describe("computeTotalPrice", () => {
@@ -35,11 +33,15 @@ describe("computeTotalPrice", () => {
   });
 
   it("produces same result as calculatePrice with percent modifier", () => {
-    expect(computeTotalPrice(mockTable, 2, ["EXPRESS"])).toEqual(calculatePrice(mockTable, 2, ["EXPRESS"]));
+    expect(computeTotalPrice(mockTable, 2, ["EXPRESS"])).toEqual(
+      calculatePrice(mockTable, 2, ["EXPRESS"])
+    );
   });
 
   it("produces same result as calculatePrice with multiple modifiers", () => {
-    expect(computeTotalPrice(mockTable, 2, ["EXPRESS", "FIXED"])).toEqual(calculatePrice(mockTable, 2, ["EXPRESS", "FIXED"]));
+    expect(computeTotalPrice(mockTable, 2, ["EXPRESS", "FIXED"])).toEqual(
+      calculatePrice(mockTable, 2, ["EXPRESS", "FIXED"])
+    );
   });
 
   it("should select correct tier and compute total", () => {
@@ -69,9 +71,7 @@ describe("computeTotalPrice", () => {
   it("should enforce minimum PLN rule", () => {
     const tableWithMinPln = {
       ...mockTable,
-      rules: [
-        { type: "minimum", unit: "pln", value: 50 }
-      ]
+      rules: [{ type: "minimum", unit: "pln", value: 50 }],
     };
     // 0.1 * 100 = 10, less than 50 minimum
     const res = computeTotalPrice(tableWithMinPln, 0.1);

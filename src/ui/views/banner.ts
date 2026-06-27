@@ -81,15 +81,19 @@ export const BannerView: View = {
         breakdownDisplay.insertAdjacentElement("afterend", legend);
       }
 
-      const rows = (bannerData.materials ?? []).map((material: any) => {
-        const tiers = (material.tiers ?? []).map((tier: any) => {
-          const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
-          const value = resolveStoredPrice(`banner-${material.id}-${suffix}`, tier.price);
-          const label = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
-          return `<tr><td>${label}</td><td>${formatPLN(value)}</td></tr>`;
-        }).join("");
-        return `<h4 style="margin:10px 0 6px;">${material.name}</h4><table><tr><th>Próg</th><th>Cena za m²</th></tr>${tiers}</table>`;
-      }).join("");
+      const rows = (bannerData.materials ?? [])
+        .map((material: any) => {
+          const tiers = (material.tiers ?? [])
+            .map((tier: any) => {
+              const suffix = tier.max == null ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+              const value = resolveStoredPrice(`banner-${material.id}-${suffix}`, tier.price);
+              const label = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+              return `<tr><td>${label}</td><td>${formatPLN(value)}</td></tr>`;
+            })
+            .join("");
+          return `<h4 style="margin:10px 0 6px;">${material.name}</h4><table><tr><th>Próg</th><th>Cena za m²</th></tr>${tiers}</table>`;
+        })
+        .join("");
 
       legend.innerHTML = `
         ${rows}
@@ -121,7 +125,7 @@ export const BannerView: View = {
         return {
           areaM2: computedArea,
           widthCm,
-          heightCm
+          heightCm,
         };
       }
 
@@ -132,7 +136,7 @@ export const BannerView: View = {
       return {
         areaM2: 0,
         widthCm: null,
-        heightCm: null
+        heightCm: null,
       };
     };
 
@@ -161,39 +165,55 @@ export const BannerView: View = {
 
       const lines: BreakdownRow[] = [
         { label: "Materiał", value: materialName },
-        { label: "Rozliczana powierzchnia", value: `${result.effectiveQuantity} m²${result.effectiveQuantity !== options.areaM2 ? ` (z podanej ${options.areaM2} m²)` : ""}` },
+        {
+          label: "Rozliczana powierzchnia",
+          value: `${result.effectiveQuantity} m²${result.effectiveQuantity !== options.areaM2 ? ` (z podanej ${options.areaM2} m²)` : ""}`,
+        },
         { label: "Próg cenowy", value: `${formatPLN(result.tierPrice)} / m²` },
-        { label: "Cena bazowa", value: `${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}` },
+        {
+          label: "Cena bazowa",
+          value: `${result.effectiveQuantity} m² × ${formatPLN(result.tierPrice)} = ${formatPLN(result.basePrice)}`,
+        },
       ];
 
       if (options.oczkowanie) {
-        lines.push({ label: "Oczkowanie", value: `${result.effectiveQuantity} m² × ${formatPLN(oczkowanieRate)} = ${formatPLN(oczkowanieCost)}` });
+        lines.push({
+          label: "Oczkowanie",
+          value: `${result.effectiveQuantity} m² × ${formatPLN(oczkowanieRate)} = ${formatPLN(oczkowanieCost)}`,
+        });
       }
 
       if (options.express) {
-        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressCost)}` });
+        lines.push({
+          label: "EXPRESS",
+          value: `${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressCost)}`,
+        });
       }
 
       if (oczkowanieCost > 0 || expressCost > 0) {
         const parts: string[] = [formatPLN(result.basePrice)];
         if (oczkowanieCost > 0) parts.push(formatPLN(oczkowanieCost));
         if (expressCost > 0) parts.push(formatPLN(expressCost));
-
       }
 
-      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      lines.push({
+        label: "Razem",
+        value: formatPLN(result.totalPrice),
+        separatorTop: true,
+        strongValue: true,
+      });
       renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };
 
     const performCalculation = () => {
       const { areaM2, widthCm, heightCm } = computeAreaFromInputs();
-        if (!areaM2) {
-          resultDisplay.style.display = "none";
-          if (breakdownDisplay) breakdownDisplay.style.display = "none";
-          addToCartBtn.disabled = true;
-          return;
-        }
+      if (!areaM2) {
+        resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
+        addToCartBtn.disabled = true;
+        return;
+      }
 
       currentOptions = {
         material: materialSelect.value,
@@ -201,7 +221,7 @@ export const BannerView: View = {
         widthCm,
         heightCm,
         oczkowanie: oczkowanieCheckbox.checked,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateBanner(currentOptions);
@@ -228,12 +248,14 @@ export const BannerView: View = {
       if (currentResult && currentOptions) {
         const matName = materialSelect.options[materialSelect.selectedIndex].text;
         const opts = [
-            currentOptions.widthCm && currentOptions.heightCm
-              ? `${currentOptions.widthCm}cm x ${currentOptions.heightCm}cm (${currentOptions.areaM2} m2)`
-              : `${currentOptions.areaM2} m2`,
-            currentOptions.oczkowanie ? "z oczkowaniem" : "bez oczkowania",
-            currentOptions.express ? "EXPRESS" : ""
-        ].filter(Boolean).join(", ");
+          currentOptions.widthCm && currentOptions.heightCm
+            ? `${currentOptions.widthCm}cm x ${currentOptions.heightCm}cm (${currentOptions.areaM2} m2)`
+            : `${currentOptions.areaM2} m2`,
+          currentOptions.oczkowanie ? "z oczkowaniem" : "bez oczkowania",
+          currentOptions.express ? "EXPRESS" : "",
+        ]
+          .filter(Boolean)
+          .join(", ");
 
         ctx.cart.addItem({
           id: `banner-${Date.now()}`,
@@ -245,16 +267,16 @@ export const BannerView: View = {
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
           optionsHint: opts,
-          payload: currentResult
+          payload: currentResult,
         });
 
         currentResult = null;
         currentOptions = null;
-        resultDisplay.style.display = 'none';
-        breakdownDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
+        breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
-  }
+  },
 };

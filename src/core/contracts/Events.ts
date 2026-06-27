@@ -9,28 +9,28 @@
  */
 
 export interface PriceChangedEvent {
-  type: 'price-changed';
+  type: "price-changed";
   path: string;
   oldValue?: number;
   newValue?: number;
-  source: 'ui' | 'import' | 'api';
+  source: "ui" | "import" | "api";
   timestamp: string;
 }
 
 export interface CategoryUpdatedEvent {
-  type: 'category-updated';
+  type: "category-updated";
   categoryId: string;
 }
 
 export interface ValidationFailedEvent {
-  type: 'validation-failed';
+  type: "validation-failed";
   categoryId: string;
   input: unknown;
   errors: string[];
 }
 
 export interface VariantChangedEvent {
-  type: 'variant-changed';
+  type: "variant-changed";
   categoryId: string;
   variantKey: string;
 }
@@ -48,7 +48,7 @@ export type DomainEvent =
 export interface TypedEventEmitter {
   emit<T extends DomainEvent>(event: T): void;
   on<T extends DomainEvent>(
-    type: T['type'],
-    callback: (e: Extract<DomainEvent, { type: T['type'] }>) => void,
+    type: T["type"],
+    callback: (e: Extract<DomainEvent, { type: T["type"] }>) => void
   ): () => void;
 }

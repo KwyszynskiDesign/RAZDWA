@@ -28,7 +28,9 @@ export const WycinanieFoliiView: View = {
     const goldCheck = container.querySelector("#wf-gold") as HTMLInputElement;
     const silverCheck = container.querySelector("#wf-silver") as HTMLInputElement;
     const customCheck = container.querySelector("#wf-custom") as HTMLInputElement;
-    const foilTypeCheckboxes = container.querySelectorAll(".wf-foil-type") as NodeListOf<HTMLInputElement>;
+    const foilTypeCheckboxes = container.querySelectorAll(
+      ".wf-foil-type"
+    ) as NodeListOf<HTMLInputElement>;
     const addBtn = container.querySelector("#wf-add-to-cart") as HTMLButtonElement;
 
     const resultEl = container.querySelector("#wfResult") as HTMLElement;
@@ -37,25 +39,40 @@ export const WycinanieFoliiView: View = {
     const totalEl = container.querySelector("#wf-total") as HTMLElement;
     const expressEl = container.querySelector("#wfExpressHint") as HTMLElement | null;
     const areaInput = container.querySelector("#wf-area") as HTMLInputElement | null;
-    const computedAreaInfo = container.querySelector("#wf-computed-area-info") as HTMLElement | null;
+    const computedAreaInfo = container.querySelector(
+      "#wf-computed-area-info"
+    ) as HTMLElement | null;
     const legendMinEl = container.querySelector("#wf-legend-min") as HTMLElement | null;
-    const legendKolorowaBelowEl = container.querySelector("#wf-legend-kolorowa-below") as HTMLElement | null;
-    const legendKolorowaAboveEl = container.querySelector("#wf-legend-kolorowa-above") as HTMLElement | null;
-    const legendZlotoBelowEl = container.querySelector("#wf-legend-zloto-below") as HTMLElement | null;
-    const legendZlotoAboveEl = container.querySelector("#wf-legend-zloto-above") as HTMLElement | null;
+    const legendKolorowaBelowEl = container.querySelector(
+      "#wf-legend-kolorowa-below"
+    ) as HTMLElement | null;
+    const legendKolorowaAboveEl = container.querySelector(
+      "#wf-legend-kolorowa-above"
+    ) as HTMLElement | null;
+    const legendZlotoBelowEl = container.querySelector(
+      "#wf-legend-zloto-below"
+    ) as HTMLElement | null;
+    const legendZlotoAboveEl = container.querySelector(
+      "#wf-legend-zloto-above"
+    ) as HTMLElement | null;
     const legendNoteEl = container.querySelector("#wf-legend-note") as HTMLElement | null;
     const priceTiersEl = container.querySelector("#wf-price-tiers") as HTMLElement;
 
     const updateLegend = () => {
-      const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
+      const minRule =
+        (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
 
       const kolorowa = (data?.variants ?? []).find((v: any) => v.id === "kolorowa");
       const zloto = (data?.variants ?? []).find((v: any) => v.id === "zloto-srebro");
 
-      const kolorowaBelow = defaultPrices?.["wycinanie-folii-kolorowa-ponizej"] ?? kolorowa?.rates?.below1m2 ?? 200;
-      const kolorowaAbove = defaultPrices?.["wycinanie-folii-kolorowa"] ?? kolorowa?.rates?.aboveOrEqual1m2 ?? 125;
-      const zlotoBelow = defaultPrices?.["wycinanie-folii-zloto-srebro-ponizej"] ?? zloto?.rates?.below1m2 ?? 220;
-      const zlotoAbove = defaultPrices?.["wycinanie-folii-zloto-srebro"] ?? zloto?.rates?.aboveOrEqual1m2 ?? 150;
+      const kolorowaBelow =
+        defaultPrices?.["wycinanie-folii-kolorowa-ponizej"] ?? kolorowa?.rates?.below1m2 ?? 200;
+      const kolorowaAbove =
+        defaultPrices?.["wycinanie-folii-kolorowa"] ?? kolorowa?.rates?.aboveOrEqual1m2 ?? 125;
+      const zlotoBelow =
+        defaultPrices?.["wycinanie-folii-zloto-srebro-ponizej"] ?? zloto?.rates?.below1m2 ?? 220;
+      const zlotoAbove =
+        defaultPrices?.["wycinanie-folii-zloto-srebro"] ?? zloto?.rates?.aboveOrEqual1m2 ?? 150;
 
       if (legendMinEl) legendMinEl.innerText = `${formatPLN(minRule)} / zlecenie`;
       if (legendKolorowaBelowEl) legendKolorowaBelowEl.innerText = `${formatPLN(kolorowaBelow)}/m²`;
@@ -73,8 +90,8 @@ export const WycinanieFoliiView: View = {
           `<div>Poniżej 1 m² → ${formatPLN(kolorowaBelow)}/m² (kolorowa)</div>`,
           `<div>Od 1 m² → ${formatPLN(kolorowaAbove)}/m² (kolorowa)</div>`,
           `<div>Poniżej 1 m² → ${formatPLN(zlotoBelow)}/m² (złoto/srebro)</div>`,
-          `<div>Od 1 m² → ${formatPLN(zlotoAbove)}/m² (złoto/srebro)</div>`
-        ].join('');
+          `<div>Od 1 m² → ${formatPLN(zlotoAbove)}/m² (złoto/srebro)</div>`,
+        ].join("");
       }
     };
 
@@ -114,9 +131,10 @@ export const WycinanieFoliiView: View = {
         areaInput.value = width > 0 && height > 0 ? String(parseFloat(areaM2.toFixed(4))) : "";
       }
       if (computedAreaInfo) {
-        computedAreaInfo.textContent = width > 0 && height > 0
-          ? `Wyliczona powierzchnia: ${areaM2.toFixed(4)} m² (${width} mm × ${height} mm)`
-          : "Wyliczona powierzchnia: -";
+        computedAreaInfo.textContent =
+          width > 0 && height > 0
+            ? `Wyliczona powierzchnia: ${areaM2.toFixed(4)} m² (${width} mm × ${height} mm)`
+            : "Wyliczona powierzchnia: -";
       }
     };
 
@@ -126,7 +144,7 @@ export const WycinanieFoliiView: View = {
 
     const calculate = () => {
       const color = getSelectedColor();
-      
+
       if (!color) {
         if (resultEl) resultEl.style.display = "none";
         addBtn.disabled = true;
@@ -152,43 +170,50 @@ export const WycinanieFoliiView: View = {
         variantId,
         widthMm,
         heightMm,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateWycinanieFolii(options);
       const areaM2 = (options.widthMm * options.heightMm) / 1_000_000;
       const basePrice = Number(result.basePrice || 0);
       const expressValue = Number(result.modifiersTotal || 0);
-      const minRule = (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
-      const appliedRate = areaM2 < 1
-        ? (defaultPrices?.[`wycinanie-folii-${variantId}-ponizej`] ?? (variantId === "zloto-srebro" ? 220 : 200))
-        : (defaultPrices?.[`wycinanie-folii-${variantId}`] ?? (variantId === "zloto-srebro" ? 150 : 125));
+      const minRule =
+        (data?.rules ?? []).find((r: any) => r.type === "minimum" && r.unit === "pln")?.value ?? 30;
+      const appliedRate =
+        areaM2 < 1
+          ? (defaultPrices?.[`wycinanie-folii-${variantId}-ponizej`] ??
+            (variantId === "zloto-srebro" ? 220 : 200))
+          : (defaultPrices?.[`wycinanie-folii-${variantId}`] ??
+            (variantId === "zloto-srebro" ? 150 : 125));
       const colorLabel = color ?? "-";
 
       if (unitEl) unitEl.innerText = formatPLN(result.tierPrice);
       totalEl.innerText = formatPLN(result.totalPrice);
       if (expressEl) expressEl.style.display = options.express ? "block" : "none";
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? 'poniżej 1 m²' : 'od 1 m²'} → ${formatPLN(appliedRate)}/m²${options.express ? ' × 1.20 (EXPRESS)' : ''}`;
+        breakdownDisplay.textContent = `${areaM2.toFixed(2)} m², przedział: ${areaM2 < 1 ? "poniżej 1 m²" : "od 1 m²"} → ${formatPLN(appliedRate)}/m²${options.express ? " × 1.20 (EXPRESS)" : ""}`;
       }
       if (resultEl) resultEl.style.display = "block";
       addBtn.disabled = result.totalPrice <= 0;
 
       currentOptions = {
         ...options,
-        color: color
+        color: color,
       };
       currentResult = result;
       ctx.updateLastCalculated(result.totalPrice, "Wycinanie z folii");
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addBtn] });
-    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      calculate();
+    });
 
     addBtn.onclick = () => {
       if (!currentOptions || !currentResult) return;
 
-      const foilName = (currentOptions.color ? `Folia ${currentOptions.color}` : "Wycinanie z folii");
+      const foilName = currentOptions.color ? `Folia ${currentOptions.color}` : "Wycinanie z folii";
       const areaM2 = (currentOptions.widthMm * currentOptions.heightMm) / 1_000_000;
       const colorHint = currentOptions.color ? `, kolor: ${currentOptions.color}` : "";
 
@@ -204,17 +229,15 @@ export const WycinanieFoliiView: View = {
         optionsHint: `${currentOptions.widthMm}x${currentOptions.heightMm} mm, ${areaM2.toFixed(2)} m2${colorHint}${currentOptions.express ? ", EXPRESS" : ""}`,
         payload: {
           ...currentOptions,
-          ...currentResult
-        }
+          ...currentResult,
+        },
       });
 
       currentResult = null;
       currentOptions = null;
-      if (resultEl) resultEl.style.display = 'none';
+      if (resultEl) resultEl.style.display = "none";
       addBtn.disabled = true;
       container.dispatchEvent(new CustomEvent("view:reset"));
     };
-
-
-  }
+  },
 };

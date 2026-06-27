@@ -1,8 +1,6 @@
 import { APP_ENV, GAS_URL, CLIENT_ID } from "./env";
 
-export type GuardResult =
-  | { ok: true }
-  | { ok: false; reason: string; fatal: boolean };
+export type GuardResult = { ok: true } | { ok: false; reason: string; fatal: boolean };
 
 const VALID_ENVS = ["dev", "staging", "client"] as const;
 
@@ -27,7 +25,9 @@ export function checkStartupConfig(): GuardResult {
     };
   }
   if (APP_ENV === "dev" && !isValidGasUrl(GAS_URL)) {
-    console.warn("[startGuard] Brak GOOGLE_APPS_SCRIPT_URL — eksport zamówień niedostępny w trybie dev.");
+    console.warn(
+      "[startGuard] Brak GOOGLE_APPS_SCRIPT_URL — eksport zamówień niedostępny w trybie dev."
+    );
   }
   return { ok: true };
 }

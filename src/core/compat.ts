@@ -1,5 +1,10 @@
 /* Data and helpers from kalkulatorv2.html - cleaned up and synced with categories.json */
-import { getPrice, getPriceLabels, getConfigRoot, PRICES_STORAGE_KEY } from "../services/priceService";
+import {
+  getPrice,
+  getPriceLabels,
+  getConfigRoot,
+  PRICES_STORAGE_KEY,
+} from "../services/priceService";
 import { priceStore } from "../services/priceStore";
 
 export function money(n: any) {
@@ -31,21 +36,23 @@ export function pickNearestCeilKey(table: any, qty: number) {
 export function getInterpolatedPrice(
   tiers: { qty: number; price: number }[],
   qty: number,
-  aboveMax: 'flat' | 'per-unit' = 'flat',
+  aboveMax: "flat" | "per-unit" = "flat"
 ): number {
   if (!tiers.length) return 0;
   const sorted = [...tiers].sort((a, b) => a.qty - b.qty);
   if (qty <= sorted[0].qty) return sorted[0].price;
   const last = sorted[sorted.length - 1];
   if (qty >= last.qty) {
-    return aboveMax === 'per-unit'
+    return aboveMax === "per-unit"
       ? Math.round(qty * (last.price / last.qty) * 100) / 100
       : last.price;
   }
   for (let i = 0; i < sorted.length - 1; i++) {
-    const lower = sorted[i], upper = sorted[i + 1];
+    const lower = sorted[i],
+      upper = sorted[i + 1];
     if (qty <= upper.qty) {
-      const price = lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price);
+      const price =
+        lower.price + ((qty - lower.qty) / (upper.qty - lower.qty)) * (upper.price - lower.price);
       return Math.round(price * 100) / 100;
     }
   }
@@ -74,7 +81,9 @@ export function readStoredPrices(): Record<string, number> {
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       return parsed as Record<string, number>;
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return {};
 }
 
@@ -89,9 +98,9 @@ export function getDefaultPricesMap(): Record<string, number | null> {
 
 export function sanitizeLabelText(raw: string): string {
   return raw
-    .replace(/[\r\n\t]+/g, ' ')
-    .replace(/\\n/g, ' ')
-    .replace(/  +/g, ' ')
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\\n/g, " ")
+    .replace(/  +/g, " ")
     .trim();
 }
 
@@ -134,8 +143,8 @@ export function extractVoucherSide(text: string): "jed" | "dwu" | null {
 let _priceCache: Map<string, number> | null = null;
 
 const IS_DEV =
-  typeof location !== 'undefined' &&
-  (location.hostname === 'localhost' || location.hostname === '127.0.0.1');
+  typeof location !== "undefined" &&
+  (location.hostname === "localhost" || location.hostname === "127.0.0.1");
 
 // Per-klucz deduplika logów — jeden warn per klucz per sesja.
 const _warnedKeys = new Set<string>();
@@ -149,22 +158,24 @@ function warnOnce(id: string, msg: string): void {
 const _idbMissingBatch = new Set<string>();
 let _idbMissingPending = false;
 function warnIdbMissing(key: string): void {
-  if (_warnedKeys.has('__idb_missing__')) return;
+  if (_warnedKeys.has("__idb_missing__")) return;
   _idbMissingBatch.add(key);
   if (_idbMissingPending) return;
   _idbMissingPending = true;
   Promise.resolve().then(() => {
     _idbMissingPending = false;
     if (_idbMissingBatch.size === 0) return;
-    _warnedKeys.add('__idb_missing__');
+    _warnedKeys.add("__idb_missing__");
     if (IS_DEV) {
-      _idbMissingBatch.forEach(k =>
+      _idbMissingBatch.forEach((k) =>
         console.warn(`[priceCache] "${k}" nieznany w IDB — fallback do localStorage/default`)
       );
     } else {
-      const sample = [..._idbMissingBatch].slice(0, 3).join(', ');
-      const extra = _idbMissingBatch.size > 3 ? ` (+${_idbMissingBatch.size - 3})` : '';
-      console.warn(`[priceCache] ${_idbMissingBatch.size} kluczy nieznanych w IDB: ${sample}${extra}`);
+      const sample = [..._idbMissingBatch].slice(0, 3).join(", ");
+      const extra = _idbMissingBatch.size > 3 ? ` (+${_idbMissingBatch.size - 3})` : "";
+      console.warn(
+        `[priceCache] ${_idbMissingBatch.size} kluczy nieznanych w IDB: ${sample}${extra}`
+      );
     }
     _idbMissingBatch.clear();
   });
@@ -173,14 +184,14 @@ function warnIdbMissing(key: string): void {
 const _lsOverrideBatch = new Map<string, number>();
 let _lsOverridePending = false;
 function warnLsOverride(key: string, value: number): void {
-  if (_warnedKeys.has('__ls_override__')) return;
+  if (_warnedKeys.has("__ls_override__")) return;
   _lsOverrideBatch.set(key, value);
   if (_lsOverridePending) return;
   _lsOverridePending = true;
   Promise.resolve().then(() => {
     _lsOverridePending = false;
     if (_lsOverrideBatch.size === 0) return;
-    _warnedKeys.add('__ls_override__');
+    _warnedKeys.add("__ls_override__");
     if (IS_DEV) {
       _lsOverrideBatch.forEach((v, k) =>
         console.warn(`[priceCache] "${k}" — legacy localStorage override (${v})`)
@@ -214,7 +225,9 @@ const CUSTOM_QUOTE_KEYS = new Set<string>([
 function tierUnitPrice(tier: any): number {
   return typeof tier?.pricePerUnit === "number"
     ? tier.pricePerUnit
-    : (typeof tier?.price === "number" ? tier.price : 0);
+    : typeof tier?.price === "number"
+      ? tier.price
+      : 0;
 }
 
 function scanTiers(label: string, tiers: any[], out: string[]): void {
@@ -281,8 +294,11 @@ export async function warmPriceCache(): Promise<void> {
     _zeroPriceLabels = bad;
     if (IS_DEV) console.info(`[priceCache] ${map.size} rekordów załadowanych z IDB`);
     if (bad.length > 0) {
-      const fp = `${bad.length}:${bad.slice(0, 3).join(',')}`;
-      warnOnce(`__bad_prices__:${fp}`, `[priceCache] ${bad.length} aktywnych pozycji z ceną 0/null: ${bad.join(", ")}`);
+      const fp = `${bad.length}:${bad.slice(0, 3).join(",")}`;
+      warnOnce(
+        `__bad_prices__:${fp}`,
+        `[priceCache] ${bad.length} aktywnych pozycji z ceną 0/null: ${bad.join(", ")}`
+      );
     }
   } catch {
     // IDB niedostępne (środowisko Node / test) — cache zostaje null.
@@ -331,12 +347,16 @@ export function resolveStoredPrice(key: string, defaultValue: number): number {
     "plakaty-format-120g-formatowe-610x841": "plakaty-format-120g-formatowe-594x841",
     "plakaty-format-120g-formatowe-594x841": "plakaty-format-120g-formatowe-610x841",
     "plakaty-format-120g-nieformatowe-610x841": "plakaty-format-120g-nieformatowe-594x841",
-    "plakaty-format-120g-nieformatowe-594x841": "plakaty-format-120g-nieformatowe-610x841"
+    "plakaty-format-120g-nieformatowe-594x841": "plakaty-format-120g-nieformatowe-610x841",
   };
   const aliasKey = aliases[key];
   if (aliasKey && typeof stored[aliasKey] === "number") {
     if (_priceCache !== null) {
-      if (IS_DEV) warnOnce(`${key}:alias`, `[priceCache] "${key}" — alias "${aliasKey}" z localStorage (${stored[aliasKey]})`);
+      if (IS_DEV)
+        warnOnce(
+          `${key}:alias`,
+          `[priceCache] "${key}" — alias "${aliasKey}" z localStorage (${stored[aliasKey]})`
+        );
     }
     return stored[aliasKey];
   }
@@ -355,10 +375,9 @@ export function overrideTiersWithStoredPrices(
   tiers: Array<{ min: number; max: number | null; price: number }>
 ): Array<{ min: number; max: number | null; price: number }> {
   const stored = readStoredPrices();
-  return tiers.map(tier => {
-    const suffix = tier.max === null || tier.max > 50000
-      ? `${tier.min}+`
-      : `${tier.min}-${tier.max}`;
+  return tiers.map((tier) => {
+    const suffix =
+      tier.max === null || tier.max > 50000 ? `${tier.min}+` : `${tier.min}-${tier.max}`;
     const key = `${prefix}-${suffix}`;
     return typeof stored[key] === "number" ? { ...tier, price: stored[key] } : tier;
   });
@@ -416,6 +435,9 @@ export function mergeStoredQuantityTable(
 // DEFAULT_PRICES – snapshot of default prices from priceService at module load.
 // NOTE: do not use for reset logic; call resetPrices() from priceService instead.
 // ---------------------------------------------------------------------------
-export const DEFAULT_PRICES: Record<string, number> = getPrice("defaultPrices") as Record<string, number>;
+export const DEFAULT_PRICES: Record<string, number> = getPrice("defaultPrices") as Record<
+  string,
+  number
+>;
 
 export const BIZ: any = getPrice("wizytowki") as any;

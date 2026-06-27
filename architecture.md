@@ -1,9 +1,11 @@
 # architecture.md
 
 ## Cel systemu
+
 [Krótki opis architektury i celu technicznego]
 
 ## Stack
+
 - Frontend: [np. WordPress / React / Elementor]
 - Backend: [np. Node.js / PHP]
 - Baza danych: [np. MySQL / PostgreSQL]
@@ -11,6 +13,7 @@
 - Integracje: [np. API, webhooki, płatności]
 
 ## Struktura
+
 - `src/` — kod aplikacji
 - `docs/` — dokumentacja
 - `tests/` — testy
@@ -18,6 +21,7 @@
 - `scripts/` — narzędzia pomocnicze
 
 ## Zasady architektoniczne
+
 - Jedna odpowiedzialność na moduł.
 - Logika biznesowa oddzielona od prezentacji.
 - Komponenty mają być reużywalne.
@@ -25,6 +29,7 @@
 - Najpierw prosty przepływ, potem rozszerzenia.
 
 ## Flow danych
+
 1. Użytkownik wykonuje akcję.
 2. Warstwa UI przekazuje dane.
 3. Logika waliduje dane.
@@ -32,18 +37,22 @@
 5. Wynik wraca do UI lub kolejnej usługi.
 
 ## Endpoint Google Apps Script (source of truth)
+
 Endpoint backendu GAS jest konfiguracją **build-time**, nie runtime. Flow: GitHub Secret `GOOGLE_APPS_SCRIPT_URL` → esbuild `define` (`scripts/build.mjs`) → stała `CURRENT_APPS_SCRIPT_URL` w `orderExportService.ts` → zapieczona w bundlu `docs/assets/app.js`. Runtime override w localStorage (`razdwa_order_export_config`) istnieje i jest walidowany (`isValidGasUrl`: `https://script.google.com/.../exec`), lecz nie jest podłączony do UI — panel Ustawień nie ustawia URL.
 
 ## Granice odpowiedzialności
+
 - UI odpowiada za prezentację.
 - Logika odpowiada za reguły biznesowe.
 - Integracje odpowiadają za komunikację z zewnętrznymi systemami.
 - Automatyzacje odpowiadają za powtarzalne procesy.
 
 ## Gotchas
+
 - `plakaty-wf.ts` i `canvas-fixed.ts` to aktywne widoki — nazwa pliku nie odpowiada route id ("plakaty", "canvas"); nie zmieniać nazw bez aktualizacji importu w `main.ts`
 - `docs/categories/ustawienia.js` jest ładowany przez `legacyScriptPages` w `router.ts` — nie usuwać bez weryfikacji że `UstawieniaView` TS przejmuje całą ścieżkę
 
 ## Decyzje architektoniczne
+
 - **priceMigrator TODO-A** (`modifier-*`): klucze `modifier-express`, `modifier-satyna`, `modifier-express-vouchery` i in. są pomijane w migracji v1 (brak Modifier store). Efekt: modyfikatory działają przez `resolveStoredPrice()` z localStorage, nie z IDB. Domknięcie: `runModifierMigrationIfNeeded()` + Modifier store w ramach Etap 4 / sync.
 - **priceMigrator TODO-B** (`druk-cad-*`): klucze `druk-cad-*` trafiają do IDB z `category="druk"` (split po pierwszym segmencie). Efekt: żaden — app używa `getPrice("druk-cad")` z priceService, nie IDB. Domknięcie: ręczna korekta w panelu admina w Etapie 3.

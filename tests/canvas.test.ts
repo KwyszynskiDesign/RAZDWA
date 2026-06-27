@@ -8,7 +8,7 @@ describe("Canvas / Płótno", () => {
       modeId: "framed",
       formatId: "70x50",
       quantity: 2,
-      express: false
+      express: false,
     });
 
     expect(result.totalPrice).toBe(240);
@@ -21,7 +21,7 @@ describe("Canvas / Płótno", () => {
       quantity: 1,
       widthMm: 1000,
       heightMm: 500,
-      express: false
+      express: false,
     });
 
     // 0.5 m2 * 180
@@ -34,7 +34,7 @@ describe("Canvas / Płótno", () => {
       modeId: "unframed",
       formatId: "custom",
       quantity: 1,
-      express: false
+      express: false,
     });
 
     expect(result.isCustom).toBe(true);
@@ -46,7 +46,7 @@ describe("Canvas / Płótno", () => {
       modeId: "unframed",
       formatId: "100x70",
       quantity: 1,
-      express: true
+      express: true,
     });
 
     // 130 * 1.2
@@ -76,7 +76,7 @@ describe("Canvas / Płótno", () => {
         quantity: 1,
         widthMm: 1000,
         heightMm: 500,
-        express: false
+        express: false,
       });
 
       expect(result.totalPrice).toBe(111);

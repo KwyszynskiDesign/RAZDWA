@@ -30,12 +30,12 @@ export function calculateBanner(options: BannerOptions): CalculationResult {
         return {
           ...m,
           name: `Oczkowanie (+${value.toFixed(2)} zł/m2)`,
-          value
+          value,
         };
       }
 
       return m;
-    })
+    }),
   };
 
   const activeModifiers: string[] = [];

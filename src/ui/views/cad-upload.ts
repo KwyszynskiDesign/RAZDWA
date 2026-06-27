@@ -46,10 +46,12 @@ export const CadUploadView: View = {
 
   async initLogic(container: HTMLElement, ctx: ViewContext) {
     // DOM elements
-    const dropZone = container.querySelector<HTMLElement>("#cadDropZone") ||
-                     container.querySelector<HTMLElement>("#uploadZone");
-    const fileInput = container.querySelector<HTMLInputElement>("#cadFileInput") ||
-                     container.querySelector<HTMLInputElement>("#fileInput");
+    const dropZone =
+      container.querySelector<HTMLElement>("#cadDropZone") ||
+      container.querySelector<HTMLElement>("#uploadZone");
+    const fileInput =
+      container.querySelector<HTMLInputElement>("#cadFileInput") ||
+      container.querySelector<HTMLInputElement>("#fileInput");
     const dpiInput = container.querySelector<HTMLInputElement>("#dpiInput");
     const modeSelect = container.querySelector<HTMLSelectElement>("#cadMode");
     const optFill = container.querySelector<HTMLInputElement>("#optZapelnienie");
@@ -57,51 +59,85 @@ export const CadUploadView: View = {
     const optEmail = container.querySelector<HTMLInputElement>("#optEmail");
     // Dynamically render extra CAD options from JSON
     const extraOptions = await loadCadExtraOptions();
-    const extraOptionsMap = Object.fromEntries(extraOptions.map(opt => [opt.id, opt]));
+    const extraOptionsMap = Object.fromEntries(extraOptions.map((opt) => [opt.id, opt]));
 
     // Render extra options in the UI
     const extraRow = container.querySelector<HTMLElement>(".cad-extra-services-row");
     if (extraRow) {
-      extraRow.innerHTML = `<strong style=\"width:100%;margin-bottom:4px;\">Usługi dodatkowe</strong>` +
-        extraOptions.map(opt => `
+      extraRow.innerHTML =
+        `<strong style=\"width:100%;margin-bottom:4px;\">Usługi dodatkowe</strong>` +
+        extraOptions
+          .map(
+            (opt) => `
           <div class=\"cad-extra-option\">
             <label class=\"cad-option-item\">
               <input type=\"checkbox\" id=\"cad-opt-${opt.id}\">
-              <span>${opt.name} (${formatPLN(opt.price)} / ${opt.unit || (opt.id.includes('m2') ? 'm²' : 'szt')})</span>
+              <span>${opt.name} (${formatPLN(opt.price)} / ${opt.unit || (opt.id.includes("m2") ? "m²" : "szt")})</span>
             </label>
             <div id=\"cad-${opt.id}-qty-row\" style=\"display:none\" class=\"row cad-row-tight cad-qty-row\">
-              <label for=\"cad-${opt.id}-qty\">Ilość (${opt.unit || (opt.id.includes('m2') ? 'm²' : 'szt')}):</label>
-              <input type=\"number\" id=\"cad-${opt.id}-qty\" min=\"${opt.unit === 'm²' ? '0.01' : '1'}\" step=\"${opt.unit === 'm²' ? '0.01' : '1'}\" inputmode=\"decimal\" placeholder=\"np. 1\" class=\"cad-qty-input\" />
+              <label for=\"cad-${opt.id}-qty\">Ilość (${opt.unit || (opt.id.includes("m2") ? "m²" : "szt")}):</label>
+              <input type=\"number\" id=\"cad-${opt.id}-qty\" min=\"${opt.unit === "m²" ? "0.01" : "1"}\" step=\"${opt.unit === "m²" ? "0.01" : "1"}\" inputmode=\"decimal\" placeholder=\"np. 1\" class=\"cad-qty-input\" />
             </div>
           </div>
-        `).join("");
+        `
+          )
+          .join("");
     }
 
     // Get references to option checkboxes and qty inputs
     const optKlientSkladanie = container.querySelector<HTMLInputElement>("#optKlientSkladanie");
-    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-qty-row");
-    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadKlientSkladanieQty");
-    const cadUploadKlientSkladanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadKlientSkladanieAdd");
-    const cadUploadKlientSkladaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-klient-skladanie-price");
-    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>("#optNieformatoweSkladanie");
-    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-qty-row");
-    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>("#cadUploadNieformatoweSkladanieQty");
-    const cadUploadNieformatoweSkladanieAdd = container.querySelector<HTMLButtonElement>("#cadUploadNieformatoweSkladanieAdd");
-    const cadUploadNieformatoweSkladaniePriceLine = container.querySelector<HTMLElement>("#cad-upload-nieformatowe-skladanie-price");
+    const cadUploadKlientSkladanieQtyRow = container.querySelector<HTMLElement>(
+      "#cad-upload-klient-skladanie-qty-row"
+    );
+    const cadUploadKlientSkladanieQty = container.querySelector<HTMLInputElement>(
+      "#cadUploadKlientSkladanieQty"
+    );
+    const cadUploadKlientSkladanieAdd = container.querySelector<HTMLButtonElement>(
+      "#cadUploadKlientSkladanieAdd"
+    );
+    const cadUploadKlientSkladaniePriceLine = container.querySelector<HTMLElement>(
+      "#cad-upload-klient-skladanie-price"
+    );
+    const optNieformatoweSkladanie = container.querySelector<HTMLInputElement>(
+      "#optNieformatoweSkladanie"
+    );
+    const cadUploadNieformatoweSkladanieQtyRow = container.querySelector<HTMLElement>(
+      "#cad-upload-nieformatowe-skladanie-qty-row"
+    );
+    const cadUploadNieformatoweSkladanieQty = container.querySelector<HTMLInputElement>(
+      "#cadUploadNieformatoweSkladanieQty"
+    );
+    const cadUploadNieformatoweSkladanieAdd = container.querySelector<HTMLButtonElement>(
+      "#cadUploadNieformatoweSkladanieAdd"
+    );
+    const cadUploadNieformatoweSkladaniePriceLine = container.querySelector<HTMLElement>(
+      "#cad-upload-nieformatowe-skladanie-price"
+    );
     const optPaskiWzmacniajace = container.querySelector<HTMLInputElement>("#optPaskiWzmacniajace");
-    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-qty-row");
-    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>("#cadUploadPaskiWzmacniajaceQty");
-    const cadUploadPaskiWzmacniajaceAdd = container.querySelector<HTMLButtonElement>("#cadUploadPaskiWzmacniajaceAdd");
-    const cadUploadPaskiWzmacniajacePriceLine = container.querySelector<HTMLElement>("#cad-upload-paski-wzmacniajace-price");
-    const colorToggle = container.querySelector<HTMLElement>("#colorToggle") ||
-                       container.querySelector<HTMLElement>("#cadColorToggle");
+    const cadUploadPaskiWzmacniajaceQtyRow = container.querySelector<HTMLElement>(
+      "#cad-upload-paski-wzmacniajace-qty-row"
+    );
+    const cadUploadPaskiWzmacniajaceQty = container.querySelector<HTMLInputElement>(
+      "#cadUploadPaskiWzmacniajaceQty"
+    );
+    const cadUploadPaskiWzmacniajaceAdd = container.querySelector<HTMLButtonElement>(
+      "#cadUploadPaskiWzmacniajaceAdd"
+    );
+    const cadUploadPaskiWzmacniajacePriceLine = container.querySelector<HTMLElement>(
+      "#cad-upload-paski-wzmacniajace-price"
+    );
+    const colorToggle =
+      container.querySelector<HTMLElement>("#colorToggle") ||
+      container.querySelector<HTMLElement>("#cadColorToggle");
     const colorSwitch = container.querySelector<HTMLElement>("#colorSwitch");
     const resultsContainer = container.querySelector<HTMLElement>("#results-container");
-    const tableBody = container.querySelector<HTMLElement>("#results-body") ||
-                     container.querySelector<HTMLElement>("#filesTableBody") ||
-                     container.querySelector<HTMLElement>("#cadTableBody");
-    const summaryPanel = container.querySelector<HTMLElement>("#summaryPanel") ||
-                        container.querySelector<HTMLElement>("#cadSummary");
+    const tableBody =
+      container.querySelector<HTMLElement>("#results-body") ||
+      container.querySelector<HTMLElement>("#filesTableBody") ||
+      container.querySelector<HTMLElement>("#cadTableBody");
+    const summaryPanel =
+      container.querySelector<HTMLElement>("#summaryPanel") ||
+      container.querySelector<HTMLElement>("#cadSummary");
     const summaryGrid = container.querySelector<HTMLElement>("#summaryGrid");
     const grandTotal = container.querySelector<HTMLElement>("#grandTotal");
     const foldAllCheck = container.querySelector<HTMLInputElement>("#foldAllCheck");
@@ -150,17 +186,27 @@ export const CadUploadView: View = {
         const mbMap = cadPricing.price?.[mode]?.mb ?? {};
         const allFormats = Array.from(new Set([...Object.keys(fmtMap), ...Object.keys(mbMap)]));
 
-        return allFormats.map((format) => {
-          const normalized = String(format).toLowerCase().replace("0p", "0plus").replace("1p", "1plus").replace("r1067", "mb1067");
-          const fmtBase = Number((fmtMap as any)[format] ?? 0);
-          const mbBase = Number((mbMap as any)[format] ?? 0);
-          const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
-          const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
-          const fmtPrice = (fmtMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
-          const mbPrice = (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
+        return allFormats
+          .map((format) => {
+            const normalized = String(format)
+              .toLowerCase()
+              .replace("0p", "0plus")
+              .replace("1p", "1plus")
+              .replace("r1067", "mb1067");
+            const fmtBase = Number((fmtMap as any)[format] ?? 0);
+            const mbBase = Number((mbMap as any)[format] ?? 0);
+            const fmtKey = `druk-cad-${modeKey}-fmt-${normalized}`;
+            const mbKey = `druk-cad-${modeKey}-mb-${normalized}`;
+            const fmtPrice =
+              (fmtMap as any)[format] == null
+                ? "-"
+                : formatPLN(resolveStoredPrice(fmtKey, fmtBase));
+            const mbPrice =
+              (mbMap as any)[format] == null ? "-" : formatPLN(resolveStoredPrice(mbKey, mbBase));
 
-          return `<tr><td>${modeLabel}</td><td>${displayCadFormat(String(format))}</td><td>${fmtPrice}</td><td>${mbPrice}</td></tr>`;
-        }).join("");
+            return `<tr><td>${modeLabel}</td><td>${displayCadFormat(String(format))}</td><td>${fmtPrice}</td><td>${mbPrice}</td></tr>`;
+          })
+          .join("");
       };
 
       const bwRows = collectRowsForMode("bw", "Czarno-biały");
@@ -190,8 +236,8 @@ export const CadUploadView: View = {
       return px * (25.4 / dpi);
     }
 
-    function getMode(): 'bw' | 'color' {
-      return isColor ? 'color' : 'bw';
+    function getMode(): "bw" | "color" {
+      return isColor ? "color" : "bw";
     }
 
     function formatLabel(fmt: string): string {
@@ -291,7 +337,7 @@ export const CadUploadView: View = {
           unit: params.unit,
           unitPrice: params.unitPrice,
           totalPrice,
-        }
+        },
       });
 
       ctx.updateLastCalculated(totalPrice, `CAD Upload - ${params.name}`);
@@ -375,7 +421,9 @@ export const CadUploadView: View = {
         messages.push(`Pominięto ${skippedLimit} (limit ${MAX_CAD_FILES}).`);
       }
       if (heavy > 0) {
-        messages.push(`${heavy} ciężkich (${CAD_FILE_WARN_MB}–${CAD_FILE_HARD_MB} MB) – przetwarzanie może potrwać dłużej.`);
+        messages.push(
+          `${heavy} ciężkich (${CAD_FILE_WARN_MB}–${CAD_FILE_HARD_MB} MB) – przetwarzanie może potrwać dłużej.`
+        );
       }
 
       if (oversized > 0 || skippedLimit > 0 || heavy > 0) {
@@ -403,9 +451,8 @@ export const CadUploadView: View = {
         }
       };
 
-      const workers = Array.from(
-        { length: Math.min(concurrency, items.length) },
-        () => runWorker()
+      const workers = Array.from({ length: Math.min(concurrency, items.length) }, () =>
+        runWorker()
       );
 
       await Promise.all(workers);
@@ -417,7 +464,11 @@ export const CadUploadView: View = {
       return recalculated.printPrice;
     }
 
-    function calculateRowTotal(file: CadUploadFileEntry, mode: "color" | "bw", surcharge: number): number {
+    function calculateRowTotal(
+      file: CadUploadFileEntry,
+      mode: "color" | "bw",
+      surcharge: number
+    ): number {
       const recalculated = updateCadFileEntry({ ...file, mode }, mode);
       const print = recalculated.printPrice * surcharge;
       const printQty = file.printQty || 1;
@@ -448,11 +499,19 @@ export const CadUploadView: View = {
           const colorPrintBase = calculateVariantPrint(file, "color");
           const bwPrintBase = calculateVariantPrint(file, "bw");
           const colorUnit = isMb
-            ? (lengthMeters > 0 && file.pageCount > 0 ? colorPrintBase / (lengthMeters * file.pageCount) : 0)
-            : (file.pageCount > 0 ? colorPrintBase / file.pageCount : 0);
+            ? lengthMeters > 0 && file.pageCount > 0
+              ? colorPrintBase / (lengthMeters * file.pageCount)
+              : 0
+            : file.pageCount > 0
+              ? colorPrintBase / file.pageCount
+              : 0;
           const bwUnit = isMb
-            ? (lengthMeters > 0 && file.pageCount > 0 ? bwPrintBase / (lengthMeters * file.pageCount) : 0)
-            : (file.pageCount > 0 ? bwPrintBase / file.pageCount : 0);
+            ? lengthMeters > 0 && file.pageCount > 0
+              ? bwPrintBase / (lengthMeters * file.pageCount)
+              : 0
+            : file.pageCount > 0
+              ? bwPrintBase / file.pageCount
+              : 0;
           const colorPrintAfterSurcharge = colorPrintBase * surcharge;
           const bwPrintAfterSurcharge = bwPrintBase * surcharge;
 
@@ -463,9 +522,7 @@ export const CadUploadView: View = {
             ? `MB: ${lengthMeters.toFixed(3)} m × stawka × ${file.pageCount} str.`
             : `Formatowe: stawka × ${file.pageCount} str.`;
 
-          const surchargeText = surchargePct > 0
-            ? `, dopłata opcji +${surchargePct}%`
-            : "";
+          const surchargeText = surchargePct > 0 ? `, dopłata opcji +${surchargePct}%` : "";
 
           return `
             <div class="obliczenie-item">
@@ -601,7 +658,7 @@ export const CadUploadView: View = {
 
     function renderSummary(): void {
       const surcharge = calcSurchargeMultiplier();
-      
+
       let totalPrintColorVariant = 0;
       let totalFoldingColorVariant = 0;
 
@@ -624,35 +681,48 @@ export const CadUploadView: View = {
 
       const emailFee = optEmail?.checked ? resolveStoredPrice("druk-email", 1) : 0;
       const extraServicesTotal = getExtraServicesTotal();
-      const totalScanColorVariant = files.reduce((sum, f) => sum + (f.scanning ? f.scanPrice * (f.printQty || 1) : 0), 0);
+      const totalScanColorVariant = files.reduce(
+        (sum, f) => sum + (f.scanning ? f.scanPrice * (f.printQty || 1) : 0),
+        0
+      );
 
-      grandTotalColorVariant = totalPrintColorVariant + totalFoldingColorVariant + emailFee + extraServicesTotal + totalScanColorVariant;
-      grandTotalBwVariant = totalPrintBwVariant + totalFoldingBwVariant + emailFee + extraServicesTotal + totalScanColorVariant;
+      grandTotalColorVariant =
+        totalPrintColorVariant +
+        totalFoldingColorVariant +
+        emailFee +
+        extraServicesTotal +
+        totalScanColorVariant;
+      grandTotalBwVariant =
+        totalPrintBwVariant +
+        totalFoldingBwVariant +
+        emailFee +
+        extraServicesTotal +
+        totalScanColorVariant;
 
       const totalColorEl = container.querySelector<HTMLElement>("#results-total-color");
       const totalBwEl = container.querySelector<HTMLElement>("#results-total-bw");
-      
+
       if (totalColorEl) {
         totalColorEl.textContent = formatPLN(grandTotalColorVariant);
-        const colorRow = totalColorEl.closest('tr') as HTMLElement;
-        if (colorRow) colorRow.style.display = files.length > 0 ? '' : 'none';
+        const colorRow = totalColorEl.closest("tr") as HTMLElement;
+        if (colorRow) colorRow.style.display = files.length > 0 ? "" : "none";
       }
       if (totalBwEl) {
         totalBwEl.textContent = formatPLN(grandTotalBwVariant);
-        const bwRow = totalBwEl.closest('tr') as HTMLElement;
-        if (bwRow) bwRow.style.display = files.length > 0 ? '' : 'none';
+        const bwRow = totalBwEl.closest("tr") as HTMLElement;
+        if (bwRow) bwRow.style.display = files.length > 0 ? "" : "none";
       }
 
       const selectColorPrice = container.querySelector<HTMLElement>("#selectColorPrice");
       const selectBwPrice = container.querySelector<HTMLElement>("#selectBwPrice");
       const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
       const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
-      
+
       if (selectColorPrice) selectColorPrice.textContent = formatPLN(grandTotalColorVariant);
       if (selectBwPrice) selectBwPrice.textContent = formatPLN(grandTotalBwVariant);
-      
-      if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? '' : 'none';
-      if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? '' : 'none';
+
+      if (selectColorBtn) selectColorBtn.style.display = files.length > 0 ? "" : "none";
+      if (selectBwBtn) selectBwBtn.style.display = files.length > 0 ? "" : "none";
 
       // Update skan/skladanie monitor
       const cadExtrasMonitor = container.querySelector<HTMLElement>("#cadExtrasMonitor");
@@ -662,22 +732,25 @@ export const CadUploadView: View = {
       let totalSkladanieDisplay = totalFoldingColorVariant;
       // Add extra services folding totals
       if (optKlientSkladanie?.checked) {
-        const qty = parseInt(cadUploadKlientSkladanieQty?.value || '0', 10);
-        totalSkladanieDisplay += resolveStoredPrice('cad-klient-skladanie', 4.0) * qty;
+        const qty = parseInt(cadUploadKlientSkladanieQty?.value || "0", 10);
+        totalSkladanieDisplay += resolveStoredPrice("cad-klient-skladanie", 4.0) * qty;
       }
       if (optNieformatoweSkladanie?.checked) {
-        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || '0').replace(',', '.'));
-        totalSkladanieDisplay += resolveStoredPrice('cad-nieformatowe-skladanie', 2.5) * qty;
+        const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || "0").replace(",", "."));
+        totalSkladanieDisplay += resolveStoredPrice("cad-nieformatowe-skladanie", 2.5) * qty;
       }
       if (cadExtrasMonitor) {
-        cadExtrasMonitor.style.display = (files.length > 0 && (totalSkanDisplay > 0 || totalSkladanieDisplay > 0)) ? 'flex' : 'none';
+        cadExtrasMonitor.style.display =
+          files.length > 0 && (totalSkanDisplay > 0 || totalSkladanieDisplay > 0) ? "flex" : "none";
       }
       if (monitorSkanSum) monitorSkanSum.textContent = formatPLN(totalSkanDisplay);
       if (monitorSkladanieSum) monitorSkladanieSum.textContent = formatPLN(totalSkladanieDisplay);
 
       if (summaryGrid) {
         summaryGrid.innerHTML = `
-          ${files.length > 0 ? `
+          ${
+            files.length > 0
+              ? `
           <div class="summary-item">
             <span>⚫ Czarno-biały (${formatPlikCount(files.length)}):</span>
             <span><strong>${formatPLN(totalPrintBwVariant)}</strong></span>
@@ -685,38 +758,57 @@ export const CadUploadView: View = {
           <div class="summary-item">
             <span>🎨 Kolor (${formatPlikCount(files.length)}):</span>
             <span><strong>${formatPLN(totalPrintColorVariant)}</strong></span>
-          </div>` : ''}
-          ${totalFoldingColorVariant > 0 ? `
+          </div>`
+              : ""
+          }
+          ${
+            totalFoldingColorVariant > 0
+              ? `
           <div class="summary-item">
             <span>Składanie (stawka × liczba dokumentów):</span>
             <span>${formatPLN(totalFoldingColorVariant)}</span>
-          </div>` : ''}
-          ${totalScanColorVariant > 0 ? `
+          </div>`
+              : ""
+          }
+          ${
+            totalScanColorVariant > 0
+              ? `
           <div class="summary-item">
             <span>Skanowanie:</span>
             <span>${formatPLN(totalScanColorVariant)}</span>
-          </div>` : ''}
-          ${emailFee > 0 ? `
+          </div>`
+              : ""
+          }
+          ${
+            emailFee > 0
+              ? `
           <div class="summary-item">
             <span>Email:</span>
             <span>${formatPLN(emailFee)}</span>
-          </div>` : ''}
+          </div>`
+              : ""
+          }
           ${(() => {
-            let lines = '';
+            let lines = "";
             if (optKlientSkladanie?.checked) {
-              const qty = parseInt(cadUploadKlientSkladanieQty?.value || '0', 10);
-              const price = resolveStoredPrice('cad-klient-skladanie', 4.0) * qty;
-              if (qty > 0) lines += `<div class="summary-item"><span>Składanie od klienta (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
+              const qty = parseInt(cadUploadKlientSkladanieQty?.value || "0", 10);
+              const price = resolveStoredPrice("cad-klient-skladanie", 4.0) * qty;
+              if (qty > 0)
+                lines += `<div class="summary-item"><span>Składanie od klienta (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
             }
             if (optNieformatoweSkladanie?.checked) {
-              const qty = parseFloat((cadUploadNieformatoweSkladanieQty?.value || '0').replace(',', '.'));
-              const price = resolveStoredPrice('cad-nieformatowe-skladanie', 2.5) * qty;
-              if (qty > 0) lines += `<div class="summary-item"><span>Składanie nieformatowych (${qty} m²):</span><span>${formatPLN(price)}</span></div>`;
+              const qty = parseFloat(
+                (cadUploadNieformatoweSkladanieQty?.value || "0").replace(",", ".")
+              );
+              const price = resolveStoredPrice("cad-nieformatowe-skladanie", 2.5) * qty;
+              if (qty > 0)
+                lines += `<div class="summary-item"><span>Składanie nieformatowych (${qty} m²):</span><span>${formatPLN(price)}</span></div>`;
             }
             if (optPaskiWzmacniajace?.checked) {
-              const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || '0', 10);
-              const price = resolveStoredPrice('cad-paski-wzmacniajace', 0.8) * qty;
-              if (qty > 0) lines += `<div class="summary-item"><span>Paski wzmacniające (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
+              const qty = parseInt(cadUploadPaskiWzmacniajaceQty?.value || "0", 10);
+              const price = resolveStoredPrice("cad-paski-wzmacniajace", 0.8) * qty;
+              if (qty > 0)
+                lines += `<div class="summary-item"><span>Paski wzmacniające (${qty} szt):</span><span>${formatPLN(price)}</span></div>`;
             }
             return lines;
           })()}
@@ -724,7 +816,9 @@ export const CadUploadView: View = {
       }
 
       if (grandTotal) {
-        grandTotal.textContent = formatPLN(getMode() === "color" ? grandTotalColorVariant : grandTotalBwVariant);
+        grandTotal.textContent = formatPLN(
+          getMode() === "color" ? grandTotalColorVariant : grandTotalBwVariant
+        );
       }
 
       if (summaryPanel) {
@@ -757,7 +851,7 @@ export const CadUploadView: View = {
 
       const validFiles = results
         .filter((r): r is { ok: true; entry: CadUploadFileEntry } => r.ok)
-        .map(r => ({ ...r.entry, mode: getMode() }));
+        .map((r) => ({ ...r.entry, mode: getMode() }));
 
       const failedFiles = results.filter(
         (r): r is { ok: false; name: string; cause: string } => !r.ok
@@ -773,23 +867,31 @@ export const CadUploadView: View = {
       const messages: string[] = [];
 
       if (validFiles.length > 0) {
-        messages.push(`Dodano ${validFiles.length} plików. Łącznie: ${files.length}/${MAX_CAD_FILES}.`);
+        messages.push(
+          `Dodano ${validFiles.length} plików. Łącznie: ${files.length}/${MAX_CAD_FILES}.`
+        );
       }
 
       if (failedFiles.length > 0) {
-        const failList = failedFiles.map(f => {
-          const causeText =
-            f.cause === "FORMAT_UNSUPPORTED" ? "niezgodny format" :
-            f.cause === "PAGES_LIMIT" ? `za dużo stron (limit: ${CAD_PDF_HARD_PAGES})` :
-            "plik uszkodzony / nie do odczytu";
-          return `${f.name} (${causeText})`;
-        }).join(", ");
+        const failList = failedFiles
+          .map((f) => {
+            const causeText =
+              f.cause === "FORMAT_UNSUPPORTED"
+                ? "niezgodny format"
+                : f.cause === "PAGES_LIMIT"
+                  ? `za dużo stron (limit: ${CAD_PDF_HARD_PAGES})`
+                  : "plik uszkodzony / nie do odczytu";
+            return `${f.name} (${causeText})`;
+          })
+          .join(", ");
         messages.push(`Pominięto: ${failList}.`);
       }
 
-      const warnPageFiles = validFiles.filter(f => f.pageCount >= CAD_PDF_WARN_PAGES);
+      const warnPageFiles = validFiles.filter((f) => f.pageCount >= CAD_PDF_WARN_PAGES);
       if (warnPageFiles.length > 0) {
-        messages.push(`${warnPageFiles.length} plik(ów) ma ≥${CAD_PDF_WARN_PAGES} stron – przetwarzanie mogło potrwać dłużej.`);
+        messages.push(
+          `${warnPageFiles.length} plik(ów) ma ≥${CAD_PDF_WARN_PAGES} stron – przetwarzanie mogło potrwać dłużej.`
+        );
       }
 
       const isWarn = failedFiles.length > 0 || warnPageFiles.length > 0;
@@ -857,7 +959,6 @@ export const CadUploadView: View = {
         files[index] = recalculateFile(files[index]);
         renderFiles();
       }
-
     });
 
     tableBody.addEventListener("input", (event) => {
@@ -869,7 +970,7 @@ export const CadUploadView: View = {
       const index = files.findIndex((f) => f.id === id);
       if (index < 0) return;
       const newQty = parseInt(target.value, 10);
-      files[index].printQty = (!isNaN(newQty) && newQty >= 1) ? newQty : 1;
+      files[index].printQty = !isNaN(newQty) && newQty >= 1 ? newQty : 1;
 
       const surcharge = calcSurchargeMultiplier();
       const rowColor = calculateRowTotal(files[index], "color", surcharge);
@@ -943,36 +1044,76 @@ export const CadUploadView: View = {
       if (cadUploadKlientSkladanieQtyRow) {
         cadUploadKlientSkladanieQtyRow.style.display = optKlientSkladanie.checked ? "flex" : "none";
       }
-      updateExtraServicePriceLine(optKlientSkladanie, cadUploadKlientSkladanieQty, cadUploadKlientSkladaniePriceLine, klientUnitPrice, "szt");
+      updateExtraServicePriceLine(
+        optKlientSkladanie,
+        cadUploadKlientSkladanieQty,
+        cadUploadKlientSkladaniePriceLine,
+        klientUnitPrice,
+        "szt"
+      );
       renderFiles();
     });
 
     optNieformatoweSkladanie?.addEventListener("change", () => {
       if (cadUploadNieformatoweSkladanieQtyRow) {
-        cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked ? "flex" : "none";
+        cadUploadNieformatoweSkladanieQtyRow.style.display = optNieformatoweSkladanie.checked
+          ? "flex"
+          : "none";
       }
-      updateExtraServicePriceLine(optNieformatoweSkladanie, cadUploadNieformatoweSkladanieQty, cadUploadNieformatoweSkladaniePriceLine, nieformatoweUnitPrice, "m²");
+      updateExtraServicePriceLine(
+        optNieformatoweSkladanie,
+        cadUploadNieformatoweSkladanieQty,
+        cadUploadNieformatoweSkladaniePriceLine,
+        nieformatoweUnitPrice,
+        "m²"
+      );
       renderFiles();
     });
 
     optPaskiWzmacniajace?.addEventListener("change", () => {
       if (cadUploadPaskiWzmacniajaceQtyRow) {
-        cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked ? "flex" : "none";
+        cadUploadPaskiWzmacniajaceQtyRow.style.display = optPaskiWzmacniajace.checked
+          ? "flex"
+          : "none";
       }
-      updateExtraServicePriceLine(optPaskiWzmacniajace, cadUploadPaskiWzmacniajaceQty, cadUploadPaskiWzmacniajacePriceLine, paskiUnitPrice, "szt");
+      updateExtraServicePriceLine(
+        optPaskiWzmacniajace,
+        cadUploadPaskiWzmacniajaceQty,
+        cadUploadPaskiWzmacniajacePriceLine,
+        paskiUnitPrice,
+        "szt"
+      );
       renderFiles();
     });
 
     cadUploadKlientSkladanieQty?.addEventListener("input", () => {
-      updateExtraServicePriceLine(optKlientSkladanie, cadUploadKlientSkladanieQty, cadUploadKlientSkladaniePriceLine, klientUnitPrice, "szt");
+      updateExtraServicePriceLine(
+        optKlientSkladanie,
+        cadUploadKlientSkladanieQty,
+        cadUploadKlientSkladaniePriceLine,
+        klientUnitPrice,
+        "szt"
+      );
       renderFiles();
     });
     cadUploadNieformatoweSkladanieQty?.addEventListener("input", () => {
-      updateExtraServicePriceLine(optNieformatoweSkladanie, cadUploadNieformatoweSkladanieQty, cadUploadNieformatoweSkladaniePriceLine, nieformatoweUnitPrice, "m²");
+      updateExtraServicePriceLine(
+        optNieformatoweSkladanie,
+        cadUploadNieformatoweSkladanieQty,
+        cadUploadNieformatoweSkladaniePriceLine,
+        nieformatoweUnitPrice,
+        "m²"
+      );
       renderFiles();
     });
     cadUploadPaskiWzmacniajaceQty?.addEventListener("input", () => {
-      updateExtraServicePriceLine(optPaskiWzmacniajace, cadUploadPaskiWzmacniajaceQty, cadUploadPaskiWzmacniajacePriceLine, paskiUnitPrice, "szt");
+      updateExtraServicePriceLine(
+        optPaskiWzmacniajace,
+        cadUploadPaskiWzmacniajaceQty,
+        cadUploadPaskiWzmacniajacePriceLine,
+        paskiUnitPrice,
+        "szt"
+      );
       renderFiles();
     });
 
@@ -1033,8 +1174,10 @@ export const CadUploadView: View = {
 
       const dpiNote = document.createElement("p");
       dpiNote.className = "cad-dpi-note";
-      dpiNote.style.cssText = "margin:4px 0 0;font-size:0.78rem;color:var(--text-secondary,#64748b);";
-      dpiNote.textContent = "DPI dotyczy tylko plików graficznych (np. skanów). Pliki PDF mają wbudowaną rozdzielczość i nie są przeliczane przy zmianie DPI.";
+      dpiNote.style.cssText =
+        "margin:4px 0 0;font-size:0.78rem;color:var(--text-secondary,#64748b);";
+      dpiNote.textContent =
+        "DPI dotyczy tylko plików graficznych (np. skanów). Pliki PDF mają wbudowaną rozdzielczość i nie są przeliczane przy zmianie DPI.";
       dpiInput.insertAdjacentElement("afterend", dpiNote);
     }
 
@@ -1042,10 +1185,10 @@ export const CadUploadView: View = {
     const selectColorBtn = container.querySelector<HTMLButtonElement>("#selectColor");
     const selectBwBtn = container.querySelector<HTMLButtonElement>("#selectBw");
     const submitBtn = container.querySelector<HTMLButtonElement>("#submitBtn");
-    
-    const handleCartButton = (btn: HTMLButtonElement | null, mode: 'color' | 'bw') => {
+
+    const handleCartButton = (btn: HTMLButtonElement | null, mode: "color" | "bw") => {
       if (!btn) return;
-      
+
       btn.addEventListener("click", () => {
         if (files.length === 0) {
           alert("Nie dodano żadnych plików do wyceny");
@@ -1056,13 +1199,15 @@ export const CadUploadView: View = {
         const totalFolding = files.reduce((sum, f) => sum + f.foldingPrice, 0);
         const totalScan = files.reduce((sum, f) => sum + f.scanPrice, 0);
 
-        const modeLabel = mode === 'color' ? "KOLOR" : "CZ-B";
+        const modeLabel = mode === "color" ? "KOLOR" : "CZ-B";
         const opts = [
           formatPlikCount(files.length),
           modeLabel,
           totalFolding > 0 ? "ze składaniem" : "",
-          totalScan > 0 ? "ze skanowaniem" : ""
-        ].filter(Boolean).join(", ");
+          totalScan > 0 ? "ze skanowaniem" : "",
+        ]
+          .filter(Boolean)
+          .join(", ");
 
         const snapshotFiles = files.map((f) => ({ ...f }));
 
@@ -1076,7 +1221,7 @@ export const CadUploadView: View = {
           isExpress: ctx.expressMode,
           totalPrice: grandTotalPrice,
           optionsHint: opts,
-          payload: { files: snapshotFiles, mode, price: grandTotalPrice }
+          payload: { files: snapshotFiles, mode, price: grandTotalPrice },
         });
 
         ctx.updateLastCalculated(grandTotalPrice, "CAD Upload");
@@ -1086,8 +1231,8 @@ export const CadUploadView: View = {
       });
     };
 
-    handleCartButton(selectColorBtn, 'color');
-    handleCartButton(selectBwBtn, 'bw');
+    handleCartButton(selectColorBtn, "color");
+    handleCartButton(selectBwBtn, "bw");
 
     if (submitBtn) {
       submitBtn.addEventListener("click", () => {
@@ -1109,7 +1254,9 @@ export const CadUploadView: View = {
     renderFiles();
     renderLegend();
 
-    ctx?.on?.("prices-updated", () => { renderLegend(); });
+    ctx?.on?.("prices-updated", () => {
+      renderLegend();
+    });
   },
 
   unmount() {

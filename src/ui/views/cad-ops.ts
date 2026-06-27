@@ -27,7 +27,9 @@ export const CadOpsView: View = {
       // Placeholder for recalc if needed
     };
 
-    ctx?.on?.("prices-updated", () => { recalcCadOps(); });
+    ctx?.on?.("prices-updated", () => {
+      recalcCadOps();
+    });
 
     foldAddBtn.onclick = () => {
       const qty = parseInt(foldQty.value);
@@ -35,7 +37,12 @@ export const CadOpsView: View = {
 
       try {
         const res = quoteCadFold({ format: foldFormat.value, qty });
-        const labelFmt = foldFormat.value === 'A0p' ? 'A0+' : (foldFormat.value === 'A3L' ? 'A3-poprzeczne' : foldFormat.value);
+        const labelFmt =
+          foldFormat.value === "A0p"
+            ? "A0+"
+            : foldFormat.value === "A3L"
+              ? "A3-poprzeczne"
+              : foldFormat.value;
 
         ctx.cart.addItem({
           id: `cad-fold-${Date.now()}`,
@@ -46,7 +53,7 @@ export const CadOpsView: View = {
           unitPrice: res.unit,
           totalPrice: res.total,
           optionsHint: `${qty} szt.`,
-          payload: res
+          payload: res,
         });
 
         foldQty.value = "";
@@ -78,7 +85,7 @@ export const CadOpsView: View = {
           unitPrice: res.unitPrice,
           totalPrice: res.total,
           optionsHint: `${qty} szt, ${mm} mm`,
-          payload: res
+          payload: res,
         });
 
         wfScanMm.value = "";
@@ -88,5 +95,5 @@ export const CadOpsView: View = {
         console.warn("Skanowanie WF:", (err as Error).message);
       }
     };
-  }
+  },
 };

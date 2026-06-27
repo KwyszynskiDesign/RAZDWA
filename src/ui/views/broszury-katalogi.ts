@@ -69,7 +69,7 @@ export function getResolvedBroszuryTiers(format: FormatKey): BroszuryTier[] {
       return Number.isFinite(n) ? n : null;
     },
     (tier) => tier.min,
-    (qty, price) => ({ min: qty, max: null, suffix: String(qty), price }),
+    (qty, price) => ({ min: qty, max: null, suffix: String(qty), price })
   );
 }
 
@@ -92,7 +92,15 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
   const totalPriceSpan = container.querySelector("#bk-total-price") as HTMLElement;
   const expressHint = container.querySelector("#bk-express-hint") as HTMLElement;
 
-  if (!formatSelect || !pagesSelect || !qtyInput || !addToCartBtn || !resultDisplay || !breakdownDisplay || !breakdownLines) {
+  if (
+    !formatSelect ||
+    !pagesSelect ||
+    !qtyInput ||
+    !addToCartBtn ||
+    !resultDisplay ||
+    !breakdownDisplay ||
+    !breakdownLines
+  ) {
     console.error("BroszuryKatalogiView: missing required DOM elements");
     return;
   }
@@ -108,14 +116,19 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
     }
 
     const formats: FormatKey[] = ["a4", "a5", "dl"];
-    const rows = formats.map((fmt) => {
-      const tiers = getResolvedBroszuryTiers(fmt);
-      const tierRows = tiers.map((tier) => {
-        const rangeLabel = tier.max === null ? `${tier.min}+ szt.` : `${tier.min}–${tier.max} szt.`;
-        return `<tr><td>${rangeLabel}</td><td>${tier.price > 0 ? formatPLN(tier.price) : "—"}</td></tr>`;
-      }).join("");
-      return `<h4 style="margin:10px 0 6px;">${FORMAT_LABELS[fmt]}</h4><table><tr><th>Nakład</th><th>Cena za szt.</th></tr>${tierRows}</table>`;
-    }).join("");
+    const rows = formats
+      .map((fmt) => {
+        const tiers = getResolvedBroszuryTiers(fmt);
+        const tierRows = tiers
+          .map((tier) => {
+            const rangeLabel =
+              tier.max === null ? `${tier.min}+ szt.` : `${tier.min}–${tier.max} szt.`;
+            return `<tr><td>${rangeLabel}</td><td>${tier.price > 0 ? formatPLN(tier.price) : "—"}</td></tr>`;
+          })
+          .join("");
+        return `<h4 style="margin:10px 0 6px;">${FORMAT_LABELS[fmt]}</h4><table><tr><th>Nakład</th><th>Cena za szt.</th></tr>${tierRows}</table>`;
+      })
+      .join("");
 
     legend.innerHTML = `
       ${rows}
@@ -160,12 +173,22 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
       { label: "Format", value: FORMAT_LABELS[format] },
       { label: "Liczba stron", value: `${pages}` },
       { label: "Nakład", value: `${qty} szt.` },
-      { label: "Cena za szt.", value: unitPrice > 0 ? formatPLN(unitPrice) : "— (do uzupełnienia)" },
-      { label: "Cena bazowa", value: unitPrice > 0 ? `${qty} szt. × ${formatPLN(unitPrice)} = ${formatPLN(basePrice)}` : "—" },
+      {
+        label: "Cena za szt.",
+        value: unitPrice > 0 ? formatPLN(unitPrice) : "— (do uzupełnienia)",
+      },
+      {
+        label: "Cena bazowa",
+        value:
+          unitPrice > 0 ? `${qty} szt. × ${formatPLN(unitPrice)} = ${formatPLN(basePrice)}` : "—",
+      },
     ];
 
     if (ctx.expressMode) {
-      lines.push({ label: "EXPRESS", value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressCost)}` });
+      lines.push({
+        label: "EXPRESS",
+        value: `20% × ${formatPLN(basePrice)} = ${formatPLN(expressCost)}`,
+      });
     }
 
     lines.push({
@@ -209,8 +232,8 @@ function initBroszuryKatalogi(container: HTMLElement, ctx: ViewContext): void {
 
     currentResult = null;
     currentOptions = null;
-    resultDisplay.style.display = 'none';
-    breakdownDisplay.style.display = 'none';
+    resultDisplay.style.display = "none";
+    breakdownDisplay.style.display = "none";
     addToCartBtn.disabled = true;
     container.dispatchEvent(new CustomEvent("view:reset"));
   };

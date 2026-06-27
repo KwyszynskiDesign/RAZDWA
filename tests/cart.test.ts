@@ -8,9 +8,15 @@ describe("Cart", () => {
     const store: Record<string, string> = {};
     vi.stubGlobal("localStorage", {
       getItem: (key: string) => store[key] || null,
-      setItem: (key: string, value: string) => { store[key] = value; },
-      removeItem: (key: string) => { delete store[key]; },
-      clear: () => { Object.keys(store).forEach(k => delete store[k]); }
+      setItem: (key: string, value: string) => {
+        store[key] = value;
+      },
+      removeItem: (key: string) => {
+        delete store[key];
+      },
+      clear: () => {
+        Object.keys(store).forEach((k) => delete store[k]);
+      },
     });
   });
 
@@ -24,7 +30,7 @@ describe("Cart", () => {
     isExpress: false,
     totalPrice: 20,
     optionsHint: "None",
-    payload: {}
+    payload: {},
   };
 
   it("should add an item", () => {

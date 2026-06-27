@@ -84,11 +84,15 @@ export const WizytowkiView: View = {
     const extSizeSelect = container.querySelector("#w-ext-size") as HTMLSelectElement | null;
     const extFinishSelect = container.querySelector("#w-ext-finish") as HTMLSelectElement | null;
     const extQtyInput = container.querySelector("#w-ext-qty") as HTMLInputElement | null;
-    const extAddToCartBtn = container.querySelector("#w-ext-add-to-cart") as HTMLButtonElement | null;
+    const extAddToCartBtn = container.querySelector(
+      "#w-ext-add-to-cart"
+    ) as HTMLButtonElement | null;
     const goViperprintBtn = container.querySelector("#w-go-viperprint") as HTMLButtonElement | null;
     const legendRows = container.querySelector("#w-legend-rows") as HTMLElement | null;
     const legendStandardEl = container.querySelector("#w-legend-standard") as HTMLElement | null;
-    const stdFormActions = (container.querySelector("#w-add-to-cart") as HTMLElement | null)?.closest(".form-actions") as HTMLElement | null;
+    const stdFormActions = (
+      container.querySelector("#w-add-to-cart") as HTMLElement | null
+    )?.closest(".form-actions") as HTMLElement | null;
     const extPriceInput = container.querySelector("#w-ext-price") as HTMLInputElement | null;
     const extPriceErrEl = container.querySelector("#w-ext-price-err") as HTMLElement | null;
 
@@ -111,18 +115,21 @@ export const WizytowkiView: View = {
           return match ? Number.parseInt(match[1], 10) : null;
         }
       );
-      const qtyList = [...new Set([
-        ...Object.keys(table85none),
-        ...Object.keys(table90none),
-      ])]
+      const qtyList = [...new Set([...Object.keys(table85none), ...Object.keys(table90none)])]
         .map((k) => Number(k))
         .filter((n) => Number.isFinite(n))
         .sort((a, b) => a - b);
 
       legendRows.innerHTML = qtyList
         .map((qty) => {
-          const p85none = resolveStoredPrice(`wizytowki-85x55-none-${qty}szt`, Number(table85none[qty] ?? 0));
-          const p90none = resolveStoredPrice(`wizytowki-90x50-none-${qty}szt`, Number(table90none[qty] ?? 0));
+          const p85none = resolveStoredPrice(
+            `wizytowki-85x55-none-${qty}szt`,
+            Number(table85none[qty] ?? 0)
+          );
+          const p90none = resolveStoredPrice(
+            `wizytowki-90x50-none-${qty}szt`,
+            Number(table90none[qty] ?? 0)
+          );
           return `<tr><td>${qty}</td><td>${formatPLN(p85none)}</td><td>${formatPLN(p90none)}</td></tr>`;
         })
         .join("");
@@ -143,25 +150,25 @@ export const WizytowkiView: View = {
     const syncMode = () => {
       const family = familySelect?.value;
       const external = isExternal();
-      if (standardOpts) standardOpts.style.display = external ? 'none' : 'block';
-      if (paperGroup) paperGroup.style.display = external ? 'none' : '';
-      if (qtyGroup) qtyGroup.style.display = external ? 'none' : '';
-      if (legendStandardEl) legendStandardEl.style.display = external ? 'none' : '';
-      if (externalTopInfo) externalTopInfo.style.display = external ? 'block' : 'none';
-      if (externalForm) externalForm.style.display = external ? 'block' : 'none';
-      if (extTypeGroup) extTypeGroup.style.display = family === 'deluxe' ? 'block' : 'none';
+      if (standardOpts) standardOpts.style.display = external ? "none" : "block";
+      if (paperGroup) paperGroup.style.display = external ? "none" : "";
+      if (qtyGroup) qtyGroup.style.display = external ? "none" : "";
+      if (legendStandardEl) legendStandardEl.style.display = external ? "none" : "";
+      if (externalTopInfo) externalTopInfo.style.display = external ? "block" : "none";
+      if (externalForm) externalForm.style.display = external ? "block" : "none";
+      if (extTypeGroup) extTypeGroup.style.display = family === "deluxe" ? "block" : "none";
       if (extTypeSelect && external) {
-        if (family === 'softtouch') extTypeSelect.value = 'softtouch_350';
-        else if (family === 'deluxe') extTypeSelect.value = 'deluxe_uv3d_softtouch';
+        if (family === "softtouch") extTypeSelect.value = "softtouch_350";
+        else if (family === "deluxe") extTypeSelect.value = "deluxe_uv3d_softtouch";
       }
       if (addToCartBtn) {
-        addToCartBtn.style.display = external ? 'none' : '';
+        addToCartBtn.style.display = external ? "none" : "";
         addToCartBtn.disabled = true;
       }
-      if (stdFormActions) stdFormActions.style.display = external ? 'none' : '';
+      if (stdFormActions) stdFormActions.style.display = external ? "none" : "";
       if (external) {
-        if (resultDisplay) resultDisplay.style.display = 'none';
-        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+        if (resultDisplay) resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
         currentResult = null;
         currentOptions = null;
       }
@@ -185,7 +192,7 @@ export const WizytowkiView: View = {
     extPriceInput?.addEventListener("input", validateExtForm);
 
     if (goViperprintBtn) {
-      goViperprintBtn.onclick = () => window.open(VIPERPRINT_URL, '_blank', 'noopener,noreferrer');
+      goViperprintBtn.onclick = () => window.open(VIPERPRINT_URL, "_blank", "noopener,noreferrer");
     }
 
     if (extAddToCartBtn) {
@@ -195,10 +202,10 @@ export const WizytowkiView: View = {
         if (!qty || qty <= 0) return;
         const typeVal = getExternalTypeValue();
         const typeLabels: Record<string, string> = {
-          "foliowane": "Foliowane",
-          "softtouch_350": "SoftTouch 350g",
-          "deluxe_uv3d_softtouch": "DELUXE – UV 3D + SoftTouch",
-          "deluxe_uv3d_gold_softtouch": "DELUXE – UV 3D + Gold + SoftTouch",
+          foliowane: "Foliowane",
+          softtouch_350: "SoftTouch 350g",
+          deluxe_uv3d_softtouch: "DELUXE – UV 3D + SoftTouch",
+          deluxe_uv3d_gold_softtouch: "DELUXE – UV 3D + Gold + SoftTouch",
         };
         const typeLabel = typeLabels[typeVal] ?? typeVal;
         const sizeLabel = extSizeSelect?.value || "85x55";
@@ -215,7 +222,7 @@ export const WizytowkiView: View = {
           isExpress: false,
           totalPrice: parseFloat((unitPrice * qty).toFixed(2)),
           optionsHint: `${qty} szt, ${sizeLabel} mm, ${finishLabel} — zamówienie zewnętrzne`,
-          payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty }
+          payload: { family, type: typeVal, size: sizeLabel, finish: extFinishSelect?.value, qty },
         });
 
         container.dispatchEvent(new CustomEvent("view:reset"));
@@ -227,7 +234,7 @@ export const WizytowkiView: View = {
     let currentOptions: any = null;
 
     const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-    const expressRate = resolveStoredPrice("modifier-express", 0.20);
+    const expressRate = resolveStoredPrice("modifier-express", 0.2);
 
     const renderBreakdown = (result: any, options: any, isSatin: boolean) => {
       const basePrice = result.basePrice;
@@ -240,14 +247,25 @@ export const WizytowkiView: View = {
       ];
 
       if (isSatin) {
-        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
+        lines.push({
+          label: "Satyna",
+          value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}`,
+        });
       }
 
       if (options.express) {
-        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
+        lines.push({
+          label: "EXPRESS",
+          value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}`,
+        });
       }
 
-      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      lines.push({
+        label: "Razem",
+        value: formatPLN(result.totalPrice),
+        separatorTop: true,
+        strongValue: true,
+      });
 
       if (breakdownLines) renderBreakdownRows(breakdownLines, lines);
       if (breakdownDisplay) breakdownDisplay.style.display = "block";
@@ -255,15 +273,15 @@ export const WizytowkiView: View = {
 
     const calculate = () => {
       if (isExternal() || !familySelect?.value) {
-        if (resultDisplay) resultDisplay.style.display = 'none';
-        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+        if (resultDisplay) resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
         if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
       const qty = parseNumericInput(qtyInput?.value, { integer: true, min: 1 });
       if (qty === null) {
-        if (resultDisplay) resultDisplay.style.display = 'none';
-        if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+        if (resultDisplay) resultDisplay.style.display = "none";
+        if (breakdownDisplay) breakdownDisplay.style.display = "none";
         if (addToCartBtn) addToCartBtn.disabled = true;
         return;
       }
@@ -274,20 +292,23 @@ export const WizytowkiView: View = {
       currentOptions = {
         family: "standard",
         format: sizeSelect.value,
-        folia: 'none',
+        folia: "none",
         qty,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       try {
         const result = quoteWizytowki(currentOptions);
-        const totalPrice = isSatin ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2)) : result.totalPrice;
+        const totalPrice = isSatin
+          ? parseFloat((result.totalPrice * SATIN_MULTIPLIER).toFixed(2))
+          : result.totalPrice;
         currentResult = { ...result, totalPrice, isSatin };
 
         if (totalPriceSpan) totalPriceSpan.innerText = formatPLN(totalPrice);
         if (unitPriceSpan) unitPriceSpan.innerText = formatPLN(totalPrice / currentOptions.qty);
         if (billedQtyHint) billedQtyHint.innerText = `Rozliczono za: ${result.qtyBilled} szt.`;
-        if (tierHint) tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny bazowej ${formatPLN(result.basePrice)}`;
+        if (tierHint)
+          tierHint.innerText = `Dla ${result.qtyBilled} szt użyto ceny bazowej ${formatPLN(result.basePrice)}`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = isSatin ? "block" : "none";
         renderBreakdown(currentResult, currentOptions, isSatin);
@@ -302,46 +323,49 @@ export const WizytowkiView: View = {
     };
 
     autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
-    addToCartBtn?.addEventListener('pointerdown', () => {
+    addToCartBtn?.addEventListener("pointerdown", () => {
       if (addToCartBtn.disabled && !familySelect?.value) {
-        ctx.showToast?.('Wybierz rodzaj wizytówki przed dodaniem do koszyka.', 'error');
+        ctx.showToast?.("Wybierz rodzaj wizytówki przed dodaniem do koszyka.", "error");
       }
     });
     updateLegend();
-    ctx?.on?.("prices-updated", () => { updateLegend(); calculate(); });
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      calculate();
+    });
 
     if (addToCartBtn) {
       addToCartBtn.onclick = () => {
         if (isExternal()) return;
         if (currentResult && currentOptions) {
           const pv = paperSelect.value;
-          const paperLabel = pv.startsWith('satyna_')
+          const paperLabel = pv.startsWith("satyna_")
             ? `Satyna ${pv.slice(7)}g`
             : `Kreda ${pv.slice(6)}g`;
           const parts: string[] = [
             `${currentOptions.qty} szt`,
             `${sizeSelect.value} mm`,
-            paperLabel
+            paperLabel,
           ];
-          if (currentOptions.express) parts.push('EXPRESS (+20%)');
+          if (currentOptions.express) parts.push("EXPRESS (+20%)");
 
           ctx.cart.addItem({
             id: `wizytowki-${Date.now()}`,
             category: "Wizytówki",
-            name: 'Wizytówki Standard',
+            name: "Wizytówki Standard",
             quantity: currentOptions.qty,
             unit: "szt",
             unitPrice: parseFloat((currentResult.totalPrice / currentOptions.qty).toFixed(2)),
             isExpress: currentOptions.express,
             totalPrice: currentResult.totalPrice,
-            optionsHint: parts.join(', '),
-            payload: currentResult
+            optionsHint: parts.join(", "),
+            payload: currentResult,
           });
 
           currentResult = null;
           currentOptions = null;
-          if (resultDisplay) resultDisplay.style.display = 'none';
-          if (breakdownDisplay) breakdownDisplay.style.display = 'none';
+          if (resultDisplay) resultDisplay.style.display = "none";
+          if (breakdownDisplay) breakdownDisplay.style.display = "none";
           if (addToCartBtn) addToCartBtn.disabled = true;
           container.dispatchEvent(new CustomEvent("view:reset"));
         }
@@ -349,5 +373,5 @@ export const WizytowkiView: View = {
     }
 
     syncMode();
-  }
+  },
 };

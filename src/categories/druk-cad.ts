@@ -21,20 +21,20 @@ export function calculateDrukCAD(options: DrukCADOptions, pricing?: any) {
     mode: options.mode,
     format: options.format,
     lengthMm: options.lengthMm,
-    qty: options.qty || 1
+    qty: options.qty || 1,
   });
 
   let totalPrice = res.total;
   if (options.express) {
-    totalPrice = res.total * (1 + resolveStoredPrice("modifier-express", 0.20));
+    totalPrice = res.total * (1 + resolveStoredPrice("modifier-express", 0.2));
   }
 
   return {
     totalPrice: parseFloat(totalPrice.toFixed(2)),
     basePrice: res.total,
     detectedType: res.detectedType,
-    isMeter: res.detectedType === 'mb',
-    rate: res.rate
+    isMeter: res.detectedType === "mb",
+    rate: res.rate,
   };
 }
 
@@ -43,31 +43,41 @@ const _cadBase: any = getPrice("drukCAD.base");
 
 // Map from UI select values to config keys
 const _fmtMap: Record<string, string> = {
-  'A0+': 'A0p', 'A0': 'A0', 'A1+': 'A1p', 'A1': 'A1', 'A2': 'A2', 'A3': 'A3', 'MB 1067': 'R1067'
+  "A0+": "A0p",
+  A0: "A0",
+  "A1+": "A1p",
+  A1: "A1",
+  A2: "A2",
+  A3: "A3",
+  "MB 1067": "R1067",
 };
 const _clrMap: Record<string, string> = {
-  'kolor': 'color', 'czarno_bialy': 'bw'
+  kolor: "color",
+  czarno_bialy: "bw",
 };
 
 // Build storage key matching defaultPrices convention: druk-cad-{bw|kolor}-{fmt|mb}-{format}
-function _cadStorageKey(color: string, type: 'fmt' | 'mb', format: string): string {
-  const cadModeKey = color === 'bw' ? 'bw' : 'kolor';
+function _cadStorageKey(color: string, type: "fmt" | "mb", format: string): string {
+  const cadModeKey = color === "bw" ? "bw" : "kolor";
   const cadFmtKey = format
     .toLowerCase()
-    .replace('0p', '0plus')
-    .replace('1p', '1plus')
-    .replace('r1067', 'mb1067');
+    .replace("0p", "0plus")
+    .replace("1p", "1plus")
+    .replace("r1067", "mb1067");
   return `druk-cad-${cadModeKey}-${type}-${cadFmtKey}`;
 }
 
-function _getFormatowyPricing(color: string, format: string): { price: number; dims: string } | null {
+function _getFormatowyPricing(
+  color: string,
+  format: string
+): { price: number; dims: string } | null {
   const c = _clrMap[color];
   const f = _fmtMap[format];
   const basePrice = _cadPrice[c]?.formatowe?.[f];
   if (basePrice == null) return null;
-  const price = resolveStoredPrice(_cadStorageKey(c, 'fmt', f), basePrice);
+  const price = resolveStoredPrice(_cadStorageKey(c, "fmt", f), basePrice);
   const b = _cadBase[f];
-  return { price, dims: b ? `${b.w}\u00d7${b.l} mm` : '' };
+  return { price, dims: b ? `${b.w}\u00d7${b.l} mm` : "" };
 }
 
 function _getMbPricing(color: string, format: string): { price: number } | null {
@@ -75,13 +85,13 @@ function _getMbPricing(color: string, format: string): { price: number } | null 
   const f = _fmtMap[format];
   const basePrice = _cadPrice[c]?.mb?.[f];
   if (basePrice == null) return null;
-  const price = resolveStoredPrice(_cadStorageKey(c, 'mb', f), basePrice);
+  const price = resolveStoredPrice(_cadStorageKey(c, "mb", f), basePrice);
   return { price };
 }
 
 export const drukCADCategory: CategoryModule = {
-  id: 'druk-cad',
-  name: '📐 Druk CAD',
+  id: "druk-cad",
+  name: "📐 Druk CAD",
   mount: (container, ctx) => {
     container.innerHTML = `
       <div class="category-form">
@@ -179,86 +189,89 @@ export const drukCADCategory: CategoryModule = {
       </div>
     `;
 
-    let currentMode = 'formatowy';
+    let currentMode = "formatowy";
     let currentPrice = 0;
 
-    const formatSelect = container.querySelector('#format') as HTMLSelectElement;
-    const colorSelect = container.querySelector('#color') as HTMLSelectElement;
-    const btnFormatowy = container.querySelector('#btn-formatowy') as HTMLButtonElement;
-    const btnNieformatowy = container.querySelector('#btn-nieformatowy') as HTMLButtonElement;
-    const formatowySection = container.querySelector('#formatowy-section') as HTMLDivElement;
-    const nieformatowySection = container.querySelector('#nieformatowy-section') as HTMLDivElement;
-    const lengthInput = container.querySelector('#length') as HTMLInputElement;
-    const addBtn = container.querySelector('#addToBasket') as HTMLButtonElement;
+    const formatSelect = container.querySelector("#format") as HTMLSelectElement;
+    const colorSelect = container.querySelector("#color") as HTMLSelectElement;
+    const btnFormatowy = container.querySelector("#btn-formatowy") as HTMLButtonElement;
+    const btnNieformatowy = container.querySelector("#btn-nieformatowy") as HTMLButtonElement;
+    const formatowySection = container.querySelector("#formatowy-section") as HTMLDivElement;
+    const nieformatowySection = container.querySelector("#nieformatowy-section") as HTMLDivElement;
+    const lengthInput = container.querySelector("#length") as HTMLInputElement;
+    const addBtn = container.querySelector("#addToBasket") as HTMLButtonElement;
 
     // Toggle between modes
-    function setMode(mode: 'formatowy' | 'nieformatowy') {
+    function setMode(mode: "formatowy" | "nieformatowy") {
       currentMode = mode;
 
-      if (mode === 'formatowy') {
-        btnFormatowy.style.background = '#667eea';
-        btnFormatowy.style.color = 'white';
-        btnFormatowy.style.borderColor = '#667eea';
+      if (mode === "formatowy") {
+        btnFormatowy.style.background = "#667eea";
+        btnFormatowy.style.color = "white";
+        btnFormatowy.style.borderColor = "#667eea";
 
-        btnNieformatowy.style.background = '#2a2a2a';
-        btnNieformatowy.style.color = '#999';
-        btnNieformatowy.style.borderColor = '#444';
+        btnNieformatowy.style.background = "#2a2a2a";
+        btnNieformatowy.style.color = "#999";
+        btnNieformatowy.style.borderColor = "#444";
 
-        formatowySection.style.display = 'block';
-        nieformatowySection.style.display = 'none';
+        formatowySection.style.display = "block";
+        nieformatowySection.style.display = "none";
 
         updateFormatowyPrice();
       } else {
-        btnNieformatowy.style.background = '#667eea';
-        btnNieformatowy.style.color = 'white';
-        btnNieformatowy.style.borderColor = '#667eea';
+        btnNieformatowy.style.background = "#667eea";
+        btnNieformatowy.style.color = "white";
+        btnNieformatowy.style.borderColor = "#667eea";
 
-        btnFormatowy.style.background = '#2a2a2a';
-        btnFormatowy.style.color = '#999';
-        btnFormatowy.style.borderColor = '#444';
+        btnFormatowy.style.background = "#2a2a2a";
+        btnFormatowy.style.color = "#999";
+        btnFormatowy.style.borderColor = "#444";
 
-        formatowySection.style.display = 'none';
-        nieformatowySection.style.display = 'block';
+        formatowySection.style.display = "none";
+        nieformatowySection.style.display = "block";
 
         updateNieformatowyPrice();
       }
     }
 
-    btnFormatowy.addEventListener('click', () => setMode('formatowy'));
-    btnNieformatowy.addEventListener('click', () => setMode('nieformatowy'));
+    btnFormatowy.addEventListener("click", () => setMode("formatowy"));
+    btnNieformatowy.addEventListener("click", () => setMode("nieformatowy"));
 
     // Update formatowy price
     function updateFormatowyPrice() {
       const format = formatSelect.value;
-      const color = colorSelect.value as 'kolor' | 'czarno_bialy';
+      const color = colorSelect.value as "kolor" | "czarno_bialy";
 
       const pricing = _getFormatowyPricing(color, format);
       if (!pricing) {
         // Fallback if someone selects MB 1067 in formatowy mode
         currentPrice = 0;
-        const priceDisplay = container.querySelector('#formatowy-price');
-        if (priceDisplay) priceDisplay.textContent = '---';
+        const priceDisplay = container.querySelector("#formatowy-price");
+        if (priceDisplay) priceDisplay.textContent = "---";
         return;
       }
 
       currentPrice = pricing.price;
-      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.2);
 
-      const formatDisplay = container.querySelector('#format-display');
-      const dimsDisplay = container.querySelector('#dims-display');
-      const priceDisplay = container.querySelector('#formatowy-price');
+      const formatDisplay = container.querySelector("#format-display");
+      const dimsDisplay = container.querySelector("#dims-display");
+      const priceDisplay = container.querySelector("#formatowy-price");
 
       if (formatDisplay) formatDisplay.textContent = format;
       if (dimsDisplay) dimsDisplay.textContent = pricing.dims;
       if (priceDisplay) priceDisplay.textContent = formatPLN(currentPrice);
 
-      ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' formatowy - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
+      ctx.updateLastCalculated(
+        currentPrice,
+        "CAD " + format + " formatowy - " + (color === "kolor" ? "kolor" : "cz-b")
+      );
     }
 
     // Update nieformatowy price
     function updateNieformatowyPrice() {
       const format = formatSelect.value;
-      const color = colorSelect.value as 'kolor' | 'czarno_bialy';
+      const color = colorSelect.value as "kolor" | "czarno_bialy";
       const length = parseFloat(lengthInput.value) || 1.0;
 
       const pricing = _getMbPricing(color, format);
@@ -266,70 +279,87 @@ export const drukCADCategory: CategoryModule = {
 
       const pricePerMb = pricing.price;
       currentPrice = pricePerMb * length;
-      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.20);
+      if (ctx.expressMode) currentPrice *= 1 + resolveStoredPrice("modifier-express", 0.2);
 
-      const pricePerMbDisplay = container.querySelector('#price-per-mb');
-      const lengthDisplay = container.querySelector('#length-display');
-      const priceDisplay = container.querySelector('#nieformatowy-price');
-      const breakdownDisplay = container.querySelector('#calc-breakdown');
+      const pricePerMbDisplay = container.querySelector("#price-per-mb");
+      const lengthDisplay = container.querySelector("#length-display");
+      const priceDisplay = container.querySelector("#nieformatowy-price");
+      const breakdownDisplay = container.querySelector("#calc-breakdown");
 
-      if (pricePerMbDisplay) pricePerMbDisplay.textContent = formatPLN(pricePerMb) + '/mb';
-      if (lengthDisplay) lengthDisplay.textContent = length.toFixed(3) + ' m';
+      if (pricePerMbDisplay) pricePerMbDisplay.textContent = formatPLN(pricePerMb) + "/mb";
+      if (lengthDisplay) lengthDisplay.textContent = length.toFixed(3) + " m";
       if (priceDisplay) priceDisplay.textContent = formatPLN(currentPrice);
       if (breakdownDisplay) {
-        breakdownDisplay.textContent = formatPLN(pricePerMb) + '/mb × ' + length.toFixed(3) + ' m = ' + formatPLN(currentPrice);
+        breakdownDisplay.textContent =
+          formatPLN(pricePerMb) + "/mb × " + length.toFixed(3) + " m = " + formatPLN(currentPrice);
       }
 
-      ctx.updateLastCalculated(currentPrice, 'CAD ' + format + ' nieformatowy ' + length.toFixed(3) + 'm - ' + (color === 'kolor' ? 'kolor' : 'cz-b'));
+      ctx.updateLastCalculated(
+        currentPrice,
+        "CAD " +
+          format +
+          " nieformatowy " +
+          length.toFixed(3) +
+          "m - " +
+          (color === "kolor" ? "kolor" : "cz-b")
+      );
     }
 
     // Event listeners
-    formatSelect.addEventListener('change', () => {
-      if (currentMode === 'formatowy') {
+    formatSelect.addEventListener("change", () => {
+      if (currentMode === "formatowy") {
         updateFormatowyPrice();
       } else {
         updateNieformatowyPrice();
       }
     });
 
-    colorSelect.addEventListener('change', () => {
-      if (currentMode === 'formatowy') {
+    colorSelect.addEventListener("change", () => {
+      if (currentMode === "formatowy") {
         updateFormatowyPrice();
       } else {
         updateNieformatowyPrice();
       }
     });
 
-    lengthInput.addEventListener('input', updateNieformatowyPrice);
+    lengthInput.addEventListener("input", updateNieformatowyPrice);
 
-    addBtn.addEventListener('click', () => {
+    addBtn.addEventListener("click", () => {
       if (currentPrice === 0) {
-        alert('⚠️ Błąd obliczenia ceny!');
+        alert("⚠️ Błąd obliczenia ceny!");
         return;
       }
 
       const format = formatSelect.value;
-      const color = colorSelect.value === 'kolor' ? 'kolor' : 'cz-b';
+      const color = colorSelect.value === "kolor" ? "kolor" : "cz-b";
 
-      let description = '';
-      if (currentMode === 'formatowy') {
-        description = format + ' formatowy, ' + color;
+      let description = "";
+      if (currentMode === "formatowy") {
+        description = format + " formatowy, " + color;
       } else {
         const length = parseFloat(lengthInput.value);
         const pricePerMb = _getMbPricing(colorSelect.value, format)!.price;
-        description = format + ' nieformatowy, ' + length.toFixed(3) + ' m, ' + color + ' (' + formatPLN(pricePerMb) + '/mb)';
+        description =
+          format +
+          " nieformatowy, " +
+          length.toFixed(3) +
+          " m, " +
+          color +
+          " (" +
+          formatPLN(pricePerMb) +
+          "/mb)";
       }
 
       ctx.addToBasket({
-        category: 'Druk CAD',
+        category: "Druk CAD",
         price: currentPrice,
-        description: description
+        description: description,
       });
 
-      alert('✅ Dodano: ' + formatPLN(currentPrice));
+      alert("✅ Dodano: " + formatPLN(currentPrice));
     });
 
     // Initialize
-    setMode('formatowy');
-  }
+    setMode("formatowy");
+  },
 };

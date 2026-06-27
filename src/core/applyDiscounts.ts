@@ -20,12 +20,12 @@ export function applyDiscounts(
   const appliedModifiers: string[] = [];
 
   for (const modId of activeModifiers) {
-    const mod = modifiers.find(m => m.id === modId);
+    const mod = modifiers.find((m) => m.id === modId);
     if (mod) {
       appliedModifiers.push(mod.name);
-      if (mod.type === 'percent') {
+      if (mod.type === "percent") {
         modifiersTotal += basePrice * mod.value;
-      } else if (mod.type === 'fixed_per_unit') {
+      } else if (mod.type === "fixed_per_unit") {
         modifiersTotal += mod.value * effectiveQuantity;
       } else {
         modifiersTotal += mod.value;

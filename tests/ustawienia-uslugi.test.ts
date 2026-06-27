@@ -7,7 +7,9 @@ describe("Ustawienia usługi grouping", () => {
     expect(getUslugiSectionTitle("uslugi-archiwizacja-cd")).toBe("FORMATOWANIE I ARCHIWIZACJA");
     expect(getUslugiSectionTitle("uslugi-scalanie-20+")).toBe("SCALANIE I PRZETWARZANIE PLIKÓW");
     expect(getUslugiSectionTitle("uslugi-grafika-logotyp")).toBe("USŁUGI GRAFICZNE I PAKIETY");
-    expect(getUslugiSectionTitle("uslugi-social-media-3-projekty")).toBe("USŁUGI GRAFICZNE I PAKIETY");
+    expect(getUslugiSectionTitle("uslugi-social-media-3-projekty")).toBe(
+      "USŁUGI GRAFICZNE I PAKIETY"
+    );
   });
 
   it("sorts uslugi keys by subgroup order", () => {

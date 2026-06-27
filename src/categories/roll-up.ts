@@ -24,7 +24,7 @@ export function calculateRollUp(options: RollUpOptions): CalculationResult {
     const area = formatData.width * formatData.height;
     const labor = resolveStoredPrice("rollup-wymiana-labor", data.replacement.labor);
     const printPerM2 = resolveStoredPrice("rollup-wymiana-m2", data.replacement.print_per_m2);
-    const pricePerSzt = (area * printPerM2) + labor;
+    const pricePerSzt = area * printPerM2 + labor;
 
     priceTable = {
       id: "roll-up-replacement",
@@ -33,8 +33,13 @@ export function calculateRollUp(options: RollUpOptions): CalculationResult {
       pricing: "per_unit",
       tiers: [{ min: 1, max: null, price: pricePerSzt }],
       modifiers: [
-        { id: "express", name: "EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
-      ]
+        {
+          id: "express",
+          name: "EXPRESS",
+          type: "percent",
+          value: resolveStoredPrice("modifier-express", 0.2),
+        },
+      ],
     };
   } else {
     priceTable = {
@@ -44,8 +49,13 @@ export function calculateRollUp(options: RollUpOptions): CalculationResult {
       pricing: "per_unit",
       tiers: overrideTiersWithStoredPrices(`rollup-${options.format}`, formatData.tiers),
       modifiers: [
-        { id: "express", name: "EXPRESS", type: "percent", value: resolveStoredPrice("modifier-express", 0.20) }
-      ]
+        {
+          id: "express",
+          name: "EXPRESS",
+          type: "percent",
+          value: resolveStoredPrice("modifier-express", 0.2),
+        },
+      ],
     };
   }
 

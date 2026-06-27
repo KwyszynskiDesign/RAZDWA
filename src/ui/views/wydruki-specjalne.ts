@@ -51,29 +51,49 @@ export const WydrukiSpecjalneView: View = {
     const specialQty = container.querySelector("#special-qty") as HTMLInputElement | null;
     const specialDouble = container.querySelector("#special-double") as HTMLInputElement | null;
     const specialDoubleRow = container.querySelector("#special-double-row") as HTMLElement | null;
-    const specialDyplomOptions = container.querySelector("#special-dyplom-options") as HTMLElement | null;
-    const specialDyplomPaper = container.querySelector("#special-dyplom-paper") as HTMLSelectElement | null;
+    const specialDyplomOptions = container.querySelector(
+      "#special-dyplom-options"
+    ) as HTMLElement | null;
+    const specialDyplomPaper = container.querySelector(
+      "#special-dyplom-paper"
+    ) as HTMLSelectElement | null;
     const specialZapOptions = container.querySelector("#special-zap-options") as HTMLElement | null;
-    const specialZapFormat = container.querySelector("#special-zap-format") as HTMLSelectElement | null;
-    const specialZapSides = container.querySelector("#special-zap-sides") as HTMLSelectElement | null;
-    const specialZapFolded = container.querySelector("#special-zap-folded") as HTMLInputElement | null;
-    const specialZapPaper = container.querySelector("#special-zap-paper") as HTMLSelectElement | null;
-    const specialAddBtn = container.querySelector("#special-add-to-cart") as HTMLButtonElement | null;
+    const specialZapFormat = container.querySelector(
+      "#special-zap-format"
+    ) as HTMLSelectElement | null;
+    const specialZapSides = container.querySelector(
+      "#special-zap-sides"
+    ) as HTMLSelectElement | null;
+    const specialZapFolded = container.querySelector(
+      "#special-zap-folded"
+    ) as HTMLInputElement | null;
+    const specialZapPaper = container.querySelector(
+      "#special-zap-paper"
+    ) as HTMLSelectElement | null;
+    const specialAddBtn = container.querySelector(
+      "#special-add-to-cart"
+    ) as HTMLButtonElement | null;
     const specialResultArea = container.querySelector("#specialResult") as HTMLElement | null;
     const specialUnitPrice = container.querySelector("#special-unit") as HTMLElement | null;
     const specialTotalPrice = container.querySelector("#special-total") as HTMLElement | null;
     const specialTierHint = container.querySelector("#specialTierHint") as HTMLElement | null;
     const specialExpressHint = container.querySelector("#specialExpressHint") as HTMLElement | null;
     const specialBreakdown = container.querySelector("#specialBreakdown") as HTMLElement | null;
-    const specialBreakdownLines = container.querySelector("#specialBreakdownLines") as HTMLElement | null;
-    const specialLegendDyplom = container.querySelector("#special-legend-dyplom") as HTMLElement | null;
+    const specialBreakdownLines = container.querySelector(
+      "#specialBreakdownLines"
+    ) as HTMLElement | null;
+    const specialLegendDyplom = container.querySelector(
+      "#special-legend-dyplom"
+    ) as HTMLElement | null;
     const specialLegendZap = container.querySelector("#special-legend-zap") as HTMLElement | null;
 
     const zaproszeniaData = getPrice("zaproszeniaKreda") as any;
 
     const showLegendForVariant = (variantId: string) => {
-      if (specialLegendDyplom) specialLegendDyplom.style.display = variantId === "dyplom" ? "block" : "none";
-      if (specialLegendZap) specialLegendZap.style.display = variantId === "zaproszenia-dodruk" ? "block" : "none";
+      if (specialLegendDyplom)
+        specialLegendDyplom.style.display = variantId === "dyplom" ? "block" : "none";
+      if (specialLegendZap)
+        specialLegendZap.style.display = variantId === "zaproszenia-dodruk" ? "block" : "none";
     };
 
     const clearBreakdown = () => {
@@ -149,24 +169,38 @@ export const WydrukiSpecjalneView: View = {
         };
 
         const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-        const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-        const expressRate = resolveStoredPrice("modifier-express", 0.20);
+        const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+        const expressRate = resolveStoredPrice("modifier-express", 0.2);
         const breakdown: SpecialBreakdownRow[] = [
           { label: "Parametry", value: `${qty} szt, papier: ${paper.replace("_", " ")}` },
           { label: "Cena z progu ilości", value: formatPLN(calc.basePrice) },
         ];
         if (isModigliani) {
           const satinAmount = parseFloat((calc.basePrice * satinRate).toFixed(2));
-          const modiglianiAmount = parseFloat(((calc.basePrice + satinAmount) * modiglianiRate).toFixed(2));
-          breakdown.push({ label: "Satyna", value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}` });
-          breakdown.push({ label: "Modigliani", value: `+${Math.round(modiglianiRate * 100)}% od satyny = ${formatPLN(modiglianiAmount)}` });
+          const modiglianiAmount = parseFloat(
+            ((calc.basePrice + satinAmount) * modiglianiRate).toFixed(2)
+          );
+          breakdown.push({
+            label: "Satyna",
+            value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}`,
+          });
+          breakdown.push({
+            label: "Modigliani",
+            value: `+${Math.round(modiglianiRate * 100)}% od satyny = ${formatPLN(modiglianiAmount)}`,
+          });
         } else if (isSatin) {
           const satinAmount = parseFloat((calc.basePrice * satinRate).toFixed(2));
-          breakdown.push({ label: "Satyna", value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}` });
+          breakdown.push({
+            label: "Satyna",
+            value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}`,
+          });
         }
         if (ctx.expressMode) {
           const expressAmount = parseFloat((calc.basePrice * expressRate).toFixed(2));
-          breakdown.push({ label: "EXPRESS", value: `+${Math.round(expressRate * 100)}% = ${formatPLN(expressAmount)}` });
+          breakdown.push({
+            label: "EXPRESS",
+            value: `+${Math.round(expressRate * 100)}% = ${formatPLN(expressAmount)}`,
+          });
         }
         breakdown.push({ label: "Razem", value: formatPLN(calc.totalPrice), separatorTop: true });
         renderBreakdown(breakdown);
@@ -196,25 +230,48 @@ export const WydrukiSpecjalneView: View = {
           totalPrice: calc.totalPrice,
         };
 
-        const satinRate = resolveStoredPrice("modifier-satyna", zaproszeniaData?.modifiers?.satin ?? 0.12);
-        const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-        const expressRate = resolveStoredPrice("modifier-express", zaproszeniaData?.modifiers?.express ?? 0.20);
+        const satinRate = resolveStoredPrice(
+          "modifier-satyna",
+          zaproszeniaData?.modifiers?.satin ?? 0.12
+        );
+        const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+        const expressRate = resolveStoredPrice(
+          "modifier-express",
+          zaproszeniaData?.modifiers?.express ?? 0.2
+        );
         const breakdown: SpecialBreakdownRow[] = [
-          { label: "Parametry", value: `${qty} szt, ${format}, ${sides === 1 ? "jednostronne" : "dwustronne"}${isFolded ? ", składane" : ""}, papier: ${paper.replace("_", " ")}` },
+          {
+            label: "Parametry",
+            value: `${qty} szt, ${format}, ${sides === 1 ? "jednostronne" : "dwustronne"}${isFolded ? ", składane" : ""}, papier: ${paper.replace("_", " ")}`,
+          },
           { label: "Cena z tabeli", value: formatPLN(calc.basePrice) },
         ];
         if (isModigliani) {
           const satinAmount = parseFloat((calc.basePrice * satinRate).toFixed(2));
-          const modiglianiAmount = parseFloat(((calc.basePrice + satinAmount) * modiglianiRate).toFixed(2));
-          breakdown.push({ label: "Satyna", value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}` });
-          breakdown.push({ label: "Modigliani", value: `+${Math.round(modiglianiRate * 100)}% od satyny = ${formatPLN(modiglianiAmount)}` });
+          const modiglianiAmount = parseFloat(
+            ((calc.basePrice + satinAmount) * modiglianiRate).toFixed(2)
+          );
+          breakdown.push({
+            label: "Satyna",
+            value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}`,
+          });
+          breakdown.push({
+            label: "Modigliani",
+            value: `+${Math.round(modiglianiRate * 100)}% od satyny = ${formatPLN(modiglianiAmount)}`,
+          });
         } else if (isSatin) {
           const satinAmount = parseFloat((calc.basePrice * satinRate).toFixed(2));
-          breakdown.push({ label: "Satyna", value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}` });
+          breakdown.push({
+            label: "Satyna",
+            value: `+${Math.round(satinRate * 100)}% = ${formatPLN(satinAmount)}`,
+          });
         }
         if (ctx.expressMode) {
           const expressAmount = parseFloat((calc.basePrice * expressRate).toFixed(2));
-          breakdown.push({ label: "EXPRESS", value: `+${Math.round(expressRate * 100)}% = ${formatPLN(expressAmount)}` });
+          breakdown.push({
+            label: "EXPRESS",
+            value: `+${Math.round(expressRate * 100)}% = ${formatPLN(expressAmount)}`,
+          });
         }
         breakdown.push({ label: "Razem", value: formatPLN(calc.totalPrice), separatorTop: true });
         renderBreakdown(breakdown);
@@ -246,8 +303,8 @@ export const WydrukiSpecjalneView: View = {
             <div class="legend-head"><div><h4>CENNIK DYPLOMY</h4><p class="legend-subtitle">Progi ilościowe (cena bazowa).</p></div></div>
             <div class="legend-badges">
               <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
-              <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.20) * 100)}%</span>
-              <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
+              <span class="legend-badge"><strong>Modigliani:</strong> Satyna +${Math.round(resolveStoredPrice("modifier-modigliani", 0.2) * 100)}%</span>
+              <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span>
             </div>
             <table>
               <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
@@ -259,17 +316,22 @@ export const WydrukiSpecjalneView: View = {
 
       if (specialLegendZap && zaproszeniaData?.formats?.A6?.single?.normal) {
         const a6Single = zaproszeniaData.formats.A6.single.normal as Record<string, number>;
-        const rows = Object.keys(a6Single).map((qtyKey) => {
-          const price = resolveStoredPrice(`zaproszenia-a6-single-normal-${qtyKey}`, a6Single[qtyKey]);
-          return `<tr><td>${qtyKey}</td><td>${formatPLN(price)}</td></tr>`;
-        }).join("");
+        const rows = Object.keys(a6Single)
+          .map((qtyKey) => {
+            const price = resolveStoredPrice(
+              `zaproszenia-a6-single-normal-${qtyKey}`,
+              a6Single[qtyKey]
+            );
+            return `<tr><td>${qtyKey}</td><td>${formatPLN(price)}</td></tr>`;
+          })
+          .join("");
 
         specialLegendZap.innerHTML = `
           <div class="legend-head"><div><h4>CENNIK ZAPROSZENIA (A6 1-str)</h4><p class="legend-subtitle">Cennik bazowy. Dokładna cena zależy od parametrów.</p></div></div>
           <div class="legend-badges">
             <span class="legend-badge"><strong>Składane:</strong> osobna stawka</span>
             <span class="legend-badge"><strong>Satyna:</strong> +${Math.round(resolveStoredPrice("modifier-satyna", 0.12) * 100)}%</span>
-            <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.20) * 100)}%</span>
+            <span class="legend-badge"><strong>EXPRESS:</strong> +${Math.round(resolveStoredPrice("modifier-express", 0.2) * 100)}%</span>
           </div>
           <table>
             <thead><tr><th>Ilość (szt)</th><th>Cena</th></tr></thead>
@@ -280,15 +342,18 @@ export const WydrukiSpecjalneView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [specialAddBtn] });
-    specialAddBtn?.addEventListener('pointerdown', () => {
+    specialAddBtn?.addEventListener("pointerdown", () => {
       if (specialAddBtn.disabled && !specialVariant?.value) {
-        ctx.showToast?.('Wybierz rodzaj przed dodaniem do koszyka.', 'error');
+        ctx.showToast?.("Wybierz rodzaj przed dodaniem do koszyka.", "error");
       }
     });
     specialVariant?.addEventListener("change", updateVariantUI);
     updateVariantUI();
     updateLegends();
-    ctx?.on?.("prices-updated", () => { updateLegends(); performCalculation(); });
+    ctx?.on?.("prices-updated", () => {
+      updateLegends();
+      performCalculation();
+    });
 
     specialAddBtn?.addEventListener("click", () => {
       if (!specialState) return;
@@ -334,10 +399,10 @@ export const WydrukiSpecjalneView: View = {
       });
 
       specialState = null;
-      if (specialResultArea) specialResultArea.style.display = 'none';
+      if (specialResultArea) specialResultArea.style.display = "none";
       if (specialAddBtn) specialAddBtn.disabled = true;
       clearBreakdown();
       container.dispatchEvent(new CustomEvent("view:reset"));
     });
-  }
+  },
 };

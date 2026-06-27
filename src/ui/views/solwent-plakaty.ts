@@ -19,7 +19,9 @@ export const SolwentPlakatyView: View = {
       const tableData = data as any;
       const materials = tableData.materials;
       const materialSelect = container.querySelector("#material") as HTMLSelectElement;
-      materialSelect.innerHTML = '<option value="" disabled selected>— wybierz materiał —</option>' + materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
+      materialSelect.innerHTML =
+        '<option value="" disabled selected>— wybierz materiał —</option>' +
+        materials.map((m: any) => `<option value="${m.name}">${m.name}</option>`).join("");
 
       this.initLogic?.(container, ctx);
     } catch (err) {
@@ -49,7 +51,11 @@ export const SolwentPlakatyView: View = {
         resultDisplay.insertAdjacentElement("afterend", legend);
       }
 
-      const materials = (data.materials ?? []) as Array<{ id: string; name: string; tiers: Array<{ min: number; max: number | null; price: number }> }>;
+      const materials = (data.materials ?? []) as Array<{
+        id: string;
+        name: string;
+        tiers: Array<{ min: number; max: number | null; price: number }>;
+      }>;
       const selectedMaterial = materialSelect.value;
 
       legend.innerHTML = `
@@ -63,15 +69,19 @@ export const SolwentPlakatyView: View = {
             <span class="legend-badge"><strong>EXPRESS:</strong> +20%</span>
           </div>
         </div>
-        ${materials.map((material) => {
-          const isActive = material.id === selectedMaterial;
-          const rows = material.tiers.map((tier) => {
-            const rangeLabel = tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
-            const price = resolveStoredPrice(`solwent-${material.id}`, tier.price);
-            return `<tr><td>${rangeLabel}</td><td>${formatPLN(price)}</td></tr>`;
-          }).join("");
+        ${materials
+          .map((material) => {
+            const isActive = material.id === selectedMaterial;
+            const rows = material.tiers
+              .map((tier) => {
+                const rangeLabel =
+                  tier.max == null ? `${tier.min}+ m²` : `${tier.min}-${tier.max} m²`;
+                const price = resolveStoredPrice(`solwent-${material.id}`, tier.price);
+                return `<tr><td>${rangeLabel}</td><td>${formatPLN(price)}</td></tr>`;
+              })
+              .join("");
 
-          return `
+            return `
             <div class="legend-block" style="margin-top:12px;${isActive ? "border:1px solid rgba(59,130,246,0.35);" : ""}">
               <h5 style="margin:0 0 8px;">${material.name}</h5>
               <table class="results-table">
@@ -80,7 +90,8 @@ export const SolwentPlakatyView: View = {
               </table>
             </div>
           `;
-        }).join("")}
+          })
+          .join("")}
       `;
     };
 
@@ -99,7 +110,7 @@ export const SolwentPlakatyView: View = {
       const input = {
         material: materialSelect.value,
         areaM2,
-        express: ctx.expressMode
+        express: ctx.expressMode,
       };
 
       const result = calculateSolwentPlakaty(input);
@@ -107,7 +118,8 @@ export const SolwentPlakatyView: View = {
 
       unitPriceSpan.innerText = formatPLN(result.tierPrice);
       totalPriceSpan.innerText = formatPLN(result.totalPrice);
-      if (areaValSpan) areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
+      if (areaValSpan)
+        areaValSpan.innerText = `${input.areaM2} m²${result.effectiveQuantity > input.areaM2 ? " (min. 1 m²)" : ""}`;
       if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
       resultDisplay.style.display = "block";
       addToCartBtn.disabled = result.totalPrice <= 0;
@@ -116,9 +128,9 @@ export const SolwentPlakatyView: View = {
     };
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
-    addToCartBtn.addEventListener('pointerdown', () => {
+    addToCartBtn.addEventListener("pointerdown", () => {
       if (addToCartBtn.disabled && !materialSelect.value) {
-        ctx.showToast?.('Wybierz materiał przed dodaniem do koszyka.', 'error');
+        ctx.showToast?.("Wybierz materiał przed dodaniem do koszyka.", "error");
       }
     });
     ensureLegend();
@@ -141,14 +153,14 @@ export const SolwentPlakatyView: View = {
           isExpress: ctx.expressMode,
           totalPrice: currentResult.totalPrice,
           optionsHint: `${areaInput.value}m2${ctx.expressMode ? ", EXPRESS" : ""}`,
-          payload: currentResult
+          payload: currentResult,
         });
 
         currentResult = null;
-        resultDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
-  }
+  },
 };

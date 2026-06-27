@@ -8,7 +8,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 1000,
       heightMm: 1000,
       serviceId: "material-only",
-      express: false
+      express: false,
     });
     // 1m2 -> tier 1-5 -> 65 zł/m2
     expect(result.totalPrice).toBe(65);
@@ -19,7 +19,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 500,
       heightMm: 1000,
       serviceId: "material-only",
-      express: false
+      express: false,
     });
     // 0.5m2 -> effectively 1m2 -> 65
     expect(result.totalPrice).toBe(65);
@@ -31,7 +31,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 1000,
       heightMm: 1000,
       serviceId: "full-service",
-      express: false
+      express: false,
     });
     // 1m2 -> tier 1-5 -> 140 zł/m2
     expect(result.totalPrice).toBe(140);
@@ -42,7 +42,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 2000,
       heightMm: 5000,
       serviceId: "material-only",
-      express: false
+      express: false,
     });
     // 10m2 -> tier 6-25 -> 60 zł/m2
     // 10 * 60 = 600
@@ -54,7 +54,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 2000,
       heightMm: 5000,
       serviceId: "full-service",
-      express: false
+      express: false,
     });
     // 10m2 -> tier 6-10 -> 130 zł/m2
     // 10 * 130 = 1300
@@ -66,7 +66,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 5000,
       heightMm: 5000,
       serviceId: "full-service",
-      express: false
+      express: false,
     });
     // 25m2
     expect(result.isCustom).toBe(true);
@@ -77,7 +77,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 1000,
       heightMm: 1000,
       serviceId: "material-only",
-      express: true
+      express: true,
     });
     // 65 * 1.2 = 78
     expect(result.totalPrice).toBe(78);
@@ -88,7 +88,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 2000,
       heightMm: 5000,
       serviceId: "owv-material-only",
-      express: false
+      express: false,
     });
     // 10m2 -> tier 10-20 -> 55 zł/m2
     expect(result.totalPrice).toBe(550);
@@ -99,7 +99,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 5000,
       heightMm: 5000,
       serviceId: "owv-full-service",
-      express: false
+      express: false,
     });
     expect(result.isCustom).toBe(true);
   });
@@ -109,7 +109,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 4600,
       heightMm: 4600,
       serviceId: "full-service",
-      express: false
+      express: false,
     });
     expect(result.isCustom).toBe(true);
     // The totalPrice from the zero-priced tier is irrelevant because the view
@@ -122,7 +122,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 4600,
       heightMm: 4600,
       serviceId: "owv-full-service",
-      express: false
+      express: false,
     });
     expect(result.isCustom).toBe(true);
   });
@@ -132,7 +132,7 @@ describe("Folia Szroniona Category", () => {
       widthMm: 4000,
       heightMm: 5000,
       serviceId: "full-service",
-      express: false
+      express: false,
     });
     expect(result.isCustom).toBe(false);
     expect(result.totalPrice).toBe(2400);

@@ -34,9 +34,12 @@ function getBasePrice(
   const sidesKey = sides === 1 ? "single" : "double";
   const foldKey = isFolded ? "folded" : "normal";
   const foldStorageKey = isFolded ? "skladane" : "normal";
-  const rawTiers = (paperBase === "satyna"
-    ? (satynaFormats?.[format]?.[sidesKey]?.[foldKey] ?? satynaFormats?.[format]?.[sidesKey]?.["skladane"])
-    : (formatData[sidesKey][foldKey] ?? formatData[sidesKey]["skladane"])) as Record<string, number>;
+  const rawTiers = (
+    paperBase === "satyna"
+      ? (satynaFormats?.[format]?.[sidesKey]?.[foldKey] ??
+        satynaFormats?.[format]?.[sidesKey]?.["skladane"])
+      : (formatData[sidesKey][foldKey] ?? formatData[sidesKey]["skladane"])
+  ) as Record<string, number>;
 
   if (!rawTiers) {
     throw new Error(`Missing price tiers for ${format}/${sidesKey}/${foldKey}/${paperBase}`);
@@ -68,7 +71,8 @@ function getBasePrice(
   const resolvedTiers = [...resolvedTiersByQty.values()].sort((a, b) => a.qty - b.qty);
 
   if (qty <= resolvedTiers[0].qty) return { price: resolvedTiers[0].price, interpolated: false };
-  if (qty >= resolvedTiers[resolvedTiers.length - 1].qty) return { price: resolvedTiers[resolvedTiers.length - 1].price, interpolated: false };
+  if (qty >= resolvedTiers[resolvedTiers.length - 1].qty)
+    return { price: resolvedTiers[resolvedTiers.length - 1].price, interpolated: false };
 
   const upperIdx = resolvedTiers.findIndex((t) => t.qty > qty);
   const lower = resolvedTiers[upperIdx - 1];
@@ -81,10 +85,19 @@ function getBasePrice(
   return { price: interpolated, interpolated: true };
 }
 
-export function calculateZaproszeniaKreda(options: ZaproszeniaKredaOptions): ZaproszeniaKredaResult {
-  const paperBase: "kreda" | "satyna" = options.isSatin || options.isModigliani ? "satyna" : "kreda";
-  const { price: basePrice, interpolated } = getBasePrice(options.format, options.qty, options.sides, options.isFolded, paperBase);
-  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+export function calculateZaproszeniaKreda(
+  options: ZaproszeniaKredaOptions
+): ZaproszeniaKredaResult {
+  const paperBase: "kreda" | "satyna" =
+    options.isSatin || options.isModigliani ? "satyna" : "kreda";
+  const { price: basePrice, interpolated } = getBasePrice(
+    options.format,
+    options.qty,
+    options.sides,
+    options.isFolded,
+    paperBase
+  );
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
   const expressRate = resolveStoredPrice("modifier-express", pricingData.modifiers.express);
 
   let multiplier = 1;

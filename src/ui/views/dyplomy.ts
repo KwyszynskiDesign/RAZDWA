@@ -1,6 +1,10 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { calculateDyplomy, DyplomyOptions, getResolvedDyplomyTiers } from "../../categories/dyplomy";
+import {
+  calculateDyplomy,
+  DyplomyOptions,
+  getResolvedDyplomyTiers,
+} from "../../categories/dyplomy";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 
@@ -9,163 +13,203 @@ export const DyplomyView: View = {
   name: "Dyplomy",
   async mount(container, ctx) {
     try {
-    const response = await fetch("categories/dyplomy.html");
-    if (!response.ok) throw new Error("Failed to load template");
-    container.innerHTML = await response.text();
+      const response = await fetch("categories/dyplomy.html");
+      if (!response.ok) throw new Error("Failed to load template");
+      container.innerHTML = await response.text();
 
-    const sidesSel = container.querySelector("#dypSides") as HTMLSelectElement;
-    const formatSel = container.querySelector("#dypFormat") as HTMLSelectElement;
-    const qtyInput = container.querySelector("#dypQty") as HTMLInputElement;
-    const paperSel = container.querySelector("#dypPaper") as HTMLSelectElement;
-    const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
-    const resultArea = container.querySelector("#dypResult") as HTMLElement;
-    const breakdownBox = container.querySelector("#dypBreakdown") as HTMLElement;
-    const legendRows = container.querySelector("#dyp-legend-rows") as HTMLElement | null;
+      const sidesSel = container.querySelector("#dypSides") as HTMLSelectElement;
+      const formatSel = container.querySelector("#dypFormat") as HTMLSelectElement;
+      const qtyInput = container.querySelector("#dypQty") as HTMLInputElement;
+      const paperSel = container.querySelector("#dypPaper") as HTMLSelectElement;
+      const addToCartBtn = container.querySelector("#addToCartBtn") as HTMLButtonElement;
+      const resultArea = container.querySelector("#dypResult") as HTMLElement;
+      const breakdownBox = container.querySelector("#dypBreakdown") as HTMLElement;
+      const legendRows = container.querySelector("#dyp-legend-rows") as HTMLElement | null;
 
-    const updateLegend = () => {
-      if (!legendRows) return;
-      const tiers = getResolvedDyplomyTiers();
-      legendRows.innerHTML = tiers
-        .map((tier) => `<tr><td>${tier.qty} szt</td><td>${formatPLN(tier.price)}</td></tr>`)
-        .join("");
-    };
-
-    const calculate = () => {
-      const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-      const expressRate = resolveStoredPrice("modifier-express", 0.20);
-      if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
-        resultArea.style.display = 'none';
-        breakdownBox.style.display = 'none';
-        addToCartBtn.disabled = true;
-        return null;
-      }
-      const paperVal = paperSel.value;
-      const isSatin = paperVal.startsWith("satyna");
-      const isModigliani = paperVal === "modigliani";
-      const usesSatinBase = isSatin || isModigliani;
-      const options: DyplomyOptions = {
-        format: (formatSel.value === "A5" ? "A5" : "A4"),
-        qty: parseInt(qtyInput.value),
-        sides: parseInt(sidesSel.value) || 1,
-        isSatin,
-        isModigliani,
-        express: ctx.expressMode
+      const updateLegend = () => {
+        if (!legendRows) return;
+        const tiers = getResolvedDyplomyTiers();
+        legendRows.innerHTML = tiers
+          .map((tier) => `<tr><td>${tier.qty} szt</td><td>${formatPLN(tier.price)}</td></tr>`)
+          .join("");
       };
 
-      const result = calculateDyplomy(options);
-      const totalPrice = result.totalPrice;
-      const tierPrice = Number((result as any).tierPrice ?? result.basePrice);
-      const singleSidedDiscountRate = Number((result as any).singleSidedDiscountRate ?? 0);
-      const singleSidedDiscountAmount = Number((result as any).singleSidedDiscountAmount ?? 0);
+      const calculate = () => {
+        const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
+        const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+        const expressRate = resolveStoredPrice("modifier-express", 0.2);
+        if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
+          resultArea.style.display = "none";
+          breakdownBox.style.display = "none";
+          addToCartBtn.disabled = true;
+          return null;
+        }
+        const paperVal = paperSel.value;
+        const isSatin = paperVal.startsWith("satyna");
+        const isModigliani = paperVal === "modigliani";
+        const usesSatinBase = isSatin || isModigliani;
+        const options: DyplomyOptions = {
+          format: formatSel.value === "A5" ? "A5" : "A4",
+          qty: parseInt(qtyInput.value),
+          sides: parseInt(sidesSel.value) || 1,
+          isSatin,
+          isModigliani,
+          express: ctx.expressMode,
+        };
 
-      let satinAmount = 0;
-      let modiglianiAmount = 0;
-      if (options.isModigliani) {
-        satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
-        modiglianiAmount = parseFloat(((result.basePrice + satinAmount) * modiglianiRate).toFixed(2));
-      } else if (options.isSatin) {
-        satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
-      }
-      const expressAmount = options.express ? parseFloat((result.basePrice * expressRate).toFixed(2)) : 0;
+        const result = calculateDyplomy(options);
+        const totalPrice = result.totalPrice;
+        const tierPrice = Number((result as any).tierPrice ?? result.basePrice);
+        const singleSidedDiscountRate = Number((result as any).singleSidedDiscountRate ?? 0);
+        const singleSidedDiscountAmount = Number((result as any).singleSidedDiscountAmount ?? 0);
 
-      const breakdown = [
-        `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format}</div>`,
-        `<div><strong>Cena z tabeli (${options.sides === 1 ? "jednostronne" : "dwustronne"}):</strong> ${formatPLN(tierPrice)}</div>`,
-      ];
+        let satinAmount = 0;
+        let modiglianiAmount = 0;
+        if (options.isModigliani) {
+          satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
+          modiglianiAmount = parseFloat(
+            ((result.basePrice + satinAmount) * modiglianiRate).toFixed(2)
+          );
+        } else if (options.isSatin) {
+          satinAmount = parseFloat((result.basePrice * satinRate).toFixed(2));
+        }
+        const expressAmount = options.express
+          ? parseFloat((result.basePrice * expressRate).toFixed(2))
+          : 0;
 
-      if (options.sides === 1 && singleSidedDiscountRate > 0) {
-        breakdown.push(`<div><strong>Rabat jednostronne:</strong> ${Math.round(singleSidedDiscountRate * 100)}% × ${formatPLN(tierPrice)} = ${formatPLN(singleSidedDiscountAmount)} (od 6 szt.)</div>`);
-      }
+        const breakdown = [
+          `<div><strong>Parametry:</strong> ${options.qty} szt, ${options.sides === 1 ? "jednostronne" : "dwustronne"}, format ${options.format}</div>`,
+          `<div><strong>Cena z tabeli (${options.sides === 1 ? "jednostronne" : "dwustronne"}):</strong> ${formatPLN(tierPrice)}</div>`,
+        ];
 
-      if (options.sides === 1) {
-        breakdown.push(`<div><strong>Cena bazowa po rabacie:</strong> ${formatPLN(result.basePrice)}</div>`);
-      }
+        if (options.sides === 1 && singleSidedDiscountRate > 0) {
+          breakdown.push(
+            `<div><strong>Rabat jednostronne:</strong> ${Math.round(singleSidedDiscountRate * 100)}% × ${formatPLN(tierPrice)} = ${formatPLN(singleSidedDiscountAmount)} (od 6 szt.)</div>`
+          );
+        }
 
-      if (options.isModigliani) {
-        breakdown.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`);
-        breakdown.push(`<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(result.basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`);
-      } else if (options.isSatin) {
-        breakdown.push(`<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`);
-      }
+        if (options.sides === 1) {
+          breakdown.push(
+            `<div><strong>Cena bazowa po rabacie:</strong> ${formatPLN(result.basePrice)}</div>`
+          );
+        }
 
-      if (options.express) {
-        breakdown.push(`<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`);
-      }
+        if (options.isModigliani) {
+          breakdown.push(
+            `<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`
+          );
+          breakdown.push(
+            `<div><strong>Modigliani:</strong> ${Math.round(modiglianiRate * 100)}% × (${formatPLN(result.basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}</div>`
+          );
+        } else if (options.isSatin) {
+          breakdown.push(
+            `<div><strong>Satyna:</strong> ${Math.round(satinRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(satinAmount)}</div>`
+          );
+        }
 
-      breakdown.push(`<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`);
-      while (breakdownBox.children.length > 1) breakdownBox.removeChild(breakdownBox.lastChild!);
-      Object.assign(breakdownBox.style, { gap: '8px', fontSize: '14px', lineHeight: '1.45', color: '#334155' });
-      breakdownBox.insertAdjacentHTML('beforeend', breakdown.join(''));
-      breakdownBox.style.display = 'grid';
+        if (options.express) {
+          breakdown.push(
+            `<div><strong>EXPRESS:</strong> ${Math.round(expressRate * 100)}% × ${formatPLN(result.basePrice)} = ${formatPLN(expressAmount)}</div>`
+          );
+        }
 
-      resultArea.style.display = "block";
-      addToCartBtn.disabled = false;
-      (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(totalPrice / options.qty);
-      (container.querySelector("#resTotalPrice") as HTMLElement).textContent = formatPLN(totalPrice);
-      const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
-      if (tierHintEl) {
-        const sideLabel = options.sides === 1 ? "jednostronne" : "dwustronne";
-        const discountHint = options.sides === 1 && singleSidedDiscountRate > 0
-          ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${formatPLN(singleSidedDiscountAmount)}`
-          : "";
-        tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${formatPLN(tierPrice)} (${sideLabel}${discountHint}; papier: ${paperVal.replace("_", " ")})`;
-      }
-      const discountHintEl = container.querySelector("#resDiscountHint") as HTMLElement;
-      if (discountHintEl) {
-        discountHintEl.textContent = options.sides === 1 && singleSidedDiscountRate > 0
-          ? `Zastosowano rabat jednostronne: ${Math.round(singleSidedDiscountRate * 100)}% (${formatPLN(singleSidedDiscountAmount)})`
-          : "";
-        discountHintEl.style.display = options.sides === 1 && singleSidedDiscountRate > 0 ? "block" : "none";
-      }
-      (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express ? "block" : "none";
-      (container.querySelector("#resSatinHint") as HTMLElement).style.display = usesSatinBase ? "block" : "none";
-      (container.querySelector("#resModiglianiHint") as HTMLElement).style.display = options.isModigliani ? "block" : "none";
+        breakdown.push(
+          `<div style="padding-top: 8px; border-top: 1px solid #e2e8f0;"><strong>Razem:</strong> <strong>${formatPLN(result.totalPrice)}</strong></div>`
+        );
+        while (breakdownBox.children.length > 1) breakdownBox.removeChild(breakdownBox.lastChild!);
+        Object.assign(breakdownBox.style, {
+          gap: "8px",
+          fontSize: "14px",
+          lineHeight: "1.45",
+          color: "#334155",
+        });
+        breakdownBox.insertAdjacentHTML("beforeend", breakdown.join(""));
+        breakdownBox.style.display = "grid";
 
-      ctx.updateLastCalculated(totalPrice, `Dyplomy ${options.format}`);
-      return { options, result };
-    };
+        resultArea.style.display = "block";
+        addToCartBtn.disabled = false;
+        (container.querySelector("#resUnitPrice") as HTMLElement).textContent = formatPLN(
+          totalPrice / options.qty
+        );
+        (container.querySelector("#resTotalPrice") as HTMLElement).textContent =
+          formatPLN(totalPrice);
+        const tierHintEl = container.querySelector("#resTierHint") as HTMLElement;
+        if (tierHintEl) {
+          const sideLabel = options.sides === 1 ? "jednostronne" : "dwustronne";
+          const discountHint =
+            options.sides === 1 && singleSidedDiscountRate > 0
+              ? `; rabat jednostronne ${Math.round(singleSidedDiscountRate * 100)}% = ${formatPLN(singleSidedDiscountAmount)}`
+              : "";
+          tierHintEl.textContent = `Dla ${options.qty} szt użyto ceny tabeli ${formatPLN(tierPrice)} (${sideLabel}${discountHint}; papier: ${paperVal.replace("_", " ")})`;
+        }
+        const discountHintEl = container.querySelector("#resDiscountHint") as HTMLElement;
+        if (discountHintEl) {
+          discountHintEl.textContent =
+            options.sides === 1 && singleSidedDiscountRate > 0
+              ? `Zastosowano rabat jednostronne: ${Math.round(singleSidedDiscountRate * 100)}% (${formatPLN(singleSidedDiscountAmount)})`
+              : "";
+          discountHintEl.style.display =
+            options.sides === 1 && singleSidedDiscountRate > 0 ? "block" : "none";
+        }
+        (container.querySelector("#resExpressHint") as HTMLElement).style.display = options.express
+          ? "block"
+          : "none";
+        (container.querySelector("#resSatinHint") as HTMLElement).style.display = usesSatinBase
+          ? "block"
+          : "none";
+        (container.querySelector("#resModiglianiHint") as HTMLElement).style.display =
+          options.isModigliani ? "block" : "none";
 
-    autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
-    updateLegend();
+        ctx.updateLastCalculated(totalPrice, `Dyplomy ${options.format}`);
+        return { options, result };
+      };
 
-    ctx?.on?.("prices-updated", () => {
+      autoCalc({ root: container, calc: calculate, cancelOn: [addToCartBtn] });
       updateLegend();
-      calculate();
-    });
 
-    addToCartBtn.addEventListener("click", () => {
-      const calc = calculate();
-      if (!calc) return;
-      const { options, result } = calc;
-
-      const dpv = paperSel.value;
-      const dPaperLabel = dpv === 'modigliani'
-        ? 'Modigliani'
-        : dpv.startsWith('satyna_')
-        ? `Satyna ${dpv.slice(7)}g`
-        : `Kreda ${dpv.slice(6)}g`;
-
-      ctx.cart.addItem({
-        id: `dyp-${Date.now()}`,
-        category: "Dyplomy",
-        name: `Dyplomy ${options.format} ${options.sides === 1 ? '1-str' : '2-str'}`,
-        quantity: options.qty,
-        unit: "szt",
-        unitPrice: result.totalPrice / options.qty,
-        isExpress: options.express,
-        totalPrice: result.totalPrice,
-        optionsHint: [`${options.qty} szt`, `${options.format}`, dPaperLabel, ...(options.express ? ['EXPRESS (+20%)'] : [])].join(', '),
-        payload: options
+      ctx?.on?.("prices-updated", () => {
+        updateLegend();
+        calculate();
       });
 
-      resultArea.style.display = 'none';
-      if (breakdownBox) breakdownBox.style.display = 'none';
-      addToCartBtn.disabled = true;
-      container.dispatchEvent(new CustomEvent("view:reset"));
-    });
+      addToCartBtn.addEventListener("click", () => {
+        const calc = calculate();
+        if (!calc) return;
+        const { options, result } = calc;
+
+        const dpv = paperSel.value;
+        const dPaperLabel =
+          dpv === "modigliani"
+            ? "Modigliani"
+            : dpv.startsWith("satyna_")
+              ? `Satyna ${dpv.slice(7)}g`
+              : `Kreda ${dpv.slice(6)}g`;
+
+        ctx.cart.addItem({
+          id: `dyp-${Date.now()}`,
+          category: "Dyplomy",
+          name: `Dyplomy ${options.format} ${options.sides === 1 ? "1-str" : "2-str"}`,
+          quantity: options.qty,
+          unit: "szt",
+          unitPrice: result.totalPrice / options.qty,
+          isExpress: options.express,
+          totalPrice: result.totalPrice,
+          optionsHint: [
+            `${options.qty} szt`,
+            `${options.format}`,
+            dPaperLabel,
+            ...(options.express ? ["EXPRESS (+20%)"] : []),
+          ].join(", "),
+          payload: options,
+        });
+
+        resultArea.style.display = "none";
+        if (breakdownBox) breakdownBox.style.display = "none";
+        addToCartBtn.disabled = true;
+        container.dispatchEvent(new CustomEvent("view:reset"));
+      });
     } catch (err) {
       container.innerHTML = `<div class="error">Błąd ładowania: ${err}</div>`;
     }
-  }
+  },
 };

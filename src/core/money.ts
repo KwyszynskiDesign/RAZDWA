@@ -3,12 +3,12 @@
  * Currency formatting for PLN
  */
 
-export const CURRENCY = 'PLN' as const
-export const LOCALE = 'pl-PL' as const
+export const CURRENCY = "PLN" as const;
+export const LOCALE = "pl-PL" as const;
 
 export interface Money {
-  amount: number
-  currency: typeof CURRENCY
+  amount: number;
+  currency: typeof CURRENCY;
 }
 
 /**
@@ -16,28 +16,28 @@ export interface Money {
  */
 export function formatPrice(amount: number, currency: string = CURRENCY): string {
   const formatted = new Intl.NumberFormat(LOCALE, {
-    style: 'currency',
-    currency: currency === 'PLN' ? 'PLN' : 'EUR',
+    style: "currency",
+    currency: currency === "PLN" ? "PLN" : "EUR",
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(amount)
+  }).format(amount);
 
-  return formatted
+  return formatted;
 }
 
 /**
  * Format price for display (alternative format)
  */
 export function formatPriceAlternative(amount: number): string {
-  const parts = amount.toFixed(2).split('.')
+  const parts = amount.toFixed(2).split(".");
   const wholePart = parts[0]
-    .split('')
+    .split("")
     .reverse()
     .reduce((acc, digit, idx) => {
-      return (idx > 0 && idx % 3 === 0 ? ' ' : '') + digit + acc
-    }, '')
-  const decimalPart = parts[1]
-  return `${wholePart},${decimalPart} zł`
+      return (idx > 0 && idx % 3 === 0 ? " " : "") + digit + acc;
+    }, "");
+  const decimalPart = parts[1];
+  return `${wholePart},${decimalPart} zł`;
 }
 
 /**
@@ -45,20 +45,18 @@ export function formatPriceAlternative(amount: number): string {
  */
 export function parsePrice(priceStr: string): number | null {
   // Remove currency symbol and normalize
-  const cleaned = priceStr
-    .replace(/[^\d,\.\s+-]/g, '')
-    .trim()
+  const cleaned = priceStr.replace(/[^\d,\.\s+-]/g, "").trim();
 
   // Try comma as decimal separator
-  let numStr = cleaned.replace(/\s/g, '').replace(',', '.')
+  let numStr = cleaned.replace(/\s/g, "").replace(",", ".");
 
   // Try period as decimal separator
-  if (cleaned.includes(',') && cleaned.lastIndexOf(',') > cleaned.lastIndexOf('.')) {
-    numStr = cleaned.replace(/\./g, '').replace(',', '.')
+  if (cleaned.includes(",") && cleaned.lastIndexOf(",") > cleaned.lastIndexOf(".")) {
+    numStr = cleaned.replace(/\./g, "").replace(",", ".");
   }
 
-  const parsed = parseFloat(numStr)
-  return isFinite(parsed) ? parsed : null
+  const parsed = parseFloat(numStr);
+  return isFinite(parsed) ? parsed : null;
 }
 
 /**
@@ -66,12 +64,12 @@ export function parsePrice(priceStr: string): number | null {
  */
 export function money(amount: number): Money {
   if (!isFinite(amount) || amount < 0) {
-    throw new Error(`Invalid money amount: ${amount}`)
+    throw new Error(`Invalid money amount: ${amount}`);
   }
   return {
     amount: Math.round(amount * 100) / 100,
     currency: CURRENCY,
-  }
+  };
 }
 
 /**
@@ -79,39 +77,39 @@ export function money(amount: number): Money {
  */
 export function addMoney(a: Money, b: Money): Money {
   if (a.currency !== b.currency) {
-    throw new Error('Cannot add money with different currencies')
+    throw new Error("Cannot add money with different currencies");
   }
-  return money(a.amount + b.amount)
+  return money(a.amount + b.amount);
 }
 
 /**
  * Multiply money by scalar
  */
 export function multiplyMoney(m: Money, scalar: number): Money {
-  return money(m.amount * scalar)
+  return money(m.amount * scalar);
 }
 
 /**
  * Percentage calculation
  */
 export function percentageOf(amount: number, percent: number): number {
-  return Math.round((amount * percent) / 100 * 100) / 100
+  return Math.round(((amount * percent) / 100) * 100) / 100;
 }
 
 /**
  * Calculate discount
  */
 export function applyDiscount(amount: number, discountPercent: number): number {
-  const discountAmount = percentageOf(amount, discountPercent)
-  return Math.round((amount - discountAmount) * 100) / 100
+  const discountAmount = percentageOf(amount, discountPercent);
+  return Math.round((amount - discountAmount) * 100) / 100;
 }
 
 /**
  * Calculate surcharge
  */
 export function applySurcharge(amount: number, surchargePercent: number): number {
-  const surchargeAmount = percentageOf(amount, surchargePercent)
-  return Math.round((amount + surchargeAmount) * 100) / 100
+  const surchargeAmount = percentageOf(amount, surchargePercent);
+  return Math.round((amount + surchargeAmount) * 100) / 100;
 }
 /** Alias for formatPrice, used by UI views */
 export const formatPLN = formatPrice;

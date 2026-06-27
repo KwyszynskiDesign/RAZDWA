@@ -1,6 +1,10 @@
 import { View, ViewContext } from "../types";
 import { autoCalc } from "../autoCalc";
-import { getVoucheryPriceForQuantity, getVoucheryTiers, quoteVouchery } from "../../categories/vouchery";
+import {
+  getVoucheryPriceForQuantity,
+  getVoucheryTiers,
+  quoteVouchery,
+} from "../../categories/vouchery";
 import { formatPLN } from "../../core/money";
 import { resolveStoredPrice } from "../../core/compat";
 
@@ -73,8 +77,12 @@ export const VoucheryView: View = {
     const satinHint = container.querySelector("#v-satin-hint") as HTMLElement;
     const modiglianiHint = container.querySelector("#v-modigliani-hint") as HTMLElement;
     const envelopeSummaryRow = container.querySelector("#v-envelope-summary-row") as HTMLElement;
-    const envelopeSummaryLabel = container.querySelector("#v-envelope-summary-label") as HTMLElement;
-    const envelopeSummaryValue = container.querySelector("#v-envelope-summary-value") as HTMLElement;
+    const envelopeSummaryLabel = container.querySelector(
+      "#v-envelope-summary-label"
+    ) as HTMLElement;
+    const envelopeSummaryValue = container.querySelector(
+      "#v-envelope-summary-value"
+    ) as HTMLElement;
     const legendTitle = container.querySelector("#v-legend-title") as HTMLElement | null;
     const legendRows = container.querySelector("#v-legend-rows") as HTMLElement | null;
 
@@ -87,17 +95,17 @@ export const VoucheryView: View = {
       if (!legendRows) return;
 
       const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
       const tiers = getVoucheryTiers();
-      const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement | null;
+      const sidesInput = container.querySelector(
+        'input[name="v-sides"]:checked'
+      ) as HTMLInputElement | null;
       const side = sidesInput?.value === "double" ? "dwu" : "jed";
       const sideLabel = side === "jed" ? "jednostronne" : "dwustronne";
       const paperVal = paperSelect?.value ?? "kreda_200";
       const isSatin = paperVal.startsWith("satyna");
       const isModigliani = paperVal === "modigliani";
-      const paperLabel = isModigliani
-        ? "Modigliani"
-        : (isSatin ? "Satyna" : "Kreda");
+      const paperLabel = isModigliani ? "Modigliani" : isSatin ? "Satyna" : "Kreda";
 
       if (legendTitle) {
         legendTitle.innerText = `CENNIK VOUCHERY A4 ${sideLabel} (${paperLabel})`;
@@ -136,8 +144,8 @@ export const VoucheryView: View = {
 
     const renderBreakdown = (result: any, options: any) => {
       const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-      const expressRate = resolveStoredPrice("modifier-express", 0.20);
+      const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+      const expressRate = resolveStoredPrice("modifier-express", 0.2);
       const materialLabel = options.sides === "single" ? "jednostronny" : "dwustronny";
       const basePrice = result.basePrice;
 
@@ -154,7 +162,8 @@ export const VoucheryView: View = {
 
       const expressAmount = options.express ? parseFloat((basePrice * expressRate).toFixed(2)) : 0;
       const materialTotal = parseFloat((satinAmount + modiglianiAmount).toFixed(2));
-      const envelopeUnitPrice = typeof options.envelopeUnitPrice === "number" ? options.envelopeUnitPrice : 0;
+      const envelopeUnitPrice =
+        typeof options.envelopeUnitPrice === "number" ? options.envelopeUnitPrice : 0;
       const envelopeQty = typeof options.envelopeQty === "number" ? options.envelopeQty : 0;
       const envelopeTotal = typeof options.envelopeTotal === "number" ? options.envelopeTotal : 0;
 
@@ -164,34 +173,56 @@ export const VoucheryView: View = {
       ];
 
       if (options.modigliani) {
-        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
-        lines.push({ label: "Modigliani", value: `${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}` });
+        lines.push({
+          label: "Satyna",
+          value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}`,
+        });
+        lines.push({
+          label: "Modigliani",
+          value: `${Math.round(modiglianiRate * 100)}% × (${formatPLN(basePrice)} + ${formatPLN(satinAmount)}) = ${formatPLN(modiglianiAmount)}`,
+        });
       } else if (options.satin) {
-        lines.push({ label: "Satyna", value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}` });
+        lines.push({
+          label: "Satyna",
+          value: `${Math.round(satinRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(satinAmount)}`,
+        });
       }
 
       if (options.express) {
-        lines.push({ label: "EXPRESS", value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}` });
+        lines.push({
+          label: "EXPRESS",
+          value: `${Math.round(expressRate * 100)}% × ${formatPLN(basePrice)} = ${formatPLN(expressAmount)}`,
+        });
       }
 
       if (options.withEnvelopes) {
-        lines.push({ label: options.envelopeLabel, value: `${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}` });
+        lines.push({
+          label: options.envelopeLabel,
+          value: `${envelopeQty} szt × ${formatPLN(envelopeUnitPrice)} = ${formatPLN(envelopeTotal)}`,
+        });
       }
 
-      lines.push({ label: "Razem", value: formatPLN(result.totalPrice), separatorTop: true, strongValue: true });
+      lines.push({
+        label: "Razem",
+        value: formatPLN(result.totalPrice),
+        separatorTop: true,
+        strongValue: true,
+      });
       renderBreakdownRows(breakdownLines, lines);
       breakdownDisplay.style.display = "block";
     };
 
     const performCalculation = (): boolean => {
       if (!qtyInput?.value || parseInt(qtyInput.value) <= 0) {
-        resultDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
         breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         return false;
       }
-      const sidesInput = container.querySelector('input[name="v-sides"]:checked') as HTMLInputElement;
-      const sides = (sidesInput ? sidesInput.value : 'single') as 'single' | 'double';
+      const sidesInput = container.querySelector(
+        'input[name="v-sides"]:checked'
+      ) as HTMLInputElement;
+      const sides = (sidesInput ? sidesInput.value : "single") as "single" | "double";
       const paperVal = paperSelect.value;
       const isSatin = paperVal.startsWith("satyna");
       const isModigliani = paperVal === "modigliani";
@@ -206,14 +237,16 @@ export const VoucheryView: View = {
         express: ctx.expressMode,
         withEnvelopes: Boolean(envelopeEnabled?.checked),
         envelopeType: (envelopeTypeSelect?.value || "a").toLowerCase(),
-        envelopeQty: Math.max(1, parseInt(envelopeQtyInput?.value || "1", 10) || 1)
+        envelopeQty: Math.max(1, parseInt(envelopeQtyInput?.value || "1", 10) || 1),
       };
 
       try {
         const result = quoteVouchery(currentOptions);
         const envelopeKey = `koperty-${currentOptions.envelopeType}`;
         const envelopeLabel = getEnvelopeLabel(currentOptions.envelopeType);
-        const envelopeUnitPrice = currentOptions.withEnvelopes ? resolveStoredPrice(envelopeKey, 0) : 0;
+        const envelopeUnitPrice = currentOptions.withEnvelopes
+          ? resolveStoredPrice(envelopeKey, 0)
+          : 0;
         const envelopeTotal = currentOptions.withEnvelopes
           ? parseFloat((envelopeUnitPrice * currentOptions.envelopeQty).toFixed(2))
           : 0;
@@ -227,7 +260,7 @@ export const VoucheryView: View = {
           envelopeLabel,
           envelopeQty: currentOptions.withEnvelopes ? currentOptions.envelopeQty : 0,
           envelopeUnitPrice,
-          envelopeTotal
+          envelopeTotal,
         };
         currentOptions.envelopeLabel = envelopeLabel;
         currentOptions.envelopeUnitPrice = envelopeUnitPrice;
@@ -252,7 +285,8 @@ export const VoucheryView: View = {
         }
 
         totalPriceSpan.innerText = formatPLN(totalPrice);
-        if (tierHint) tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${formatPLN(result.basePrice)} (papier: ${paperVal.replace("_", " ")})`;
+        if (tierHint)
+          tierHint.innerText = `Dla ${currentOptions.qty} szt cena bazowa: ${formatPLN(result.basePrice)} (papier: ${paperVal.replace("_", " ")})`;
         if (expressHint) expressHint.style.display = ctx.expressMode ? "block" : "none";
         if (satinHint) satinHint.style.display = usesSatinBase ? "block" : "none";
         if (modiglianiHint) modiglianiHint.style.display = isModigliani ? "block" : "none";
@@ -271,44 +305,50 @@ export const VoucheryView: View = {
 
     autoCalc({ root: container, calc: performCalculation, cancelOn: [addToCartBtn] });
     updateLegend();
-    ctx?.on?.("prices-updated", () => { updateLegend(); performCalculation(); });
+    ctx?.on?.("prices-updated", () => {
+      updateLegend();
+      performCalculation();
+    });
 
     addToCartBtn.onclick = () => {
       if (!performCalculation()) return;
       if (currentResult && currentOptions) {
         const pv = currentOptions.paper;
-        const paperLabel = pv === 'modigliani'
-          ? 'Modigliani'
-          : pv.startsWith('satyna_')
-            ? `Satyna ${pv.slice(7)}g`
-            : `Kreda ${pv.slice(6)}g`;
-        const sidesLabel = currentOptions.sides === 'single' ? 'Jednostronne' : 'Dwustronne';
+        const paperLabel =
+          pv === "modigliani"
+            ? "Modigliani"
+            : pv.startsWith("satyna_")
+              ? `Satyna ${pv.slice(7)}g`
+              : `Kreda ${pv.slice(6)}g`;
+        const sidesLabel = currentOptions.sides === "single" ? "Jednostronne" : "Dwustronne";
         const parts: string[] = [`${currentOptions.qty} szt`, sidesLabel, paperLabel];
         if (currentOptions.withEnvelopes) {
-          parts.push(`${currentOptions.envelopeLabel}: ${currentOptions.envelopeQty} szt (+${formatPLN(currentResult.envelopeTotal)})`);
+          parts.push(
+            `${currentOptions.envelopeLabel}: ${currentOptions.envelopeQty} szt (+${formatPLN(currentResult.envelopeTotal)})`
+          );
         }
-        if (currentOptions.express) parts.push('EXPRESS (+20%)');
+        if (currentOptions.express) parts.push("EXPRESS (+20%)");
 
         ctx.cart.addItem({
           id: `vouchery-${Date.now()}`,
           category: "Vouchery",
-          name: 'Vouchery A4',
+          name: "Vouchery A4",
           quantity: currentOptions.qty,
           unit: "szt",
           unitPrice: currentResult.totalPrice / currentOptions.qty,
           isExpress: currentOptions.express,
           totalPrice: currentResult.totalPrice,
-          optionsHint: parts.join(', '),
-          payload: currentResult
+          optionsHint: parts.join(", "),
+          payload: currentResult,
         });
 
         currentResult = null;
         currentOptions = null;
-        resultDisplay.style.display = 'none';
-        breakdownDisplay.style.display = 'none';
+        resultDisplay.style.display = "none";
+        breakdownDisplay.style.display = "none";
         addToCartBtn.disabled = true;
         container.dispatchEvent(new CustomEvent("view:reset"));
       }
     };
-  }
+  },
 };

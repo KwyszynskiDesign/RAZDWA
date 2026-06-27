@@ -8,9 +8,15 @@ beforeEach(() => {
   storageData = {};
   vi.stubGlobal("localStorage", {
     getItem: (key: string) => storageData[key] ?? null,
-    setItem: (key: string, value: string) => { storageData[key] = value; },
-    removeItem: (key: string) => { delete storageData[key]; },
-    clear: () => { storageData = {}; },
+    setItem: (key: string, value: string) => {
+      storageData[key] = value;
+    },
+    removeItem: (key: string) => {
+      delete storageData[key];
+    },
+    clear: () => {
+      storageData = {};
+    },
   });
 });
 
@@ -23,19 +29,19 @@ describe("Dyplomy logic", () => {
     const result = calculateDyplomy({
       qty: 1,
       isSatin: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(20.00);
+    expect(result.totalPrice).toBe(20.0);
   });
 
   it("should apply bulk -12% from 6szt (base tier 35.00 => 30.80)", () => {
     const result = calculateDyplomy({
       qty: 6,
       isSatin: false,
-      express: false
+      express: false,
     });
-    expect(result.basePrice).toBe(30.80);
-    expect(result.totalPrice).toBe(30.80);
+    expect(result.basePrice).toBe(30.8);
+    expect(result.totalPrice).toBe(30.8);
   });
 
   it("should apply Satin modifier (+12%) to base price", () => {
@@ -43,9 +49,9 @@ describe("Dyplomy logic", () => {
     const result = calculateDyplomy({
       qty: 1,
       isSatin: true,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(22.40);
+    expect(result.totalPrice).toBe(22.4);
   });
 
   it("should apply both bulk discount and Satin correctly", () => {
@@ -56,7 +62,7 @@ describe("Dyplomy logic", () => {
     const result = calculateDyplomy({
       qty: 6,
       isSatin: true,
-      express: false
+      express: false,
     });
     expect(result.totalPrice).toBe(34.5);
   });
@@ -66,9 +72,9 @@ describe("Dyplomy logic", () => {
     const result = calculateDyplomy({
       qty: 1,
       isSatin: false,
-      express: true
+      express: true,
     });
-    expect(result.totalPrice).toBe(24.00);
+    expect(result.totalPrice).toBe(24.0);
   });
 
   it("should track satin in appliedModifiers", () => {
@@ -92,7 +98,7 @@ describe("Dyplomy logic", () => {
       qty: 1,
       isSatin: false,
       isModigliani: true,
-      express: false
+      express: false,
     });
     expect(result.modifiersTotal).toBe(6.88);
     expect(result.totalPrice).toBe(26.88);
@@ -109,7 +115,7 @@ describe("Dyplomy logic", () => {
       qty: 1,
       isSatin: false,
       isModigliani: true,
-      express: true
+      express: true,
     });
     expect(result.modifiersTotal).toBe(10.88);
     expect(result.totalPrice).toBe(30.88);
@@ -126,10 +132,10 @@ describe("Dyplomy logic", () => {
     // jednostronne od 6 szt: -12% = 4.20
     // suma: 30.80
     const result = calculateDyplomy({ qty: 6, sides: 1, isSatin: false, express: false });
-    expect((result as any).tierPrice).toBe(35.00);
-    expect((result as any).singleSidedDiscountAmount).toBe(4.20);
-    expect(result.basePrice).toBe(30.80);
-    expect(result.totalPrice).toBe(30.80);
+    expect((result as any).tierPrice).toBe(35.0);
+    expect((result as any).singleSidedDiscountAmount).toBe(4.2);
+    expect(result.basePrice).toBe(30.8);
+    expect(result.totalPrice).toBe(30.8);
     expect(result.appliedModifiers).toContain("single-sided-discount");
   });
 
@@ -182,7 +188,7 @@ describe("Dyplomy logic", () => {
       qty: 50,
       sides: 2,
       isSatin: false,
-      express: false
+      express: false,
     });
 
     expect(result.tierPrice).toBe(180);
@@ -191,16 +197,16 @@ describe("Dyplomy logic", () => {
 
   it("should not apply -12% discount for double-sided even from 6 pcs", () => {
     const result = calculateDyplomy({ qty: 6, sides: 2, isSatin: false, express: false });
-    expect((result as any).tierPrice).toBe(35.00);
+    expect((result as any).tierPrice).toBe(35.0);
     expect((result as any).singleSidedDiscountAmount).toBe(0);
-    expect(result.basePrice).toBe(35.00);
-    expect(result.totalPrice).toBe(35.00);
+    expect(result.basePrice).toBe(35.0);
+    expect(result.totalPrice).toBe(35.0);
   });
 
   it("should not apply single-sided discount below 6 pcs", () => {
     const result = calculateDyplomy({ qty: 5, sides: 1, isSatin: false, express: false });
     expect((result as any).singleSidedDiscountAmount).toBe(0);
-    expect(result.totalPrice).toBe(35.00);
+    expect(result.totalPrice).toBe(35.0);
   });
 
   it("should apply satin and express on discounted single-sided base", () => {
@@ -210,16 +216,28 @@ describe("Dyplomy logic", () => {
     // express +20% => 6.16
     // razem: 40.66
     const result = calculateDyplomy({ qty: 6, sides: 1, isSatin: true, express: true });
-    expect(result.basePrice).toBe(30.80);
+    expect(result.basePrice).toBe(30.8);
     expect(result.modifiersTotal).toBe(9.86);
     expect(result.totalPrice).toBe(40.66);
   });
 
   it("should ignore format in price calculation", () => {
-    const a4 = calculateDyplomy({ qty: 10, sides: 2, format: "A4", isSatin: false, express: false });
-    const a5 = calculateDyplomy({ qty: 10, sides: 2, format: "A5", isSatin: false, express: false });
+    const a4 = calculateDyplomy({
+      qty: 10,
+      sides: 2,
+      format: "A4",
+      isSatin: false,
+      express: false,
+    });
+    const a5 = calculateDyplomy({
+      qty: 10,
+      sides: 2,
+      format: "A5",
+      isSatin: false,
+      express: false,
+    });
     expect(a4.totalPrice).toBe(a5.totalPrice);
-    expect(a4.totalPrice).toBe(40.00);
+    expect(a4.totalPrice).toBe(40.0);
   });
 });
 
@@ -263,4 +281,3 @@ describe("getResolvedDyplomyTiers – legenda progów ilościowych", () => {
     expect(result.totalPrice).toBe(50);
   });
 });
-

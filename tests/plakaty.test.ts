@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { calculatePlakatyM2, calculatePlakatyFormat, calculatePlakatyMalyCanon, calculatePlakatyDuzyCanon, getPlakatyMalyCanonLegendPanels } from "../src/categories/plakaty";
+import {
+  calculatePlakatyM2,
+  calculatePlakatyFormat,
+  calculatePlakatyMalyCanon,
+  calculatePlakatyDuzyCanon,
+  getPlakatyMalyCanonLegendPanels,
+} from "../src/categories/plakaty";
 import { getPlakatyA4A3LegendStyles } from "../src/ui/views/plakaty-a4-a3";
 import { resetPrices, setPrice } from "../src/services/priceService";
 
@@ -52,7 +58,11 @@ describe("calculatePlakatyM2 – solwent m² materials", () => {
 
 describe("calculatePlakatyFormat – per-format szt materials", () => {
   it("120g formatowe A0 (841x1189) × 1 szt → 54 zł (no discount)", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 1 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "841x1189",
+      qty: 1,
+    });
     expect(res.unitPrice).toBe(54);
     expect(res.discountFactor).toBe(1.0);
     expect(res.pricePerPiece).toBe(54);
@@ -60,76 +70,121 @@ describe("calculatePlakatyFormat – per-format szt materials", () => {
   });
 
   it("120g formatowe A0 × 3 szt → rabat 2-5 szt = 0.95 → 54 × 0.95 = 51.30 zł/szt", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 3 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "841x1189",
+      qty: 3,
+    });
     expect(res.discountFactor).toBe(0.95);
-    expect(res.pricePerPiece).toBe(51.30);
-    expect(res.totalPrice).toBe(parseFloat((51.30 * 3).toFixed(2)));
+    expect(res.pricePerPiece).toBe(51.3);
+    expect(res.totalPrice).toBe(parseFloat((51.3 * 3).toFixed(2)));
   });
 
   it("120g formatowe A0 × 6 szt → rabat 6-20 szt = 0.92 → 54 × 0.92 = 49.68 zł/szt", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 6 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "841x1189",
+      qty: 6,
+    });
     expect(res.discountFactor).toBe(0.92);
     expect(res.pricePerPiece).toBe(49.68);
     expect(res.totalPrice).toBe(parseFloat((49.68 * 6).toFixed(2)));
   });
 
   it("120g formatowe A3 (297x420) × 21 szt → rabat 21-300 = 0.87 → 12 × 0.87 = 10.44 zł/szt", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "297x420", qty: 21 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "297x420",
+      qty: 21,
+    });
     expect(res.discountFactor).toBe(0.87);
     expect(res.pricePerPiece).toBe(10.44);
   });
 
   it("120g formatowe A3 (297x420) × 300 szt → nadal rabat 21-300 = 0.87", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "297x420", qty: 300 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "297x420",
+      qty: 300,
+    });
     expect(res.discountFactor).toBe(0.87);
     expect(res.pricePerPiece).toBe(10.44);
   });
 
   it("260g satyna formatowe A0 (841x1189) × 9 szt → rabat 9-20 = 0.93 → 80 × 0.93 = 74.40 zł/szt", () => {
-    const res = calculatePlakatyFormat({ materialId: "260g-satyna-formatowe", formatKey: "841x1189", qty: 9 });
+    const res = calculatePlakatyFormat({
+      materialId: "260g-satyna-formatowe",
+      formatKey: "841x1189",
+      qty: 9,
+    });
     expect(res.discountFactor).toBe(0.93);
-    expect(res.pricePerPiece).toBe(74.40);
-    expect(res.totalPrice).toBe(parseFloat((74.40 * 9).toFixed(2)));
+    expect(res.pricePerPiece).toBe(74.4);
+    expect(res.totalPrice).toBe(parseFloat((74.4 * 9).toFixed(2)));
   });
 
   it("260g satyna nieformatowe A0 (841x1189) × 1 → 66.70 zł", () => {
-    const res = calculatePlakatyFormat({ materialId: "260g-satyna-nieformatowe", formatKey: "841x1189", qty: 1 });
-    expect(res.unitPrice).toBe(66.70);
+    const res = calculatePlakatyFormat({
+      materialId: "260g-satyna-nieformatowe",
+      formatKey: "841x1189",
+      qty: 1,
+    });
+    expect(res.unitPrice).toBe(66.7);
     expect(res.discountFactor).toBe(1.0);
-    expect(res.totalPrice).toBe(66.70);
+    expect(res.totalPrice).toBe(66.7);
   });
 
   it("120g formatowe A1+ (610x841) × 1 → 28 zł zgodnie z CSV", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "610x841", qty: 1 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "610x841",
+      qty: 1,
+    });
     expect(res.unitPrice).toBe(28);
     expect(res.totalPrice).toBe(28);
   });
 
   it("120g nieformatowe A1+ (610x841) × 1 → 33 zł zgodnie z CSV", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-nieformatowe", formatKey: "610x841", qty: 1 });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-nieformatowe",
+      formatKey: "610x841",
+      qty: 1,
+    });
     expect(res.unitPrice).toBe(33);
     expect(res.totalPrice).toBe(33);
   });
 
   it("180g PP formatowe A0 (841x1189) × 6 → rabat 120g 6-20 = 0.92 → 75 × 0.92 = 69.00 zł/szt", () => {
-    const res = calculatePlakatyFormat({ materialId: "180g-pp-formatowe", formatKey: "841x1189", qty: 6 });
+    const res = calculatePlakatyFormat({
+      materialId: "180g-pp-formatowe",
+      formatKey: "841x1189",
+      qty: 6,
+    });
     expect(res.discountFactor).toBe(0.92);
-    expect(res.pricePerPiece).toBe(69.00);
+    expect(res.pricePerPiece).toBe(69.0);
   });
 
   it("applies express +20%: 120g formatowe A0 × 1 → 54 × 1.20 = 64.80 zł", () => {
-    const res = calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "841x1189", qty: 1, express: true });
+    const res = calculatePlakatyFormat({
+      materialId: "120g-formatowe",
+      formatKey: "841x1189",
+      qty: 1,
+      express: true,
+    });
     expect(res.basePrice).toBe(54);
-    expect(res.totalPrice).toBe(64.80);
+    expect(res.totalPrice).toBe(64.8);
     expect(res.appliedModifiers).toContain("TRYB EXPRESS (+20%)");
   });
 
   it("throws for unknown material", () => {
-    expect(() => calculatePlakatyFormat({ materialId: "bogus", formatKey: "841x1189", qty: 1 })).toThrow();
+    expect(() =>
+      calculatePlakatyFormat({ materialId: "bogus", formatKey: "841x1189", qty: 1 })
+    ).toThrow();
   });
 
   it("throws for unknown format key", () => {
-    expect(() => calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "bogus", qty: 1 })).toThrow();
+    expect(() =>
+      calculatePlakatyFormat({ materialId: "120g-formatowe", formatKey: "bogus", qty: 1 })
+    ).toThrow();
   });
 
   it("supports custom length mm for formatowe", () => {
@@ -179,13 +234,20 @@ describe("calculatePlakatyMalyCanon – do 9 szt", () => {
   });
 
   it("applies express +20%", () => {
-    const res = calculatePlakatyMalyCanon({ variantId: "margin-200", format: "A4", qty: 2, express: true });
+    const res = calculatePlakatyMalyCanon({
+      variantId: "margin-200",
+      format: "A4",
+      qty: 2,
+      express: true,
+    });
     // 2 * 8 = 16; +20% = 19.2
     expect(res.totalPrice).toBe(19.2);
   });
 
   it("throws above 9 szt", () => {
-    expect(() => calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 10 })).toThrow();
+    expect(() =>
+      calculatePlakatyMalyCanon({ variantId: "margin-170", format: "A4", qty: 10 })
+    ).toThrow();
   });
 });
 
@@ -289,7 +351,11 @@ describe("calculatePlakatyDuzyCanon – A4/A3, linear interpolation between tier
   });
 
   it("applies express +20% with interpolated base price", () => {
-    const res = calculatePlakatyDuzyCanon({ variantId: "a4-200-kreda-200", qty: 10, express: true });
+    const res = calculatePlakatyDuzyCanon({
+      variantId: "a4-200-kreda-200",
+      qty: 10,
+      express: true,
+    });
     expect(res.basePrice).toBe(52);
     expect(res.totalPrice).toBe(62.4); // 52 * 1.20
   });

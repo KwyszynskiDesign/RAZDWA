@@ -3,15 +3,7 @@
  * Tylko typy — zero importów z plików produkcyjnych, zero kodu runtime.
  */
 
-export type PriceUnit =
-  | "szt"
-  | "m2"
-  | "cm"
-  | "mb"
-  | "arkusz"
-  | "strona"
-  | "zestaw"
-  | string;
+export type PriceUnit = "szt" | "m2" | "cm" | "mb" | "arkusz" | "strona" | "zestaw" | string;
 
 export type ModifierType = "percent" | "flat";
 

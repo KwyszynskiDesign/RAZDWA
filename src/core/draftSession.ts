@@ -13,23 +13,37 @@ function generateId(): string {
 }
 
 function readSession(key: string): string | null {
-  try { return sessionStorage.getItem(key); } catch { return null; }
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 function writeSession(key: string, value: string): void {
-  try { sessionStorage.setItem(key, value); } catch {}
+  try {
+    sessionStorage.setItem(key, value);
+  } catch {}
 }
 
 function readLocal(key: string): string | null {
-  try { return localStorage.getItem(key); } catch { return null; }
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
 }
 
 function writeLocal(key: string, value: string): void {
-  try { localStorage.setItem(key, value); } catch {}
+  try {
+    localStorage.setItem(key, value);
+  } catch {}
 }
 
 function removeLocal(key: string): void {
-  try { localStorage.removeItem(key); } catch {}
+  try {
+    localStorage.removeItem(key);
+  } catch {}
 }
 
 let tabId = readSession(TAB_ID_KEY);

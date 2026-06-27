@@ -66,13 +66,13 @@ export interface DyplomyOptions {
 export function calculateDyplomy(options: DyplomyOptions) {
   const tierPrice = getPriceForQuantity(options.qty);
   const sides = options.sides ?? 1;
-  const bulkDiscountRate = (options.qty >= 6 && sides === 1) ? 0.12 : 0;
+  const bulkDiscountRate = options.qty >= 6 && sides === 1 ? 0.12 : 0;
   const singleSidedDiscountRate = bulkDiscountRate;
   const singleSidedDiscountAmount = parseFloat((tierPrice * singleSidedDiscountRate).toFixed(2));
   const basePrice = parseFloat((tierPrice - singleSidedDiscountAmount).toFixed(2));
   const satinRate = resolveStoredPrice("modifier-satyna", 0.12);
-  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.20);
-  const expressRate = resolveStoredPrice("modifier-express", 0.20);
+  const modiglianiRate = resolveStoredPrice("modifier-modigliani", 0.2);
+  const expressRate = resolveStoredPrice("modifier-express", 0.2);
 
   let materialModifiersTotal = 0;
   const appliedModifiers: string[] = [];
@@ -108,13 +108,13 @@ export function calculateDyplomy(options: DyplomyOptions) {
     singleSidedDiscountAmount,
     modifiersTotal,
     totalPrice,
-    appliedModifiers
+    appliedModifiers,
   };
 }
 
 export const dyplomyCategory: CategoryModule = {
-  id: 'dyplomy',
-  name: '🎓 Dyplomy',
+  id: "dyplomy",
+  name: "🎓 Dyplomy",
   mount: (container, ctx) => {
     container.innerHTML = `
       <div class="category-form">
@@ -146,7 +146,9 @@ export const dyplomyCategory: CategoryModule = {
         <div id="price-tiers" style="background: #1a1a1a; padding: 15px; border-radius: 8px; margin: 20px 0;">
           <h4 style="color: #667eea; margin: 0 0 10px 0;">Przedziały cenowe:</h4>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 13px; color: #ccc;">
-            ${getResolvedDyplomyTiers().map(t => `<div>${t.qty} szt → ${t.price} zł</div>`).join('')}
+            ${getResolvedDyplomyTiers()
+              .map((t) => `<div>${t.qty} szt → ${t.price} zł</div>`)
+              .join("")}
           </div>
         </div>
 
@@ -167,18 +169,22 @@ export const dyplomyCategory: CategoryModule = {
 
     let currentPrice = 0;
 
-    const calculateBtn = container.querySelector('#calculate');
-    const addBtn = container.querySelector('#addToBasket');
-    const totalDisplay = container.querySelector('#total-price');
-    const breakdownDisplay = container.querySelector('#price-breakdown');
+    const calculateBtn = container.querySelector("#calculate");
+    const addBtn = container.querySelector("#addToBasket");
+    const totalDisplay = container.querySelector("#total-price");
+    const breakdownDisplay = container.querySelector("#price-breakdown");
 
-    calculateBtn?.addEventListener('click', () => {
-      const quantity = parseInt((container.querySelector('#quantity') as HTMLInputElement).value) || 1;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+    calculateBtn?.addEventListener("click", () => {
+      const quantity =
+        parseInt((container.querySelector("#quantity") as HTMLInputElement).value) || 1;
+      const paper = (container.querySelector("#paper") as HTMLSelectElement).value;
 
       const basePrice = getPriceForQuantity(quantity);
-      const paperMultiplier = paper === 'satin' ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
-      const expressMultiplier = ctx.expressMode ? 1 + resolveStoredPrice("modifier-express", 0.20) : 1;
+      const paperMultiplier =
+        paper === "satin" ? 1 + resolveStoredPrice("modifier-satyna", 0.12) : 1;
+      const expressMultiplier = ctx.expressMode
+        ? 1 + resolveStoredPrice("modifier-express", 0.2)
+        : 1;
 
       currentPrice = basePrice * paperMultiplier * expressMultiplier;
 
@@ -188,28 +194,28 @@ export const dyplomyCategory: CategoryModule = {
 
       if (breakdownDisplay) {
         const selectedTier = getSelectedDyplomyTier(quantity, getResolvedDyplomyTiers());
-        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === 'satin' ? ` × ${paperMultiplier.toFixed(2)} (satyna)` : ''}`;
+        breakdownDisplay.textContent = `${quantity} szt, przedział: ${selectedTier.qty}+ szt → ${basePrice.toFixed(2)} zł${paper === "satin" ? ` × ${paperMultiplier.toFixed(2)} (satyna)` : ""}`;
       }
 
       ctx.updateLastCalculated(currentPrice, `Dyplomy DL - ${quantity} szt`);
     });
 
-    addBtn?.addEventListener('click', () => {
+    addBtn?.addEventListener("click", () => {
       if (currentPrice === 0) {
-        alert('⚠️ Najpierw oblicz cenę!');
+        alert("⚠️ Najpierw oblicz cenę!");
         return;
       }
 
-      const quantity = (container.querySelector('#quantity') as HTMLInputElement).value;
-      const paper = (container.querySelector('#paper') as HTMLSelectElement).value;
+      const quantity = (container.querySelector("#quantity") as HTMLInputElement).value;
+      const paper = (container.querySelector("#paper") as HTMLSelectElement).value;
 
       ctx.addToBasket({
-        category: 'Dyplomy',
+        category: "Dyplomy",
         price: currentPrice,
-        description: `DL dwustronny, ${quantity} szt, ${paper === 'satin' ? 'satyna' : 'standard'}`
+        description: `DL dwustronny, ${quantity} szt, ${paper === "satin" ? "satyna" : "standard"}`,
       });
 
       alert(`✅ Dodano: ${currentPrice.toFixed(2)} zł`);
     });
-  }
+  },
 };

@@ -33,7 +33,7 @@ describe("custom dynamic tier rows", () => {
       express: false,
     });
 
-    expect(result.totalPrice).toBe(155.00);
+    expect(result.totalPrice).toBe(155.0);
   });
 
   it("picks a custom business-card tier added in settings", () => {
@@ -47,7 +47,7 @@ describe("custom dynamic tier rows", () => {
     });
 
     expect(result.qtyBilled).toBe(120);
-    expect(result.totalPrice).toBe(145.00);
+    expect(result.totalPrice).toBe(145.0);
   });
 
   it("picks a custom wlepki piece-table tier added in settings", () => {
@@ -59,6 +59,6 @@ describe("custom dynamic tier rows", () => {
     });
 
     expect(result.chargedQty).toBe(12);
-    expect(result.totalPrice).toBe(58.00);
+    expect(result.totalPrice).toBe(58.0);
   });
 });

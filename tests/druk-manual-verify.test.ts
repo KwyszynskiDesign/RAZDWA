@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { calculateDrukA4A3Skan } from "../src/categories/druk-a4-a3-skan";
 
 describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
-  
   it("Przykład zgłoszony przez użytkownika: 20 stron, 10 z zadrukieniem >25%", () => {
     const result = calculateDrukA4A3Skan({
       mode: "bw",
@@ -13,7 +12,7 @@ describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
       surchargeQty: 10,
       scanType: "none",
       scanQty: 0,
-      express: false
+      express: false,
     });
 
     console.log("\n=== Weryfikacja obliczeń ===");
@@ -31,10 +30,10 @@ describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
     console.log(`totalPrice: ${result.totalPrice.toFixed(2)} zł`);
 
     // Weryfikacja poprawności
-    expect(result.unitPrintPrice).toBe(0.60);
-    expect(result.totalPrintPrice).toBe(15.00);
-    expect(result.surchargePrice).toBeCloseTo(3.00, 2); // 10 stron × 0.30 dopłaty
-    expect(result.totalPrice).toBe(15.00);
+    expect(result.unitPrintPrice).toBe(0.6);
+    expect(result.totalPrintPrice).toBe(15.0);
+    expect(result.surchargePrice).toBeCloseTo(3.0, 2); // 10 stron × 0.30 dopłaty
+    expect(result.totalPrice).toBe(15.0);
   });
 
   it("Przykład: 100 stron, 25 z zadrukieniem >25%", () => {
@@ -47,7 +46,7 @@ describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
       surchargeQty: 25,
       scanType: "none",
       scanQty: 0,
-      express: false
+      express: false,
     });
 
     console.log("\n=== Weryfikacja obliczeń (100 stron) ===");
@@ -81,7 +80,7 @@ describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
       surchargeQty: 50,
       scanType: "none",
       scanQty: 0,
-      express: false
+      express: false,
     });
 
     console.log("\n=== Weryfikacja obliczeń (100% zadruk) ===");
@@ -99,9 +98,9 @@ describe("Druk A4/A3 - Weryfikacja dopłaty za zadruk >25%", () => {
     console.log(`totalPrice: ${result.totalPrice.toFixed(2)} zł`);
 
     // Weryfikacja poprawności
-    expect(result.unitPrintPrice).toBe(2.00);
-    expect(result.totalPrintPrice).toBe(150.00);
-    expect(result.surchargePrice).toBeCloseTo(50.00, 2); // 50 stron × 1.00 dopłaty
-    expect(result.totalPrice).toBe(150.00);
+    expect(result.unitPrintPrice).toBe(2.0);
+    expect(result.totalPrintPrice).toBe(150.0);
+    expect(result.surchargePrice).toBeCloseTo(50.0, 2); // 50 stron × 1.00 dopłaty
+    expect(result.totalPrice).toBe(150.0);
   });
 });

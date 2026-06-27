@@ -9,9 +9,9 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "A1",
       lengthMm: 841, // A1 base length
       qty: 1,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(12.00);
+    expect(result.totalPrice).toBe(12.0);
   });
 
   // 2. Formatowy A0+ cz-b = 12.00 zł
@@ -21,9 +21,9 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "A0p", // A0p maps to A0+
       lengthMm: 1292, // A0+ base length
       qty: 1,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(12.00);
+    expect(result.totalPrice).toBe(12.0);
   });
 
   // 3. Nieformatowy A1 kolor × 2m = 28.60 zł
@@ -33,10 +33,10 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "A1",
       lengthMm: 2000, // 2 meters
       qty: 1,
-      express: false
+      express: false,
     });
     // Rate for A1 mb color is 14.30. 2 * 14.30 = 28.60
-    expect(result.totalPrice).toBe(28.60);
+    expect(result.totalPrice).toBe(28.6);
   });
 
   // 4. Nieformatowy A0+ cz-b × 1.5m = 15.00 zł
@@ -46,10 +46,10 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "A0p",
       lengthMm: 1500, // 1.5 meters
       qty: 1,
-      express: false
+      express: false,
     });
     // Rate for A0p mb bw is 10.00. 1.5 * 10.00 = 15.00
-    expect(result.totalPrice).toBe(15.00);
+    expect(result.totalPrice).toBe(15.0);
   });
 
   // 5. Roll1067 kolor × 3m = 90.00 zł
@@ -59,10 +59,10 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "R1067",
       lengthMm: 3000, // 3 meters
       qty: 1,
-      express: false
+      express: false,
     });
     // Rate for R1067 mb color is 30.00. 3 * 30.00 = 90.00
-    expect(result.totalPrice).toBe(90.00);
+    expect(result.totalPrice).toBe(90.0);
   });
 
   // 6. Formatowy A1+ kolor = 14.00 zł
@@ -72,8 +72,8 @@ describe("CAD Complete Pricing Fix Verification", () => {
       format: "A1p",
       lengthMm: 914,
       qty: 1,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(14.00);
+    expect(result.totalPrice).toBe(14.0);
   });
 });

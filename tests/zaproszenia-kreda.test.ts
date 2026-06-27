@@ -11,9 +11,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(35.00);
+    expect(result.totalPrice).toBe(35.0);
   });
 
   it("should calculate A5 Folded Double-sided 50szt correctly", () => {
@@ -25,9 +25,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: true,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(149.00);
+    expect(result.totalPrice).toBe(149.0);
   });
 
   it("should calculate A5 Normal Double-sided 50szt correctly", () => {
@@ -39,9 +39,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(79.00);
+    expect(result.totalPrice).toBe(79.0);
   });
 
   it("should use corrected CSV value for A6 Folded Double-sided 10szt", () => {
@@ -52,9 +52,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: true,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(55.00);
+    expect(result.totalPrice).toBe(55.0);
   });
 
   it("should use corrected CSV value for A5 Normal Double-sided 100szt", () => {
@@ -65,9 +65,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(125.00);
+    expect(result.totalPrice).toBe(125.0);
   });
 
   it("should use corrected CSV value for DL Normal Single-sided 50szt", () => {
@@ -78,9 +78,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.totalPrice).toBe(62.00);
+    expect(result.totalPrice).toBe(62.0);
   });
 
   it("should use SATYNA table price from CSV", () => {
@@ -92,10 +92,10 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: true,
       isModigliani: false,
-      express: false
+      express: false,
     });
-    expect(result.basePrice).toBe(40.00);
-    expect(result.totalPrice).toBe(40.00);
+    expect(result.basePrice).toBe(40.0);
+    expect(result.totalPrice).toBe(40.0);
   });
 
   it("should apply Express modifier (+20%)", () => {
@@ -107,9 +107,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: false,
-      express: true
+      express: true,
     });
-    expect(result.totalPrice).toBe(42.00);
+    expect(result.totalPrice).toBe(42.0);
   });
 
   it("should apply Express on SATYNA table price", () => {
@@ -121,9 +121,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: true,
       isModigliani: false,
-      express: true
+      express: true,
     });
-    expect(result.totalPrice).toBe(48.00);
+    expect(result.totalPrice).toBe(48.0);
   });
 
   it("should apply Modigliani modifier (+20%) on SATYNA base", () => {
@@ -135,9 +135,9 @@ describe("Zaproszenia KREDA logic", () => {
       isFolded: false,
       isSatin: false,
       isModigliani: true,
-      express: false
+      express: false,
     });
-    expect(result.basePrice).toBe(40.00);
-    expect(result.totalPrice).toBe(48.00);
+    expect(result.basePrice).toBe(40.0);
+    expect(result.totalPrice).toBe(48.0);
   });
 });

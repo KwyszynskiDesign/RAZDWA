@@ -4,22 +4,24 @@
  */
 
 export function slugifyKeySegment(value: string): string {
-  return String(value ?? "")
-    .normalize("NFD")
-    // eslint-disable-next-line no-misleading-character-class
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/[łŁ]/g, "l")  // ł Ł
-    .replace(/[śŚ]/g, "s")  // ś Ś
-    .replace(/[żŻźŹ]/g, "z")  // ż Ż ź Ź
-    .replace(/[ćĆ]/g, "c")  // ć Ć
-    .replace(/[ńŃ]/g, "n")  // ń Ń
-    .replace(/[ąĄ]/g, "a")  // ą Ą
-    .replace(/[ęĘ]/g, "e")  // ę Ę
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .replace(/-{2,}/g, "-");
+  return (
+    String(value ?? "")
+      .normalize("NFD")
+      // eslint-disable-next-line no-misleading-character-class
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[łŁ]/g, "l") // ł Ł
+      .replace(/[śŚ]/g, "s") // ś Ś
+      .replace(/[żŻźŹ]/g, "z") // ż Ż ź Ź
+      .replace(/[ćĆ]/g, "c") // ć Ć
+      .replace(/[ńŃ]/g, "n") // ń Ń
+      .replace(/[ąĄ]/g, "a") // ą Ą
+      .replace(/[ęĘ]/g, "e") // ę Ę
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .replace(/-{2,}/g, "-")
+  );
 }
 
 export function normalizePricePrefix(prefix: string): string {
@@ -46,7 +48,12 @@ export function buildUniquePriceKey(
 }
 
 export const QUANTITY_BASED_CATEGORIES: ReadonlySet<string> = new Set([
-  "dyplomy", "vouchery", "ulotki", "zaproszenia", "wizytowki", "broszury-katalogi",
+  "dyplomy",
+  "vouchery",
+  "ulotki",
+  "zaproszenia",
+  "wizytowki",
+  "broszury-katalogi",
 ]);
 
 export function isQuantityBasedCategory(categoryId: string): boolean {
@@ -138,10 +145,7 @@ export function buildUniqueSubgroupPrefix(
 ): string {
   const base = normalizePricePrefix(basePrefix);
   const subgroupSegment = slugifyKeySegment(subgroupLabel) || "podkategoria";
-  const existing = new Set([
-    ...Object.keys(existingKeys),
-    ...Object.keys(existingPrefixes),
-  ]);
+  const existing = new Set([...Object.keys(existingKeys), ...Object.keys(existingPrefixes)]);
 
   let candidate = `${base}${subgroupSegment}-`;
   let counter = 2;

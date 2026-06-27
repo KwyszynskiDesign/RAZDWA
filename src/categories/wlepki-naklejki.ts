@@ -1,7 +1,11 @@
 import { calculatePrice } from "../core/pricing";
 import { PriceTable, CalculationResult } from "../core/types";
 import { getPrice } from "../services/priceService";
-import { mergeStoredNumericTiers, overrideTiersWithStoredPrices, resolveStoredPrice } from "../core/compat";
+import {
+  mergeStoredNumericTiers,
+  overrideTiersWithStoredPrices,
+  resolveStoredPrice,
+} from "../core/compat";
 
 const data: any = getPrice("wlepkiNaklejki");
 
@@ -30,7 +34,7 @@ export interface WlepkiSztResult {
 }
 
 export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
-  const tableData = getPrice('wlepkiNaklejki') as any;
+  const tableData = getPrice("wlepkiNaklejki") as any;
   const groupData = tableData?.groups?.find((g: any) => g.id === input.groupId);
 
   if (!groupData) {
@@ -51,7 +55,7 @@ export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
       const modKey = `wlepki-modifier-${m.id.replace(/_/g, "-")}`;
       return { ...m, value: resolveStoredPrice(modKey, m.value) };
     }),
-    rules: groupData.rules || [{ type: "minimum", unit: "m2", value: 1 }]
+    rules: groupData.rules || [{ type: "minimum", unit: "m2", value: 1 }],
   };
 
   const activeModifiers = [...input.modifiers];
@@ -63,7 +67,7 @@ export function calculateWlepki(input: WlepkiCalculation): CalculationResult {
 }
 
 export function calculateWlepkiSzt(input: WlepkiSztCalculation): WlepkiSztResult {
-  const tableData = getPrice('wlepkiNaklejki') as any;
+  const tableData = getPrice("wlepkiNaklejki") as any;
   const table = tableData?.pieceTables?.find((t: any) => t.id === input.tableId);
 
   if (!table) {
@@ -83,13 +87,17 @@ export function calculateWlepkiSzt(input: WlepkiSztCalculation): WlepkiSztResult
 
   const requestedQty = Math.max(1, Math.floor(input.qty || 1));
   const sortedTiers = [...mergedTiers].sort((a: any, b: any) => a.qty - b.qty);
-  const chargedTier = sortedTiers.find((t: any) => requestedQty <= t.qty) ?? sortedTiers[sortedTiers.length - 1];
+  const chargedTier =
+    sortedTiers.find((t: any) => requestedQty <= t.qty) ?? sortedTiers[sortedTiers.length - 1];
 
   if (!chargedTier) {
     throw new Error(`No tiers configured for table: ${input.tableId}`);
   }
 
-  const unitPrice = resolveStoredPrice(`wlepki-szt-${input.tableId}-${chargedTier.qty}`, chargedTier.price);
+  const unitPrice = resolveStoredPrice(
+    `wlepki-szt-${input.tableId}-${chargedTier.qty}`,
+    chargedTier.price
+  );
   const basePrice = unitPrice;
 
   let modifiersTotal = 0;

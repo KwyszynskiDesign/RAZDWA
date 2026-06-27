@@ -3,7 +3,9 @@ import { validateCustomerForm } from "../src/core/customerValidation";
 
 describe("validateCustomerForm", () => {
   it("returns null when all required fields are present", () => {
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789" })).toBeNull();
+    expect(
+      validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789" })
+    ).toBeNull();
   });
 
   it("returns error when name is empty", () => {
@@ -35,17 +37,39 @@ describe("validateCustomerForm", () => {
   });
 
   it("accepts valid phone numbers (9 national digits, +48 prefix optional)", () => {
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789" })).toBeNull();
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "48123456789" })).toBeNull();
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "+48 123 456 789" })).toBeNull();
+    expect(
+      validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789" })
+    ).toBeNull();
+    expect(
+      validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "48123456789" })
+    ).toBeNull();
+    expect(
+      validateCustomerForm({
+        name: "Jan Kowalski",
+        email: "jan@example.com",
+        phone: "+48 123 456 789",
+      })
+    ).toBeNull();
   });
 
   it("accepts valid NIP with correct checksum", () => {
-    expect(validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789", nip: "5260001246" })).toBeNull();
+    expect(
+      validateCustomerForm({
+        name: "Jan Kowalski",
+        email: "jan@example.com",
+        phone: "123456789",
+        nip: "5260001246",
+      })
+    ).toBeNull();
   });
 
   it("accepts NIP with 10 digits regardless of checksum", () => {
-    const err = validateCustomerForm({ name: "Jan Kowalski", email: "jan@example.com", phone: "123456789", nip: "1234567890" });
+    const err = validateCustomerForm({
+      name: "Jan Kowalski",
+      email: "jan@example.com",
+      phone: "123456789",
+      nip: "1234567890",
+    });
     expect(err).toBeNull();
   });
 });
