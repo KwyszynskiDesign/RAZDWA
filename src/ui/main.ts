@@ -2027,7 +2027,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.warn("[startupSync] fetchStateFromAppsScript failed:", err);
-      showToast("Nie udało się pobrać aktualnego cennika. Ceny mogą być nieaktualne.", "warning");
     }
   })();
 });
