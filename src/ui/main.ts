@@ -1987,6 +1987,10 @@ document.addEventListener("DOMContentLoaded", () => {
   router.start();
 
   (async () => {
+    const STARTUP_SYNC_TTL_MS = 4 * 60 * 60 * 1000;
+    const lastSyncTs = Number(localStorage.getItem('razdwa_prices_ts') ?? '0');
+    if (Date.now() - lastSyncTs < STARTUP_SYNC_TTL_MS) return;
+
     try {
       const remote = await fetchStateFromAppsScript();
       if (!remote) return;
