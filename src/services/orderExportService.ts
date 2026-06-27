@@ -64,30 +64,30 @@ export interface OrderExportResult {
    * z tym samym requestId.
    */
   retryable?: boolean;
-  errorType?: 'timeout' | 'network' | 'no_cors_sent' | 'gas_error' | 'unknown';
+  errorType?: "timeout" | "network" | "no_cors_sent" | "gas_error" | "unknown";
   noToken?: boolean;
 }
 
 interface AppsScriptCompactRowPayload {
-  "Data": string;
-  "Godzina": string;
-  "Firma": string;
+  Data: string;
+  Godzina: string;
+  Firma: string;
   "Kto dodał": string;
-  "Imię": string;
-  "Nazwisko": string;
-  "NIP": string;
-  "Telefon": string;
-  "Email": string;
-  "Materiał": string;
+  Imię: string;
+  Nazwisko: string;
+  NIP: string;
+  Telefon: string;
+  Email: string;
+  Materiał: string;
   "jedno/dwustronne": string;
-  "Produkt": string;
+  Produkt: string;
   "Ilosc sztuk": string;
   "Cena za sztukę": string;
-  "Uwagi": string;
+  Uwagi: string;
   "Suma (PLN)": number;
-  "Priorytet": string;
-  "Ekspres": "TAK" | "NIE";
-  "RequestID": string;
+  Priorytet: string;
+  Ekspres: "TAK" | "NIE";
+  RequestID: string;
 }
 
 type AppsScriptResponseBody = {
@@ -97,7 +97,9 @@ type AppsScriptResponseBody = {
 };
 
 if (!CURRENT_APPS_SCRIPT_URL) {
-  console.error('[orderExport] GOOGLE_APPS_SCRIPT_URL nie jest skonfigurowany — eksport zamówień wyłączony.');
+  console.error(
+    "[orderExport] GOOGLE_APPS_SCRIPT_URL nie jest skonfigurowany — eksport zamówień wyłączony."
+  );
 }
 
 const DEFAULT_CONFIG: OrderExportConfig = {
@@ -108,7 +110,9 @@ const DEFAULT_CONFIG: OrderExportConfig = {
 };
 
 function splitCustomerName(fullName: string): { firstName: string; lastName: string } {
-  const normalized = String(fullName ?? "").trim().replace(/\s+/g, " ");
+  const normalized = String(fullName ?? "")
+    .trim()
+    .replace(/\s+/g, " ");
   if (!normalized) return { firstName: "", lastName: "" };
 
   const [firstName, ...rest] = normalized.split(" ");
@@ -190,7 +194,13 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
     hour12: false,
   }).format(safeDate);
 
-  type ExportLine = { product: string; material: string; sides: string; quantity: number; unitPrice: number };
+  type ExportLine = {
+    product: string;
+    material: string;
+    sides: string;
+    quantity: number;
+    unitPrice: number;
+  };
   const grouped = new Map<string, ExportLine>();
 
   payload.items.forEach((item) => {
@@ -213,41 +223,41 @@ function buildAppsScriptCompactRow(payload: OrderExportPayload): AppsScriptCompa
   const packedLines = Array.from(grouped.values());
   const totalSum = parseFloat(Number(payload.summary.total || 0).toFixed(2));
 
-  const products = packedLines.map(line => line.product).join(" | ");
-  const materials = packedLines.map(line => line.material).join(" | ");
+  const products = packedLines.map((line) => line.product).join(" | ");
+  const materials = packedLines.map((line) => line.material).join(" | ");
 
   // jedno/dwustronne: unikalne, niepuste wartości
-  const uniqueSides = [...new Set(packedLines.map(l => l.sides).filter(Boolean))];
+  const uniqueSides = [...new Set(packedLines.map((l) => l.sides).filter(Boolean))];
   const sidesStr = uniqueSides.join(", ");
 
   // Ilosc sztuk: wartości każdego produktu rozdzielone separatorem " | "
-  const qtyStr = packedLines.map(l => l.quantity).join(" | ");
+  const qtyStr = packedLines.map((l) => l.quantity).join(" | ");
   // Cena za sztukę: wartości każdego produktu rozdzielone separatorem " | "
-  const unitPriceStr = packedLines.map(l => l.unitPrice.toFixed(2)).join(" | ");
+  const unitPriceStr = packedLines.map((l) => l.unitPrice.toFixed(2)).join(" | ");
 
   const notes = String(payload.customer.notes ?? "").trim();
   const addedBy = String(payload.customer.addedBy ?? "").trim();
 
   return {
-    "Data": date,
-    "Godzina": time,
-    "Firma": String(payload.customer.company ?? ""),
+    Data: date,
+    Godzina: time,
+    Firma: String(payload.customer.company ?? ""),
     "Kto dodał": addedBy,
-    "Imię": firstName,
-    "Nazwisko": lastName,
-    "NIP": String(payload.customer.nip ?? ""),
-    "Telefon": normalizePhoneDigits(String(payload.customer.phone ?? "")),
-    "Email": String(payload.customer.email ?? ""),
-    "Materiał": materials,
+    Imię: firstName,
+    Nazwisko: lastName,
+    NIP: String(payload.customer.nip ?? ""),
+    Telefon: normalizePhoneDigits(String(payload.customer.phone ?? "")),
+    Email: String(payload.customer.email ?? ""),
+    Materiał: materials,
     "jedno/dwustronne": sidesStr,
-    "Produkt": products,
+    Produkt: products,
     "Ilosc sztuk": qtyStr,
     "Cena za sztukę": unitPriceStr,
-    "Uwagi": notes,
+    Uwagi: notes,
     "Suma (PLN)": Number(totalSum),
-    "Priorytet": String(payload.customer.priority ?? ""),
-    "Ekspres": payload.summary.hasExpress ? "TAK" : "NIE",
-    "RequestID": payload.requestId ?? "",
+    Priorytet: String(payload.customer.priority ?? ""),
+    Ekspres: payload.summary.hasExpress ? "TAK" : "NIE",
+    RequestID: payload.requestId ?? "",
   };
 }
 
@@ -274,13 +284,16 @@ export function getOrderExportConfig(): OrderExportConfig {
 
 export function setOrderExportConfig(config: Partial<OrderExportConfig>): OrderExportConfig {
   const current = getOrderExportConfig();
-  const requestedUrl = config.appsScriptUrl !== undefined
-    ? String(config.appsScriptUrl ?? "").trim()
-    : current.appsScriptUrl;
+  const requestedUrl =
+    config.appsScriptUrl !== undefined
+      ? String(config.appsScriptUrl ?? "").trim()
+      : current.appsScriptUrl;
   // Override URL akceptujemy tylko gdy poprawny; w innym wypadku trzymamy build-time / poprzedni.
   const nextUrl = isValidGasUrl(requestedUrl) ? requestedUrl : current.appsScriptUrl;
   if (config.appsScriptUrl !== undefined && requestedUrl && !isValidGasUrl(requestedUrl)) {
-    console.error(`[orderExport] Odrzucono niepoprawny appsScriptUrl="${requestedUrl}" — wymagany https://script.google.com/.../exec.`);
+    console.error(
+      `[orderExport] Odrzucono niepoprawny appsScriptUrl="${requestedUrl}" — wymagany https://script.google.com/.../exec.`
+    );
   }
 
   const merged: OrderExportConfig = {
@@ -306,7 +319,7 @@ export function buildOrderExportPayload(
 ): OrderExportPayload {
   const itemsCount = cartItems.length;
   const total = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-  const hasExpress = cartItems.some(i => !!i.isExpress);
+  const hasExpress = cartItems.some((i) => !!i.isExpress);
 
   return {
     source: "razdwa-web",
@@ -317,7 +330,7 @@ export function buildOrderExportPayload(
       total,
       hasExpress,
     },
-    items: cartItems.map(item => ({
+    items: cartItems.map((item) => ({
       category: item.category,
       name: item.name,
       quantity: item.quantity,
@@ -332,7 +345,7 @@ export function buildOrderExportPayload(
 }
 
 async function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function fetchWithRetry(
@@ -353,7 +366,7 @@ async function readAppsScriptBody(response: Response): Promise<AppsScriptRespons
   try {
     const contentType = response.headers?.get?.("content-type")?.toLowerCase() ?? "";
     if (contentType.includes("application/json")) {
-      return await response.json() as AppsScriptResponseBody;
+      return (await response.json()) as AppsScriptResponseBody;
     }
     const text = await response.text();
     if (!text) return null;
@@ -373,25 +386,47 @@ function evaluateGasResult(
   httpOk: boolean,
   fallbackMessage: string
 ): OrderExportResult {
-  const bodyMessage = body && typeof body === "object" && "message" in body
-    ? String(body.message ?? "")
-    : "";
+  const bodyMessage =
+    body && typeof body === "object" && "message" in body ? String(body.message ?? "") : "";
 
   if (!httpOk) {
-    return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: false, errorType: 'gas_error' };
+    return {
+      ok: false,
+      status: httpStatus,
+      message: bodyMessage || fallbackMessage,
+      data: body,
+      verified: false,
+      errorType: "gas_error",
+    };
   }
 
   if (body && typeof body === "object" && "ok" in body) {
     if (body.ok === false) {
       const d = body as Record<string, unknown>;
       const retryable = d.retryable === true ? true : undefined;
-      return { ok: false, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, retryable, errorType: 'gas_error' };
+      return {
+        ok: false,
+        status: httpStatus,
+        message: bodyMessage || fallbackMessage,
+        data: body,
+        verified: true,
+        retryable,
+        errorType: "gas_error",
+      };
     }
     if (body.ok === true) {
       const d = body as Record<string, unknown>;
       const rawId = d.orderId ?? d.orderNumber ?? d.rowNumber ?? d.id ?? d.numer ?? d.nr;
-      const orderId = rawId != null ? (typeof rawId === "number" ? rawId : String(rawId)) : undefined;
-      return { ok: true, status: httpStatus, message: bodyMessage || fallbackMessage, data: body, verified: true, orderId };
+      const orderId =
+        rawId != null ? (typeof rawId === "number" ? rawId : String(rawId)) : undefined;
+      return {
+        ok: true,
+        status: httpStatus,
+        message: bodyMessage || fallbackMessage,
+        data: body,
+        verified: true,
+        orderId,
+      };
     }
   }
 
@@ -402,13 +437,23 @@ function evaluateGasResult(
       ok: false,
       status: httpStatus,
       verified: false,
-      message: "GAS odpowiedział nie-JSONem (prawdopodobnie HTML błędu z catch po stronie Apps Script).",
+      message:
+        "GAS odpowiedział nie-JSONem (prawdopodobnie HTML błędu z catch po stronie Apps Script).",
       data: null,
-      errorType: 'gas_error',
+      errorType: "gas_error",
     };
   }
   // HTTP 200 + parsowalne body bez pola ok — wynik niezweryfikowany, NIE jest sukcesem
-  return { ok: false, status: httpStatus, message: "GAS odpowiedział HTTP 200 bez pola 'ok' — zapis niezweryfikowany. Sprawdź arkusz Sheets.", data: body, verified: false, unverified: true, errorType: 'gas_error' };
+  return {
+    ok: false,
+    status: httpStatus,
+    message:
+      "GAS odpowiedział HTTP 200 bez pola 'ok' — zapis niezweryfikowany. Sprawdź arkusz Sheets.",
+    data: body,
+    verified: false,
+    unverified: true,
+    errorType: "gas_error",
+  };
 }
 
 export async function sendOrderToAppsScript(
@@ -432,18 +477,27 @@ export async function sendOrderToAppsScript(
   const compactPayload = buildAppsScriptCompactRow(payload);
 
   try {
-    const response = await fetchWithRetry(config.appsScriptUrl, {
-      method: "POST",
-      mode: "cors",
-      headers: {
-        "Content-Type": "text/plain",
+    const response = await fetchWithRetry(
+      config.appsScriptUrl,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "text/plain",
+        },
+        body: JSON.stringify(compactPayload),
+        signal: controller.signal,
       },
-      body: JSON.stringify(compactPayload),
-      signal: controller.signal,
-    }, 0);
+      0
+    );
 
     const responseBody = await readAppsScriptBody(response);
-    return evaluateGasResult(responseBody, response.status, response.ok, "Zamówienie zapisane w arkuszu.");
+    return evaluateGasResult(
+      responseBody,
+      response.status,
+      response.ok,
+      "Zamówienie zapisane w arkuszu."
+    );
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
@@ -472,8 +526,9 @@ export async function sendOrderToAppsScript(
           status: 0,
           verified: false,
           unverified: true,
-          errorType: 'no_cors_sent',
-          message: "Wysłano bez potwierdzenia odpowiedzi (fallback no-cors). Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.",
+          errorType: "no_cors_sent",
+          message:
+            "Wysłano bez potwierdzenia odpowiedzi (fallback no-cors). Sprawdź arkusz Sheets — jeśli zamówienia nie ma, wyślij ponownie.",
         };
       } catch {
         noCorsAlsoFailed = true;
@@ -483,7 +538,7 @@ export async function sendOrderToAppsScript(
         return {
           ok: false,
           verified: false,
-          errorType: 'network',
+          errorType: "network",
           message: "Brak połączenia z serwerem. Sprawdź internet i spróbuj ponownie.",
         };
       }
@@ -494,7 +549,12 @@ export async function sendOrderToAppsScript(
       ? "Przekroczono limit czasu połączenia (15 s). Sprawdź internet i spróbuj ponownie."
       : `Nie udało się wysłać danych: ${(err as Error)?.message ?? "nieznany błąd"}. Sprawdź URL Web App i uprawnienia wdrożenia.`;
 
-    return { ok: false, message: msg, verified: false, errorType: isTimeout ? 'timeout' : 'unknown' };
+    return {
+      ok: false,
+      message: msg,
+      verified: false,
+      errorType: isTimeout ? "timeout" : "unknown",
+    };
   } finally {
     clearTimeout(timeout);
   }
@@ -518,7 +578,11 @@ export async function savePricesToAppsScript(
 
   const token = getAdminToken();
   if (!token) {
-    return { ok: false, noToken: true, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+    return {
+      ok: false,
+      noToken: true,
+      message: "Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.",
+    };
   }
   const body = JSON.stringify({
     type: "prices_update",
@@ -539,7 +603,12 @@ export async function savePricesToAppsScript(
     });
 
     const responseBody = await readAppsScriptBody(response);
-    return evaluateGasResult(responseBody, response.status, response.ok, "Cennik wysłany do Apps Script.");
+    return evaluateGasResult(
+      responseBody,
+      response.status,
+      response.ok,
+      "Cennik wysłany do Apps Script."
+    );
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
@@ -558,15 +627,23 @@ export async function savePricesToAppsScript(
           body,
           signal: controller.signal,
         });
-        return { ok: false, status: 0, verified: false, unverified: true, message: "Cennik wysłany bez potwierdzenia (CORS/sieć). Sprawdź arkusz Sheets — jeśli zmiany nie ma, wyślij ponownie." };
+        return {
+          ok: false,
+          status: 0,
+          verified: false,
+          unverified: true,
+          message:
+            "Cennik wysłany bez potwierdzenia (CORS/sieć). Sprawdź arkusz Sheets — jeśli zmiany nie ma, wyślij ponownie.",
+        };
       } catch {
         // continue to final error
       }
     }
 
-    const msg = errorName === "AbortError"
-      ? "Przekroczono limit czasu wysyłki cennika."
-      : `Nie udało się wysłać cennika: ${(err as Error)?.message ?? "nieznany błąd"}.`;
+    const msg =
+      errorName === "AbortError"
+        ? "Przekroczono limit czasu wysyłki cennika."
+        : `Nie udało się wysłać cennika: ${(err as Error)?.message ?? "nieznany błąd"}.`;
 
     return { ok: false, message: msg, verified: false };
   } finally {
@@ -591,7 +668,11 @@ export async function saveVariantsToAppsScript(
 
   const token = getAdminToken();
   if (!token) {
-    return { ok: false, noToken: true, message: 'Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.' };
+    return {
+      ok: false,
+      noToken: true,
+      message: "Brak tokenu sesji. Zaloguj się ponownie do panelu ustawień.",
+    };
   }
   const body = JSON.stringify({ type: "variants_update", token, variants });
   const controller = new AbortController();
@@ -607,7 +688,12 @@ export async function saveVariantsToAppsScript(
     });
 
     const responseBody = await readAppsScriptBody(response);
-    return evaluateGasResult(responseBody, response.status, response.ok, "Warianty wysłane do Apps Script.");
+    return evaluateGasResult(
+      responseBody,
+      response.status,
+      response.ok,
+      "Warianty wysłane do Apps Script."
+    );
   } catch (err) {
     const errorName = err instanceof Error ? err.name : "";
     const errorMessage = err instanceof Error ? err.message : "";
@@ -626,15 +712,21 @@ export async function saveVariantsToAppsScript(
           body,
           signal: controller.signal,
         });
-        return { ok: true, status: 0, verified: false, message: "Warianty wysłane bez potwierdzenia (CORS)." };
+        return {
+          ok: true,
+          status: 0,
+          verified: false,
+          message: "Warianty wysłane bez potwierdzenia (CORS).",
+        };
       } catch {
         // continue
       }
     }
 
-    const msg = errorName === "AbortError"
-      ? "Przekroczono limit czasu wysyłki wariantów."
-      : `Nie udało się wysłać wariantów: ${(err as Error)?.message ?? "nieznany błąd"}.`;
+    const msg =
+      errorName === "AbortError"
+        ? "Przekroczono limit czasu wysyłki wariantów."
+        : `Nie udało się wysłać wariantów: ${(err as Error)?.message ?? "nieznany błąd"}.`;
 
     return { ok: false, message: msg, verified: false };
   } finally {
@@ -660,7 +752,7 @@ export async function fetchStateFromAppsScript(
 
     if (!response.ok) return null;
 
-    const data = await response.json() as { prices?: unknown; variants?: unknown };
+    const data = (await response.json()) as { prices?: unknown; variants?: unknown };
 
     const prices: Record<string, number | null> =
       data.prices && typeof data.prices === "object" && !Array.isArray(data.prices)
@@ -668,8 +760,9 @@ export async function fetchStateFromAppsScript(
         : {};
 
     const variants: VariantDefinition[] = Array.isArray(data.variants)
-      ? (data.variants as unknown[]).filter((v): v is VariantDefinition =>
-          !!v && typeof v === "object" && typeof (v as VariantDefinition).key === "string"
+      ? (data.variants as unknown[]).filter(
+          (v): v is VariantDefinition =>
+            !!v && typeof v === "object" && typeof (v as VariantDefinition).key === "string"
         )
       : [];
 
@@ -687,12 +780,12 @@ export interface PinVerifyResult {
   ok: boolean;
   firstRun?: boolean;
   token?: string;
-  error?: 'wrong_pin' | 'rate_limited' | 'offline' | 'server_error';
+  error?: "wrong_pin" | "rate_limited" | "offline" | "server_error";
 }
 
 export interface PinSetResult {
   ok: boolean;
-  error?: 'wrong_current' | 'invalid_pin' | 'offline' | 'server_error';
+  error?: "wrong_current" | "invalid_pin" | "offline" | "server_error";
 }
 
 async function pinPost(body: Record<string, unknown>): Promise<Record<string, unknown> | null> {
@@ -703,15 +796,15 @@ async function pinPost(body: Record<string, unknown>): Promise<Record<string, un
   const timeoutId = setTimeout(() => controller.abort(), 8000);
   try {
     const response = await fetch(config.appsScriptUrl, {
-      method: 'POST',
-      mode: 'cors',
-      headers: { 'Content-Type': 'text/plain' },
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "text/plain" },
       body: JSON.stringify(body),
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
     const data = await readAppsScriptBody(response);
-    return (data && typeof data === 'object') ? data as Record<string, unknown> : null;
+    return data && typeof data === "object" ? (data as Record<string, unknown>) : null;
   } catch {
     clearTimeout(timeoutId);
     return null;
@@ -719,57 +812,23 @@ async function pinPost(body: Record<string, unknown>): Promise<Record<string, un
 }
 
 export async function verifyPinOnServer(pin?: string): Promise<PinVerifyResult> {
-  const body: Record<string, unknown> = { action: 'verifyPin' };
+  const body: Record<string, unknown> = { action: "verifyPin" };
   if (pin && pin.length > 0) body.pin = pin;
   const data = await pinPost(body);
-  if (!data) return { ok: false, error: 'offline' };
+  if (!data) return { ok: false, error: "offline" };
   return data as unknown as PinVerifyResult;
 }
 
 export async function setPinOnServer(newPin: string, currentPin?: string): Promise<PinSetResult> {
-  const body: Record<string, unknown> = { action: 'setPin', newPin };
+  const body: Record<string, unknown> = { action: "setPin", newPin };
   if (currentPin) body.currentPin = currentPin;
   const data = await pinPost(body);
-  if (!data) return { ok: false, error: 'offline' };
+  if (!data) return { ok: false, error: "offline" };
   return data as unknown as PinSetResult;
 }
 
 export async function removePinOnServer(currentPin: string): Promise<PinSetResult> {
-  const data = await pinPost({ action: 'removePin', currentPin });
-  if (!data) return { ok: false, error: 'offline' };
+  const data = await pinPost({ action: "removePin", currentPin });
+  if (!data) return { ok: false, error: "offline" };
   return data as unknown as PinSetResult;
-}
-
-// ── ORDER HISTORY ─────────────────────────────────────────────────────────────
-
-export const ORDER_HISTORY_KEY = "razdwa_order_history";
-const ORDER_HISTORY_MAX = 20;
-
-export interface OrderHistoryEntry {
-  requestId: string;
-  orderId?: string | number;
-  sentAt: string;
-  customer: { name: string; email: string };
-  itemsCount: number;
-  total: number;
-}
-
-export function getOrderHistory(): OrderHistoryEntry[] {
-  try {
-    if (typeof localStorage === "undefined") return [];
-    const raw = localStorage.getItem(ORDER_HISTORY_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? (parsed as OrderHistoryEntry[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export function appendOrderHistory(entry: OrderHistoryEntry): void {
-  try {
-    if (typeof localStorage === "undefined") return;
-    const updated = [entry, ...getOrderHistory()].slice(0, ORDER_HISTORY_MAX);
-    localStorage.setItem(ORDER_HISTORY_KEY, JSON.stringify(updated));
-  } catch {}
 }
