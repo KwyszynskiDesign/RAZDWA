@@ -1318,6 +1318,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastSendRequestId: string | null = null;
   let unverifiedSend: boolean = false;
   let retryUnlockTimer: ReturnType<typeof setTimeout> | null = null;
+  let submitCooldownTimer: ReturnType<typeof setInterval> | null = null;
   let activeSendingToast: HTMLElement | null = null;
   interface OrderPdfSnapshot {
     items: CartItem[];
@@ -1720,6 +1721,21 @@ document.addEventListener("DOMContentLoaded", () => {
           try { sessionStorage.removeItem(RAZDWA_UNVERIFIED_KEY); } catch {}
           document.getElementById("unverified-session-banner")?.remove();
           if (retryUnlockTimer !== null) { clearTimeout(retryUnlockTimer); retryUnlockTimer = null; }
+          if (submitCooldownTimer !== null) { clearInterval(submitCooldownTimer); submitCooldownTimer = null; }
+          const cooldownBtns = getSendButtons();
+          const originalLabel = cooldownBtns[0]?.dataset.originalLabel ?? "Wyślij zamówienie";
+          let cooldownLeft = 30;
+          cooldownBtns.forEach(btn => { btn.disabled = true; btn.textContent = `${originalLabel} (${cooldownLeft}s)`; });
+          submitCooldownTimer = setInterval(() => {
+            cooldownLeft--;
+            if (cooldownLeft > 0) {
+              cooldownBtns.forEach(btn => { btn.textContent = `${originalLabel} (${cooldownLeft}s)`; });
+            } else {
+              clearInterval(submitCooldownTimer!);
+              submitCooldownTimer = null;
+              cooldownBtns.forEach(btn => { btn.disabled = false; btn.textContent = originalLabel; });
+            }
+          }, 1000);
           return;
         }
 
@@ -2011,6 +2027,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (err) {
       console.warn("[startupSync] fetchStateFromAppsScript failed:", err);
+      showToast("Nie udało się pobrać aktualnego cennika. Ceny mogą być nieaktualne.", "warning");
     }
   })();
 });
