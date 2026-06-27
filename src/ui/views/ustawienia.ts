@@ -46,7 +46,6 @@ import {
   pushPricesToGas,
   pullPricesFromGas,
   readSyncStatus,
-  registerPriceSync,
   type SyncStatusCode,
 } from "../../services/syncService";
 
@@ -2738,7 +2737,6 @@ export const UstawieniaView: View = {
               _dirty: true,
             });
             await warmPriceCache();
-            void registerPriceSync();
             showIdbStatus("✓ Zapisano");
             await renderIdbPanel();
           } catch (err) {
@@ -2811,7 +2809,6 @@ export const UstawieniaView: View = {
         try {
           await priceStore.put(newRecord);
           await warmPriceCache();
-          void registerPriceSync();
           showIdbStatus(`✓ Dodano: ${escapeHtml(label)}`);
           await renderIdbPanel();
         } catch (err) {
@@ -3423,21 +3420,9 @@ export const UstawieniaView: View = {
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
     };
 
-    function onSwMessage(event: MessageEvent): void {
-      if (event.data?.type === "prices-sync") {
-        void pushPricesToGas().then(() => renderIdbPanel());
-      }
-    }
-    if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.addEventListener("message", onSwMessage);
-    }
-
     window.addEventListener("storage", onStorage);
     _cleanup = () => {
       window.removeEventListener("storage", onStorage);
-      if (typeof navigator !== "undefined" && "serviceWorker" in navigator) {
-        navigator.serviceWorker.removeEventListener("message", onSwMessage);
-      }
       scrollTopButton.remove();
     };
   },

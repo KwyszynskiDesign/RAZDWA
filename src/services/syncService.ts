@@ -326,24 +326,3 @@ export async function pullPricesFromGas(): Promise<SyncResult> {
     return { ok: false, error: msg };
   }
 }
-
-export async function registerPriceSync(): Promise<void> {
-  try {
-    if (
-      typeof navigator === "undefined" ||
-      !("serviceWorker" in navigator) ||
-      !navigator.serviceWorker.controller
-    ) {
-      return;
-    }
-    const registration = await navigator.serviceWorker.ready;
-    if (!("sync" in registration)) return;
-    await (
-      registration as ServiceWorkerRegistration & {
-        sync: { register(tag: string): Promise<void> };
-      }
-    ).sync.register("prices-sync");
-  } catch {
-    // Background Sync not supported or permission denied — silent fallback.
-  }
-}
