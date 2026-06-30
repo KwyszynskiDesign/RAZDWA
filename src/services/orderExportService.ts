@@ -1,7 +1,7 @@
 import { CartItem, CustomerData } from "../core/types";
 import type { VariantDefinition } from "./priceService";
 import { normalizePhoneDigits } from "../core/customerValidation";
-import { GAS_URL } from "../core/env";
+import { GAS_URL, APP_ENV } from "../core/env";
 import { getAdminToken } from "../core/adminSession";
 
 export const ORDER_EXPORT_CONFIG_KEY = "razdwa_order_export_config";
@@ -268,8 +268,10 @@ export function getOrderExportConfig(): OrderExportConfig {
     if (!raw) return DEFAULT_CONFIG;
     const parsed = JSON.parse(raw) as Partial<OrderExportConfig>;
     const parsedUrl = String(parsed.appsScriptUrl ?? "").trim();
-    // Zły/stale URL z localStorage ignorujemy i wracamy do build-time source of truth.
-    const migratedUrl = isValidGasUrl(parsedUrl) ? parsedUrl : CURRENT_APPS_SCRIPT_URL;
+    // client: build-time URL zawsze wygrywa — override z localStorage zignorowany.
+    // dev/staging: override akceptowany gdy poprawny; inaczej fallback do build-time.
+    const migratedUrl =
+      APP_ENV === "client" || !isValidGasUrl(parsedUrl) ? CURRENT_APPS_SCRIPT_URL : parsedUrl;
 
     return {
       appsScriptUrl: migratedUrl,
@@ -713,10 +715,13 @@ export async function saveVariantsToAppsScript(
           signal: controller.signal,
         });
         return {
-          ok: true,
+          ok: false,
           status: 0,
           verified: false,
-          message: "Warianty wysłane bez potwierdzenia (CORS).",
+          unverified: true,
+          errorType: "no_cors_sent",
+          message:
+            "Wysłano bez potwierdzenia odpowiedzi (fallback no-cors). Sprawdź arkusz Sheets — jeśli wariantów nie ma, wyślij ponownie.",
         };
       } catch {
         // continue

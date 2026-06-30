@@ -26,7 +26,7 @@ import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
 import { EXPRESS_RATE, getExpressRate } from "../core/modifiers";
 import { Cart } from "../core/cart";
-import { customerDraftKey, touchDraftAlive, clearDraftSession } from "../core/draftSession";
+import { customerDraftKey, touchDraftAlive, clearDraftSession, purgeStaleDraftSessions } from "../core/draftSession";
 import { isAdminSession, clearAdminSession } from "../core/adminSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";
@@ -2361,6 +2361,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateCartUI();
   revalidateCustomerForm = setupFormValidation();
 
+  purgeStaleDraftSessions(48 * 60 * 60 * 1000);
   updateDraftStatus(restoreCustomerDraft());
   const restoredPriorityEl = document.getElementById("custPriority") as HTMLSelectElement | null;
   if (restoredPriorityEl) {

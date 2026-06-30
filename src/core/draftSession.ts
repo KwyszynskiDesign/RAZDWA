@@ -74,3 +74,20 @@ export function clearDraftSession(): void {
   removeLocal(DRAFT_PREFIX + id);
   removeLocal(ALIVE_PREFIX + id);
 }
+
+export function purgeStaleDraftSessions(ttlMs: number): void {
+  const aliveKeys: string[] = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k?.startsWith(ALIVE_PREFIX)) aliveKeys.push(k);
+  }
+  const cutoff = Date.now() - ttlMs;
+  for (const key of aliveKeys) {
+    const ts = Number(readLocal(key) ?? "0");
+    if (ts > cutoff) continue;
+    const id = key.slice(ALIVE_PREFIX.length);
+    removeLocal(CART_PREFIX + id);
+    removeLocal(DRAFT_PREFIX + id);
+    removeLocal(key);
+  }
+}
