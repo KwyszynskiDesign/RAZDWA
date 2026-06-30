@@ -366,9 +366,6 @@ function getAddablePrefixOptions(category: PriceCategory): PrefixOption[] {
         { value: "artykuly-koperta-", label: "Koperta – pozycja artykułu biurowego" }
       );
       break;
-    case "pojedyncze-naklady":
-      options.push({ value: "laminowanie-special-", label: "Pojedynczy nakład – nowa pozycja" });
-      break;
     case "modifiers":
       options.push({ value: "modifier-", label: "Nowa dopłata globalna (mnożnik procentowy)" });
       break;
@@ -664,15 +661,6 @@ const PRICE_LABELS: Record<string, string> = {
   "laminowanie-oprawa-twarda-rozszycie": "Oprawy twarde – rozszycie oprawy twardej (25–40 zł)",
   "laminowanie-oprawa-twarda-ponowne-zszycie":
     "Oprawy twarde – ponowne zszycie oprawy twardej (25–40 zł)",
-  "laminowanie-special-dyplom": "Pojedyncze nakłady – Dyplom",
-  "laminowanie-special-zaproszenia-dodruk": "Pojedyncze nakłady – Zaproszenia (dodruk)",
-  "laminowanie-special-katalog": "Pojedyncze nakłady – Katalog",
-  "laminowanie-special-broszura": "Pojedyncze nakłady – Broszura",
-  "laminowanie-special-koperty-nadruk": "Pojedyncze nakłady – Koperty – nadruk",
-  "laminowanie-special-trymer-2x": "Pojedyncze nakłady – Cięcie trymer 2x",
-  "laminowanie-special-trymer-4x": "Pojedyncze nakłady – Cięcie trymer 4x",
-  "laminowanie-special-double-sided-factor":
-    "Pojedyncze nakłady / dodruki – dopłata za dwustronność",
   // Solwent / plakaty
   "solwent-150g-1-3": "Solwent 150g półmat – 1–3 m²",
   "solwent-150g-4-9": "Solwent 150g półmat – 4–9 m²",
@@ -1705,7 +1693,6 @@ export function sortLaminowanieCategoryKeys(keys: string[]): string[] {
       key.startsWith("laminowanie-oprawa-twarda-")
     )
       return 10;
-    if (key.startsWith("laminowanie-special-")) return 11;
     return 99;
   };
 

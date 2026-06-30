@@ -193,14 +193,6 @@ export const BASE_PRICE_CATEGORIES: PriceCategory[] = [
     newKeyPrefix: "artykuly-koperta-",
   },
   {
-    id: "pojedyncze-naklady",
-    label: "Pojedyncze nakłady",
-    icon: "🧾",
-    prefixes: ["laminowanie-special-"],
-    description: "Ceny usług dla pojedynczych nakładów i wydruki specjalne.",
-    newKeyPrefix: "laminowanie-special-",
-  },
-  {
     id: "broszury-katalogi",
     label: "Broszury i katalogi",
     icon: "assets/icons/book-text.svg",

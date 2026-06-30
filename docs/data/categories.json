@@ -273,12 +273,6 @@
         "implemented":  true
     },
     {
-        "id":  "wydruki-specjalne",
-        "name":  "Wydruki specjalne",
-        "icon":  "assets/icons/sparkles.svg",
-        "implemented":  true
-    },
-    {
         "id":  "cad-upload",
         "name":  "CAD Upload plików",
         "icon":  "assets/icons/file-up.svg",

@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import {
   quoteLaminowanie,
   quoteIntroligatornia,
-  quoteWydrukiSpecjalne,
 } from "../src/categories/laminowanie";
 
 describe("Laminowanie", () => {
@@ -113,67 +112,4 @@ describe("Laminowanie", () => {
     expect(result.totalPrice).toBe(0.5);
   });
 
-  it("should calculate wydruki specjalne: Dyplom", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "dyplom",
-      qty: 2,
-      doubleSided: false,
-      express: false,
-    });
-
-    expect(result.totalPrice).toBe(0);
-  });
-
-  it("should apply +50% for double-sided special print", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "zaproszenia-dodruk",
-      qty: 2,
-      doubleSided: true,
-      express: false,
-    });
-
-    expect(result.totalPrice).toBe(0);
-  });
-
-  it("should apply express for special prints", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "koperty-nadruk",
-      qty: 1,
-      doubleSided: true,
-      express: true,
-    });
-
-    expect(result.totalPrice).toBe(0);
-  });
-
-  it("should calculate wydruki specjalne: trymer 2x", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "trymer-2x",
-      qty: 3,
-      doubleSided: false,
-      express: false,
-    });
-
-    expect(result.totalPrice).toBe(3);
-  });
-
-  it("regression: katalog returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "katalog",
-      qty: 5,
-      doubleSided: false,
-      express: false,
-    });
-    expect(result.totalPrice).toBe(0);
-  });
-
-  it("regression: broszura returns totalPrice=0 when unconfigured (view must block addToCart)", () => {
-    const result = quoteWydrukiSpecjalne({
-      variantId: "broszura",
-      qty: 5,
-      doubleSided: false,
-      express: false,
-    });
-    expect(result.totalPrice).toBe(0);
-  });
 });

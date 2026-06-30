@@ -240,10 +240,6 @@ export class Router {
       window.history.replaceState(null, "", "#/druk-a4-a3");
     }
 
-    if (path === "pojedyncze-naklady") {
-      path = "wydruki-specjalne";
-      window.history.replaceState(null, "", "#/wydruki-specjalne");
-    }
 
     if (!path) {
       this.renderHome();
@@ -343,7 +339,6 @@ export class Router {
         title: "Wykończenie i Inne",
         ids: [
           "laminowanie",
-          "wydruki-specjalne",
           "artykuly-biurowe",
           "uslugi",
           "zamowienia-zewnetrzne",
@@ -365,12 +360,6 @@ export class Router {
         id: "zamowienia-zewnetrzne",
         name: "Zamówienia zewnętrzne",
         icon: "assets/icons/external-link.svg",
-        implemented: true,
-      },
-      "wydruki-specjalne": {
-        id: "wydruki-specjalne",
-        name: "Pojedyncze nakłady",
-        icon: "assets/icons/file-text.svg",
         implemented: true,
       },
     };
