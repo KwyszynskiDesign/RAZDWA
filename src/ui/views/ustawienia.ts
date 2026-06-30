@@ -3615,8 +3615,17 @@ export const UstawieniaView: View = {
       try {
         const allVariants = collectAllVariants();
         const variantsResult = await saveVariantsToAppsScript(allVariants);
+        if (variantsResult.noToken) {
+          clearAdminSession();
+          window.location.hash = "#/";
+          return;
+        }
+        if (!variantsResult.ok) {
+          showStatus("✗ Błąd zapisu wariantów do GAS.", "error");
+        }
       } catch (err) {
         console.error("Błąd wysyłki wariantów do Apps Script:", err);
+        showStatus("✗ Błąd zapisu wariantów do GAS.", "error");
       }
     });
 
