@@ -25,7 +25,12 @@ import { uslugiCategory } from "../categories/uslugi";
 import { formatPLN } from "../core/money";
 import { EXPRESS_RATE, getExpressRate } from "../core/modifiers";
 import { Cart } from "../core/cart";
-import { customerDraftKey, touchDraftAlive, clearDraftSession, purgeStaleDraftSessions } from "../core/draftSession";
+import {
+  customerDraftKey,
+  touchDraftAlive,
+  clearDraftSession,
+  purgeStaleDraftSessions,
+} from "../core/draftSession";
 import { isAdminSession, clearAdminSession } from "../core/adminSession";
 import { CartItem, CustomerData } from "../core/types";
 import { downloadExcel } from "./excel";

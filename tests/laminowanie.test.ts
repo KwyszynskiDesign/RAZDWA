@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  quoteLaminowanie,
-  quoteIntroligatornia,
-} from "../src/categories/laminowanie";
+import { quoteLaminowanie, quoteIntroligatornia } from "../src/categories/laminowanie";
 
 describe("Laminowanie", () => {
   it("should calculate price for A3 (1-50szt) = 7 PLN/szt", () => {
@@ -111,5 +108,4 @@ describe("Laminowanie", () => {
     expect(result.serviceId).toBe("dziurkowanie-powyzej-20");
     expect(result.totalPrice).toBe(0.5);
   });
-
 });

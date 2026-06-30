@@ -240,7 +240,6 @@ export class Router {
       window.history.replaceState(null, "", "#/druk-a4-a3");
     }
 
-
     if (!path) {
       this.renderHome();
       return;
@@ -337,12 +336,7 @@ export class Router {
       },
       {
         title: "Wykończenie i Inne",
-        ids: [
-          "laminowanie",
-          "artykuly-biurowe",
-          "uslugi",
-          "zamowienia-zewnetrzne",
-        ],
+        ids: ["laminowanie", "artykuly-biurowe", "uslugi", "zamowienia-zewnetrzne"],
       },
     ];
 
