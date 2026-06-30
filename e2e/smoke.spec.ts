@@ -15,7 +15,7 @@ test.describe("startup", () => {
   });
 
   test("sidebar navigation is visible", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/#/druk-a4-a3");
     await expect(page.locator(".category-sidebar")).toBeVisible();
     await expect(page.locator(".category-nav-button").first()).toBeVisible();
   });
