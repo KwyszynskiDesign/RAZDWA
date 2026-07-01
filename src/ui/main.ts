@@ -2420,8 +2420,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!remote) return;
 
       if (Object.keys(remote.prices).length > 0) {
-        // GAS jest source of truth — nadpisuje lokalny cennik przy każdym starcie
-        setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+        const hasLocalPrices = Boolean(localStorage.getItem(PRICES_STORAGE_KEY));
+        if (!hasLocalPrices) {
+          setPrice("defaultPrices", remote.prices as Record<string, number | null>);
+        }
         localStorage.setItem("razdwa_prices_ts", String(Date.now()));
       }
       if (remote.variants.length > 0) {

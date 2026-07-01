@@ -4,6 +4,7 @@ import {
   getOrderExportConfig,
   ORDER_EXPORT_CONFIG_KEY,
   savePricesToAppsScript,
+  saveVariantsToAppsScript,
   sendOrderToAppsScript,
   setOrderExportConfig,
 } from "../src/services/orderExportService";
@@ -549,5 +550,47 @@ describe("savePricesToAppsScript — dry-run", () => {
     await savePricesToAppsScript({}, { ...GAS_CONFIG, dryRun: false });
 
     expect(fetchSpy).toHaveBeenCalledOnce();
+  });
+});
+
+describe("saveVariantsToAppsScript — body validation", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    delete (globalThis as any).fetch;
+    delete (globalThis as any).sessionStorage;
+    (globalThis as any).sessionStorage = {
+      getItem: (k: string) => (k === "adminSessionToken" ? "test-session-token" : null),
+    };
+  });
+
+  it("body {ok:true} → result.ok=true, result.verified=true", async () => {
+    (globalThis as any).fetch = makeMockFetch(200, { ok: true, message: "Zapisano warianty" });
+
+    const result = await saveVariantsToAppsScript([], GAS_CONFIG);
+
+    expect(result.ok).toBe(true);
+    expect(result.verified).toBe(true);
+  });
+
+  it("body {ok:false, message} → result.ok=false, result.verified=true, message zachowany", async () => {
+    (globalThis as any).fetch = makeMockFetch(200, { ok: false, message: "Arkusz chroniony" });
+
+    const result = await saveVariantsToAppsScript([], GAS_CONFIG);
+
+    expect(result.ok).toBe(false);
+    expect(result.verified).toBe(true);
+    expect(result.message).toBe("Arkusz chroniony");
+  });
+
+  it("brak adminSessionToken → noToken=true, fetch nie wywołany", async () => {
+    delete (globalThis as any).sessionStorage;
+    const fetchSpy = vi.fn();
+    (globalThis as any).fetch = fetchSpy;
+
+    const result = await saveVariantsToAppsScript([], GAS_CONFIG);
+
+    expect(result.ok).toBe(false);
+    expect(result.noToken).toBe(true);
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 });

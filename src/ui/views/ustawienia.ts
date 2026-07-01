@@ -3556,10 +3556,10 @@ export const UstawieniaView: View = {
       flushInputs();
 
       // Commit draft variant definitions do localStorage przed zapisem cennika.
+      // _draftVariantDefs NIE jest czyszczone tutaj — dopiero po potwierdzeniu GAS.
       for (const dv of _draftVariantDefs) {
         upsertVariantDefinition(dv);
       }
-      _draftVariantDefs = [];
 
       // Iterujemy pełne prices (wszystkie kategorie), nie tylko widoczne wiersze DOM.
       // flushInputs() już zsynchronizował edytowalne pola aktywnej kategorii → prices.
@@ -3579,11 +3579,14 @@ export const UstawieniaView: View = {
       renderTabs();
       renderTable();
       syncAddCategorySelection();
-      updateDraftIndicator();
       ctx?.emit?.("prices-updated", { timestamp: Date.now() });
 
       showStatus("⏳ Zapisywanie do GAS…", "pending", true);
       renderPricesSync("saving");
+
+      let pricesOk = false;
+      let errorDetail: string | undefined;
+
       try {
         const flatPrices = buildFlatPrices(persisted);
         const result = await savePricesToAppsScript(flatPrices);
@@ -3592,26 +3595,14 @@ export const UstawieniaView: View = {
           window.location.hash = "#/";
           return;
         }
-        localStorage.setItem("razdwa_prices_ts", "0");
-        if (result.ok) {
-          try {
-            localStorage.setItem(PRICES_SYNCED_AT_KEY, new Date().toISOString());
-          } catch {
-            /* localStorage niedostępny — pomijamy */
-          }
-          renderPricesSync("synced");
-          updateSyncStatusBlock();
-          showStatus("✓ Zapisano cennik.");
-        } else {
-          renderPricesSync("error", result.message);
-          showStatus("✗ Błąd zapisu do GAS.", "error");
-        }
+        pricesOk = result.ok;
+        if (!result.ok) errorDetail = result.message;
       } catch (err) {
         console.error("Błąd wysyłki cennika do Apps Script:", err);
-        renderPricesSync("error", (err as Error)?.message);
-        showStatus("✗ Błąd zapisu do GAS.", "error");
+        errorDetail = (err as Error)?.message;
       }
 
+      let variantsOk = false;
       try {
         const allVariants = collectAllVariants();
         const variantsResult = await saveVariantsToAppsScript(allVariants);
@@ -3620,12 +3611,31 @@ export const UstawieniaView: View = {
           window.location.hash = "#/";
           return;
         }
-        if (!variantsResult.ok) {
-          showStatus("✗ Błąd zapisu wariantów do GAS.", "error");
-        }
+        variantsOk = variantsResult.ok;
+        if (!variantsResult.ok) errorDetail = variantsResult.message ?? errorDetail;
       } catch (err) {
         console.error("Błąd wysyłki wariantów do Apps Script:", err);
-        showStatus("✗ Błąd zapisu wariantów do GAS.", "error");
+        errorDetail = (err as Error)?.message ?? errorDetail;
+      }
+
+      if (pricesOk && variantsOk) {
+        try {
+          localStorage.setItem(PRICES_SYNCED_AT_KEY, new Date().toISOString());
+          localStorage.setItem("razdwa_prices_ts", "0");
+        } catch {
+          /* localStorage niedostępny — pomijamy */
+        }
+        renderPricesSync("synced");
+        updateSyncStatusBlock();
+        _draftVariantDefs = [];
+        updateDraftIndicator();
+        showStatus("✓ Zapisano cennik i warianty.");
+      } else {
+        const msg = !pricesOk
+          ? "✗ Błąd zapisu cennika do GAS."
+          : "✗ Błąd zapisu wariantów do GAS.";
+        renderPricesSync("error", errorDetail);
+        showStatus(msg, "error");
       }
     });
 
